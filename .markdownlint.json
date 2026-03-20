@@ -1,0 +1,9 @@
+{
+	"$schema": "https://raw.githubusercontent.com/DavidAnson/markdownlint/refs/heads/main/schema/markdownlint-config-schema.json",
+	"default": true,
+	"no-hard-tabs": { "code_blocks": false },
+	"no-bare-urls": false,
+	"fenced-code-language": false,
+	"blanks-around-fences": false,
+	"heading-increment": false
+}

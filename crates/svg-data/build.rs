@@ -288,7 +288,13 @@ fn fetch_compat_data(out_dir: &Path) -> CompatData {
                 .and_then(|v| v.as_bool())
                 .unwrap_or(false);
             let baseline = extract_baseline(compat, &wf_features);
-            attr_map.insert(attr_name.clone(), CompatEntry { deprecated, baseline });
+            attr_map.insert(
+                attr_name.clone(),
+                CompatEntry {
+                    deprecated,
+                    baseline,
+                },
+            );
         }
     }
 

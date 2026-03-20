@@ -480,7 +480,14 @@ impl LanguageServer for SvgLanguageServer {
             .sum();
         let byte_offset = line_start + byte_col;
 
-        let node = deepest_node_at(&doc.tree, byte_offset);
+        let raw_node = deepest_node_at(&doc.tree, byte_offset);
+        // Anonymous nodes (string literals like "font-size") need to be resolved
+        // to their named parent (e.g. length_attribute_name).
+        let node = if !raw_node.is_named() {
+            raw_node.parent().unwrap_or(raw_node)
+        } else {
+            raw_node
+        };
         let kind = node.kind();
 
         // Element name hover

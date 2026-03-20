@@ -1,6 +1,5 @@
 [workspace]
 package.edition    = "2024"
-package.readme     = "README.md"
 package.repository = "https://github.com/kjanat/svg-language-server"
 package.keywords   = ["svg"]
 package.categories = ["development-tools"]

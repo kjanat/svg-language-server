@@ -7,3 +7,5 @@ readme.workspace      = true
 repository.workspace  = true
 
 [dependencies]
+tree-sitter.workspace     = true
+tree-sitter-svg.workspace = true

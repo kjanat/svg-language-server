@@ -1,0 +1,472 @@
+[
+  {
+    "name": "fill",
+    "description": "Defines the color used to paint the interior of the element.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/fill",
+    "deprecated": false,
+    "values": { "type": "color" },
+    "elements": ["*"]
+  },
+  {
+    "name": "stroke",
+    "description": "Defines the color used to paint the outline of the element.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke",
+    "deprecated": false,
+    "values": { "type": "color" },
+    "elements": ["*"]
+  },
+  {
+    "name": "stroke-width",
+    "description": "Defines the width of the stroke.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-width",
+    "deprecated": false,
+    "values": { "type": "length" },
+    "elements": ["*"]
+  },
+  {
+    "name": "stroke-linecap",
+    "description": "Defines the shape at the end of open subpaths.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-linecap",
+    "deprecated": false,
+    "values": { "type": "enum", "values": ["butt", "round", "square"] },
+    "elements": ["*"]
+  },
+  {
+    "name": "stroke-linejoin",
+    "description": "Defines the shape at the corners of stroked paths.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-linejoin",
+    "deprecated": false,
+    "values": { "type": "enum", "values": ["miter", "round", "bevel"] },
+    "elements": ["*"]
+  },
+  {
+    "name": "stroke-dasharray",
+    "description": "Defines the pattern of dashes and gaps for a stroke.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-dasharray",
+    "deprecated": false,
+    "values": { "type": "free_text" },
+    "elements": ["*"]
+  },
+  {
+    "name": "stroke-opacity",
+    "description": "Defines the opacity of the stroke.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-opacity",
+    "deprecated": false,
+    "values": { "type": "number_or_percentage" },
+    "elements": ["*"]
+  },
+  {
+    "name": "fill-opacity",
+    "description": "Defines the opacity of the fill.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/fill-opacity",
+    "deprecated": false,
+    "values": { "type": "number_or_percentage" },
+    "elements": ["*"]
+  },
+  {
+    "name": "opacity",
+    "description": "Defines the transparency of the element.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/opacity",
+    "deprecated": false,
+    "values": { "type": "number_or_percentage" },
+    "elements": ["*"]
+  },
+  {
+    "name": "fill-rule",
+    "description": "Defines the algorithm for determining the interior of a shape.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/fill-rule",
+    "deprecated": false,
+    "values": { "type": "enum", "values": ["nonzero", "evenodd"] },
+    "elements": ["*"]
+  },
+  {
+    "name": "clip-rule",
+    "description": "Defines the clipping algorithm.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/clip-rule",
+    "deprecated": false,
+    "values": { "type": "enum", "values": ["nonzero", "evenodd"] },
+    "elements": ["*"]
+  },
+  {
+    "name": "color",
+    "description": "Defines the value for the currentColor keyword.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/color",
+    "deprecated": false,
+    "values": { "type": "color" },
+    "elements": ["*"]
+  },
+  {
+    "name": "display",
+    "description": "Controls whether an element is rendered.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/display",
+    "deprecated": false,
+    "values": { "type": "enum", "values": ["inline", "block", "none"] },
+    "elements": ["*"]
+  },
+  {
+    "name": "visibility",
+    "description": "Controls the visibility of an element.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/visibility",
+    "deprecated": false,
+    "values": { "type": "enum", "values": ["visible", "hidden", "collapse"] },
+    "elements": ["*"]
+  },
+  {
+    "name": "font-family",
+    "description": "Specifies the font family.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-family",
+    "deprecated": false,
+    "values": { "type": "free_text" },
+    "elements": ["*"]
+  },
+  {
+    "name": "font-size",
+    "description": "Specifies the size of the font.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-size",
+    "deprecated": false,
+    "values": { "type": "length" },
+    "elements": ["*"]
+  },
+  {
+    "name": "font-weight",
+    "description": "Specifies the weight of the font.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-weight",
+    "deprecated": false,
+    "values": {
+      "type": "enum",
+      "values": ["normal", "bold", "bolder", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900"]
+    },
+    "elements": ["*"]
+  },
+  {
+    "name": "font-style",
+    "description": "Specifies the style of the font.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-style",
+    "deprecated": false,
+    "values": { "type": "enum", "values": ["normal", "italic", "oblique"] },
+    "elements": ["*"]
+  },
+  {
+    "name": "text-anchor",
+    "description": "Defines the alignment of text.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor",
+    "deprecated": false,
+    "values": { "type": "enum", "values": ["start", "middle", "end"] },
+    "elements": ["*"]
+  },
+  {
+    "name": "dominant-baseline",
+    "description": "Defines the dominant baseline.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/dominant-baseline",
+    "deprecated": false,
+    "values": {
+      "type": "enum",
+      "values": ["auto", "text-bottom", "alphabetic", "ideographic", "middle", "central", "mathematical", "hanging", "text-top"]
+    },
+    "elements": ["*"]
+  },
+  {
+    "name": "text-decoration",
+    "description": "Specifies text decoration.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-decoration",
+    "deprecated": false,
+    "values": { "type": "enum", "values": ["none", "underline", "overline", "line-through"] },
+    "elements": ["*"]
+  },
+  {
+    "name": "clip-path",
+    "description": "Defines a clipping path.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/clip-path",
+    "deprecated": false,
+    "values": { "type": "url" },
+    "elements": ["*"]
+  },
+  {
+    "name": "mask",
+    "description": "Defines a mask.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/mask",
+    "deprecated": false,
+    "values": { "type": "url" },
+    "elements": ["*"]
+  },
+  {
+    "name": "filter",
+    "description": "Defines a filter effect.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/filter",
+    "deprecated": false,
+    "values": { "type": "url" },
+    "elements": ["*"]
+  },
+  {
+    "name": "transform",
+    "description": "Defines a transformation.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform",
+    "deprecated": false,
+    "values": {
+      "type": "transform",
+      "functions": ["translate", "rotate", "scale", "skewX", "skewY", "matrix"]
+    },
+    "elements": ["*"]
+  },
+  {
+    "name": "overflow",
+    "description": "Controls overflow behavior.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/overflow",
+    "deprecated": false,
+    "values": { "type": "enum", "values": ["visible", "hidden", "scroll", "auto"] },
+    "elements": ["*"]
+  },
+  {
+    "name": "pointer-events",
+    "description": "Controls when the element responds to pointer events.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/pointer-events",
+    "deprecated": false,
+    "values": {
+      "type": "enum",
+      "values": ["auto", "none", "visiblePainted", "visibleFill", "visibleStroke", "visible", "painted", "fill", "stroke", "all"]
+    },
+    "elements": ["*"]
+  },
+  {
+    "name": "id",
+    "description": "Defines a unique identifier.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/id",
+    "deprecated": false,
+    "values": { "type": "free_text" },
+    "elements": ["*"]
+  },
+  {
+    "name": "class",
+    "description": "Assigns CSS class names.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/class",
+    "deprecated": false,
+    "values": { "type": "free_text" },
+    "elements": ["*"]
+  },
+  {
+    "name": "style",
+    "description": "Defines inline CSS styles.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/style",
+    "deprecated": false,
+    "values": { "type": "free_text" },
+    "elements": ["*"]
+  },
+  {
+    "name": "d",
+    "description": "Defines a path to be drawn.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d",
+    "deprecated": false,
+    "values": { "type": "path_data" },
+    "elements": ["path"]
+  },
+  {
+    "name": "viewBox",
+    "description": "Defines the SVG viewport coordinates.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/viewBox",
+    "deprecated": false,
+    "values": { "type": "viewbox" },
+    "elements": ["svg", "symbol", "pattern", "marker"]
+  },
+  {
+    "name": "preserveAspectRatio",
+    "description": "Defines how the viewBox scales to fit the viewport.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/preserveAspectRatio",
+    "deprecated": false,
+    "values": {
+      "type": "preserve_aspect_ratio",
+      "alignments": ["none", "xMinYMin", "xMidYMin", "xMaxYMin", "xMinYMid", "xMidYMid", "xMaxYMid", "xMinYMax", "xMidYMax", "xMaxYMax"],
+      "meet_or_slice": ["meet", "slice"]
+    },
+    "elements": ["svg", "symbol", "image", "pattern", "marker"]
+  },
+  {
+    "name": "x",
+    "description": "Defines the x coordinate.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/x",
+    "deprecated": false,
+    "values": { "type": "length" },
+    "elements": ["svg", "rect", "use", "image", "foreignObject", "text", "tspan"]
+  },
+  {
+    "name": "y",
+    "description": "Defines the y coordinate.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/y",
+    "deprecated": false,
+    "values": { "type": "length" },
+    "elements": ["svg", "rect", "use", "image", "foreignObject", "text", "tspan"]
+  },
+  {
+    "name": "width",
+    "description": "Defines the width.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/width",
+    "deprecated": false,
+    "values": { "type": "length" },
+    "elements": ["svg", "rect", "use", "image", "foreignObject", "filter", "pattern", "mask"]
+  },
+  {
+    "name": "height",
+    "description": "Defines the height.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/height",
+    "deprecated": false,
+    "values": { "type": "length" },
+    "elements": ["svg", "rect", "use", "image", "foreignObject", "filter", "pattern", "mask"]
+  },
+  {
+    "name": "cx",
+    "description": "Defines the x coordinate of the center.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/cx",
+    "deprecated": false,
+    "values": { "type": "length" },
+    "elements": ["circle", "ellipse", "radialGradient"]
+  },
+  {
+    "name": "cy",
+    "description": "Defines the y coordinate of the center.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/cy",
+    "deprecated": false,
+    "values": { "type": "length" },
+    "elements": ["circle", "ellipse", "radialGradient"]
+  },
+  {
+    "name": "r",
+    "description": "Defines the radius.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/r",
+    "deprecated": false,
+    "values": { "type": "length" },
+    "elements": ["circle", "radialGradient"]
+  },
+  {
+    "name": "rx",
+    "description": "Defines the horizontal radius.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/rx",
+    "deprecated": false,
+    "values": { "type": "length" },
+    "elements": ["rect", "ellipse"]
+  },
+  {
+    "name": "ry",
+    "description": "Defines the vertical radius.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/ry",
+    "deprecated": false,
+    "values": { "type": "length" },
+    "elements": ["rect", "ellipse"]
+  },
+  {
+    "name": "x1",
+    "description": "Defines the first x coordinate.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/x1",
+    "deprecated": false,
+    "values": { "type": "length" },
+    "elements": ["line", "linearGradient"]
+  },
+  {
+    "name": "y1",
+    "description": "Defines the first y coordinate.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/y1",
+    "deprecated": false,
+    "values": { "type": "length" },
+    "elements": ["line", "linearGradient"]
+  },
+  {
+    "name": "x2",
+    "description": "Defines the second x coordinate.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/x2",
+    "deprecated": false,
+    "values": { "type": "length" },
+    "elements": ["line", "linearGradient"]
+  },
+  {
+    "name": "y2",
+    "description": "Defines the second y coordinate.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/y2",
+    "deprecated": false,
+    "values": { "type": "length" },
+    "elements": ["line", "linearGradient"]
+  },
+  {
+    "name": "points",
+    "description": "Defines the list of points.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/points",
+    "deprecated": false,
+    "values": { "type": "points" },
+    "elements": ["polyline", "polygon"]
+  },
+  {
+    "name": "href",
+    "description": "References another element or resource.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/href",
+    "deprecated": false,
+    "values": { "type": "url" },
+    "elements": ["use", "image", "a", "textPath", "linearGradient", "radialGradient", "pattern", "script"]
+  },
+  {
+    "name": "stop-color",
+    "description": "Defines the color of a gradient stop.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stop-color",
+    "deprecated": false,
+    "values": { "type": "color" },
+    "elements": ["stop"]
+  },
+  {
+    "name": "stop-opacity",
+    "description": "Defines the opacity of a gradient stop.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stop-opacity",
+    "deprecated": false,
+    "values": { "type": "number_or_percentage" },
+    "elements": ["stop"]
+  },
+  {
+    "name": "offset",
+    "description": "Defines the position of a gradient stop.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/offset",
+    "deprecated": false,
+    "values": { "type": "number_or_percentage" },
+    "elements": ["stop"]
+  },
+  {
+    "name": "gradientUnits",
+    "description": "Defines the coordinate system for gradient attributes.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/gradientUnits",
+    "deprecated": false,
+    "values": { "type": "enum", "values": ["userSpaceOnUse", "objectBoundingBox"] },
+    "elements": ["linearGradient", "radialGradient"]
+  },
+  {
+    "name": "gradientTransform",
+    "description": "Defines a transformation for the gradient.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/gradientTransform",
+    "deprecated": false,
+    "values": {
+      "type": "transform",
+      "functions": ["translate", "rotate", "scale", "skewX", "skewY", "matrix"]
+    },
+    "elements": ["linearGradient", "radialGradient"]
+  },
+  {
+    "name": "spreadMethod",
+    "description": "Defines how the gradient spreads beyond its bounds.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/spreadMethod",
+    "deprecated": false,
+    "values": { "type": "enum", "values": ["pad", "reflect", "repeat"] },
+    "elements": ["linearGradient", "radialGradient"]
+  },
+  {
+    "name": "in",
+    "description": "Identifies the input for the filter primitive.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/in",
+    "deprecated": false,
+    "values": {
+      "type": "enum",
+      "values": ["SourceGraphic", "SourceAlpha", "BackgroundImage", "BackgroundAlpha", "FillPaint", "StrokePaint"]
+    },
+    "elements": ["feGaussianBlur", "feBlend", "feColorMatrix", "feComposite", "feConvolveMatrix", "feDiffuseLighting", "feDisplacementMap", "feMorphology", "feOffset", "feSpecularLighting", "feTile"]
+  },
+  {
+    "name": "stdDeviation",
+    "description": "Defines the standard deviation for the blur.",
+    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stdDeviation",
+    "deprecated": false,
+    "values": { "type": "free_text" },
+    "elements": ["feGaussianBlur"]
+  }
+]

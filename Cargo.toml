@@ -14,6 +14,9 @@ tree-sitter      = "0.26"
 [workspace.dependencies.svg-color]
 path = "crates/svg-color"
 
+[workspace.dependencies.svg-data]
+path = "crates/svg-data"
+
 [workspace.dependencies.tokio]
 version  = "1"
 features = ["io-std", "macros", "rt-multi-thread"]

@@ -422,6 +422,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "svg-data"
+version = "0.1.0"
+
+[[package]]
 name = "svg-language-server"
 version = "0.1.0"
 dependencies = [

@@ -11,17 +11,20 @@ use tower_lsp_server::ls_types::{
 };
 use tower_lsp_server::{Client, LanguageServer, LspService, Server};
 
+/// Cache mapping (URI, start_line, start_character) to the original color kind.
+type ColorKindCache = Arc<RwLock<HashMap<(Uri, u32, u32), svg_color::ColorKind>>>;
+
 struct SvgLanguageServer {
-    client: Client,
+    _client: Client,
     documents: Arc<RwLock<HashMap<Uri, String>>>,
     /// Cache of (uri, start_line, start_character) → ColorKind from last document_color call.
-    color_kinds: Arc<RwLock<HashMap<(Uri, u32, u32), svg_color::ColorKind>>>,
+    color_kinds: ColorKindCache,
 }
 
 impl SvgLanguageServer {
     fn new(client: Client) -> Self {
         Self {
-            client,
+            _client: client,
             documents: Arc::new(RwLock::new(HashMap::new())),
             color_kinds: Arc::new(RwLock::new(HashMap::new())),
         }
@@ -174,6 +177,6 @@ async fn main() {
     let stdin = tokio::io::stdin();
     let stdout = tokio::io::stdout();
 
-    let (service, socket) = LspService::new(|client| SvgLanguageServer::new(client));
+    let (service, socket) = LspService::new(SvgLanguageServer::new);
     Server::new(stdin, stdout, socket).serve(service).await;
 }

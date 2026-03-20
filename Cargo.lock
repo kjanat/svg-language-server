@@ -435,6 +435,7 @@ version = "0.1.0"
 dependencies = [
  "serde_json",
  "svg-color",
+ "svg-data",
  "svg-lint",
  "tokio",
  "tower-lsp-server",

@@ -118,21 +118,18 @@ fn ensure_cached(url: &str, dest: &Path, offline: bool) -> Result<bool, String> 
     }
 
     // Check if existing cache is fresh enough.
-    if dest.exists() {
-        if let Ok(meta) = fs::metadata(dest) {
-            if let Ok(modified) = meta.modified() {
-                if let Ok(age) = SystemTime::now().duration_since(modified) {
-                    if age.as_secs() < CACHE_MAX_AGE_SECS {
-                        println!(
-                            "cargo::warning=compat: using cached {} (age {}s)",
-                            dest.display(),
-                            age.as_secs()
-                        );
-                        return Ok(true);
-                    }
-                }
-            }
-        }
+    if dest.exists()
+        && let Ok(meta) = fs::metadata(dest)
+        && let Ok(modified) = meta.modified()
+        && let Ok(age) = SystemTime::now().duration_since(modified)
+        && age.as_secs() < CACHE_MAX_AGE_SECS
+    {
+        println!(
+            "cargo::warning=compat: using cached {} (age {}s)",
+            dest.display(),
+            age.as_secs()
+        );
+        return Ok(true);
     }
 
     println!("cargo::warning=compat: downloading {url}");

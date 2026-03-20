@@ -36,6 +36,26 @@ Rationale: separate crates for incremental build times. `svg-data` rarely
 changes (generated catalog). `svg-lint` changes when diagnostic rules evolve.
 The LSP crate wires completions, hover, and diagnostics to the protocol.
 
+### Shared Tree Lifecycle
+
+The LSP crate parses each document **once** on `did_open` / `did_change` and
+stores the `tree_sitter::Tree` alongside the source text. All consumers
+receive a reference to the shared tree:
+
+```rust
+struct DocumentState {
+    source: String,
+    tree: tree_sitter::Tree,
+}
+
+// In SvgLanguageServer:
+documents: Arc<RwLock<HashMap<Uri, DocumentState>>>,
+```
+
+This eliminates duplicate parsing across `svg-color::extract_colors_from_tree`,
+`svg-lint::lint_tree`, completion context detection, and hover lookups. The
+`Parser` instance is owned by the server and reused across documents.
+
 ## Crate: `svg-data`
 
 ### Data Model
@@ -47,10 +67,20 @@ pub struct ElementDef {
     pub mdn_url: &'static str,
     pub deprecated: bool,
     pub baseline: Option<BaselineStatus>,
-    pub allowed_children: &'static [ElementCategory],
+    pub content_model: ContentModel,
     pub required_attrs: &'static [&'static str],
-    pub attrs: &'static [&'static str],
-    pub global_attrs: bool,
+    pub attrs: &'static [&'static str], // element-specific attr names
+    pub global_attrs: bool,             // accepts presentation attrs
+}
+
+/// Whether an element is a container, void, or text-content element.
+pub enum ContentModel {
+    /// Can contain child elements from these categories.
+    Children(&'static [ElementCategory]),
+    /// Self-closing / void element (e.g. <rect/>, <circle/>).
+    Void,
+    /// Contains raw text content, no child elements (e.g. <title>, <desc>).
+    Text,
 }
 
 pub struct AttributeDef {
@@ -58,16 +88,37 @@ pub struct AttributeDef {
     pub description: &'static str,
     pub mdn_url: &'static str,
     pub deprecated: bool,
+    pub baseline: Option<BaselineStatus>,
     pub values: AttributeValues,
     pub elements: &'static [&'static str],
 }
 
 pub enum AttributeValues {
+    /// Enumerated keywords (e.g. stroke-linecap: butt|round|square).
     Enum(&'static [&'static str]),
+    /// Free-form text (e.g. id, class).
     FreeText,
+    /// Color value — delegates to svg-color for parsing.
     Color,
+    /// Length or percentage (e.g. x, width, r).
     Length,
+    /// URL / IRI reference (e.g. href, xlink:href).
     Url,
+    /// Number or percentage (e.g. opacity, fill-opacity).
+    NumberOrPercentage,
+    /// Transform function list (e.g. rotate(45) translate(10,20)).
+    Transform(&'static [&'static str]), // valid function names
+    /// viewBox: four space-separated numbers.
+    ViewBox,
+    /// preserveAspectRatio: alignment + meetOrSlice.
+    PreserveAspectRatio {
+        alignments: &'static [&'static str],
+        meet_or_slice: &'static [&'static str],
+    },
+    /// Coordinate pair list (e.g. points on <polygon>, <polyline>).
+    Points,
+    /// SVG path data (d attribute).
+    PathData,
 }
 
 pub enum BaselineStatus {
@@ -95,42 +146,80 @@ pub enum ElementCategory {
 ### Data Sources
 
 1. **`@mdn/browser-compat-data`** — `build.rs` fetches and parses the npm
-   package JSON at build time, generating `svg_elements.rs` and
-   `svg_attributes.rs` with `deprecated` and `baseline` fields.
+   package JSON at build time, generating Rust code with `deprecated` and
+   `baseline` fields for elements and attributes.
 2. **Curated catalog** — element/attribute descriptions and content models
    maintained in a TOML/JSON file in the repo. Content models derived from
    the SVG 1.1 DTD and SVG 2 spec prose.
-3. **Runtime refresh** — on `initialize`, optionally fetch latest compat
-   data from `https://unpkg.com/@mdn/browser-compat-data/data.json`.
-   Overlay onto baked-in data. 5s timeout, non-blocking. Cache locally
-   for 24h. Silent fallback to baked-in on failure.
+3. **Runtime refresh** — on `initialize`, spawn a background task that
+   fetches latest compat data from
+   `https://unpkg.com/@mdn/browser-compat-data/data.json`. 5s timeout.
+   Cache to disk for 24h. Silent fallback to baked-in on failure, log
+   via `window/logMessage`.
+
+   **Lifetime model for runtime data:** The baked-in catalog uses
+   `&'static` references. Runtime-fetched compat updates are stored in a
+   separate `CompatOverlay` map (`HashMap<&'static str, CompatUpdate>`)
+   that only overrides `deprecated` and `baseline` fields. Lookup
+   functions check the overlay first, falling back to the static data.
+   The overlay is owned by the LSP server and passed to lookup functions
+   by reference — no `Box::leak` needed.
 
 ### Public API
 
 ```rust
+/// Lookup an element definition by name.
 pub fn element(name: &str) -> Option<&'static ElementDef>;
+
+/// Lookup an attribute definition by name.
 pub fn attribute(name: &str) -> Option<&'static AttributeDef>;
+
+/// All known SVG element definitions.
 pub fn elements() -> &'static [ElementDef];
-pub fn allowed_children(parent: &str) -> &'static [&'static str];
+
+/// Map an ElementCategory to concrete element names.
+pub fn elements_in_category(cat: ElementCategory) -> &'static [&'static str];
+
+/// Concrete element names allowed as children of the given parent.
+/// Resolves ElementCategory values in the parent's content model to names.
+/// Returns an empty slice for void or text-content elements.
+pub fn allowed_children(parent: &str) -> Vec<&'static str>;
+
+/// All attributes valid for the given element (element-specific + globals).
 pub fn attributes_for(element: &str) -> Vec<&'static AttributeDef>;
 ```
 
+Note: `allowed_children` and `attributes_for` return `Vec` because they
+merge multiple sources at runtime (categories → names, element-specific +
+global attrs). The allocation is negligible for LSP request handling.
+
 ## Crate: `svg-lint`
+
+Dependencies: `svg-data`, `tree-sitter`, `tree-sitter-svg`.
 
 ### Diagnostic Types
 
 ```rust
 pub struct SvgDiagnostic {
-    pub range: std::ops::Range<usize>,
+    /// Byte offset range in source (for slicing source text).
+    pub byte_range: std::ops::Range<usize>,
+    /// Start position — row and byte-offset column (from tree-sitter Point).
     pub start_row: usize,
     pub start_col: usize,
+    /// End position — row and byte-offset column.
     pub end_row: usize,
     pub end_col: usize,
     pub severity: Severity,
     pub code: DiagnosticCode,
     pub message: String,
 }
+```
 
+**Position convention:** `start_col` / `end_col` are byte offsets within the
+line, matching tree-sitter's `Point::column`. The LSP crate converts these
+to UTF-16 code units using the existing `byte_col_to_utf16` helper.
+
+```rust
 pub enum Severity {
     Error,
     Warning,
@@ -152,13 +241,16 @@ pub enum DiagnosticCode {
 ### Analysis Pipeline
 
 ```rust
+/// Convenience: parse source and lint.
 pub fn lint(source: &[u8]) -> Vec<SvgDiagnostic>;
+
+/// Lint an already-parsed tree (avoids re-parsing in the LSP server).
 pub fn lint_tree(source: &[u8], tree: &tree_sitter::Tree) -> Vec<SvgDiagnostic>;
 ```
 
 Walk every `element` and `svg_root_element` node:
 
-1. Extract element name from `start_tag > name`
+1. Extract element name from `start_tag > name` or `self_closing_tag > name`
 2. Look up `ElementDef` — if missing: `UnknownElement`
 3. Check `deprecated` — if true: `DeprecatedElement` (Warning)
 4. Check each attribute against `attributes_for(element)` — if unknown:
@@ -170,7 +262,9 @@ Walk every `element` and `svg_root_element` node:
 
 ## LSP: Completions
 
-Implements `textDocument/completion`.
+Implements `textDocument/completion`. All fields populated eagerly (no
+`completionItem/resolve` — the catalog is small enough that full items
+are cheap to build).
 
 ### Trigger Points
 
@@ -188,18 +282,24 @@ Implements `textDocument/completion`.
 - `detail`: short description
 - `documentation`: markdown with baseline + MDN link
 - `deprecated`: boolean (strikethrough rendering)
-- `insert_text`: elements get closing tag snippet where appropriate
+- `insert_text`: void elements get `<name />`, containers get `<name>$0</name>`
 
 ### Context Detection
 
-Use tree-sitter tree at cursor position:
+Use tree-sitter tree at cursor position. Relevant node kinds:
 
-1. Find node at position
-2. Walk up to determine context (inside start tag, attribute value, between
-   tags)
-3. Select completion strategy
+| Node kind                                           | Cursor context     | Completion type  |
+| --------------------------------------------------- | ------------------ | ---------------- |
+| Between `element`/`svg_root_element` children       | Between tags       | Element names    |
+| Inside `start_tag` after name and attributes        | Attribute position | Attribute names  |
+| Inside `self_closing_tag` after name and attributes | Attribute position | Attribute names  |
+| Inside attribute value (quoted string)              | Value position     | Attribute values |
 
-Trigger characters: `<`, ``, `"`, `'`.
+Walk up from the node at cursor position to determine which context applies.
+
+Trigger characters: `<`, ``, `"`, `'`. Space triggers are filtered: only
+return completions when space follows a tag name or attribute value (not
+between arbitrary tokens).
 
 ## LSP: Hover
 
@@ -207,11 +307,11 @@ Implements `textDocument/hover`.
 
 ### Targets
 
-| Node            | Content                                 |
-| --------------- | --------------------------------------- |
-| Element name    | Description + baseline + MDN link       |
-| Attribute name  | Description + allowed values + MDN link |
-| Attribute value | Value description (if enumerated)       |
+| Hovered node kind                                          | Content                                                      |
+| ---------------------------------------------------------- | ------------------------------------------------------------ |
+| `name` inside `start_tag` / `end_tag` / `self_closing_tag` | Element description + baseline + MDN link                    |
+| Attribute name node                                        | Attribute description + baseline + allowed values + MDN link |
+| Attribute value (if enumerated)                            | Value description                                            |
 
 ### Format
 
@@ -238,7 +338,11 @@ Deprecated element hover:
 ## LSP: Diagnostics
 
 Push-based via `client.publish_diagnostics()`. Recalculated on every
-`did_open` and `did_change`. Maps `SvgDiagnostic` to `ls_types::Diagnostic`.
+`did_open` and `did_change`. Maps `SvgDiagnostic` to `ls_types::Diagnostic`
+using `byte_col_to_utf16` for position conversion.
+
+The `_client` field in `SvgLanguageServer` gets renamed to `client` and
+is used for `publish_diagnostics()` and `log_message()` (compat refresh).
 
 ## LSP Capabilities
 
@@ -256,11 +360,11 @@ ServerCapabilities {
 
 ## Testing
 
-| Crate                 | Tests                                                                                                                      |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `svg-data`            | `element("rect")` returns correct def; `allowed_children("text")` includes `tspan`; `attribute("fill")` returns Color type |
-| `svg-lint`            | Small SVG snippets → expected diagnostics (TDD per `DiagnosticCode`); valid SVGs produce zero diagnostics                  |
-| `svg-language-server` | JSON-RPC integration: completion, hover, diagnostic responses                                                              |
+| Crate                 | Tests                                                                                                                                                                                                                          |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `svg-data`            | `element("rect")` returns correct def; `allowed_children("text")` includes `tspan` but not `rect`; `attribute("fill").values` is `Color`; `attributes_for("path")` includes `d`; `elements_in_category(Shape)` includes `rect` |
+| `svg-lint`            | Small SVG snippets → expected diagnostics (TDD per `DiagnosticCode`); valid SVGs produce zero diagnostics                                                                                                                      |
+| `svg-language-server` | JSON-RPC integration: completion, hover, diagnostic responses                                                                                                                                                                  |
 
 ## Non-Goals
 
@@ -275,3 +379,4 @@ ServerCapabilities {
 - Attribute value validation beyond enumerated values (e.g. path `d` syntax)
 - Cross-file analysis (`<use href="other.svg#id">`)
 - Quick-fix code actions (auto-fix diagnostics)
+- `completionItem/resolve` (not needed while catalog is small)

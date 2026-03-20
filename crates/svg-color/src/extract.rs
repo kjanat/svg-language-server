@@ -1,4 +1,7 @@
-use crate::{named_colors, parse, types::{ColorInfo, ColorKind}};
+use crate::{
+    named_colors, parse,
+    types::{ColorInfo, ColorKind},
+};
 use tree_sitter::{Parser, Tree, TreeCursor};
 
 /// Extract all colors from SVG source text.
@@ -38,11 +41,7 @@ fn walk(cursor: &mut TreeCursor<'_>, source: &[u8], out: &mut Vec<ColorInfo>) {
     }
 }
 
-fn try_extract(
-    kind: &str,
-    node: tree_sitter::Node<'_>,
-    source: &[u8],
-) -> Option<ColorInfo> {
+fn try_extract(kind: &str, node: tree_sitter::Node<'_>, source: &[u8]) -> Option<ColorInfo> {
     let byte_range = node.byte_range();
     let text = std::str::from_utf8(&source[byte_range.clone()]).ok()?;
     let start = node.start_position();

@@ -94,10 +94,7 @@ fn lsp_end_to_end() {
         loop {
             let remaining = deadline.saturating_duration_since(std::time::Instant::now());
             if remaining.is_zero() {
-                panic!(
-                    "timed out waiting for response with id {}",
-                    expected_id
-                );
+                panic!("timed out waiting for response with id {}", expected_id);
             }
             match rx.recv_timeout(remaining) {
                 Ok(msg) => {
@@ -107,13 +104,13 @@ fn lsp_end_to_end() {
                     // notification or wrong id — skip
                 }
                 Err(std::sync::mpsc::RecvTimeoutError::Timeout) => {
-                    panic!(
-                        "timed out waiting for response with id {}",
-                        expected_id
-                    );
+                    panic!("timed out waiting for response with id {}", expected_id);
                 }
                 Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => {
-                    panic!("reader thread disconnected while waiting for id {}", expected_id);
+                    panic!(
+                        "reader thread disconnected while waiting for id {}",
+                        expected_id
+                    );
                 }
             }
         }
@@ -302,9 +299,7 @@ fn lsp_end_to_end() {
     // Close stdin so the server can terminate.
     drop(stdin);
 
-    let exit_status = child
-        .wait()
-        .expect("wait for server process");
+    let exit_status = child.wait().expect("wait for server process");
     assert!(
         exit_status.success(),
         "server exited with non-zero status: {exit_status}"

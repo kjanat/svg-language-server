@@ -44,9 +44,7 @@ fn byte_col_to_utf16(source: &[u8], row: usize, byte_col: usize) -> u32 {
 
     let end = (line_start + byte_col).min(source.len());
     let line_bytes = &source[line_start..end];
-    String::from_utf8_lossy(line_bytes)
-        .encode_utf16()
-        .count() as u32
+    String::from_utf8_lossy(line_bytes).encode_utf16().count() as u32
 }
 
 impl LanguageServer for SvgLanguageServer {
@@ -90,10 +88,7 @@ impl LanguageServer for SvgLanguageServer {
             .remove(&params.text_document.uri);
     }
 
-    async fn document_color(
-        &self,
-        params: DocumentColorParams,
-    ) -> Result<Vec<ColorInformation>> {
+    async fn document_color(&self, params: DocumentColorParams) -> Result<Vec<ColorInformation>> {
         let docs = self.documents.read().await;
         let Some(source) = docs.get(&params.text_document.uri) else {
             return Ok(Vec::new());
@@ -112,7 +107,11 @@ impl LanguageServer for SvgLanguageServer {
                 let end_char = byte_col_to_utf16(source_bytes, c.end_row, c.end_col);
 
                 kinds.insert(
-                    (params.text_document.uri.clone(), c.start_row as u32, start_char),
+                    (
+                        params.text_document.uri.clone(),
+                        c.start_row as u32,
+                        start_char,
+                    ),
                     c.kind,
                 );
 

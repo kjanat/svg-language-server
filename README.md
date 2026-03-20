@@ -9,12 +9,12 @@ Minimal LSP server providing inline color swatches and color picker for SVG pain
 
 ## Supported Color Formats
 
-| Format | Example |
-|--------|---------|
-| Hex | `#ff0000`, `#f00`, `#ff000080` |
-| RGB/RGBA | `rgb(255, 0, 0)`, `rgba(255, 0, 0, 0.5)` |
+| Format   | Example                                        |
+| -------- | ---------------------------------------------- |
+| Hex      | `#ff0000`, `#f00`, `#ff000080`                 |
+| RGB/RGBA | `rgb(255, 0, 0)`, `rgba(255, 0, 0, 0.5)`       |
 | HSL/HSLA | `hsl(0, 100%, 50%)`, `hsla(0, 100%, 50%, 0.5)` |
-| Named | `red`, `cornflowerblue` (148 CSS named colors) |
+| Named    | `red`, `cornflowerblue` (148 CSS named colors) |
 
 ## Install
 

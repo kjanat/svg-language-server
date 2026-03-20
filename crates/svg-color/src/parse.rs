@@ -204,7 +204,10 @@ mod tests {
 
     #[test]
     fn hex_4_digit_alpha() {
-        assert_eq!(parse_hex("#f008"), Some((1.0, 0.0, 0.0, 0x88 as f32 / 255.0)));
+        assert_eq!(
+            parse_hex("#f008"),
+            Some((1.0, 0.0, 0.0, 0x88 as f32 / 255.0))
+        );
     }
 
     #[test]
@@ -216,7 +219,7 @@ mod tests {
     #[test]
     fn hex_invalid() {
         assert_eq!(parse_hex("#gg0000"), None);
-        assert_eq!(parse_hex("#ff"), None);    // 2 digits — invalid length
+        assert_eq!(parse_hex("#ff"), None); // 2 digits — invalid length
         assert_eq!(parse_hex("ff0000"), None); // missing #
         assert_eq!(parse_hex(""), None);
     }
@@ -225,8 +228,14 @@ mod tests {
 
     #[test]
     fn rgb_integers() {
-        assert_eq!(parse_functional("rgb(255, 0, 0)"), Some((1.0, 0.0, 0.0, 1.0)));
-        assert_eq!(parse_functional("rgb(0,128,255)"), Some((0.0, 128.0/255.0, 1.0, 1.0)));
+        assert_eq!(
+            parse_functional("rgb(255, 0, 0)"),
+            Some((1.0, 0.0, 0.0, 1.0))
+        );
+        assert_eq!(
+            parse_functional("rgb(0,128,255)"),
+            Some((0.0, 128.0 / 255.0, 1.0, 1.0))
+        );
     }
 
     #[test]
@@ -240,7 +249,10 @@ mod tests {
 
     #[test]
     fn rgb_percentages() {
-        assert_eq!(parse_functional("rgb(100%, 0%, 0%)"), Some((1.0, 0.0, 0.0, 1.0)));
+        assert_eq!(
+            parse_functional("rgb(100%, 0%, 0%)"),
+            Some((1.0, 0.0, 0.0, 1.0))
+        );
     }
 
     #[test]

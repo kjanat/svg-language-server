@@ -15,6 +15,7 @@
 ### Task 1: Wire up `svg-color` dependencies and core types
 
 **Files:**
+
 - Modify: `crates/svg-color/Cargo.toml`
 - Modify: `crates/svg-color/src/lib.rs`
 - Create: `crates/svg-color/src/types.rs`
@@ -22,6 +23,7 @@
 - [ ] **Step 1: Add dependencies to svg-color**
 
 In `crates/svg-color/Cargo.toml`, add:
+
 ```toml
 [dependencies]
 tree-sitter.workspace     = true
@@ -31,6 +33,7 @@ tree-sitter-svg.workspace = true
 - [ ] **Step 2: Define core types**
 
 Create `crates/svg-color/src/types.rs`:
+
 ```rust
 use std::ops::Range;
 
@@ -59,6 +62,7 @@ pub enum ColorKind {
 - [ ] **Step 3: Update lib.rs**
 
 Replace placeholder in `crates/svg-color/src/lib.rs`:
+
 ```rust
 pub mod types;
 
@@ -82,12 +86,14 @@ git commit -m "feat(svg-color): core types for color extraction"
 ### Task 2: Named color lookup table
 
 **Files:**
+
 - Create: `crates/svg-color/src/named_colors.rs`
 - Modify: `crates/svg-color/src/lib.rs`
 
 - [ ] **Step 1: Write failing test**
 
 Add to `crates/svg-color/src/named_colors.rs`:
+
 ```rust
 /// Lookup a CSS named color, returning (r, g, b) as f32 values 0.0–1.0.
 /// Returns `None` for unknown names.
@@ -106,7 +112,10 @@ mod tests {
         assert_eq!(lookup("blue"), Some((0.0, 0.0, 1.0)));
         assert_eq!(lookup("white"), Some((1.0, 1.0, 1.0)));
         assert_eq!(lookup("black"), Some((0.0, 0.0, 0.0)));
-        assert_eq!(lookup("coral"), Some((255.0 / 255.0, 127.0 / 255.0, 80.0 / 255.0)));
+        assert_eq!(
+            lookup("coral"),
+            Some((255.0 / 255.0, 127.0 / 255.0, 80.0 / 255.0))
+        );
     }
 
     #[test]
@@ -126,39 +135,154 @@ mod tests {
     fn all_148_colors_present() {
         // Spot check that the table has all CSS named colors
         let expected = [
-            "aliceblue", "antiquewhite", "aqua", "aquamarine", "azure",
-            "beige", "bisque", "black", "blanchedalmond", "blue",
-            "blueviolet", "brown", "burlywood", "cadetblue", "chartreuse",
-            "chocolate", "coral", "cornflowerblue", "cornsilk", "crimson",
-            "cyan", "darkblue", "darkcyan", "darkgoldenrod", "darkgray",
-            "darkgreen", "darkgrey", "darkkhaki", "darkmagenta",
-            "darkolivegreen", "darkorange", "darkorchid", "darkred",
-            "darksalmon", "darkseagreen", "darkslateblue", "darkslategray",
-            "darkslategrey", "darkturquoise", "darkviolet", "deeppink",
-            "deepskyblue", "dimgray", "dimgrey", "dodgerblue", "firebrick",
-            "floralwhite", "forestgreen", "fuchsia", "gainsboro",
-            "ghostwhite", "gold", "goldenrod", "gray", "green",
-            "greenyellow", "grey", "honeydew", "hotpink", "indianred",
-            "indigo", "ivory", "khaki", "lavender", "lavenderblush",
-            "lawngreen", "lemonchiffon", "lightblue", "lightcoral",
-            "lightcyan", "lightgoldenrodyellow", "lightgray", "lightgreen",
-            "lightgrey", "lightpink", "lightsalmon", "lightseagreen",
-            "lightskyblue", "lightslategray", "lightslategrey",
-            "lightsteelblue", "lightyellow", "lime", "limegreen", "linen",
-            "magenta", "maroon", "mediumaquamarine", "mediumblue",
-            "mediumorchid", "mediumpurple", "mediumseagreen",
-            "mediumslateblue", "mediumspringgreen", "mediumturquoise",
-            "mediumvioletred", "midnightblue", "mintcream", "mistyrose",
-            "moccasin", "navajowhite", "navy", "oldlace", "olive",
-            "olivedrab", "orange", "orangered", "orchid", "palegoldenrod",
-            "palegreen", "paleturquoise", "palevioletred", "papayawhip",
-            "peachpuff", "peru", "pink", "plum", "powderblue", "purple",
-            "rebeccapurple", "red", "rosybrown", "royalblue",
-            "saddlebrown", "salmon", "sandybrown", "seagreen", "seashell",
-            "sienna", "silver", "skyblue", "slateblue", "slategray",
-            "slategrey", "snow", "springgreen", "steelblue", "tan",
-            "teal", "thistle", "tomato", "turquoise", "violet", "wheat",
-            "white", "whitesmoke", "yellow", "yellowgreen",
+            "aliceblue",
+            "antiquewhite",
+            "aqua",
+            "aquamarine",
+            "azure",
+            "beige",
+            "bisque",
+            "black",
+            "blanchedalmond",
+            "blue",
+            "blueviolet",
+            "brown",
+            "burlywood",
+            "cadetblue",
+            "chartreuse",
+            "chocolate",
+            "coral",
+            "cornflowerblue",
+            "cornsilk",
+            "crimson",
+            "cyan",
+            "darkblue",
+            "darkcyan",
+            "darkgoldenrod",
+            "darkgray",
+            "darkgreen",
+            "darkgrey",
+            "darkkhaki",
+            "darkmagenta",
+            "darkolivegreen",
+            "darkorange",
+            "darkorchid",
+            "darkred",
+            "darksalmon",
+            "darkseagreen",
+            "darkslateblue",
+            "darkslategray",
+            "darkslategrey",
+            "darkturquoise",
+            "darkviolet",
+            "deeppink",
+            "deepskyblue",
+            "dimgray",
+            "dimgrey",
+            "dodgerblue",
+            "firebrick",
+            "floralwhite",
+            "forestgreen",
+            "fuchsia",
+            "gainsboro",
+            "ghostwhite",
+            "gold",
+            "goldenrod",
+            "gray",
+            "green",
+            "greenyellow",
+            "grey",
+            "honeydew",
+            "hotpink",
+            "indianred",
+            "indigo",
+            "ivory",
+            "khaki",
+            "lavender",
+            "lavenderblush",
+            "lawngreen",
+            "lemonchiffon",
+            "lightblue",
+            "lightcoral",
+            "lightcyan",
+            "lightgoldenrodyellow",
+            "lightgray",
+            "lightgreen",
+            "lightgrey",
+            "lightpink",
+            "lightsalmon",
+            "lightseagreen",
+            "lightskyblue",
+            "lightslategray",
+            "lightslategrey",
+            "lightsteelblue",
+            "lightyellow",
+            "lime",
+            "limegreen",
+            "linen",
+            "magenta",
+            "maroon",
+            "mediumaquamarine",
+            "mediumblue",
+            "mediumorchid",
+            "mediumpurple",
+            "mediumseagreen",
+            "mediumslateblue",
+            "mediumspringgreen",
+            "mediumturquoise",
+            "mediumvioletred",
+            "midnightblue",
+            "mintcream",
+            "mistyrose",
+            "moccasin",
+            "navajowhite",
+            "navy",
+            "oldlace",
+            "olive",
+            "olivedrab",
+            "orange",
+            "orangered",
+            "orchid",
+            "palegoldenrod",
+            "palegreen",
+            "paleturquoise",
+            "palevioletred",
+            "papayawhip",
+            "peachpuff",
+            "peru",
+            "pink",
+            "plum",
+            "powderblue",
+            "purple",
+            "rebeccapurple",
+            "red",
+            "rosybrown",
+            "royalblue",
+            "saddlebrown",
+            "salmon",
+            "sandybrown",
+            "seagreen",
+            "seashell",
+            "sienna",
+            "silver",
+            "skyblue",
+            "slateblue",
+            "slategray",
+            "slategrey",
+            "snow",
+            "springgreen",
+            "steelblue",
+            "tan",
+            "teal",
+            "thistle",
+            "tomato",
+            "turquoise",
+            "violet",
+            "wheat",
+            "white",
+            "whitesmoke",
+            "yellow",
+            "yellowgreen",
         ];
         for name in expected {
             assert!(lookup(name).is_some(), "missing named color: {name}");
@@ -188,6 +312,7 @@ Expected: all 4 tests PASS
 - [ ] **Step 5: Export module from lib.rs**
 
 Add to `crates/svg-color/src/lib.rs`:
+
 ```rust
 pub mod named_colors;
 ```
@@ -204,12 +329,14 @@ git commit -m "feat(svg-color): CSS named color lookup table"
 ### Task 3: Hex color parser
 
 **Files:**
+
 - Create: `crates/svg-color/src/parse.rs`
 - Modify: `crates/svg-color/src/lib.rs`
 
 - [ ] **Step 1: Write failing tests**
 
 Create `crates/svg-color/src/parse.rs`:
+
 ```rust
 use crate::types::{ColorInfo, ColorKind};
 use std::ops::Range;
@@ -253,7 +380,10 @@ mod tests {
 
     #[test]
     fn hex_4_digit_alpha() {
-        assert_eq!(parse_hex("#f008"), Some((1.0, 0.0, 0.0, 0x88 as f32 / 255.0)));
+        assert_eq!(
+            parse_hex("#f008"),
+            Some((1.0, 0.0, 0.0, 0x88 as f32 / 255.0))
+        );
     }
 
     #[test]
@@ -265,8 +395,8 @@ mod tests {
     #[test]
     fn hex_invalid() {
         assert_eq!(parse_hex("#gg0000"), None);
-        assert_eq!(parse_hex("#ff0"), None);   // 2 digits — invalid length
-        assert_eq!(parse_hex("ff0000"), None);  // missing #
+        assert_eq!(parse_hex("#ff0"), None); // 2 digits — invalid length
+        assert_eq!(parse_hex("ff0000"), None); // missing #
         assert_eq!(parse_hex(""), None);
     }
 }
@@ -290,6 +420,7 @@ Expected: all 6 tests PASS
 - [ ] **Step 5: Export module from lib.rs**
 
 Add to `crates/svg-color/src/lib.rs`:
+
 ```rust
 pub mod parse;
 ```
@@ -306,77 +437,88 @@ git commit -m "feat(svg-color): hex color parser"
 ### Task 4: Functional color parser (rgb/rgba/hsl/hsla)
 
 **Files:**
+
 - Modify: `crates/svg-color/src/parse.rs`
 
 - [ ] **Step 1: Write failing tests**
 
 Add to `parse.rs` tests module:
+
 ```rust
-    // ─── functional ─────────────────────────────────────
+// ─── functional ─────────────────────────────────────
 
-    #[test]
-    fn rgb_integers() {
-        assert_eq!(parse_functional("rgb(255, 0, 0)"), Some((1.0, 0.0, 0.0, 1.0)));
-        assert_eq!(parse_functional("rgb(0,128,255)"), Some((0.0, 128.0/255.0, 1.0, 1.0)));
-    }
+#[test]
+fn rgb_integers() {
+    assert_eq!(
+        parse_functional("rgb(255, 0, 0)"),
+        Some((1.0, 0.0, 0.0, 1.0))
+    );
+    assert_eq!(
+        parse_functional("rgb(0,128,255)"),
+        Some((0.0, 128.0 / 255.0, 1.0, 1.0))
+    );
+}
 
-    #[test]
-    fn rgba_with_alpha() {
-        let result = parse_functional("rgba(255, 0, 0, 0.5)");
-        assert!(result.is_some());
-        let (r, _, _, a) = result.unwrap();
-        assert!((r - 1.0).abs() < 0.01);
-        assert!((a - 0.5).abs() < 0.01);
-    }
+#[test]
+fn rgba_with_alpha() {
+    let result = parse_functional("rgba(255, 0, 0, 0.5)");
+    assert!(result.is_some());
+    let (r, _, _, a) = result.unwrap();
+    assert!((r - 1.0).abs() < 0.01);
+    assert!((a - 0.5).abs() < 0.01);
+}
 
-    #[test]
-    fn rgb_percentages() {
-        assert_eq!(parse_functional("rgb(100%, 0%, 0%)"), Some((1.0, 0.0, 0.0, 1.0)));
-    }
+#[test]
+fn rgb_percentages() {
+    assert_eq!(
+        parse_functional("rgb(100%, 0%, 0%)"),
+        Some((1.0, 0.0, 0.0, 1.0))
+    );
+}
 
-    #[test]
-    fn hsl_basic() {
-        // hsl(0, 100%, 50%) = red
-        let result = parse_functional("hsl(0, 100%, 50%)");
-        assert!(result.is_some());
-        let (r, g, b, _) = result.unwrap();
-        assert!((r - 1.0).abs() < 0.02);
-        assert!(g < 0.02);
-        assert!(b < 0.02);
-    }
+#[test]
+fn hsl_basic() {
+    // hsl(0, 100%, 50%) = red
+    let result = parse_functional("hsl(0, 100%, 50%)");
+    assert!(result.is_some());
+    let (r, g, b, _) = result.unwrap();
+    assert!((r - 1.0).abs() < 0.02);
+    assert!(g < 0.02);
+    assert!(b < 0.02);
+}
 
-    #[test]
-    fn hsl_green() {
-        // hsl(120, 100%, 50%) = lime green
-        let result = parse_functional("hsl(120, 100%, 50%)");
-        assert!(result.is_some());
-        let (r, g, b, _) = result.unwrap();
-        assert!(r < 0.02);
-        assert!((g - 1.0).abs() < 0.02);
-        assert!(b < 0.02);
-    }
+#[test]
+fn hsl_green() {
+    // hsl(120, 100%, 50%) = lime green
+    let result = parse_functional("hsl(120, 100%, 50%)");
+    assert!(result.is_some());
+    let (r, g, b, _) = result.unwrap();
+    assert!(r < 0.02);
+    assert!((g - 1.0).abs() < 0.02);
+    assert!(b < 0.02);
+}
 
-    #[test]
-    fn hsla_with_alpha() {
-        let result = parse_functional("hsla(0, 100%, 50%, 0.5)");
-        assert!(result.is_some());
-        let (_, _, _, a) = result.unwrap();
-        assert!((a - 0.5).abs() < 0.01);
-    }
+#[test]
+fn hsla_with_alpha() {
+    let result = parse_functional("hsla(0, 100%, 50%, 0.5)");
+    assert!(result.is_some());
+    let (_, _, _, a) = result.unwrap();
+    assert!((a - 0.5).abs() < 0.01);
+}
 
-    #[test]
-    fn functional_whitespace_variations() {
-        assert!(parse_functional("rgb( 255 , 0 , 0 )").is_some());
-        assert!(parse_functional("rgb(255,0,0)").is_some());
-    }
+#[test]
+fn functional_whitespace_variations() {
+    assert!(parse_functional("rgb( 255 , 0 , 0 )").is_some());
+    assert!(parse_functional("rgb(255,0,0)").is_some());
+}
 
-    #[test]
-    fn functional_invalid() {
-        assert_eq!(parse_functional("rgb()"), None);
-        assert_eq!(parse_functional("rgb(a, b, c)"), None);
-        assert_eq!(parse_functional("notafunction(1,2,3)"), None);
-        assert_eq!(parse_functional(""), None);
-    }
+#[test]
+fn functional_invalid() {
+    assert_eq!(parse_functional("rgb()"), None);
+    assert_eq!(parse_functional("rgb(a, b, c)"), None);
+    assert_eq!(parse_functional("notafunction(1,2,3)"), None);
+    assert_eq!(parse_functional(""), None);
+}
 ```
 
 - [ ] **Step 2: Run tests to verify failure**
@@ -406,12 +548,14 @@ git commit -m "feat(svg-color): functional color parser (rgb/hsl)"
 ### Task 5: Tree-sitter color extraction
 
 **Files:**
+
 - Create: `crates/svg-color/src/extract.rs`
 - Modify: `crates/svg-color/src/lib.rs`
 
 - [ ] **Step 1: Write failing tests**
 
 Create `crates/svg-color/src/extract.rs`:
+
 ```rust
 use crate::types::{ColorInfo, ColorKind};
 use tree_sitter::{Parser, Tree};
@@ -534,6 +678,7 @@ Expected: FAIL (todo panic)
 
 Use tree-sitter cursor to walk the tree. For each node with kind `"hex_color"`,
 `"functional_color"`, or `"named_color"`:
+
 1. Get node text from source bytes
 2. Parse using `parse::parse_hex`, `parse::parse_functional`, or `named_colors::lookup`
 3. If valid, create `ColorInfo` with RGBA, byte range, start/end position from
@@ -555,6 +700,7 @@ Expected: all tests PASS
 - [ ] **Step 5: Export module and public API from lib.rs**
 
 Update `crates/svg-color/src/lib.rs`:
+
 ```rust
 pub mod extract;
 pub mod named_colors;
@@ -577,12 +723,14 @@ git commit -m "feat(svg-color): tree-sitter color extraction"
 ### Task 6: Color presentation (format conversion)
 
 **Files:**
+
 - Create: `crates/svg-color/src/present.rs`
 - Modify: `crates/svg-color/src/lib.rs`
 
 - [ ] **Step 1: Write failing tests**
 
 Create `crates/svg-color/src/present.rs`:
+
 ```rust
 use crate::types::ColorKind;
 
@@ -659,6 +807,7 @@ Expected: all 5 tests PASS
 - [ ] **Step 5: Export from lib.rs**
 
 Add to `crates/svg-color/src/lib.rs`:
+
 ```rust
 pub mod present;
 pub use present::color_presentations;
@@ -676,12 +825,14 @@ git commit -m "feat(svg-color): color presentation format conversion"
 ### Task 7: LSP server scaffolding
 
 **Files:**
+
 - Modify: `crates/svg-language-server/Cargo.toml`
 - Modify: `crates/svg-language-server/src/main.rs`
 
 - [ ] **Step 1: Add LSP dependencies**
 
 Update `crates/svg-language-server/Cargo.toml`:
+
 ```toml
 [dependencies]
 svg-color.workspace       = true
@@ -692,6 +843,7 @@ tokio                     = { version = "1", features = ["io-std", "macros", "rt
 ```
 
 Add to workspace `Cargo.toml` `[workspace.dependencies]`:
+
 ```toml
 tower-lsp-server = "0.23"
 tokio            = { version = "1", features = ["io-std", "macros", "rt-multi-thread"] }
@@ -805,11 +957,13 @@ git commit -m "feat(lsp): server scaffolding with tower-lsp-server"
 ### Task 8: Wire document_color and color_presentation
 
 **Files:**
+
 - Modify: `crates/svg-language-server/src/main.rs`
 
 - [ ] **Step 1: Implement document_color**
 
 Replace the stub `document_color` method:
+
 ```rust
 async fn document_color(&self, params: DocumentColorParams) -> Result<Vec<ColorInformation>> {
     let docs = self.documents.read().await;
@@ -852,6 +1006,7 @@ Also store `ColorKind` alongside each color in a side map for `color_presentatio
 - [ ] **Step 2: Implement color_presentation**
 
 Replace the stub `color_presentation` method:
+
 ```rust
 async fn color_presentation(
     &self,
@@ -903,11 +1058,13 @@ git commit -m "feat(lsp): wire document_color and color_presentation"
 ### Task 9: End-to-end integration test
 
 **Files:**
+
 - Create: `crates/svg-language-server/tests/integration.rs`
 
 - [ ] **Step 1: Write integration test**
 
 Create `crates/svg-language-server/tests/integration.rs` that:
+
 1. Spawns the LSP binary as a subprocess
 2. Sends `initialize` request
 3. Sends `textDocument/didOpen` with SVG content containing colors
@@ -936,6 +1093,7 @@ git commit -m "test(lsp): end-to-end integration test"
 ### Task 10: Verify and clean up
 
 **Files:**
+
 - Modify: `README.md`
 
 - [ ] **Step 1: Run full test suite**
@@ -951,6 +1109,7 @@ Expected: no warnings
 - [ ] **Step 3: Update README**
 
 Add to `README.md`:
+
 - What the server does (documentColor + colorPresentation for SVG)
 - Installation: `cargo install svg-language-server`
 - Editor setup: Zed config snippet
@@ -980,16 +1139,16 @@ After all tasks complete:
 
 ## File Map
 
-| File | Responsibility |
-|------|---------------|
-| `crates/svg-color/src/types.rs` | `ColorInfo`, `ColorKind` data types |
-| `crates/svg-color/src/named_colors.rs` | 148-entry CSS named color lookup |
-| `crates/svg-color/src/parse.rs` | Hex + functional color parsing |
-| `crates/svg-color/src/extract.rs` | Tree-sitter walk → `Vec<ColorInfo>` |
-| `crates/svg-color/src/present.rs` | Color format conversion for picker |
-| `crates/svg-color/src/lib.rs` | Public API re-exports |
-| `crates/svg-language-server/src/main.rs` | LSP server (tower-lsp-server) |
-| `crates/svg-language-server/tests/integration.rs` | E2E LSP test |
+| File                                              | Responsibility                      |
+| ------------------------------------------------- | ----------------------------------- |
+| `crates/svg-color/src/types.rs`                   | `ColorInfo`, `ColorKind` data types |
+| `crates/svg-color/src/named_colors.rs`            | 148-entry CSS named color lookup    |
+| `crates/svg-color/src/parse.rs`                   | Hex + functional color parsing      |
+| `crates/svg-color/src/extract.rs`                 | Tree-sitter walk → `Vec<ColorInfo>` |
+| `crates/svg-color/src/present.rs`                 | Color format conversion for picker  |
+| `crates/svg-color/src/lib.rs`                     | Public API re-exports               |
+| `crates/svg-language-server/src/main.rs`          | LSP server (tower-lsp-server)       |
+| `crates/svg-language-server/tests/integration.rs` | E2E LSP test                        |
 
 ## Deferred from Spec
 

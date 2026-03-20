@@ -28,6 +28,7 @@ crates/
 ```
 
 **`svg-color`** (library crate):
+
 - Input: source text (as `&[u8]`)
 - Uses `tree-sitter` + `tree-sitter-svg` to parse
 - Walks CST for color-bearing nodes
@@ -36,6 +37,7 @@ crates/
 - Handles incremental re-parse via tree-sitter's edit API
 
 **`svg-language-server`** (binary crate):
+
 - `tower-lsp-server` for LSP scaffolding
 - Document lifecycle: `didOpen`, `didChange`, `didClose`
 - Translates `svg-color::ColorInfo` → LSP `ColorInformation`
@@ -62,6 +64,7 @@ source text
 ```
 
 This single query captures all color nodes regardless of nesting context:
+
 - Direct paint values: `fill="#ff0000"`
 - Paint server fallbacks: `fill="url(#grad) #ff0000"`
 
@@ -84,13 +87,13 @@ token text with a secondary parser to extract numeric RGB/HSL components.
 
 ```rust
 struct ColorInfo {
-    r: f32,      // 0.0–1.0
+    r: f32, // 0.0–1.0
     g: f32,
     b: f32,
     a: f32,
     byte_range: Range<usize>,
     row: usize,
-    col: usize,  // byte offset within line (simplifies UTF-16 conversion)
+    col: usize, // byte offset within line (simplifies UTF-16 conversion)
     kind: ColorKind,
 }
 
@@ -107,15 +110,15 @@ document start for LSP position conversion.
 
 ### SVG Attributes Covered
 
-| Attribute | Grammar Node | Colors? |
-|-----------|-------------|---------|
-| `fill` | `paint_attribute` | Yes |
-| `stroke` | `paint_attribute` | Yes |
-| `color` | `paint_attribute` | Yes (inherited, affects `currentColor`) |
-| `stop-color` | `paint_attribute` | Yes |
-| `flood-color` | `paint_attribute` | Yes |
-| `lighting-color` | `paint_attribute` | Yes |
-| `style="..."` | `style_attribute` | No (CSS LSP handles) |
+| Attribute        | Grammar Node      | Colors?                                 |
+| ---------------- | ----------------- | --------------------------------------- |
+| `fill`           | `paint_attribute` | Yes                                     |
+| `stroke`         | `paint_attribute` | Yes                                     |
+| `color`          | `paint_attribute` | Yes (inherited, affects `currentColor`) |
+| `stop-color`     | `paint_attribute` | Yes                                     |
+| `flood-color`    | `paint_attribute` | Yes                                     |
+| `lighting-color` | `paint_attribute` | Yes                                     |
+| `style="..."`    | `style_attribute` | No (CSS LSP handles)                    |
 
 ### Color Presentation Formats
 
@@ -132,19 +135,19 @@ Default to the user's original format first in the list.
 
 ### `svg-color`
 
-| Crate | Purpose |
-|-------|---------|
-| `tree-sitter` | Parser runtime |
-| `tree-sitter-svg` | SVG grammar |
+| Crate             | Purpose        |
+| ----------------- | -------------- |
+| `tree-sitter`     | Parser runtime |
+| `tree-sitter-svg` | SVG grammar    |
 
 ### `svg-language-server`
 
-| Crate | Purpose |
-|-------|---------|
-| `svg-color` | Color extraction (workspace) |
+| Crate              | Purpose                        |
+| ------------------ | ------------------------------ |
+| `svg-color`        | Color extraction (workspace)   |
 | `tower-lsp-server` | LSP framework (community fork) |
-| `tokio` | Async runtime |
-| `serde_json` | LSP message serialization |
+| `tokio`            | Async runtime                  |
+| `serde_json`       | LSP message serialization      |
 
 ## Distribution
 
@@ -162,6 +165,7 @@ Default to the user's original format first in the list.
 ### Zed Integration
 
 In `zed-svg/extension.toml`:
+
 ```toml
 [language_servers.svg-language-server]
 languages = ["SVG"]

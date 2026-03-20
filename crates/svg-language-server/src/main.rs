@@ -4,16 +4,18 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 use tower_lsp_server::jsonrpc::Result;
 use tower_lsp_server::ls_types::{
-    ColorInformation, ColorPresentation, ColorPresentationParams, ColorProviderCapability,
+    Color, ColorInformation, ColorPresentation, ColorPresentationParams, ColorProviderCapability,
     DidChangeTextDocumentParams, DidCloseTextDocumentParams, DidOpenTextDocumentParams,
-    DocumentColorParams, InitializeParams, InitializeResult, ServerCapabilities,
-    TextDocumentSyncCapability, TextDocumentSyncKind, Uri,
+    DocumentColorParams, InitializeParams, InitializeResult, Position, Range, ServerCapabilities,
+    TextDocumentSyncCapability, TextDocumentSyncKind, TextEdit, Uri,
 };
 use tower_lsp_server::{Client, LanguageServer, LspService, Server};
 
 struct SvgLanguageServer {
     client: Client,
     documents: Arc<RwLock<HashMap<Uri, String>>>,
+    /// Cache of (uri, start_line, start_character) → ColorKind from last document_color call.
+    color_kinds: Arc<RwLock<HashMap<(Uri, u32, u32), svg_color::ColorKind>>>,
 }
 
 impl SvgLanguageServer {
@@ -21,8 +23,27 @@ impl SvgLanguageServer {
         Self {
             client,
             documents: Arc::new(RwLock::new(HashMap::new())),
+            color_kinds: Arc::new(RwLock::new(HashMap::new())),
         }
     }
+}
+
+/// Convert a byte-offset column to UTF-16 code unit count within a given row.
+///
+/// LSP positions use UTF-16 code units by default. Tree-sitter reports byte offsets,
+/// so we must re-encode the line prefix to count UTF-16 units.
+fn byte_col_to_utf16(source: &[u8], row: usize, byte_col: usize) -> u32 {
+    let line_start: usize = source
+        .split(|&b| b == b'\n')
+        .take(row)
+        .map(|line| line.len() + 1) // +1 for the newline byte
+        .sum();
+
+    let end = (line_start + byte_col).min(source.len());
+    let line_bytes = &source[line_start..end];
+    String::from_utf8_lossy(line_bytes)
+        .encode_utf16()
+        .count() as u32
 }
 
 impl LanguageServer for SvgLanguageServer {
@@ -68,16 +89,83 @@ impl LanguageServer for SvgLanguageServer {
 
     async fn document_color(
         &self,
-        _params: DocumentColorParams,
+        params: DocumentColorParams,
     ) -> Result<Vec<ColorInformation>> {
-        Ok(Vec::new())
+        let docs = self.documents.read().await;
+        let Some(source) = docs.get(&params.text_document.uri) else {
+            return Ok(Vec::new());
+        };
+        let source_bytes = source.as_bytes();
+        let colors = svg_color::extract_colors(source_bytes);
+
+        let mut kinds = self.color_kinds.write().await;
+        // Clear stale entries for this URI
+        kinds.retain(|(uri, _, _), _| *uri != params.text_document.uri);
+
+        let result = colors
+            .into_iter()
+            .map(|c| {
+                let start_char = byte_col_to_utf16(source_bytes, c.start_row, c.start_col);
+                let end_char = byte_col_to_utf16(source_bytes, c.end_row, c.end_col);
+
+                kinds.insert(
+                    (params.text_document.uri.clone(), c.start_row as u32, start_char),
+                    c.kind,
+                );
+
+                ColorInformation {
+                    range: Range::new(
+                        Position::new(c.start_row as u32, start_char),
+                        Position::new(c.end_row as u32, end_char),
+                    ),
+                    color: Color {
+                        red: c.r,
+                        green: c.g,
+                        blue: c.b,
+                        alpha: c.a,
+                    },
+                }
+            })
+            .collect();
+
+        Ok(result)
     }
 
     async fn color_presentation(
         &self,
-        _params: ColorPresentationParams,
+        params: ColorPresentationParams,
     ) -> Result<Vec<ColorPresentation>> {
-        Ok(Vec::new())
+        let key = (
+            params.text_document.uri,
+            params.range.start.line,
+            params.range.start.character,
+        );
+        let kind = self
+            .color_kinds
+            .read()
+            .await
+            .get(&key)
+            .copied()
+            .unwrap_or(svg_color::ColorKind::Hex);
+
+        let labels = svg_color::color_presentations(
+            params.color.red,
+            params.color.green,
+            params.color.blue,
+            params.color.alpha,
+            kind,
+        );
+
+        let result = labels
+            .into_iter()
+            .map(|label| ColorPresentation {
+                text_edit: Some(TextEdit::new(params.range, label.clone())),
+                label,
+                additional_text_edits: None,
+            })
+            .collect();
+
+        Ok(result)
     }
 }
 

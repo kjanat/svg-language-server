@@ -452,24 +452,24 @@ impl LanguageServer for SvgLanguageServer {
         let kind = node.kind();
 
         // Element name hover
-        if kind == "name" {
-            if let Some(parent) = node.parent() {
-                let parent_kind = parent.kind();
-                if parent_kind == "start_tag"
-                    || parent_kind == "self_closing_tag"
-                    || parent_kind == "end_tag"
-                {
-                    let name_text = node.utf8_text(source).unwrap_or("");
-                    if let Some(el) = svg_data::element(name_text) {
-                        let markdown = format_element_hover(el);
-                        return Ok(Some(Hover {
-                            contents: HoverContents::Markup(MarkupContent {
-                                kind: MarkupKind::Markdown,
-                                value: markdown,
-                            }),
-                            range: None,
-                        }));
-                    }
+        if kind == "name"
+            && let Some(parent) = node.parent()
+        {
+            let parent_kind = parent.kind();
+            if parent_kind == "start_tag"
+                || parent_kind == "self_closing_tag"
+                || parent_kind == "end_tag"
+            {
+                let name_text = node.utf8_text(source).unwrap_or("");
+                if let Some(el) = svg_data::element(name_text) {
+                    let markdown = format_element_hover(el);
+                    return Ok(Some(Hover {
+                        contents: HoverContents::Markup(MarkupContent {
+                            kind: MarkupKind::Markdown,
+                            value: markdown,
+                        }),
+                        range: None,
+                    }));
                 }
             }
         }
@@ -526,17 +526,16 @@ impl LanguageServer for SvgLanguageServer {
                 ) {
                     // First child or child named with attribute name
                     for i in 0..attr_wrapper.child_count() {
-                        if let Some(child) = attr_wrapper.child(i as u32) {
-                            if ATTRIBUTE_NAME_KINDS.contains(&child.kind())
-                                || child.kind() == "attribute_name"
-                            {
-                                let attr_name = child.utf8_text(source).unwrap_or("");
-                                let items = value_completions(attr_name);
-                                if !items.is_empty() {
-                                    return Ok(Some(CompletionResponse::Array(items)));
-                                }
-                                break;
+                        if let Some(child) = attr_wrapper.child(i as u32)
+                            && (ATTRIBUTE_NAME_KINDS.contains(&child.kind())
+                                || child.kind() == "attribute_name")
+                        {
+                            let attr_name = child.utf8_text(source).unwrap_or("");
+                            let items = value_completions(attr_name);
+                            if !items.is_empty() {
+                                return Ok(Some(CompletionResponse::Array(items)));
                             }
+                            break;
                         }
                     }
                 }
@@ -575,13 +574,13 @@ impl LanguageServer for SvgLanguageServer {
                     // Fallback: suggest all elements
                     svg_data::elements()
                         .iter()
-                        .map(|el| element_completion_item(el))
+                        .map(element_completion_item)
                         .collect()
                 } else {
                     children
                         .into_iter()
                         .filter_map(|name| svg_data::element(name))
-                        .map(|el| element_completion_item(el))
+                        .map(element_completion_item)
                         .collect()
                 };
                 return Ok(Some(CompletionResponse::Array(items)));
@@ -591,7 +590,7 @@ impl LanguageServer for SvgLanguageServer {
             if kind == "document" {
                 let items: Vec<CompletionItem> = svg_data::elements()
                     .iter()
-                    .map(|el| element_completion_item(el))
+                    .map(element_completion_item)
                     .collect();
                 return Ok(Some(CompletionResponse::Array(items)));
             }

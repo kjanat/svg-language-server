@@ -1,11 +1,14 @@
 # svg-language-server
 
-Minimal LSP server providing inline color swatches and color picker for SVG paint attributes.
+LSP server for SVG files — color swatches, hover docs, completions, and diagnostics.
 
 ## Features
 
-- `textDocument/documentColor` — color swatches for `fill`, `stroke`, `color`, `stop-color`, `flood-color`, `lighting-color`
-- `textDocument/colorPresentation` — convert between hex, rgb(), hsl(), and CSS named colors
+- `textDocument/documentColor` — color swatches for paint attributes
+- `textDocument/colorPresentation` — convert between hex, rgb(), hsl(), named colors
+- `textDocument/hover` — element/attribute documentation with MDN links and baseline status
+- `textDocument/completion` — context-aware completions for elements, attributes, and values
+- `textDocument/publishDiagnostics` — structural validation (invalid nesting, unknown elements, deprecated usage, duplicate IDs)
 
 ## Supported Color Formats
 
@@ -19,7 +22,7 @@ Minimal LSP server providing inline color swatches and color picker for SVG pain
 ## Install
 
 ```sh
-cargo install svg-language-server
+cargo install --git https://github.com/kjanat/svg-language-server svg-language-server
 ```
 
 ## Editor Setup

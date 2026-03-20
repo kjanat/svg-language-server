@@ -269,7 +269,116 @@ fn lsp_end_to_end() {
         "expected an hsl presentation: {labels:?}"
     );
 
-    // --- 6. shutdown ---
+    // --- 6. hover test: element name ---
+    send_message(
+        &mut stdin,
+        &json!({
+            "jsonrpc": "2.0",
+            "id": 10,
+            "method": "textDocument/hover",
+            "params": {
+                "textDocument": { "uri": "file:///test.svg" },
+                "position": { "line": 0, "character": 7 }
+            }
+        }),
+    );
+
+    let hover_resp = recv_response(&rx, 10, timeout);
+    let hover_result = &hover_resp["result"];
+    assert!(
+        hover_result.get("contents").is_some(),
+        "hover should return contents: {hover_resp}"
+    );
+    let hover_value = hover_result["contents"]["value"].as_str().unwrap_or("");
+    assert!(
+        hover_value.contains("MDN Reference"),
+        "hover should contain MDN link: {hover_value}"
+    );
+
+    // --- 7. completion test ---
+    send_message(
+        &mut stdin,
+        &json!({
+            "jsonrpc": "2.0",
+            "id": 11,
+            "method": "textDocument/completion",
+            "params": {
+                "textDocument": { "uri": "file:///test.svg" },
+                "position": { "line": 0, "character": 5 }
+            }
+        }),
+    );
+
+    let comp_resp = recv_response(&rx, 11, timeout);
+    let comp_items = comp_resp["result"]
+        .as_array()
+        .expect("completion result should be an array");
+    assert!(!comp_items.is_empty(), "should return completion items");
+    let labels: Vec<&str> = comp_items
+        .iter()
+        .filter_map(|i| i["label"].as_str())
+        .collect();
+    assert!(
+        labels.contains(&"fill"),
+        "completions should include fill: {labels:?}"
+    );
+
+    // --- 8. diagnostics test ---
+    // Drain any buffered notifications
+    while rx.try_recv().is_ok() {}
+
+    // Open a file with invalid nesting
+    let invalid_svg = r##"<svg><rect><circle/></rect></svg>"##;
+    send_message(
+        &mut stdin,
+        &json!({
+            "jsonrpc": "2.0",
+            "method": "textDocument/didOpen",
+            "params": {
+                "textDocument": {
+                    "uri": "file:///invalid.svg",
+                    "languageId": "svg",
+                    "version": 1,
+                    "text": invalid_svg
+                }
+            }
+        }),
+    );
+
+    // Read messages until we find publishDiagnostics for invalid.svg
+    let diag_deadline = std::time::Instant::now() + timeout;
+    let mut found_diags = false;
+    while std::time::Instant::now() < diag_deadline {
+        let remaining = diag_deadline.saturating_duration_since(std::time::Instant::now());
+        match rx.recv_timeout(remaining) {
+            Ok(msg) => {
+                if msg.get("method").and_then(Value::as_str)
+                    == Some("textDocument/publishDiagnostics")
+                {
+                    let params = &msg["params"];
+                    if params["uri"].as_str() == Some("file:///invalid.svg") {
+                        let diags = params["diagnostics"]
+                            .as_array()
+                            .expect("diagnostics should be array");
+                        assert!(
+                            !diags.is_empty(),
+                            "invalid SVG should produce diagnostics: {diags:?}"
+                        );
+                        found_diags = true;
+                        break;
+                    }
+                }
+                // Skip other messages
+            }
+            Err(_) => break,
+        }
+    }
+    assert!(
+        found_diags,
+        "should have received publishDiagnostics notification for invalid.svg"
+    );
+
+    // --- 9. shutdown ---
     send_message(
         &mut stdin,
         &json!({
@@ -286,7 +395,7 @@ fn lsp_end_to_end() {
         "shutdown should return a result: {shutdown_resp}"
     );
 
-    // --- 7. exit ---
+    // --- 10. exit ---
     send_message(
         &mut stdin,
         &json!({

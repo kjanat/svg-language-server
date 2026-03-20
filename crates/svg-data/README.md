@@ -1,6 +1,6 @@
 # svg-data
 
-Compile-time SVG spec catalog generated from [MDN browser-compat-data](https://github.com/mdn/browser-compat-data) and [web-features](https://github.com/nicedoc/web-features).
+Compile-time SVG spec catalog generated from [MDN browser-compat-data] and [web-features].
 
 All data is baked into the binary at build time — no runtime fetches or file I/O.
 
@@ -24,4 +24,8 @@ for attr in svg_data::attributes() { /* ... */ }
 
 Each entry includes description, MDN URL, deprecation flag, baseline browser support status, content model (for elements), and value types (for attributes).
 
-## Part of [svg-language-server](https://github.com/kjanat/svg-language-server)
+## Part of [svg-language-server]
+
+[MDN browser-compat-data]: https://github.com/mdn/browser-compat-data
+[web-features]: https://github.com/nicedoc/web-features
+[svg-language-server]: https://github.com/kjanat/svg-language-server

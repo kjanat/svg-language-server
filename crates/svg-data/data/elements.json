@@ -421,16 +421,7 @@
 		"description": "The foreignObject element allows inclusion of elements from a different XML namespace inside SVG.",
 		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/foreignObject",
 		"deprecated": false,
-		"content_model": {
-			"children": [
-				"Container",
-				"Shape",
-				"Text",
-				"Descriptive",
-				"Structural",
-				"NeverRendered"
-			]
-		},
+		"content_model": "foreign",
 		"required_attrs": [],
 		"attrs": ["x", "y", "width", "height"],
 		"global_attrs": true

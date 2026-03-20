@@ -28,6 +28,12 @@ pub fn allowed_children(parent: &str) -> Vec<&'static str> {
     categories::allowed_children(parent)
 }
 
+pub fn allows_foreign_children(parent: &str) -> bool {
+    element(parent)
+        .map(|el| matches!(el.content_model, ContentModel::Foreign))
+        .unwrap_or(false)
+}
+
 fn attribute_applies_to(attr: &AttributeDef, element_name: &str) -> bool {
     // Older generated catalogs used an empty applicability list as the global marker.
     attr.elements.is_empty()
@@ -73,6 +79,16 @@ mod tests {
     fn text_content_model() {
         let text = element("text").expect("text should exist");
         assert!(matches!(text.content_model, ContentModel::Children(_)));
+    }
+
+    #[test]
+    fn foreign_object_content_model() {
+        let foreign_object = element("foreignObject").expect("foreignObject should exist");
+        assert!(matches!(
+            foreign_object.content_model,
+            ContentModel::Foreign
+        ));
+        assert!(allows_foreign_children("foreignObject"));
     }
 
     #[test]

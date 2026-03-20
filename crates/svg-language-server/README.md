@@ -26,4 +26,6 @@ Add to your Zed SVG extension's `extension.toml`:
 languages = ["SVG"]
 ```
 
-## Part of [svg-language-server](https://github.com/kjanat/svg-language-server)
+## Part of [svg-language-server]
+
+[svg-language-server]: https://github.com/kjanat/svg-language-server

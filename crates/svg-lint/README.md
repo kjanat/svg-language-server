@@ -23,4 +23,6 @@ let diagnostics = lint_tree(source, &tree);
 
 Each diagnostic includes a `DiagnosticCode`, `Severity`, message, and source location.
 
-## Part of [svg-language-server](https://github.com/kjanat/svg-language-server)
+## Part of [svg-language-server]
+
+[svg-language-server]: https://github.com/kjanat/svg-language-server

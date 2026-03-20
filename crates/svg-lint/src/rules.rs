@@ -6,7 +6,13 @@ use tree_sitter::{Node, Tree};
 pub fn check_all(source: &[u8], tree: &Tree) -> Vec<SvgDiagnostic> {
     let mut diagnostics = Vec::new();
     let mut id_map: HashMap<String, usize> = HashMap::new();
-    walk_elements(source, tree.root_node(), &mut diagnostics, &mut id_map);
+    walk_elements(
+        source,
+        tree.root_node(),
+        &mut diagnostics,
+        &mut id_map,
+        false,
+    );
     diagnostics
 }
 
@@ -15,14 +21,17 @@ fn walk_elements(
     node: Node,
     diagnostics: &mut Vec<SvgDiagnostic>,
     id_map: &mut HashMap<String, usize>,
+    in_foreign_content: bool,
 ) {
     let kind = node.kind();
+    let mut child_in_foreign_content = in_foreign_content;
     if kind == "element" || kind == "svg_root_element" {
-        check_element(source, node, diagnostics, id_map);
+        child_in_foreign_content =
+            check_element(source, node, diagnostics, id_map, in_foreign_content);
     }
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
-        walk_elements(source, child, diagnostics, id_map);
+        walk_elements(source, child, diagnostics, id_map, child_in_foreign_content);
     }
 }
 
@@ -31,19 +40,26 @@ fn check_element(
     node: Node,
     diagnostics: &mut Vec<SvgDiagnostic>,
     id_map: &mut HashMap<String, usize>,
-) {
+    in_foreign_content: bool,
+) -> bool {
     // Find the opening tag node (start_tag or self_closing_tag)
     let mut tag_cursor = node.walk();
     let tag_node = node
         .children(&mut tag_cursor)
         .find(|c| c.kind() == "start_tag" || c.kind() == "self_closing_tag");
-    let Some(tag) = tag_node else { return };
+    let Some(tag) = tag_node else {
+        return in_foreign_content;
+    };
 
     // Extract element name from tag's `name` field
     let Some(name_node) = tag.child_by_field_name("name") else {
-        return;
+        return in_foreign_content;
     };
     let name_str = std::str::from_utf8(&source[name_node.byte_range()]).unwrap_or("");
+
+    if in_foreign_content {
+        return true;
+    }
 
     // Check: Unknown element
     let Some(def) = svg_data::element(name_str) else {
@@ -53,7 +69,7 @@ fn check_element(
             DiagnosticCode::UnknownElement,
             format!("Unknown SVG element: <{name_str}>"),
         ));
-        return;
+        return false;
     };
 
     // Check: Deprecated element
@@ -74,6 +90,8 @@ fn check_element(
 
     // Check: Invalid children
     check_children(source, node, name_str, diagnostics);
+
+    matches!(def.content_model, svg_data::ContentModel::Foreign)
 }
 
 /// Attribute name node kinds that carry the attribute name text.
@@ -203,6 +221,10 @@ fn check_children(
     parent_name: &str,
     diagnostics: &mut Vec<SvgDiagnostic>,
 ) {
+    if svg_data::allows_foreign_children(parent_name) {
+        return;
+    }
+
     let allowed = svg_data::allowed_children(parent_name);
 
     let mut cursor = parent_node.walk();
@@ -219,6 +241,10 @@ fn check_children(
             continue;
         };
         let child_name = std::str::from_utf8(&source[cn.byte_range()]).unwrap_or("");
+
+        if svg_data::element(child_name).is_none() {
+            continue;
+        }
 
         if !allowed.contains(&child_name) {
             diagnostics.push(make_diag(

@@ -16,6 +16,7 @@ pub struct ElementDef {
 #[derive(Debug, Clone)]
 pub enum ContentModel {
     Children(&'static [ElementCategory]),
+    Foreign,
     Void,
     Text,
 }

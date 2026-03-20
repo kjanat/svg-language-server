@@ -530,6 +530,7 @@ fn main() {
         let id = &el_idents[el.name.as_str()];
         let content_model = match &el.content_model {
             ContentModelJson::Simple(s) => match s.as_str() {
+                "foreign" => "ContentModel::Foreign".to_string(),
                 "void" => "ContentModel::Void".to_string(),
                 "text" => "ContentModel::Text".to_string(),
                 other => panic!("unknown simple content_model: {other}"),

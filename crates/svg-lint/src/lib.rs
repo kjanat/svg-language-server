@@ -41,6 +41,10 @@ mod tests {
                 .any(|d| d.code == DiagnosticCode::UnknownElement),
             "unknown element: {diags:?}"
         );
+        assert!(
+            !diags.iter().any(|d| d.code == DiagnosticCode::InvalidChild),
+            "unknown elements should not also trigger invalid child: {diags:?}"
+        );
     }
 
     #[test]
@@ -108,6 +112,22 @@ mod tests {
         assert!(
             !unknown,
             "valid generic attributes should not trigger unknown diagnostics: {diags:?}"
+        );
+    }
+
+    #[test]
+    fn html_child_inside_foreign_object_is_allowed() {
+        let src = br#"
+            <svg>
+                <foreignObject>
+                    <p xmlns="http://www.w3.org/1999/xhtml">HTML inside SVG</p>
+                </foreignObject>
+            </svg>
+        "#;
+        let diags = lint(src);
+        assert!(
+            diags.is_empty(),
+            "foreignObject should allow foreign-namespace subtrees without SVG diagnostics: {diags:?}"
         );
     }
 }

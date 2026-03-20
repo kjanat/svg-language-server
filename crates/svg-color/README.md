@@ -32,4 +32,6 @@ let labels = color_presentations(r, g, b, a, kind);
 | HSL/HSLA | `hsl(0, 100%, 50%)`              |
 | Named    | `red`, `cornflowerblue`          |
 
-## Part of [svg-language-server](https://github.com/kjanat/svg-language-server)
+## Part of [svg-language-server]
+
+[svg-language-server]: https://github.com/kjanat/svg-language-server

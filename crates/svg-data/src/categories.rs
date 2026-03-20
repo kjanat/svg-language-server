@@ -58,6 +58,6 @@ pub fn allowed_children(parent: &str) -> Vec<&'static str> {
             names.dedup();
             names
         }
-        ContentModel::Void | ContentModel::Text => Vec::new(),
+        ContentModel::Foreign | ContentModel::Void | ContentModel::Text => Vec::new(),
     }
 }

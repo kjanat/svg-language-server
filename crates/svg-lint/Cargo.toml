@@ -1,0 +1,12 @@
+[package]
+name                  = "svg-lint"
+version               = "0.1.0"
+edition.workspace     = true
+description.workspace = true
+readme.workspace      = true
+repository.workspace  = true
+
+[dependencies]
+svg-data.workspace        = true
+tree-sitter.workspace     = true
+tree-sitter-svg.workspace = true

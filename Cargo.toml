@@ -21,6 +21,9 @@ path = "crates/svg-color"
 [workspace.dependencies.svg-data]
 path = "crates/svg-data"
 
+[workspace.dependencies.svg-lint]
+path = "crates/svg-lint"
+
 [workspace.dependencies.tokio]
 version  = "1"
 features = ["io-std", "macros", "rt-multi-thread"]

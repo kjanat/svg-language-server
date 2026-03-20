@@ -157,7 +157,7 @@ fn format_element_hover(el: &svg_data::ElementDef) -> String {
     }
 
     parts.push(String::new());
-    parts.push(format!("[MDN Reference]({})", el.mdn_url));
+    parts.push(format!("[![MDN Reference](https://developer.mozilla.org/favicon-48x48.png)]({})", el.mdn_url));
 
     parts.join("\n")
 }
@@ -180,7 +180,7 @@ fn format_attribute_hover(attr: &svg_data::AttributeDef) -> String {
     }
 
     parts.push(String::new());
-    parts.push(format!("[MDN Reference]({})", attr.mdn_url));
+    parts.push(format!("[![MDN Reference](https://developer.mozilla.org/favicon-48x48.png)]({})", attr.mdn_url));
 
     parts.join("\n")
 }

@@ -10,6 +10,8 @@ members             = ["crates/*"]
 base64           = "0.22"
 serde_json       = "1"
 tower-lsp-server = "0.23"
+tracing          = "0.1"
+tracing-appender = "0.2"
 tree-sitter      = "0.26"
 ureq             = "3"
 
@@ -29,6 +31,10 @@ path = "crates/svg-lint"
 [workspace.dependencies.tokio]
 version  = "1"
 features = ["io-std", "macros", "rt-multi-thread"]
+
+[workspace.dependencies.tracing-subscriber]
+version  = "0.3"
+features = ["fmt"]
 
 [workspace.dependencies.tree-sitter-svg]
 package = "tree-sitter-svg"

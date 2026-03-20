@@ -1,10 +1,12 @@
 [package]
-name                  = "svg-color"
-version               = "0.1.0"
-edition.workspace     = true
-description.workspace = true
-readme.workspace      = true
-repository.workspace  = true
+name                 = "svg-color"
+version              = "0.1.0"
+edition.workspace    = true
+description          = "Color extraction and format conversion for SVG documents"
+readme.workspace     = true
+repository.workspace = true
+keywords             = ["color", "hex", "hsl", "rgb", "svg"]
+categories           = ["graphics", "parsing"]
 
 [dependencies]
 tree-sitter.workspace     = true

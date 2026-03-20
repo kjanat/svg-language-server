@@ -1,10 +1,12 @@
 [package]
-name                  = "svg-lint"
-version               = "0.1.0"
-edition.workspace     = true
-description.workspace = true
-readme.workspace      = true
-repository.workspace  = true
+name                 = "svg-lint"
+version              = "0.1.0"
+edition.workspace    = true
+description          = "Structural linting for SVG — invalid nesting, unknown elements, duplicate IDs"
+readme.workspace     = true
+repository.workspace = true
+keywords             = ["diagnostics", "lint", "svg", "validation"]
+categories           = ["development-tools"]
 
 [dependencies]
 svg-data.workspace        = true

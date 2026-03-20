@@ -295,6 +295,70 @@ fn lsp_end_to_end() {
         "hover should contain MDN link: {hover_value}"
     );
 
+    // --- 6b. hover test: typed SVG attribute name (`d`) ---
+    let hover_svg =
+        r#"<svg xmlns="http://www.w3.org/2000/svg" xml:lang="en"><path d="M0 0"/></svg>"#;
+    send_message(
+        &mut stdin,
+        &json!({
+            "jsonrpc": "2.0",
+            "method": "textDocument/didOpen",
+            "params": {
+                "textDocument": {
+                    "uri": "file:///hover.svg",
+                    "languageId": "svg",
+                    "version": 1,
+                    "text": hover_svg
+                }
+            }
+        }),
+    );
+
+    send_message(
+        &mut stdin,
+        &json!({
+            "jsonrpc": "2.0",
+            "id": 12,
+            "method": "textDocument/hover",
+            "params": {
+                "textDocument": { "uri": "file:///hover.svg" },
+                "position": { "line": 0, "character": 60 }
+            }
+        }),
+    );
+
+    let hover_d_resp = recv_response(&rx, 12, timeout);
+    let hover_d_value = hover_d_resp["result"]["contents"]["value"]
+        .as_str()
+        .unwrap_or("");
+    assert!(
+        hover_d_value.contains("Defines a path to be drawn."),
+        "`d` hover should come from the local attribute catalog: {hover_d_resp}"
+    );
+
+    // --- 6c. hover test: XML infrastructure attribute (`xmlns`) ---
+    send_message(
+        &mut stdin,
+        &json!({
+            "jsonrpc": "2.0",
+            "id": 13,
+            "method": "textDocument/hover",
+            "params": {
+                "textDocument": { "uri": "file:///hover.svg" },
+                "position": { "line": 0, "character": 7 }
+            }
+        }),
+    );
+
+    let hover_xmlns_resp = recv_response(&rx, 13, timeout);
+    let hover_xmlns_value = hover_xmlns_resp["result"]["contents"]["value"]
+        .as_str()
+        .unwrap_or("");
+    assert!(
+        hover_xmlns_value.contains("W3C Namespaces in XML"),
+        "`xmlns` hover should use the external namespace reference: {hover_xmlns_resp}"
+    );
+
     // --- 7. completion test ---
     send_message(
         &mut stdin,

@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::fs;
+use std::fs::OpenOptions;
 use std::path::PathBuf;
 use std::sync::{Arc, LazyLock};
 
@@ -165,18 +166,20 @@ fn init_logging() -> LoggingGuards {
     let mut file_layer = None;
 
     if fs::create_dir_all(&log_dir).is_ok() {
-        let file_appender = tracing_appender::rolling::never(&log_dir, "server.log");
-        file_log_path = Some(log_dir.join("server.log"));
-        let non_blocking = tracing_appender::non_blocking(file_appender);
-        file_guard = Some(non_blocking.1);
-        file_layer = Some(
-            tracing_subscriber::fmt::layer()
-                .with_writer(non_blocking.0)
-                .with_ansi(false)
-                .with_target(true)
-                .with_filter(LevelFilter::DEBUG)
-                .boxed(),
-        );
+        let path = log_dir.join("server.log");
+        if let Ok(file) = OpenOptions::new().create(true).append(true).open(&path) {
+            let non_blocking = tracing_appender::non_blocking(file);
+            file_log_path = Some(path);
+            file_guard = Some(non_blocking.1);
+            file_layer = Some(
+                tracing_subscriber::fmt::layer()
+                    .with_writer(non_blocking.0)
+                    .with_ansi(false)
+                    .with_target(true)
+                    .with_filter(LevelFilter::DEBUG)
+                    .boxed(),
+            );
+        }
     }
 
     let subscriber = Registry::default().with(stderr_layer).with(file_layer);
@@ -309,6 +312,126 @@ fn format_attribute_hover(attr: &svg_data::AttributeDef) -> String {
     parts.join("\n")
 }
 
+/// Format externally sourced attribute documentation as Markdown.
+fn format_external_attribute_hover(
+    description: impl AsRef<str>,
+    reference_label: &str,
+    reference_url: &str,
+) -> String {
+    format!(
+        "{}\n\n[{}]({})",
+        description.as_ref(),
+        reference_label,
+        reference_url
+    )
+}
+
+fn external_attribute_hover(kind: &str, attr_name: &str) -> Option<String> {
+    const XML_NAMES_URL: &str = "https://www.w3.org/TR/REC-xml-names/";
+    const XML_DECL_URL: &str = "https://www.w3.org/TR/xml/";
+
+    match kind {
+        "xml_version_attribute_name" => {
+            return Some(format_external_attribute_hover(
+                "Specifies the XML version used by the document declaration.",
+                "W3C XML Reference",
+                XML_DECL_URL,
+            ));
+        }
+        "xml_encoding_attribute_name" => {
+            return Some(format_external_attribute_hover(
+                "Specifies the character encoding declared for the XML document.",
+                "W3C XML Reference",
+                XML_DECL_URL,
+            ));
+        }
+        "xml_standalone_attribute_name" => {
+            return Some(format_external_attribute_hover(
+                "Declares whether the XML document relies on external markup declarations.",
+                "W3C XML Reference",
+                XML_DECL_URL,
+            ));
+        }
+        _ => {}
+    }
+
+    if attr_name == "xmlns" {
+        return Some(format_external_attribute_hover(
+            "Declares the default XML namespace for this element and its descendants.",
+            "W3C Namespaces in XML",
+            XML_NAMES_URL,
+        ));
+    }
+
+    if let Some(prefix) = attr_name.strip_prefix("xmlns:") {
+        return Some(format_external_attribute_hover(
+            format!(
+                "Declares the `{prefix}` XML namespace prefix for this element and its descendants."
+            ),
+            "W3C Namespaces in XML",
+            XML_NAMES_URL,
+        ));
+    }
+
+    let mdn_reference_url = |name: &str| {
+        format!("https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/{name}")
+    };
+
+    match attr_name {
+        "xml:lang" => Some(format_external_attribute_hover(
+            "Specifies the natural language used by the element's text content and attribute values.",
+            "MDN Reference",
+            &mdn_reference_url(attr_name),
+        )),
+        "xml:space" => Some(format_external_attribute_hover(
+            "Controls how XML whitespace is handled for the element's character data.",
+            "MDN Reference",
+            &mdn_reference_url(attr_name),
+        )),
+        "xml:base" => Some(format_external_attribute_hover(
+            "Specifies the base URI used to resolve relative URLs within the element.",
+            "MDN Reference",
+            &mdn_reference_url(attr_name),
+        )),
+        "xlink:href" => Some(format_external_attribute_hover(
+            "Legacy XLink form of `href` used to point at linked resources in SVG.",
+            "MDN Reference",
+            &mdn_reference_url(attr_name),
+        )),
+        "xlink:arcrole" => Some(format_external_attribute_hover(
+            "Legacy XLink attribute that identifies the semantic role of the link arc.",
+            "MDN Reference",
+            &mdn_reference_url(attr_name),
+        )),
+        "xlink:role" => Some(format_external_attribute_hover(
+            "Legacy XLink attribute that identifies the semantic role of the linked resource.",
+            "MDN Reference",
+            &mdn_reference_url(attr_name),
+        )),
+        "xlink:show" => Some(format_external_attribute_hover(
+            "Legacy XLink attribute that hints how the linked resource should be presented.",
+            "MDN Reference",
+            &mdn_reference_url(attr_name),
+        )),
+        "xlink:title" => Some(format_external_attribute_hover(
+            "Legacy XLink attribute that provides a human-readable title for the link.",
+            "MDN Reference",
+            &mdn_reference_url(attr_name),
+        )),
+        "xlink:type" => Some(format_external_attribute_hover(
+            "Legacy XLink attribute that declares the XLink link type.",
+            "MDN Reference",
+            &mdn_reference_url(attr_name),
+        )),
+        "xlink:actuate" => Some(format_external_attribute_hover(
+            "Legacy XLink attribute that hints when the linked resource should be traversed.",
+            "MDN Reference",
+            &mdn_reference_url(attr_name),
+        )),
+        _ => None,
+    }
+}
+
 // Baseline status SVG icons embedded from assets/, base64-encoded into data URIs.
 static BASELINE_HIGH: LazyLock<String> =
     LazyLock::new(|| svg_data_uri(include_str!("../assets/baseline-high.svg")));
@@ -352,7 +475,19 @@ const ATTRIBUTE_NAME_KINDS: &[&str] = &[
     "length_attribute_name",
     "transform_attribute_name",
     "viewbox_attribute_name",
+    "preserve_aspect_ratio_attribute_name",
+    "points_attribute_name",
+    "d_attribute_name",
+    "href_attribute_name",
+    "style_attribute_name",
+    "functional_iri_attribute_name",
+    "opacity_attribute_name",
+    "class_attribute_name",
+    "event_attribute_name",
     "id_attribute_name",
+    "xml_version_attribute_name",
+    "xml_encoding_attribute_name",
+    "xml_standalone_attribute_name",
 ];
 
 /// Find the tree-sitter node at a given byte offset, preferring the deepest (leaf) node.
@@ -636,6 +771,15 @@ impl LanguageServer for SvgLanguageServer {
             let name_text = node.utf8_text(source).unwrap_or("");
             if let Some(attr) = svg_data::attribute(name_text) {
                 let markdown = format_attribute_hover(attr);
+                return Ok(Some(Hover {
+                    contents: HoverContents::Markup(MarkupContent {
+                        kind: MarkupKind::Markdown,
+                        value: markdown,
+                    }),
+                    range: None,
+                }));
+            }
+            if let Some(markdown) = external_attribute_hover(kind, name_text) {
                 return Ok(Some(Hover {
                     contents: HoverContents::Markup(MarkupContent {
                         kind: MarkupKind::Markdown,

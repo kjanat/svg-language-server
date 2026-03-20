@@ -1,10 +1,12 @@
 [package]
-name                  = "svg-language-server"
-version               = "0.1.0"
-edition.workspace     = true
-description.workspace = true
-readme.workspace      = true
-repository.workspace  = true
+name                 = "svg-language-server"
+version              = "0.1.0"
+edition.workspace    = true
+description          = "LSP server for SVG — hover docs, completions, diagnostics, and color swatches"
+readme.workspace     = true
+repository.workspace = true
+keywords             = ["completions", "diagnostics", "language-server", "lsp", "svg"]
+categories           = ["development-tools", "text-editors"]
 
 [[bin]]
 name = "svg-language-server"

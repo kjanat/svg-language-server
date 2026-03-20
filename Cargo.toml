@@ -7,7 +7,9 @@ resolver            = "3"
 members             = ["crates/*"]
 
 [workspace.dependencies]
-tree-sitter = { version = "0.26" }
+tokio            = { version = "1", features = ["io-std", "macros", "rt-multi-thread"] }
+tower-lsp-server = "0.23"
+tree-sitter      = { version = "0.26" }
 
 [workspace.dependencies.svg-color]
 path = "crates/svg-color"

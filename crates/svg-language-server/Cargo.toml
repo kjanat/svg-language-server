@@ -11,6 +11,8 @@ name = "svg-language-server"
 path = "src/main.rs"
 
 [dependencies]
-svg-color.workspace       = true
-tree-sitter.workspace     = true
-tree-sitter-svg.workspace = true
+svg-color.workspace        = true
+tokio.workspace            = true
+tower-lsp-server.workspace = true
+tree-sitter.workspace      = true
+tree-sitter-svg.workspace  = true

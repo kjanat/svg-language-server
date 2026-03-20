@@ -1,74 +1,84 @@
-<!-- Donut chart with labels — exercises text, path arcs, gradients, masks -->
+<!--Donut chart with labels — exercises text, path arcs, gradients, masks-->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">
-	<!-- Background -->
+	<defs>
+		<!--Keep the donut center open while preserving the current stroke-based geometry.-->
+		<mask id="donut-mask"
+			maskUnits="userSpaceOnUse"
+			maskContentUnits="userSpaceOnUse"
+			x="0" y="0" width="300" height="300">
+			<rect x="0" y="0" width="300" height="300" fill="white"/>
+			<circle cx="150" cy="150" r="44" fill="black"/>
+		</mask>
+	</defs>
+
+	<!--Background-->
 	<rect width="300" height="300" rx="16" fill="#f8f9fa"/>
 
-	<!-- Chart title -->
-	<text x="150" y="30" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" font-weight="bold" fill="#212529">
+	<!--Chart title-->
+	<text x="150" y="30"
+		text-anchor="middle"
+		font-family="system-ui, sans-serif"
+		font-size="16" font-weight="bold"
+		fill="#212529">
 		Traffic Sources
 	</text>
 
-	<!-- Donut segments -->
-	<g transform="rotate(-90 150 150)">
-		<circle cx="150" cy="150" r="62" fill="none" stroke="#e9ecef" stroke-width="36"/>
-		<circle
-			cx="150"
-			cy="150"
-			r="62"
-			fill="none"
-			stroke="#4361ee"
-			stroke-width="36"
-			stroke-dasharray="136.35 253.21"
+	<!--Donut segments-->
+	<g mask="url(#donut-mask)" transform="rotate(-90 150 150)">
+
+		<!--Base ring-->
+		<circle cx="150" cy="150" r="62"
+			fill="none" stroke="#e9ecef" stroke-width="36"/>
+
+		<!--Direct: 35%-->
+		<circle cx="150" cy="150" r="62"
+			fill="none" stroke="#4361ee"
+			stroke-width="36" stroke-dasharray="136.35 253.21"
 			stroke-dashoffset="0"/>
-		<circle
-			cx="150"
-			cy="150"
-			r="62"
-			fill="none"
-			stroke="#2a9d8f"
-			stroke-width="36"
-			stroke-dasharray="108.98 280.58"
+
+		<!--Organic: 28%-->
+		<circle cx="150" cy="150" r="62"
+			fill="none" stroke="#2a9d8f"
+			stroke-width="36" stroke-dasharray="108.98 280.58"
 			stroke-dashoffset="-136.35"/>
-		<circle
-			cx="150"
-			cy="150"
-			r="62"
-			fill="none"
-			stroke="#e9c46a"
-			stroke-width="36"
-			stroke-dasharray="85.70 303.86"
+
+		<!--Social: 22%-->
+		<circle cx="150" cy="150" r="62"
+			fill="none" stroke="#e9c46a"
+			stroke-width="36" stroke-dasharray="85.70 303.86"
 			stroke-dashoffset="-245.33"/>
-		<circle
-			cx="150"
-			cy="150"
-			r="62"
-			fill="none"
-			stroke="#e76f51"
-			stroke-width="36"
-			stroke-dasharray="58.43 331.13"
+
+		<!--Referral: 15%-->
+		<circle cx="150" cy="150" r="62"
+			fill="none" stroke="#e76f51"
+			stroke-width="36" stroke-dasharray="58.43 331.13"
 			stroke-dashoffset="-331.03"/>
 	</g>
+
 	<circle cx="150" cy="150" r="44" fill="#f8f9fa"/>
 
-	<!-- Center label -->
-	<text x="150" y="150" text-anchor="middle" font-family="system-ui, sans-serif" font-size="24" font-weight="bold" fill="#212529">
+	<!--Center label-->
+	<text x="150" y="150" text-anchor="middle"
+		font-family="system-ui, sans-serif" font-size="24"
+		font-weight="bold" fill="#212529">
 		12.4K
 	</text>
-	<text x="150" y="168" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#6c757d">
+
+	<text x="150" y="168" text-anchor="middle"
+		font-family="system-ui, sans-serif"
+		font-size="12" fill="#6c757d">
 		total visits
 	</text>
 
-	<!-- Legend -->
-	<g transform="translate(46, 248)" font-family="system-ui, sans-serif" font-size="11">
+	<!--Legend-->
+	<g transform="translate(46, 248)"
+		font-family="system-ui, sans-serif" font-size="11">
 		<circle cx="5" cy="-3" r="4" fill="#4361ee"/>
 		<text x="14" y="0" fill="#495057">Direct 35%</text>
-
 		<circle cx="120" cy="-3" r="4" fill="#2a9d8f"/>
 		<text x="129" y="0" fill="#495057">Organic 28%</text>
-
 		<circle cx="5" cy="20" r="4" fill="#e9c46a"/>
 		<text x="14" y="23" fill="#495057">Social 22%</text>
-
 		<circle cx="120" cy="20" r="4" fill="#e76f51"/>
 		<text x="129" y="23" fill="#495057">Referral 15%</text>
 	</g>

@@ -5,15 +5,7 @@ use crate::types::{ContentModel, ElementCategory};
 pub fn elements_in_category(cat: ElementCategory) -> Vec<&'static str> {
     match cat {
         ElementCategory::Container => vec![
-            "svg",
-            "g",
-            "defs",
-            "symbol",
-            "marker",
-            "clipPath",
-            "mask",
-            "pattern",
-            "a",
+            "svg", "g", "defs", "symbol", "marker", "clipPath", "mask", "pattern", "a",
         ],
         ElementCategory::Shape => vec![
             "rect", "circle", "ellipse", "line", "polyline", "polygon", "path",
@@ -57,8 +49,10 @@ pub fn allowed_children(parent: &str) -> Vec<&'static str> {
     };
     match &el.content_model {
         ContentModel::Children(cats) => {
-            let mut names: Vec<&'static str> =
-                cats.iter().flat_map(|cat| elements_in_category(*cat)).collect();
+            let mut names: Vec<&'static str> = cats
+                .iter()
+                .flat_map(|cat| elements_in_category(*cat))
+                .collect();
             names.sort_unstable();
             names.dedup();
             names

@@ -49,9 +49,7 @@ mod tests {
         let src = br#"<svg><rect><circle/></rect></svg>"#;
         let diags = lint(src);
         assert!(
-            diags
-                .iter()
-                .any(|d| d.code == DiagnosticCode::InvalidChild),
+            diags.iter().any(|d| d.code == DiagnosticCode::InvalidChild),
             "child in void element: {diags:?}"
         );
     }
@@ -62,9 +60,7 @@ mod tests {
         let src = br#"<svg><filter><rect/></filter></svg>"#;
         let diags = lint(src);
         assert!(
-            diags
-                .iter()
-                .any(|d| d.code == DiagnosticCode::InvalidChild),
+            diags.iter().any(|d| d.code == DiagnosticCode::InvalidChild),
             "rect in filter: {diags:?}"
         );
     }
@@ -74,9 +70,7 @@ mod tests {
         let src = br#"<svg><rect id="a"/><rect id="a"/></svg>"#;
         let diags = lint(src);
         assert!(
-            diags
-                .iter()
-                .any(|d| d.code == DiagnosticCode::DuplicateId),
+            diags.iter().any(|d| d.code == DiagnosticCode::DuplicateId),
             "duplicate ids: {diags:?}"
         );
     }
@@ -85,9 +79,7 @@ mod tests {
     fn rect_in_svg_is_valid() {
         let src = br#"<svg><rect/></svg>"#;
         let diags = lint(src);
-        let invalid = diags
-            .iter()
-            .any(|d| d.code == DiagnosticCode::InvalidChild);
+        let invalid = diags.iter().any(|d| d.code == DiagnosticCode::InvalidChild);
         assert!(!invalid, "rect in svg should be valid: {diags:?}");
     }
 
@@ -102,9 +94,7 @@ mod tests {
     fn unique_ids_no_diagnostic() {
         let src = br#"<svg><rect id="a"/><rect id="b"/></svg>"#;
         let diags = lint(src);
-        let dup = diags
-            .iter()
-            .any(|d| d.code == DiagnosticCode::DuplicateId);
+        let dup = diags.iter().any(|d| d.code == DiagnosticCode::DuplicateId);
         assert!(!dup, "unique ids should not trigger: {diags:?}");
     }
 }

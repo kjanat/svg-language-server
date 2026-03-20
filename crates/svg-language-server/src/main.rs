@@ -5,29 +5,91 @@ use tokio::sync::RwLock;
 use tower_lsp_server::jsonrpc::Result;
 use tower_lsp_server::ls_types::{
     Color, ColorInformation, ColorPresentation, ColorPresentationParams, ColorProviderCapability,
-    DidChangeTextDocumentParams, DidCloseTextDocumentParams, DidOpenTextDocumentParams,
-    DocumentColorParams, InitializeParams, InitializeResult, Position, Range, ServerCapabilities,
-    TextDocumentSyncCapability, TextDocumentSyncKind, TextEdit, Uri,
+    Diagnostic, DiagnosticSeverity, DidChangeTextDocumentParams, DidCloseTextDocumentParams,
+    DidOpenTextDocumentParams, DocumentColorParams, InitializeParams, InitializeResult,
+    NumberOrString, Position, Range, ServerCapabilities, TextDocumentSyncCapability,
+    TextDocumentSyncKind, TextEdit, Uri,
 };
 use tower_lsp_server::{Client, LanguageServer, LspService, Server};
+
+/// Parsed document state: source text + tree-sitter tree.
+struct DocumentState {
+    source: String,
+    tree: tree_sitter::Tree,
+}
 
 /// Cache mapping (URI, start_line, start_character) to the original color kind.
 type ColorKindCache = Arc<RwLock<HashMap<(Uri, u32, u32), svg_color::ColorKind>>>;
 
 struct SvgLanguageServer {
-    _client: Client,
-    documents: Arc<RwLock<HashMap<Uri, String>>>,
-    /// Cache of (uri, start_line, start_character) → ColorKind from last document_color call.
+    client: Client,
+    documents: Arc<RwLock<HashMap<Uri, DocumentState>>>,
+    parser: Arc<RwLock<tree_sitter::Parser>>,
     color_kinds: ColorKindCache,
 }
 
 impl SvgLanguageServer {
     fn new(client: Client) -> Self {
+        let mut parser = tree_sitter::Parser::new();
+        parser
+            .set_language(&tree_sitter_svg::LANGUAGE.into())
+            .expect("SVG grammar");
         Self {
-            _client: client,
+            client,
             documents: Arc::new(RwLock::new(HashMap::new())),
+            parser: Arc::new(RwLock::new(parser)),
             color_kinds: Arc::new(RwLock::new(HashMap::new())),
         }
+    }
+
+    /// Parse source, run linter, publish diagnostics, store document state.
+    async fn update_document(&self, uri: Uri, source: String) {
+        let tree = {
+            let mut parser = self.parser.write().await;
+            parser.parse(source.as_bytes(), None)
+        };
+
+        let Some(tree) = tree else {
+            return;
+        };
+
+        let source_bytes = source.as_bytes();
+        let lint_diags = svg_lint::lint_tree(source_bytes, &tree);
+
+        let lsp_diags: Vec<Diagnostic> = lint_diags
+            .into_iter()
+            .map(|d| {
+                let start_char = byte_col_to_utf16(source_bytes, d.start_row, d.start_col);
+                let end_char = byte_col_to_utf16(source_bytes, d.end_row, d.end_col);
+                let severity = match d.severity {
+                    svg_lint::Severity::Error => DiagnosticSeverity::ERROR,
+                    svg_lint::Severity::Warning => DiagnosticSeverity::WARNING,
+                    svg_lint::Severity::Information => DiagnosticSeverity::INFORMATION,
+                    svg_lint::Severity::Hint => DiagnosticSeverity::HINT,
+                };
+                Diagnostic::new(
+                    Range::new(
+                        Position::new(d.start_row as u32, start_char),
+                        Position::new(d.end_row as u32, end_char),
+                    ),
+                    Some(severity),
+                    Some(NumberOrString::String(format!("{:?}", d.code))),
+                    Some("svg-lint".to_owned()),
+                    d.message,
+                    None,
+                    None,
+                )
+            })
+            .collect();
+
+        self.client
+            .publish_diagnostics(uri.clone(), lsp_diags, None)
+            .await;
+
+        self.documents
+            .write()
+            .await
+            .insert(uri, DocumentState { source, tree });
     }
 }
 
@@ -66,18 +128,14 @@ impl LanguageServer for SvgLanguageServer {
     }
 
     async fn did_open(&self, params: DidOpenTextDocumentParams) {
-        self.documents
-            .write()
-            .await
-            .insert(params.text_document.uri, params.text_document.text);
+        self.update_document(params.text_document.uri, params.text_document.text)
+            .await;
     }
 
     async fn did_change(&self, params: DidChangeTextDocumentParams) {
         if let Some(change) = params.content_changes.into_iter().last() {
-            self.documents
-                .write()
-                .await
-                .insert(params.text_document.uri, change.text);
+            self.update_document(params.text_document.uri, change.text)
+                .await;
         }
     }
 
@@ -86,15 +144,18 @@ impl LanguageServer for SvgLanguageServer {
             .write()
             .await
             .remove(&params.text_document.uri);
+        self.client
+            .publish_diagnostics(params.text_document.uri, vec![], None)
+            .await;
     }
 
     async fn document_color(&self, params: DocumentColorParams) -> Result<Vec<ColorInformation>> {
         let docs = self.documents.read().await;
-        let Some(source) = docs.get(&params.text_document.uri) else {
+        let Some(doc) = docs.get(&params.text_document.uri) else {
             return Ok(Vec::new());
         };
-        let source_bytes = source.as_bytes();
-        let colors = svg_color::extract_colors(source_bytes);
+        let source_bytes = doc.source.as_bytes();
+        let colors = svg_color::extract_colors_from_tree(source_bytes, &doc.tree);
 
         let mut kinds = self.color_kinds.write().await;
         // Clear stale entries for this URI

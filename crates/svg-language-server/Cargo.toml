@@ -12,6 +12,7 @@ path = "src/main.rs"
 
 [dependencies]
 svg-color.workspace        = true
+svg-lint.workspace         = true
 tokio.workspace            = true
 tower-lsp-server.workspace = true
 tree-sitter.workspace      = true

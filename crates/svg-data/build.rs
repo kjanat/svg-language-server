@@ -219,14 +219,21 @@ fn main() {
             }
             ValuesJson::Viewbox => "AttributeValues::ViewBox".to_string(),
             ValuesJson::PreserveAspectRatio { .. } => {
-                format!("AttributeValues::PreserveAspectRatio {{ alignments: ATTR_{id}_ALIGNMENTS, meet_or_slice: ATTR_{id}_MEET_OR_SLICE }}")
+                format!(
+                    "AttributeValues::PreserveAspectRatio {{ alignments: ATTR_{id}_ALIGNMENTS, meet_or_slice: ATTR_{id}_MEET_OR_SLICE }}"
+                )
             }
             ValuesJson::Points => "AttributeValues::Points".to_string(),
             ValuesJson::PathData => "AttributeValues::PathData".to_string(),
         };
         writeln!(out, "    AttributeDef {{").unwrap();
         writeln!(out, "        name: \"{}\",", escape(&attr.name)).unwrap();
-        writeln!(out, "        description: \"{}\",", escape(&attr.description)).unwrap();
+        writeln!(
+            out,
+            "        description: \"{}\",",
+            escape(&attr.description)
+        )
+        .unwrap();
         writeln!(out, "        mdn_url: \"{}\",", escape(&attr.mdn_url)).unwrap();
         writeln!(out, "        deprecated: {},", attr.deprecated).unwrap();
         writeln!(out, "        baseline: None,").unwrap();

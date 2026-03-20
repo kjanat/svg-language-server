@@ -1,430 +1,450 @@
 [
-  {
-    "name": "svg",
-    "description": "The svg element is a container that defines a new coordinate system and viewport for SVG content.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/svg",
-    "deprecated": false,
-    "content_model": {
-      "children": [
-        "Container",
-        "Shape",
-        "Text",
-        "Gradient",
-        "Filter",
-        "Descriptive",
-        "Structural",
-        "Animation",
-        "PaintServer",
-        "ClipMask"
-      ]
-    },
-    "required_attrs": [],
-    "attrs": ["xmlns", "viewBox", "width", "height", "x", "y", "preserveAspectRatio"],
-    "global_attrs": true
-  },
-  {
-    "name": "g",
-    "description": "The g element is a container used to group other SVG elements.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/g",
-    "deprecated": false,
-    "content_model": {
-      "children": [
-        "Container",
-        "Shape",
-        "Text",
-        "Gradient",
-        "Filter",
-        "Descriptive",
-        "Structural",
-        "Animation",
-        "PaintServer",
-        "ClipMask"
-      ]
-    },
-    "required_attrs": [],
-    "attrs": [],
-    "global_attrs": true
-  },
-  {
-    "name": "defs",
-    "description": "The defs element is used to store graphical objects that will be used at a later time.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/defs",
-    "deprecated": false,
-    "content_model": {
-      "children": [
-        "Container",
-        "Shape",
-        "Text",
-        "Gradient",
-        "Filter",
-        "Descriptive",
-        "Structural",
-        "Animation",
-        "PaintServer",
-        "ClipMask"
-      ]
-    },
-    "required_attrs": [],
-    "attrs": [],
-    "global_attrs": true
-  },
-  {
-    "name": "use",
-    "description": "The use element takes nodes from within the SVG document, and duplicates them somewhere else.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/use",
-    "deprecated": false,
-    "content_model": "void",
-    "required_attrs": [],
-    "attrs": ["href", "x", "y", "width", "height"],
-    "global_attrs": true
-  },
-  {
-    "name": "symbol",
-    "description": "The symbol element is used to define graphical template objects which can be instantiated by a use element.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/symbol",
-    "deprecated": false,
-    "content_model": {
-      "children": [
-        "Container",
-        "Shape",
-        "Text",
-        "Gradient",
-        "Filter",
-        "Descriptive",
-        "Structural",
-        "Animation",
-        "PaintServer",
-        "ClipMask"
-      ]
-    },
-    "required_attrs": [],
-    "attrs": ["viewBox", "preserveAspectRatio"],
-    "global_attrs": true
-  },
-  {
-    "name": "rect",
-    "description": "The rect element is a basic SVG shape that draws rectangles, defined by their position, width, and height.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/rect",
-    "deprecated": false,
-    "content_model": "void",
-    "required_attrs": [],
-    "attrs": ["x", "y", "width", "height", "rx", "ry"],
-    "global_attrs": true
-  },
-  {
-    "name": "circle",
-    "description": "The circle element is an SVG basic shape used to draw circles based on a center point and a radius.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/circle",
-    "deprecated": false,
-    "content_model": "void",
-    "required_attrs": [],
-    "attrs": ["cx", "cy", "r"],
-    "global_attrs": true
-  },
-  {
-    "name": "ellipse",
-    "description": "The ellipse element is an SVG basic shape used to create ellipses based on a center coordinate and both x and y radii.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/ellipse",
-    "deprecated": false,
-    "content_model": "void",
-    "required_attrs": [],
-    "attrs": ["cx", "cy", "rx", "ry"],
-    "global_attrs": true
-  },
-  {
-    "name": "line",
-    "description": "The line element is an SVG basic shape used to create a line connecting two points.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/line",
-    "deprecated": false,
-    "content_model": "void",
-    "required_attrs": [],
-    "attrs": ["x1", "y1", "x2", "y2"],
-    "global_attrs": true
-  },
-  {
-    "name": "polyline",
-    "description": "The polyline element is an SVG basic shape that creates straight lines connecting several points.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/polyline",
-    "deprecated": false,
-    "content_model": "void",
-    "required_attrs": [],
-    "attrs": ["points"],
-    "global_attrs": true
-  },
-  {
-    "name": "polygon",
-    "description": "The polygon element defines a closed shape consisting of a set of connected straight line segments.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/polygon",
-    "deprecated": false,
-    "content_model": "void",
-    "required_attrs": [],
-    "attrs": ["points"],
-    "global_attrs": true
-  },
-  {
-    "name": "path",
-    "description": "The path element is the generic element to define a shape in SVG using path data commands.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/path",
-    "deprecated": false,
-    "content_model": "void",
-    "required_attrs": [],
-    "attrs": ["d"],
-    "global_attrs": true
-  },
-  {
-    "name": "text",
-    "description": "The text element draws a graphics element consisting of text.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/text",
-    "deprecated": false,
-    "content_model": {
-      "children": ["Text", "Descriptive"]
-    },
-    "required_attrs": [],
-    "attrs": ["x", "y", "dx", "dy", "textLength", "lengthAdjust"],
-    "global_attrs": true
-  },
-  {
-    "name": "tspan",
-    "description": "The tspan element defines a subtext within a text element or another tspan element.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/tspan",
-    "deprecated": false,
-    "content_model": {
-      "children": ["Text", "Descriptive"]
-    },
-    "required_attrs": [],
-    "attrs": ["x", "y", "dx", "dy", "textLength", "lengthAdjust"],
-    "global_attrs": true
-  },
-  {
-    "name": "textPath",
-    "description": "The textPath element renders text along the shape of a path element.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/textPath",
-    "deprecated": false,
-    "content_model": {
-      "children": ["Text", "Descriptive"]
-    },
-    "required_attrs": [],
-    "attrs": ["href", "startOffset", "method", "spacing"],
-    "global_attrs": true
-  },
-  {
-    "name": "a",
-    "description": "The a element creates a hyperlink to other web pages, files, locations within the same page, email addresses, or any other URL.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/a",
-    "deprecated": false,
-    "content_model": {
-      "children": [
-        "Container",
-        "Shape",
-        "Text",
-        "Gradient",
-        "Filter",
-        "Descriptive",
-        "Structural",
-        "Animation",
-        "PaintServer",
-        "ClipMask"
-      ]
-    },
-    "required_attrs": [],
-    "attrs": ["href", "target"],
-    "global_attrs": true
-  },
-  {
-    "name": "image",
-    "description": "The image element includes images inside SVG documents, supporting raster image formats and SVG files.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/image",
-    "deprecated": false,
-    "content_model": "void",
-    "required_attrs": [],
-    "attrs": ["href", "x", "y", "width", "height", "preserveAspectRatio"],
-    "global_attrs": true
-  },
-  {
-    "name": "title",
-    "description": "The title element provides an accessible, short-text description of any SVG container element or graphics element.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/title",
-    "deprecated": false,
-    "content_model": "text",
-    "required_attrs": [],
-    "attrs": [],
-    "global_attrs": false
-  },
-  {
-    "name": "desc",
-    "description": "The desc element provides an accessible, long-text description of any SVG container element or graphics element.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/desc",
-    "deprecated": false,
-    "content_model": "text",
-    "required_attrs": [],
-    "attrs": [],
-    "global_attrs": false
-  },
-  {
-    "name": "metadata",
-    "description": "The metadata element adds metadata to SVG content, allowing structured data to be attached to SVG documents.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/metadata",
-    "deprecated": false,
-    "content_model": "text",
-    "required_attrs": [],
-    "attrs": [],
-    "global_attrs": false
-  },
-  {
-    "name": "clipPath",
-    "description": "The clipPath element defines a clipping path that can be applied to other elements via the clip-path property.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/clipPath",
-    "deprecated": false,
-    "content_model": {
-      "children": ["Shape", "Text", "Descriptive"]
-    },
-    "required_attrs": [],
-    "attrs": ["clipPathUnits"],
-    "global_attrs": true
-  },
-  {
-    "name": "mask",
-    "description": "The mask element defines an alpha mask for compositing the current object into the background.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/mask",
-    "deprecated": false,
-    "content_model": {
-      "children": [
-        "Container",
-        "Shape",
-        "Text",
-        "Gradient",
-        "Descriptive",
-        "Structural"
-      ]
-    },
-    "required_attrs": [],
-    "attrs": ["x", "y", "width", "height", "maskUnits", "maskContentUnits"],
-    "global_attrs": true
-  },
-  {
-    "name": "linearGradient",
-    "description": "The linearGradient element lets authors define linear gradients to apply to other SVG elements.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/linearGradient",
-    "deprecated": false,
-    "content_model": {
-      "children": ["Gradient", "Descriptive", "Animation"]
-    },
-    "required_attrs": [],
-    "attrs": [
-      "x1", "y1", "x2", "y2",
-      "gradientUnits", "gradientTransform", "spreadMethod", "href"
-    ],
-    "global_attrs": true
-  },
-  {
-    "name": "radialGradient",
-    "description": "The radialGradient element lets authors define radial gradients to apply to other SVG elements.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/radialGradient",
-    "deprecated": false,
-    "content_model": {
-      "children": ["Gradient", "Descriptive", "Animation"]
-    },
-    "required_attrs": [],
-    "attrs": [
-      "cx", "cy", "r", "fx", "fy", "fr",
-      "gradientUnits", "gradientTransform", "spreadMethod", "href"
-    ],
-    "global_attrs": true
-  },
-  {
-    "name": "stop",
-    "description": "The stop element defines a color and its position to use on a gradient.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/stop",
-    "deprecated": false,
-    "content_model": "void",
-    "required_attrs": [],
-    "attrs": ["offset"],
-    "global_attrs": true
-  },
-  {
-    "name": "pattern",
-    "description": "The pattern element defines a graphics object which can be redrawn at repeated x- and y-coordinate intervals to cover an area.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/pattern",
-    "deprecated": false,
-    "content_model": {
-      "children": [
-        "Container",
-        "Shape",
-        "Text",
-        "Gradient",
-        "Filter",
-        "Descriptive",
-        "Structural",
-        "Animation",
-        "PaintServer",
-        "ClipMask"
-      ]
-    },
-    "required_attrs": [],
-    "attrs": [
-      "x", "y", "width", "height",
-      "patternUnits", "patternContentUnits", "patternTransform", "href"
-    ],
-    "global_attrs": true
-  },
-  {
-    "name": "filter",
-    "description": "The filter element serves as container for atomic filter operations, defined by filter primitives.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/filter",
-    "deprecated": false,
-    "content_model": {
-      "children": ["FilterPrimitive", "Descriptive"]
-    },
-    "required_attrs": [],
-    "attrs": ["x", "y", "width", "height", "filterUnits", "primitiveUnits"],
-    "global_attrs": true
-  },
-  {
-    "name": "feGaussianBlur",
-    "description": "The feGaussianBlur filter primitive performs a Gaussian blur on the input image.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feGaussianBlur",
-    "deprecated": false,
-    "content_model": "void",
-    "required_attrs": [],
-    "attrs": ["in", "stdDeviation"],
-    "global_attrs": false
-  },
-  {
-    "name": "foreignObject",
-    "description": "The foreignObject element allows inclusion of elements from a different XML namespace inside SVG.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/foreignObject",
-    "deprecated": false,
-    "content_model": {
-      "children": [
-        "Container",
-        "Shape",
-        "Text",
-        "Descriptive",
-        "Structural"
-      ]
-    },
-    "required_attrs": [],
-    "attrs": ["x", "y", "width", "height"],
-    "global_attrs": true
-  },
-  {
-    "name": "style",
-    "description": "The style element allows style sheets to be embedded directly within SVG content.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/style",
-    "deprecated": false,
-    "content_model": "text",
-    "required_attrs": [],
-    "attrs": ["type"],
-    "global_attrs": false
-  },
-  {
-    "name": "script",
-    "description": "The script element allows scripts to be embedded within or referenced from an SVG document.",
-    "mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/script",
-    "deprecated": false,
-    "content_model": "text",
-    "required_attrs": [],
-    "attrs": ["href", "type"],
-    "global_attrs": false
-  }
+	{
+		"name": "svg",
+		"description": "The svg element is a container that defines a new coordinate system and viewport for SVG content.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/svg",
+		"deprecated": false,
+		"content_model": {
+			"children": [
+				"Container",
+				"Shape",
+				"Text",
+				"Gradient",
+				"Filter",
+				"Descriptive",
+				"Structural",
+				"Animation",
+				"PaintServer",
+				"ClipMask"
+			]
+		},
+		"required_attrs": [],
+		"attrs": ["xmlns", "viewBox", "width", "height", "x", "y", "preserveAspectRatio"],
+		"global_attrs": true
+	},
+	{
+		"name": "g",
+		"description": "The g element is a container used to group other SVG elements.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/g",
+		"deprecated": false,
+		"content_model": {
+			"children": [
+				"Container",
+				"Shape",
+				"Text",
+				"Gradient",
+				"Filter",
+				"Descriptive",
+				"Structural",
+				"Animation",
+				"PaintServer",
+				"ClipMask"
+			]
+		},
+		"required_attrs": [],
+		"attrs": [],
+		"global_attrs": true
+	},
+	{
+		"name": "defs",
+		"description": "The defs element is used to store graphical objects that will be used at a later time.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/defs",
+		"deprecated": false,
+		"content_model": {
+			"children": [
+				"Container",
+				"Shape",
+				"Text",
+				"Gradient",
+				"Filter",
+				"Descriptive",
+				"Structural",
+				"Animation",
+				"PaintServer",
+				"ClipMask"
+			]
+		},
+		"required_attrs": [],
+		"attrs": [],
+		"global_attrs": true
+	},
+	{
+		"name": "use",
+		"description": "The use element takes nodes from within the SVG document, and duplicates them somewhere else.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/use",
+		"deprecated": false,
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["href", "x", "y", "width", "height"],
+		"global_attrs": true
+	},
+	{
+		"name": "symbol",
+		"description": "The symbol element is used to define graphical template objects which can be instantiated by a use element.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/symbol",
+		"deprecated": false,
+		"content_model": {
+			"children": [
+				"Container",
+				"Shape",
+				"Text",
+				"Gradient",
+				"Filter",
+				"Descriptive",
+				"Structural",
+				"Animation",
+				"PaintServer",
+				"ClipMask"
+			]
+		},
+		"required_attrs": [],
+		"attrs": ["viewBox", "preserveAspectRatio"],
+		"global_attrs": true
+	},
+	{
+		"name": "rect",
+		"description": "The rect element is a basic SVG shape that draws rectangles, defined by their position, width, and height.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/rect",
+		"deprecated": false,
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["x", "y", "width", "height", "rx", "ry"],
+		"global_attrs": true
+	},
+	{
+		"name": "circle",
+		"description": "The circle element is an SVG basic shape used to draw circles based on a center point and a radius.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/circle",
+		"deprecated": false,
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["cx", "cy", "r"],
+		"global_attrs": true
+	},
+	{
+		"name": "ellipse",
+		"description": "The ellipse element is an SVG basic shape used to create ellipses based on a center coordinate and both x and y radii.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/ellipse",
+		"deprecated": false,
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["cx", "cy", "rx", "ry"],
+		"global_attrs": true
+	},
+	{
+		"name": "line",
+		"description": "The line element is an SVG basic shape used to create a line connecting two points.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/line",
+		"deprecated": false,
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["x1", "y1", "x2", "y2"],
+		"global_attrs": true
+	},
+	{
+		"name": "polyline",
+		"description": "The polyline element is an SVG basic shape that creates straight lines connecting several points.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/polyline",
+		"deprecated": false,
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["points"],
+		"global_attrs": true
+	},
+	{
+		"name": "polygon",
+		"description": "The polygon element defines a closed shape consisting of a set of connected straight line segments.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/polygon",
+		"deprecated": false,
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["points"],
+		"global_attrs": true
+	},
+	{
+		"name": "path",
+		"description": "The path element is the generic element to define a shape in SVG using path data commands.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/path",
+		"deprecated": false,
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["d"],
+		"global_attrs": true
+	},
+	{
+		"name": "text",
+		"description": "The text element draws a graphics element consisting of text.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/text",
+		"deprecated": false,
+		"content_model": {
+			"children": ["Text", "Descriptive"]
+		},
+		"required_attrs": [],
+		"attrs": ["x", "y", "dx", "dy", "textLength", "lengthAdjust"],
+		"global_attrs": true
+	},
+	{
+		"name": "tspan",
+		"description": "The tspan element defines a subtext within a text element or another tspan element.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/tspan",
+		"deprecated": false,
+		"content_model": {
+			"children": ["Text", "Descriptive"]
+		},
+		"required_attrs": [],
+		"attrs": ["x", "y", "dx", "dy", "textLength", "lengthAdjust"],
+		"global_attrs": true
+	},
+	{
+		"name": "textPath",
+		"description": "The textPath element renders text along the shape of a path element.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/textPath",
+		"deprecated": false,
+		"content_model": {
+			"children": ["Text", "Descriptive"]
+		},
+		"required_attrs": [],
+		"attrs": ["href", "startOffset", "method", "spacing"],
+		"global_attrs": true
+	},
+	{
+		"name": "a",
+		"description": "The a element creates a hyperlink to other web pages, files, locations within the same page, email addresses, or any other URL.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/a",
+		"deprecated": false,
+		"content_model": {
+			"children": [
+				"Container",
+				"Shape",
+				"Text",
+				"Gradient",
+				"Filter",
+				"Descriptive",
+				"Structural",
+				"Animation",
+				"PaintServer",
+				"ClipMask"
+			]
+		},
+		"required_attrs": [],
+		"attrs": ["href", "target"],
+		"global_attrs": true
+	},
+	{
+		"name": "image",
+		"description": "The image element includes images inside SVG documents, supporting raster image formats and SVG files.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/image",
+		"deprecated": false,
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["href", "x", "y", "width", "height", "preserveAspectRatio"],
+		"global_attrs": true
+	},
+	{
+		"name": "title",
+		"description": "The title element provides an accessible, short-text description of any SVG container element or graphics element.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/title",
+		"deprecated": false,
+		"content_model": "text",
+		"required_attrs": [],
+		"attrs": [],
+		"global_attrs": false
+	},
+	{
+		"name": "desc",
+		"description": "The desc element provides an accessible, long-text description of any SVG container element or graphics element.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/desc",
+		"deprecated": false,
+		"content_model": "text",
+		"required_attrs": [],
+		"attrs": [],
+		"global_attrs": false
+	},
+	{
+		"name": "metadata",
+		"description": "The metadata element adds metadata to SVG content, allowing structured data to be attached to SVG documents.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/metadata",
+		"deprecated": false,
+		"content_model": "text",
+		"required_attrs": [],
+		"attrs": [],
+		"global_attrs": false
+	},
+	{
+		"name": "clipPath",
+		"description": "The clipPath element defines a clipping path that can be applied to other elements via the clip-path property.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/clipPath",
+		"deprecated": false,
+		"content_model": {
+			"children": ["Shape", "Text", "Descriptive"]
+		},
+		"required_attrs": [],
+		"attrs": ["clipPathUnits"],
+		"global_attrs": true
+	},
+	{
+		"name": "mask",
+		"description": "The mask element defines an alpha mask for compositing the current object into the background.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/mask",
+		"deprecated": false,
+		"content_model": {
+			"children": [
+				"Container",
+				"Shape",
+				"Text",
+				"Gradient",
+				"Descriptive",
+				"Structural"
+			]
+		},
+		"required_attrs": [],
+		"attrs": ["x", "y", "width", "height", "maskUnits", "maskContentUnits"],
+		"global_attrs": true
+	},
+	{
+		"name": "linearGradient",
+		"description": "The linearGradient element lets authors define linear gradients to apply to other SVG elements.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/linearGradient",
+		"deprecated": false,
+		"content_model": {
+			"children": ["Gradient", "Descriptive", "Animation"]
+		},
+		"required_attrs": [],
+		"attrs": [
+			"x1",
+			"y1",
+			"x2",
+			"y2",
+			"gradientUnits",
+			"gradientTransform",
+			"spreadMethod",
+			"href"
+		],
+		"global_attrs": true
+	},
+	{
+		"name": "radialGradient",
+		"description": "The radialGradient element lets authors define radial gradients to apply to other SVG elements.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/radialGradient",
+		"deprecated": false,
+		"content_model": {
+			"children": ["Gradient", "Descriptive", "Animation"]
+		},
+		"required_attrs": [],
+		"attrs": [
+			"cx",
+			"cy",
+			"r",
+			"fx",
+			"fy",
+			"fr",
+			"gradientUnits",
+			"gradientTransform",
+			"spreadMethod",
+			"href"
+		],
+		"global_attrs": true
+	},
+	{
+		"name": "stop",
+		"description": "The stop element defines a color and its position to use on a gradient.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/stop",
+		"deprecated": false,
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["offset"],
+		"global_attrs": true
+	},
+	{
+		"name": "pattern",
+		"description": "The pattern element defines a graphics object which can be redrawn at repeated x- and y-coordinate intervals to cover an area.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/pattern",
+		"deprecated": false,
+		"content_model": {
+			"children": [
+				"Container",
+				"Shape",
+				"Text",
+				"Gradient",
+				"Filter",
+				"Descriptive",
+				"Structural",
+				"Animation",
+				"PaintServer",
+				"ClipMask"
+			]
+		},
+		"required_attrs": [],
+		"attrs": [
+			"x",
+			"y",
+			"width",
+			"height",
+			"patternUnits",
+			"patternContentUnits",
+			"patternTransform",
+			"href"
+		],
+		"global_attrs": true
+	},
+	{
+		"name": "filter",
+		"description": "The filter element serves as container for atomic filter operations, defined by filter primitives.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/filter",
+		"deprecated": false,
+		"content_model": {
+			"children": ["FilterPrimitive", "Descriptive"]
+		},
+		"required_attrs": [],
+		"attrs": ["x", "y", "width", "height", "filterUnits", "primitiveUnits"],
+		"global_attrs": true
+	},
+	{
+		"name": "feGaussianBlur",
+		"description": "The feGaussianBlur filter primitive performs a Gaussian blur on the input image.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feGaussianBlur",
+		"deprecated": false,
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["in", "stdDeviation"],
+		"global_attrs": false
+	},
+	{
+		"name": "foreignObject",
+		"description": "The foreignObject element allows inclusion of elements from a different XML namespace inside SVG.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/foreignObject",
+		"deprecated": false,
+		"content_model": {
+			"children": [
+				"Container",
+				"Shape",
+				"Text",
+				"Descriptive",
+				"Structural"
+			]
+		},
+		"required_attrs": [],
+		"attrs": ["x", "y", "width", "height"],
+		"global_attrs": true
+	},
+	{
+		"name": "style",
+		"description": "The style element allows style sheets to be embedded directly within SVG content.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/style",
+		"deprecated": false,
+		"content_model": "text",
+		"required_attrs": [],
+		"attrs": ["type"],
+		"global_attrs": false
+	},
+	{
+		"name": "script",
+		"description": "The script element allows scripts to be embedded within or referenced from an SVG document.",
+		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/script",
+		"deprecated": false,
+		"content_model": "text",
+		"required_attrs": [],
+		"attrs": ["href", "type"],
+		"global_attrs": false
+	}
 ]

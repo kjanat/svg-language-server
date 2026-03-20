@@ -11,6 +11,7 @@ name = "svg-language-server"
 path = "src/main.rs"
 
 [dependencies]
+base64.workspace           = true
 svg-color.workspace        = true
 svg-data.workspace         = true
 svg-lint.workspace         = true

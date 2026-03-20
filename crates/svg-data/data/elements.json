@@ -15,7 +15,8 @@
 				"Structural",
 				"Animation",
 				"PaintServer",
-				"ClipMask"
+				"ClipMask",
+				"NeverRendered"
 			]
 		},
 		"required_attrs": [],
@@ -38,7 +39,8 @@
 				"Structural",
 				"Animation",
 				"PaintServer",
-				"ClipMask"
+				"ClipMask",
+				"NeverRendered"
 			]
 		},
 		"required_attrs": [],
@@ -61,7 +63,8 @@
 				"Structural",
 				"Animation",
 				"PaintServer",
-				"ClipMask"
+				"ClipMask",
+				"NeverRendered"
 			]
 		},
 		"required_attrs": [],
@@ -94,7 +97,8 @@
 				"Structural",
 				"Animation",
 				"PaintServer",
-				"ClipMask"
+				"ClipMask",
+				"NeverRendered"
 			]
 		},
 		"required_attrs": [],
@@ -223,7 +227,8 @@
 				"Structural",
 				"Animation",
 				"PaintServer",
-				"ClipMask"
+				"ClipMask",
+				"NeverRendered"
 			]
 		},
 		"required_attrs": [],
@@ -294,7 +299,8 @@
 				"Text",
 				"Gradient",
 				"Descriptive",
-				"Structural"
+				"Structural",
+				"NeverRendered"
 			]
 		},
 		"required_attrs": [],
@@ -371,7 +377,8 @@
 				"Structural",
 				"Animation",
 				"PaintServer",
-				"ClipMask"
+				"ClipMask",
+				"NeverRendered"
 			]
 		},
 		"required_attrs": [],
@@ -420,7 +427,8 @@
 				"Shape",
 				"Text",
 				"Descriptive",
-				"Structural"
+				"Structural",
+				"NeverRendered"
 			]
 		},
 		"required_attrs": [],

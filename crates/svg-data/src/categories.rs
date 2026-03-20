@@ -39,6 +39,7 @@ pub fn elements_in_category(cat: ElementCategory) -> Vec<&'static str> {
             "feTile",
             "feTurbulence",
         ],
+        ElementCategory::NeverRendered => vec!["style", "script"],
     }
 }
 

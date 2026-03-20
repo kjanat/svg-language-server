@@ -74,4 +74,5 @@ pub enum ElementCategory {
     ClipMask,
     LightSource,
     FilterPrimitive,
+    NeverRendered,
 }

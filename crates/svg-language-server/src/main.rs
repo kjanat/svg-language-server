@@ -223,7 +223,8 @@ const ATTRIBUTE_NAME_KINDS: &[&str] = &[
 
 /// Find the tree-sitter node at a given byte offset, preferring the deepest (leaf) node.
 fn deepest_node_at(tree: &tree_sitter::Tree, byte_offset: usize) -> tree_sitter::Node<'_> {
-    tree.root_node().descendant_for_byte_range(byte_offset, byte_offset)
+    tree.root_node()
+        .descendant_for_byte_range(byte_offset, byte_offset)
         .unwrap_or_else(|| tree.root_node())
 }
 
@@ -248,10 +249,7 @@ fn tag_element_name<'a>(tag_node: tree_sitter::Node<'_>, source: &'a [u8]) -> Op
 }
 
 /// Extract element name from the enclosing element/svg_root_element.
-fn enclosing_element_name<'a>(
-    node: tree_sitter::Node<'_>,
-    source: &'a [u8],
-) -> Option<&'a str> {
+fn enclosing_element_name<'a>(node: tree_sitter::Node<'_>, source: &'a [u8]) -> Option<&'a str> {
     let elem = find_ancestor_any(node, &["element", "svg_root_element"])?;
     // The element's first child is typically the start_tag
     for i in 0..elem.child_count() {
@@ -533,10 +531,9 @@ impl LanguageServer for SvgLanguageServer {
             // Inside attribute value → value completions
             if kind.ends_with("_attribute_value") || kind == "quoted_attribute_value" {
                 // Walk up to find the attribute name
-                if let Some(attr_wrapper) = find_ancestor_any(
-                    cursor,
-                    &["generic_attribute", "attribute"],
-                ) {
+                if let Some(attr_wrapper) =
+                    find_ancestor_any(cursor, &["generic_attribute", "attribute"])
+                {
                     // First child or child named with attribute name
                     for i in 0..attr_wrapper.child_count() {
                         if let Some(child) = attr_wrapper.child(i as u32)

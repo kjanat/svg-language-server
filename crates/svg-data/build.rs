@@ -97,10 +97,8 @@ fn ident_from(name: &str) -> String {
 
 // ---- Compat data fetching ----
 
-const BCD_URL: &str =
-    "https://unpkg.com/@mdn/browser-compat-data@latest/data.json";
-const WEB_FEATURES_URL: &str =
-    "https://unpkg.com/web-features@latest/data.json";
+const BCD_URL: &str = "https://unpkg.com/@mdn/browser-compat-data@latest/data.json";
+const WEB_FEATURES_URL: &str = "https://unpkg.com/web-features@latest/data.json";
 
 const CACHE_MAX_AGE_SECS: u64 = 24 * 60 * 60; // 24 hours
 
@@ -110,10 +108,16 @@ const CACHE_MAX_AGE_SECS: u64 = 24 * 60 * 60; // 24 hours
 fn ensure_cached(url: &str, dest: &Path, offline: bool) -> Result<bool, String> {
     if offline {
         if dest.exists() {
-            println!("cargo::warning=compat: using existing cache (offline mode): {}", dest.display());
+            println!(
+                "cargo::warning=compat: using existing cache (offline mode): {}",
+                dest.display()
+            );
             return Ok(true);
         }
-        println!("cargo::warning=compat: no cache and offline mode — skipping {}", dest.display());
+        println!(
+            "cargo::warning=compat: no cache and offline mode — skipping {}",
+            dest.display()
+        );
         return Ok(false);
     }
 
@@ -194,9 +198,7 @@ fn fetch_compat_data(out_dir: &Path) -> HashMap<String, CompatEntry> {
         }
     };
 
-    let svg_elements = match bcd_root
-        .pointer("/svg/elements")
-    {
+    let svg_elements = match bcd_root.pointer("/svg/elements") {
         Some(v) => v,
         None => {
             println!("cargo::warning=compat: BCD missing /svg/elements path");
@@ -248,7 +250,13 @@ fn fetch_compat_data(out_dir: &Path) -> HashMap<String, CompatEntry> {
         // Extract web-features tag: look for "web-features:XXX" in tags array
         let baseline = extract_baseline(compat, &wf_features);
 
-        map.insert(el_name.clone(), CompatEntry { deprecated, baseline });
+        map.insert(
+            el_name.clone(),
+            CompatEntry {
+                deprecated,
+                baseline,
+            },
+        );
     }
 
     println!(
@@ -428,10 +436,7 @@ fn main() {
 
         // Use compat data if available, otherwise fall back to JSON values
         let (deprecated, baseline_str) = match compat.get(&el.name) {
-            Some(entry) => (
-                entry.deprecated,
-                format_baseline(entry.baseline.as_ref()),
-            ),
+            Some(entry) => (entry.deprecated, format_baseline(entry.baseline.as_ref())),
             None => (el.deprecated, "None".to_string()),
         };
 

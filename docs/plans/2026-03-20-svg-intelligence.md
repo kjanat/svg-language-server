@@ -220,9 +220,30 @@ Example structure (include at least these elements: `svg`, `g`, `defs`,
 		"description": "The svg element is a container for SVG graphics.",
 		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/svg",
 		"deprecated": false,
-		"content_model": { "children": ["Container", "Shape", "Text", "Gradient", "Filter", "Descriptive", "Structural", "Animation", "PaintServer", "ClipMask"] },
+		"content_model": {
+			"children": [
+				"Container",
+				"Shape",
+				"Text",
+				"Gradient",
+				"Filter",
+				"Descriptive",
+				"Structural",
+				"Animation",
+				"PaintServer",
+				"ClipMask"
+			]
+		},
 		"required_attrs": [],
-		"attrs": ["xmlns", "viewBox", "width", "height", "x", "y", "preserveAspectRatio"],
+		"attrs": [
+			"xmlns",
+			"viewBox",
+			"width",
+			"height",
+			"x",
+			"y",
+			"preserveAspectRatio"
+		],
 		"global_attrs": true
 	},
 	{

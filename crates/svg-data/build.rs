@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use std::fmt::Write as _;
 use std::fs;
 use std::path::Path;
+use std::time::SystemTime;
 
 // ---- JSON schema types ----
 
@@ -59,6 +60,20 @@ enum ValuesJson {
     PathData,
 }
 
+// ---- Compat data types ----
+
+/// Resolved baseline + deprecated for one element.
+struct CompatEntry {
+    deprecated: bool,
+    baseline: Option<BaselineValue>,
+}
+
+enum BaselineValue {
+    Widely { since: u16 },
+    Newly { since: u16 },
+    Limited,
+}
+
 // ---- Codegen helpers ----
 
 fn escape(s: &str) -> String {
@@ -80,13 +95,236 @@ fn ident_from(name: &str) -> String {
     name.replace('-', "_").to_uppercase()
 }
 
+// ---- Compat data fetching ----
+
+const BCD_URL: &str =
+    "https://unpkg.com/@mdn/browser-compat-data@latest/data.json";
+const WEB_FEATURES_URL: &str =
+    "https://unpkg.com/web-features@latest/data.json";
+
+const CACHE_MAX_AGE_SECS: u64 = 24 * 60 * 60; // 24 hours
+
+/// Download `url` to `dest` if the file is missing or older than 24h.
+/// Returns `Ok(true)` if file is ready, `Ok(false)` if skipped (offline mode),
+/// `Err` on failure.
+fn ensure_cached(url: &str, dest: &Path, offline: bool) -> Result<bool, String> {
+    if offline {
+        if dest.exists() {
+            println!("cargo::warning=compat: using existing cache (offline mode): {}", dest.display());
+            return Ok(true);
+        }
+        println!("cargo::warning=compat: no cache and offline mode — skipping {}", dest.display());
+        return Ok(false);
+    }
+
+    // Check if existing cache is fresh enough.
+    if dest.exists() {
+        if let Ok(meta) = fs::metadata(dest) {
+            if let Ok(modified) = meta.modified() {
+                if let Ok(age) = SystemTime::now().duration_since(modified) {
+                    if age.as_secs() < CACHE_MAX_AGE_SECS {
+                        println!(
+                            "cargo::warning=compat: using cached {} (age {}s)",
+                            dest.display(),
+                            age.as_secs()
+                        );
+                        return Ok(true);
+                    }
+                }
+            }
+        }
+    }
+
+    println!("cargo::warning=compat: downloading {url}");
+
+    let mut response = ureq::get(url)
+        .call()
+        .map_err(|e| format!("fetch {url}: {e}"))?;
+
+    let body = response
+        .body_mut()
+        .read_to_string()
+        .map_err(|e| format!("read body {url}: {e}"))?;
+
+    fs::write(dest, &body).map_err(|e| format!("write {}: {e}", dest.display()))?;
+
+    Ok(true)
+}
+
+/// Build a lookup map: element name -> CompatEntry.
+/// On any failure, prints a cargo warning and returns an empty map.
+fn fetch_compat_data(out_dir: &Path) -> HashMap<String, CompatEntry> {
+    let offline = std::env::var("SVG_DATA_OFFLINE").is_ok();
+
+    let bcd_path = out_dir.join("bcd-data.json");
+    let wf_path = out_dir.join("web-features-data.json");
+
+    let bcd_ok = match ensure_cached(BCD_URL, &bcd_path, offline) {
+        Ok(v) => v,
+        Err(e) => {
+            println!("cargo::warning=compat: BCD fetch failed: {e}");
+            false
+        }
+    };
+
+    let wf_ok = match ensure_cached(WEB_FEATURES_URL, &wf_path, offline) {
+        Ok(v) => v,
+        Err(e) => {
+            println!("cargo::warning=compat: web-features fetch failed: {e}");
+            false
+        }
+    };
+
+    if !bcd_ok {
+        println!("cargo::warning=compat: no BCD data — all elements get baseline: None");
+        return HashMap::new();
+    }
+
+    // Parse BCD: we only need svg.elements
+    let bcd_raw = match fs::read_to_string(&bcd_path) {
+        Ok(s) => s,
+        Err(e) => {
+            println!("cargo::warning=compat: failed to read BCD cache: {e}");
+            return HashMap::new();
+        }
+    };
+
+    let bcd_root: serde_json::Value = match serde_json::from_str(&bcd_raw) {
+        Ok(v) => v,
+        Err(e) => {
+            println!("cargo::warning=compat: failed to parse BCD JSON: {e}");
+            return HashMap::new();
+        }
+    };
+
+    let svg_elements = match bcd_root
+        .pointer("/svg/elements")
+    {
+        Some(v) => v,
+        None => {
+            println!("cargo::warning=compat: BCD missing /svg/elements path");
+            return HashMap::new();
+        }
+    };
+
+    // Parse web-features (optional — only needed for baseline mapping)
+    let wf_features: Option<serde_json::Value> = if wf_ok {
+        match fs::read_to_string(&wf_path) {
+            Ok(s) => match serde_json::from_str::<serde_json::Value>(&s) {
+                Ok(v) => v.get("features").cloned(),
+                Err(e) => {
+                    println!("cargo::warning=compat: failed to parse web-features JSON: {e}");
+                    None
+                }
+            },
+            Err(e) => {
+                println!("cargo::warning=compat: failed to read web-features cache: {e}");
+                None
+            }
+        }
+    } else {
+        None
+    };
+
+    let svg_elements_obj = match svg_elements.as_object() {
+        Some(o) => o,
+        None => {
+            println!("cargo::warning=compat: /svg/elements is not an object");
+            return HashMap::new();
+        }
+    };
+
+    let mut map = HashMap::new();
+
+    for (el_name, el_data) in svg_elements_obj {
+        let compat = match el_data.pointer("/__compat") {
+            Some(c) => c,
+            None => continue,
+        };
+
+        // Extract deprecated status
+        let deprecated = compat
+            .pointer("/status/deprecated")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false);
+
+        // Extract web-features tag: look for "web-features:XXX" in tags array
+        let baseline = extract_baseline(compat, &wf_features);
+
+        map.insert(el_name.clone(), CompatEntry { deprecated, baseline });
+    }
+
+    println!(
+        "cargo::warning=compat: loaded {} element entries from BCD",
+        map.len()
+    );
+
+    map
+}
+
+/// Given a BCD __compat object and the web-features data, resolve baseline status.
+fn extract_baseline(
+    compat: &serde_json::Value,
+    wf_features: &Option<serde_json::Value>,
+) -> Option<BaselineValue> {
+    let wf = wf_features.as_ref()?;
+
+    // Find the web-features tag
+    let tags = compat.get("tags")?.as_array()?;
+    let feature_id = tags.iter().find_map(|tag| {
+        let s = tag.as_str()?;
+        s.strip_prefix("web-features:")
+    })?;
+
+    // Look up in web-features data
+    let feature = wf.get(feature_id)?;
+    let status = feature.get("status")?;
+
+    let baseline_val = status.get("baseline")?;
+
+    match baseline_val {
+        serde_json::Value::Bool(false) => Some(BaselineValue::Limited),
+        serde_json::Value::String(s) if s == "high" => {
+            let year = extract_year(status, "baseline_high_date")?;
+            Some(BaselineValue::Widely { since: year })
+        }
+        serde_json::Value::String(s) if s == "low" => {
+            let year = extract_year(status, "baseline_low_date")?;
+            Some(BaselineValue::Newly { since: year })
+        }
+        _ => None,
+    }
+}
+
+/// Extract the year from a date string like "2020-01-15".
+fn extract_year(status: &serde_json::Value, key: &str) -> Option<u16> {
+    let date_str = status.get(key)?.as_str()?;
+    let year_str = date_str.split('-').next()?;
+    year_str.parse::<u16>().ok()
+}
+
+fn format_baseline(baseline: Option<&BaselineValue>) -> String {
+    match baseline {
+        None => "None".to_string(),
+        Some(BaselineValue::Widely { since }) => {
+            format!("Some(BaselineStatus::Widely {{ since: {since} }})")
+        }
+        Some(BaselineValue::Newly { since }) => {
+            format!("Some(BaselineStatus::Newly {{ since: {since} }})")
+        }
+        Some(BaselineValue::Limited) => "Some(BaselineStatus::Limited)".to_string(),
+    }
+}
+
 fn main() {
     println!("cargo::rerun-if-changed=data/elements.json");
     println!("cargo::rerun-if-changed=data/attributes.json");
+    println!("cargo::rerun-if-env-changed=SVG_DATA_OFFLINE");
 
     let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
     let out_dir = std::env::var("OUT_DIR").unwrap();
-    let out_path = Path::new(&out_dir).join("catalog.rs");
+    let out_dir = Path::new(&out_dir);
+    let out_path = out_dir.join("catalog.rs");
 
     let elements_json = fs::read_to_string(manifest_dir.join("data/elements.json"))
         .expect("failed to read elements.json");
@@ -97,6 +335,9 @@ fn main() {
         serde_json::from_str(&elements_json).expect("failed to parse elements.json");
     let attributes: Vec<JsonAttribute> =
         serde_json::from_str(&attributes_json).expect("failed to parse attributes.json");
+
+    // Fetch compat data (graceful fallback on failure)
+    let compat = fetch_compat_data(out_dir);
 
     let mut out = String::with_capacity(16384);
 
@@ -187,12 +428,22 @@ fn main() {
                 format!("ContentModel::Children(EL_{id}_CHILDREN)")
             }
         };
+
+        // Use compat data if available, otherwise fall back to JSON values
+        let (deprecated, baseline_str) = match compat.get(&el.name) {
+            Some(entry) => (
+                entry.deprecated,
+                format_baseline(entry.baseline.as_ref()),
+            ),
+            None => (el.deprecated, "None".to_string()),
+        };
+
         writeln!(out, "    ElementDef {{").unwrap();
         writeln!(out, "        name: \"{}\",", escape(&el.name)).unwrap();
         writeln!(out, "        description: \"{}\",", escape(&el.description)).unwrap();
         writeln!(out, "        mdn_url: \"{}\",", escape(&el.mdn_url)).unwrap();
-        writeln!(out, "        deprecated: {},", el.deprecated).unwrap();
-        writeln!(out, "        baseline: None,").unwrap();
+        writeln!(out, "        deprecated: {deprecated},").unwrap();
+        writeln!(out, "        baseline: {baseline_str},").unwrap();
         writeln!(out, "        content_model: {content_model},").unwrap();
         writeln!(out, "        required_attrs: EL_{id}_REQUIRED_ATTRS,").unwrap();
         writeln!(out, "        attrs: EL_{id}_ATTRS,").unwrap();

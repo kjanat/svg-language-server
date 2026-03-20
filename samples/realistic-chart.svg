@@ -1,0 +1,55 @@
+<!-- Donut chart with labels — exercises text, path arcs, gradients, masks -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">
+	<defs>
+		<mask id="donut-mask">
+			<rect width="300" height="300" fill="white"/>
+			<circle cx="150" cy="150" r="55" fill="black"/>
+		</mask>
+	</defs>
+
+	<!-- Background -->
+	<rect width="300" height="300" rx="16" fill="#f8f9fa"/>
+
+	<!-- Chart title -->
+	<text x="150" y="30" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" font-weight="bold" fill="#212529">
+		Traffic Sources
+	</text>
+
+	<!-- Donut segments -->
+	<g mask="url(#donut-mask)" transform="translate(150, 160)">
+		<!-- Direct: 35% — blue arc -->
+		<path d="M0,-90 A90,90 0 0,1 76.5,-47.4" fill="none" stroke="#4361ee" stroke-width="90"/>
+
+		<!-- Organic: 28% — green arc -->
+		<path d="M76.5,-47.4 A90,90 0 0,1 81,39.6" fill="none" stroke="#2a9d8f" stroke-width="90"/>
+
+		<!-- Social: 22% — orange arc -->
+		<path d="M81,39.6 A90,90 0 0,1 -27,85.8" fill="none" stroke="#e9c46a" stroke-width="90"/>
+
+		<!-- Referral: 15% — red arc -->
+		<path d="M-27,85.8 A90,90 0 0,1 0,-90" fill="none" stroke="#e76f51" stroke-width="90"/>
+	</g>
+
+	<!-- Center label -->
+	<text x="150" y="155" text-anchor="middle" font-family="system-ui, sans-serif" font-size="24" font-weight="bold" fill="#212529">
+		12.4K
+	</text>
+	<text x="150" y="175" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#6c757d">
+		total visits
+	</text>
+
+	<!-- Legend -->
+	<g transform="translate(30, 270)" font-family="system-ui, sans-serif" font-size="11">
+		<circle cx="5" cy="-3" r="4" fill="#4361ee"/>
+		<text x="14" y="0" fill="#495057">Direct 35%</text>
+
+		<circle cx="95" cy="-3" r="4" fill="#2a9d8f"/>
+		<text x="104" y="0" fill="#495057">Organic 28%</text>
+
+		<circle cx="195" cy="-3" r="4" fill="#e9c46a"/>
+		<text x="204" y="0" fill="#495057">Social 22%</text>
+
+		<circle cx="275" cy="-3" r="4" fill="#e76f51"/>
+		<text x="284" y="0" fill="#495057">Ref 15%</text>
+	</g>
+</svg>

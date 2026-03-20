@@ -1,0 +1,73 @@
+<!-- Hover each attribute name to see description + values + MDN link -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+
+	<!-- Hover "viewBox": defines the SVG viewport coordinates -->
+	<!-- Hover "fill": color for the interior -->
+	<!-- Hover "stroke": color for the outline -->
+	<!-- Hover "stroke-width": width of the stroke -->
+	<rect x="10" y="10" width="100" height="60"
+		fill="#2a9d8f"
+		stroke="#264653"
+		stroke-width="3"
+		rx="8"
+		ry="8"/>
+
+	<!-- Hover "stroke-linecap": shows enum values butt|round|square -->
+	<line x1="150" y1="20" x2="350" y2="20"
+		stroke="#e76f51"
+		stroke-width="8"
+		stroke-linecap="round"/>
+
+	<!-- Hover "stroke-linejoin": shows enum values miter|round|bevel -->
+	<polyline points="150,60 200,40 250,60 300,40 350,60"
+		fill="none"
+		stroke="#e9c46a"
+		stroke-width="4"
+		stroke-linejoin="round"/>
+
+	<!-- Hover "stroke-dasharray": dash pattern -->
+	<line x1="10" y1="100" x2="390" y2="100"
+		stroke="#264653"
+		stroke-width="2"
+		stroke-dasharray="10 5 2 5"/>
+
+	<!-- Hover "opacity": overall transparency -->
+	<!-- Hover "fill-opacity": fill-only transparency -->
+	<circle cx="80" cy="170" r="50"
+		fill="#e76f51"
+		fill-opacity="0.5"
+		opacity="0.9"/>
+
+	<!-- Hover "transform": shows transform function completions -->
+	<g transform="translate(200, 150) rotate(45)">
+		<rect x="-30" y="-30" width="60" height="60" fill="#2a9d8f"/>
+	</g>
+
+	<!-- Hover "d": SVG path data -->
+	<path d="M10,250 C50,200 100,280 150,250 S250,220 300,250"
+		fill="none" stroke="#264653" stroke-width="2"/>
+
+	<!-- Hover "text-anchor": shows enum values start|middle|end -->
+	<!-- Hover "dominant-baseline": shows enum values auto|alphabetic|middle|... -->
+	<!-- Hover "font-family" / "font-size" / "font-weight" -->
+	<text x="200" y="290"
+		text-anchor="middle"
+		dominant-baseline="alphabetic"
+		font-family="Arial, sans-serif"
+		font-size="14"
+		font-weight="bold"
+		fill="#264653">Centered Text</text>
+
+	<!-- Hover "preserveAspectRatio": alignment + meet/slice completions -->
+	<svg x="300" y="100" width="90" height="90"
+		viewBox="0 0 100 100"
+		preserveAspectRatio="xMidYMid meet">
+		<circle cx="50" cy="50" r="40" fill="#e9c46a"/>
+	</svg>
+
+	<!-- Hover "clip-path", "mask", "filter": URL references -->
+	<rect x="10" y="120" width="60" height="60"
+		fill="#264653"
+		clip-path="url(#myClip)"
+		filter="url(#myFilter)"/>
+</svg>

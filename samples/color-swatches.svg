@@ -1,0 +1,50 @@
+<!-- Color swatches should appear next to each color value -->
+<!-- Click a swatch to open the color picker with format alternatives -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+
+	<!-- Hex colors: 6-digit, 3-digit, 8-digit with alpha -->
+	<rect x="10" y="10" width="80" height="40" fill="#ff6b35"/>
+	<rect x="100" y="10" width="80" height="40" fill="#f00"/>
+	<rect x="190" y="10" width="80" height="40" fill="#2a9d8f80"/>
+
+	<!-- Named colors: should show swatch + named→hex/rgb conversion -->
+	<circle cx="50" cy="100" r="30" fill="coral"/>
+	<circle cx="140" cy="100" r="30" fill="steelblue"/>
+	<circle cx="230" cy="100" r="30" fill="mediumseagreen"/>
+	<circle cx="320" cy="100" r="30" fill="rebeccapurple"/>
+
+	<!-- RGB functional colors -->
+	<rect x="10" y="150" width="80" height="40" fill="rgb(255, 99, 71)"/>
+	<rect x="100" y="150" width="80" height="40" fill="rgb(100%, 50%, 0%)"/>
+
+	<!-- RGBA with alpha -->
+	<rect x="190" y="150" width="80" height="40" fill="rgba(0, 128, 255, 0.6)"/>
+
+	<!-- HSL colors -->
+	<rect x="10" y="210" width="80" height="40" fill="hsl(210, 80%, 50%)"/>
+	<rect x="100" y="210" width="80" height="40" fill="hsla(340, 70%, 55%, 0.8)"/>
+
+	<!-- Stroke colors get swatches too -->
+	<circle cx="50" cy="300" r="30"
+		fill="none"
+		stroke="#e76f51"
+		stroke-width="4"/>
+
+	<!-- stop-color in gradients -->
+	<defs>
+		<linearGradient id="rainbow" x1="0%" y1="0%" x2="100%" y2="0%">
+			<stop offset="0%" stop-color="#ff0000"/>
+			<stop offset="25%" stop-color="#ffff00"/>
+			<stop offset="50%" stop-color="#00ff00"/>
+			<stop offset="75%" stop-color="#0000ff"/>
+			<stop offset="100%" stop-color="#ff00ff"/>
+		</linearGradient>
+	</defs>
+	<rect x="10" y="340" width="380" height="40" rx="8" fill="url(#rainbow)"/>
+
+	<!-- paint server with fallback color — swatch on fallback -->
+	<rect x="100" y="290" width="60" height="30" fill="url(#missing) #264653"/>
+
+	<!-- Keywords: none, currentColor, inherit — NO swatch expected -->
+	<rect x="200" y="290" width="60" height="30" fill="none" stroke="currentColor"/>
+</svg>

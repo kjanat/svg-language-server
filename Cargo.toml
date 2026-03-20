@@ -1,0 +1,19 @@
+[workspace]
+package.edition     = "2024"
+package.description = "SVG Language Server"
+package.readme      = "README.md"
+package.repository  = "https://github.com/kjanat/svg-language-server"
+resolver            = "3"
+members             = ["crates/*"]
+
+[workspace.dependencies]
+tree-sitter = { version = "0.26" }
+
+[workspace.dependencies.svg-color]
+path = "crates/svg-color"
+
+[workspace.dependencies.tree-sitter-svg]
+package = "tree-sitter-svg"
+git     = "https://github.com/kjanat/tree-sitter-svg"
+branch  = "refactor/structural-tiers"
+# branch  = "master"

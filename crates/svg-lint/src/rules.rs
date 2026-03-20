@@ -66,11 +66,92 @@ fn check_element(
         ));
     }
 
+    // Check: Unknown/deprecated attributes
+    check_attributes(source, tag, diagnostics);
+
     // Check: Duplicate id
     check_duplicate_id(source, tag, diagnostics, id_map);
 
     // Check: Invalid children
     check_children(source, node, name_str, diagnostics);
+}
+
+/// Attribute name node kinds that carry the attribute name text.
+const ATTR_NAME_KINDS: &[&str] = &[
+    "attribute_name",
+    "paint_attribute_name",
+    "length_attribute_name",
+    "transform_attribute_name",
+    "viewbox_attribute_name",
+    "preserve_aspect_ratio_attribute_name",
+    "points_attribute_name",
+    "d_attribute_name",
+    "id_attribute_name",
+    "href_attribute_name",
+    "style_attribute_name",
+    "functional_iri_attribute_name",
+    "opacity_attribute_name",
+    "class_attribute_name",
+    "event_attribute_name",
+];
+
+/// XML infrastructure prefixes — skip these in attribute checks.
+fn is_xml_infrastructure(name: &str) -> bool {
+    name == "xmlns"
+        || name.starts_with("xmlns:")
+        || name.starts_with("xml:")
+        || name.starts_with("xlink:")
+}
+
+fn check_attributes(source: &[u8], tag: Node, diagnostics: &mut Vec<SvgDiagnostic>) {
+    let mut cursor = tag.walk();
+    for attr_node in tag.children(&mut cursor) {
+        if attr_node.kind() != "attribute" {
+            continue;
+        }
+        // Find the attribute name node inside the (possibly typed) attribute
+        let name_node = find_attr_name(attr_node);
+        let Some(name_node) = name_node else {
+            continue;
+        };
+        let attr_name = std::str::from_utf8(&source[name_node.byte_range()]).unwrap_or("");
+        if attr_name.is_empty() || is_xml_infrastructure(attr_name) {
+            continue;
+        }
+
+        // Generic attribute names are a mixed bucket of valid SVG attributes and truly
+        // unknown ones. Without a complete checked-in attribute catalog, treating a catalog
+        // miss as "unknown" makes diagnostics depend on build-time BCD fetch state.
+        if let Some(def) = svg_data::attribute(attr_name)
+            && def.deprecated
+        {
+            diagnostics.push(make_diag(
+                name_node,
+                Severity::Warning,
+                DiagnosticCode::DeprecatedAttribute,
+                format!("{attr_name} is deprecated"),
+            ));
+        }
+    }
+}
+
+/// Walk into an `attribute` node to find the name node.
+fn find_attr_name(attr_node: Node) -> Option<Node> {
+    let mut cursor = attr_node.walk();
+    for child in attr_node.children(&mut cursor) {
+        // Check if this child itself is a name node
+        if ATTR_NAME_KINDS.contains(&child.kind()) {
+            return Some(child);
+        }
+        // Check the child's children (typed attributes nest name inside)
+        let mut inner_cursor = child.walk();
+        for grandchild in child.children(&mut inner_cursor) {
+            if ATTR_NAME_KINDS.contains(&grandchild.kind()) {
+                return Some(grandchild);
+            }
+        }
+    }
+    None
 }
 
 fn check_duplicate_id(

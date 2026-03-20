@@ -28,14 +28,20 @@ pub fn allowed_children(parent: &str) -> Vec<&'static str> {
     categories::allowed_children(parent)
 }
 
+fn attribute_applies_to(attr: &AttributeDef, element_name: &str) -> bool {
+    // Older generated catalogs used an empty applicability list as the global marker.
+    attr.elements.is_empty()
+        || attr.elements.contains(&"*")
+        || attr.elements.contains(&element_name)
+}
+
 pub fn attributes_for(element_name: &str) -> Vec<&'static AttributeDef> {
     let Some(el) = element(element_name) else {
         return Vec::new();
     };
     let mut result: Vec<&'static AttributeDef> = Vec::new();
     for attr in ATTRIBUTES {
-        let applies = attr.elements.contains(&"*") || attr.elements.contains(&el.name);
-        if applies {
+        if attribute_applies_to(attr, el.name) {
             result.push(attr);
         }
     }
@@ -102,6 +108,22 @@ mod tests {
         assert!(names.contains(&"fill"), "rect should accept fill");
         assert!(names.contains(&"x"), "rect should accept x");
         assert!(!names.contains(&"d"), "rect should not accept d");
+    }
+
+    #[test]
+    fn empty_elements_list_is_treated_as_global() {
+        let attr = AttributeDef {
+            name: "legacy-global",
+            description: "",
+            mdn_url: "",
+            deprecated: false,
+            baseline: None,
+            values: AttributeValues::FreeText,
+            elements: &[],
+        };
+
+        assert!(attribute_applies_to(&attr, "rect"));
+        assert!(attribute_applies_to(&attr, "svg"));
     }
 
     #[test]

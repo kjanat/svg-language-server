@@ -68,6 +68,7 @@ struct CompatEntry {
     baseline: Option<BaselineValue>,
 }
 
+#[derive(Clone)]
 enum BaselineValue {
     Widely { since: u16 },
     Newly { since: u16 },
@@ -152,9 +153,20 @@ fn ensure_cached(url: &str, dest: &Path, offline: bool) -> Result<bool, String> 
     Ok(true)
 }
 
+/// Which elements a BCD-discovered attribute applies to.
+struct BcdAttribute {
+    compat: CompatEntry,
+    elements: Vec<String>,
+}
+
+fn bcd_attr_applies_globally(elements: &[String]) -> bool {
+    elements.iter().any(|element| element == "*")
+}
+
 struct CompatData {
     elements: HashMap<String, CompatEntry>,
-    attributes: HashMap<String, CompatEntry>,
+    /// Attributes from BCD (global + element-specific, merged).
+    attributes: HashMap<String, BcdAttribute>,
 }
 
 /// Build lookup maps for elements + attributes.
@@ -274,8 +286,10 @@ fn fetch_compat_data(out_dir: &Path) -> CompatData {
         map.len()
     );
 
-    // Also process svg.global_attributes for attribute baseline/deprecated
-    let mut attr_map = HashMap::new();
+    // Collect attributes from BCD: global + element-specific
+    let mut attr_map: HashMap<String, BcdAttribute> = HashMap::new();
+
+    // 1) Global attributes (apply to all elements)
     if let Some(global_attrs) = bcd_root.pointer("/svg/global_attributes")
         && let Some(obj) = global_attrs.as_object()
     {
@@ -290,11 +304,60 @@ fn fetch_compat_data(out_dir: &Path) -> CompatData {
             let baseline = extract_baseline(compat, &wf_features);
             attr_map.insert(
                 attr_name.clone(),
-                CompatEntry {
-                    deprecated,
-                    baseline,
+                BcdAttribute {
+                    compat: CompatEntry {
+                        deprecated,
+                        baseline,
+                    },
+                    elements: vec!["*".to_string()],
                 },
             );
+        }
+    }
+
+    // 2) Element-specific attributes (e.g. svg.elements.svg.baseProfile)
+    for (el_name, el_data) in svg_elements_obj {
+        let Some(el_obj) = el_data.as_object() else {
+            continue;
+        };
+        for (key, val) in el_obj {
+            if key == "__compat" {
+                continue;
+            }
+            let Some(compat) = val.pointer("/__compat") else {
+                continue;
+            };
+            let deprecated = compat
+                .pointer("/status/deprecated")
+                .and_then(|v| v.as_bool())
+                .unwrap_or(false);
+            let baseline = extract_baseline(compat, &wf_features);
+
+            attr_map
+                .entry(key.clone())
+                .and_modify(|existing| {
+                    // Merge: promote deprecated if any source says so
+                    if deprecated {
+                        existing.compat.deprecated = true;
+                    }
+                    // Add element association if not already global
+                    if !bcd_attr_applies_globally(&existing.elements)
+                        && !existing.elements.iter().any(|element| element == el_name)
+                    {
+                        existing.elements.push(el_name.clone());
+                    }
+                    // Keep richer baseline
+                    if existing.compat.baseline.is_none() {
+                        existing.compat.baseline = baseline.clone();
+                    }
+                })
+                .or_insert(BcdAttribute {
+                    compat: CompatEntry {
+                        deprecated,
+                        baseline,
+                    },
+                    elements: vec![el_name.clone()],
+                });
         }
     }
 
@@ -497,9 +560,35 @@ fn main() {
     writeln!(out, "];").unwrap();
     writeln!(out).unwrap();
 
+    // ---- BCD-only attribute statics ----
+
+    // Collect BCD attributes not in the curated set
+    let curated_names: std::collections::HashSet<&str> =
+        attributes.iter().map(|a| a.name.as_str()).collect();
+    let mut bcd_only: Vec<(&str, &BcdAttribute)> = compat
+        .attributes
+        .iter()
+        .filter(|(name, _)| !curated_names.contains(name.as_str()))
+        .map(|(name, bcd)| (name.as_str(), bcd))
+        .collect();
+    bcd_only.sort_by_key(|(name, _)| *name);
+
+    for (name, bcd) in &bcd_only {
+        let id = ident_from(name);
+        write_static_str_slice(&mut out, &format!("ATTR_{id}_ELEMENTS"), &bcd.elements);
+        writeln!(out).unwrap();
+    }
+
+    println!(
+        "cargo::warning=compat: merged {} BCD-only attributes into catalog",
+        bcd_only.len()
+    );
+
     // ---- ATTRIBUTES array ----
 
     writeln!(out, "pub(crate) static ATTRIBUTES: &[AttributeDef] = &[").unwrap();
+
+    // 1) Curated attributes (rich types, descriptions)
     for attr in &attributes {
         let id = &attr_idents[attr.name.as_str()];
         let values = match &attr.values {
@@ -531,7 +620,10 @@ fn main() {
         .unwrap();
         writeln!(out, "        mdn_url: \"{}\",", escape(&attr.mdn_url)).unwrap();
         let (deprecated, baseline_str) = match compat.attributes.get(&attr.name) {
-            Some(entry) => (entry.deprecated, format_baseline(entry.baseline.as_ref())),
+            Some(bcd) => (
+                bcd.compat.deprecated,
+                format_baseline(bcd.compat.baseline.as_ref()),
+            ),
             None => (attr.deprecated, "None".to_string()),
         };
         writeln!(out, "        deprecated: {deprecated},").unwrap();
@@ -540,6 +632,28 @@ fn main() {
         writeln!(out, "        elements: ATTR_{id}_ELEMENTS,").unwrap();
         writeln!(out, "    }},").unwrap();
     }
+
+    // 2) BCD-only attributes (auto-generated, FreeText values)
+    for (name, bcd) in &bcd_only {
+        let id = ident_from(name);
+        let mdn_url = format!(
+            "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/{}",
+            name
+        );
+        let description = format!("The {} SVG attribute.", name);
+        let deprecated = bcd.compat.deprecated;
+        let baseline_str = format_baseline(bcd.compat.baseline.as_ref());
+        writeln!(out, "    AttributeDef {{").unwrap();
+        writeln!(out, "        name: \"{}\",", escape(name)).unwrap();
+        writeln!(out, "        description: \"{}\",", escape(&description)).unwrap();
+        writeln!(out, "        mdn_url: \"{}\",", escape(&mdn_url)).unwrap();
+        writeln!(out, "        deprecated: {deprecated},").unwrap();
+        writeln!(out, "        baseline: {baseline_str},").unwrap();
+        writeln!(out, "        values: AttributeValues::FreeText,").unwrap();
+        writeln!(out, "        elements: ATTR_{id}_ELEMENTS,").unwrap();
+        writeln!(out, "    }},").unwrap();
+    }
+
     writeln!(out, "];").unwrap();
 
     fs::write(&out_path, out).expect("failed to write catalog.rs");

@@ -97,4 +97,17 @@ mod tests {
         let dup = diags.iter().any(|d| d.code == DiagnosticCode::DuplicateId);
         assert!(!dup, "unique ids should not trigger: {diags:?}");
     }
+
+    #[test]
+    fn valid_generic_attribute_does_not_depend_on_bcd_catalog() {
+        let src = br#"<svg><filter><feColorMatrix type="matrix"/></filter></svg>"#;
+        let diags = lint(src);
+        let unknown = diags
+            .iter()
+            .any(|d| d.code == DiagnosticCode::UnknownAttribute);
+        assert!(
+            !unknown,
+            "valid generic attributes should not trigger unknown diagnostics: {diags:?}"
+        );
+    }
 }

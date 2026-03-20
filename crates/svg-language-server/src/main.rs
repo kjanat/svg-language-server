@@ -174,6 +174,27 @@ fn format_attribute_hover(attr: &svg_data::AttributeDef) -> String {
         parts.push(attr.description.to_owned());
     }
 
+    // Show allowed values for enumerated attributes
+    match &attr.values {
+        svg_data::AttributeValues::Enum(vals) => {
+            parts.push(String::new());
+            parts.push(format!("Values: `{}`", vals.join("` | `")));
+        }
+        svg_data::AttributeValues::Transform(funcs) => {
+            parts.push(String::new());
+            parts.push(format!("Functions: `{}`", funcs.join("` | `")));
+        }
+        svg_data::AttributeValues::PreserveAspectRatio {
+            alignments,
+            meet_or_slice,
+        } => {
+            parts.push(String::new());
+            parts.push(format!("Alignments: `{}`", alignments.join("` | `")));
+            parts.push(format!("Scaling: `{}`", meet_or_slice.join("` | `")));
+        }
+        _ => {}
+    }
+
     if let Some(baseline) = &attr.baseline {
         parts.push(String::new());
         parts.push(format_baseline(baseline));
@@ -485,8 +506,8 @@ impl LanguageServer for SvgLanguageServer {
             }
         }
 
-        // Attribute name hover
-        if ATTRIBUTE_NAME_KINDS.contains(&kind) {
+        // Attribute name hover (typed + generic attribute names)
+        if ATTRIBUTE_NAME_KINDS.contains(&kind) || kind == "attribute_name" {
             let name_text = node.utf8_text(source).unwrap_or("");
             if let Some(attr) = svg_data::attribute(name_text) {
                 let markdown = format_attribute_hover(attr);

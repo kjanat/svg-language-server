@@ -152,9 +152,14 @@ fn ensure_cached(url: &str, dest: &Path, offline: bool) -> Result<bool, String> 
     Ok(true)
 }
 
-/// Build a lookup map: element name -> CompatEntry.
-/// On any failure, prints a cargo warning and returns an empty map.
-fn fetch_compat_data(out_dir: &Path) -> HashMap<String, CompatEntry> {
+struct CompatData {
+    elements: HashMap<String, CompatEntry>,
+    attributes: HashMap<String, CompatEntry>,
+}
+
+/// Build lookup maps for elements + attributes.
+/// On any failure, prints a cargo warning and returns empty maps.
+fn fetch_compat_data(out_dir: &Path) -> CompatData {
     let offline = std::env::var("SVG_DATA_OFFLINE").is_ok();
 
     let bcd_path = out_dir.join("bcd-data.json");
@@ -176,9 +181,14 @@ fn fetch_compat_data(out_dir: &Path) -> HashMap<String, CompatEntry> {
         }
     };
 
+    let empty = CompatData {
+        elements: HashMap::new(),
+        attributes: HashMap::new(),
+    };
+
     if !bcd_ok {
-        println!("cargo::warning=compat: no BCD data — all elements get baseline: None");
-        return HashMap::new();
+        println!("cargo::warning=compat: no BCD data — all entries get baseline: None");
+        return empty;
     }
 
     // Parse BCD: we only need svg.elements
@@ -186,7 +196,7 @@ fn fetch_compat_data(out_dir: &Path) -> HashMap<String, CompatEntry> {
         Ok(s) => s,
         Err(e) => {
             println!("cargo::warning=compat: failed to read BCD cache: {e}");
-            return HashMap::new();
+            return empty;
         }
     };
 
@@ -194,7 +204,7 @@ fn fetch_compat_data(out_dir: &Path) -> HashMap<String, CompatEntry> {
         Ok(v) => v,
         Err(e) => {
             println!("cargo::warning=compat: failed to parse BCD JSON: {e}");
-            return HashMap::new();
+            return empty;
         }
     };
 
@@ -202,7 +212,7 @@ fn fetch_compat_data(out_dir: &Path) -> HashMap<String, CompatEntry> {
         Some(v) => v,
         None => {
             println!("cargo::warning=compat: BCD missing /svg/elements path");
-            return HashMap::new();
+            return empty;
         }
     };
 
@@ -229,7 +239,7 @@ fn fetch_compat_data(out_dir: &Path) -> HashMap<String, CompatEntry> {
         Some(o) => o,
         None => {
             println!("cargo::warning=compat: /svg/elements is not an object");
-            return HashMap::new();
+            return empty;
         }
     };
 
@@ -264,7 +274,33 @@ fn fetch_compat_data(out_dir: &Path) -> HashMap<String, CompatEntry> {
         map.len()
     );
 
-    map
+    // Also process svg.global_attributes for attribute baseline/deprecated
+    let mut attr_map = HashMap::new();
+    if let Some(global_attrs) = bcd_root.pointer("/svg/global_attributes")
+        && let Some(obj) = global_attrs.as_object()
+    {
+        for (attr_name, attr_data) in obj {
+            let Some(compat) = attr_data.pointer("/__compat") else {
+                continue;
+            };
+            let deprecated = compat
+                .pointer("/status/deprecated")
+                .and_then(|v| v.as_bool())
+                .unwrap_or(false);
+            let baseline = extract_baseline(compat, &wf_features);
+            attr_map.insert(attr_name.clone(), CompatEntry { deprecated, baseline });
+        }
+    }
+
+    println!(
+        "cargo::warning=compat: loaded {} attribute entries from BCD",
+        attr_map.len()
+    );
+
+    CompatData {
+        elements: map,
+        attributes: attr_map,
+    }
 }
 
 /// Given a BCD __compat object and the web-features data, resolve baseline status.
@@ -435,7 +471,7 @@ fn main() {
         };
 
         // Use compat data if available, otherwise fall back to JSON values
-        let (deprecated, baseline_str) = match compat.get(&el.name) {
+        let (deprecated, baseline_str) = match compat.elements.get(&el.name) {
             Some(entry) => (entry.deprecated, format_baseline(entry.baseline.as_ref())),
             None => (el.deprecated, "None".to_string()),
         };
@@ -488,8 +524,12 @@ fn main() {
         )
         .unwrap();
         writeln!(out, "        mdn_url: \"{}\",", escape(&attr.mdn_url)).unwrap();
-        writeln!(out, "        deprecated: {},", attr.deprecated).unwrap();
-        writeln!(out, "        baseline: None,").unwrap();
+        let (deprecated, baseline_str) = match compat.attributes.get(&attr.name) {
+            Some(entry) => (entry.deprecated, format_baseline(entry.baseline.as_ref())),
+            None => (attr.deprecated, "None".to_string()),
+        };
+        writeln!(out, "        deprecated: {deprecated},").unwrap();
+        writeln!(out, "        baseline: {baseline_str},").unwrap();
         writeln!(out, "        values: {values},").unwrap();
         writeln!(out, "        elements: ATTR_{id}_ELEMENTS,").unwrap();
         writeln!(out, "    }},").unwrap();

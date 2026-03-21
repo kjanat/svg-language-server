@@ -23,5 +23,7 @@ lint:
     cargo clippy --workspace --all-targets --all-features -- -D clippy::all
 
 # Let gippity write a nice commit message
-commit MODEL="openai/gpt-5.4" VARIANT="medium" *MESSAGE:
-    opencode run --command 'commit' --model "{{ MODEL }}" --variant "{{ VARIANT }}" "{{ MESSAGE }}"
+[arg("model", long="model", short="m")]
+[arg("variant", long="variant", short="v")]
+commit model="openai/gpt-5.4" variant="medium" *MESSAGE:
+    opencode run --command commit --model={{ model }} --variant={{ variant }} '{{ MESSAGE }}'

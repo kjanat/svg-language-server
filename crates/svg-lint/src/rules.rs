@@ -360,7 +360,7 @@ fn check_missing_reference_definitions(
                 Severity::Warning,
                 DiagnosticCode::MissingReferenceDefinition,
                 format!(
-                    "{attr_name} references \"#{id}\", but no element with id=\"{id}\" exists in this SVG. Define one or remove the reference."
+                    "{attr_name} references #{id}, but no element with id=\"{id}\" exists in this SVG.\nDefine one or remove the reference."
                 ),
             );
         });

@@ -510,50 +510,86 @@ fn parse_stylesheet(uri: Uri, source: String) -> CachedStylesheet {
 }
 
 fn format_class_hover(class_name: &str, definitions: &[ClassDefinitionHover]) -> String {
-    let mut markdown = format!("**.{}**", class_name);
-
-    for definition in definitions {
-        let snippet = css_rule_snippet(&definition.source, &definition.definition.span);
-        markdown.push_str("\n\n");
-        markdown.push_str(&format!(
-            "`{}:{}`",
-            definition.uri.as_str(),
-            definition.definition.span.start_row + 1
-        ));
-
-        if !snippet.is_empty() {
-            markdown.push_str("\n```css\n");
-            markdown.push_str(snippet.trim());
-            markdown.push_str("\n```");
-        }
-    }
-
-    markdown
+    format_definition_hover(
+        definitions.iter().map(|definition| {
+            (
+                css_rule_snippet(&definition.source, &definition.definition.span),
+                hover_source_label(&definition.uri, definition.definition.span.start_row),
+            )
+        }),
+        &format!(".{class_name}"),
+    )
 }
 
 fn format_custom_property_hover(
     property_name: &str,
     definitions: &[CustomPropertyDefinitionHover],
 ) -> String {
-    let mut markdown = format!("**{}**", property_name);
+    format_definition_hover(
+        definitions.iter().map(|definition| {
+            (
+                css_declaration_snippet(&definition.source, &definition.definition.span),
+                hover_source_label(&definition.uri, definition.definition.span.start_row),
+            )
+        }),
+        property_name,
+    )
+}
 
-    for definition in definitions {
-        let snippet = css_declaration_snippet(&definition.source, &definition.definition.span);
-        markdown.push_str("\n\n");
-        markdown.push_str(&format!(
-            "`{}:{}`",
-            definition.uri.as_str(),
-            definition.definition.span.start_row + 1
-        ));
+fn format_definition_hover(
+    definitions: impl Iterator<Item = (String, String)>,
+    fallback_label: &str,
+) -> String {
+    let sections: Vec<String> = definitions
+        .map(|(snippet, source)| {
+            let trimmed = snippet.trim();
+            let mut section = String::new();
+            if trimmed.is_empty() {
+                section.push_str(&format!("`{fallback_label}`"));
+            } else {
+                section.push_str("```css\n");
+                section.push_str(trimmed);
+                section.push_str("\n```");
+            }
+            section.push_str("\nDefined in ");
+            section.push_str(&format!("`{source}`"));
+            section
+        })
+        .collect();
 
-        if !snippet.is_empty() {
-            markdown.push_str("\n```css\n");
-            markdown.push_str(snippet.trim());
-            markdown.push_str("\n```");
+    sections.join("\n\n---\n\n")
+}
+
+fn hover_source_label(uri: &Uri, start_row: usize) -> String {
+    let line = start_row + 1;
+    let Ok(url) = Url::parse(uri.as_str()) else {
+        return format!("{}:{line}", uri.as_str());
+    };
+
+    match url.scheme() {
+        "file" => {
+            let Ok(path) = url.to_file_path() else {
+                return format!("{}:{line}", uri.as_str());
+            };
+
+            if let Ok(cwd) = std::env::current_dir()
+                && let Ok(relative) = path.strip_prefix(&cwd)
+            {
+                return format!("{}:{line}", relative.display());
+            }
+
+            if let Some(file_name) = path.file_name() {
+                return format!("{}:{line}", file_name.to_string_lossy());
+            }
+
+            format!("{}:{line}", path.display())
         }
+        "http" | "https" => {
+            let host = url.host_str().unwrap_or_default();
+            format!("{host}{}:{line}", url.path())
+        }
+        _ => format!("{}:{line}", uri.as_str()),
     }
-
-    markdown
 }
 
 fn css_rule_snippet(source: &str, span: &svg_references::Span) -> String {

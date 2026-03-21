@@ -296,8 +296,20 @@ fn lsp_end_to_end() {
         "class hover should include the selector name: {hover_resp}"
     );
     assert!(
+        hover_text.contains("```css"),
+        "class hover should render the definition as CSS markdown: {hover_resp}"
+    );
+    assert!(
         hover_text.contains("fill:red"),
         "class hover should include the CSS definition snippet: {hover_resp}"
+    );
+    assert!(
+        hover_text.contains("class-test.svg:1"),
+        "class hover should show a short source label: {hover_resp}"
+    );
+    assert!(
+        !hover_text.contains("file:///"),
+        "class hover should not dump a raw file URI: {hover_resp}"
     );
 
     let vars_svg = r#"<svg><style>:root { --panel-bg: red; } .var-alpha { fill: var(--panel-bg); }</style></svg>"#;
@@ -365,12 +377,20 @@ fn lsp_end_to_end() {
         .as_str()
         .expect("custom property hover markdown");
     assert!(
-        var_hover_text.contains("**--panel-bg**"),
-        "custom property hover should include the property name: {var_hover_resp}"
-    );
-    assert!(
         var_hover_text.contains("--panel-bg: red"),
         "custom property hover should include the declaration snippet: {var_hover_resp}"
+    );
+    assert!(
+        var_hover_text.contains("```css"),
+        "custom property hover should render the declaration as CSS markdown: {var_hover_resp}"
+    );
+    assert!(
+        var_hover_text.contains("vars-test.svg:1"),
+        "custom property hover should show a short source label: {var_hover_resp}"
+    );
+    assert!(
+        !var_hover_text.contains("file:///"),
+        "custom property hover should not dump a raw file URI: {var_hover_resp}"
     );
 
     // --- 6. colorPresentation for the first color (red) ---

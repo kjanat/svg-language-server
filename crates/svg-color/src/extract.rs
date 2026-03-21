@@ -7,6 +7,9 @@ use std::ops::Range;
 use tree_sitter::{Parser, Point, Tree, TreeCursor};
 
 type CustomProperties = HashMap<String, String>;
+type Rgba = (f32, f32, f32, f32);
+type ResolvedColor = (f32, f32, f32, f32, ColorKind);
+type ColorStop = (Rgba, Option<f64>);
 
 /// Extract all colors from SVG source text.
 pub fn extract_colors(source: &[u8]) -> Vec<ColorInfo> {
@@ -245,7 +248,7 @@ fn resolve_css_color(
     text: &str,
     custom_properties: &CustomProperties,
     seen: &mut HashSet<String>,
-) -> Option<(f32, f32, f32, f32, ColorKind)> {
+) -> Option<ResolvedColor> {
     let text = text.trim();
     if text.is_empty() {
         return None;
@@ -263,7 +266,7 @@ fn resolve_css_color(
     }
 }
 
-fn parse_literal_css_color(text: &str) -> Option<(f32, f32, f32, f32, ColorKind)> {
+fn parse_literal_css_color(text: &str) -> Option<ResolvedColor> {
     if let Some((r, g, b, a)) = parse::parse_hex(text) {
         return Some((r, g, b, a, ColorKind::Hex));
     }
@@ -277,7 +280,7 @@ fn resolve_var_color(
     args: &str,
     custom_properties: &CustomProperties,
     seen: &mut HashSet<String>,
-) -> Option<(f32, f32, f32, f32, ColorKind)> {
+) -> Option<ResolvedColor> {
     let parts = split_top_level(args, ',');
     let name = parts.first()?.trim();
     if !name.starts_with("--") || !seen.insert(name.to_owned()) {
@@ -301,7 +304,7 @@ fn resolve_color_mix(
     args: &str,
     custom_properties: &CustomProperties,
     seen: &mut HashSet<String>,
-) -> Option<(f32, f32, f32, f32, ColorKind)> {
+) -> Option<ResolvedColor> {
     let parts = split_top_level(args, ',');
     let [space_part, left_stop, right_stop]: [&str; 3] = parts.try_into().ok()?;
     let space = space_part.trim().strip_prefix("in ")?.trim();
@@ -320,7 +323,7 @@ fn parse_color_mix_stop(
     stop: &str,
     custom_properties: &CustomProperties,
     seen: &mut HashSet<String>,
-) -> Option<((f32, f32, f32, f32), Option<f64>)> {
+) -> Option<ColorStop> {
     let (color_text, percentage) = split_color_stop_percentage(stop.trim());
     let (r, g, b, a, _) = resolve_css_color(color_text, custom_properties, seen)?;
     Some(((r, g, b, a), percentage))

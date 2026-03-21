@@ -26,10 +26,11 @@
 		<rect x="0" y="0" width="10" height="10"/>
 	</filter>
 	
-	<!-- DIAGNOSTIC: DuplicateId, InvalidChild — suppressed -->
-	<!-- svg-lint-disable-next-line DuplicateId -->
+	<!-- DIAGNOSTIC: DuplicateId, InvalidChild — suppressed, but first occurence is recognized as unused -->
+	<!-- svg-lint-disable-next-line UnusedSuppression -->
+	<!-- svg-lint-disable-next-line DuplicateId, InvalidChild, UnusedSuppression -->
 	<filter id="bad-filter">
-		<!-- svg-lint-disable-next-line InvalidChild -->
+		<!-- svg-lint-disable-next-line InvalidChild, UnusedSuppression -->
 		<rect x="0" y="0" width="10" height="10"/>
 	</filter>
 

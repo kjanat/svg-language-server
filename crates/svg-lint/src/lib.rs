@@ -182,6 +182,12 @@ mod tests {
                 .any(|d| d.code == DiagnosticCode::MissingReferenceDefinition),
             "next-line suppression should suppress missing reference diagnostics: {diags:?}"
         );
+        assert!(
+            !diags
+                .iter()
+                .any(|d| d.code == DiagnosticCode::UnusedSuppression),
+            "used next-line suppression should not warn as unused: {diags:?}"
+        );
     }
 
     #[test]
@@ -195,6 +201,63 @@ mod tests {
                 .iter()
                 .any(|d| d.code == DiagnosticCode::MissingReferenceDefinition),
             "file suppression should suppress missing reference diagnostics: {diags:?}"
+        );
+        assert!(
+            !diags
+                .iter()
+                .any(|d| d.code == DiagnosticCode::UnusedSuppression),
+            "used file suppression should not warn as unused: {diags:?}"
+        );
+    }
+
+    #[test]
+    fn unused_next_line_suppression_warns() {
+        let src = br#"<svg>
+<!-- svg-lint-disable-next-line MissingReferenceDefinition -->
+<rect fill="red"/>
+</svg>"#;
+        let diags = lint(src);
+
+        assert!(
+            diags.iter().any(|d| {
+                d.code == DiagnosticCode::UnusedSuppression
+                    && d.message.contains("MissingReferenceDefinition")
+                    && d.start_row == 1
+            }),
+            "unused next-line suppression should warn on the comment line: {diags:?}"
+        );
+    }
+
+    #[test]
+    fn unused_file_suppression_warns() {
+        let src = br#"<!-- svg-lint-disable MissingReferenceDefinition -->
+<svg><rect fill="red"/></svg>"#;
+        let diags = lint(src);
+
+        assert!(
+            diags.iter().any(|d| {
+                d.code == DiagnosticCode::UnusedSuppression
+                    && d.message.contains("MissingReferenceDefinition")
+                    && d.start_row == 0
+            }),
+            "unused file suppression should warn on the comment line: {diags:?}"
+        );
+    }
+
+    #[test]
+    fn unused_suppression_warning_can_be_suppressed_on_next_line() {
+        let src = br#"<svg>
+<!-- svg-lint-disable-next-line UnusedSuppression -->
+<!-- svg-lint-disable-next-line MissingReferenceDefinition -->
+<rect fill="red"/>
+</svg>"#;
+        let diags = lint(src);
+
+        assert!(
+            !diags
+                .iter()
+                .any(|d| d.code == DiagnosticCode::UnusedSuppression),
+            "next-line UnusedSuppression directive should suppress the following unused warning: {diags:?}"
         );
     }
 }

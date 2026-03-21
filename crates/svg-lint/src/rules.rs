@@ -4,7 +4,7 @@ use tree_sitter::{Node, Tree};
 
 /// Run all lint checks on a parsed SVG tree.
 pub fn check_all(source: &[u8], tree: &Tree) -> Vec<SvgDiagnostic> {
-    let suppressions = collect_suppressions(source, tree);
+    let mut suppressions = collect_suppressions(source, tree);
     let defined_ids = collect_defined_ids(source, tree);
     let mut diagnostics = Vec::new();
     let mut seen_ids: HashMap<String, usize> = HashMap::new();
@@ -12,27 +12,119 @@ pub fn check_all(source: &[u8], tree: &Tree) -> Vec<SvgDiagnostic> {
         source,
         tree.root_node(),
         &mut diagnostics,
-        &suppressions,
+        &mut suppressions,
         &defined_ids,
         &mut seen_ids,
         false,
     );
+    diagnostics.extend(suppressions.unused_diagnostics());
     diagnostics
 }
 
 #[derive(Default)]
 struct Suppressions {
-    file_codes: HashSet<DiagnosticCode>,
-    next_line_codes: HashMap<usize, HashSet<DiagnosticCode>>,
+    directives: Vec<SuppressionDirective>,
+}
+
+struct SuppressionDirective {
+    scope: SuppressionScope,
+    codes: HashSet<DiagnosticCode>,
+    used_codes: HashSet<DiagnosticCode>,
+    byte_range: std::ops::Range<usize>,
+    start_row: usize,
+    start_col: usize,
+    end_row: usize,
+    end_col: usize,
+}
+
+enum SuppressionScope {
+    File,
+    NextLine(usize),
 }
 
 impl Suppressions {
-    fn is_suppressed(&self, row: usize, code: DiagnosticCode) -> bool {
-        self.file_codes.contains(&code)
-            || self
-                .next_line_codes
-                .get(&row)
-                .is_some_and(|codes| codes.contains(&code))
+    fn suppresses(&mut self, row: usize, code: DiagnosticCode) -> bool {
+        let mut suppressed = false;
+
+        for directive in &mut self.directives {
+            let applies = match directive.scope {
+                SuppressionScope::File => true,
+                SuppressionScope::NextLine(target_row) => target_row == row,
+            };
+            if applies && directive.codes.contains(&code) {
+                directive.used_codes.insert(code);
+                suppressed = true;
+            }
+        }
+
+        suppressed
+    }
+
+    fn unused_diagnostics(&mut self) -> Vec<SvgDiagnostic> {
+        let mut suppressed_unused = vec![false; self.directives.len()];
+
+        for index in 0..self.directives.len() {
+            let row = self.directives[index].start_row;
+
+            for other_index in 0..self.directives.len() {
+                if index == other_index {
+                    continue;
+                }
+
+                let directive = &self.directives[other_index];
+                let applies = match directive.scope {
+                    SuppressionScope::File => true,
+                    SuppressionScope::NextLine(target_row) => target_row == row,
+                };
+                if applies && directive.codes.contains(&DiagnosticCode::UnusedSuppression) {
+                    suppressed_unused[index] = true;
+                    self.directives[other_index]
+                        .used_codes
+                        .insert(DiagnosticCode::UnusedSuppression);
+                }
+            }
+        }
+
+        let mut diagnostics = Vec::new();
+
+        for (index, directive) in self.directives.iter().enumerate() {
+            let unused_codes: Vec<_> = directive
+                .codes
+                .difference(&directive.used_codes)
+                .copied()
+                .collect();
+            if unused_codes.is_empty() {
+                continue;
+            }
+
+            if suppressed_unused[index] {
+                continue;
+            }
+
+            let unused_labels = unused_codes
+                .iter()
+                .map(ToString::to_string)
+                .collect::<Vec<_>>()
+                .join(", ");
+            let message = if unused_codes.len() == 1 {
+                format!("Unused suppression for {unused_labels}.")
+            } else {
+                format!("Unused suppressions for {unused_labels}.")
+            };
+
+            diagnostics.push(SvgDiagnostic {
+                byte_range: directive.byte_range.clone(),
+                start_row: directive.start_row,
+                start_col: directive.start_col,
+                end_row: directive.end_row,
+                end_col: directive.end_col,
+                severity: Severity::Warning,
+                code: DiagnosticCode::UnusedSuppression,
+                message,
+            });
+        }
+
+        diagnostics
     }
 }
 
@@ -40,7 +132,7 @@ fn walk_elements(
     source: &[u8],
     node: Node,
     diagnostics: &mut Vec<SvgDiagnostic>,
-    suppressions: &Suppressions,
+    suppressions: &mut Suppressions,
     defined_ids: &HashSet<String>,
     seen_ids: &mut HashMap<String, usize>,
     in_foreign_content: bool,
@@ -76,7 +168,7 @@ fn check_element(
     source: &[u8],
     node: Node,
     diagnostics: &mut Vec<SvgDiagnostic>,
-    suppressions: &Suppressions,
+    suppressions: &mut Suppressions,
     defined_ids: &HashSet<String>,
     seen_ids: &mut HashMap<String, usize>,
     in_foreign_content: bool,
@@ -171,7 +263,7 @@ fn check_attributes(
     source: &[u8],
     tag: Node,
     diagnostics: &mut Vec<SvgDiagnostic>,
-    suppressions: &Suppressions,
+    suppressions: &mut Suppressions,
 ) {
     let mut cursor = tag.walk();
     for attr_node in tag.children(&mut cursor) {
@@ -229,7 +321,7 @@ fn check_duplicate_id(
     source: &[u8],
     tag: Node,
     diagnostics: &mut Vec<SvgDiagnostic>,
-    suppressions: &Suppressions,
+    suppressions: &mut Suppressions,
     seen_ids: &mut HashMap<String, usize>,
 ) {
     let mut cursor = tag.walk();
@@ -276,7 +368,7 @@ fn check_children(
     parent_node: Node,
     parent_name: &str,
     diagnostics: &mut Vec<SvgDiagnostic>,
-    suppressions: &Suppressions,
+    suppressions: &mut Suppressions,
 ) {
     if svg_data::allows_foreign_children(parent_name) {
         return;
@@ -320,7 +412,7 @@ fn check_missing_reference_definitions(
     source: &[u8],
     tag: Node,
     diagnostics: &mut Vec<SvgDiagnostic>,
-    suppressions: &Suppressions,
+    suppressions: &mut Suppressions,
     defined_ids: &HashSet<String>,
 ) {
     let mut cursor = tag.walk();
@@ -400,11 +492,16 @@ fn collect_suppressions(source: &[u8], tree: &Tree) -> Suppressions {
             if codes.is_empty() {
                 return;
             }
-            suppressions
-                .next_line_codes
-                .entry(node.end_position().row + 1)
-                .or_default()
-                .extend(codes);
+            suppressions.directives.push(SuppressionDirective {
+                scope: SuppressionScope::NextLine(node.end_position().row + 1),
+                codes: codes.into_iter().collect(),
+                used_codes: HashSet::new(),
+                byte_range: node.byte_range(),
+                start_row: node.start_position().row,
+                start_col: node.start_position().column,
+                end_row: node.end_position().row,
+                end_col: node.end_position().column,
+            });
             return;
         }
 
@@ -413,7 +510,16 @@ fn collect_suppressions(source: &[u8], tree: &Tree) -> Suppressions {
             if codes.is_empty() {
                 return;
             }
-            suppressions.file_codes.extend(codes);
+            suppressions.directives.push(SuppressionDirective {
+                scope: SuppressionScope::File,
+                codes: codes.into_iter().collect(),
+                used_codes: HashSet::new(),
+                byte_range: node.byte_range(),
+                start_row: node.start_position().row,
+                start_col: node.start_position().column,
+                end_row: node.end_position().row,
+                end_col: node.end_position().column,
+            });
         }
     });
     suppressions
@@ -452,6 +558,7 @@ fn all_diagnostic_codes() -> &'static [DiagnosticCode] {
         DiagnosticCode::UnknownAttribute,
         DiagnosticCode::DuplicateId,
         DiagnosticCode::MissingReferenceDefinition,
+        DiagnosticCode::UnusedSuppression,
     ]
 }
 
@@ -473,13 +580,13 @@ fn walk_tree(cursor: &mut tree_sitter::TreeCursor<'_>, f: &mut impl FnMut(Node<'
 
 fn push_diag(
     diagnostics: &mut Vec<SvgDiagnostic>,
-    suppressions: &Suppressions,
+    suppressions: &mut Suppressions,
     node: Node,
     severity: Severity,
     code: DiagnosticCode,
     message: String,
 ) {
-    if suppressions.is_suppressed(node.start_position().row, code) {
+    if suppressions.suppresses(node.start_position().row, code) {
         return;
     }
     diagnostics.push(make_diag(node, severity, code, message));

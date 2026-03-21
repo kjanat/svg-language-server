@@ -34,6 +34,7 @@ pub enum DiagnosticCode {
     UnknownAttribute,
     DuplicateId,
     MissingReferenceDefinition,
+    UnusedSuppression,
 }
 
 impl DiagnosticCode {
@@ -47,6 +48,7 @@ impl DiagnosticCode {
             Self::UnknownAttribute => "UnknownAttribute",
             Self::DuplicateId => "DuplicateId",
             Self::MissingReferenceDefinition => "MissingReferenceDefinition",
+            Self::UnusedSuppression => "UnusedSuppression",
         }
     }
 }
@@ -64,6 +66,7 @@ impl FromStr for DiagnosticCode {
             "UnknownAttribute" => Ok(Self::UnknownAttribute),
             "DuplicateId" => Ok(Self::DuplicateId),
             "MissingReferenceDefinition" => Ok(Self::MissingReferenceDefinition),
+            "UnusedSuppression" => Ok(Self::UnusedSuppression),
             _ => Err(()),
         }
     }

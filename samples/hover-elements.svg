@@ -65,5 +65,6 @@
 	<!-- Hover "foreignObject": embeds non-SVG content (usually HTML) -->
 	<foreignObject x="10" y="260" width="200" height="30">
 		<p xmlns="http://www.w3.org/1999/xhtml" style="font-size:12px">HTML inside SVG</p>
+		<div style="color: red">not SVG</div>
 	</foreignObject>
 </svg>

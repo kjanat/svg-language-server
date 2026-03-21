@@ -632,6 +632,240 @@ fn hover_source_link(uri: &Uri, start_row: usize) -> HoverSourceLink {
     }
 }
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum CssCompletionContext {
+    Selector,
+    Property,
+    Value,
+}
+
+const CSS_PROPERTY_NAMES: &[&str] = &[
+    "alignment-baseline",
+    "clip-path",
+    "clip-rule",
+    "color",
+    "color-interpolation",
+    "color-rendering",
+    "cursor",
+    "display",
+    "dominant-baseline",
+    "fill",
+    "fill-opacity",
+    "fill-rule",
+    "filter",
+    "flood-color",
+    "flood-opacity",
+    "font-family",
+    "font-size",
+    "font-style",
+    "font-weight",
+    "image-rendering",
+    "lighting-color",
+    "marker-end",
+    "marker-mid",
+    "marker-start",
+    "mask",
+    "mix-blend-mode",
+    "opacity",
+    "overflow",
+    "paint-order",
+    "pointer-events",
+    "shape-rendering",
+    "stop-color",
+    "stop-opacity",
+    "stroke",
+    "stroke-dasharray",
+    "stroke-dashoffset",
+    "stroke-linecap",
+    "stroke-linejoin",
+    "stroke-miterlimit",
+    "stroke-opacity",
+    "stroke-width",
+    "text-anchor",
+    "text-decoration-color",
+    "transform",
+    "transform-box",
+    "transform-origin",
+    "vector-effect",
+    "visibility",
+];
+
+fn style_completion_items(
+    source: &[u8],
+    tree: &tree_sitter::Tree,
+    byte_offset: usize,
+) -> Option<Vec<CompletionItem>> {
+    let stylesheet = svg_references::collect_inline_stylesheets(source, tree)
+        .into_iter()
+        .find(|stylesheet| {
+            let end = stylesheet.start_byte + stylesheet.css.len();
+            (stylesheet.start_byte..=end).contains(&byte_offset)
+        })?;
+
+    let css_offset = byte_offset.saturating_sub(stylesheet.start_byte);
+    Some(css_completion_items(&stylesheet.css, css_offset))
+}
+
+fn css_completion_items(css: &str, byte_offset: usize) -> Vec<CompletionItem> {
+    let context = css_completion_context(css, byte_offset);
+    let custom_properties =
+        svg_references::collect_custom_property_definitions_from_stylesheet(css, 0, 0);
+
+    match context {
+        CssCompletionContext::Selector => css_selector_completions(),
+        CssCompletionContext::Property => css_property_completions(),
+        CssCompletionContext::Value => css_value_completions(&custom_properties),
+    }
+}
+
+fn css_completion_context(css: &str, byte_offset: usize) -> CssCompletionContext {
+    let offset = byte_offset.min(css.len());
+    let before = &css[..offset];
+
+    let last_open = before.rfind('{');
+    let last_close = before.rfind('}');
+    let in_block = match (last_open, last_close) {
+        (Some(open), Some(close)) => open > close,
+        (Some(_), None) => true,
+        _ => false,
+    };
+
+    if !in_block {
+        return CssCompletionContext::Selector;
+    }
+
+    let block_start = last_open.map_or(0, |idx| idx + 1);
+    let block_prefix = &before[block_start..];
+    let declaration_start = block_prefix
+        .rfind(';')
+        .map_or(block_start, |idx| block_start + idx + 1);
+    let declaration_prefix = &before[declaration_start..];
+
+    if declaration_prefix.contains(':') {
+        CssCompletionContext::Value
+    } else {
+        CssCompletionContext::Property
+    }
+}
+
+fn css_selector_completions() -> Vec<CompletionItem> {
+    let mut items = vec![
+        CompletionItem {
+            label: ":root".to_owned(),
+            kind: Some(CompletionItemKind::KEYWORD),
+            detail: Some("CSS root selector".to_owned()),
+            ..Default::default()
+        },
+        CompletionItem {
+            label: ".".to_owned(),
+            kind: Some(CompletionItemKind::REFERENCE),
+            insert_text: Some(".$0".to_owned()),
+            insert_text_format: Some(InsertTextFormat::SNIPPET),
+            detail: Some("Class selector".to_owned()),
+            ..Default::default()
+        },
+        CompletionItem {
+            label: "#".to_owned(),
+            kind: Some(CompletionItemKind::REFERENCE),
+            insert_text: Some("#$0".to_owned()),
+            insert_text_format: Some(InsertTextFormat::SNIPPET),
+            detail: Some("ID selector".to_owned()),
+            ..Default::default()
+        },
+    ];
+
+    items.extend(svg_data::elements().iter().map(|element| CompletionItem {
+        label: element.name.to_owned(),
+        kind: Some(CompletionItemKind::CLASS),
+        detail: Some("SVG element selector".to_owned()),
+        ..Default::default()
+    }));
+
+    items
+}
+
+fn css_property_completions() -> Vec<CompletionItem> {
+    let mut items: Vec<CompletionItem> = CSS_PROPERTY_NAMES
+        .iter()
+        .map(|property| CompletionItem {
+            label: (*property).to_owned(),
+            kind: Some(CompletionItemKind::PROPERTY),
+            insert_text: Some(format!("{property}: $0;")),
+            insert_text_format: Some(InsertTextFormat::SNIPPET),
+            ..Default::default()
+        })
+        .collect();
+
+    items.push(CompletionItem {
+        label: "--custom-property".to_owned(),
+        kind: Some(CompletionItemKind::VARIABLE),
+        insert_text: Some("--$1: $0;".to_owned()),
+        insert_text_format: Some(InsertTextFormat::SNIPPET),
+        detail: Some("CSS custom property".to_owned()),
+        ..Default::default()
+    });
+
+    items
+}
+
+fn css_value_completions(custom_properties: &[svg_references::NamedSpan]) -> Vec<CompletionItem> {
+    let mut items = vec![
+        css_value_keyword("none"),
+        css_value_keyword("currentColor"),
+        css_value_keyword("transparent"),
+        css_value_keyword("inherit"),
+        css_value_function("var()", "var(--$0)", "CSS custom property reference"),
+        css_value_function("url()", "url(#$0)", "SVG fragment reference"),
+        css_value_function("rgb()", "rgb($0)", "RGB color"),
+        css_value_function("hsl()", "hsl($0)", "HSL color"),
+        css_value_function("hwb()", "hwb($0)", "HWB color"),
+        css_value_function("lab()", "lab($0)", "Lab color"),
+        css_value_function("lch()", "lch($0)", "LCH color"),
+        css_value_function("oklab()", "oklab($0)", "Oklab color"),
+        css_value_function("oklch()", "oklch($0)", "Oklch color"),
+        css_value_function(
+            "color-mix()",
+            "color-mix(in oklch, $1, $2)",
+            "Mixed color expression",
+        ),
+    ];
+
+    let mut seen = std::collections::HashSet::new();
+    for property in custom_properties {
+        if !seen.insert(property.name.clone()) {
+            continue;
+        }
+        items.push(CompletionItem {
+            label: format!("var({})", property.name),
+            kind: Some(CompletionItemKind::VARIABLE),
+            insert_text: Some(format!("var({})", property.name)),
+            detail: Some("CSS custom property".to_owned()),
+            ..Default::default()
+        });
+    }
+
+    items
+}
+
+fn css_value_keyword(keyword: &str) -> CompletionItem {
+    CompletionItem {
+        label: keyword.to_owned(),
+        kind: Some(CompletionItemKind::VALUE),
+        ..Default::default()
+    }
+}
+
+fn css_value_function(label: &str, snippet: &str, detail: &str) -> CompletionItem {
+    CompletionItem {
+        label: label.to_owned(),
+        kind: Some(CompletionItemKind::FUNCTION),
+        insert_text: Some(snippet.to_owned()),
+        insert_text_format: Some(InsertTextFormat::SNIPPET),
+        detail: Some(detail.to_owned()),
+        ..Default::default()
+    }
+}
+
 fn suppression_code(diagnostic: &Diagnostic) -> Option<&str> {
     if diagnostic.source.as_deref() != Some("svg-lint") {
         return None;
@@ -1281,6 +1515,8 @@ impl LanguageServer for SvgLanguageServer {
                         " ".to_string(),
                         "\"".to_string(),
                         "'".to_string(),
+                        ":".to_string(),
+                        "-".to_string(),
                     ]),
                     ..Default::default()
                 }),
@@ -1798,6 +2034,12 @@ impl LanguageServer for SvgLanguageServer {
         let byte_offset = line_start + byte_col;
 
         let node = deepest_node_at(&doc.tree, byte_offset);
+
+        if let Some(items) = style_completion_items(source, &doc.tree, byte_offset)
+            && !items.is_empty()
+        {
+            return Ok(Some(CompletionResponse::Array(items)));
+        }
 
         // Detect completion context by walking ancestors
         let mut cursor = node;

@@ -502,6 +502,53 @@ fn lsp_end_to_end() {
         "file suppression quick-fix should insert a suppression comment: {code_action_resp}"
     );
 
+    let style_completion_svg = "<svg><style>.a {\n  c\n}</style></svg>";
+    send_message(
+        &mut stdin,
+        &json!({
+            "jsonrpc": "2.0",
+            "method": "textDocument/didOpen",
+            "params": {
+                "textDocument": {
+                    "uri": "file:///style-completion.svg",
+                    "languageId": "svg",
+                    "version": 1,
+                    "text": style_completion_svg
+                }
+            }
+        }),
+    );
+
+    send_message(
+        &mut stdin,
+        &json!({
+            "jsonrpc": "2.0",
+            "id": 9,
+            "method": "textDocument/completion",
+            "params": {
+                "textDocument": { "uri": "file:///style-completion.svg" },
+                "position": { "line": 1, "character": 3 }
+            }
+        }),
+    );
+
+    let completion_resp = recv_response(&rx, 9, timeout);
+    let completion_items = completion_resp["result"]
+        .as_array()
+        .expect("completion result should be an array");
+    assert!(
+        completion_items
+            .iter()
+            .any(|item| item["label"].as_str() == Some("clip-path")),
+        "CSS property completions should be returned inside <style>: {completion_resp}"
+    );
+    assert!(
+        !completion_items
+            .iter()
+            .any(|item| item["label"].as_str() == Some("circle")),
+        "SVG element completions should not leak into <style> CSS context: {completion_resp}"
+    );
+
     // --- 6. colorPresentation for the first color (red) ---
     let red_range = &red_entry["range"];
     send_message(

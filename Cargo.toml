@@ -15,6 +15,7 @@ tracing-appender = "0.2"
 tree-sitter      = "0.26"
 tree-sitter-css  = "0.25"
 ureq             = "3"
+url              = "2"
 
 [workspace.dependencies.serde]
 version  = "1"
@@ -28,6 +29,9 @@ path = "crates/svg-data"
 
 [workspace.dependencies.svg-lint]
 path = "crates/svg-lint"
+
+[workspace.dependencies.svg-references]
+path = "crates/svg-references"
 
 [workspace.dependencies.tokio]
 version  = "1"

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::fs::OpenOptions;
 use std::path::PathBuf;
-use std::sync::{Arc, LazyLock};
+use std::sync::{Arc, LazyLock, RwLock as StdRwLock};
 
 use svg_data::{AttributeValues, BaselineStatus, ContentModel};
 use tokio::sync::RwLock;
@@ -21,6 +21,7 @@ use tower_lsp_server::{Client, LanguageServer, LspService, Server};
 use tracing_subscriber::filter::LevelFilter;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::{Layer, Registry};
+use url::Url;
 
 /// Parsed document state: source text + tree-sitter tree.
 struct DocumentState {
@@ -30,6 +31,14 @@ struct DocumentState {
 
 /// Cache mapping (URI, start_line, start_character) to the original color kind.
 type ColorKindCache = Arc<RwLock<HashMap<(Uri, u32, u32), svg_color::ColorKind>>>;
+type StylesheetCache = Arc<StdRwLock<HashMap<String, CachedStylesheet>>>;
+
+#[derive(Clone)]
+struct CachedStylesheet {
+    uri: Uri,
+    source: String,
+    class_definitions: Vec<svg_references::NamedSpan>,
+}
 
 /// Runtime compat override for a single element or attribute.
 struct CompatOverride {
@@ -48,6 +57,7 @@ struct SvgLanguageServer {
     documents: Arc<RwLock<HashMap<Uri, DocumentState>>>,
     parser: Arc<RwLock<tree_sitter::Parser>>,
     color_kinds: ColorKindCache,
+    stylesheet_cache: StylesheetCache,
     runtime_compat: Arc<RwLock<Option<RuntimeCompat>>>,
 }
 
@@ -67,6 +77,7 @@ impl SvgLanguageServer {
             documents: Arc::new(RwLock::new(HashMap::new())),
             parser: Arc::new(RwLock::new(parser)),
             color_kinds: Arc::new(RwLock::new(HashMap::new())),
+            stylesheet_cache: Arc::new(StdRwLock::new(HashMap::new())),
             runtime_compat: Arc::new(RwLock::new(None)),
         }
     }
@@ -405,66 +416,95 @@ fn byte_offset_for_position(source: &[u8], position: Position) -> usize {
     line_start + byte_col
 }
 
-fn node_range_utf16(source: &[u8], node: tree_sitter::Node<'_>) -> Range {
+fn span_range_utf16(source: &[u8], span: &svg_references::Span) -> Range {
     Range::new(
         Position::new(
-            node.start_position().row as u32,
-            byte_col_to_utf16(
-                source,
-                node.start_position().row,
-                node.start_position().column,
-            ),
+            span.start_row as u32,
+            byte_col_to_utf16(source, span.start_row, span.start_col),
         ),
         Position::new(
-            node.end_position().row as u32,
-            byte_col_to_utf16(source, node.end_position().row, node.end_position().column),
+            span.end_row as u32,
+            byte_col_to_utf16(source, span.end_row, span.end_col),
         ),
     )
 }
 
-fn definition_target_id(node: tree_sitter::Node<'_>, source: &[u8]) -> Option<String> {
-    if let Some(iri) = find_ancestor_any(node, &["iri_reference"]) {
-        let text = iri.utf8_text(source).ok()?;
-        return text.strip_prefix('#').map(ToOwned::to_owned);
-    }
-
-    if let Some(id_token) = find_ancestor_any(node, &["id_token"]) {
-        return Some(id_token.utf8_text(source).ok()?.to_owned());
-    }
-
-    None
+fn named_span_location(uri: Uri, source: &[u8], named: &svg_references::NamedSpan) -> Location {
+    Location::new(uri, span_range_utf16(source, &named.span))
 }
 
-fn find_id_definition_node<'a>(
-    tree: &'a tree_sitter::Tree,
-    source: &[u8],
-    target_id: &str,
-) -> Option<tree_sitter::Node<'a>> {
-    let root = tree.root_node();
-    let mut cursor = root.walk();
-
-    if !cursor.goto_first_child() {
+fn definition_response_from_locations(
+    mut locations: Vec<Location>,
+) -> Option<GotoDefinitionResponse> {
+    if locations.is_empty() {
         return None;
     }
+    if locations.len() == 1 {
+        return Some(GotoDefinitionResponse::Scalar(locations.remove(0)));
+    }
+    Some(GotoDefinitionResponse::Array(locations))
+}
 
-    loop {
-        let node = cursor.node();
-        if node.kind() == "id_token" && node.utf8_text(source).ok()? == target_id {
-            return Some(node);
-        }
+fn parse_stylesheet(uri: Uri, source: String) -> CachedStylesheet {
+    let class_definitions =
+        svg_references::collect_class_definitions_from_stylesheet(&source, 0, 0);
+    CachedStylesheet {
+        uri,
+        source,
+        class_definitions,
+    }
+}
 
-        if cursor.goto_first_child() {
-            continue;
-        }
+fn resolve_stylesheet_url(base_uri: &Uri, href: &str) -> Option<Url> {
+    if let Ok(url) = Url::parse(href) {
+        return Some(url);
+    }
 
-        loop {
-            if cursor.goto_next_sibling() {
-                break;
-            }
-            if !cursor.goto_parent() {
-                return None;
-            }
-        }
+    let base = Url::parse(base_uri.as_str()).ok()?;
+    base.join(href).ok()
+}
+
+fn resolve_file_stylesheet(url: &Url) -> Option<CachedStylesheet> {
+    let path = url.to_file_path().ok()?;
+    let source = fs::read_to_string(path).ok()?;
+    let uri = url.as_str().parse().ok()?;
+    Some(parse_stylesheet(uri, source))
+}
+
+fn resolve_remote_stylesheet(cache: &StylesheetCache, url: &Url) -> Option<CachedStylesheet> {
+    let key = url.as_str().to_owned();
+    if let Ok(guard) = cache.read()
+        && let Some(cached) = guard.get(&key)
+    {
+        return Some(cached.clone());
+    }
+
+    let source = ureq::get(url.as_str())
+        .call()
+        .ok()?
+        .body_mut()
+        .read_to_string()
+        .ok()?;
+    let uri = url.as_str().parse().ok()?;
+    let stylesheet = parse_stylesheet(uri, source);
+
+    if let Ok(mut guard) = cache.write() {
+        guard.insert(key, stylesheet.clone());
+    }
+
+    Some(stylesheet)
+}
+
+fn resolve_external_stylesheet(
+    cache: &StylesheetCache,
+    base_uri: &Uri,
+    href: &str,
+) -> Option<(CachedStylesheet, bool)> {
+    let url = resolve_stylesheet_url(base_uri, href)?;
+    match url.scheme() {
+        "file" => resolve_file_stylesheet(&url).map(|sheet| (sheet, false)),
+        "http" | "https" => resolve_remote_stylesheet(cache, &url).map(|sheet| (sheet, true)),
+        _ => None,
     }
 }
 
@@ -1105,31 +1145,91 @@ impl LanguageServer for SvgLanguageServer {
         let uri = &params.text_document_position_params.text_document.uri;
         let pos = params.text_document_position_params.position;
 
-        let docs = self.documents.read().await;
-        let Some(doc) = docs.get(uri) else {
-            return Ok(None);
+        let (target, inline_locations, stylesheet_hrefs) = {
+            let docs = self.documents.read().await;
+            let Some(doc) = docs.get(uri) else {
+                return Ok(None);
+            };
+
+            let source = doc.source.as_bytes();
+            let byte_offset = byte_offset_for_position(source, pos);
+            let Some(target) = svg_references::definition_target_at(source, &doc.tree, byte_offset)
+            else {
+                return Ok(None);
+            };
+
+            match &target {
+                svg_references::DefinitionTarget::Id(target_id) => {
+                    let locations = svg_references::collect_id_definitions(source, &doc.tree)
+                        .into_iter()
+                        .filter(|definition| definition.name == *target_id)
+                        .map(|definition| named_span_location(uri.clone(), source, &definition))
+                        .collect();
+                    (target, locations, Vec::new())
+                }
+                svg_references::DefinitionTarget::Class(target_class) => {
+                    let inline_locations =
+                        svg_references::collect_inline_stylesheets(source, &doc.tree)
+                            .into_iter()
+                            .flat_map(|stylesheet| {
+                                svg_references::collect_class_definitions_from_stylesheet(
+                                    &stylesheet.css,
+                                    stylesheet.start_row,
+                                    stylesheet.start_col,
+                                )
+                            })
+                            .filter(|definition| definition.name == *target_class)
+                            .map(|definition| named_span_location(uri.clone(), source, &definition))
+                            .collect();
+                    let hrefs = svg_references::extract_xml_stylesheet_hrefs(source, &doc.tree);
+                    (target, inline_locations, hrefs)
+                }
+            }
         };
 
-        let source = doc.source.as_bytes();
-        let byte_offset = byte_offset_for_position(source, pos);
+        if matches!(target, svg_references::DefinitionTarget::Id(_)) {
+            return Ok(definition_response_from_locations(inline_locations));
+        }
 
-        let raw_node = deepest_node_at(&doc.tree, byte_offset);
-        let node = if !raw_node.is_named() {
-            raw_node.parent().unwrap_or(raw_node)
-        } else {
-            raw_node
+        let target_class = match target {
+            svg_references::DefinitionTarget::Class(target_class) => target_class,
+            svg_references::DefinitionTarget::Id(_) => unreachable!(),
         };
 
-        let Some(target_id) = definition_target_id(node, source) else {
-            return Ok(None);
-        };
+        let mut locations = inline_locations;
+        let mut local_locations = Vec::new();
+        let mut remote_locations = Vec::new();
 
-        let Some(definition) = find_id_definition_node(&doc.tree, source, &target_id) else {
-            return Ok(None);
-        };
+        for href in stylesheet_hrefs {
+            let Some((stylesheet, is_remote)) =
+                resolve_external_stylesheet(&self.stylesheet_cache, uri, &href)
+            else {
+                continue;
+            };
 
-        let location = Location::new(uri.clone(), node_range_utf16(source, definition));
-        Ok(Some(GotoDefinitionResponse::Scalar(location)))
+            let defs = stylesheet
+                .class_definitions
+                .iter()
+                .filter(|definition| definition.name == target_class)
+                .map(|definition| {
+                    named_span_location(
+                        stylesheet.uri.clone(),
+                        stylesheet.source.as_bytes(),
+                        definition,
+                    )
+                });
+
+            if is_remote {
+                remote_locations.extend(defs);
+            } else {
+                local_locations.extend(defs);
+            }
+        }
+
+        locations.extend(local_locations);
+        locations.extend(remote_locations);
+
+        Ok(definition_response_from_locations(locations))
     }
 
     async fn completion(&self, params: CompletionParams) -> Result<Option<CompletionResponse>> {
@@ -1247,54 +1347,99 @@ impl LanguageServer for SvgLanguageServer {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    fn parse_tree(source: &str) -> tree_sitter::Tree {
-        let mut parser = tree_sitter::Parser::new();
-        parser
-            .set_language(&tree_sitter_svg::LANGUAGE.into())
-            .expect("SVG grammar");
-        parser.parse(source, None).expect("tree")
-    }
+    use std::time::{SystemTime, UNIX_EPOCH};
 
     fn offset_of(source: &str, needle: &str) -> usize {
         source.find(needle).expect("needle present")
     }
 
     #[test]
-    fn definition_target_id_resolves_paint_server_reference() {
+    fn goto_definition_target_resolves_paint_server_reference() {
         let source = r#"<svg><rect fill="url(#style-gradient)" /><linearGradient id="style-gradient" /></svg>"#;
-        let tree = parse_tree(source);
         let offset = offset_of(source, "style-gradient)") + 2;
-        let node = deepest_node_at(&tree, offset);
 
         assert_eq!(
-            definition_target_id(node, source.as_bytes()).as_deref(),
-            Some("style-gradient")
+            svg_references::definition_target_at(
+                source.as_bytes(),
+                &svg_references_test_tree(source),
+                offset,
+            ),
+            Some(svg_references::DefinitionTarget::Id(
+                "style-gradient".into()
+            ))
         );
     }
 
     #[test]
-    fn definition_target_id_does_not_resolve_url_wrapper() {
+    fn goto_definition_target_does_not_resolve_url_wrapper() {
         let source = r#"<svg><rect fill="url(#style-gradient)" /><linearGradient id="style-gradient" /></svg>"#;
-        let tree = parse_tree(source);
         let offset = offset_of(source, "url(") + 1;
-        let node = deepest_node_at(&tree, offset);
 
-        assert_eq!(definition_target_id(node, source.as_bytes()), None);
+        assert_eq!(
+            svg_references::definition_target_at(
+                source.as_bytes(),
+                &svg_references_test_tree(source),
+                offset,
+            ),
+            None
+        );
     }
 
     #[test]
-    fn find_id_definition_node_matches_id_token() {
+    fn collect_id_definitions_matches_id_token() {
         let source = r#"<svg><rect fill="url(#style-gradient)" /><linearGradient id="style-gradient" /></svg>"#;
-        let tree = parse_tree(source);
-        let definition =
-            find_id_definition_node(&tree, source.as_bytes(), "style-gradient").expect("id token");
-
-        assert_eq!(definition.kind(), "id_token");
-        assert_eq!(
-            definition.utf8_text(source.as_bytes()).expect("text"),
-            "style-gradient"
+        let definitions = svg_references::collect_id_definitions(
+            source.as_bytes(),
+            &svg_references_test_tree(source),
         );
+        assert!(
+            definitions
+                .iter()
+                .any(|definition| definition.name == "style-gradient")
+        );
+    }
+
+    #[test]
+    fn resolve_stylesheet_url_handles_relative_file_href() {
+        let base: Uri = "file:///tmp/example.svg".parse().expect("uri");
+        let resolved = resolve_stylesheet_url(&base, "styles/site.css").expect("resolved");
+
+        assert_eq!(resolved.as_str(), "file:///tmp/styles/site.css");
+    }
+
+    #[test]
+    fn resolve_file_stylesheet_collects_class_definitions() {
+        let unique = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("duration")
+            .as_nanos();
+        let temp_dir = std::env::temp_dir().join(format!("svg-ls-style-{unique}"));
+        fs::create_dir_all(&temp_dir).expect("temp dir");
+        let css_path = temp_dir.join("style.css");
+        fs::write(&css_path, ".uses-color { fill: red; }").expect("css written");
+
+        let url = Url::from_file_path(&css_path).expect("file url");
+        let stylesheet = resolve_file_stylesheet(&url).expect("stylesheet");
+
+        assert_eq!(
+            stylesheet
+                .class_definitions
+                .iter()
+                .map(|definition| definition.name.as_str())
+                .collect::<Vec<_>>(),
+            vec!["uses-color"]
+        );
+
+        fs::remove_file(&css_path).expect("cleanup css");
+        fs::remove_dir(&temp_dir).expect("cleanup dir");
+    }
+
+    fn svg_references_test_tree(source: &str) -> tree_sitter::Tree {
+        let mut parser = tree_sitter::Parser::new();
+        parser
+            .set_language(&tree_sitter_svg::LANGUAGE.into())
+            .expect("SVG grammar");
+        parser.parse(source, None).expect("tree")
     }
 }
 

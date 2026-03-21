@@ -1,0 +1,13 @@
+[package]
+name                 = "svg-references"
+version              = "0.1.0"
+edition.workspace    = true
+description          = "Shared SVG/CSS symbol extraction for references and definitions"
+repository.workspace = true
+keywords             = ["css", "references", "svg", "tree-sitter"]
+categories           = ["development-tools"]
+
+[dependencies]
+tree-sitter.workspace     = true
+tree-sitter-css.workspace = true
+tree-sitter-svg.workspace = true

@@ -220,13 +220,67 @@ fn lsp_end_to_end() {
         "blue entry blue channel: {blue_color}"
     );
 
-    // --- 5. colorPresentation for the first color (red) ---
-    let red_range = &red_entry["range"];
+    // --- 5. didOpen second SVG for class go-to-definition ---
+    let class_svg = r#"<svg><style>.uses-color{fill:red}</style><rect class="uses-color"/></svg>"#;
+    send_message(
+        &mut stdin,
+        &json!({
+            "jsonrpc": "2.0",
+            "method": "textDocument/didOpen",
+            "params": {
+                "textDocument": {
+                    "uri": "file:///class-test.svg",
+                    "languageId": "svg",
+                    "version": 1,
+                    "text": class_svg
+                }
+            }
+        }),
+    );
+
+    let class_ref = class_svg
+        .rfind("uses-color")
+        .expect("class reference present") as u32
+        + 2;
     send_message(
         &mut stdin,
         &json!({
             "jsonrpc": "2.0",
             "id": 3,
+            "method": "textDocument/definition",
+            "params": {
+                "textDocument": { "uri": "file:///class-test.svg" },
+                "position": { "line": 0, "character": class_ref }
+            }
+        }),
+    );
+
+    let definition_resp = recv_response(&rx, 3, timeout);
+    let definition = &definition_resp["result"];
+    assert_eq!(
+        definition["uri"].as_str(),
+        Some("file:///class-test.svg"),
+        "definition should stay in the same SVG document: {definition_resp}"
+    );
+    let expected_class_start = class_svg.find(".uses-color").expect("class selector") as u64 + 1;
+    assert_eq!(
+        definition["range"]["start"]["line"].as_u64(),
+        Some(0),
+        "class definition should be on the first line: {definition_resp}"
+    );
+    assert_eq!(
+        definition["range"]["start"]["character"].as_u64(),
+        Some(expected_class_start),
+        "definition should point at the CSS class token, not the attribute wrapper: {definition_resp}"
+    );
+
+    // --- 6. colorPresentation for the first color (red) ---
+    let red_range = &red_entry["range"];
+    send_message(
+        &mut stdin,
+        &json!({
+            "jsonrpc": "2.0",
+            "id": 4,
             "method": "textDocument/colorPresentation",
             "params": {
                 "textDocument": { "uri": "file:///test.svg" },
@@ -241,7 +295,7 @@ fn lsp_end_to_end() {
         }),
     );
 
-    let pres_resp = recv_response(&rx, 3, timeout);
+    let pres_resp = recv_response(&rx, 4, timeout);
     let presentations = pres_resp["result"]
         .as_array()
         .expect("colorPresentation result should be an array");

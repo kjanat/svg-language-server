@@ -5,22 +5,34 @@ alias f := format
 alias i := install
 alias l := lint
 alias fmt := format
+alias chk := check
 
 # Returns the list of all available commands
 default:
     just --list --unsorted
 
 # Format codebase
-format *FILE:
-    dprint fmt {{ FILE }}
+[arg("diff", long="diff", short="d", value="--diff")]
+[arg("staged", long="staged", value="--staged")]
+format diff="" staged="" *FILES:
+    dprint fmt {{ diff }} {{ staged }} {{ FILES }}
+
+# Check formatting
+[arg("list-different", long="list-different", short="l", value="--list-different")]
+[arg("staged", long="staged", short="s", value="--staged")]
+check staged="" list-different="" *FILES:
+    dprint check {{ staged }} {{ list-different }} {{ FILES }}
 
 # Install the lsp bin to ~/.cargo/bin
-install:
-    cargo install --path crates/svg-language-server --bin svg-language-server
+[arg("profile", long="profile", short="p")]
+install profile="release":
+    cargo install --path crates/svg-language-server --bin svg-language-server --profile={{ profile }}
 
 # Clippy all
-lint:
-    cargo clippy --workspace --all-targets --all-features -- -D clippy::all
+[arg("allow-dirty", long="allow-dirty", value="--allow-dirty")]
+[arg("fix", long="fix", value="--fix")]
+lint fix="" allow-dirty="":
+    cargo clippy --workspace --all-targets --all-features {{ fix }} {{ allow-dirty }} -- -D clippy::all
 
 # Let gippity write a nice commit message
 [arg("model", long="model", short="m")]

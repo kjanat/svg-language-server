@@ -63,22 +63,21 @@ impl Suppressions {
     fn unused_diagnostics(&mut self) -> Vec<SvgDiagnostic> {
         let mut suppressed_unused = vec![false; self.directives.len()];
 
-        for index in 0..self.directives.len() {
+        for (index, suppressed_flag) in suppressed_unused.iter_mut().enumerate() {
             let row = self.directives[index].start_row;
 
-            for other_index in 0..self.directives.len() {
+            for (other_index, directive) in self.directives.iter_mut().enumerate() {
                 if index == other_index {
                     continue;
                 }
 
-                let directive = &self.directives[other_index];
                 let applies = match directive.scope {
                     SuppressionScope::File => true,
                     SuppressionScope::NextLine(target_row) => target_row == row,
                 };
                 if applies && directive.codes.contains(&DiagnosticCode::UnusedSuppression) {
-                    suppressed_unused[index] = true;
-                    self.directives[other_index]
+                    *suppressed_flag = true;
+                    directive
                         .used_codes
                         .insert(DiagnosticCode::UnusedSuppression);
                 }
@@ -101,27 +100,18 @@ impl Suppressions {
                 continue;
             }
 
-            let unused_labels = unused_codes
-                .iter()
-                .map(ToString::to_string)
-                .collect::<Vec<_>>()
-                .join(", ");
-            let message = if unused_codes.len() == 1 {
-                format!("Unused suppression for {unused_labels}.")
-            } else {
-                format!("Unused suppressions for {unused_labels}.")
-            };
-
-            diagnostics.push(SvgDiagnostic {
-                byte_range: directive.byte_range.clone(),
-                start_row: directive.start_row,
-                start_col: directive.start_col,
-                end_row: directive.end_row,
-                end_col: directive.end_col,
-                severity: Severity::Warning,
-                code: DiagnosticCode::UnusedSuppression,
-                message,
-            });
+            for unused_code in unused_codes {
+                diagnostics.push(SvgDiagnostic {
+                    byte_range: directive.byte_range.clone(),
+                    start_row: directive.start_row,
+                    start_col: directive.start_col,
+                    end_row: directive.end_row,
+                    end_col: directive.end_col,
+                    severity: Severity::Warning,
+                    code: DiagnosticCode::UnusedSuppression,
+                    message: format!("Unused suppression for {unused_code}."),
+                });
+            }
         }
 
         diagnostics

@@ -254,10 +254,56 @@ mod tests {
         let diags = lint(src);
 
         assert!(
+            diags.iter().any(|d| {
+                d.code == DiagnosticCode::UnusedSuppression
+                    && d.message == "Unused suppression for UnusedSuppression."
+                    && d.start_row == 1
+            }),
+            "the first UnusedSuppression in a run should still be reported as unused: {diags:?}"
+        );
+        assert!(
+            !diags.iter().any(|d| {
+                d.code == DiagnosticCode::UnusedSuppression
+                    && d.message == "Unused suppression for MissingReferenceDefinition."
+                    && d.start_row == 2
+            }),
+            "next-line UnusedSuppression should suppress the following directive's unused warning: {diags:?}"
+        );
+    }
+
+    #[test]
+    fn unused_suppression_is_reported_per_unused_entry() {
+        let src = br#"<svg>
+<!-- svg-lint-disable-next-line UnusedSuppression -->
+<!-- svg-lint-disable-next-line DuplicateId, InvalidChild, UnusedSuppression -->
+<filter id="bad-filter">
+  <!-- svg-lint-disable-next-line InvalidChild, UnusedSuppression -->
+  <rect x="0" y="0" width="10" height="10"/>
+</filter>
+</svg>"#;
+        let diags = lint(src);
+
+        assert!(
+            diags.iter().any(|d| {
+                d.code == DiagnosticCode::UnusedSuppression
+                    && d.message == "Unused suppression for UnusedSuppression."
+                    && d.start_row == 1
+            }),
+            "the first UnusedSuppression in the run should be reported: {diags:?}"
+        );
+        assert!(
             !diags
                 .iter()
-                .any(|d| d.code == DiagnosticCode::UnusedSuppression),
-            "next-line UnusedSuppression directive should suppress the following unused warning: {diags:?}"
+                .any(|d| { d.code == DiagnosticCode::UnusedSuppression && d.start_row == 2 }),
+            "the outer directive's unused warning should be fully suppressed by the previous comment: {diags:?}"
+        );
+        assert!(
+            diags.iter().any(|d| {
+                d.code == DiagnosticCode::UnusedSuppression
+                    && d.message == "Unused suppression for UnusedSuppression."
+                    && d.start_row == 4
+            }),
+            "the nested directive should still report its own unused UnusedSuppression entry: {diags:?}"
         );
     }
 }

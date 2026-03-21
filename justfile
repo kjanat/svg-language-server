@@ -1,11 +1,11 @@
 # https://just.systems
 
-alias c := commit
+alias c := check
 alias f := format
 alias i := install
 alias l := lint
 alias fmt := format
-alias chk := check
+alias cmt := commit
 
 # Returns the list of all available commands
 default:

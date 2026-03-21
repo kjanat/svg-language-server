@@ -25,12 +25,12 @@
 	<filter id="bad-filter">
 		<rect x="0" y="0" width="10" height="10"/>
 	</filter>
-	
+
 	<!-- DIAGNOSTIC: DuplicateId, InvalidChild — suppressed, but first occurence is recognized as unused -->
-	<!-- svg-lint-disable-next-line UnusedSuppression -->
-	<!-- svg-lint-disable-next-line DuplicateId, InvalidChild, UnusedSuppression -->
+	 <!--svg-lint-disable-next-line UnusedSuppression -->
+	<!-- svg-lint-disable-next-line DuplicateId, InvalidChild -->
 	<filter id="bad-filter">
-		<!-- svg-lint-disable-next-line InvalidChild, UnusedSuppression -->
+		<!-- svg-lint-disable-next-line InvalidChild -->
 		<rect x="0" y="0" width="10" height="10"/>
 	</filter>
 
@@ -56,3 +56,17 @@
 		<tspan font-style="italic">italic</tspan>
 	</text>
 </svg>
+
+<!-- svg-lint-disable-next-line UnusedSuppression -->
+
+<!-- svg-lint-disable-next-line UnusedSuppression -->
+<!-- svg-lint-disable-next-line UnusedSuppression -->
+
+<!-- svg-lint-disable-next-line UnusedSuppression -->
+<!-- svg-lint-disable-next-line UnusedSuppression -->
+<!-- svg-lint-disable-next-line UnusedSuppression -->
+
+<!-- svg-lint-disable-next-line UnusedSuppression -->
+<!-- svg-lint-disable-next-line UnusedSuppression -->
+<!-- svg-lint-disable-next-line UnusedSuppression -->
+<!-- svg-lint-disable-next-line UnusedSuppression -->

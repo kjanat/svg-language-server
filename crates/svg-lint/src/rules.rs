@@ -61,12 +61,18 @@ impl Suppressions {
     }
 
     fn unused_diagnostics(&mut self) -> Vec<SvgDiagnostic> {
+        let mut diagnostics = Vec::new();
+        let rows: Vec<_> = self
+            .directives
+            .iter()
+            .map(|directive| directive.start_row)
+            .collect();
         let mut suppressed_unused = vec![false; self.directives.len()];
 
         for (index, suppressed_flag) in suppressed_unused.iter_mut().enumerate() {
-            let row = self.directives[index].start_row;
+            let row = rows[index];
 
-            for (other_index, directive) in self.directives.iter_mut().enumerate() {
+            for (other_index, directive) in self.directives.iter().enumerate() {
                 if index == other_index {
                     continue;
                 }
@@ -77,14 +83,10 @@ impl Suppressions {
                 };
                 if applies && directive.codes.contains(&DiagnosticCode::UnusedSuppression) {
                     *suppressed_flag = true;
-                    directive
-                        .used_codes
-                        .insert(DiagnosticCode::UnusedSuppression);
+                    break;
                 }
             }
         }
-
-        let mut diagnostics = Vec::new();
 
         for (index, directive) in self.directives.iter().enumerate() {
             let unused_codes: Vec<_> = directive

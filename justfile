@@ -25,5 +25,5 @@ lint:
 # Let gippity write a nice commit message
 [arg("model", long="model", short="m")]
 [arg("variant", long="variant", short="v")]
-commit model="openai/gpt-5.4" variant="medium" *MESSAGE:
-    opencode run --command commit --model={{ model }} --variant={{ variant }} '{{ MESSAGE }}'
+commit model="openai/gpt-5.4" variant="medium" *$MESSAGE:
+    opencode run --command commit --model={{ model }} --variant={{ variant }} "$MESSAGE"

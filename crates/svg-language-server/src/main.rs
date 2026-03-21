@@ -40,6 +40,13 @@ struct CachedStylesheet {
     class_definitions: Vec<svg_references::NamedSpan>,
 }
 
+#[derive(Clone)]
+struct ClassDefinitionHover {
+    uri: Uri,
+    source: String,
+    definition: svg_references::NamedSpan,
+}
+
 /// Runtime compat override for a single element or attribute.
 struct CompatOverride {
     deprecated: bool,
@@ -408,9 +415,13 @@ fn utf16_to_byte_col(source: &[u8], row: usize, utf16_col: u32) -> usize {
 
 fn byte_offset_for_position(source: &[u8], position: Position) -> usize {
     let byte_col = utf16_to_byte_col(source, position.line as usize, position.character);
+    byte_offset_for_row_col(source, position.line as usize, byte_col)
+}
+
+fn byte_offset_for_row_col(source: &[u8], row: usize, byte_col: usize) -> usize {
     let line_start: usize = source
         .split(|&b| b == b'\n')
-        .take(position.line as usize)
+        .take(row)
         .map(|line| line.len() + 1)
         .sum();
     line_start + byte_col
@@ -433,6 +444,22 @@ fn named_span_location(uri: Uri, source: &[u8], named: &svg_references::NamedSpa
     Location::new(uri, span_range_utf16(source, &named.span))
 }
 
+fn class_definition_hovers_from_stylesheet(
+    uri: Uri,
+    source: &str,
+    target_class: &str,
+) -> Vec<ClassDefinitionHover> {
+    svg_references::collect_class_definitions_from_stylesheet(source, 0, 0)
+        .into_iter()
+        .filter(|definition| definition.name == target_class)
+        .map(|definition| ClassDefinitionHover {
+            uri: uri.clone(),
+            source: source.to_owned(),
+            definition,
+        })
+        .collect()
+}
+
 fn definition_response_from_locations(
     mut locations: Vec<Location>,
 ) -> Option<GotoDefinitionResponse> {
@@ -453,6 +480,81 @@ fn parse_stylesheet(uri: Uri, source: String) -> CachedStylesheet {
         source,
         class_definitions,
     }
+}
+
+fn format_class_hover(class_name: &str, definitions: &[ClassDefinitionHover]) -> String {
+    let mut markdown = format!("**.{}**", class_name);
+
+    for definition in definitions {
+        let snippet = css_rule_snippet(&definition.source, &definition.definition.span);
+        markdown.push_str("\n\n");
+        markdown.push_str(&format!(
+            "`{}:{}`",
+            definition.uri.as_str(),
+            definition.definition.span.start_row + 1
+        ));
+
+        if !snippet.is_empty() {
+            markdown.push_str("\n```css\n");
+            markdown.push_str(snippet.trim());
+            markdown.push_str("\n```");
+        }
+    }
+
+    markdown
+}
+
+fn css_rule_snippet(source: &str, span: &svg_references::Span) -> String {
+    let source_bytes = source.as_bytes();
+    let start = byte_offset_for_row_col(source_bytes, span.start_row, span.start_col);
+    if start >= source_bytes.len() {
+        return String::new();
+    }
+
+    if let Some(block_open) = source_bytes[start..]
+        .iter()
+        .position(|&byte| byte == b'{')
+        .map(|offset| start + offset)
+    {
+        let selector_start = source_bytes[..start]
+            .iter()
+            .rposition(|&byte| byte == b'}')
+            .map_or(0, |idx| idx + 1);
+
+        if let Some(block_end) = matching_brace_end(source_bytes, block_open) {
+            return source[selector_start..block_end].trim().to_owned();
+        }
+    }
+
+    line_text_at(source, span.start_row)
+}
+
+fn matching_brace_end(source: &[u8], open_index: usize) -> Option<usize> {
+    let mut depth = 0usize;
+
+    for (idx, byte) in source.iter().enumerate().skip(open_index) {
+        match *byte {
+            b'{' => depth += 1,
+            b'}' => {
+                depth = depth.checked_sub(1)?;
+                if depth == 0 {
+                    return Some(idx + 1);
+                }
+            }
+            _ => {}
+        }
+    }
+
+    None
+}
+
+fn line_text_at(source: &str, row: usize) -> String {
+    source
+        .lines()
+        .nth(row)
+        .unwrap_or_default()
+        .trim()
+        .to_owned()
 }
 
 fn resolve_stylesheet_url(base_uri: &Uri, href: &str) -> Option<Url> {
@@ -1066,81 +1168,152 @@ impl LanguageServer for SvgLanguageServer {
         let uri = &params.text_document_position_params.text_document.uri;
         let pos = params.text_document_position_params.position;
 
-        let docs = self.documents.read().await;
-        let Some(doc) = docs.get(uri) else {
-            return Ok(None);
-        };
+        let (kind, node_text, element_markdown, attribute_markdown, class_hover, byte_offset) = {
+            let docs = self.documents.read().await;
+            let Some(doc) = docs.get(uri) else {
+                return Ok(None);
+            };
 
-        let source = doc.source.as_bytes();
-        let byte_col = utf16_to_byte_col(source, pos.line as usize, pos.character);
-        let line_start: usize = source
-            .split(|&b| b == b'\n')
-            .take(pos.line as usize)
-            .map(|line| line.len() + 1)
-            .sum();
-        let byte_offset = line_start + byte_col;
+            let source = doc.source.as_bytes();
+            let byte_offset = byte_offset_for_position(source, pos);
 
-        let raw_node = deepest_node_at(&doc.tree, byte_offset);
-        // Anonymous nodes (string literals like "font-size") need to be resolved
-        // to their named parent (e.g. length_attribute_name).
-        let node = if !raw_node.is_named() {
-            raw_node.parent().unwrap_or(raw_node)
-        } else {
-            raw_node
-        };
-        let kind = node.kind();
+            let raw_node = deepest_node_at(&doc.tree, byte_offset);
+            let node = if !raw_node.is_named() {
+                raw_node.parent().unwrap_or(raw_node)
+            } else {
+                raw_node
+            };
+            let kind = node.kind().to_owned();
+            let node_text = node.utf8_text(source).unwrap_or("").to_owned();
 
-        let rt = self.runtime_compat.read().await;
+            let rt = self.runtime_compat.read().await;
+            let element_markdown = if kind == "name" {
+                node.parent().and_then(|parent| {
+                    let parent_kind = parent.kind();
+                    if parent_kind == "start_tag"
+                        || parent_kind == "self_closing_tag"
+                        || parent_kind == "end_tag"
+                    {
+                        svg_data::element(&node_text).map(|el| {
+                            let rt_override = rt.as_ref().and_then(|r| r.elements.get(&node_text));
+                            format_element_hover(el, rt_override)
+                        })
+                    } else {
+                        None
+                    }
+                })
+            } else {
+                None
+            };
 
-        // Element name hover
-        if kind == "name"
-            && let Some(parent) = node.parent()
-        {
-            let parent_kind = parent.kind();
-            if parent_kind == "start_tag"
-                || parent_kind == "self_closing_tag"
-                || parent_kind == "end_tag"
+            let attribute_markdown =
+                if ATTRIBUTE_NAME_KINDS.contains(&kind.as_str()) || kind == "attribute_name" {
+                    if let Some(attr) = svg_data::attribute(&node_text) {
+                        let rt_override = rt.as_ref().and_then(|r| r.attributes.get(&node_text));
+                        Some(format_attribute_hover(attr, rt_override))
+                    } else {
+                        external_attribute_hover(&kind, &node_text)
+                    }
+                } else {
+                    None
+                };
+
+            let class_hover = if let Some(svg_references::DefinitionTarget::Class(target_class)) =
+                svg_references::definition_target_at(source, &doc.tree, byte_offset)
             {
-                let name_text = node.utf8_text(source).unwrap_or("");
-                if let Some(el) = svg_data::element(name_text) {
-                    let rt_override = rt.as_ref().and_then(|r| r.elements.get(name_text));
-                    let markdown = format_element_hover(el, rt_override);
-                    return Ok(Some(Hover {
-                        contents: HoverContents::Markup(MarkupContent {
-                            kind: MarkupKind::Markdown,
-                            value: markdown,
-                        }),
-                        range: None,
-                    }));
+                let definitions = svg_references::collect_inline_stylesheets(source, &doc.tree)
+                    .into_iter()
+                    .flat_map(|stylesheet| {
+                        svg_references::collect_class_definitions_from_stylesheet(
+                            &stylesheet.css,
+                            stylesheet.start_row,
+                            stylesheet.start_col,
+                        )
+                    })
+                    .filter(|definition| definition.name == target_class)
+                    .map(|definition| ClassDefinitionHover {
+                        uri: uri.clone(),
+                        source: doc.source.clone(),
+                        definition,
+                    })
+                    .collect::<Vec<_>>();
+
+                let hrefs = svg_references::extract_xml_stylesheet_hrefs(source);
+                (target_class, definitions, hrefs)
+            } else {
+                (String::new(), Vec::new(), Vec::new())
+            };
+
+            (
+                kind,
+                node_text,
+                element_markdown,
+                attribute_markdown,
+                class_hover,
+                byte_offset,
+            )
+        };
+
+        if let Some(markdown) = element_markdown {
+            return Ok(Some(Hover {
+                contents: HoverContents::Markup(MarkupContent {
+                    kind: MarkupKind::Markdown,
+                    value: markdown,
+                }),
+                range: None,
+            }));
+        }
+
+        if let Some(markdown) = attribute_markdown {
+            return Ok(Some(Hover {
+                contents: HoverContents::Markup(MarkupContent {
+                    kind: MarkupKind::Markdown,
+                    value: markdown,
+                }),
+                range: None,
+            }));
+        }
+
+        let (target_class, mut class_definitions, stylesheet_hrefs) = class_hover;
+        if !target_class.is_empty() {
+            let mut local_definitions = Vec::new();
+            let mut remote_definitions = Vec::new();
+
+            for href in stylesheet_hrefs {
+                let Some((stylesheet, is_remote)) =
+                    resolve_external_stylesheet(&self.stylesheet_cache, uri, &href)
+                else {
+                    continue;
+                };
+
+                let defs = class_definition_hovers_from_stylesheet(
+                    stylesheet.uri.clone(),
+                    &stylesheet.source,
+                    &target_class,
+                );
+
+                if is_remote {
+                    remote_definitions.extend(defs);
+                } else {
+                    local_definitions.extend(defs);
                 }
             }
-        }
 
-        // Attribute name hover (typed + generic attribute names)
-        if ATTRIBUTE_NAME_KINDS.contains(&kind) || kind == "attribute_name" {
-            let name_text = node.utf8_text(source).unwrap_or("");
-            if let Some(attr) = svg_data::attribute(name_text) {
-                let rt_override = rt.as_ref().and_then(|r| r.attributes.get(name_text));
-                let markdown = format_attribute_hover(attr, rt_override);
+            class_definitions.extend(local_definitions);
+            class_definitions.extend(remote_definitions);
+
+            if !class_definitions.is_empty() {
                 return Ok(Some(Hover {
                     contents: HoverContents::Markup(MarkupContent {
                         kind: MarkupKind::Markdown,
-                        value: markdown,
-                    }),
-                    range: None,
-                }));
-            }
-            if let Some(markdown) = external_attribute_hover(kind, name_text) {
-                return Ok(Some(Hover {
-                    contents: HoverContents::Markup(MarkupContent {
-                        kind: MarkupKind::Markdown,
-                        value: markdown,
+                        value: format_class_hover(&target_class, &class_definitions),
                     }),
                     range: None,
                 }));
             }
         }
 
+        let _ = (kind, node_text, byte_offset);
         Ok(None)
     }
 

@@ -274,13 +274,39 @@ fn lsp_end_to_end() {
         "definition should point at the CSS class token, not the attribute wrapper: {definition_resp}"
     );
 
+    send_message(
+        &mut stdin,
+        &json!({
+            "jsonrpc": "2.0",
+            "id": 4,
+            "method": "textDocument/hover",
+            "params": {
+                "textDocument": { "uri": "file:///class-test.svg" },
+                "position": { "line": 0, "character": class_ref }
+            }
+        }),
+    );
+
+    let hover_resp = recv_response(&rx, 4, timeout);
+    let hover_text = hover_resp["result"]["contents"]["value"]
+        .as_str()
+        .expect("hover markdown");
+    assert!(
+        hover_text.contains(".uses-color"),
+        "class hover should include the selector name: {hover_resp}"
+    );
+    assert!(
+        hover_text.contains("fill:red"),
+        "class hover should include the CSS definition snippet: {hover_resp}"
+    );
+
     // --- 6. colorPresentation for the first color (red) ---
     let red_range = &red_entry["range"];
     send_message(
         &mut stdin,
         &json!({
             "jsonrpc": "2.0",
-            "id": 4,
+            "id": 5,
             "method": "textDocument/colorPresentation",
             "params": {
                 "textDocument": { "uri": "file:///test.svg" },
@@ -295,7 +321,7 @@ fn lsp_end_to_end() {
         }),
     );
 
-    let pres_resp = recv_response(&rx, 4, timeout);
+    let pres_resp = recv_response(&rx, 5, timeout);
     let presentations = pres_resp["result"]
         .as_array()
         .expect("colorPresentation result should be an array");

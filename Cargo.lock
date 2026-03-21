@@ -629,6 +629,7 @@ dependencies = [
  "tracing-subscriber",
  "tree-sitter",
  "tree-sitter-svg",
+ "ureq",
 ]
 
 [[package]]

@@ -30,11 +30,24 @@ struct DocumentState {
 /// Cache mapping (URI, start_line, start_character) to the original color kind.
 type ColorKindCache = Arc<RwLock<HashMap<(Uri, u32, u32), svg_color::ColorKind>>>;
 
+/// Runtime compat override for a single element or attribute.
+struct CompatOverride {
+    deprecated: bool,
+    baseline: Option<BaselineStatus>,
+}
+
+/// Runtime-fetched compat data, overlays the baked-in catalog.
+struct RuntimeCompat {
+    elements: HashMap<String, CompatOverride>,
+    attributes: HashMap<String, CompatOverride>,
+}
+
 struct SvgLanguageServer {
     client: Client,
     documents: Arc<RwLock<HashMap<Uri, DocumentState>>>,
     parser: Arc<RwLock<tree_sitter::Parser>>,
     color_kinds: ColorKindCache,
+    runtime_compat: Arc<RwLock<Option<RuntimeCompat>>>,
 }
 
 struct LoggingGuards {
@@ -53,6 +66,7 @@ impl SvgLanguageServer {
             documents: Arc::new(RwLock::new(HashMap::new())),
             parser: Arc::new(RwLock::new(parser)),
             color_kinds: Arc::new(RwLock::new(HashMap::new())),
+            runtime_compat: Arc::new(RwLock::new(None)),
         }
     }
 
@@ -202,6 +216,141 @@ fn init_logging() -> LoggingGuards {
     }
 }
 
+// ---- Runtime compat data refresh ----
+
+const BCD_URL: &str = "https://unpkg.com/@mdn/browser-compat-data@latest/data.json";
+const WEB_FEATURES_URL: &str = "https://unpkg.com/web-features@latest/data.json";
+
+/// Fetch BCD + web-features from unpkg, parse into a `RuntimeCompat` overlay.
+/// Runs synchronously (intended for `spawn_blocking`).
+fn fetch_runtime_compat() -> Option<RuntimeCompat> {
+    let bcd_text = ureq::get(BCD_URL)
+        .call()
+        .ok()?
+        .body_mut()
+        .read_to_string()
+        .ok()?;
+    let bcd_json: serde_json::Value = serde_json::from_str(&bcd_text).ok()?;
+
+    let wf_json: serde_json::Value = ureq::get(WEB_FEATURES_URL)
+        .call()
+        .ok()
+        .and_then(|mut r| r.body_mut().read_to_string().ok())
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or(serde_json::Value::Null);
+
+    let wf_features = wf_json.get("features");
+
+    let svg_elements = bcd_json.pointer("/svg/elements")?.as_object()?;
+
+    let mut elements = HashMap::new();
+    let mut attributes = HashMap::new();
+
+    for (el_name, el_data) in svg_elements {
+        // Element-level compat
+        if let Some(compat) = el_data.pointer("/__compat") {
+            let deprecated = compat
+                .pointer("/status/deprecated")
+                .and_then(|v| v.as_bool())
+                .unwrap_or(false);
+            let baseline = resolve_baseline(compat, wf_features);
+            elements.insert(
+                el_name.clone(),
+                CompatOverride {
+                    deprecated,
+                    baseline,
+                },
+            );
+        }
+
+        // Element-specific attributes (e.g. svg.elements.svg.baseProfile)
+        if let Some(obj) = el_data.as_object() {
+            for (key, val) in obj {
+                if key == "__compat" {
+                    continue;
+                }
+                if let Some(compat) = val.pointer("/__compat") {
+                    let deprecated = compat
+                        .pointer("/status/deprecated")
+                        .and_then(|v| v.as_bool())
+                        .unwrap_or(false);
+                    let baseline = resolve_baseline(compat, wf_features);
+                    attributes
+                        .entry(key.clone())
+                        .and_modify(|existing: &mut CompatOverride| {
+                            if deprecated {
+                                existing.deprecated = true;
+                            }
+                            if existing.baseline.is_none() {
+                                existing.baseline = baseline;
+                            }
+                        })
+                        .or_insert(CompatOverride {
+                            deprecated,
+                            baseline,
+                        });
+                }
+            }
+        }
+    }
+
+    // Global attributes
+    if let Some(global_attrs) = bcd_json.pointer("/svg/global_attributes")
+        && let Some(obj) = global_attrs.as_object()
+    {
+        for (attr_name, attr_data) in obj {
+            if let Some(compat) = attr_data.pointer("/__compat") {
+                let deprecated = compat
+                    .pointer("/status/deprecated")
+                    .and_then(|v| v.as_bool())
+                    .unwrap_or(false);
+                let baseline = resolve_baseline(compat, wf_features);
+                attributes
+                    .entry(attr_name.clone())
+                    .or_insert(CompatOverride {
+                        deprecated,
+                        baseline,
+                    });
+            }
+        }
+    }
+
+    Some(RuntimeCompat {
+        elements,
+        attributes,
+    })
+}
+
+/// Resolve baseline status from a BCD __compat object + web-features data.
+fn resolve_baseline(
+    compat: &serde_json::Value,
+    wf_features: Option<&serde_json::Value>,
+) -> Option<BaselineStatus> {
+    let wf = wf_features?;
+    let tags = compat.get("tags")?.as_array()?;
+    let feature_id = tags
+        .iter()
+        .find_map(|t| t.as_str()?.strip_prefix("web-features:"))?;
+    let status = wf.get(feature_id)?.get("status")?;
+
+    match status.get("baseline")? {
+        serde_json::Value::Bool(false) => Some(BaselineStatus::Limited),
+        serde_json::Value::String(s) if s == "high" => {
+            let since = parse_year(status, "baseline_high_date")?;
+            Some(BaselineStatus::Widely { since })
+        }
+        serde_json::Value::String(s) if s == "low" => {
+            let since = parse_year(status, "baseline_low_date")?;
+            Some(BaselineStatus::Newly { since })
+        }
+        _ => None,
+    }
+}
+
+fn parse_year(status: &serde_json::Value, key: &str) -> Option<u16> {
+    status.get(key)?.as_str()?.split('-').next()?.parse().ok()
+}
+
 /// Convert a byte-offset column to UTF-16 code unit count within a given row.
 ///
 /// LSP positions use UTF-16 code units by default. Tree-sitter reports byte offsets,
@@ -246,10 +395,16 @@ fn utf16_to_byte_col(source: &[u8], row: usize, utf16_col: u32) -> usize {
 }
 
 /// Format element hover documentation as Markdown.
-fn format_element_hover(el: &svg_data::ElementDef) -> String {
+/// If `rt` is Some, its deprecated/baseline override the baked-in values.
+fn format_element_hover(el: &svg_data::ElementDef, rt: Option<&CompatOverride>) -> String {
+    let deprecated = rt.map_or(el.deprecated, |r| r.deprecated);
+    let baseline = rt
+        .and_then(|r| r.baseline.as_ref())
+        .or(el.baseline.as_ref());
+
     let mut parts = Vec::new();
 
-    if el.deprecated {
+    if deprecated {
         parts.push(format!("~~{}~~", el.description));
         parts.push(String::new());
         parts.push("**Deprecated**".to_owned());
@@ -257,7 +412,7 @@ fn format_element_hover(el: &svg_data::ElementDef) -> String {
         parts.push(el.description.to_owned());
     }
 
-    if let Some(baseline) = &el.baseline {
+    if let Some(baseline) = baseline {
         parts.push(String::new());
         parts.push(format_baseline(baseline));
     }
@@ -269,10 +424,16 @@ fn format_element_hover(el: &svg_data::ElementDef) -> String {
 }
 
 /// Format attribute hover documentation as Markdown.
-fn format_attribute_hover(attr: &svg_data::AttributeDef) -> String {
+/// If `rt` is Some, its deprecated/baseline override the baked-in values.
+fn format_attribute_hover(attr: &svg_data::AttributeDef, rt: Option<&CompatOverride>) -> String {
+    let deprecated = rt.map_or(attr.deprecated, |r| r.deprecated);
+    let baseline = rt
+        .and_then(|r| r.baseline.as_ref())
+        .or(attr.baseline.as_ref());
+
     let mut parts = Vec::new();
 
-    if attr.deprecated {
+    if deprecated {
         parts.push(format!("~~{}~~", attr.description));
         parts.push(String::new());
         parts.push("**Deprecated**".to_owned());
@@ -301,7 +462,7 @@ fn format_attribute_hover(attr: &svg_data::AttributeDef) -> String {
         _ => {}
     }
 
-    if let Some(baseline) = &attr.baseline {
+    if let Some(baseline) = baseline {
         parts.push(String::new());
         parts.push(format_baseline(baseline));
     }
@@ -581,6 +742,71 @@ fn value_completions(attr_name: &str) -> Vec<CompletionItem> {
 impl LanguageServer for SvgLanguageServer {
     async fn initialize(&self, _params: InitializeParams) -> Result<InitializeResult> {
         tracing::info!("initialize");
+
+        // Spawn background compat data refresh
+        let compat = self.runtime_compat.clone();
+        let client = self.client.clone();
+        let documents = self.documents.clone();
+        tokio::spawn(async move {
+            let result = tokio::task::spawn_blocking(fetch_runtime_compat).await;
+            match result {
+                Ok(Some(data)) => {
+                    let el_count = data.elements.len();
+                    let attr_count = data.attributes.len();
+                    *compat.write().await = Some(data);
+                    tracing::info!(
+                        elements = el_count,
+                        attributes = attr_count,
+                        "runtime compat data loaded"
+                    );
+                    // Re-lint all open documents with fresh data
+                    let docs = documents.read().await;
+                    for (uri, doc) in docs.iter() {
+                        let source_bytes = doc.source.as_bytes();
+                        let lint_diags = svg_lint::lint_tree(source_bytes, &doc.tree);
+                        let lsp_diags: Vec<Diagnostic> = lint_diags
+                            .into_iter()
+                            .map(|d| {
+                                let start_char =
+                                    byte_col_to_utf16(source_bytes, d.start_row, d.start_col);
+                                let end_char =
+                                    byte_col_to_utf16(source_bytes, d.end_row, d.end_col);
+                                let severity = match d.severity {
+                                    svg_lint::Severity::Error => DiagnosticSeverity::ERROR,
+                                    svg_lint::Severity::Warning => DiagnosticSeverity::WARNING,
+                                    svg_lint::Severity::Information => {
+                                        DiagnosticSeverity::INFORMATION
+                                    }
+                                    svg_lint::Severity::Hint => DiagnosticSeverity::HINT,
+                                };
+                                Diagnostic::new(
+                                    Range::new(
+                                        Position::new(d.start_row as u32, start_char),
+                                        Position::new(d.end_row as u32, end_char),
+                                    ),
+                                    Some(severity),
+                                    Some(NumberOrString::String(format!("{:?}", d.code))),
+                                    Some("svg-lint".to_owned()),
+                                    d.message,
+                                    None,
+                                    None,
+                                )
+                            })
+                            .collect();
+                        client
+                            .publish_diagnostics(uri.clone(), lsp_diags, None)
+                            .await;
+                    }
+                }
+                Ok(None) => {
+                    tracing::info!("runtime compat fetch returned no data (offline?)");
+                }
+                Err(e) => {
+                    tracing::warn!(error = %e, "runtime compat fetch failed");
+                }
+            }
+        });
+
         Ok(InitializeResult {
             capabilities: ServerCapabilities {
                 text_document_sync: Some(TextDocumentSyncCapability::Kind(
@@ -743,6 +969,8 @@ impl LanguageServer for SvgLanguageServer {
         };
         let kind = node.kind();
 
+        let rt = self.runtime_compat.read().await;
+
         // Element name hover
         if kind == "name"
             && let Some(parent) = node.parent()
@@ -754,7 +982,8 @@ impl LanguageServer for SvgLanguageServer {
             {
                 let name_text = node.utf8_text(source).unwrap_or("");
                 if let Some(el) = svg_data::element(name_text) {
-                    let markdown = format_element_hover(el);
+                    let rt_override = rt.as_ref().and_then(|r| r.elements.get(name_text));
+                    let markdown = format_element_hover(el, rt_override);
                     return Ok(Some(Hover {
                         contents: HoverContents::Markup(MarkupContent {
                             kind: MarkupKind::Markdown,
@@ -770,7 +999,8 @@ impl LanguageServer for SvgLanguageServer {
         if ATTRIBUTE_NAME_KINDS.contains(&kind) || kind == "attribute_name" {
             let name_text = node.utf8_text(source).unwrap_or("");
             if let Some(attr) = svg_data::attribute(name_text) {
-                let markdown = format_attribute_hover(attr);
+                let rt_override = rt.as_ref().and_then(|r| r.attributes.get(name_text));
+                let markdown = format_attribute_hover(attr, rt_override);
                 return Ok(Some(Hover {
                     contents: HoverContents::Markup(MarkupContent {
                         kind: MarkupKind::Markdown,

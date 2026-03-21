@@ -4,7 +4,7 @@ Color extraction and format conversion for SVG documents.
 
 ## Features
 
-- Extract color values from parsed SVG trees (hex, `rgb()`, `hsl()`, named colors)
+- Extract color values from parsed SVG trees (hex, `rgb()`, `hsl()`, `oklab()`, `oklch()`, named colors)
 - Extract colors from SVG presentation attributes and embedded `<style>` blocks
 - Convert between color formats for LSP color presentations
 - Recognizes all 148 CSS named colors
@@ -31,6 +31,8 @@ let labels = color_presentations(r, g, b, a, kind);
 | Hex      | `#ff0000`, `#f00`, `#ff000080`   |
 | RGB/RGBA | `rgb(255, 0, 0)`, `rgba(…, 0.5)` |
 | HSL/HSLA | `hsl(0, 100%, 50%)`              |
+| OKLab    | `oklab(62.8% 0.22488 0.125859)`  |
+| OKLCH    | `oklch(62.8% 0.2577 29.23)`      |
 | Named    | `red`, `cornflowerblue`          |
 
 ## Part of [svg-language-server]

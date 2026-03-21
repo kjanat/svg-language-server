@@ -44,6 +44,14 @@
       fill: mediumseagreen;
     }
 
+    .oklab {
+      fill: oklab(62% 0.16 0.08);
+    }
+
+    .oklch {
+      fill: oklch(72% 0.19 320);
+    }
+
     .stroke-only {
       fill: none;
       stroke: darkorange;
@@ -101,7 +109,7 @@
   <rect class="panel" x="20" y="20" width="760" height="480" rx="20" />
 
   <text class="label" x="36" y="58">Embedded &lt;style&gt; colors</text>
-  <text class="subtle" x="36" y="84">hex, rgb(a), hsl(a), named colors, color:, stroke:, and stop-color</text>
+  <text class="subtle" x="36" y="84">hex, rgb(a), hsl(a), oklab, oklch, named colors, color:, stroke:, and stop-color</text>
 
   <rect class="hex-6" x="40" y="120" width="120" height="70" rx="12" />
   <text class="subtle" x="40" y="214">#ff6b35</text>
@@ -127,11 +135,17 @@
   <circle class="named" cx="400" cy="310" r="42" />
   <text class="subtle" x="340" y="382">mediumseagreen</text>
 
-  <circle class="stroke-only" cx="550" cy="310" r="42" />
-  <text class="subtle" x="500" y="382">stroke: darkorange</text>
+  <circle class="oklab" cx="520" cy="310" r="42" />
+  <text class="subtle" x="470" y="382">oklab(62% 0.16 0.08)</text>
 
-  <rect x="640" y="268" width="120" height="84" rx="16" fill="url(#style-gradient)" />
-  <text class="subtle" x="620" y="382">stop-color via classes</text>
+  <circle class="oklch" cx="670" cy="310" r="42" />
+  <text class="subtle" x="620" y="382">oklch(72% 0.19 320)</text>
 
-  <text class="uses-color" x="40" y="452">color: rebeccapurple</text>
+  <circle class="stroke-only" cx="100" cy="430" r="42" />
+  <text class="subtle" x="40" y="502">stroke: darkorange</text>
+
+  <rect x="190" y="388" width="120" height="84" rx="16" fill="url(#style-gradient)" />
+  <text class="subtle" x="170" y="502">stop-color via classes</text>
+
+  <text class="uses-color" x="380" y="448">color: rebeccapurple</text>
 </svg>

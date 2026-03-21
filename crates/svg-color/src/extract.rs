@@ -152,7 +152,7 @@ fn try_extract_css(
             let function = css_function_name(node, css_source)?;
             if !matches!(
                 function.to_ascii_lowercase().as_str(),
-                "rgb" | "rgba" | "hsl" | "hsla"
+                "rgb" | "rgba" | "hsl" | "hsla" | "oklab" | "oklch"
             ) {
                 return None;
             }
@@ -433,12 +433,14 @@ mod tests {
 
     #[test]
     fn colors_inside_style_element() {
-        let src = br#"<svg><style>rect { fill: #ff0000; stroke: rgb(0, 128, 255); color: red; }</style></svg>"#;
+        let src = br#"<svg><style>rect { fill: #ff0000; stroke: rgb(0, 128, 255); color: red; background-color: oklch(0.627966 0.257704 29.2346); outline-color: oklab(62.7966% 0.22488 0.125859); }</style></svg>"#;
         let colors = extract_colors(src);
-        assert_eq!(colors.len(), 3);
+        assert_eq!(colors.len(), 5);
         assert_eq!(colors[0].kind, ColorKind::Hex);
         assert_eq!(colors[1].kind, ColorKind::Functional);
         assert_eq!(colors[2].kind, ColorKind::Named);
+        assert_eq!(colors[3].kind, ColorKind::Functional);
+        assert_eq!(colors[4].kind, ColorKind::Functional);
     }
 
     #[test]

@@ -422,58 +422,14 @@ fn node_range_utf16(source: &[u8], node: tree_sitter::Node<'_>) -> Range {
     )
 }
 
-fn find_descendant_any<'a>(
-    node: tree_sitter::Node<'a>,
-    kinds: &[&str],
-) -> Option<tree_sitter::Node<'a>> {
-    if kinds.contains(&node.kind()) {
-        return Some(node);
-    }
-
-    let mut cursor = node.walk();
-    if cursor.goto_first_child() {
-        loop {
-            if let Some(found) = find_descendant_any(cursor.node(), kinds) {
-                return Some(found);
-            }
-            if !cursor.goto_next_sibling() {
-                break;
-            }
-        }
-    }
-
-    None
-}
-
 fn definition_target_id(node: tree_sitter::Node<'_>, source: &[u8]) -> Option<String> {
     if let Some(iri) = find_ancestor_any(node, &["iri_reference"]) {
         let text = iri.utf8_text(source).ok()?;
         return text.strip_prefix('#').map(ToOwned::to_owned);
     }
 
-    for kind in [
-        "paint_server",
-        "href_reference",
-        "functional_iri_attribute_value",
-        "href_attribute_value",
-    ] {
-        if let Some(container) = find_ancestor_any(node, &[kind])
-            && let Some(iri) = find_descendant_any(container, &["iri_reference"])
-        {
-            let text = iri.utf8_text(source).ok()?;
-            return text.strip_prefix('#').map(ToOwned::to_owned);
-        }
-    }
-
     if let Some(id_token) = find_ancestor_any(node, &["id_token"]) {
         return Some(id_token.utf8_text(source).ok()?.to_owned());
-    }
-
-    for kind in ["quoted_attribute_value", "functional_iri_attribute_value"] {
-        if let Some(value_node) = find_ancestor_any(node, &[kind]) {
-            let text = value_node.utf8_text(source).ok()?;
-            return text.strip_prefix('#').map(ToOwned::to_owned);
-        }
     }
 
     None
@@ -1315,6 +1271,16 @@ mod tests {
             definition_target_id(node, source.as_bytes()).as_deref(),
             Some("style-gradient")
         );
+    }
+
+    #[test]
+    fn definition_target_id_does_not_resolve_url_wrapper() {
+        let source = r#"<svg><rect fill="url(#style-gradient)" /><linearGradient id="style-gradient" /></svg>"#;
+        let tree = parse_tree(source);
+        let offset = offset_of(source, "url(") + 1;
+        let node = deepest_node_at(&tree, offset);
+
+        assert_eq!(definition_target_id(node, source.as_bytes()), None);
     }
 
     #[test]

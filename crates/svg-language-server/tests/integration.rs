@@ -116,6 +116,38 @@ fn lsp_end_to_end() {
         }
     }
 
+    fn recv_notification<F>(
+        rx: &std::sync::mpsc::Receiver<Value>,
+        method: &str,
+        timeout: Duration,
+        predicate: F,
+    ) -> Value
+    where
+        F: Fn(&Value) -> bool,
+    {
+        let deadline = std::time::Instant::now() + timeout;
+        loop {
+            let remaining = deadline.saturating_duration_since(std::time::Instant::now());
+            if remaining.is_zero() {
+                panic!("timed out waiting for notification {}", method);
+            }
+            match rx.recv_timeout(remaining) {
+                Ok(msg) => {
+                    if msg.get("method").and_then(Value::as_str) == Some(method) && predicate(&msg)
+                    {
+                        return msg;
+                    }
+                }
+                Err(std::sync::mpsc::RecvTimeoutError::Timeout) => {
+                    panic!("timed out waiting for notification {}", method);
+                }
+                Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => {
+                    panic!("reader thread disconnected while waiting for {}", method);
+                }
+            }
+        }
+    }
+
     let timeout = Duration::from_secs(10);
 
     // --- 1. initialize ---
@@ -308,8 +340,8 @@ fn lsp_end_to_end() {
         "class hover should show a short source label: {hover_resp}"
     );
     assert!(
-        !hover_text.contains("file:///"),
-        "class hover should not dump a raw file URI: {hover_resp}"
+        hover_text.contains("[class-test.svg:1](file:///class-test.svg#L1)"),
+        "class hover should provide a clickable source link: {hover_resp}"
     );
 
     let vars_svg = r#"<svg><style>:root { --panel-bg: red; } .var-alpha { fill: var(--panel-bg); }</style></svg>"#;
@@ -389,8 +421,85 @@ fn lsp_end_to_end() {
         "custom property hover should show a short source label: {var_hover_resp}"
     );
     assert!(
-        !var_hover_text.contains("file:///"),
-        "custom property hover should not dump a raw file URI: {var_hover_resp}"
+        var_hover_text.contains("[vars-test.svg:1](file:///vars-test.svg#L1)"),
+        "custom property hover should provide a clickable source link: {var_hover_resp}"
+    );
+
+    let missing_ref_svg = r#"<svg><rect clip-path="url(#myClip)" filter="url(#myFilter)"/></svg>"#;
+    send_message(
+        &mut stdin,
+        &json!({
+            "jsonrpc": "2.0",
+            "method": "textDocument/didOpen",
+            "params": {
+                "textDocument": {
+                    "uri": "file:///missing-ref.svg",
+                    "languageId": "svg",
+                    "version": 1,
+                    "text": missing_ref_svg
+                }
+            }
+        }),
+    );
+
+    let missing_ref_diags =
+        recv_notification(&rx, "textDocument/publishDiagnostics", timeout, |msg| {
+            msg["params"]["uri"].as_str() == Some("file:///missing-ref.svg")
+        });
+    let missing_ref_list = missing_ref_diags["params"]["diagnostics"]
+        .as_array()
+        .expect("publishDiagnostics should include an array");
+    assert!(
+        missing_ref_list.iter().any(|diag| {
+            diag["code"].as_str() == Some("MissingReferenceDefinition")
+                && diag["message"]
+                    .as_str()
+                    .is_some_and(|message| message.contains("clip-path"))
+        }),
+        "missing clip-path definition should produce a lint warning: {missing_ref_diags}"
+    );
+
+    send_message(
+        &mut stdin,
+        &json!({
+            "jsonrpc": "2.0",
+            "id": 8,
+            "method": "textDocument/codeAction",
+            "params": {
+                "textDocument": { "uri": "file:///missing-ref.svg" },
+                "range": {
+                    "start": { "line": 0, "character": 0 },
+                    "end": { "line": 0, "character": 0 }
+                },
+                "context": {
+                    "diagnostics": missing_ref_list
+                }
+            }
+        }),
+    );
+
+    let code_action_resp = recv_response(&rx, 8, timeout);
+    let code_actions = code_action_resp["result"]
+        .as_array()
+        .expect("codeAction result should be an array");
+    assert!(
+        code_actions.iter().any(|action| {
+            action["title"].as_str() == Some("Suppress MissingReferenceDefinition on this line")
+        }),
+        "line suppression quick-fix should be offered: {code_action_resp}"
+    );
+    assert!(
+        code_actions.iter().any(|action| {
+            action["title"].as_str() == Some("Suppress MissingReferenceDefinition in this file")
+        }),
+        "file suppression quick-fix should be offered: {code_action_resp}"
+    );
+    assert!(
+        code_actions.iter().any(|action| {
+            action["edit"]["changes"]["file:///missing-ref.svg"][0]["newText"].as_str()
+                == Some("<!-- svg-lint-disable MissingReferenceDefinition -->\n")
+        }),
+        "file suppression quick-fix should insert a suppression comment: {code_action_resp}"
     );
 
     // --- 6. colorPresentation for the first color (red) ---

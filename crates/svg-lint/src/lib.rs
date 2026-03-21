@@ -130,4 +130,71 @@ mod tests {
             "foreignObject should allow foreign-namespace subtrees without SVG diagnostics: {diags:?}"
         );
     }
+
+    #[test]
+    fn missing_local_reference_definition_warns_with_attribute_name() {
+        let src = br#"<svg><rect clip-path="url(#myClip)" filter="url(#myFilter)"/></svg>"#;
+        let diags = lint(src);
+
+        assert!(
+            diags.iter().any(|d| {
+                d.code == DiagnosticCode::MissingReferenceDefinition
+                    && d.message.contains("clip-path")
+                    && d.message.contains("#myClip")
+            }),
+            "clip-path missing definition should warn: {diags:?}"
+        );
+        assert!(
+            diags.iter().any(|d| {
+                d.code == DiagnosticCode::MissingReferenceDefinition
+                    && d.message.contains("filter")
+                    && d.message.contains("#myFilter")
+            }),
+            "filter missing definition should warn: {diags:?}"
+        );
+    }
+
+    #[test]
+    fn existing_local_reference_definition_does_not_warn() {
+        let src =
+            br#"<svg><defs><clipPath id="myClip"/></defs><rect clip-path="url(#myClip)"/></svg>"#;
+        let diags = lint(src);
+
+        assert!(
+            !diags
+                .iter()
+                .any(|d| d.code == DiagnosticCode::MissingReferenceDefinition),
+            "defined references should not warn: {diags:?}"
+        );
+    }
+
+    #[test]
+    fn suppression_comment_disables_next_line_diagnostic() {
+        let src = br#"<svg>
+<!-- svg-lint-disable-next-line MissingReferenceDefinition -->
+<rect clip-path="url(#myClip)"/>
+</svg>"#;
+        let diags = lint(src);
+
+        assert!(
+            !diags
+                .iter()
+                .any(|d| d.code == DiagnosticCode::MissingReferenceDefinition),
+            "next-line suppression should suppress missing reference diagnostics: {diags:?}"
+        );
+    }
+
+    #[test]
+    fn suppression_comment_disables_file_diagnostic() {
+        let src = br#"<!-- svg-lint-disable MissingReferenceDefinition -->
+<svg><rect filter="url(#myFilter)"/></svg>"#;
+        let diags = lint(src);
+
+        assert!(
+            !diags
+                .iter()
+                .any(|d| d.code == DiagnosticCode::MissingReferenceDefinition),
+            "file suppression should suppress missing reference diagnostics: {diags:?}"
+        );
+    }
 }

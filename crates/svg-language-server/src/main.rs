@@ -8,14 +8,16 @@ use svg_data::{AttributeValues, BaselineStatus, ContentModel};
 use tokio::sync::RwLock;
 use tower_lsp_server::jsonrpc::Result;
 use tower_lsp_server::ls_types::{
-    Color, ColorInformation, ColorPresentation, ColorPresentationParams, ColorProviderCapability,
-    CompletionItem, CompletionItemKind, CompletionItemTag, CompletionOptions, CompletionParams,
-    CompletionResponse, Diagnostic, DiagnosticSeverity, DidChangeTextDocumentParams,
-    DidCloseTextDocumentParams, DidOpenTextDocumentParams, DocumentColorParams,
-    GotoDefinitionParams, GotoDefinitionResponse, Hover, HoverContents, HoverParams,
-    HoverProviderCapability, InitializeParams, InitializeResult, InsertTextFormat, Location,
-    MarkupContent, MarkupKind, NumberOrString, OneOf, Position, Range, ServerCapabilities,
-    TextDocumentSyncCapability, TextDocumentSyncKind, TextEdit, Uri,
+    CodeAction, CodeActionKind, CodeActionOrCommand, CodeActionParams,
+    CodeActionProviderCapability, CodeActionResponse, Color, ColorInformation, ColorPresentation,
+    ColorPresentationParams, ColorProviderCapability, CompletionItem, CompletionItemKind,
+    CompletionItemTag, CompletionOptions, CompletionParams, CompletionResponse, Diagnostic,
+    DiagnosticSeverity, DidChangeTextDocumentParams, DidCloseTextDocumentParams,
+    DidOpenTextDocumentParams, DocumentColorParams, GotoDefinitionParams, GotoDefinitionResponse,
+    Hover, HoverContents, HoverParams, HoverProviderCapability, InitializeParams, InitializeResult,
+    InsertTextFormat, Location, MarkupContent, MarkupKind, NumberOrString, OneOf, Position, Range,
+    ServerCapabilities, TextDocumentSyncCapability, TextDocumentSyncKind, TextEdit, Uri,
+    WorkspaceEdit,
 };
 use tower_lsp_server::{Client, LanguageServer, LspService, Server};
 use tracing_subscriber::filter::LevelFilter;
@@ -53,6 +55,11 @@ struct CustomPropertyDefinitionHover {
     uri: Uri,
     source: String,
     definition: svg_references::NamedSpan,
+}
+
+struct HoverSourceLink {
+    label: String,
+    target: String,
 }
 
 /// Runtime compat override for a single element or attribute.
@@ -110,42 +117,50 @@ impl SvgLanguageServer {
 
         let source_bytes = source.as_bytes();
         let lint_diags = svg_lint::lint_tree(source_bytes, &tree);
-
-        let lsp_diags: Vec<Diagnostic> = lint_diags
-            .into_iter()
-            .map(|d| {
-                let start_char = byte_col_to_utf16(source_bytes, d.start_row, d.start_col);
-                let end_char = byte_col_to_utf16(source_bytes, d.end_row, d.end_col);
-                let severity = match d.severity {
-                    svg_lint::Severity::Error => DiagnosticSeverity::ERROR,
-                    svg_lint::Severity::Warning => DiagnosticSeverity::WARNING,
-                    svg_lint::Severity::Information => DiagnosticSeverity::INFORMATION,
-                    svg_lint::Severity::Hint => DiagnosticSeverity::HINT,
-                };
-                Diagnostic::new(
-                    Range::new(
-                        Position::new(d.start_row as u32, start_char),
-                        Position::new(d.end_row as u32, end_char),
-                    ),
-                    Some(severity),
-                    Some(NumberOrString::String(format!("{:?}", d.code))),
-                    Some("svg-lint".to_owned()),
-                    d.message,
-                    None,
-                    None,
-                )
-            })
-            .collect();
-
-        self.client
-            .publish_diagnostics(uri.clone(), lsp_diags, None)
-            .await;
+        publish_lint_diagnostics(&self.client, uri.clone(), source_bytes, lint_diags).await;
 
         self.documents
             .write()
             .await
             .insert(uri, DocumentState { source, tree });
     }
+}
+
+fn lint_diagnostic_to_lsp(source: &[u8], diagnostic: svg_lint::SvgDiagnostic) -> Diagnostic {
+    let start_char = byte_col_to_utf16(source, diagnostic.start_row, diagnostic.start_col);
+    let end_char = byte_col_to_utf16(source, diagnostic.end_row, diagnostic.end_col);
+    let severity = match diagnostic.severity {
+        svg_lint::Severity::Error => DiagnosticSeverity::ERROR,
+        svg_lint::Severity::Warning => DiagnosticSeverity::WARNING,
+        svg_lint::Severity::Information => DiagnosticSeverity::INFORMATION,
+        svg_lint::Severity::Hint => DiagnosticSeverity::HINT,
+    };
+
+    Diagnostic::new(
+        Range::new(
+            Position::new(diagnostic.start_row as u32, start_char),
+            Position::new(diagnostic.end_row as u32, end_char),
+        ),
+        Some(severity),
+        Some(NumberOrString::String(diagnostic.code.as_str().to_owned())),
+        Some("svg-lint".to_owned()),
+        diagnostic.message,
+        None,
+        None,
+    )
+}
+
+async fn publish_lint_diagnostics(
+    client: &Client,
+    uri: Uri,
+    source: &[u8],
+    diagnostics: Vec<svg_lint::SvgDiagnostic>,
+) {
+    let diagnostics = diagnostics
+        .into_iter()
+        .map(|diagnostic| lint_diagnostic_to_lsp(source, diagnostic))
+        .collect();
+    client.publish_diagnostics(uri, diagnostics, None).await;
 }
 
 fn default_log_dir() -> PathBuf {
@@ -514,7 +529,7 @@ fn format_class_hover(class_name: &str, definitions: &[ClassDefinitionHover]) ->
         definitions.iter().map(|definition| {
             (
                 css_rule_snippet(&definition.source, &definition.definition.span),
-                hover_source_label(&definition.uri, definition.definition.span.start_row),
+                hover_source_link(&definition.uri, definition.definition.span.start_row),
             )
         }),
         &format!(".{class_name}"),
@@ -529,7 +544,7 @@ fn format_custom_property_hover(
         definitions.iter().map(|definition| {
             (
                 css_declaration_snippet(&definition.source, &definition.definition.span),
-                hover_source_label(&definition.uri, definition.definition.span.start_row),
+                hover_source_link(&definition.uri, definition.definition.span.start_row),
             )
         }),
         property_name,
@@ -537,7 +552,7 @@ fn format_custom_property_hover(
 }
 
 fn format_definition_hover(
-    definitions: impl Iterator<Item = (String, String)>,
+    definitions: impl Iterator<Item = (String, HoverSourceLink)>,
     fallback_label: &str,
 ) -> String {
     let sections: Vec<String> = definitions
@@ -551,8 +566,11 @@ fn format_definition_hover(
                 section.push_str(trimmed);
                 section.push_str("\n```");
             }
-            section.push_str("\nDefined in ");
-            section.push_str(&format!("`{source}`"));
+            section.push_str("\nDefined in [");
+            section.push_str(&source.label);
+            section.push_str("](");
+            section.push_str(&source.target);
+            section.push(')');
             section
         })
         .collect();
@@ -560,36 +578,178 @@ fn format_definition_hover(
     sections.join("\n\n---\n\n")
 }
 
-fn hover_source_label(uri: &Uri, start_row: usize) -> String {
+fn hover_source_link(uri: &Uri, start_row: usize) -> HoverSourceLink {
     let line = start_row + 1;
     let Ok(url) = Url::parse(uri.as_str()) else {
-        return format!("{}:{line}", uri.as_str());
+        return HoverSourceLink {
+            label: format!("{}:{line}", uri.as_str()),
+            target: uri.as_str().to_owned(),
+        };
     };
 
     match url.scheme() {
         "file" => {
             let Ok(path) = url.to_file_path() else {
-                return format!("{}:{line}", uri.as_str());
+                return HoverSourceLink {
+                    label: format!("{}:{line}", uri.as_str()),
+                    target: uri.as_str().to_owned(),
+                };
             };
 
+            let target = format!("{}#L{line}", url);
             if let Ok(cwd) = std::env::current_dir()
                 && let Ok(relative) = path.strip_prefix(&cwd)
             {
-                return format!("{}:{line}", relative.display());
+                return HoverSourceLink {
+                    label: format!("{}:{line}", relative.display()),
+                    target,
+                };
             }
 
             if let Some(file_name) = path.file_name() {
-                return format!("{}:{line}", file_name.to_string_lossy());
+                return HoverSourceLink {
+                    label: format!("{}:{line}", file_name.to_string_lossy()),
+                    target,
+                };
             }
 
-            format!("{}:{line}", path.display())
+            HoverSourceLink {
+                label: format!("{}:{line}", path.display()),
+                target,
+            }
         }
         "http" | "https" => {
             let host = url.host_str().unwrap_or_default();
-            format!("{host}{}:{line}", url.path())
+            HoverSourceLink {
+                label: format!("{host}{}:{line}", url.path()),
+                target: format!("{url}#L{line}"),
+            }
         }
-        _ => format!("{}:{line}", uri.as_str()),
+        _ => HoverSourceLink {
+            label: format!("{}:{line}", uri.as_str()),
+            target: uri.as_str().to_owned(),
+        },
     }
+}
+
+fn suppression_code(diagnostic: &Diagnostic) -> Option<&str> {
+    if diagnostic.source.as_deref() != Some("svg-lint") {
+        return None;
+    }
+
+    match diagnostic.code.as_ref()? {
+        NumberOrString::String(code) => code
+            .parse::<svg_lint::DiagnosticCode>()
+            .ok()
+            .map(|_| code.as_str()),
+        NumberOrString::Number(_) => None,
+    }
+}
+
+fn line_indentation(source: &str, row: usize) -> String {
+    source
+        .lines()
+        .nth(row)
+        .unwrap_or_default()
+        .chars()
+        .take_while(|ch| ch.is_whitespace())
+        .collect()
+}
+
+fn line_start_range(row: u32) -> Range {
+    Range::new(Position::new(row, 0), Position::new(row, 0))
+}
+
+fn file_suppression_insert_position(source: &str) -> Position {
+    if source.starts_with("<?xml")
+        && let Some(decl_end) = source.find("?>")
+    {
+        let mut offset = decl_end + 2;
+        if source[offset..].starts_with("\r\n") {
+            offset += 2;
+        } else if source[offset..].starts_with('\n') {
+            offset += 1;
+        }
+        return position_for_byte_offset(source.as_bytes(), offset);
+    }
+
+    Position::new(0, 0)
+}
+
+fn position_for_byte_offset(source: &[u8], byte_offset: usize) -> Position {
+    let clamped = byte_offset.min(source.len());
+    let row = source[..clamped]
+        .iter()
+        .filter(|&&byte| byte == b'\n')
+        .count();
+    let line_start = source[..clamped]
+        .iter()
+        .rposition(|&byte| byte == b'\n')
+        .map_or(0, |idx| idx + 1);
+    let col = byte_col_to_utf16(source, row, clamped.saturating_sub(line_start));
+    Position::new(row as u32, col)
+}
+
+fn suppression_comment_text(code: &str, next_line: bool, indentation: &str) -> String {
+    let directive = if next_line {
+        "svg-lint-disable-next-line"
+    } else {
+        "svg-lint-disable"
+    };
+    format!("{indentation}<!-- {directive} {code} -->\n")
+}
+
+fn suppression_workspace_edit(uri: &Uri, range: Range, new_text: String) -> WorkspaceEdit {
+    WorkspaceEdit {
+        changes: Some(HashMap::from([(
+            uri.clone(),
+            vec![TextEdit { range, new_text }],
+        )])),
+        ..Default::default()
+    }
+}
+
+fn suppression_code_actions_for_diagnostic(
+    uri: &Uri,
+    source: &str,
+    diagnostic: &Diagnostic,
+) -> Vec<CodeActionOrCommand> {
+    let Some(code) = suppression_code(diagnostic) else {
+        return Vec::new();
+    };
+
+    let line = diagnostic.range.start.line as usize;
+    let indentation = line_indentation(source, line);
+    let line_comment = suppression_comment_text(code, true, &indentation);
+    let file_comment = suppression_comment_text(code, false, "");
+    let file_position = file_suppression_insert_position(source);
+
+    vec![
+        CodeActionOrCommand::CodeAction(CodeAction {
+            title: format!("Suppress {code} on this line"),
+            kind: Some(CodeActionKind::QUICKFIX),
+            diagnostics: Some(vec![diagnostic.clone()]),
+            edit: Some(suppression_workspace_edit(
+                uri,
+                line_start_range(diagnostic.range.start.line),
+                line_comment,
+            )),
+            is_preferred: Some(false),
+            ..Default::default()
+        }),
+        CodeActionOrCommand::CodeAction(CodeAction {
+            title: format!("Suppress {code} in this file"),
+            kind: Some(CodeActionKind::QUICKFIX),
+            diagnostics: Some(vec![diagnostic.clone()]),
+            edit: Some(suppression_workspace_edit(
+                uri,
+                Range::new(file_position, file_position),
+                file_comment,
+            )),
+            is_preferred: Some(false),
+            ..Default::default()
+        }),
+    ]
 }
 
 fn css_rule_snippet(source: &str, span: &svg_references::Span) -> String {
@@ -1093,37 +1253,7 @@ impl LanguageServer for SvgLanguageServer {
                     for (uri, doc) in docs.iter() {
                         let source_bytes = doc.source.as_bytes();
                         let lint_diags = svg_lint::lint_tree(source_bytes, &doc.tree);
-                        let lsp_diags: Vec<Diagnostic> = lint_diags
-                            .into_iter()
-                            .map(|d| {
-                                let start_char =
-                                    byte_col_to_utf16(source_bytes, d.start_row, d.start_col);
-                                let end_char =
-                                    byte_col_to_utf16(source_bytes, d.end_row, d.end_col);
-                                let severity = match d.severity {
-                                    svg_lint::Severity::Error => DiagnosticSeverity::ERROR,
-                                    svg_lint::Severity::Warning => DiagnosticSeverity::WARNING,
-                                    svg_lint::Severity::Information => {
-                                        DiagnosticSeverity::INFORMATION
-                                    }
-                                    svg_lint::Severity::Hint => DiagnosticSeverity::HINT,
-                                };
-                                Diagnostic::new(
-                                    Range::new(
-                                        Position::new(d.start_row as u32, start_char),
-                                        Position::new(d.end_row as u32, end_char),
-                                    ),
-                                    Some(severity),
-                                    Some(NumberOrString::String(format!("{:?}", d.code))),
-                                    Some("svg-lint".to_owned()),
-                                    d.message,
-                                    None,
-                                    None,
-                                )
-                            })
-                            .collect();
-                        client
-                            .publish_diagnostics(uri.clone(), lsp_diags, None)
+                        publish_lint_diagnostics(&client, uri.clone(), source_bytes, lint_diags)
                             .await;
                     }
                 }
@@ -1144,6 +1274,7 @@ impl LanguageServer for SvgLanguageServer {
                 color_provider: Some(ColorProviderCapability::Simple(true)),
                 hover_provider: Some(HoverProviderCapability::Simple(true)),
                 definition_provider: Some(OneOf::Left(true)),
+                code_action_provider: Some(CodeActionProviderCapability::Simple(true)),
                 completion_provider: Some(CompletionOptions {
                     trigger_characters: Some(vec![
                         "<".to_string(),
@@ -1491,6 +1622,39 @@ impl LanguageServer for SvgLanguageServer {
         }
 
         Ok(None)
+    }
+
+    async fn code_action(&self, params: CodeActionParams) -> Result<Option<CodeActionResponse>> {
+        let uri = &params.text_document.uri;
+        let source = {
+            let docs = self.documents.read().await;
+            let Some(doc) = docs.get(uri) else {
+                return Ok(None);
+            };
+            doc.source.clone()
+        };
+
+        let mut seen = std::collections::HashSet::new();
+        let mut actions = Vec::new();
+
+        for diagnostic in &params.context.diagnostics {
+            let Some(code) = suppression_code(diagnostic) else {
+                continue;
+            };
+            let key = (code.to_owned(), diagnostic.range.start.line);
+            if !seen.insert(key) {
+                continue;
+            }
+            actions.extend(suppression_code_actions_for_diagnostic(
+                uri, &source, diagnostic,
+            ));
+        }
+
+        if actions.is_empty() {
+            return Ok(None);
+        }
+
+        Ok(Some(actions))
     }
 
     async fn goto_definition(

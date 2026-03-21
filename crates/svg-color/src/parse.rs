@@ -1,4 +1,6 @@
+const LCH_ACHROMATIC_CHROMA_THRESHOLD: f64 = 0.0015;
 const OKLCH_ACHROMATIC_CHROMA_THRESHOLD: f64 = 4e-6;
+const D50: [f64; 3] = [0.3457 / 0.3585, 1.0, (1.0 - 0.3457 - 0.3585) / 0.3585];
 
 /// Parse a hex color string like `#RGB`, `#RGBA`, `#RRGGBB`, `#RRGGBBAA`.
 /// Returns (r, g, b, a) as f32 values 0.0–1.0, or None if invalid.
@@ -61,12 +63,6 @@ fn hex_digit(b: u8) -> Option<u8> {
 }
 
 /// Parse a CSS functional color string and return normalized sRGB + alpha.
-///
-/// Supported forms:
-/// - `rgb()` / `rgba()` with comma-separated legacy syntax
-/// - `hsl()` / `hsla()` with comma-separated legacy syntax
-/// - `oklab()` with modern space-separated syntax
-/// - `oklch()` with modern space-separated syntax
 pub fn parse_functional(text: &str) -> Option<(f32, f32, f32, f32)> {
     let text = text.trim();
 
@@ -75,8 +71,23 @@ pub fn parse_functional(text: &str) -> Option<(f32, f32, f32, f32)> {
     let rest = text[paren_open + 1..].strip_suffix(')')?.trim();
 
     match func.as_str() {
-        "rgb" | "rgba" => parse_legacy_rgb(rest),
-        "hsl" | "hsla" => parse_legacy_hsl(rest),
+        "rgb" | "rgba" => {
+            if rest.contains(',') {
+                parse_legacy_rgb(rest)
+            } else {
+                parse_modern_rgb(rest)
+            }
+        }
+        "hsl" | "hsla" => {
+            if rest.contains(',') {
+                parse_legacy_hsl(rest)
+            } else {
+                parse_modern_hsl(rest)
+            }
+        }
+        "hwb" => parse_hwb(rest),
+        "lab" => parse_lab(rest),
+        "lch" => parse_lch(rest),
         "oklab" => parse_oklab(rest),
         "oklch" => parse_oklch(rest),
         _ => None,
@@ -89,9 +100,9 @@ fn parse_legacy_rgb(rest: &str) -> Option<(f32, f32, f32, f32)> {
         return None;
     }
 
-    let r = parse_rgb_component(raw_args[0])?;
-    let g = parse_rgb_component(raw_args[1])?;
-    let b = parse_rgb_component(raw_args[2])?;
+    let r = parse_legacy_rgb_component(raw_args[0])?;
+    let g = parse_legacy_rgb_component(raw_args[1])?;
+    let b = parse_legacy_rgb_component(raw_args[2])?;
     let a = if raw_args.len() == 4 {
         parse_alpha(raw_args[3])?
     } else {
@@ -108,8 +119,8 @@ fn parse_legacy_hsl(rest: &str) -> Option<(f32, f32, f32, f32)> {
     }
 
     let h = parse_hue(raw_args[0])?;
-    let s = parse_percent(raw_args[1])?;
-    let l = parse_percent(raw_args[2])?;
+    let s = parse_legacy_percent(raw_args[1])?;
+    let l = parse_legacy_percent(raw_args[2])?;
     let a = if raw_args.len() == 4 {
         parse_alpha(raw_args[3])?
     } else {
@@ -126,6 +137,60 @@ fn split_legacy_args(rest: &str) -> Option<Vec<&str>> {
         return None;
     }
     Some(raw_args)
+}
+
+fn parse_modern_rgb(rest: &str) -> Option<(f32, f32, f32, f32)> {
+    let (components, alpha) = split_modern_args(rest)?;
+    let r = parse_modern_rgb_component(components[0])?;
+    let g = parse_modern_rgb_component(components[1])?;
+    let b = parse_modern_rgb_component(components[2])?;
+    let a = clamp_channel(parse_modern_alpha(alpha)?);
+    Some((r, g, b, a))
+}
+
+fn parse_modern_hsl(rest: &str) -> Option<(f32, f32, f32, f32)> {
+    let (components, alpha) = split_modern_args(rest)?;
+    let h = parse_hue(components[0])?;
+    let s = parse_modern_percent_or_number_100(components[1])?;
+    let l = parse_modern_percent_or_number_100(components[2])?;
+    let a = clamp_channel(parse_modern_alpha(alpha)?);
+    let (r, g, b) = hsl_to_rgb(h, s, l);
+    Some((r, g, b, a))
+}
+
+fn parse_hwb(rest: &str) -> Option<(f32, f32, f32, f32)> {
+    let (components, alpha) = split_modern_args(rest)?;
+    let h = parse_hue(components[0])?;
+    let w = parse_modern_percent_or_number_100(components[1])?;
+    let b = parse_modern_percent_or_number_100(components[2])?;
+    let a = parse_modern_alpha(alpha)?;
+    Some(hwb_to_rgb(h, w, b, a))
+}
+
+fn parse_lab(rest: &str) -> Option<(f32, f32, f32, f32)> {
+    let (components, alpha) = split_modern_args(rest)?;
+    let l = parse_lab_lightness(components[0])?;
+    let a = parse_lab_axis(components[1])?;
+    let b = parse_lab_axis(components[2])?;
+    let alpha = parse_modern_alpha(alpha)?;
+    lab_to_srgb(l, a, b, alpha)
+}
+
+fn parse_lch(rest: &str) -> Option<(f32, f32, f32, f32)> {
+    let (components, alpha) = split_modern_args(rest)?;
+    let l = parse_lab_lightness(components[0])?;
+    let c = parse_lch_chroma(components[1])?;
+    let h = parse_lch_hue(components[2])?;
+    let alpha = parse_modern_alpha(alpha)?;
+
+    let hue = if c <= LCH_ACHROMATIC_CHROMA_THRESHOLD {
+        0.0
+    } else {
+        h
+    };
+    let a = c * hue.to_radians().cos();
+    let b = c * hue.to_radians().sin();
+    lab_to_srgb(l, a, b, alpha)
 }
 
 fn parse_oklab(rest: &str) -> Option<(f32, f32, f32, f32)> {
@@ -175,9 +240,7 @@ fn split_modern_args(rest: &str) -> Option<([&str; 3], Option<&str>)> {
     Some(([c1, c2, c3], alpha))
 }
 
-/// Parse a single RGB component: integer 0–255 or percentage 0%–100%.
-/// Returns a normalised f32 in 0.0–1.0.
-fn parse_rgb_component(s: &str) -> Option<f32> {
+fn parse_legacy_rgb_component(s: &str) -> Option<f32> {
     if let Some(pct) = s.strip_suffix('%') {
         let v: f32 = pct.trim().parse().ok()?;
         if !(0.0..=100.0).contains(&v) {
@@ -193,11 +256,35 @@ fn parse_rgb_component(s: &str) -> Option<f32> {
     }
 }
 
-/// Parse a percentage value like `50%`, returning the value divided by 100.
-fn parse_percent(s: &str) -> Option<f32> {
+fn parse_modern_rgb_component(s: &str) -> Option<f32> {
+    if s.eq_ignore_ascii_case("none") {
+        return Some(0.0);
+    }
+    if let Some(pct) = s.strip_suffix('%') {
+        let v: f32 = pct.trim().parse().ok()?;
+        return Some((v / 100.0).clamp(0.0, 1.0));
+    }
+
+    let v: f32 = s.parse().ok()?;
+    Some((v / 255.0).clamp(0.0, 1.0))
+}
+
+fn parse_legacy_percent(s: &str) -> Option<f32> {
     let inner = s.strip_suffix('%')?;
     let v: f32 = inner.trim().parse().ok()?;
     Some(v / 100.0)
+}
+
+fn parse_modern_percent_or_number_100(s: &str) -> Option<f32> {
+    if s.eq_ignore_ascii_case("none") {
+        return Some(0.0);
+    }
+    let value = if let Some(percent) = s.strip_suffix('%') {
+        percent.trim().parse::<f32>().ok()?
+    } else {
+        s.trim().parse::<f32>().ok()?
+    };
+    Some((value / 100.0).clamp(0.0, 1.0))
 }
 
 /// Parse a CSS hue angle, defaulting bare numbers to degrees.
@@ -250,9 +337,59 @@ fn parse_alpha(s: &str) -> Option<f32> {
 
 fn parse_modern_alpha(alpha: Option<&str>) -> Option<f64> {
     match alpha {
-        Some(value) => Some(f64::from(parse_alpha(value)?)),
+        Some(value) => {
+            let value = value.trim();
+            if value.eq_ignore_ascii_case("none") {
+                return Some(1.0);
+            }
+            if let Some(percent) = value.strip_suffix('%') {
+                let v = percent.trim().parse::<f64>().ok()?;
+                return Some((v / 100.0).clamp(0.0, 1.0));
+            }
+
+            let v = value.parse::<f64>().ok()?;
+            Some(v.clamp(0.0, 1.0))
+        }
         None => Some(1.0),
     }
+}
+
+fn parse_lab_lightness(s: &str) -> Option<f64> {
+    if s.eq_ignore_ascii_case("none") {
+        return Some(0.0);
+    }
+    let value = if let Some(percent) = s.strip_suffix('%') {
+        percent.trim().parse::<f64>().ok()?
+    } else {
+        s.trim().parse::<f64>().ok()?
+    };
+    Some(value.clamp(0.0, 100.0))
+}
+
+fn parse_lab_axis(s: &str) -> Option<f64> {
+    if s.eq_ignore_ascii_case("none") {
+        return Some(0.0);
+    }
+    if let Some(percent) = s.strip_suffix('%') {
+        return Some(percent.trim().parse::<f64>().ok()? * 125.0 / 100.0);
+    }
+    s.trim().parse::<f64>().ok()
+}
+
+fn parse_lch_chroma(s: &str) -> Option<f64> {
+    if s.eq_ignore_ascii_case("none") {
+        return Some(0.0);
+    }
+    let value = if let Some(percent) = s.strip_suffix('%') {
+        percent.trim().parse::<f64>().ok()? * 150.0 / 100.0
+    } else {
+        s.trim().parse::<f64>().ok()?
+    };
+    Some(value.max(0.0))
+}
+
+fn parse_lch_hue(s: &str) -> Option<f64> {
+    parse_hue_f64(s)
 }
 
 fn parse_oklab_lightness(s: &str) -> Option<f64> {
@@ -291,6 +428,80 @@ fn parse_oklch_chroma(s: &str) -> Option<f64> {
 
 fn parse_oklch_hue(s: &str) -> Option<f64> {
     parse_hue_f64(s)
+}
+
+fn hwb_to_rgb(h: f32, w: f32, b: f32, alpha: f64) -> (f32, f32, f32, f32) {
+    let w = w.clamp(0.0, 1.0);
+    let b = b.clamp(0.0, 1.0);
+
+    if w + b >= 1.0 {
+        let gray = if w + b == 0.0 { 0.0 } else { w / (w + b) };
+        return (gray, gray, gray, clamp_channel(alpha));
+    }
+
+    let (hr, hg, hb) = hsl_to_rgb(h, 1.0, 0.5);
+    let scale = 1.0 - w - b;
+    (
+        hr * scale + w,
+        hg * scale + w,
+        hb * scale + w,
+        clamp_channel(alpha),
+    )
+}
+
+fn lab_to_srgb(l: f64, a: f64, b: f64, alpha: f64) -> Option<(f32, f32, f32, f32)> {
+    let xyz_d50 = lab_to_xyz([l, a, b]);
+    let xyz_d65 = d50_to_d65(xyz_d50);
+    let linear_rgb = xyz_to_linear_srgb(xyz_d65);
+    let srgb = linear_rgb.map(linear_to_srgb);
+
+    if srgb.iter().any(|value| !value.is_finite()) || !alpha.is_finite() {
+        return None;
+    }
+
+    Some((
+        clamp_channel(srgb[0]),
+        clamp_channel(srgb[1]),
+        clamp_channel(srgb[2]),
+        clamp_channel(alpha),
+    ))
+}
+
+fn lab_to_xyz([l, a, b]: [f64; 3]) -> [f64; 3] {
+    let kappa = 24_389.0 / 27.0;
+    let epsilon = 216.0 / 24_389.0;
+
+    let fy = (l + 16.0) / 116.0;
+    let fx = a / 500.0 + fy;
+    let fz = fy - b / 200.0;
+
+    let xyz = [
+        if fx.powi(3) > epsilon {
+            fx.powi(3)
+        } else {
+            (116.0 * fx - 16.0) / kappa
+        },
+        if l > kappa * epsilon {
+            ((l + 16.0) / 116.0).powi(3)
+        } else {
+            l / kappa
+        },
+        if fz.powi(3) > epsilon {
+            fz.powi(3)
+        } else {
+            (116.0 * fz - 16.0) / kappa
+        },
+    ];
+
+    [xyz[0] * D50[0], xyz[1] * D50[1], xyz[2] * D50[2]]
+}
+
+fn d50_to_d65([x, y, z]: [f64; 3]) -> [f64; 3] {
+    [
+        0.955_473_421_488_075 * x - 0.023_098_454_948_764_71 * y + 0.063_259_243_200_570_72 * z,
+        -0.028_369_709_333_863_7 * x + 1.009_995_398_081_304_1 * y + 0.021_041_441_191_917_323 * z,
+        0.012_314_014_864_481_998 * x - 0.020_507_649_298_898_964 * y + 1.330_365_926_242_124 * z,
+    ]
 }
 
 fn oklab_to_srgb(l: f64, a: f64, b: f64, alpha: f64) -> Option<(f32, f32, f32, f32)> {
@@ -356,7 +567,7 @@ fn clamp_channel(value: f64) -> f32 {
     }
 }
 
-/// Convert HSL to RGB.  All inputs/outputs are normalised to 0.0–1.0 except
+/// Convert HSL to RGB. All inputs/outputs are normalised to 0.0–1.0 except
 /// `h`, which is in degrees (0–360, wrapping).
 fn hsl_to_rgb(h: f32, s: f32, l: f32) -> (f32, f32, f32) {
     let s = s.clamp(0.0, 1.0);
@@ -406,8 +617,6 @@ mod tests {
         );
     }
 
-    // ─── hex ────────────────────────────────────────────
-
     #[test]
     fn hex_6_digit() {
         assert_eq!(parse_hex("#ff0000"), Some((1.0, 0.0, 0.0, 1.0)));
@@ -449,8 +658,6 @@ mod tests {
         assert_eq!(parse_hex(""), None);
     }
 
-    // ─── functional ─────────────────────────────────────
-
     #[test]
     fn rgb_integers() {
         assert_eq!(
@@ -464,12 +671,30 @@ mod tests {
     }
 
     #[test]
+    fn modern_rgb_space_separated() {
+        assert_eq!(
+            parse_functional("rgb(255 0 0 / 50%)"),
+            Some((1.0, 0.0, 0.0, 0.5))
+        );
+        assert_eq!(
+            parse_functional("rgba(100% 0% 0% / none)"),
+            Some((1.0, 0.0, 0.0, 1.0))
+        );
+    }
+
+    #[test]
+    fn modern_rgb_none_and_clamping() {
+        assert_eq!(
+            parse_functional("rgb(none 300 -10 / 2)"),
+            Some((0.0, 1.0, 0.0, 1.0))
+        );
+    }
+
+    #[test]
     fn rgba_with_alpha() {
-        let result = parse_functional("rgba(255, 0, 0, 50%)");
-        assert!(result.is_some());
-        let (r, _, _, a) = result.unwrap();
-        assert!((r - 1.0).abs() < 0.01);
-        assert!((a - 0.5).abs() < 0.01);
+        let result = parse_functional("rgba(255, 0, 0, 50%)").unwrap();
+        assert!((result.0 - 1.0).abs() < 0.01);
+        assert!((result.3 - 0.5).abs() < 0.01);
     }
 
     #[test]
@@ -482,30 +707,69 @@ mod tests {
 
     #[test]
     fn hsl_basic() {
-        let result = parse_functional("hsl(0, 100%, 50%)");
-        assert!(result.is_some());
-        let (r, g, b, _) = result.unwrap();
-        assert!((r - 1.0).abs() < 0.02);
-        assert!(g < 0.02);
-        assert!(b < 0.02);
+        let result = parse_functional("hsl(0, 100%, 50%)").unwrap();
+        assert!((result.0 - 1.0).abs() < 0.02);
+        assert!(result.1 < 0.02);
+        assert!(result.2 < 0.02);
+    }
+
+    #[test]
+    fn modern_hsl_space_separated() {
+        let result = parse_functional("hsl(120deg 100% 50% / 25%)").unwrap();
+        assert!(result.0 < 0.02);
+        assert!((result.1 - 1.0).abs() < 0.02);
+        assert!(result.2 < 0.02);
+        assert!((result.3 - 0.25).abs() < 0.01);
     }
 
     #[test]
     fn hsl_green() {
-        let result = parse_functional("hsl(120, 100%, 50%)");
-        assert!(result.is_some());
-        let (r, g, b, _) = result.unwrap();
-        assert!(r < 0.02);
-        assert!((g - 1.0).abs() < 0.02);
-        assert!(b < 0.02);
+        let result = parse_functional("hsl(120, 100%, 50%)").unwrap();
+        assert!(result.0 < 0.02);
+        assert!((result.1 - 1.0).abs() < 0.02);
+        assert!(result.2 < 0.02);
     }
 
     #[test]
     fn hsla_with_alpha() {
-        let result = parse_functional("hsla(0, 100%, 50%, 0.5)");
-        assert!(result.is_some());
-        let (_, _, _, a) = result.unwrap();
-        assert!((a - 0.5).abs() < 0.01);
+        let result = parse_functional("hsla(0, 100%, 50%, 0.5)").unwrap();
+        assert!((result.3 - 0.5).abs() < 0.01);
+    }
+
+    #[test]
+    fn hwb_green() {
+        let result = parse_functional("hwb(120 0% 0%)").unwrap();
+        assert_rgb_close(result, (0.0, 1.0, 0.0, 1.0), 0.02);
+    }
+
+    #[test]
+    fn hwb_achromatic() {
+        let result = parse_functional("hwb(45 40% 80%)").unwrap();
+        assert!((result.0 - result.1).abs() < 0.001);
+        assert!((result.1 - result.2).abs() < 0.001);
+        assert!((result.0 - (40.0 / 120.0)).abs() < 0.02);
+    }
+
+    #[test]
+    fn lab_and_lch_equivalent() {
+        let lab = parse_functional("lab(29.2345% 39.3825 20.0664)").unwrap();
+        let lch = parse_functional("lch(29.2345% 44.2 27)").unwrap();
+        assert_rgb_close(lab, lch, 0.02);
+    }
+
+    #[test]
+    fn lab_none_components_map_to_gray() {
+        let result = parse_functional("lab(50% none none / 50%)").unwrap();
+        assert!((result.0 - result.1).abs() < 0.001);
+        assert!((result.1 - result.2).abs() < 0.001);
+        assert!((result.3 - 0.5).abs() < 0.01);
+    }
+
+    #[test]
+    fn lch_achromatic_none_hue_is_gray() {
+        let result = parse_functional("lch(50% 0 none)").unwrap();
+        assert!((result.0 - result.1).abs() < 0.001);
+        assert!((result.1 - result.2).abs() < 0.001);
     }
 
     #[test]
@@ -555,7 +819,11 @@ mod tests {
     fn functional_whitespace_variations() {
         assert!(parse_functional("rgb( 255 , 0 , 0 )").is_some());
         assert!(parse_functional("rgb(255,0,0)").is_some());
+        assert!(parse_functional("rgb(255 0 0 / 0.5)").is_some());
+        assert!(parse_functional("hsl(120deg 100% 50%)").is_some());
         assert!(parse_functional("OKLCH(62.7966% 64.426% 29.2346)").is_some());
+        assert!(parse_functional("lab(29.2345% 39.3825 20.0664)").is_some());
+        assert!(parse_functional("hwb(120 0% 0%)").is_some());
     }
 
     #[test]
@@ -564,6 +832,8 @@ mod tests {
         assert_eq!(parse_functional("rgb(a, b, c)"), None);
         assert_eq!(parse_functional("notafunction(1,2,3)"), None);
         assert_eq!(parse_functional("oklch(0.6, 0.2, 20)"), None);
+        assert_eq!(parse_functional("lab(10, 20, 30)"), None);
+        assert_eq!(parse_functional("hwb(0, 10%, 10%)"), None);
         assert_eq!(parse_functional("oklab(from red l a b)"), None);
         assert_eq!(parse_functional(""), None);
     }

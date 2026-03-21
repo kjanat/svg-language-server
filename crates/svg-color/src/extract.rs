@@ -66,10 +66,7 @@ fn try_extract_svg(node: tree_sitter::Node<'_>, source: &[u8]) -> Option<ColorIn
             let (r, g, b, a) = parse::parse_functional(text)?;
             (r, g, b, a, ColorKind::Functional)
         }
-        "named_color" => {
-            let (r, g, b) = named_colors::lookup(text)?;
-            (r, g, b, 1.0, ColorKind::Named)
-        }
+        "named_color" => parse_named_color(text)?,
         _ => return None,
     };
 
@@ -152,7 +149,7 @@ fn try_extract_css(
             let function = css_function_name(node, css_source)?;
             if !matches!(
                 function.to_ascii_lowercase().as_str(),
-                "rgb" | "rgba" | "hsl" | "hsla" | "oklab" | "oklch"
+                "rgb" | "rgba" | "hsl" | "hsla" | "hwb" | "lab" | "lch" | "oklab" | "oklch"
             ) {
                 return None;
             }
@@ -163,8 +160,7 @@ fn try_extract_css(
             if !has_color_like_property(node, css_source) {
                 return None;
             }
-            let (r, g, b) = named_colors::lookup(text)?;
-            (r, g, b, 1.0, ColorKind::Named)
+            parse_named_color(text)?
         }
         _ => return None,
     };
@@ -176,6 +172,15 @@ fn try_extract_css(
         offset_point(node.end_position(), base_start),
         kind,
     ))
+}
+
+fn parse_named_color(text: &str) -> Option<(f32, f32, f32, f32, ColorKind)> {
+    if text.eq_ignore_ascii_case("transparent") {
+        return Some((0.0, 0.0, 0.0, 0.0, ColorKind::Named));
+    }
+
+    let (r, g, b) = named_colors::lookup(text)?;
+    Some((r, g, b, 1.0, ColorKind::Named))
 }
 
 fn build_color_info(
@@ -394,6 +399,15 @@ mod tests {
     }
 
     #[test]
+    fn transparent_named_color_is_included() {
+        let src = b"<svg><rect fill=\"transparent\"/></svg>";
+        let colors = extract_colors(src);
+        assert_eq!(colors.len(), 1);
+        assert_eq!(colors[0].kind, ColorKind::Named);
+        assert_eq!(colors[0].a, 0.0);
+    }
+
+    #[test]
     fn invalid_named_color_skipped() {
         let src = b"<svg><rect fill=\"banana\"/></svg>";
         let colors = extract_colors(src);
@@ -433,14 +447,17 @@ mod tests {
 
     #[test]
     fn colors_inside_style_element() {
-        let src = br#"<svg><style>rect { fill: #ff0000; stroke: rgb(0, 128, 255); color: red; background-color: oklch(0.627966 0.257704 29.2346); outline-color: oklab(62.7966% 0.22488 0.125859); }</style></svg>"#;
+        let src = br#"<svg><style>rect { fill: #ff0000; stroke: rgb(0 128 255 / 50%); color: red; background-color: oklch(0.627966 0.257704 29.2346); outline-color: oklab(62.7966% 0.22488 0.125859); border-color: hwb(120 0% 0%); text-decoration-color: lab(29.2345% 39.3825 20.0664); column-rule-color: lch(29.2345% 44.2 27); }</style></svg>"#;
         let colors = extract_colors(src);
-        assert_eq!(colors.len(), 5);
+        assert_eq!(colors.len(), 8);
         assert_eq!(colors[0].kind, ColorKind::Hex);
         assert_eq!(colors[1].kind, ColorKind::Functional);
         assert_eq!(colors[2].kind, ColorKind::Named);
         assert_eq!(colors[3].kind, ColorKind::Functional);
         assert_eq!(colors[4].kind, ColorKind::Functional);
+        assert_eq!(colors[5].kind, ColorKind::Functional);
+        assert_eq!(colors[6].kind, ColorKind::Functional);
+        assert_eq!(colors[7].kind, ColorKind::Functional);
     }
 
     #[test]

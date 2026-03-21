@@ -1,6 +1,6 @@
 <!-- Colors in this sample come from the <style> block, not presentation attributes. -->
 <!-- Use it to verify document colors inside embedded CSS rules. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
   <style>
     .label {
       fill: #223040;
@@ -25,19 +25,19 @@
     }
 
     .rgb {
-      fill: rgb(255, 99, 71);
+      fill: rgb(255 99 71);
     }
 
     .rgba {
-      fill: rgba(0, 128, 255, 0.55);
+      fill: rgb(0 128 255 / 0.55);
     }
 
     .hsl {
-      fill: hsl(210, 80%, 50%);
+      fill: hsl(210 80% 50%);
     }
 
     .hsla {
-      fill: hsla(340, 70%, 55%, 0.8);
+      fill: hsl(340 70% 55% / 0.8);
     }
 
     .named {
@@ -50,6 +50,25 @@
 
     .oklch {
       fill: oklch(72% 0.19 320);
+    }
+
+    .hwb {
+      fill: hwb(120 15% 10%);
+    }
+
+    .lab {
+      fill: lab(60% -5.3654 58.956);
+    }
+
+    .lch {
+      fill: lch(62.2345% 59.2 126.2);
+    }
+
+    .transparent-fill {
+      fill: transparent;
+      stroke: #223040;
+      stroke-width: 3;
+      stroke-dasharray: 8 6;
     }
 
     .stroke-only {
@@ -106,10 +125,10 @@
     </linearGradient>
   </defs>
 
-  <rect class="panel" x="20" y="20" width="760" height="480" rx="20" />
+  <rect class="panel" x="20" y="20" width="760" height="660" rx="20" />
 
   <text class="label" x="36" y="58">Embedded &lt;style&gt; colors</text>
-  <text class="subtle" x="36" y="84">hex, rgb(a), hsl(a), oklab, oklch, named colors, color:, stroke:, and stop-color</text>
+  <text class="subtle" x="36" y="84">hex, rgb(a), hsl(a), hwb, lab, lch, oklab, oklch, transparent, color:, stroke:, and stop-color</text>
 
   <rect class="hex-6" x="40" y="120" width="120" height="70" rx="12" />
   <text class="subtle" x="40" y="214">#ff6b35</text>
@@ -121,16 +140,16 @@
   <text class="subtle" x="340" y="214">#2a9d8f99</text>
 
   <rect class="rgb" x="490" y="120" width="120" height="70" rx="12" />
-  <text class="subtle" x="490" y="214">rgb(255, 99, 71)</text>
+  <text class="subtle" x="490" y="214">rgb(255 99 71)</text>
 
   <rect class="rgba" x="640" y="120" width="120" height="70" rx="12" />
-  <text class="subtle" x="640" y="214">rgba(0, 128, 255, 0.55)</text>
+  <text class="subtle" x="632" y="214">rgb(0 128 255 / 0.55)</text>
 
   <circle class="hsl" cx="100" cy="310" r="42" />
-  <text class="subtle" x="40" y="382">hsl(210, 80%, 50%)</text>
+  <text class="subtle" x="40" y="382">hsl(210 80% 50%)</text>
 
   <circle class="hsla" cx="250" cy="310" r="42" />
-  <text class="subtle" x="190" y="382">hsla(340, 70%, 55%, 0.8)</text>
+  <text class="subtle" x="182" y="382">hsl(340 70% 55% / 0.8)</text>
 
   <circle class="named" cx="400" cy="310" r="42" />
   <text class="subtle" x="340" y="382">mediumseagreen</text>
@@ -148,4 +167,16 @@
   <text class="subtle" x="170" y="502">stop-color via classes</text>
 
   <text class="uses-color" x="380" y="448">color: rebeccapurple</text>
+
+  <circle class="hwb" cx="100" cy="590" r="42" />
+  <text class="subtle" x="40" y="662">hwb(120 15% 10%)</text>
+
+  <circle class="lab" cx="280" cy="590" r="42" />
+  <text class="subtle" x="220" y="662">lab(60% -5.3654 58.956)</text>
+
+  <circle class="lch" cx="500" cy="590" r="42" />
+  <text class="subtle" x="432" y="662">lch(62.2345% 59.2 126.2)</text>
+
+  <rect class="transparent-fill" x="638" y="548" width="72" height="84" rx="14" />
+  <text class="subtle" x="600" y="662">transparent</text>
 </svg>

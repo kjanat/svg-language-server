@@ -11,10 +11,11 @@ use tower_lsp_server::ls_types::{
     Color, ColorInformation, ColorPresentation, ColorPresentationParams, ColorProviderCapability,
     CompletionItem, CompletionItemKind, CompletionItemTag, CompletionOptions, CompletionParams,
     CompletionResponse, Diagnostic, DiagnosticSeverity, DidChangeTextDocumentParams,
-    DidCloseTextDocumentParams, DidOpenTextDocumentParams, DocumentColorParams, Hover,
-    HoverContents, HoverParams, HoverProviderCapability, InitializeParams, InitializeResult,
-    InsertTextFormat, MarkupContent, MarkupKind, NumberOrString, Position, Range,
-    ServerCapabilities, TextDocumentSyncCapability, TextDocumentSyncKind, TextEdit, Uri,
+    DidCloseTextDocumentParams, DidOpenTextDocumentParams, DocumentColorParams,
+    GotoDefinitionParams, GotoDefinitionResponse, Hover, HoverContents, HoverParams,
+    HoverProviderCapability, InitializeParams, InitializeResult, InsertTextFormat, Location,
+    MarkupContent, MarkupKind, NumberOrString, OneOf, Position, Range, ServerCapabilities,
+    TextDocumentSyncCapability, TextDocumentSyncKind, TextEdit, Uri,
 };
 use tower_lsp_server::{Client, LanguageServer, LspService, Server};
 use tracing_subscriber::filter::LevelFilter;
@@ -392,6 +393,123 @@ fn utf16_to_byte_col(source: &[u8], row: usize, utf16_col: u32) -> usize {
         byte_offset += ch.len_utf8();
     }
     byte_offset
+}
+
+fn byte_offset_for_position(source: &[u8], position: Position) -> usize {
+    let byte_col = utf16_to_byte_col(source, position.line as usize, position.character);
+    let line_start: usize = source
+        .split(|&b| b == b'\n')
+        .take(position.line as usize)
+        .map(|line| line.len() + 1)
+        .sum();
+    line_start + byte_col
+}
+
+fn node_range_utf16(source: &[u8], node: tree_sitter::Node<'_>) -> Range {
+    Range::new(
+        Position::new(
+            node.start_position().row as u32,
+            byte_col_to_utf16(
+                source,
+                node.start_position().row,
+                node.start_position().column,
+            ),
+        ),
+        Position::new(
+            node.end_position().row as u32,
+            byte_col_to_utf16(source, node.end_position().row, node.end_position().column),
+        ),
+    )
+}
+
+fn find_descendant_any<'a>(
+    node: tree_sitter::Node<'a>,
+    kinds: &[&str],
+) -> Option<tree_sitter::Node<'a>> {
+    if kinds.contains(&node.kind()) {
+        return Some(node);
+    }
+
+    let mut cursor = node.walk();
+    if cursor.goto_first_child() {
+        loop {
+            if let Some(found) = find_descendant_any(cursor.node(), kinds) {
+                return Some(found);
+            }
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
+    }
+
+    None
+}
+
+fn definition_target_id(node: tree_sitter::Node<'_>, source: &[u8]) -> Option<String> {
+    if let Some(iri) = find_ancestor_any(node, &["iri_reference"]) {
+        let text = iri.utf8_text(source).ok()?;
+        return text.strip_prefix('#').map(ToOwned::to_owned);
+    }
+
+    for kind in [
+        "paint_server",
+        "href_reference",
+        "functional_iri_attribute_value",
+        "href_attribute_value",
+    ] {
+        if let Some(container) = find_ancestor_any(node, &[kind])
+            && let Some(iri) = find_descendant_any(container, &["iri_reference"])
+        {
+            let text = iri.utf8_text(source).ok()?;
+            return text.strip_prefix('#').map(ToOwned::to_owned);
+        }
+    }
+
+    if let Some(id_token) = find_ancestor_any(node, &["id_token"]) {
+        return Some(id_token.utf8_text(source).ok()?.to_owned());
+    }
+
+    for kind in ["quoted_attribute_value", "functional_iri_attribute_value"] {
+        if let Some(value_node) = find_ancestor_any(node, &[kind]) {
+            let text = value_node.utf8_text(source).ok()?;
+            return text.strip_prefix('#').map(ToOwned::to_owned);
+        }
+    }
+
+    None
+}
+
+fn find_id_definition_node<'a>(
+    tree: &'a tree_sitter::Tree,
+    source: &[u8],
+    target_id: &str,
+) -> Option<tree_sitter::Node<'a>> {
+    let root = tree.root_node();
+    let mut cursor = root.walk();
+
+    if !cursor.goto_first_child() {
+        return None;
+    }
+
+    loop {
+        let node = cursor.node();
+        if node.kind() == "id_token" && node.utf8_text(source).ok()? == target_id {
+            return Some(node);
+        }
+
+        if cursor.goto_first_child() {
+            continue;
+        }
+
+        loop {
+            if cursor.goto_next_sibling() {
+                break;
+            }
+            if !cursor.goto_parent() {
+                return None;
+            }
+        }
+    }
 }
 
 /// Format element hover documentation as Markdown.
@@ -814,6 +932,7 @@ impl LanguageServer for SvgLanguageServer {
                 )),
                 color_provider: Some(ColorProviderCapability::Simple(true)),
                 hover_provider: Some(HoverProviderCapability::Simple(true)),
+                definition_provider: Some(OneOf::Left(true)),
                 completion_provider: Some(CompletionOptions {
                     trigger_characters: Some(vec![
                         "<".to_string(),
@@ -1023,6 +1142,40 @@ impl LanguageServer for SvgLanguageServer {
         Ok(None)
     }
 
+    async fn goto_definition(
+        &self,
+        params: GotoDefinitionParams,
+    ) -> Result<Option<GotoDefinitionResponse>> {
+        let uri = &params.text_document_position_params.text_document.uri;
+        let pos = params.text_document_position_params.position;
+
+        let docs = self.documents.read().await;
+        let Some(doc) = docs.get(uri) else {
+            return Ok(None);
+        };
+
+        let source = doc.source.as_bytes();
+        let byte_offset = byte_offset_for_position(source, pos);
+
+        let raw_node = deepest_node_at(&doc.tree, byte_offset);
+        let node = if !raw_node.is_named() {
+            raw_node.parent().unwrap_or(raw_node)
+        } else {
+            raw_node
+        };
+
+        let Some(target_id) = definition_target_id(node, source) else {
+            return Ok(None);
+        };
+
+        let Some(definition) = find_id_definition_node(&doc.tree, source, &target_id) else {
+            return Ok(None);
+        };
+
+        let location = Location::new(uri.clone(), node_range_utf16(source, definition));
+        Ok(Some(GotoDefinitionResponse::Scalar(location)))
+    }
+
     async fn completion(&self, params: CompletionParams) -> Result<Option<CompletionResponse>> {
         let uri = &params.text_document_position.text_document.uri;
         let pos = params.text_document_position.position;
@@ -1132,6 +1285,50 @@ impl LanguageServer for SvgLanguageServer {
         }
 
         Ok(None)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn parse_tree(source: &str) -> tree_sitter::Tree {
+        let mut parser = tree_sitter::Parser::new();
+        parser
+            .set_language(&tree_sitter_svg::LANGUAGE.into())
+            .expect("SVG grammar");
+        parser.parse(source, None).expect("tree")
+    }
+
+    fn offset_of(source: &str, needle: &str) -> usize {
+        source.find(needle).expect("needle present")
+    }
+
+    #[test]
+    fn definition_target_id_resolves_paint_server_reference() {
+        let source = r#"<svg><rect fill="url(#style-gradient)" /><linearGradient id="style-gradient" /></svg>"#;
+        let tree = parse_tree(source);
+        let offset = offset_of(source, "style-gradient)") + 2;
+        let node = deepest_node_at(&tree, offset);
+
+        assert_eq!(
+            definition_target_id(node, source.as_bytes()).as_deref(),
+            Some("style-gradient")
+        );
+    }
+
+    #[test]
+    fn find_id_definition_node_matches_id_token() {
+        let source = r#"<svg><rect fill="url(#style-gradient)" /><linearGradient id="style-gradient" /></svg>"#;
+        let tree = parse_tree(source);
+        let definition =
+            find_id_definition_node(&tree, source.as_bytes(), "style-gradient").expect("id token");
+
+        assert_eq!(definition.kind(), "id_token");
+        assert_eq!(
+            definition.utf8_text(source.as_bytes()).expect("text"),
+            "style-gradient"
+        );
     }
 }
 

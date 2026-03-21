@@ -38,10 +38,18 @@ struct CachedStylesheet {
     uri: Uri,
     source: String,
     class_definitions: Vec<svg_references::NamedSpan>,
+    custom_property_definitions: Vec<svg_references::NamedSpan>,
 }
 
 #[derive(Clone)]
 struct ClassDefinitionHover {
+    uri: Uri,
+    source: String,
+    definition: svg_references::NamedSpan,
+}
+
+#[derive(Clone)]
+struct CustomPropertyDefinitionHover {
     uri: Uri,
     source: String,
     definition: svg_references::NamedSpan,
@@ -460,6 +468,22 @@ fn class_definition_hovers_from_stylesheet(
         .collect()
 }
 
+fn custom_property_definition_hovers_from_stylesheet(
+    uri: Uri,
+    source: &str,
+    target_property: &str,
+) -> Vec<CustomPropertyDefinitionHover> {
+    svg_references::collect_custom_property_definitions_from_stylesheet(source, 0, 0)
+        .into_iter()
+        .filter(|definition| definition.name == target_property)
+        .map(|definition| CustomPropertyDefinitionHover {
+            uri: uri.clone(),
+            source: source.to_owned(),
+            definition,
+        })
+        .collect()
+}
+
 fn definition_response_from_locations(
     mut locations: Vec<Location>,
 ) -> Option<GotoDefinitionResponse> {
@@ -475,10 +499,13 @@ fn definition_response_from_locations(
 fn parse_stylesheet(uri: Uri, source: String) -> CachedStylesheet {
     let class_definitions =
         svg_references::collect_class_definitions_from_stylesheet(&source, 0, 0);
+    let custom_property_definitions =
+        svg_references::collect_custom_property_definitions_from_stylesheet(&source, 0, 0);
     CachedStylesheet {
         uri,
         source,
         class_definitions,
+        custom_property_definitions,
     }
 }
 
@@ -487,6 +514,31 @@ fn format_class_hover(class_name: &str, definitions: &[ClassDefinitionHover]) ->
 
     for definition in definitions {
         let snippet = css_rule_snippet(&definition.source, &definition.definition.span);
+        markdown.push_str("\n\n");
+        markdown.push_str(&format!(
+            "`{}:{}`",
+            definition.uri.as_str(),
+            definition.definition.span.start_row + 1
+        ));
+
+        if !snippet.is_empty() {
+            markdown.push_str("\n```css\n");
+            markdown.push_str(snippet.trim());
+            markdown.push_str("\n```");
+        }
+    }
+
+    markdown
+}
+
+fn format_custom_property_hover(
+    property_name: &str,
+    definitions: &[CustomPropertyDefinitionHover],
+) -> String {
+    let mut markdown = format!("**{}**", property_name);
+
+    for definition in definitions {
+        let snippet = css_declaration_snippet(&definition.source, &definition.definition.span);
         markdown.push_str("\n\n");
         markdown.push_str(&format!(
             "`{}:{}`",
@@ -527,6 +579,25 @@ fn css_rule_snippet(source: &str, span: &svg_references::Span) -> String {
     }
 
     line_text_at(source, span.start_row)
+}
+
+fn css_declaration_snippet(source: &str, span: &svg_references::Span) -> String {
+    let source_bytes = source.as_bytes();
+    let start = byte_offset_for_row_col(source_bytes, span.start_row, span.start_col);
+    if start >= source_bytes.len() {
+        return String::new();
+    }
+
+    let declaration_start = source_bytes[..start]
+        .iter()
+        .rposition(|&byte| matches!(byte, b';' | b'{'))
+        .map_or(0, |idx| idx + 1);
+    let declaration_end = source_bytes[start..]
+        .iter()
+        .position(|&byte| matches!(byte, b';' | b'}'))
+        .map_or(source_bytes.len(), |idx| start + idx);
+
+    source[declaration_start..declaration_end].trim().to_owned()
 }
 
 fn matching_brace_end(source: &[u8], open_index: usize) -> Option<usize> {
@@ -1168,7 +1239,7 @@ impl LanguageServer for SvgLanguageServer {
         let uri = &params.text_document_position_params.text_document.uri;
         let pos = params.text_document_position_params.position;
 
-        let (kind, node_text, element_markdown, attribute_markdown, class_hover, byte_offset) = {
+        let (element_markdown, attribute_markdown, class_hover, property_hover) = {
             let docs = self.documents.read().await;
             let Some(doc) = docs.get(uri) else {
                 return Ok(None);
@@ -1218,11 +1289,16 @@ impl LanguageServer for SvgLanguageServer {
                     None
                 };
 
+            let definition_target =
+                svg_references::definition_target_at(source, &doc.tree, byte_offset);
+            let stylesheet_hrefs = svg_references::extract_xml_stylesheet_hrefs(source);
+            let inline_stylesheets = svg_references::collect_inline_stylesheets(source, &doc.tree);
+
             let class_hover = if let Some(svg_references::DefinitionTarget::Class(target_class)) =
-                svg_references::definition_target_at(source, &doc.tree, byte_offset)
+                &definition_target
             {
-                let definitions = svg_references::collect_inline_stylesheets(source, &doc.tree)
-                    .into_iter()
+                let definitions = inline_stylesheets
+                    .iter()
                     .flat_map(|stylesheet| {
                         svg_references::collect_class_definitions_from_stylesheet(
                             &stylesheet.css,
@@ -1230,7 +1306,7 @@ impl LanguageServer for SvgLanguageServer {
                             stylesheet.start_col,
                         )
                     })
-                    .filter(|definition| definition.name == target_class)
+                    .filter(|definition| definition.name == *target_class)
                     .map(|definition| ClassDefinitionHover {
                         uri: uri.clone(),
                         source: doc.source.clone(),
@@ -1238,19 +1314,42 @@ impl LanguageServer for SvgLanguageServer {
                     })
                     .collect::<Vec<_>>();
 
-                let hrefs = svg_references::extract_xml_stylesheet_hrefs(source);
-                (target_class, definitions, hrefs)
+                (target_class.clone(), definitions, stylesheet_hrefs.clone())
             } else {
                 (String::new(), Vec::new(), Vec::new())
             };
 
+            let property_hover =
+                if let Some(svg_references::DefinitionTarget::CustomProperty(target_property)) =
+                    &definition_target
+                {
+                    let definitions = inline_stylesheets
+                        .iter()
+                        .flat_map(|stylesheet| {
+                            svg_references::collect_custom_property_definitions_from_stylesheet(
+                                &stylesheet.css,
+                                stylesheet.start_row,
+                                stylesheet.start_col,
+                            )
+                        })
+                        .filter(|definition| definition.name == *target_property)
+                        .map(|definition| CustomPropertyDefinitionHover {
+                            uri: uri.clone(),
+                            source: doc.source.clone(),
+                            definition,
+                        })
+                        .collect::<Vec<_>>();
+
+                    (target_property.clone(), definitions, stylesheet_hrefs)
+                } else {
+                    (String::new(), Vec::new(), Vec::new())
+                };
+
             (
-                kind,
-                node_text,
                 element_markdown,
                 attribute_markdown,
                 class_hover,
-                byte_offset,
+                property_hover,
             )
         };
 
@@ -1313,7 +1412,48 @@ impl LanguageServer for SvgLanguageServer {
             }
         }
 
-        let _ = (kind, node_text, byte_offset);
+        let (target_property, mut property_definitions, stylesheet_hrefs) = property_hover;
+        if !target_property.is_empty() {
+            let mut local_definitions = Vec::new();
+            let mut remote_definitions = Vec::new();
+
+            for href in stylesheet_hrefs {
+                let Some((stylesheet, is_remote)) =
+                    resolve_external_stylesheet(&self.stylesheet_cache, uri, &href)
+                else {
+                    continue;
+                };
+
+                let defs = custom_property_definition_hovers_from_stylesheet(
+                    stylesheet.uri.clone(),
+                    &stylesheet.source,
+                    &target_property,
+                );
+
+                if is_remote {
+                    remote_definitions.extend(defs);
+                } else {
+                    local_definitions.extend(defs);
+                }
+            }
+
+            property_definitions.extend(local_definitions);
+            property_definitions.extend(remote_definitions);
+
+            if !property_definitions.is_empty() {
+                return Ok(Some(Hover {
+                    contents: HoverContents::Markup(MarkupContent {
+                        kind: MarkupKind::Markdown,
+                        value: format_custom_property_hover(
+                            &target_property,
+                            &property_definitions,
+                        ),
+                    }),
+                    range: None,
+                }));
+            }
+        }
+
         Ok(None)
     }
 
@@ -1363,17 +1503,29 @@ impl LanguageServer for SvgLanguageServer {
                     let hrefs = svg_references::extract_xml_stylesheet_hrefs(source);
                     (target, inline_locations, hrefs)
                 }
+                svg_references::DefinitionTarget::CustomProperty(target_property) => {
+                    let inline_locations =
+                        svg_references::collect_inline_stylesheets(source, &doc.tree)
+                            .into_iter()
+                            .flat_map(|stylesheet| {
+                                svg_references::collect_custom_property_definitions_from_stylesheet(
+                                    &stylesheet.css,
+                                    stylesheet.start_row,
+                                    stylesheet.start_col,
+                                )
+                            })
+                            .filter(|definition| definition.name == *target_property)
+                            .map(|definition| named_span_location(uri.clone(), source, &definition))
+                            .collect();
+                    let hrefs = svg_references::extract_xml_stylesheet_hrefs(source);
+                    (target, inline_locations, hrefs)
+                }
             }
         };
 
         if matches!(target, svg_references::DefinitionTarget::Id(_)) {
             return Ok(definition_response_from_locations(inline_locations));
         }
-
-        let target_class = match target {
-            svg_references::DefinitionTarget::Class(target_class) => target_class,
-            svg_references::DefinitionTarget::Id(_) => unreachable!(),
-        };
 
         let mut locations = inline_locations;
         let mut local_locations = Vec::new();
@@ -1386,17 +1538,33 @@ impl LanguageServer for SvgLanguageServer {
                 continue;
             };
 
-            let defs = stylesheet
-                .class_definitions
-                .iter()
-                .filter(|definition| definition.name == target_class)
-                .map(|definition| {
-                    named_span_location(
-                        stylesheet.uri.clone(),
-                        stylesheet.source.as_bytes(),
-                        definition,
-                    )
-                });
+            let defs = match &target {
+                svg_references::DefinitionTarget::Class(target_class) => stylesheet
+                    .class_definitions
+                    .iter()
+                    .filter(|definition| definition.name == *target_class)
+                    .map(|definition| {
+                        named_span_location(
+                            stylesheet.uri.clone(),
+                            stylesheet.source.as_bytes(),
+                            definition,
+                        )
+                    })
+                    .collect::<Vec<_>>(),
+                svg_references::DefinitionTarget::CustomProperty(target_property) => stylesheet
+                    .custom_property_definitions
+                    .iter()
+                    .filter(|definition| definition.name == *target_property)
+                    .map(|definition| {
+                        named_span_location(
+                            stylesheet.uri.clone(),
+                            stylesheet.source.as_bytes(),
+                            definition,
+                        )
+                    })
+                    .collect::<Vec<_>>(),
+                svg_references::DefinitionTarget::Id(_) => Vec::new(),
+            };
 
             if is_remote {
                 remote_locations.extend(defs);
@@ -1523,6 +1691,40 @@ impl LanguageServer for SvgLanguageServer {
     }
 }
 
+/// Build a CompletionItem for an element.
+fn element_completion_item(el: &svg_data::ElementDef) -> CompletionItem {
+    let insert_text = match el.content_model {
+        ContentModel::Void => format!("{} />", el.name),
+        _ => format!("{}>$0</{}>", el.name, el.name),
+    };
+    CompletionItem {
+        label: el.name.to_string(),
+        kind: Some(CompletionItemKind::PROPERTY),
+        detail: Some(el.description.to_string()),
+        deprecated: if el.deprecated { Some(true) } else { None },
+        tags: if el.deprecated {
+            Some(vec![CompletionItemTag::DEPRECATED])
+        } else {
+            None
+        },
+        insert_text: Some(insert_text),
+        insert_text_format: Some(InsertTextFormat::SNIPPET),
+        ..Default::default()
+    }
+}
+
+#[tokio::main]
+async fn main() {
+    let _logging = init_logging();
+    let stdin = tokio::io::stdin();
+    let stdout = tokio::io::stdout();
+
+    let (service, socket) = LspService::new(SvgLanguageServer::new);
+    tracing::info!("starting LSP server");
+    Server::new(stdin, stdout, socket).serve(service).await;
+    tracing::info!("LSP server exited");
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1620,38 +1822,4 @@ mod tests {
             .expect("SVG grammar");
         parser.parse(source, None).expect("tree")
     }
-}
-
-/// Build a CompletionItem for an element.
-fn element_completion_item(el: &svg_data::ElementDef) -> CompletionItem {
-    let insert_text = match el.content_model {
-        ContentModel::Void => format!("{} />", el.name),
-        _ => format!("{}>$0</{}>", el.name, el.name),
-    };
-    CompletionItem {
-        label: el.name.to_string(),
-        kind: Some(CompletionItemKind::PROPERTY),
-        detail: Some(el.description.to_string()),
-        deprecated: if el.deprecated { Some(true) } else { None },
-        tags: if el.deprecated {
-            Some(vec![CompletionItemTag::DEPRECATED])
-        } else {
-            None
-        },
-        insert_text: Some(insert_text),
-        insert_text_format: Some(InsertTextFormat::SNIPPET),
-        ..Default::default()
-    }
-}
-
-#[tokio::main]
-async fn main() {
-    let _logging = init_logging();
-    let stdin = tokio::io::stdin();
-    let stdout = tokio::io::stdout();
-
-    let (service, socket) = LspService::new(SvgLanguageServer::new);
-    tracing::info!("starting LSP server");
-    Server::new(stdin, stdout, socket).serve(service).await;
-    tracing::info!("LSP server exited");
 }

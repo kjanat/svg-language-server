@@ -4,6 +4,7 @@ use tree_sitter::{Parser, Tree, TreeCursor};
 pub enum DefinitionTarget {
     Id(String),
     Class(String),
+    CustomProperty(String),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -23,6 +24,7 @@ pub struct NamedSpan {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct InlineStylesheet {
     pub css: String,
+    pub start_byte: usize,
     pub start_row: usize,
     pub start_col: usize,
 }
@@ -60,7 +62,57 @@ pub fn definition_target_at(
         ));
     }
 
-    None
+    let stylesheet = inline_stylesheet_containing_offset(source, tree, byte_offset)?;
+    definition_target_in_stylesheet(&stylesheet.css, byte_offset - stylesheet.start_byte).or_else(
+        || custom_property_name_at_svg_node(node, source).map(DefinitionTarget::CustomProperty),
+    )
+}
+
+fn custom_property_name_at_svg_node(node: tree_sitter::Node<'_>, source: &[u8]) -> Option<String> {
+    let property_name = find_ancestor_any(node, &["property_name"])?;
+    let text = property_name.utf8_text(source).ok()?;
+    text.starts_with("--").then(|| text.to_owned())
+}
+
+fn definition_target_in_stylesheet(css: &str, byte_offset: usize) -> Option<DefinitionTarget> {
+    let mut parser = Parser::new();
+    parser
+        .set_language(&tree_sitter_css::LANGUAGE.into())
+        .expect("CSS grammar");
+    let tree = parser.parse(css.as_bytes(), None)?;
+    let raw_node = deepest_node_at(&tree, byte_offset);
+    let node = if !raw_node.is_named() {
+        raw_node.parent().unwrap_or(raw_node)
+    } else {
+        raw_node
+    };
+
+    if let Some(name) = css_custom_property_reference_name(node, css.as_bytes()) {
+        return Some(DefinitionTarget::CustomProperty(name));
+    }
+
+    let property_name = find_ancestor_any(node, &["property_name"])?;
+    let text = property_name.utf8_text(css.as_bytes()).ok()?;
+    text.starts_with("--")
+        .then(|| DefinitionTarget::CustomProperty(text.to_owned()))
+}
+
+fn css_custom_property_reference_name(
+    node: tree_sitter::Node<'_>,
+    source: &[u8],
+) -> Option<String> {
+    let plain_value = find_ancestor_any(node, &["plain_value"])?;
+    let name = plain_value.utf8_text(source).ok()?;
+    if !name.starts_with("--") {
+        return None;
+    }
+
+    let call_expression = find_ancestor_any(plain_value, &["call_expression"])?;
+    let function_name = child_of_kind(call_expression, "function_name")?;
+    let function_name = function_name.utf8_text(source).ok()?;
+    function_name
+        .eq_ignore_ascii_case("var")
+        .then(|| name.to_owned())
 }
 
 pub fn collect_id_definitions(source: &[u8], tree: &Tree) -> Vec<NamedSpan> {
@@ -109,6 +161,7 @@ pub fn collect_inline_stylesheets(source: &[u8], tree: &Tree) -> Vec<InlineStyle
         };
         stylesheets.push(InlineStylesheet {
             css: css.to_owned(),
+            start_byte: raw_text.start_byte(),
             start_row: raw_text.start_position().row,
             start_col: raw_text.start_position().column,
         });
@@ -168,6 +221,50 @@ pub fn collect_class_definitions_from_stylesheet(
     results
 }
 
+pub fn collect_custom_property_definitions_from_stylesheet(
+    css: &str,
+    start_row: usize,
+    start_col: usize,
+) -> Vec<NamedSpan> {
+    let mut parser = Parser::new();
+    parser
+        .set_language(&tree_sitter_css::LANGUAGE.into())
+        .expect("CSS grammar");
+    let Some(tree) = parser.parse(css.as_bytes(), None) else {
+        return Vec::new();
+    };
+
+    let mut results = Vec::new();
+    let mut cursor = tree.root_node().walk();
+    walk_tree(&mut cursor, &mut |node| {
+        if node.kind() != "declaration" {
+            return;
+        }
+        let Some(property_name) = child_of_kind(node, "property_name") else {
+            return;
+        };
+        let Ok(name) = property_name.utf8_text(css.as_bytes()) else {
+            return;
+        };
+        if !name.starts_with("--") {
+            return;
+        }
+        results.push(NamedSpan {
+            name: name.to_owned(),
+            span: span_from_css_node(property_name, start_row, start_col),
+        });
+    });
+    results.sort_by_key(|definition| {
+        (
+            definition.span.start_row,
+            definition.span.start_col,
+            definition.span.end_row,
+            definition.span.end_col,
+        )
+    });
+    results
+}
+
 pub fn extract_xml_stylesheet_hrefs(source: &[u8]) -> Vec<String> {
     let mut hrefs = Vec::new();
     let Ok(text) = std::str::from_utf8(source) else {
@@ -210,6 +307,19 @@ fn walk_tree(cursor: &mut TreeCursor<'_>, f: &mut impl FnMut(tree_sitter::Node<'
             break;
         }
     }
+}
+
+fn inline_stylesheet_containing_offset(
+    source: &[u8],
+    tree: &Tree,
+    byte_offset: usize,
+) -> Option<InlineStylesheet> {
+    collect_inline_stylesheets(source, tree)
+        .into_iter()
+        .find(|stylesheet| {
+            let end = stylesheet.start_byte + stylesheet.css.len();
+            (stylesheet.start_byte..end).contains(&byte_offset)
+        })
 }
 
 fn deepest_node_at(tree: &Tree, byte_offset: usize) -> tree_sitter::Node<'_> {
@@ -401,5 +511,28 @@ mod tests {
             extract_xml_stylesheet_hrefs(source.as_bytes()),
             vec!["style.css".to_owned()]
         );
+    }
+
+    #[test]
+    fn definition_target_resolves_custom_property_reference_in_style() {
+        let source = r#"<svg><style>:root { --panel-bg: red; } .var-alpha { fill: var(--panel-bg); }</style></svg>"#;
+        let tree = parse_svg(source);
+        let offset = offset_of(source, "--panel-bg);") + 2;
+
+        assert_eq!(
+            definition_target_at(source.as_bytes(), &tree, offset),
+            Some(DefinitionTarget::CustomProperty("--panel-bg".into()))
+        );
+    }
+
+    #[test]
+    fn collects_custom_property_definitions_from_stylesheet() {
+        let defs = collect_custom_property_definitions_from_stylesheet(
+            ":root { --panel-bg: red; --base: blue; }",
+            0,
+            0,
+        );
+        let names: Vec<_> = defs.into_iter().map(|d| d.name).collect();
+        assert_eq!(names, vec!["--panel-bg", "--base"]);
     }
 }

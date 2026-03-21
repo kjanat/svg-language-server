@@ -300,13 +300,86 @@ fn lsp_end_to_end() {
         "class hover should include the CSS definition snippet: {hover_resp}"
     );
 
+    let vars_svg = r#"<svg><style>:root { --panel-bg: red; } .var-alpha { fill: var(--panel-bg); }</style></svg>"#;
+    send_message(
+        &mut stdin,
+        &json!({
+            "jsonrpc": "2.0",
+            "method": "textDocument/didOpen",
+            "params": {
+                "textDocument": {
+                    "uri": "file:///vars-test.svg",
+                    "languageId": "svg",
+                    "version": 1,
+                    "text": vars_svg
+                }
+            }
+        }),
+    );
+
+    let var_ref = vars_svg.find("var(--panel-bg)").expect("var reference") as u32 + 6;
+    send_message(
+        &mut stdin,
+        &json!({
+            "jsonrpc": "2.0",
+            "id": 5,
+            "method": "textDocument/definition",
+            "params": {
+                "textDocument": { "uri": "file:///vars-test.svg" },
+                "position": { "line": 0, "character": var_ref }
+            }
+        }),
+    );
+
+    let var_definition_resp = recv_response(&rx, 5, timeout);
+    let var_definition = &var_definition_resp["result"];
+    let expected_var_start = vars_svg
+        .find("--panel-bg: red")
+        .expect("property definition") as u64;
+    assert_eq!(
+        var_definition["uri"].as_str(),
+        Some("file:///vars-test.svg"),
+        "custom property definition should stay in the same SVG document: {var_definition_resp}"
+    );
+    assert_eq!(
+        var_definition["range"]["start"]["character"].as_u64(),
+        Some(expected_var_start),
+        "definition should point at the custom property declaration: {var_definition_resp}"
+    );
+
+    send_message(
+        &mut stdin,
+        &json!({
+            "jsonrpc": "2.0",
+            "id": 6,
+            "method": "textDocument/hover",
+            "params": {
+                "textDocument": { "uri": "file:///vars-test.svg" },
+                "position": { "line": 0, "character": var_ref }
+            }
+        }),
+    );
+
+    let var_hover_resp = recv_response(&rx, 6, timeout);
+    let var_hover_text = var_hover_resp["result"]["contents"]["value"]
+        .as_str()
+        .expect("custom property hover markdown");
+    assert!(
+        var_hover_text.contains("**--panel-bg**"),
+        "custom property hover should include the property name: {var_hover_resp}"
+    );
+    assert!(
+        var_hover_text.contains("--panel-bg: red"),
+        "custom property hover should include the declaration snippet: {var_hover_resp}"
+    );
+
     // --- 6. colorPresentation for the first color (red) ---
     let red_range = &red_entry["range"];
     send_message(
         &mut stdin,
         &json!({
             "jsonrpc": "2.0",
-            "id": 5,
+            "id": 7,
             "method": "textDocument/colorPresentation",
             "params": {
                 "textDocument": { "uri": "file:///test.svg" },
@@ -321,7 +394,7 @@ fn lsp_end_to_end() {
         }),
     );
 
-    let pres_resp = recv_response(&rx, 5, timeout);
+    let pres_resp = recv_response(&rx, 7, timeout);
     let presentations = pres_resp["result"]
         .as_array()
         .expect("colorPresentation result should be an array");

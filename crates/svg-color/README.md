@@ -5,6 +5,7 @@ Color extraction and format conversion for SVG documents.
 ## Features
 
 - Extract color values from parsed SVG trees (hex, `rgb()`, `hsl()`, named colors)
+- Extract colors from SVG presentation attributes and embedded `<style>` blocks
 - Convert between color formats for LSP color presentations
 - Recognizes all 148 CSS named colors
 

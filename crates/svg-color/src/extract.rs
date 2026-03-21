@@ -2,7 +2,8 @@ use crate::{
     named_colors, parse,
     types::{ColorInfo, ColorKind},
 };
-use tree_sitter::{Parser, Tree, TreeCursor};
+use std::ops::Range;
+use tree_sitter::{Parser, Point, Tree, TreeCursor};
 
 /// Extract all colors from SVG source text.
 pub fn extract_colors(source: &[u8]) -> Vec<ColorInfo> {
@@ -16,22 +17,33 @@ pub fn extract_colors(source: &[u8]) -> Vec<ColorInfo> {
 
 /// Extract colors from an already-parsed tree.
 pub fn extract_colors_from_tree(source: &[u8], tree: &Tree) -> Vec<ColorInfo> {
+    let mut css_parser = Parser::new();
+    css_parser
+        .set_language(&tree_sitter_css::LANGUAGE.into())
+        .expect("failed to load CSS grammar");
+
     let mut colors = Vec::new();
     let mut cursor = tree.root_node().walk();
-    walk(&mut cursor, source, &mut colors);
+    walk(&mut cursor, source, &mut css_parser, &mut colors);
     colors
 }
 
-fn walk(cursor: &mut TreeCursor<'_>, source: &[u8], out: &mut Vec<ColorInfo>) {
+fn walk(
+    cursor: &mut TreeCursor<'_>,
+    source: &[u8],
+    css_parser: &mut Parser,
+    out: &mut Vec<ColorInfo>,
+) {
     loop {
         let node = cursor.node();
-        let kind = node.kind();
 
-        if let Some(info) = try_extract(kind, node, source) {
+        if let Some(info) = try_extract_svg(node, source) {
             out.push(info);
             // Color leaf nodes have no meaningful children to descend into.
+        } else if try_extract_style_colors(node, source, css_parser, out) {
+            // Style text nodes are reparsed as CSS and handled separately.
         } else if cursor.goto_first_child() {
-            walk(cursor, source, out);
+            walk(cursor, source, css_parser, out);
             cursor.goto_parent();
         }
 
@@ -41,13 +53,11 @@ fn walk(cursor: &mut TreeCursor<'_>, source: &[u8], out: &mut Vec<ColorInfo>) {
     }
 }
 
-fn try_extract(kind: &str, node: tree_sitter::Node<'_>, source: &[u8]) -> Option<ColorInfo> {
+fn try_extract_svg(node: tree_sitter::Node<'_>, source: &[u8]) -> Option<ColorInfo> {
     let byte_range = node.byte_range();
     let text = std::str::from_utf8(&source[byte_range.clone()]).ok()?;
-    let start = node.start_position();
-    let end = node.end_position();
 
-    let (r, g, b, a, color_kind) = match kind {
+    let (r, g, b, a, kind) = match node.kind() {
         "hex_color" => {
             let (r, g, b, a) = parse::parse_hex(text)?;
             (r, g, b, a, ColorKind::Hex)
@@ -63,7 +73,119 @@ fn try_extract(kind: &str, node: tree_sitter::Node<'_>, source: &[u8]) -> Option
         _ => return None,
     };
 
-    Some(ColorInfo {
+    Some(build_color_info(
+        (r, g, b, a),
+        byte_range,
+        node.start_position(),
+        node.end_position(),
+        kind,
+    ))
+}
+
+fn try_extract_style_colors(
+    node: tree_sitter::Node<'_>,
+    source: &[u8],
+    css_parser: &mut Parser,
+    out: &mut Vec<ColorInfo>,
+) -> bool {
+    if !is_style_raw_text(node, source) {
+        return false;
+    }
+
+    let byte_range = node.byte_range();
+    let Some(css_source) = source.get(byte_range.clone()) else {
+        return true;
+    };
+    let Some(tree) = css_parser.parse(css_source, None) else {
+        return true;
+    };
+
+    let mut cursor = tree.root_node().walk();
+    walk_css(
+        &mut cursor,
+        css_source,
+        byte_range.start,
+        node.start_position(),
+        out,
+    );
+    true
+}
+
+fn walk_css(
+    cursor: &mut TreeCursor<'_>,
+    css_source: &[u8],
+    base_byte: usize,
+    base_start: Point,
+    out: &mut Vec<ColorInfo>,
+) {
+    loop {
+        let node = cursor.node();
+
+        if let Some(info) = try_extract_css(node, css_source, base_byte, base_start) {
+            out.push(info);
+        } else if cursor.goto_first_child() {
+            walk_css(cursor, css_source, base_byte, base_start, out);
+            cursor.goto_parent();
+        }
+
+        if !cursor.goto_next_sibling() {
+            break;
+        }
+    }
+}
+
+fn try_extract_css(
+    node: tree_sitter::Node<'_>,
+    css_source: &[u8],
+    base_byte: usize,
+    base_start: Point,
+) -> Option<ColorInfo> {
+    let byte_range = node.byte_range();
+    let text = std::str::from_utf8(&css_source[byte_range.clone()]).ok()?;
+
+    let (r, g, b, a, kind) = match node.kind() {
+        "color_value" => {
+            let (r, g, b, a) = parse::parse_hex(text)?;
+            (r, g, b, a, ColorKind::Hex)
+        }
+        "call_expression" => {
+            let function = css_function_name(node, css_source)?;
+            if !matches!(
+                function.to_ascii_lowercase().as_str(),
+                "rgb" | "rgba" | "hsl" | "hsla"
+            ) {
+                return None;
+            }
+            let (r, g, b, a) = parse::parse_functional(text)?;
+            (r, g, b, a, ColorKind::Functional)
+        }
+        "plain_value" => {
+            if !has_color_like_property(node, css_source) {
+                return None;
+            }
+            let (r, g, b) = named_colors::lookup(text)?;
+            (r, g, b, 1.0, ColorKind::Named)
+        }
+        _ => return None,
+    };
+
+    Some(build_color_info(
+        (r, g, b, a),
+        offset_range(byte_range, base_byte),
+        offset_point(node.start_position(), base_start),
+        offset_point(node.end_position(), base_start),
+        kind,
+    ))
+}
+
+fn build_color_info(
+    (r, g, b, a): (f32, f32, f32, f32),
+    byte_range: Range<usize>,
+    start: Point,
+    end: Point,
+    kind: ColorKind,
+) -> ColorInfo {
+    ColorInfo {
         r,
         g,
         b,
@@ -73,8 +195,148 @@ fn try_extract(kind: &str, node: tree_sitter::Node<'_>, source: &[u8]) -> Option
         start_col: start.column,
         end_row: end.row,
         end_col: end.column,
-        kind: color_kind,
-    })
+        kind,
+    }
+}
+
+fn offset_range(range: Range<usize>, base_byte: usize) -> Range<usize> {
+    (range.start + base_byte)..(range.end + base_byte)
+}
+
+fn offset_point(point: Point, base: Point) -> Point {
+    Point {
+        row: point.row + base.row,
+        column: if point.row == 0 {
+            point.column + base.column
+        } else {
+            point.column
+        },
+    }
+}
+
+fn is_style_raw_text(node: tree_sitter::Node<'_>, source: &[u8]) -> bool {
+    if node.kind() != "raw_text" {
+        return false;
+    }
+
+    let Some(parent) = node.parent() else {
+        return false;
+    };
+    if parent.kind() != "element" {
+        return false;
+    }
+
+    let mut cursor = parent.walk();
+    if !cursor.goto_first_child() {
+        return false;
+    }
+
+    loop {
+        let child = cursor.node();
+        if child.kind() == "start_tag" {
+            return tag_name(child, source)
+                .map(|name| name.eq_ignore_ascii_case("style"))
+                .unwrap_or(false);
+        }
+
+        if !cursor.goto_next_sibling() {
+            break;
+        }
+    }
+
+    false
+}
+
+fn tag_name<'a>(node: tree_sitter::Node<'_>, source: &'a [u8]) -> Option<&'a str> {
+    let mut cursor = node.walk();
+    if !cursor.goto_first_child() {
+        return None;
+    }
+
+    loop {
+        let child = cursor.node();
+        if child.kind() == "name" {
+            return std::str::from_utf8(&source[child.byte_range()]).ok();
+        }
+
+        if !cursor.goto_next_sibling() {
+            break;
+        }
+    }
+
+    None
+}
+
+fn css_function_name<'a>(node: tree_sitter::Node<'_>, source: &'a [u8]) -> Option<&'a str> {
+    let mut cursor = node.walk();
+    if !cursor.goto_first_child() {
+        return None;
+    }
+
+    loop {
+        let child = cursor.node();
+        if child.kind() == "function_name" {
+            return std::str::from_utf8(&source[child.byte_range()]).ok();
+        }
+
+        if !cursor.goto_next_sibling() {
+            break;
+        }
+    }
+
+    None
+}
+
+fn has_color_like_property(node: tree_sitter::Node<'_>, source: &[u8]) -> bool {
+    let Some(name) = nearest_declaration_property_name(node, source) else {
+        return false;
+    };
+    is_color_like_property(name)
+}
+
+fn nearest_declaration_property_name<'a>(
+    node: tree_sitter::Node<'_>,
+    source: &'a [u8],
+) -> Option<&'a str> {
+    let mut current = Some(node);
+
+    while let Some(node) = current {
+        if node.kind() == "declaration" {
+            return declaration_property_name(node, source);
+        }
+        current = node.parent();
+    }
+
+    None
+}
+
+fn declaration_property_name<'a>(node: tree_sitter::Node<'_>, source: &'a [u8]) -> Option<&'a str> {
+    let mut cursor = node.walk();
+    if !cursor.goto_first_child() {
+        return None;
+    }
+
+    loop {
+        let child = cursor.node();
+        if child.kind() == "property_name" {
+            return std::str::from_utf8(&source[child.byte_range()]).ok();
+        }
+
+        if !cursor.goto_next_sibling() {
+            break;
+        }
+    }
+
+    None
+}
+
+fn is_color_like_property(name: &str) -> bool {
+    let name = name.to_ascii_lowercase();
+    name == "fill"
+        || name == "stroke"
+        || name == "color"
+        || name.ends_with("color")
+        || name.starts_with("--")
 }
 
 #[cfg(test)]
@@ -167,5 +429,42 @@ mod tests {
         let src = b"<svg><rect fill=\"\"/></svg>";
         let colors = extract_colors(src);
         assert_eq!(colors.len(), 0);
+    }
+
+    #[test]
+    fn colors_inside_style_element() {
+        let src = br#"<svg><style>rect { fill: #ff0000; stroke: rgb(0, 128, 255); color: red; }</style></svg>"#;
+        let colors = extract_colors(src);
+        assert_eq!(colors.len(), 3);
+        assert_eq!(colors[0].kind, ColorKind::Hex);
+        assert_eq!(colors[1].kind, ColorKind::Functional);
+        assert_eq!(colors[2].kind, ColorKind::Named);
+    }
+
+    #[test]
+    fn non_color_css_plain_values_are_ignored() {
+        let src =
+            br#"<svg><style>rect { display: block; animation-name: red; fill: red; }</style></svg>"#;
+        let colors = extract_colors(src);
+        assert_eq!(colors.len(), 1);
+        assert_eq!(colors[0].kind, ColorKind::Named);
+        let color_text = std::str::from_utf8(&src[colors[0].byte_range.clone()]).unwrap();
+        assert_eq!(color_text, "red");
+    }
+
+    #[test]
+    fn style_color_byte_range_and_position_are_absolute() {
+        let src = b"<svg>\n<style>\nrect {\n  fill: red;\n}\n</style>\n</svg>";
+        let colors = extract_colors(src);
+        assert_eq!(colors.len(), 1);
+        let color = &colors[0];
+        assert_eq!(
+            std::str::from_utf8(&src[color.byte_range.clone()]).unwrap(),
+            "red"
+        );
+        assert_eq!(color.start_row, 3);
+        assert_eq!(color.start_col, 8);
+        assert_eq!(color.end_row, 3);
+        assert_eq!(color.end_col, 11);
     }
 }

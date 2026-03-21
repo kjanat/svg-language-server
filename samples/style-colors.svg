@@ -1,0 +1,137 @@
+<!-- Colors in this sample come from the <style> block, not presentation attributes. -->
+<!-- Use it to verify document colors inside embedded CSS rules. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520">
+  <style>
+    .label {
+      fill: #223040;
+      font: 600 18px monospace;
+    }
+
+    .subtle {
+      fill: #5c7085;
+      font: 14px monospace;
+    }
+
+    .hex-6 {
+      fill: #ff6b35;
+    }
+
+    .hex-3 {
+      fill: #0bf;
+    }
+
+    .hex-8 {
+      fill: #2a9d8f99;
+    }
+
+    .rgb {
+      fill: rgb(255, 99, 71);
+    }
+
+    .rgba {
+      fill: rgba(0, 128, 255, 0.55);
+    }
+
+    .hsl {
+      fill: hsl(210, 80%, 50%);
+    }
+
+    .hsla {
+      fill: hsla(340, 70%, 55%, 0.8);
+    }
+
+    .named {
+      fill: mediumseagreen;
+    }
+
+    .stroke-only {
+      fill: none;
+      stroke: darkorange;
+      stroke-width: 8;
+    }
+
+    .uses-color {
+      color: rebeccapurple;
+      fill: currentColor;
+      font: 700 28px monospace;
+    }
+
+    .gradient-start {
+      stop-color: gold;
+    }
+
+    .gradient-mid {
+      stop-color: rgb(0, 200, 140);
+    }
+
+    .gradient-end {
+      stop-color: #7c3aed;
+    }
+
+    .panel {
+      fill: #f7fafc;
+      stroke: #d8e1ea;
+      stroke-width: 2;
+    }
+
+    .ignore-me {
+      display: block;
+      animation-name: red;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .hex-6 {
+        fill: #ffd166;
+      }
+
+      .uses-color {
+        color: plum;
+      }
+    }
+  </style>
+
+  <defs>
+    <linearGradient id="style-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop class="gradient-start" offset="0%" />
+      <stop class="gradient-mid" offset="50%" />
+      <stop class="gradient-end" offset="100%" />
+    </linearGradient>
+  </defs>
+
+  <rect class="panel" x="20" y="20" width="760" height="480" rx="20" />
+
+  <text class="label" x="36" y="58">Embedded &lt;style&gt; colors</text>
+  <text class="subtle" x="36" y="84">hex, rgb(a), hsl(a), named colors, color:, stroke:, and stop-color</text>
+
+  <rect class="hex-6" x="40" y="120" width="120" height="70" rx="12" />
+  <text class="subtle" x="40" y="214">#ff6b35</text>
+
+  <rect class="hex-3" x="190" y="120" width="120" height="70" rx="12" />
+  <text class="subtle" x="190" y="214">#0bf</text>
+
+  <rect class="hex-8" x="340" y="120" width="120" height="70" rx="12" />
+  <text class="subtle" x="340" y="214">#2a9d8f99</text>
+
+  <rect class="rgb" x="490" y="120" width="120" height="70" rx="12" />
+  <text class="subtle" x="490" y="214">rgb(255, 99, 71)</text>
+
+  <rect class="rgba" x="640" y="120" width="120" height="70" rx="12" />
+  <text class="subtle" x="640" y="214">rgba(0, 128, 255, 0.55)</text>
+
+  <circle class="hsl" cx="100" cy="310" r="42" />
+  <text class="subtle" x="40" y="382">hsl(210, 80%, 50%)</text>
+
+  <circle class="hsla" cx="250" cy="310" r="42" />
+  <text class="subtle" x="190" y="382">hsla(340, 70%, 55%, 0.8)</text>
+
+  <circle class="named" cx="400" cy="310" r="42" />
+  <text class="subtle" x="340" y="382">mediumseagreen</text>
+
+  <circle class="stroke-only" cx="550" cy="310" r="42" />
+  <text class="subtle" x="500" y="382">stroke: darkorange</text>
+
+  <rect x="640" y="268" width="120" height="84" rx="16" fill="url(#style-gradient)" />
+  <text class="subtle" x="620" y="382">stop-color via classes</text>
+
+  <text class="uses-color" x="40" y="452">color: rebeccapurple</text>
+</svg>

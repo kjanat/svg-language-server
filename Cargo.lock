@@ -601,6 +601,7 @@ name = "svg-color"
 version = "0.1.0"
 dependencies = [
  "tree-sitter",
+ "tree-sitter-css",
  "tree-sitter-svg",
 ]
 
@@ -878,6 +879,16 @@ dependencies = [
  "regex-syntax",
  "serde_json",
  "streaming-iterator",
+ "tree-sitter-language",
+]
+
+[[package]]
+name = "tree-sitter-css"
+version = "0.25.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a5cbc5e18f29a2c6d6435891f42569525cf95435a3e01c2f1947abcde178686f"
+dependencies = [
+ "cc",
  "tree-sitter-language",
 ]
 

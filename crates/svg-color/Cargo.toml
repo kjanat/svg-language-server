@@ -10,4 +10,5 @@ categories           = ["graphics", "parsing"]
 
 [dependencies]
 tree-sitter.workspace     = true
+tree-sitter-css.workspace = true
 tree-sitter-svg.workspace = true

@@ -1,11 +1,14 @@
 # https://just.systems
 
+alias c := commit
+alias f := format
+alias i := install
+alias l := lint
+alias fmt := format
+
 # Returns the list of all available commands
 default:
     just --list --unsorted
-
-alias f := format
-alias fmt := format
 
 # Format codebase
 format *FILE:

@@ -66,7 +66,7 @@ pub fn definition_target_at(
 pub fn collect_id_definitions(source: &[u8], tree: &Tree) -> Vec<NamedSpan> {
     let mut results = Vec::new();
     let mut cursor = tree.root_node().walk();
-    walk_svg(&mut cursor, &mut |node| {
+    walk_tree(&mut cursor, &mut |node| {
         if node.kind() != "id_token" {
             return;
         }
@@ -84,7 +84,7 @@ pub fn collect_id_definitions(source: &[u8], tree: &Tree) -> Vec<NamedSpan> {
 pub fn collect_inline_stylesheets(source: &[u8], tree: &Tree) -> Vec<InlineStylesheet> {
     let mut stylesheets = Vec::new();
     let mut cursor = tree.root_node().walk();
-    walk_svg(&mut cursor, &mut |node| {
+    walk_tree(&mut cursor, &mut |node| {
         if node.kind() != "element" {
             return;
         }
@@ -131,7 +131,7 @@ pub fn collect_class_definitions_from_stylesheet(
 
     let mut results = Vec::new();
     let mut cursor = tree.root_node().walk();
-    walk_svg(&mut cursor, &mut |node| {
+    walk_tree(&mut cursor, &mut |node| {
         if node.kind() != "class_selector" {
             return;
         }
@@ -168,7 +168,7 @@ pub fn collect_class_definitions_from_stylesheet(
     results
 }
 
-pub fn extract_xml_stylesheet_hrefs(source: &[u8], _tree: &Tree) -> Vec<String> {
+pub fn extract_xml_stylesheet_hrefs(source: &[u8]) -> Vec<String> {
     let mut hrefs = Vec::new();
     let Ok(text) = std::str::from_utf8(source) else {
         return hrefs;
@@ -196,13 +196,13 @@ pub fn extract_xml_stylesheet_hrefs(source: &[u8], _tree: &Tree) -> Vec<String> 
     hrefs
 }
 
-fn walk_svg(cursor: &mut TreeCursor<'_>, f: &mut impl FnMut(tree_sitter::Node<'_>)) {
+fn walk_tree(cursor: &mut TreeCursor<'_>, f: &mut impl FnMut(tree_sitter::Node<'_>)) {
     loop {
         let node = cursor.node();
         f(node);
 
         if cursor.goto_first_child() {
-            walk_svg(cursor, f);
+            walk_tree(cursor, f);
             cursor.goto_parent();
         }
 
@@ -397,9 +397,8 @@ mod tests {
     #[test]
     fn extracts_xml_stylesheet_href() {
         let source = "<?xml-stylesheet type=\"text/css\" href=\"style.css\"?><svg/>";
-        let tree = parse_svg(source);
         assert_eq!(
-            extract_xml_stylesheet_hrefs(source.as_bytes(), &tree),
+            extract_xml_stylesheet_hrefs(source.as_bytes()),
             vec!["style.css".to_owned()]
         );
     }

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::fs::OpenOptions;
 use std::path::PathBuf;
-use std::sync::{Arc, LazyLock, RwLock as StdRwLock};
+use std::sync::{Arc, LazyLock, OnceLock, RwLock as StdRwLock};
 
 use svg_data::{AttributeValues, BaselineStatus, ContentModel};
 use tokio::sync::RwLock;
@@ -31,7 +31,7 @@ struct DocumentState {
 
 /// Cache mapping (URI, start_line, start_character) to the original color kind.
 type ColorKindCache = Arc<RwLock<HashMap<(Uri, u32, u32), svg_color::ColorKind>>>;
-type StylesheetCache = Arc<StdRwLock<HashMap<String, CachedStylesheet>>>;
+type StylesheetCache = Arc<StdRwLock<HashMap<String, Arc<OnceLock<Option<CachedStylesheet>>>>>>;
 
 #[derive(Clone)]
 struct CachedStylesheet {
@@ -473,26 +473,32 @@ fn resolve_file_stylesheet(url: &Url) -> Option<CachedStylesheet> {
 
 fn resolve_remote_stylesheet(cache: &StylesheetCache, url: &Url) -> Option<CachedStylesheet> {
     let key = url.as_str().to_owned();
-    if let Ok(guard) = cache.read()
-        && let Some(cached) = guard.get(&key)
-    {
-        return Some(cached.clone());
+    let cell = if let Ok(guard) = cache.read() {
+        guard.get(&key).cloned()
+    } else {
+        None
     }
+    .or_else(|| {
+        let mut guard = cache.write().ok()?;
+        Some(
+            guard
+                .entry(key)
+                .or_insert_with(|| Arc::new(OnceLock::new()))
+                .clone(),
+        )
+    })?;
 
-    let source = ureq::get(url.as_str())
-        .call()
-        .ok()?
-        .body_mut()
-        .read_to_string()
-        .ok()?;
-    let uri = url.as_str().parse().ok()?;
-    let stylesheet = parse_stylesheet(uri, source);
-
-    if let Ok(mut guard) = cache.write() {
-        guard.insert(key, stylesheet.clone());
-    }
-
-    Some(stylesheet)
+    cell.get_or_init(|| {
+        let source = ureq::get(url.as_str())
+            .call()
+            .ok()?
+            .body_mut()
+            .read_to_string()
+            .ok()?;
+        let uri = url.as_str().parse().ok()?;
+        Some(parse_stylesheet(uri, source))
+    })
+    .clone()
 }
 
 fn resolve_external_stylesheet(
@@ -1181,7 +1187,7 @@ impl LanguageServer for SvgLanguageServer {
                             .filter(|definition| definition.name == *target_class)
                             .map(|definition| named_span_location(uri.clone(), source, &definition))
                             .collect();
-                    let hrefs = svg_references::extract_xml_stylesheet_hrefs(source, &doc.tree);
+                    let hrefs = svg_references::extract_xml_stylesheet_hrefs(source);
                     (target, inline_locations, hrefs)
                 }
             }

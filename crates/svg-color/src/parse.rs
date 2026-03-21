@@ -94,6 +94,31 @@ pub fn parse_functional(text: &str) -> Option<(f32, f32, f32, f32)> {
     }
 }
 
+pub fn mix_colors(
+    space: &str,
+    left: (f32, f32, f32, f32),
+    left_weight: f32,
+    right: (f32, f32, f32, f32),
+    right_weight: f32,
+) -> Option<(f32, f32, f32, f32)> {
+    let left_weight = left_weight as f64;
+    let right_weight = right_weight as f64;
+    if !left_weight.is_finite()
+        || !right_weight.is_finite()
+        || left_weight < 0.0
+        || right_weight < 0.0
+    {
+        return None;
+    }
+
+    match space.trim().to_ascii_lowercase().as_str() {
+        "srgb" => mix_srgb(left, left_weight, right, right_weight),
+        "oklab" => mix_oklab(left, left_weight, right, right_weight),
+        "oklch" => mix_oklch(left, left_weight, right, right_weight),
+        _ => None,
+    }
+}
+
 fn parse_legacy_rgb(rest: &str) -> Option<(f32, f32, f32, f32)> {
     let raw_args = split_legacy_args(rest)?;
     if raw_args.len() != 3 && raw_args.len() != 4 {
@@ -467,6 +492,44 @@ fn lab_to_srgb(l: f64, a: f64, b: f64, alpha: f64) -> Option<(f32, f32, f32, f32
     ))
 }
 
+fn srgb_to_oklab(r: f32, g: f32, b: f32) -> Option<[f64; 3]> {
+    let linear = [
+        srgb_to_linear(r as f64),
+        srgb_to_linear(g as f64),
+        srgb_to_linear(b as f64),
+    ];
+    let xyz = linear_srgb_to_xyz(linear);
+    let lms = [
+        0.818_933_010_1 * xyz[0] + 0.361_866_742_4 * xyz[1] - 0.128_859_713_7 * xyz[2],
+        0.032_984_543_6 * xyz[0] + 0.929_311_871_5 * xyz[1] + 0.036_145_638_7 * xyz[2],
+        0.048_200_301_8 * xyz[0] + 0.264_366_269_1 * xyz[1] + 0.633_851_707 * xyz[2],
+    ]
+    .map(|value| value.cbrt());
+
+    let oklab = [
+        0.210_454_255_3 * lms[0] + 0.793_617_785 * lms[1] - 0.004_072_046_8 * lms[2],
+        1.977_998_495_1 * lms[0] - 2.428_592_205 * lms[1] + 0.450_593_709_9 * lms[2],
+        0.025_904_037_1 * lms[0] + 0.782_771_766_2 * lms[1] - 0.808_675_766 * lms[2],
+    ];
+
+    if oklab.iter().all(|value| value.is_finite()) {
+        Some(oklab)
+    } else {
+        None
+    }
+}
+
+fn srgb_to_oklch(r: f32, g: f32, b: f32) -> Option<[f64; 3]> {
+    let [l, a, b] = srgb_to_oklab(r, g, b)?;
+    let c = (a * a + b * b).sqrt();
+    let h = if c <= OKLCH_ACHROMATIC_CHROMA_THRESHOLD {
+        0.0
+    } else {
+        b.atan2(a).to_degrees().rem_euclid(360.0)
+    };
+    Some([l, c, h])
+}
+
 fn lab_to_xyz([l, a, b]: [f64; 3]) -> [f64; 3] {
     let kappa = 24_389.0 / 27.0;
     let epsilon = 216.0 / 24_389.0;
@@ -536,12 +599,30 @@ fn ok_lab_lms_to_xyz([l, m, s]: [f64; 3]) -> [f64; 3] {
     ]
 }
 
+fn linear_srgb_to_xyz([r, g, b]: [f64; 3]) -> [f64; 3] {
+    [
+        0.412_390_799_265_959_34 * r + 0.357_584_339_383_877_96 * g + 0.180_480_788_401_834_3 * b,
+        0.212_639_005_871_510_27 * r + 0.715_168_678_767_755_9 * g + 0.072_192_315_360_733_71 * b,
+        0.019_330_818_715_591_85 * r + 0.119_194_779_794_625_99 * g + 0.950_532_152_249_660_7 * b,
+    ]
+}
+
 fn xyz_to_linear_srgb([x, y, z]: [f64; 3]) -> [f64; 3] {
     [
         (12_831.0 / 3_959.0) * x + (-329.0 / 214.0) * y + (-1_974.0 / 3_959.0) * z,
         (-851_781.0 / 878_810.0) * x + (1_648_619.0 / 878_810.0) * y + (36_519.0 / 878_810.0) * z,
         (705.0 / 12_673.0) * x + (-2_585.0 / 12_673.0) * y + (705.0 / 667.0) * z,
     ]
+}
+
+fn srgb_to_linear(value: f64) -> f64 {
+    let sign = if value < 0.0 { -1.0 } else { 1.0 };
+    let abs = value.abs();
+    if abs <= 0.040_45 {
+        value / 12.92
+    } else {
+        sign * ((abs + 0.055) / 1.055).powf(2.4)
+    }
 }
 
 fn linear_to_srgb(value: f64) -> f64 {
@@ -565,6 +646,120 @@ fn clamp_channel(value: f64) -> f32 {
     } else {
         value as f32
     }
+}
+
+fn mix_srgb(
+    left: (f32, f32, f32, f32),
+    left_weight: f64,
+    right: (f32, f32, f32, f32),
+    right_weight: f64,
+) -> Option<(f32, f32, f32, f32)> {
+    let left = [left.0 as f64, left.1 as f64, left.2 as f64, left.3 as f64];
+    let right = [
+        right.0 as f64,
+        right.1 as f64,
+        right.2 as f64,
+        right.3 as f64,
+    ];
+    let (coords, alpha) = mix_premultiplied(
+        [left[0], left[1], left[2]],
+        left[3],
+        [right[0], right[1], right[2]],
+        right[3],
+        left_weight,
+        right_weight,
+    );
+    Some((
+        clamp_channel(coords[0]),
+        clamp_channel(coords[1]),
+        clamp_channel(coords[2]),
+        clamp_channel(alpha),
+    ))
+}
+
+fn mix_oklab(
+    left: (f32, f32, f32, f32),
+    left_weight: f64,
+    right: (f32, f32, f32, f32),
+    right_weight: f64,
+) -> Option<(f32, f32, f32, f32)> {
+    let left_lab = srgb_to_oklab(left.0, left.1, left.2)?;
+    let right_lab = srgb_to_oklab(right.0, right.1, right.2)?;
+    let (coords, alpha) = mix_premultiplied(
+        left_lab,
+        left.3 as f64,
+        right_lab,
+        right.3 as f64,
+        left_weight,
+        right_weight,
+    );
+    oklab_to_srgb(coords[0], coords[1], coords[2], alpha)
+}
+
+fn mix_oklch(
+    left: (f32, f32, f32, f32),
+    left_weight: f64,
+    right: (f32, f32, f32, f32),
+    right_weight: f64,
+) -> Option<(f32, f32, f32, f32)> {
+    let mut left_lch = srgb_to_oklch(left.0, left.1, left.2)?;
+    let mut right_lch = srgb_to_oklch(right.0, right.1, right.2)?;
+    let left_alpha = left.3 as f64;
+    let right_alpha = right.3 as f64;
+
+    if left_alpha <= 1e-12 && right_alpha > 1e-12 {
+        left_lch = right_lch;
+    } else if right_alpha <= 1e-12 && left_alpha > 1e-12 {
+        right_lch = left_lch;
+    }
+
+    if left_lch[1] <= OKLCH_ACHROMATIC_CHROMA_THRESHOLD {
+        left_lch[2] = right_lch[2];
+    }
+    if right_lch[1] <= OKLCH_ACHROMATIC_CHROMA_THRESHOLD {
+        right_lch[2] = left_lch[2];
+    }
+
+    let alpha = left_alpha * left_weight + right_alpha * right_weight;
+    if alpha <= 1e-12 {
+        return Some((0.0, 0.0, 0.0, 0.0));
+    }
+
+    let l = left_lch[0] * left_weight + right_lch[0] * right_weight;
+    let c = left_lch[1] * left_weight + right_lch[1] * right_weight;
+    let h = mix_hue_shorter(left_lch[2], right_lch[2], left_weight, right_weight);
+    let a = c * h.to_radians().cos();
+    let b = c * h.to_radians().sin();
+    oklab_to_srgb(l, a, b, alpha)
+}
+
+fn mix_premultiplied(
+    left_coords: [f64; 3],
+    left_alpha: f64,
+    right_coords: [f64; 3],
+    right_alpha: f64,
+    left_weight: f64,
+    right_weight: f64,
+) -> ([f64; 3], f64) {
+    let alpha = left_alpha * left_weight + right_alpha * right_weight;
+    if alpha <= 1e-12 {
+        return ([0.0, 0.0, 0.0], 0.0);
+    }
+
+    let coords = [
+        (left_coords[0] * left_alpha * left_weight + right_coords[0] * right_alpha * right_weight)
+            / alpha,
+        (left_coords[1] * left_alpha * left_weight + right_coords[1] * right_alpha * right_weight)
+            / alpha,
+        (left_coords[2] * left_alpha * left_weight + right_coords[2] * right_alpha * right_weight)
+            / alpha,
+    ];
+    (coords, alpha)
+}
+
+fn mix_hue_shorter(left: f64, right: f64, left_weight: f64, right_weight: f64) -> f64 {
+    let delta = (right - left + 180.0).rem_euclid(360.0) - 180.0;
+    (left + delta * right_weight / (left_weight + right_weight)).rem_euclid(360.0)
 }
 
 /// Convert HSL to RGB. All inputs/outputs are normalised to 0.0–1.0 except
@@ -813,6 +1008,22 @@ mod tests {
         let rad = parse_functional("oklch(0.627966 0.257704 0.510239rad)").unwrap();
         assert_rgb_close(deg, turn, 0.01);
         assert_rgb_close(deg, rad, 0.02);
+    }
+
+    #[test]
+    fn mix_colors_oklch_lightens_toward_white() {
+        let base = parse_functional("oklch(22.84% 0.038 283)").unwrap();
+        let mixed = mix_colors("oklch", base, 0.92, (1.0, 1.0, 1.0, 1.0), 0.08).unwrap();
+        assert!(mixed.0 > base.0);
+        assert!(mixed.1 > base.1);
+        assert!(mixed.2 > base.2);
+    }
+
+    #[test]
+    fn mix_colors_oklch_with_transparent_reduces_alpha() {
+        let base = parse_functional("oklch(22.84% 0.038 283)").unwrap();
+        let mixed = mix_colors("oklch", base, 0.96, (0.0, 0.0, 0.0, 0.0), 0.04).unwrap();
+        assert_rgb_close(mixed, (base.0, base.1, base.2, 0.96), 0.04);
     }
 
     #[test]

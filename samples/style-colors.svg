@@ -1,7 +1,13 @@
 <!-- Colors in this sample come from the <style> block, not presentation attributes. -->
 <!-- Use it to verify document colors inside embedded CSS rules. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 840">
   <style>
+    :root {
+      --base: oklch(22.84% 0.038 283);
+      --toolbar-bg: color-mix(in oklch, var(--base), white 8%);
+      --panel-bg: color-mix(in oklch, var(--base) 96%, transparent);
+    }
+
     .label {
       fill: #223040;
       font: 600 18px monospace;
@@ -101,6 +107,20 @@
       stroke-width: 2;
     }
 
+    .var-base {
+      fill: var(--base);
+    }
+
+    .var-mix {
+      fill: var(--toolbar-bg);
+    }
+
+    .var-alpha {
+      fill: var(--panel-bg);
+      stroke: #223040;
+      stroke-width: 3;
+    }
+
     .ignore-me {
       display: block;
       animation-name: red;
@@ -125,10 +145,10 @@
     </linearGradient>
   </defs>
 
-  <rect class="panel" x="20" y="20" width="760" height="660" rx="20" />
+  <rect class="panel" x="20" y="20" width="760" height="800" rx="20" />
 
   <text class="label" x="36" y="58">Embedded &lt;style&gt; colors</text>
-  <text class="subtle" x="36" y="84">hex, rgb(a), hsl(a), hwb, lab, lch, oklab, oklch, transparent, color:, stroke:, and stop-color</text>
+  <text class="subtle" x="36" y="84">hex, rgb(a), hsl(a), hwb, lab, lch, oklab, oklch, transparent, stop-color, CSS vars, and color-mix()</text>
 
   <rect class="hex-6" x="40" y="120" width="120" height="70" rx="12" />
   <text class="subtle" x="40" y="214">#ff6b35</text>
@@ -179,4 +199,13 @@
 
   <rect class="transparent-fill" x="638" y="548" width="72" height="84" rx="14" />
   <text class="subtle" x="600" y="662">transparent</text>
+
+  <rect class="var-base" x="70" y="710" width="120" height="70" rx="12" />
+  <text class="subtle" x="54" y="804">var(--base)</text>
+
+  <rect class="var-mix" x="300" y="710" width="120" height="70" rx="12" />
+  <text class="subtle" x="234" y="804">color-mix(var(--base), white)</text>
+
+  <rect class="var-alpha" x="540" y="710" width="120" height="70" rx="12" />
+  <text class="subtle" x="478" y="804">color-mix(var(--base), transparent)</text>
 </svg>

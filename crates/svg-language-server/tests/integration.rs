@@ -495,6 +495,12 @@ fn lsp_end_to_end() {
         "file suppression quick-fix should be offered: {code_action_resp}"
     );
     assert!(
+        code_actions
+            .iter()
+            .any(|action| action["title"].as_str() == Some("Copy SVG as data URI")),
+        "copy-as-data-uri source action should be offered: {code_action_resp}"
+    );
+    assert!(
         code_actions.iter().any(|action| {
             action["edit"]["changes"]["file:///missing-ref.svg"][0]["newText"].as_str()
                 == Some("<!-- svg-lint-disable MissingReferenceDefinition -->\n")

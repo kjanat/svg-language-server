@@ -7,6 +7,7 @@ resolver           = "3"
 members            = ["crates/*"]
 
 [workspace.dependencies]
+arboard          = "3"
 base64           = "0.22"
 serde_json       = "1"
 tower-lsp-server = "0.23"

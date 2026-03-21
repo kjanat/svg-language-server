@@ -29,10 +29,10 @@ install profile="release":
     cargo install --path crates/svg-language-server --bin svg-language-server --profile={{ profile }}
 
 # Clippy all
-[arg("allow-dirty", long="allow-dirty", value="--allow-dirty")]
-[arg("fix", long="fix", value="--fix")]
+[arg("allow-dirty", long="allow-dirty", short="a", value=" --allow-dirty")]
+[arg("fix", long="fix", short="f", value=" --fix")]
 lint fix="" allow-dirty="":
-    cargo clippy --workspace --all-targets --all-features {{ fix }} {{ allow-dirty }} -- -D clippy::all
+    cargo clippy --workspace --all-targets --all-features{{ fix }}{{ allow-dirty }} -- -D clippy::all
 
 # Let gippity write a nice commit message
 [arg("model", long="model", short="m")]

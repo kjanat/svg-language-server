@@ -4,18 +4,21 @@ use std::fs::OpenOptions;
 use std::path::PathBuf;
 use std::sync::{Arc, LazyLock, OnceLock, RwLock as StdRwLock};
 
+use arboard::Clipboard;
+use serde_json::Value;
 use svg_data::{AttributeValues, BaselineStatus, ContentModel};
 use tokio::sync::RwLock;
 use tower_lsp_server::jsonrpc::Result;
 use tower_lsp_server::ls_types::{
     CodeAction, CodeActionKind, CodeActionOrCommand, CodeActionParams,
     CodeActionProviderCapability, CodeActionResponse, Color, ColorInformation, ColorPresentation,
-    ColorPresentationParams, ColorProviderCapability, CompletionItem, CompletionItemKind,
+    ColorPresentationParams, ColorProviderCapability, Command, CompletionItem, CompletionItemKind,
     CompletionItemTag, CompletionOptions, CompletionParams, CompletionResponse, Diagnostic,
     DiagnosticSeverity, DidChangeTextDocumentParams, DidCloseTextDocumentParams,
-    DidOpenTextDocumentParams, DocumentColorParams, GotoDefinitionParams, GotoDefinitionResponse,
-    Hover, HoverContents, HoverParams, HoverProviderCapability, InitializeParams, InitializeResult,
-    InsertTextFormat, Location, MarkupContent, MarkupKind, NumberOrString, OneOf, Position, Range,
+    DidOpenTextDocumentParams, DocumentColorParams, ExecuteCommandOptions, ExecuteCommandParams,
+    GotoDefinitionParams, GotoDefinitionResponse, Hover, HoverContents, HoverParams,
+    HoverProviderCapability, InitializeParams, InitializeResult, InsertTextFormat, Location,
+    MarkupContent, MarkupKind, MessageType, NumberOrString, OneOf, Position, Range,
     ServerCapabilities, TextDocumentSyncCapability, TextDocumentSyncKind, TextEdit, Uri,
     WorkspaceEdit,
 };
@@ -34,6 +37,7 @@ struct DocumentState {
 /// Cache mapping (URI, start_line, start_character) to the original color kind.
 type ColorKindCache = Arc<RwLock<HashMap<(Uri, u32, u32), svg_color::ColorKind>>>;
 type StylesheetCache = Arc<StdRwLock<HashMap<String, Arc<OnceLock<Option<CachedStylesheet>>>>>>;
+const COPY_DATA_URI_COMMAND: &str = "svg.copyDataUri";
 
 #[derive(Clone)]
 struct CachedStylesheet {
@@ -123,6 +127,31 @@ impl SvgLanguageServer {
             .write()
             .await
             .insert(uri, DocumentState { source, tree });
+    }
+
+    async fn copy_svg_as_data_uri(&self, uri: &Uri) -> std::result::Result<(), String> {
+        let source = {
+            let docs = self.documents.read().await;
+            if let Some(doc) = docs.get(uri) {
+                doc.source.clone()
+            } else {
+                let url = Url::parse(uri.as_str())
+                    .map_err(|err| format!("Invalid URI {}: {err}", uri.as_str()))?;
+                let path = url
+                    .to_file_path()
+                    .map_err(|_| format!("Cannot resolve file path for {}", uri.as_str()))?;
+                fs::read_to_string(&path)
+                    .map_err(|err| format!("Failed to read {}: {err}", path.display()))?
+            }
+        };
+
+        let data_uri = svg_data_uri(&source);
+        let mut clipboard =
+            Clipboard::new().map_err(|err| format!("Clipboard unavailable: {err}"))?;
+        clipboard
+            .set_text(data_uri)
+            .map_err(|err| format!("Failed to copy data URI to clipboard: {err}"))?;
+        Ok(())
     }
 }
 
@@ -986,6 +1015,19 @@ fn suppression_code_actions_for_diagnostic(
     ]
 }
 
+fn copy_data_uri_code_action(uri: &Uri) -> CodeActionOrCommand {
+    CodeActionOrCommand::CodeAction(CodeAction {
+        title: "Copy SVG as data URI".to_owned(),
+        kind: Some(CodeActionKind::SOURCE),
+        command: Some(Command {
+            title: "Copy SVG as data URI".to_owned(),
+            command: COPY_DATA_URI_COMMAND.to_owned(),
+            arguments: Some(vec![Value::String(uri.as_str().to_owned())]),
+        }),
+        ..Default::default()
+    })
+}
+
 fn css_rule_snippet(source: &str, span: &svg_references::Span) -> String {
     let source_bytes = source.as_bytes();
     let start = byte_offset_for_row_col(source_bytes, span.start_row, span.start_col);
@@ -1509,6 +1551,10 @@ impl LanguageServer for SvgLanguageServer {
                 hover_provider: Some(HoverProviderCapability::Simple(true)),
                 definition_provider: Some(OneOf::Left(true)),
                 code_action_provider: Some(CodeActionProviderCapability::Simple(true)),
+                execute_command_provider: Some(ExecuteCommandOptions {
+                    commands: vec![COPY_DATA_URI_COMMAND.to_owned()],
+                    ..Default::default()
+                }),
                 completion_provider: Some(CompletionOptions {
                     trigger_characters: Some(vec![
                         "<".to_string(),
@@ -1871,7 +1917,7 @@ impl LanguageServer for SvgLanguageServer {
         };
 
         let mut seen = std::collections::HashSet::new();
-        let mut actions = Vec::new();
+        let mut actions = vec![copy_data_uri_code_action(uri)];
 
         for diagnostic in &params.context.diagnostics {
             let Some(code) = suppression_code(diagnostic) else {
@@ -1891,6 +1937,42 @@ impl LanguageServer for SvgLanguageServer {
         }
 
         Ok(Some(actions))
+    }
+
+    async fn execute_command(&self, params: ExecuteCommandParams) -> Result<Option<Value>> {
+        match params.command.as_str() {
+            COPY_DATA_URI_COMMAND => {
+                let uri = params
+                    .arguments
+                    .first()
+                    .and_then(Value::as_str)
+                    .and_then(|value| value.parse::<Uri>().ok());
+
+                let Some(uri) = uri else {
+                    self.client
+                        .show_message(
+                            MessageType::ERROR,
+                            "Copy SVG as data URI requires a document URI.",
+                        )
+                        .await;
+                    return Ok(None);
+                };
+
+                match self.copy_svg_as_data_uri(&uri).await {
+                    Ok(()) => {
+                        self.client
+                            .show_message(MessageType::INFO, "Copied SVG as data URI.")
+                            .await;
+                    }
+                    Err(message) => {
+                        self.client.show_message(MessageType::ERROR, message).await;
+                    }
+                }
+
+                Ok(None)
+            }
+            _ => Ok(None),
+        }
     }
 
     async fn goto_definition(

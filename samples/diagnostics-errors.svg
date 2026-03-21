@@ -25,6 +25,13 @@
 	<filter id="bad-filter">
 		<rect x="0" y="0" width="10" height="10"/>
 	</filter>
+	
+	<!-- DIAGNOSTIC: DuplicateId, InvalidChild — suppressed -->
+	<!-- svg-lint-disable-next-line DuplicateId -->
+	<filter id="bad-filter">
+		<!-- svg-lint-disable-next-line InvalidChild -->
+		<rect x="0" y="0" width="10" height="10"/>
+	</filter>
 
 	<!-- NO DIAGNOSTIC — this is valid SVG -->
 	<g>

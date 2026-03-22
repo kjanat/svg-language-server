@@ -1,5 +1,51 @@
 use tree_sitter::{Node, Parser};
 
+/// Attribute ordering mode.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum AttributeSort {
+    /// Keep original source order.
+    None,
+    /// SVG-aware canonical grouping/order.
+    #[default]
+    Canonical,
+    /// Sort attributes alphabetically by name.
+    Alphabetical,
+}
+
+/// Attribute wrapping mode.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum AttributeLayout {
+    /// Wrap only when inline width exceeds threshold (or source was already multiline).
+    #[default]
+    Auto,
+    /// Always keep attributes in one line.
+    SingleLine,
+    /// Always wrap attributes into multiple lines (if any attributes exist).
+    MultiLine,
+}
+
+/// Quoting strategy for attribute values.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum QuoteStyle {
+    /// Preserve original quote style where present.
+    #[default]
+    Preserve,
+    /// Normalize quoted values to double quotes.
+    Double,
+    /// Normalize quoted values to single quotes.
+    Single,
+}
+
+/// Indentation strategy for wrapped attributes.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum WrappedAttributeIndent {
+    /// Add one normal indentation unit.
+    #[default]
+    OneLevel,
+    /// Align to the column after `<tag ` so wrapped attributes line up visually.
+    AlignToTagName,
+}
+
 /// Formatter configuration for SVG pretty-printing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct FormatOptions {
@@ -9,6 +55,18 @@ pub struct FormatOptions {
     pub insert_spaces: bool,
     /// Maximum inline tag width before switching to multi-line attributes.
     pub max_inline_tag_width: usize,
+    /// Attribute ordering mode.
+    pub attribute_sort: AttributeSort,
+    /// Attribute wrapping mode.
+    pub attribute_layout: AttributeLayout,
+    /// Maximum number of attributes emitted per wrapped line.
+    pub attributes_per_line: usize,
+    /// Emit a space before `/>` in self-closing tags.
+    pub space_before_self_close: bool,
+    /// Preferred quote style for attribute values.
+    pub quote_style: QuoteStyle,
+    /// Indentation style for wrapped attributes.
+    pub wrapped_attribute_indent: WrappedAttributeIndent,
 }
 
 impl Default for FormatOptions {
@@ -17,6 +75,12 @@ impl Default for FormatOptions {
             indent_width: 2,
             insert_spaces: false,
             max_inline_tag_width: 100,
+            attribute_sort: AttributeSort::Canonical,
+            attribute_layout: AttributeLayout::Auto,
+            attributes_per_line: 1,
+            space_before_self_close: true,
+            quote_style: QuoteStyle::Preserve,
+            wrapped_attribute_indent: WrappedAttributeIndent::OneLevel,
         }
     }
 }
@@ -143,43 +207,107 @@ impl<'a> Formatter<'a> {
             self.write_line(depth, &raw);
             return;
         };
-        canonicalize_attributes(&mut tag.attributes);
+        reorder_attributes(&mut tag.attributes, self.options.attribute_sort);
+        let rendered_attributes: Vec<String> = tag
+            .attributes
+            .iter()
+            .map(|attribute| self.render_attribute(attribute))
+            .collect();
 
-        let mut inline = String::new();
-        inline.push('<');
-        inline.push_str(&tag.name);
-        if !tag.attributes.is_empty() {
+        let mut inline = format!("<{}", tag.name);
+        if !rendered_attributes.is_empty() {
             inline.push(' ');
-            inline.push_str(&tag.attributes.join(" "));
+            inline.push_str(&rendered_attributes.join(" "));
         }
         if self_closing {
-            if tag.attributes.is_empty() {
-                inline.push_str("/>");
-            } else {
-                inline.push_str(" />");
-            }
+            inline.push_str(self.self_closing_suffix());
         } else {
             inline.push('>');
         }
 
-        let multiline = raw.contains('\n') || inline.len() > self.options.max_inline_tag_width;
+        let multiline = match self.options.attribute_layout {
+            AttributeLayout::SingleLine => false,
+            AttributeLayout::MultiLine => !rendered_attributes.is_empty(),
+            AttributeLayout::Auto => {
+                raw.contains('\n') || inline.len() > self.options.max_inline_tag_width
+            }
+        };
         if !multiline {
             self.write_line(depth, &inline);
             return;
         }
 
         self.write_line(depth, &format!("<{}", tag.name));
-        if tag.attributes.is_empty() {
-            self.write_line(depth, if self_closing { "/>" } else { ">" });
+        if rendered_attributes.is_empty() {
+            if self_closing {
+                self.write_line(depth, self.self_closing_suffix());
+            } else {
+                self.write_line(depth, ">");
+            }
             return;
         }
 
-        for attr in &tag.attributes[..tag.attributes.len() - 1] {
-            self.write_line(depth + 1, attr);
+        let per_line = self.options.attributes_per_line.max(1);
+        let wrapped_prefix = self.wrapped_attribute_prefix(depth, &tag.name);
+        let chunks = rendered_attributes.chunks(per_line).collect::<Vec<_>>();
+        for (index, chunk) in chunks.iter().enumerate() {
+            let mut line = chunk.join(" ");
+            if index == chunks.len() - 1 {
+                if self_closing {
+                    line.push_str(self.self_closing_suffix());
+                } else {
+                    line.push('>');
+                }
+            }
+            self.write_prefixed_line(&wrapped_prefix, &line);
         }
-        let tail = if self_closing { " />" } else { ">" };
-        let last = format!("{}{}", tag.attributes[tag.attributes.len() - 1], tail);
-        self.write_line(depth + 1, &last);
+    }
+
+    fn self_closing_suffix(&self) -> &'static str {
+        if self.options.space_before_self_close {
+            " />"
+        } else {
+            "/>"
+        }
+    }
+
+    fn render_attribute(&self, attribute: &ParsedAttribute) -> String {
+        if let Some(value) = &attribute.value {
+            format!("{}={}", attribute.name, self.render_attribute_value(value))
+        } else {
+            attribute.name.clone()
+        }
+    }
+
+    fn render_attribute_value(&self, value: &ParsedAttributeValue) -> String {
+        match self.options.quote_style {
+            QuoteStyle::Preserve => match value.original_quote {
+                Some('\'') => format!("'{}'", value.raw),
+                Some('"') => format!("\"{}\"", value.raw),
+                Some(other) => format!("{other}{}{other}", value.raw),
+                None => value.raw.clone(),
+            },
+            QuoteStyle::Double => format!("\"{}\"", value.raw.replace('"', "&quot;")),
+            QuoteStyle::Single => format!("'{}'", value.raw.replace('\'', "&apos;")),
+        }
+    }
+
+    fn wrapped_attribute_prefix(&self, depth: usize, tag_name: &str) -> String {
+        match self.options.wrapped_attribute_indent {
+            WrappedAttributeIndent::OneLevel => self.indent(depth + 1),
+            WrappedAttributeIndent::AlignToTagName => {
+                let mut prefix = self.indent(depth);
+                // Align to the column right after `<tag ` in a hypothetical one-line form.
+                prefix.push_str(&" ".repeat(tag_name.chars().count() + 2));
+                prefix
+            }
+        }
+    }
+
+    fn write_prefixed_line(&mut self, prefix: &str, text: &str) {
+        self.out.push_str(prefix);
+        self.out.push_str(text);
+        self.out.push('\n');
     }
 
     fn write_text_node(&mut self, node: Node<'_>, depth: usize) {
@@ -245,15 +373,34 @@ impl<'a> Formatter<'a> {
 
 struct ParsedTag {
     name: String,
-    attributes: Vec<String>,
+    attributes: Vec<ParsedAttribute>,
 }
 
-fn canonicalize_attributes(attributes: &mut [String]) {
-    attributes.sort_by_key(|left| attribute_sort_key(left));
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct ParsedAttribute {
+    name: String,
+    value: Option<ParsedAttributeValue>,
 }
 
-fn attribute_sort_key(attribute: &str) -> (u8, u16, String) {
-    let name = attribute_name(attribute);
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct ParsedAttributeValue {
+    raw: String,
+    original_quote: Option<char>,
+}
+
+fn reorder_attributes(attributes: &mut [ParsedAttribute], mode: AttributeSort) {
+    match mode {
+        AttributeSort::None => {}
+        AttributeSort::Alphabetical => {
+            attributes.sort_by_key(|attribute| attribute.name.to_ascii_lowercase());
+        }
+        AttributeSort::Canonical => {
+            attributes.sort_by_key(|attribute| canonical_attribute_sort_key(&attribute.name));
+        }
+    }
+}
+
+fn canonical_attribute_sort_key(name: &str) -> (u8, u16, String) {
     let lowered = name.to_ascii_lowercase();
 
     if lowered == "xmlns" {
@@ -306,14 +453,6 @@ fn canonical_geometry_order(name: &str) -> Option<u16> {
         .iter()
         .position(|candidate| *candidate == name)
         .map(|i| i as u16)
-}
-
-fn attribute_name(attribute: &str) -> &str {
-    if let Some((name, _)) = attribute.split_once('=') {
-        name.trim()
-    } else {
-        attribute.trim()
-    }
 }
 
 fn parse_tag(raw: &str, self_closing: bool) -> Option<ParsedTag> {
@@ -391,9 +530,9 @@ fn parse_tag(raw: &str, self_closing: bool) -> Option<ParsedTag> {
             }
         }
 
-        let attr = inner[start..j].trim();
-        if !attr.is_empty() {
-            attrs.push(attr.to_string());
+        let attribute = inner[start..j].trim();
+        if !attribute.is_empty() {
+            attrs.push(parse_attribute(attribute));
         }
     }
 
@@ -403,6 +542,46 @@ fn parse_tag(raw: &str, self_closing: bool) -> Option<ParsedTag> {
     })
 }
 
+fn parse_attribute(attribute: &str) -> ParsedAttribute {
+    let trimmed = attribute.trim();
+    if let Some((name, raw_value)) = trimmed.split_once('=') {
+        let name = name.trim().to_string();
+        let raw_value = raw_value.trim();
+        let value = if let Some(inner) = raw_value
+            .strip_prefix('"')
+            .and_then(|value| value.strip_suffix('"'))
+        {
+            ParsedAttributeValue {
+                raw: inner.to_string(),
+                original_quote: Some('"'),
+            }
+        } else if let Some(inner) = raw_value
+            .strip_prefix('\'')
+            .and_then(|value| value.strip_suffix('\''))
+        {
+            ParsedAttributeValue {
+                raw: inner.to_string(),
+                original_quote: Some('\''),
+            }
+        } else {
+            ParsedAttributeValue {
+                raw: raw_value.to_string(),
+                original_quote: None,
+            }
+        };
+
+        ParsedAttribute {
+            name,
+            value: Some(value),
+        }
+    } else {
+        ParsedAttribute {
+            name: trimmed.to_string(),
+            value: None,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -410,15 +589,19 @@ mod tests {
     #[test]
     fn formats_nested_elements() {
         let input = r#"<svg><g><rect/></g></svg>"#;
-        let expected = "<svg>\n\t<g>\n\t\t<rect/>\n\t</g>\n</svg>";
+        let expected = "<svg>\n\t<g>\n\t\t<rect />\n\t</g>\n</svg>";
         assert_eq!(format(input), expected);
     }
 
     #[test]
     fn formats_multiline_attributes_consistently() {
         let input = r#"<svg><linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%"></linearGradient></svg>"#;
+        let options = FormatOptions {
+            max_inline_tag_width: 24,
+            ..Default::default()
+        };
         let expected = "<svg>\n\t<linearGradient\n\t\tid=\"sky\"\n\t\tx1=\"0%\"\n\t\ty1=\"0%\"\n\t\tx2=\"0%\"\n\t\ty2=\"100%\">\n\t</linearGradient>\n</svg>";
-        assert_eq!(format(input), expected);
+        assert_eq!(format_with_options(input, options), expected);
     }
 
     #[test]
@@ -434,7 +617,90 @@ mod tests {
   .a { fill: red; }
     .b { stroke: blue; }
 </style></svg>"#;
-        let expected = "<svg>\n\t<style>\n\t\t.a { fill: red; }\n\t\t  .b { stroke: blue; }\n\t</style>\n</svg>";
+        let expected =
+            "<svg>\n\t<style>\n\t\t.a { fill: red; }\n\t\t.b { stroke: blue; }\n\t</style>\n</svg>";
         assert_eq!(format(input), expected);
+    }
+
+    #[test]
+    fn attribute_sort_none_preserves_input_order() {
+        let input = r#"<svg><rect y="2" width="4" class="hero" id="x" x="1" height="5"/></svg>"#;
+        let options = FormatOptions {
+            attribute_sort: AttributeSort::None,
+            ..Default::default()
+        };
+        let expected = "<svg>\n\t<rect y=\"2\" width=\"4\" class=\"hero\" id=\"x\" x=\"1\" height=\"5\" />\n</svg>";
+        assert_eq!(format_with_options(input, options), expected);
+    }
+
+    #[test]
+    fn attribute_sort_alphabetical_orders_by_name() {
+        let input = r#"<svg><rect y="2" width="4" class="hero" id="x" x="1" height="5"/></svg>"#;
+        let options = FormatOptions {
+            attribute_sort: AttributeSort::Alphabetical,
+            ..Default::default()
+        };
+        let expected = "<svg>\n\t<rect class=\"hero\" height=\"5\" id=\"x\" width=\"4\" x=\"1\" y=\"2\" />\n</svg>";
+        assert_eq!(format_with_options(input, options), expected);
+    }
+
+    #[test]
+    fn quote_style_double_normalizes_quotes() {
+        let input = r#"<svg><rect class='hero' id='x'/></svg>"#;
+        let options = FormatOptions {
+            quote_style: QuoteStyle::Double,
+            ..Default::default()
+        };
+        let expected = "<svg>\n\t<rect id=\"x\" class=\"hero\" />\n</svg>";
+        assert_eq!(format_with_options(input, options), expected);
+    }
+
+    #[test]
+    fn quote_style_single_normalizes_quotes() {
+        let input = r#"<svg><rect class="hero" id="x"/></svg>"#;
+        let options = FormatOptions {
+            quote_style: QuoteStyle::Single,
+            ..Default::default()
+        };
+        let expected = "<svg>\n\t<rect id='x' class='hero' />\n</svg>";
+        assert_eq!(format_with_options(input, options), expected);
+    }
+
+    #[test]
+    fn attribute_layout_single_line_ignores_width_trigger() {
+        let input = r#"<svg><linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%"></linearGradient></svg>"#;
+        let options = FormatOptions {
+            attribute_layout: AttributeLayout::SingleLine,
+            max_inline_tag_width: 10,
+            ..Default::default()
+        };
+        let expected = "<svg>\n\t<linearGradient id=\"sky\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\">\n\t</linearGradient>\n</svg>";
+        assert_eq!(format_with_options(input, options), expected);
+    }
+
+    #[test]
+    fn space_before_self_close_false_removes_spacing() {
+        let input = r#"<svg><rect id="x"/></svg>"#;
+        let options = FormatOptions {
+            space_before_self_close: false,
+            ..Default::default()
+        };
+        let expected = "<svg>\n\t<rect id=\"x\"/>\n</svg>";
+        assert_eq!(format_with_options(input, options), expected);
+    }
+
+    #[test]
+    fn wrapped_attribute_indent_align_to_tag_name() {
+        let input = r#"<svg><linearGradient id="sky" x1="0%" y1="0%"></linearGradient></svg>"#;
+        let options = FormatOptions {
+            attribute_layout: AttributeLayout::MultiLine,
+            wrapped_attribute_indent: WrappedAttributeIndent::AlignToTagName,
+            ..Default::default()
+        };
+        let aligned = format!("\t{}", " ".repeat("linearGradient".len() + 2));
+        let expected = format!(
+            "<svg>\n\t<linearGradient\n{aligned}id=\"sky\"\n{aligned}x1=\"0%\"\n{aligned}y1=\"0%\">\n\t</linearGradient>\n</svg>"
+        );
+        assert_eq!(format_with_options(input, options), expected);
     }
 }

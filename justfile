@@ -5,6 +5,8 @@ alias f := format
 alias i := install
 alias l := lint
 alias fmt := format
+alias t := test
+alias b := build
 alias cmt := commit
 
 # Returns the list of all available commands
@@ -33,6 +35,42 @@ install profile="release":
 [arg("fix", long="fix", short="f", value=" --fix")]
 lint fix="" allow-dirty="":
     cargo clippy --workspace --all-targets --all-features{{ fix }}{{ allow-dirty }} -- -D clippy::all
+
+# Run all workspace tests
+test *ARGS:
+    cargo test --workspace {{ ARGS }}
+
+# Run only svg-format tests
+test-format:
+    cargo test -p svg-format
+
+# Build workspace (debug)
+build *ARGS:
+    cargo build --workspace {{ ARGS }}
+
+# Build workspace (release)
+build-release *ARGS:
+    cargo build --workspace --release {{ ARGS }}
+
+# Build dprint Wasm plugin binary
+build-dprint-plugin:
+    CFLAGS_wasm32_unknown_unknown='-DNDEBUG' cargo build -p dprint-plugin-svg --release --target wasm32-unknown-unknown
+
+# Print dprint Wasm plugin artifact path
+plugin-path:
+    @if [ ! -f target/wasm32-unknown-unknown/release/dprint_plugin_svg.wasm ]; then just build-dprint-plugin; fi
+    @if [ ! -f target/wasm32-unknown-unknown/release/dprint_plugin_svg.wasm ]; then echo "Plugin artifact not found after build." >&2; exit 1; fi
+    @echo "$(pwd)/target/wasm32-unknown-unknown/release/dprint_plugin_svg.wasm"
+
+# Local preflight checks
+ci:
+    just check
+    just lint
+    just test
+
+# Run LSP server locally
+run-lsp *ARGS:
+    cargo run -p svg-language-server -- {{ ARGS }}
 
 # Let gippity write a nice commit message
 [arg("model", long="model", short="m")]

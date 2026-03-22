@@ -298,6 +298,6 @@ fn map_wrapped_attribute_indent(value: WrappedAttributeIndentConfig) -> WrappedA
 #[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
 dprint_core::generate_plugin_code!(
     SvgWasmPluginHandler,
-    SvgWasmPluginHandler::default(),
+    SvgWasmPluginHandler,
     Configuration
 );

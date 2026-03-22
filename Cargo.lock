@@ -1583,7 +1583,6 @@ checksum = "009994f150cc0cd50ff54917d5bc8bffe8cad10ca10d81c34da2ec421ae61782"
 [[package]]
 name = "tree-sitter-svg"
 version = "0.1.0"
-source = "git+https://github.com/kjanat/tree-sitter-svg?branch=refactor%2Fstructural-tiers#9b10e537875dfff8ac73b208194de3948ce5be1c"
 dependencies = [
  "cc",
  "tree-sitter-language",

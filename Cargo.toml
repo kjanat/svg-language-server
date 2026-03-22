@@ -53,3 +53,6 @@ package = "tree-sitter-svg"
 git     = "https://github.com/kjanat/tree-sitter-svg"
 branch  = "refactor/structural-tiers"
 # branch  = "master"
+
+[patch."https://github.com/kjanat/tree-sitter-svg"]
+tree-sitter-svg = { path = "../tree-sitter-svg" }

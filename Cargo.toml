@@ -46,7 +46,11 @@ features = ["io-std", "macros", "rt-multi-thread"]
 version  = "0.3"
 features = ["fmt"]
 
+# [workspace.dependencies.tree-sitter-svg]
+# package = "tree-sitter-svg"
+# git     = "https://github.com/kjanat/tree-sitter-svg"
+# branch  = "refactor/structural-tiers"
+
 [workspace.dependencies.tree-sitter-svg]
 package = "tree-sitter-svg"
-git     = "https://github.com/kjanat/tree-sitter-svg"
-branch  = "refactor/structural-tiers"
+path    = "../tree-sitter-svg"

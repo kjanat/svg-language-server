@@ -44,6 +44,10 @@ test *ARGS:
 test-format:
     cargo test -p svg-format
 
+# Run dprint plugin config+format tests
+test-dprint-plugin:
+    cargo test -p dprint-plugin-svg --test plugin_settings
+
 # Build workspace (debug)
 build *ARGS:
     cargo build --workspace {{ ARGS }}

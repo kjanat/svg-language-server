@@ -163,10 +163,16 @@ impl SyncPluginHandler<Configuration> for SvgWasmPluginHandler {
             WrappedAttributeIndentConfig::OneLevel,
             &mut diagnostics,
         );
+        let global_raw_new_line_kind = match global_config.new_line_kind {
+            Some(NewLineKind::Auto) => RawNewLineKind::Auto,
+            Some(NewLineKind::LineFeed) => RawNewLineKind::LineFeed,
+            Some(NewLineKind::CarriageReturnLineFeed) => RawNewLineKind::CarriageReturnLineFeed,
+            None => RawNewLineKind::Auto,
+        };
         let raw_new_line_kind = get_value(
             &mut config,
             "newLineKind",
-            RawNewLineKind::Auto,
+            global_raw_new_line_kind,
             &mut diagnostics,
         );
         let new_line_kind = match raw_new_line_kind {
@@ -296,8 +302,4 @@ fn map_wrapped_attribute_indent(value: WrappedAttributeIndentConfig) -> WrappedA
 }
 
 #[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
-dprint_core::generate_plugin_code!(
-    SvgWasmPluginHandler,
-    SvgWasmPluginHandler,
-    Configuration
-);
+dprint_core::generate_plugin_code!(SvgWasmPluginHandler, SvgWasmPluginHandler, Configuration);

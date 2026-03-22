@@ -36,3 +36,20 @@ Add to your Zed SVG extension's `extension.toml`:
 [language_servers.svg-language-server]
 languages = ["SVG"]
 ```
+
+## dprint Plugin (Wasm)
+
+The workspace includes a Wasm dprint plugin in
+`crates/dprint-plugin-svg`.
+
+Build it with:
+
+```sh
+cargo build -p dprint-plugin-svg --release --target wasm32-unknown-unknown
+```
+
+Then reference:
+
+`./target/wasm32-unknown-unknown/release/dprint_plugin_svg.wasm`
+
+from your `dprint.json`.

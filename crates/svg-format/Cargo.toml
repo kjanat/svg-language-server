@@ -12,5 +12,6 @@ name = "svg-format"
 path = "src/main.rs"
 
 [dependencies]
+clap                      = { workspace = true, features = ["derive"] }
 tree-sitter.workspace     = true
 tree-sitter-svg.workspace = true

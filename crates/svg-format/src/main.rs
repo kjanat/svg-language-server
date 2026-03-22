@@ -1,214 +1,180 @@
-use std::env;
 use std::fs;
 use std::io::{self, Read, Write};
 use std::path::PathBuf;
 use std::process::ExitCode;
 
+use clap::{Parser, ValueEnum};
 use svg_format::{
     AttributeLayout, AttributeSort, FormatOptions, QuoteStyle, WrappedAttributeIndent,
     format_with_options,
 };
 
-#[derive(Debug)]
-struct CliConfig {
-    options: FormatOptions,
-    check: bool,
-    in_place: bool,
-    read_stdin: bool,
+#[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
+#[value(rename_all = "kebab-case")]
+enum AttributeSortArg {
+    None,
+    Canonical,
+    Alphabetical,
+}
+
+impl From<AttributeSortArg> for AttributeSort {
+    fn from(value: AttributeSortArg) -> Self {
+        match value {
+            AttributeSortArg::None => AttributeSort::None,
+            AttributeSortArg::Canonical => AttributeSort::Canonical,
+            AttributeSortArg::Alphabetical => AttributeSort::Alphabetical,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
+#[value(rename_all = "kebab-case")]
+enum AttributeLayoutArg {
+    Auto,
+    SingleLine,
+    MultiLine,
+}
+
+impl From<AttributeLayoutArg> for AttributeLayout {
+    fn from(value: AttributeLayoutArg) -> Self {
+        match value {
+            AttributeLayoutArg::Auto => AttributeLayout::Auto,
+            AttributeLayoutArg::SingleLine => AttributeLayout::SingleLine,
+            AttributeLayoutArg::MultiLine => AttributeLayout::MultiLine,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
+#[value(rename_all = "kebab-case")]
+enum QuoteStyleArg {
+    Preserve,
+    Double,
+    Single,
+}
+
+impl From<QuoteStyleArg> for QuoteStyle {
+    fn from(value: QuoteStyleArg) -> Self {
+        match value {
+            QuoteStyleArg::Preserve => QuoteStyle::Preserve,
+            QuoteStyleArg::Double => QuoteStyle::Double,
+            QuoteStyleArg::Single => QuoteStyle::Single,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
+#[value(rename_all = "kebab-case")]
+enum WrappedAttributeIndentArg {
+    OneLevel,
+    AlignToTagName,
+}
+
+impl From<WrappedAttributeIndentArg> for WrappedAttributeIndent {
+    fn from(value: WrappedAttributeIndentArg) -> Self {
+        match value {
+            WrappedAttributeIndentArg::OneLevel => WrappedAttributeIndent::OneLevel,
+            WrappedAttributeIndentArg::AlignToTagName => WrappedAttributeIndent::AlignToTagName,
+        }
+    }
+}
+
+#[derive(Debug, Parser)]
+#[command(
+    name = "svg-format",
+    version,
+    about = "Structural formatter for SVG documents"
+)]
+struct Cli {
+    #[arg(value_name = "FILE", conflicts_with = "stdin")]
     path: Option<PathBuf>,
-}
 
-fn print_help() {
-    println!(
-        "svg-format 0.1.0
+    #[arg(short = 'i', long, requires = "path")]
+    in_place: bool,
 
-Usage:
-  svg-format [OPTIONS] [FILE]
-  svg-format --stdin [OPTIONS]
+    #[arg(long)]
+    check: bool,
 
-Options:
-  -h, --help                              Show this help
-  -i, --in-place                          Write formatted output back to FILE
-      --check                             Exit 1 when formatting would change output
-      --stdin                             Read input from stdin
-      --indent-width <N>                  Indent width when using spaces (default: 2)
-      --use-tabs                          Use tabs for indentation (default)
-      --use-spaces                        Use spaces for indentation
-      --max-inline-tag-width <N>          Inline width threshold before wrapping (default: 100)
-      --attribute-sort <MODE>             none|canonical|alphabetical (default: canonical)
-      --attribute-layout <MODE>           auto|single-line|multi-line (default: auto)
-      --attributes-per-line <N>           Wrapped attributes per line (default: 1)
-      --space-before-self-close           Emit space before '/>' (default)
-      --no-space-before-self-close        Omit space before '/>'
-      --quote-style <MODE>                preserve|double|single (default: preserve)
-      --wrapped-attribute-indent <MODE>   one-level|align-to-tag-name (default: one-level)
-"
-    );
-}
+    #[arg(long, conflicts_with = "path")]
+    stdin: bool,
 
-fn parse_attribute_sort(value: &str) -> Result<AttributeSort, String> {
-    match value {
-        "none" => Ok(AttributeSort::None),
-        "canonical" => Ok(AttributeSort::Canonical),
-        "alphabetical" => Ok(AttributeSort::Alphabetical),
-        _ => Err(format!(
-            "invalid --attribute-sort value '{value}' (expected none|canonical|alphabetical)"
-        )),
-    }
-}
+    #[arg(long, default_value_t = 2)]
+    indent_width: usize,
 
-fn parse_attribute_layout(value: &str) -> Result<AttributeLayout, String> {
-    match value {
-        "auto" => Ok(AttributeLayout::Auto),
-        "single-line" | "single_line" | "single" => Ok(AttributeLayout::SingleLine),
-        "multi-line" | "multi_line" | "multi" => Ok(AttributeLayout::MultiLine),
-        _ => Err(format!(
-            "invalid --attribute-layout value '{value}' (expected auto|single-line|multi-line)"
-        )),
-    }
-}
+    #[arg(long, conflicts_with = "use_spaces")]
+    use_tabs: bool,
 
-fn parse_quote_style(value: &str) -> Result<QuoteStyle, String> {
-    match value {
-        "preserve" => Ok(QuoteStyle::Preserve),
-        "double" => Ok(QuoteStyle::Double),
-        "single" => Ok(QuoteStyle::Single),
-        _ => Err(format!(
-            "invalid --quote-style value '{value}' (expected preserve|double|single)"
-        )),
-    }
-}
+    #[arg(long, conflicts_with = "use_tabs")]
+    use_spaces: bool,
 
-fn parse_wrapped_attribute_indent(value: &str) -> Result<WrappedAttributeIndent, String> {
-    match value {
-        "one-level" | "one_level" | "indent" => Ok(WrappedAttributeIndent::OneLevel),
-        "align-to-tag-name" | "align_to_tag_name" | "align" => {
-            Ok(WrappedAttributeIndent::AlignToTagName)
-        }
-        _ => Err(format!(
-            "invalid --wrapped-attribute-indent value '{value}' (expected one-level|align-to-tag-name)"
-        )),
-    }
-}
+    #[arg(long, default_value_t = 100)]
+    max_inline_tag_width: usize,
 
-fn parse_usize_flag(flag: &str, value: &str) -> Result<usize, String> {
-    value
-        .parse::<usize>()
-        .map_err(|_| format!("invalid value for {flag}: '{value}'"))
-}
+    #[arg(long, value_enum, default_value_t = AttributeSortArg::Canonical)]
+    attribute_sort: AttributeSortArg,
 
-fn parse_args() -> Result<Option<CliConfig>, String> {
-    let mut config = CliConfig {
-        options: FormatOptions::default(),
-        check: false,
-        in_place: false,
-        read_stdin: false,
-        path: None,
-    };
+    #[arg(long, value_enum, default_value_t = AttributeLayoutArg::Auto)]
+    attribute_layout: AttributeLayoutArg,
 
-    let mut args = env::args().skip(1);
-    while let Some(arg) = args.next() {
-        match arg.as_str() {
-            "-h" | "--help" => {
-                print_help();
-                return Ok(None);
-            }
-            "-i" | "--in-place" => {
-                config.in_place = true;
-            }
-            "--check" => {
-                config.check = true;
-            }
-            "--stdin" => {
-                config.read_stdin = true;
-            }
-            "--use-tabs" => {
-                config.options.insert_spaces = false;
-            }
-            "--use-spaces" => {
-                config.options.insert_spaces = true;
-            }
-            "--space-before-self-close" => {
-                config.options.space_before_self_close = true;
-            }
-            "--no-space-before-self-close" => {
-                config.options.space_before_self_close = false;
-            }
-            "--indent-width" => {
-                let Some(value) = args.next() else {
-                    return Err("--indent-width requires a value".to_string());
-                };
-                config.options.indent_width = parse_usize_flag("--indent-width", &value)?;
-            }
-            "--max-inline-tag-width" => {
-                let Some(value) = args.next() else {
-                    return Err("--max-inline-tag-width requires a value".to_string());
-                };
-                config.options.max_inline_tag_width =
-                    parse_usize_flag("--max-inline-tag-width", &value)?;
-            }
-            "--attribute-sort" => {
-                let Some(value) = args.next() else {
-                    return Err("--attribute-sort requires a value".to_string());
-                };
-                config.options.attribute_sort = parse_attribute_sort(&value)?;
-            }
-            "--attribute-layout" => {
-                let Some(value) = args.next() else {
-                    return Err("--attribute-layout requires a value".to_string());
-                };
-                config.options.attribute_layout = parse_attribute_layout(&value)?;
-            }
-            "--attributes-per-line" => {
-                let Some(value) = args.next() else {
-                    return Err("--attributes-per-line requires a value".to_string());
-                };
-                config.options.attributes_per_line =
-                    parse_usize_flag("--attributes-per-line", &value)?;
-            }
-            "--quote-style" => {
-                let Some(value) = args.next() else {
-                    return Err("--quote-style requires a value".to_string());
-                };
-                config.options.quote_style = parse_quote_style(&value)?;
-            }
-            "--wrapped-attribute-indent" => {
-                let Some(value) = args.next() else {
-                    return Err("--wrapped-attribute-indent requires a value".to_string());
-                };
-                config.options.wrapped_attribute_indent = parse_wrapped_attribute_indent(&value)?;
-            }
-            _ if arg.starts_with('-') => {
-                return Err(format!("unknown option: {arg}"));
-            }
-            _ => {
-                if config.path.is_some() {
-                    return Err("multiple input files provided; only one FILE is supported".into());
-                }
-                config.path = Some(PathBuf::from(arg));
-            }
-        }
-    }
+    #[arg(long, default_value_t = 1)]
+    attributes_per_line: usize,
 
-    if config.read_stdin && config.path.is_some() {
-        return Err("cannot use --stdin and FILE together".to_string());
-    }
-    if config.in_place && config.path.is_none() {
-        return Err("--in-place requires FILE input".to_string());
-    }
-    if config.in_place && config.read_stdin {
-        return Err("--in-place cannot be used with --stdin".to_string());
-    }
+    #[arg(long, conflicts_with = "no_space_before_self_close")]
+    space_before_self_close: bool,
 
-    Ok(Some(config))
+    #[arg(long, conflicts_with = "space_before_self_close")]
+    no_space_before_self_close: bool,
+
+    #[arg(long, value_enum, default_value_t = QuoteStyleArg::Preserve)]
+    quote_style: QuoteStyleArg,
+
+    #[arg(long, value_enum, default_value_t = WrappedAttributeIndentArg::OneLevel)]
+    wrapped_attribute_indent: WrappedAttributeIndentArg,
 }
 
 fn run() -> Result<ExitCode, String> {
-    let Some(config) = parse_args()? else {
-        return Ok(ExitCode::SUCCESS);
+    let cli = Cli::parse();
+    let defaults = FormatOptions::default();
+    let read_stdin = cli.stdin || cli.path.is_none();
+
+    if cli.in_place && read_stdin {
+        return Err("--in-place requires FILE input".to_string());
+    }
+    if cli.indent_width == 0 {
+        return Err("--indent-width must be greater than 0".to_string());
+    }
+    if cli.max_inline_tag_width == 0 {
+        return Err("--max-inline-tag-width must be greater than 0".to_string());
+    }
+    if cli.attributes_per_line == 0 {
+        return Err("--attributes-per-line must be greater than 0".to_string());
+    }
+
+    let options = FormatOptions {
+        indent_width: cli.indent_width,
+        insert_spaces: if cli.use_spaces {
+            true
+        } else if cli.use_tabs {
+            false
+        } else {
+            defaults.insert_spaces
+        },
+        max_inline_tag_width: cli.max_inline_tag_width,
+        attribute_sort: cli.attribute_sort.into(),
+        attribute_layout: cli.attribute_layout.into(),
+        attributes_per_line: cli.attributes_per_line,
+        space_before_self_close: if cli.no_space_before_self_close {
+            false
+        } else if cli.space_before_self_close {
+            true
+        } else {
+            defaults.space_before_self_close
+        },
+        quote_style: cli.quote_style.into(),
+        wrapped_attribute_indent: cli.wrapped_attribute_indent.into(),
     };
 
-    let input = match (config.read_stdin, config.path.as_ref()) {
+    let input = match (read_stdin, cli.path.as_ref()) {
         (true, _) | (_, None) => {
             let mut input = String::new();
             io::stdin()
@@ -220,12 +186,12 @@ fn run() -> Result<ExitCode, String> {
             .map_err(|err| format!("failed reading '{}': {err}", path.display()))?,
     };
 
-    let formatted = format_with_options(&input, config.options);
+    let formatted = format_with_options(&input, options);
     let changed = formatted != input;
 
-    if config.check {
+    if cli.check {
         if changed {
-            if let Some(path) = &config.path {
+            if let Some(path) = &cli.path {
                 eprintln!("would reformat {}", path.display());
             } else {
                 eprintln!("would reformat <stdin>");
@@ -235,9 +201,9 @@ fn run() -> Result<ExitCode, String> {
         return Ok(ExitCode::SUCCESS);
     }
 
-    if config.in_place {
+    if cli.in_place {
         if changed {
-            let path = config.path.as_ref().expect("path checked above");
+            let path = cli.path.as_ref().expect("path checked above");
             fs::write(path, formatted)
                 .map_err(|err| format!("failed writing '{}': {err}", path.display()))?;
         }
@@ -256,7 +222,6 @@ fn main() -> ExitCode {
         Ok(code) => code,
         Err(message) => {
             eprintln!("svg-format: {message}");
-            eprintln!("Use --help for usage.");
             ExitCode::from(2)
         }
     }

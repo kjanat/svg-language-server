@@ -1047,6 +1047,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "svg-format"
+version = "0.1.0"
+dependencies = [
+ "tree-sitter",
+ "tree-sitter-svg",
+]
+
+[[package]]
 name = "svg-language-server"
 version = "0.1.0"
 dependencies = [
@@ -1055,6 +1063,7 @@ dependencies = [
  "serde_json",
  "svg-color",
  "svg-data",
+ "svg-format",
  "svg-lint",
  "svg-references",
  "tokio",

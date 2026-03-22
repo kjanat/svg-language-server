@@ -171,6 +171,10 @@ fn lsp_end_to_end() {
         caps.get("colorProvider").is_some(),
         "colorProvider capability missing from initialize response: {init_resp}"
     );
+    assert!(
+        caps.get("documentFormattingProvider").is_some(),
+        "documentFormattingProvider capability missing from initialize response: {init_resp}"
+    );
 
     // --- 2. initialized ---
     send_message(

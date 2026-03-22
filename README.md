@@ -9,6 +9,7 @@ LSP server for SVG files — color swatches, hover docs, completions, and diagno
 - `textDocument/hover` — element/attribute documentation with MDN links and baseline status
 - `textDocument/completion` — context-aware completions for elements, attributes, and values
 - `textDocument/publishDiagnostics` — structural validation (invalid nesting, unknown elements, deprecated usage, duplicate IDs)
+- `textDocument/formatting` — structural SVG formatting with tab indentation and canonical attribute ordering
 
 ## Supported Color Formats
 

@@ -15,12 +15,12 @@ use tower_lsp_server::ls_types::{
     ColorPresentationParams, ColorProviderCapability, Command, CompletionItem, CompletionItemKind,
     CompletionItemTag, CompletionOptions, CompletionParams, CompletionResponse, Diagnostic,
     DiagnosticSeverity, DidChangeTextDocumentParams, DidCloseTextDocumentParams,
-    DidOpenTextDocumentParams, DocumentColorParams, ExecuteCommandOptions, ExecuteCommandParams,
-    GotoDefinitionParams, GotoDefinitionResponse, Hover, HoverContents, HoverParams,
-    HoverProviderCapability, InitializeParams, InitializeResult, InsertTextFormat, Location,
-    MarkupContent, MarkupKind, MessageType, NumberOrString, OneOf, Position, Range,
-    ServerCapabilities, TextDocumentSyncCapability, TextDocumentSyncKind, TextEdit, Uri,
-    WorkspaceEdit,
+    DidOpenTextDocumentParams, DocumentColorParams, DocumentFormattingParams,
+    ExecuteCommandOptions, ExecuteCommandParams, GotoDefinitionParams, GotoDefinitionResponse,
+    Hover, HoverContents, HoverParams, HoverProviderCapability, InitializeParams, InitializeResult,
+    InsertTextFormat, Location, MarkupContent, MarkupKind, MessageType, NumberOrString, OneOf,
+    Position, Range, ServerCapabilities, TextDocumentSyncCapability, TextDocumentSyncKind,
+    TextEdit, Uri, WorkspaceEdit,
 };
 use tower_lsp_server::{Client, LanguageServer, LspService, Server};
 use tracing_subscriber::filter::LevelFilter;
@@ -477,6 +477,20 @@ fn byte_offset_for_row_col(source: &[u8], row: usize, byte_col: usize) -> usize 
         .map(|line| line.len() + 1)
         .sum();
     line_start + byte_col
+}
+
+fn end_position_utf16(source: &str) -> Position {
+    let mut line = 0u32;
+    let mut character = 0u32;
+    for ch in source.chars() {
+        if ch == '\n' {
+            line += 1;
+            character = 0;
+        } else {
+            character += ch.len_utf16() as u32;
+        }
+    }
+    Position::new(line, character)
 }
 
 fn span_range_utf16(source: &[u8], span: &svg_references::Span) -> Range {
@@ -1555,6 +1569,7 @@ impl LanguageServer for SvgLanguageServer {
                     commands: vec![COPY_DATA_URI_COMMAND.to_owned()],
                     ..Default::default()
                 }),
+                document_formatting_provider: Some(OneOf::Left(true)),
                 completion_provider: Some(CompletionOptions {
                     trigger_characters: Some(vec![
                         "<".to_string(),
@@ -1600,6 +1615,29 @@ impl LanguageServer for SvgLanguageServer {
         self.client
             .publish_diagnostics(params.text_document.uri, vec![], None)
             .await;
+    }
+
+    async fn formatting(&self, params: DocumentFormattingParams) -> Result<Option<Vec<TextEdit>>> {
+        let docs = self.documents.read().await;
+        let Some(doc) = docs.get(&params.text_document.uri) else {
+            return Ok(None);
+        };
+
+        let options = svg_format::FormatOptions {
+            indent_width: params.options.tab_size as usize,
+            insert_spaces: false,
+            ..Default::default()
+        };
+        let formatted = svg_format::format_with_options(&doc.source, options);
+        if formatted == doc.source {
+            return Ok(Some(Vec::new()));
+        }
+
+        let edit = TextEdit::new(
+            Range::new(Position::new(0, 0), end_position_utf16(&doc.source)),
+            formatted,
+        );
+        Ok(Some(vec![edit]))
     }
 
     async fn document_color(&self, params: DocumentColorParams) -> Result<Vec<ColorInformation>> {

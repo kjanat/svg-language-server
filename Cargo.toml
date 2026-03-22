@@ -28,6 +28,9 @@ path = "crates/svg-color"
 [workspace.dependencies.svg-data]
 path = "crates/svg-data"
 
+[workspace.dependencies.svg-format]
+path = "crates/svg-format"
+
 [workspace.dependencies.svg-lint]
 path = "crates/svg-lint"
 

@@ -1,0 +1,12 @@
+[package]
+name                 = "svg-format"
+version              = "0.1.0"
+edition.workspace    = true
+description          = "Structural formatter for SVG documents"
+repository.workspace = true
+keywords             = ["format", "pretty-print", "svg", "tree-sitter"]
+categories           = ["development-tools", "text-editors"]
+
+[dependencies]
+tree-sitter.workspace     = true
+tree-sitter-svg.workspace = true

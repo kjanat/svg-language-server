@@ -7,11 +7,9 @@ resolver           = "3"
 members            = ["crates/*"]
 
 [workspace.dependencies]
-anyhow           = "1"
 arboard          = "3"
 base64           = "0.22"
 clap             = "4.5"
-dprint-core      = "0.67"
 serde_json       = "1"
 tower-lsp-server = "0.23"
 tracing          = "0.1"
@@ -52,7 +50,3 @@ features = ["fmt"]
 package = "tree-sitter-svg"
 git     = "https://github.com/kjanat/tree-sitter-svg"
 branch  = "refactor/structural-tiers"
-# branch  = "master"
-
-[patch."https://github.com/kjanat/tree-sitter-svg"]
-tree-sitter-svg = { path = "../tree-sitter-svg" }

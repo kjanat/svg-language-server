@@ -44,10 +44,6 @@ test *ARGS:
 test-format:
     cargo test -p svg-format
 
-# Run dprint plugin config+format tests
-test-dprint-plugin:
-    cargo test -p dprint-plugin-svg --test plugin_settings
-
 # Build workspace (debug)
 build *ARGS:
     cargo build --workspace {{ ARGS }}
@@ -55,16 +51,6 @@ build *ARGS:
 # Build workspace (release)
 build-release *ARGS:
     cargo build --workspace --release {{ ARGS }}
-
-# Build dprint Wasm plugin binary
-build-dprint-plugin:
-    CFLAGS_wasm32_unknown_unknown='-DNDEBUG' cargo build -p dprint-plugin-svg --release --target wasm32-unknown-unknown
-
-# Print dprint Wasm plugin artifact path
-plugin-path:
-    @if [ ! -f target/wasm32-unknown-unknown/release/dprint_plugin_svg.wasm ]; then just build-dprint-plugin; fi
-    @if [ ! -f target/wasm32-unknown-unknown/release/dprint_plugin_svg.wasm ]; then echo "Plugin artifact not found after build." >&2; exit 1; fi
-    @echo "$(pwd)/target/wasm32-unknown-unknown/release/dprint_plugin_svg.wasm"
 
 # Local preflight checks
 ci:

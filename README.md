@@ -37,19 +37,7 @@ Add to your Zed SVG extension's `extension.toml`:
 languages = ["SVG"]
 ```
 
-## dprint Plugin (Wasm)
+## dprint Plugin
 
-The workspace includes a Wasm dprint plugin in
-`crates/dprint-plugin-svg`.
-
-Build it with:
-
-```sh
-cargo build -p dprint-plugin-svg --release --target wasm32-unknown-unknown
-```
-
-Then reference:
-
-`./target/wasm32-unknown-unknown/release/dprint_plugin_svg.wasm`
-
-from your `dprint.json`.
+The formatter plugin now lives in a separate repository:
+`https://github.com/kjanat/dprint-plugin-svg`.

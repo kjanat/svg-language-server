@@ -101,6 +101,10 @@ pub fn format_with_options(source: &str, options: FormatOptions) -> String {
         return source.to_owned();
     };
 
+    if tree.root_node().has_error() {
+        return source.to_owned();
+    }
+
     let mut formatter = Formatter::new(source.as_bytes(), options);
     formatter.format_node(tree.root_node(), 0);
     formatter.finish(source)
@@ -702,5 +706,11 @@ mod tests {
             "<svg>\n\t<linearGradient\n{aligned}id=\"sky\"\n{aligned}x1=\"0%\"\n{aligned}y1=\"0%\">\n\t</linearGradient>\n</svg>"
         );
         assert_eq!(format_with_options(input, options), expected);
+    }
+
+    #[test]
+    fn parse_error_returns_original_source() {
+        let input = r#"<svg><path d="m0 0 l"/></svg>"#;
+        assert_eq!(format(input), input);
     }
 }

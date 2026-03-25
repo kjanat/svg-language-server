@@ -1,10 +1,12 @@
 [workspace]
-package.edition    = "2024"
-package.repository = "https://github.com/kjanat/svg-language-server"
-package.keywords   = ["svg"]
-package.categories = ["development-tools"]
-resolver           = "3"
-members            = ["crates/*"]
+resolver = "3"
+members  = ["crates/*"]
+
+[workspace.package]
+edition    = "2024"
+repository = "https://github.com/kjanat/svg-language-server"
+keywords   = ["svg"]
+categories = ["development-tools"]
 
 [workspace.dependencies]
 arboard          = "3"
@@ -46,11 +48,11 @@ features = ["io-std", "macros", "rt-multi-thread"]
 version  = "0.3"
 features = ["fmt"]
 
-# [workspace.dependencies.tree-sitter-svg]
-# package = "tree-sitter-svg"
-# git     = "https://github.com/kjanat/tree-sitter-svg"
-# branch  = "refactor/structural-tiers"
-
 [workspace.dependencies.tree-sitter-svg]
 package = "tree-sitter-svg"
-path    = "../tree-sitter-svg"
+git     = "https://github.com/kjanat/tree-sitter-svg"
+rev     = "db84810d2bc74be80688f7d57ea8e5d17b3322b0"
+
+# [workspace.dependencies.tree-sitter-svg]
+# package = "tree-sitter-svg"
+# path    = "../tree-sitter-svg"

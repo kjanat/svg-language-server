@@ -2,7 +2,7 @@
 name                 = "svg-language-server"
 version              = "0.1.0"
 edition.workspace    = true
-description          = "LSP server for SVG — hover docs, completions, diagnostics, and color swatches"
+description          = "LSP server for SVG"
 readme               = "README.md"
 repository.workspace = true
 keywords             = ["completions", "diagnostics", "language-server", "lsp", "svg"]

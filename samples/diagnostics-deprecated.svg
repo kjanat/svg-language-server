@@ -1,0 +1,46 @@
+<!-- Deprecated attributes — each triggers a DeprecatedAttribute warning -->
+<!-- In editors, deprecated names render with ~~strikethrough~~ (DiagnosticTag::DEPRECATED) -->
+<svg xmlns="http://www.w3.org/2000/svg"
+	xmlns:xlink="http://www.w3.org/1999/xlink"
+	viewBox="0 0 400 300"
+	version="1.1"
+	baseProfile="full"
+	zoomAndPan="magnify">
+
+	<!-- DEPRECATED: clip (replaced by clip-path) -->
+	<rect x="10" y="10" width="100" height="60"
+		fill="#e76f51"
+		clip="rect(0, 50, 50, 0)"/>
+
+	<!-- DEPRECATED: glyph-orientation-horizontal, glyph-orientation-vertical -->
+	<text x="10" y="100"
+		glyph-orientation-horizontal="0"
+		glyph-orientation-vertical="auto"
+		font-size="14">Deprecated glyph orientation</text>
+
+	<!-- DEPRECATED: font-stretch -->
+	<text x="10" y="140"
+		font-stretch="condensed"
+		font-size="14">Deprecated font-stretch</text>
+
+	<!-- DEPRECATED: xlink:href (replaced by href) -->
+	<defs>
+		<linearGradient id="grad1">
+			<stop offset="0%" stop-color="#2a9d8f"/>
+			<stop offset="100%" stop-color="#264653"/>
+		</linearGradient>
+	</defs>
+	<use xlink:href="#grad1" x="150" y="10"/>
+
+	<!-- DEPRECATED: xml:space, xml:lang -->
+	<text x="10" y="180"
+		xml:space="preserve"
+		xml:lang="en"
+		font-size="14">Deprecated XML attributes</text>
+
+	<!-- NO DIAGNOSTIC — valid non-deprecated equivalents -->
+	<rect x="10" y="210" width="100" height="60"
+		fill="#2a9d8f"
+		clip-path="url(#clip1)"/>
+	<text x="150" y="240" font-size="14" lang="en">Modern attribute</text>
+</svg>

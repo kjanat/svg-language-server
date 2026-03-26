@@ -1,0 +1,65 @@
+<!-- Hover elements and attributes to see enriched compat information:
+     - Baseline status with icon (Widely/Newly/Limited)
+     - Spec URL link alongside MDN Reference
+     - "Deprecated" badge with ~~strikethrough~~ description
+     - "Experimental" badge
+-->
+<svg xmlns="http://www.w3.org/2000/svg"
+	xmlns:xlink="http://www.w3.org/1999/xlink"
+	viewBox="0 0 400 400">
+
+	<!-- Hover <svg>: Widely available, shows [MDN Reference] | [Spec] links -->
+	<!-- Hover <rect>: Widely available, spec link to SVG2 shapes -->
+	<rect x="10" y="10" width="120" height="60"
+		fill="#2a9d8f" rx="8"/>
+
+	<!-- Hover <circle>: Widely available -->
+	<circle cx="200" cy="40" r="30" fill="#e76f51"/>
+
+	<!-- Hover <path>: Widely available, spec link -->
+	<path d="M 10,100 L 60,80 L 110,100 Z" fill="#e9c46a"/>
+
+	<!-- Hover "fill": shows spec URL + MDN link -->
+	<!-- Hover "opacity": shows spec URL + baseline -->
+	<ellipse cx="300" cy="90" rx="50" ry="30"
+		fill="#264653" opacity="0.7"/>
+
+	<!-- Hover <linearGradient>: shows baseline + spec -->
+	<defs>
+		<linearGradient id="sunset" x1="0" y1="0" x2="1" y2="1">
+			<stop offset="0%" stop-color="#e76f51"/>
+			<stop offset="100%" stop-color="#264653"/>
+		</linearGradient>
+		<filter id="blur">
+			<feGaussianBlur stdDeviation="3"/>
+		</filter>
+	</defs>
+
+	<rect x="10" y="130" width="180" height="80"
+		fill="url(#sunset)" rx="12"/>
+
+	<!-- Hover <filter>, <feGaussianBlur>: shows spec links -->
+	<circle cx="300" cy="170" r="40"
+		fill="#2a9d8f" filter="url(#blur)"/>
+
+	<!-- DEPRECATED ATTRIBUTES — hover shows ~~strikethrough~~ + "Deprecated" badge -->
+	<text x="10" y="260" font-size="13"
+		clip="rect(0,100,100,0)"
+		font-stretch="condensed">Deprecated attrs (hover clip, font-stretch)</text>
+
+	<!-- Hover xlink:href — deprecated, shows strikethrough description -->
+	<use xlink:href="#sunset" x="10" y="280"/>
+
+	<!-- EXPERIMENTAL ATTRIBUTES — hover shows "Experimental" badge -->
+	<image href="icon.png" x="10" y="300" width="32" height="32"
+		fetchpriority="high"/>
+
+	<text font-size="12" y="360">
+		<textPath href="#curve" side="left">Experimental side attr</textPath>
+	</text>
+
+	<!-- Hover <animate>: check baseline status -->
+	<rect x="250" y="280" width="40" height="40" fill="#e9c46a">
+		<animate attributeName="rx" values="0;20;0" dur="2s" repeatCount="indefinite"/>
+	</rect>
+</svg>

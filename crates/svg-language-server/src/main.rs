@@ -337,7 +337,8 @@ fn fetch_runtime_compat() -> Option<RuntimeCompat> {
                 .pointer("/status/experimental")
                 .and_then(|v| v.as_bool())
                 .unwrap_or(false);
-            let baseline = resolve_baseline(compat, wf_features);
+            let compat_key = format!("svg.elements.{el_name}");
+            let baseline = resolve_baseline(compat, wf_features, &compat_key);
             elements.insert(
                 el_name.clone(),
                 CompatOverride {
@@ -363,7 +364,8 @@ fn fetch_runtime_compat() -> Option<RuntimeCompat> {
                         .pointer("/status/experimental")
                         .and_then(|v| v.as_bool())
                         .unwrap_or(false);
-                    let baseline = resolve_baseline(compat, wf_features);
+                    let compat_key = format!("svg.elements.{el_name}.{key}");
+                    let baseline = resolve_baseline(compat, wf_features, &compat_key);
                     attributes
                         .entry(key.clone())
                         .and_modify(|existing: &mut CompatOverride| {
@@ -373,8 +375,17 @@ fn fetch_runtime_compat() -> Option<RuntimeCompat> {
                             if experimental {
                                 existing.experimental = true;
                             }
-                            if existing.baseline.is_none() {
-                                existing.baseline = baseline;
+                            // Conservative merge: keep worst (most limited) baseline
+                            match (&existing.baseline, &baseline) {
+                                (None, _) => existing.baseline = baseline,
+                                (_, Some(new)) => {
+                                    if baseline_rank(new)
+                                        < baseline_rank(existing.baseline.as_ref().unwrap())
+                                    {
+                                        existing.baseline = baseline;
+                                    }
+                                }
+                                _ => {}
                             }
                         })
                         .or_insert(CompatOverride {
@@ -401,7 +412,8 @@ fn fetch_runtime_compat() -> Option<RuntimeCompat> {
                     .pointer("/status/experimental")
                     .and_then(|v| v.as_bool())
                     .unwrap_or(false);
-                let baseline = resolve_baseline(compat, wf_features);
+                let compat_key = format!("svg.global_attributes.{attr_name}");
+                let baseline = resolve_baseline(compat, wf_features, &compat_key);
                 attributes
                     .entry(attr_name.clone())
                     .or_insert(CompatOverride {
@@ -419,10 +431,15 @@ fn fetch_runtime_compat() -> Option<RuntimeCompat> {
     })
 }
 
-/// Resolve baseline status from a BCD __compat object + web-features data.
+/// Resolve baseline status from a BCD `__compat` object + web-features data.
+///
+/// Resolution order:
+/// 1. `by_compat_key[compat_key]` — per-key override (most precise)
+/// 2. Feature-level `status.baseline` — fallback
 fn resolve_baseline(
     compat: &serde_json::Value,
     wf_features: Option<&serde_json::Value>,
+    compat_key: &str,
 ) -> Option<BaselineStatus> {
     let wf = wf_features?;
     let tags = compat.get("tags")?.as_array()?;
@@ -431,6 +448,18 @@ fn resolve_baseline(
         .find_map(|t| t.as_str()?.strip_prefix("web-features:"))?;
     let status = wf.get(feature_id)?.get("status")?;
 
+    // Try per-compat-key override first
+    if let Some(by_key) = status.get("by_compat_key")
+        && let Some(override_status) = by_key.get(compat_key)
+    {
+        return parse_baseline_value(override_status);
+    }
+
+    // Fall back to feature-level baseline
+    parse_baseline_value(status)
+}
+
+fn parse_baseline_value(status: &serde_json::Value) -> Option<BaselineStatus> {
     match status.get("baseline")? {
         serde_json::Value::Bool(false) => Some(BaselineStatus::Limited),
         serde_json::Value::String(s) if s == "high" => {
@@ -447,6 +476,15 @@ fn resolve_baseline(
 
 fn parse_year(status: &serde_json::Value, key: &str) -> Option<u16> {
     status.get(key)?.as_str()?.split('-').next()?.parse().ok()
+}
+
+/// Ordering for conservative merge: lower = worse support.
+fn baseline_rank(b: &BaselineStatus) -> u8 {
+    match b {
+        BaselineStatus::Limited => 0,
+        BaselineStatus::Newly { .. } => 1,
+        BaselineStatus::Widely { .. } => 2,
+    }
 }
 
 /// Convert a byte-offset column to UTF-16 code unit count within a given row.

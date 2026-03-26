@@ -77,6 +77,17 @@ enum BaselineValue {
     Limited,
 }
 
+impl BaselineValue {
+    /// Ordering for conservative merge: lower = worse support.
+    fn rank(&self) -> u8 {
+        match self {
+            Self::Limited => 0,
+            Self::Newly { .. } => 1,
+            Self::Widely { .. } => 2,
+        }
+    }
+}
+
 // ---- Codegen helpers ----
 
 fn escape(s: &str) -> String {
@@ -275,7 +286,8 @@ fn fetch_compat_data(out_dir: &Path) -> CompatData {
             .and_then(|v| v.as_bool())
             .unwrap_or(false);
         let spec_url = extract_spec_url(compat);
-        let baseline = extract_baseline(compat, &wf_features);
+        let compat_key = format!("svg.elements.{el_name}");
+        let baseline = extract_baseline(compat, &wf_features, &compat_key);
 
         map.insert(
             el_name.clone(),
@@ -313,7 +325,8 @@ fn fetch_compat_data(out_dir: &Path) -> CompatData {
                 .and_then(|v| v.as_bool())
                 .unwrap_or(false);
             let spec_url = extract_spec_url(compat);
-            let baseline = extract_baseline(compat, &wf_features);
+            let compat_key = format!("svg.global_attributes.{attr_name}");
+            let baseline = extract_baseline(compat, &wf_features, &compat_key);
             attr_map.insert(
                 attr_name.clone(),
                 BcdAttribute {
@@ -350,7 +363,8 @@ fn fetch_compat_data(out_dir: &Path) -> CompatData {
                 .and_then(|v| v.as_bool())
                 .unwrap_or(false);
             let spec_url = extract_spec_url(compat);
-            let baseline = extract_baseline(compat, &wf_features);
+            let compat_key = format!("svg.elements.{el_name}.{key}");
+            let baseline = extract_baseline(compat, &wf_features, &compat_key);
 
             attr_map
                 .entry(key.clone())
@@ -373,9 +387,15 @@ fn fetch_compat_data(out_dir: &Path) -> CompatData {
                     {
                         existing.elements.push(el_name.clone());
                     }
-                    // Keep richer baseline
-                    if existing.compat.baseline.is_none() {
-                        existing.compat.baseline = baseline.clone();
+                    // Conservative baseline merge: keep the worst (most limited)
+                    match (&existing.compat.baseline, &baseline) {
+                        (None, _) => existing.compat.baseline = baseline.clone(),
+                        (_, Some(new)) => {
+                            if new.rank() < existing.compat.baseline.as_ref().unwrap().rank() {
+                                existing.compat.baseline = baseline.clone();
+                            }
+                        }
+                        _ => {}
                     }
                 })
                 .or_insert(BcdAttribute {
@@ -401,10 +421,16 @@ fn fetch_compat_data(out_dir: &Path) -> CompatData {
     }
 }
 
-/// Given a BCD __compat object and the web-features data, resolve baseline status.
+/// Given a BCD `__compat` object, web-features data, and BCD compat key,
+/// resolve baseline status.
+///
+/// Resolution order:
+/// 1. `by_compat_key[compat_key]` — per-key override (most precise)
+/// 2. Feature-level `status.baseline` — fallback
 fn extract_baseline(
     compat: &serde_json::Value,
     wf_features: &Option<serde_json::Value>,
+    compat_key: &str,
 ) -> Option<BaselineValue> {
     let wf = wf_features.as_ref()?;
 
@@ -419,9 +445,21 @@ fn extract_baseline(
     let feature = wf.get(feature_id)?;
     let status = feature.get("status")?;
 
-    let baseline_val = status.get("baseline")?;
+    // Try per-compat-key override first
+    if let Some(by_key) = status.get("by_compat_key")
+        && let Some(override_status) = by_key.get(compat_key)
+    {
+        return parse_baseline_value(override_status);
+    }
 
-    match baseline_val {
+    // Fall back to feature-level baseline
+    parse_baseline_value(status)
+}
+
+/// Parse a baseline value from a status object containing `baseline`,
+/// `baseline_high_date`, and `baseline_low_date` fields.
+fn parse_baseline_value(status: &serde_json::Value) -> Option<BaselineValue> {
+    match status.get("baseline")? {
         serde_json::Value::Bool(false) => Some(BaselineValue::Limited),
         serde_json::Value::String(s) if s == "high" => {
             let year = extract_year(status, "baseline_high_date")?;

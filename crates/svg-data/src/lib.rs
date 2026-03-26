@@ -1,3 +1,4 @@
+pub mod bcd;
 mod catalog;
 pub mod categories;
 pub mod types;
@@ -133,6 +134,8 @@ mod tests {
             description: "",
             mdn_url: "",
             deprecated: false,
+            experimental: false,
+            spec_url: None,
             baseline: None,
             values: AttributeValues::FreeText,
             elements: &[],

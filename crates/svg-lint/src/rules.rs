@@ -209,7 +209,19 @@ fn check_element(
         );
     }
 
-    // Check: Unknown/deprecated attributes
+    // Check: Experimental element
+    if def.experimental && !def.deprecated {
+        push_diag(
+            diagnostics,
+            suppressions,
+            name_node,
+            Severity::Hint,
+            DiagnosticCode::ExperimentalElement,
+            format!("<{name_str}> is experimental"),
+        );
+    }
+
+    // Check: Unknown/deprecated/experimental attributes
     check_attributes(source, tag, diagnostics, suppressions);
 
     // Check: Duplicate id
@@ -275,17 +287,26 @@ fn check_attributes(
         // Generic attribute names are a mixed bucket of valid SVG attributes and truly
         // unknown ones. Without a complete checked-in attribute catalog, treating a catalog
         // miss as "unknown" makes diagnostics depend on build-time BCD fetch state.
-        if let Some(def) = svg_data::attribute(attr_name)
-            && def.deprecated
-        {
-            push_diag(
-                diagnostics,
-                suppressions,
-                name_node,
-                Severity::Warning,
-                DiagnosticCode::DeprecatedAttribute,
-                format!("{attr_name} is deprecated"),
-            );
+        if let Some(def) = svg_data::attribute(attr_name) {
+            if def.deprecated {
+                push_diag(
+                    diagnostics,
+                    suppressions,
+                    name_node,
+                    Severity::Warning,
+                    DiagnosticCode::DeprecatedAttribute,
+                    format!("{attr_name} is deprecated"),
+                );
+            } else if def.experimental {
+                push_diag(
+                    diagnostics,
+                    suppressions,
+                    name_node,
+                    Severity::Hint,
+                    DiagnosticCode::ExperimentalAttribute,
+                    format!("{attr_name} is experimental"),
+                );
+            }
         }
     }
 }

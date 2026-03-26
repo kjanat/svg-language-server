@@ -62,9 +62,11 @@ enum ValuesJson {
 
 // ---- Compat data types ----
 
-/// Resolved baseline + deprecated for one element.
+/// Resolved compat data for one element or attribute.
 struct CompatEntry {
     deprecated: bool,
+    experimental: bool,
+    spec_url: Option<String>,
     baseline: Option<BaselineValue>,
 }
 
@@ -263,19 +265,24 @@ fn fetch_compat_data(out_dir: &Path) -> CompatData {
             None => continue,
         };
 
-        // Extract deprecated status
+        // Extract status flags
         let deprecated = compat
             .pointer("/status/deprecated")
             .and_then(|v| v.as_bool())
             .unwrap_or(false);
-
-        // Extract web-features tag: look for "web-features:XXX" in tags array
+        let experimental = compat
+            .pointer("/status/experimental")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false);
+        let spec_url = extract_spec_url(compat);
         let baseline = extract_baseline(compat, &wf_features);
 
         map.insert(
             el_name.clone(),
             CompatEntry {
                 deprecated,
+                experimental,
+                spec_url,
                 baseline,
             },
         );
@@ -301,12 +308,19 @@ fn fetch_compat_data(out_dir: &Path) -> CompatData {
                 .pointer("/status/deprecated")
                 .and_then(|v| v.as_bool())
                 .unwrap_or(false);
+            let experimental = compat
+                .pointer("/status/experimental")
+                .and_then(|v| v.as_bool())
+                .unwrap_or(false);
+            let spec_url = extract_spec_url(compat);
             let baseline = extract_baseline(compat, &wf_features);
             attr_map.insert(
                 attr_name.clone(),
                 BcdAttribute {
                     compat: CompatEntry {
                         deprecated,
+                        experimental,
+                        spec_url,
                         baseline,
                     },
                     elements: vec!["*".to_string()],
@@ -331,6 +345,11 @@ fn fetch_compat_data(out_dir: &Path) -> CompatData {
                 .pointer("/status/deprecated")
                 .and_then(|v| v.as_bool())
                 .unwrap_or(false);
+            let experimental = compat
+                .pointer("/status/experimental")
+                .and_then(|v| v.as_bool())
+                .unwrap_or(false);
+            let spec_url = extract_spec_url(compat);
             let baseline = extract_baseline(compat, &wf_features);
 
             attr_map
@@ -339,6 +358,14 @@ fn fetch_compat_data(out_dir: &Path) -> CompatData {
                     // Merge: promote deprecated if any source says so
                     if deprecated {
                         existing.compat.deprecated = true;
+                    }
+                    // Promote experimental if any source says so
+                    if experimental {
+                        existing.compat.experimental = true;
+                    }
+                    // Keep first spec URL
+                    if existing.compat.spec_url.is_none() {
+                        existing.compat.spec_url = spec_url.clone();
                     }
                     // Add element association if not already global
                     if !bcd_attr_applies_globally(&existing.elements)
@@ -354,6 +381,8 @@ fn fetch_compat_data(out_dir: &Path) -> CompatData {
                 .or_insert(BcdAttribute {
                     compat: CompatEntry {
                         deprecated,
+                        experimental,
+                        spec_url,
                         baseline,
                     },
                     elements: vec![el_name.clone()],
@@ -406,6 +435,17 @@ fn extract_baseline(
     }
 }
 
+/// Extract the first `spec_url` from a BCD `__compat` object.
+///
+/// BCD `spec_url` can be a single string or an array of strings.
+fn extract_spec_url(compat: &serde_json::Value) -> Option<String> {
+    match compat.get("spec_url")? {
+        serde_json::Value::String(s) => Some(s.clone()),
+        serde_json::Value::Array(arr) => arr.first().and_then(|v| v.as_str()).map(String::from),
+        _ => None,
+    }
+}
+
 /// Extract the year from a date string like "2020-01-15".
 fn extract_year(status: &serde_json::Value, key: &str) -> Option<u16> {
     let date_str = status.get(key)?.as_str()?;
@@ -423,6 +463,13 @@ fn format_baseline(baseline: Option<&BaselineValue>) -> String {
             format!("Some(BaselineStatus::Newly {{ since: {since} }})")
         }
         Some(BaselineValue::Limited) => "Some(BaselineStatus::Limited)".to_string(),
+    }
+}
+
+fn format_option_str(value: Option<&str>) -> String {
+    match value {
+        None => "None".to_string(),
+        Some(s) => format!("Some(\"{}\")", escape(s)),
     }
 }
 
@@ -541,16 +588,24 @@ fn main() {
         };
 
         // Use compat data if available, otherwise fall back to JSON values
-        let (deprecated, baseline_str) = match compat.elements.get(&el.name) {
-            Some(entry) => (entry.deprecated, format_baseline(entry.baseline.as_ref())),
-            None => (el.deprecated, "None".to_string()),
-        };
+        let (deprecated, experimental, spec_url_str, baseline_str) =
+            match compat.elements.get(&el.name) {
+                Some(entry) => (
+                    entry.deprecated,
+                    entry.experimental,
+                    format_option_str(entry.spec_url.as_deref()),
+                    format_baseline(entry.baseline.as_ref()),
+                ),
+                None => (el.deprecated, false, "None".to_string(), "None".to_string()),
+            };
 
         writeln!(out, "    ElementDef {{").unwrap();
         writeln!(out, "        name: \"{}\",", escape(&el.name)).unwrap();
         writeln!(out, "        description: \"{}\",", escape(&el.description)).unwrap();
         writeln!(out, "        mdn_url: \"{}\",", escape(&el.mdn_url)).unwrap();
         writeln!(out, "        deprecated: {deprecated},").unwrap();
+        writeln!(out, "        experimental: {experimental},").unwrap();
+        writeln!(out, "        spec_url: {spec_url_str},").unwrap();
         writeln!(out, "        baseline: {baseline_str},").unwrap();
         writeln!(out, "        content_model: {content_model},").unwrap();
         writeln!(out, "        required_attrs: EL_{id}_REQUIRED_ATTRS,").unwrap();
@@ -620,14 +675,24 @@ fn main() {
         )
         .unwrap();
         writeln!(out, "        mdn_url: \"{}\",", escape(&attr.mdn_url)).unwrap();
-        let (deprecated, baseline_str) = match compat.attributes.get(&attr.name) {
-            Some(bcd) => (
-                bcd.compat.deprecated,
-                format_baseline(bcd.compat.baseline.as_ref()),
-            ),
-            None => (attr.deprecated, "None".to_string()),
-        };
+        let (deprecated, experimental, spec_url_str, baseline_str) =
+            match compat.attributes.get(&attr.name) {
+                Some(bcd) => (
+                    bcd.compat.deprecated,
+                    bcd.compat.experimental,
+                    format_option_str(bcd.compat.spec_url.as_deref()),
+                    format_baseline(bcd.compat.baseline.as_ref()),
+                ),
+                None => (
+                    attr.deprecated,
+                    false,
+                    "None".to_string(),
+                    "None".to_string(),
+                ),
+            };
         writeln!(out, "        deprecated: {deprecated},").unwrap();
+        writeln!(out, "        experimental: {experimental},").unwrap();
+        writeln!(out, "        spec_url: {spec_url_str},").unwrap();
         writeln!(out, "        baseline: {baseline_str},").unwrap();
         writeln!(out, "        values: {values},").unwrap();
         writeln!(out, "        elements: ATTR_{id}_ELEMENTS,").unwrap();
@@ -643,12 +708,16 @@ fn main() {
         );
         let description = format!("The {} SVG attribute.", name);
         let deprecated = bcd.compat.deprecated;
+        let experimental = bcd.compat.experimental;
+        let spec_url_str = format_option_str(bcd.compat.spec_url.as_deref());
         let baseline_str = format_baseline(bcd.compat.baseline.as_ref());
         writeln!(out, "    AttributeDef {{").unwrap();
         writeln!(out, "        name: \"{}\",", escape(name)).unwrap();
         writeln!(out, "        description: \"{}\",", escape(&description)).unwrap();
         writeln!(out, "        mdn_url: \"{}\",", escape(&mdn_url)).unwrap();
         writeln!(out, "        deprecated: {deprecated},").unwrap();
+        writeln!(out, "        experimental: {experimental},").unwrap();
+        writeln!(out, "        spec_url: {spec_url_str},").unwrap();
         writeln!(out, "        baseline: {baseline_str},").unwrap();
         writeln!(out, "        values: AttributeValues::FreeText,").unwrap();
         writeln!(out, "        elements: ATTR_{id}_ELEMENTS,").unwrap();

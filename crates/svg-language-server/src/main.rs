@@ -14,7 +14,7 @@ use tower_lsp_server::ls_types::{
     CodeActionProviderCapability, CodeActionResponse, Color, ColorInformation, ColorPresentation,
     ColorPresentationParams, ColorProviderCapability, Command, CompletionItem, CompletionItemKind,
     CompletionItemTag, CompletionOptions, CompletionParams, CompletionResponse, Diagnostic,
-    DiagnosticSeverity, DidChangeTextDocumentParams, DidCloseTextDocumentParams,
+    DiagnosticSeverity, DiagnosticTag, DidChangeTextDocumentParams, DidCloseTextDocumentParams,
     DidOpenTextDocumentParams, DocumentColorParams, DocumentFormattingParams,
     ExecuteCommandOptions, ExecuteCommandParams, GotoDefinitionParams, GotoDefinitionResponse,
     Hover, HoverContents, HoverParams, HoverProviderCapability, InitializeParams, InitializeResult,
@@ -69,6 +69,7 @@ struct HoverSourceLink {
 /// Runtime compat override for a single element or attribute.
 struct CompatOverride {
     deprecated: bool,
+    experimental: bool,
     baseline: Option<BaselineStatus>,
 }
 
@@ -165,18 +166,26 @@ fn lint_diagnostic_to_lsp(source: &[u8], diagnostic: svg_lint::SvgDiagnostic) ->
         svg_lint::Severity::Hint => DiagnosticSeverity::HINT,
     };
 
-    Diagnostic::new(
-        Range::new(
+    let tags = match diagnostic.code {
+        svg_lint::DiagnosticCode::DeprecatedElement
+        | svg_lint::DiagnosticCode::DeprecatedAttribute => Some(vec![DiagnosticTag::DEPRECATED]),
+        svg_lint::DiagnosticCode::ExperimentalElement
+        | svg_lint::DiagnosticCode::ExperimentalAttribute => Some(vec![DiagnosticTag::UNNECESSARY]),
+        _ => None,
+    };
+
+    Diagnostic {
+        range: Range::new(
             Position::new(diagnostic.start_row as u32, start_char),
             Position::new(diagnostic.end_row as u32, end_char),
         ),
-        Some(severity),
-        Some(NumberOrString::String(diagnostic.code.as_str().to_owned())),
-        Some("svg-lint".to_owned()),
-        diagnostic.message,
-        None,
-        None,
-    )
+        severity: Some(severity),
+        code: Some(NumberOrString::String(diagnostic.code.as_str().to_owned())),
+        source: Some("svg-lint".to_owned()),
+        message: diagnostic.message,
+        tags,
+        ..Default::default()
+    }
 }
 
 async fn publish_lint_diagnostics(
@@ -324,11 +333,16 @@ fn fetch_runtime_compat() -> Option<RuntimeCompat> {
                 .pointer("/status/deprecated")
                 .and_then(|v| v.as_bool())
                 .unwrap_or(false);
+            let experimental = compat
+                .pointer("/status/experimental")
+                .and_then(|v| v.as_bool())
+                .unwrap_or(false);
             let baseline = resolve_baseline(compat, wf_features);
             elements.insert(
                 el_name.clone(),
                 CompatOverride {
                     deprecated,
+                    experimental,
                     baseline,
                 },
             );
@@ -345,6 +359,10 @@ fn fetch_runtime_compat() -> Option<RuntimeCompat> {
                         .pointer("/status/deprecated")
                         .and_then(|v| v.as_bool())
                         .unwrap_or(false);
+                    let experimental = compat
+                        .pointer("/status/experimental")
+                        .and_then(|v| v.as_bool())
+                        .unwrap_or(false);
                     let baseline = resolve_baseline(compat, wf_features);
                     attributes
                         .entry(key.clone())
@@ -352,12 +370,16 @@ fn fetch_runtime_compat() -> Option<RuntimeCompat> {
                             if deprecated {
                                 existing.deprecated = true;
                             }
+                            if experimental {
+                                existing.experimental = true;
+                            }
                             if existing.baseline.is_none() {
                                 existing.baseline = baseline;
                             }
                         })
                         .or_insert(CompatOverride {
                             deprecated,
+                            experimental,
                             baseline,
                         });
                 }
@@ -375,11 +397,16 @@ fn fetch_runtime_compat() -> Option<RuntimeCompat> {
                     .pointer("/status/deprecated")
                     .and_then(|v| v.as_bool())
                     .unwrap_or(false);
+                let experimental = compat
+                    .pointer("/status/experimental")
+                    .and_then(|v| v.as_bool())
+                    .unwrap_or(false);
                 let baseline = resolve_baseline(compat, wf_features);
                 attributes
                     .entry(attr_name.clone())
                     .or_insert(CompatOverride {
                         deprecated,
+                        experimental,
                         baseline,
                     });
             }
@@ -1177,6 +1204,7 @@ fn resolve_external_stylesheet(
 /// If `rt` is Some, its deprecated/baseline override the baked-in values.
 fn format_element_hover(el: &svg_data::ElementDef, rt: Option<&CompatOverride>) -> String {
     let deprecated = rt.map_or(el.deprecated, |r| r.deprecated);
+    let experimental = rt.map_or(el.experimental, |r| r.experimental);
     let baseline = rt
         .and_then(|r| r.baseline.as_ref())
         .or(el.baseline.as_ref());
@@ -1187,6 +1215,10 @@ fn format_element_hover(el: &svg_data::ElementDef, rt: Option<&CompatOverride>) 
         parts.push(format!("~~{}~~", el.description));
         parts.push(String::new());
         parts.push("**Deprecated**".to_owned());
+    } else if experimental {
+        parts.push(el.description.to_owned());
+        parts.push(String::new());
+        parts.push("**Experimental**".to_owned());
     } else {
         parts.push(el.description.to_owned());
     }
@@ -1197,7 +1229,11 @@ fn format_element_hover(el: &svg_data::ElementDef, rt: Option<&CompatOverride>) 
     }
 
     parts.push(String::new());
-    parts.push(format!("[MDN Reference]({})", el.mdn_url));
+    let mut links = vec![format!("[MDN Reference]({})", el.mdn_url)];
+    if let Some(spec_url) = el.spec_url {
+        links.push(format!("[Spec]({spec_url})"));
+    }
+    parts.push(links.join(" | "));
 
     parts.join("\n")
 }
@@ -1206,6 +1242,7 @@ fn format_element_hover(el: &svg_data::ElementDef, rt: Option<&CompatOverride>) 
 /// If `rt` is Some, its deprecated/baseline override the baked-in values.
 fn format_attribute_hover(attr: &svg_data::AttributeDef, rt: Option<&CompatOverride>) -> String {
     let deprecated = rt.map_or(attr.deprecated, |r| r.deprecated);
+    let experimental = rt.map_or(attr.experimental, |r| r.experimental);
     let baseline = rt
         .and_then(|r| r.baseline.as_ref())
         .or(attr.baseline.as_ref());
@@ -1216,6 +1253,10 @@ fn format_attribute_hover(attr: &svg_data::AttributeDef, rt: Option<&CompatOverr
         parts.push(format!("~~{}~~", attr.description));
         parts.push(String::new());
         parts.push("**Deprecated**".to_owned());
+    } else if experimental {
+        parts.push(attr.description.to_owned());
+        parts.push(String::new());
+        parts.push("**Experimental**".to_owned());
     } else {
         parts.push(attr.description.to_owned());
     }
@@ -1247,7 +1288,11 @@ fn format_attribute_hover(attr: &svg_data::AttributeDef, rt: Option<&CompatOverr
     }
 
     parts.push(String::new());
-    parts.push(format!("[MDN Reference]({})", attr.mdn_url));
+    let mut links = vec![format!("[MDN Reference]({})", attr.mdn_url)];
+    if let Some(spec_url) = attr.spec_url {
+        links.push(format!("[Spec]({spec_url})"));
+    }
+    parts.push(links.join(" | "));
 
     parts.join("\n")
 }

@@ -1,6 +1,6 @@
 [package]
 name                 = "svg-language-server"
-version              = "0.1.0"
+version.workspace    = true
 edition.workspace    = true
 description          = "LSP server for SVG"
 readme               = "README.md"

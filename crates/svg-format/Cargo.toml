@@ -1,11 +1,15 @@
 [package]
 name                 = "svg-format"
-version              = "0.1.0"
+version.workspace    = true
 edition.workspace    = true
 description          = "Structural formatter for SVG documents"
 repository.workspace = true
 keywords             = ["format", "pretty-print", "svg", "tree-sitter"]
 categories           = ["development-tools", "text-editors"]
+
+[lib]
+name = "svg_format"
+path = "src/lib.rs"
 
 [[bin]]
 name = "svg-format"

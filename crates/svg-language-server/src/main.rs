@@ -391,12 +391,10 @@ fn fetch_runtime_compat() -> Option<RuntimeCompat> {
                             // Conservative merge: keep worst (most limited) baseline
                             match (&existing.baseline, &baseline) {
                                 (None, _) => existing.baseline = baseline,
-                                (_, Some(new)) => {
-                                    if baseline_rank(new)
-                                        < baseline_rank(existing.baseline.as_ref().unwrap())
-                                    {
-                                        existing.baseline = baseline;
-                                    }
+                                (Some(current), Some(new))
+                                    if baseline_rank(new) < baseline_rank(current) =>
+                                {
+                                    existing.baseline = baseline;
                                 }
                                 _ => {}
                             }

@@ -405,10 +405,8 @@ fn fetch_compat_data(out_dir: &Path) -> CompatData {
                     // Conservative baseline merge: keep the worst (most limited)
                     match (&existing.compat.baseline, &baseline) {
                         (None, _) => existing.compat.baseline = baseline.clone(),
-                        (_, Some(new)) => {
-                            if new.rank() < existing.compat.baseline.as_ref().unwrap().rank() {
-                                existing.compat.baseline = baseline.clone();
-                            }
+                        (Some(current), Some(new)) if new.rank() < current.rank() => {
+                            existing.compat.baseline = baseline.clone();
                         }
                         _ => {}
                     }

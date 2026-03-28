@@ -1,12 +1,13 @@
 [package]
 name                 = "svg-data"
-version              = "0.1.0"
+version.workspace    = true
 edition.workspace    = true
 description          = "Compile-time SVG spec catalog from MDN browser-compat-data"
 readme               = "README.md"
 repository.workspace = true
 keywords             = ["browser-compat-data", "codegen", "mdn", "spec", "svg"]
 categories           = ["development-tools::build-utils", "web-programming"]
+build                = "build.rs"
 
 [dependencies]
 serde.workspace      = true

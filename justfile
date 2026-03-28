@@ -3,6 +3,7 @@
 alias c := check
 alias f := format
 alias i := install
+alias if := install-format
 alias l := lint
 alias fmt := format
 alias t := test
@@ -29,6 +30,10 @@ check staged="" list-different="" *FILES:
 [arg("profile", long="profile", short="p")]
 install profile="release":
     cargo install --path crates/svg-language-server --bin svg-language-server --profile={{ profile }}
+
+# Install the svg-format bin to ~/.cargo/bin
+install-format profile="release":
+    cargo install --path crates/svg-format --bin svg-format --profile={{ profile }}
 
 # Clippy all
 [arg("allow-dirty", long="allow-dirty", short="a", value=" --allow-dirty")]

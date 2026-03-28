@@ -4,7 +4,8 @@ pub mod categories;
 pub mod types;
 
 pub use types::{
-    AttributeDef, AttributeValues, BaselineStatus, ContentModel, ElementCategory, ElementDef,
+    AttributeDef, AttributeValues, BaselineStatus, BrowserSupport, ContentModel, ElementCategory,
+    ElementDef,
 };
 
 use catalog::{ATTRIBUTES, ELEMENTS};
@@ -137,6 +138,7 @@ mod tests {
             experimental: false,
             spec_url: None,
             baseline: None,
+            browser_support: None,
             values: AttributeValues::FreeText,
             elements: &[],
         };

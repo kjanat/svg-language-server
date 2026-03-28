@@ -62,12 +62,22 @@ enum ValuesJson {
 
 // ---- Compat data types ----
 
+/// Per-browser `version_added` for the four major desktop browsers.
+#[derive(Clone, Default)]
+struct BrowserSupportValue {
+    chrome: Option<String>,
+    edge: Option<String>,
+    firefox: Option<String>,
+    safari: Option<String>,
+}
+
 /// Resolved compat data for one element or attribute.
 struct CompatEntry {
     deprecated: bool,
     experimental: bool,
     spec_url: Option<String>,
     baseline: Option<BaselineValue>,
+    browser_support: Option<BrowserSupportValue>,
 }
 
 #[derive(Clone)]
@@ -286,6 +296,7 @@ fn fetch_compat_data(out_dir: &Path) -> CompatData {
             .and_then(|v| v.as_bool())
             .unwrap_or(false);
         let spec_url = extract_spec_url(compat);
+        let browser_support = extract_browser_support(compat);
         let compat_key = format!("svg.elements.{el_name}");
         let baseline = extract_baseline(compat, &wf_features, &compat_key);
 
@@ -296,6 +307,7 @@ fn fetch_compat_data(out_dir: &Path) -> CompatData {
                 experimental,
                 spec_url,
                 baseline,
+                browser_support,
             },
         );
     }
@@ -325,6 +337,7 @@ fn fetch_compat_data(out_dir: &Path) -> CompatData {
                 .and_then(|v| v.as_bool())
                 .unwrap_or(false);
             let spec_url = extract_spec_url(compat);
+            let browser_support = extract_browser_support(compat);
             let compat_key = format!("svg.global_attributes.{attr_name}");
             let baseline = extract_baseline(compat, &wf_features, &compat_key);
             attr_map.insert(
@@ -335,6 +348,7 @@ fn fetch_compat_data(out_dir: &Path) -> CompatData {
                         experimental,
                         spec_url,
                         baseline,
+                        browser_support,
                     },
                     elements: vec!["*".to_string()],
                 },
@@ -363,6 +377,7 @@ fn fetch_compat_data(out_dir: &Path) -> CompatData {
                 .and_then(|v| v.as_bool())
                 .unwrap_or(false);
             let spec_url = extract_spec_url(compat);
+            let browser_support = extract_browser_support(compat);
             let compat_key = format!("svg.elements.{el_name}.{key}");
             let baseline = extract_baseline(compat, &wf_features, &compat_key);
 
@@ -397,6 +412,10 @@ fn fetch_compat_data(out_dir: &Path) -> CompatData {
                         }
                         _ => {}
                     }
+                    // Conservative browser support merge: keep the lowest version per browser
+                    if let Some(new_bs) = &browser_support {
+                        merge_browser_support(&mut existing.compat.browser_support, new_bs);
+                    }
                 })
                 .or_insert(BcdAttribute {
                     compat: CompatEntry {
@@ -404,6 +423,7 @@ fn fetch_compat_data(out_dir: &Path) -> CompatData {
                         experimental,
                         spec_url,
                         baseline,
+                        browser_support,
                     },
                     elements: vec![el_name.clone()],
                 });
@@ -473,6 +493,54 @@ fn parse_baseline_value(status: &serde_json::Value) -> Option<BaselineValue> {
     }
 }
 
+/// Conservative merge of browser support: if any source lacks support for
+/// a browser (None), the merged result is None for that browser.
+fn merge_browser_support(existing: &mut Option<BrowserSupportValue>, new: &BrowserSupportValue) {
+    let Some(existing) = existing.as_mut() else {
+        *existing = Some(new.clone());
+        return;
+    };
+
+    // Conservative: if the new source doesn't support a browser, drop it
+    if new.chrome.is_none() {
+        existing.chrome = None;
+    }
+    if new.edge.is_none() {
+        existing.edge = None;
+    }
+    if new.firefox.is_none() {
+        existing.firefox = None;
+    }
+    if new.safari.is_none() {
+        existing.safari = None;
+    }
+}
+
+/// Extract `version_added` for Chrome, Edge, Firefox, Safari from a BCD
+/// `__compat.support` object.
+fn extract_browser_support(compat: &serde_json::Value) -> Option<BrowserSupportValue> {
+    let support = compat.get("support")?;
+
+    let version_added = |browser: &str| -> Option<String> {
+        let entry = support.get(browser)?;
+        // Handle both single statement and array (take first entry)
+        let stmt = if entry.is_array() {
+            entry.get(0)?
+        } else {
+            entry
+        };
+        // version_added is either a string or false
+        stmt.get("version_added")?.as_str().map(String::from)
+    };
+
+    Some(BrowserSupportValue {
+        chrome: version_added("chrome"),
+        edge: version_added("edge"),
+        firefox: version_added("firefox"),
+        safari: version_added("safari"),
+    })
+}
+
 /// Extract the first `spec_url` from a BCD `__compat` object.
 ///
 /// BCD `spec_url` can be a single string or an array of strings.
@@ -502,6 +570,19 @@ fn format_baseline(baseline: Option<&BaselineValue>) -> String {
         }
         Some(BaselineValue::Limited) => "Some(BaselineStatus::Limited)".to_string(),
     }
+}
+
+fn format_browser_support(bs: Option<&BrowserSupportValue>) -> String {
+    let Some(bs) = bs else {
+        return "None".to_string();
+    };
+    format!(
+        "Some(BrowserSupport {{ chrome: {}, edge: {}, firefox: {}, safari: {} }})",
+        format_option_str(bs.chrome.as_deref()),
+        format_option_str(bs.edge.as_deref()),
+        format_option_str(bs.firefox.as_deref()),
+        format_option_str(bs.safari.as_deref()),
+    )
 }
 
 fn format_option_str(value: Option<&str>) -> String {
@@ -626,15 +707,22 @@ fn main() {
         };
 
         // Use compat data if available, otherwise fall back to JSON values
-        let (deprecated, experimental, spec_url_str, baseline_str) =
+        let (deprecated, experimental, spec_url_str, baseline_str, browser_support_str) =
             match compat.elements.get(&el.name) {
                 Some(entry) => (
                     entry.deprecated,
                     entry.experimental,
                     format_option_str(entry.spec_url.as_deref()),
                     format_baseline(entry.baseline.as_ref()),
+                    format_browser_support(entry.browser_support.as_ref()),
                 ),
-                None => (el.deprecated, false, "None".to_string(), "None".to_string()),
+                None => (
+                    el.deprecated,
+                    false,
+                    "None".to_string(),
+                    "None".to_string(),
+                    "None".to_string(),
+                ),
             };
 
         writeln!(out, "    ElementDef {{").unwrap();
@@ -645,6 +733,7 @@ fn main() {
         writeln!(out, "        experimental: {experimental},").unwrap();
         writeln!(out, "        spec_url: {spec_url_str},").unwrap();
         writeln!(out, "        baseline: {baseline_str},").unwrap();
+        writeln!(out, "        browser_support: {browser_support_str},").unwrap();
         writeln!(out, "        content_model: {content_model},").unwrap();
         writeln!(out, "        required_attrs: EL_{id}_REQUIRED_ATTRS,").unwrap();
         writeln!(out, "        attrs: EL_{id}_ATTRS,").unwrap();
@@ -713,17 +802,19 @@ fn main() {
         )
         .unwrap();
         writeln!(out, "        mdn_url: \"{}\",", escape(&attr.mdn_url)).unwrap();
-        let (deprecated, experimental, spec_url_str, baseline_str) =
+        let (deprecated, experimental, spec_url_str, baseline_str, browser_support_str) =
             match compat.attributes.get(&attr.name) {
                 Some(bcd) => (
                     bcd.compat.deprecated,
                     bcd.compat.experimental,
                     format_option_str(bcd.compat.spec_url.as_deref()),
                     format_baseline(bcd.compat.baseline.as_ref()),
+                    format_browser_support(bcd.compat.browser_support.as_ref()),
                 ),
                 None => (
                     attr.deprecated,
                     false,
+                    "None".to_string(),
                     "None".to_string(),
                     "None".to_string(),
                 ),
@@ -732,6 +823,7 @@ fn main() {
         writeln!(out, "        experimental: {experimental},").unwrap();
         writeln!(out, "        spec_url: {spec_url_str},").unwrap();
         writeln!(out, "        baseline: {baseline_str},").unwrap();
+        writeln!(out, "        browser_support: {browser_support_str},").unwrap();
         writeln!(out, "        values: {values},").unwrap();
         writeln!(out, "        elements: ATTR_{id}_ELEMENTS,").unwrap();
         writeln!(out, "    }},").unwrap();
@@ -749,6 +841,7 @@ fn main() {
         let experimental = bcd.compat.experimental;
         let spec_url_str = format_option_str(bcd.compat.spec_url.as_deref());
         let baseline_str = format_baseline(bcd.compat.baseline.as_ref());
+        let browser_support_str = format_browser_support(bcd.compat.browser_support.as_ref());
         writeln!(out, "    AttributeDef {{").unwrap();
         writeln!(out, "        name: \"{}\",", escape(name)).unwrap();
         writeln!(out, "        description: \"{}\",", escape(&description)).unwrap();
@@ -757,6 +850,7 @@ fn main() {
         writeln!(out, "        experimental: {experimental},").unwrap();
         writeln!(out, "        spec_url: {spec_url_str},").unwrap();
         writeln!(out, "        baseline: {baseline_str},").unwrap();
+        writeln!(out, "        browser_support: {browser_support_str},").unwrap();
         writeln!(out, "        values: AttributeValues::FreeText,").unwrap();
         writeln!(out, "        elements: ATTR_{id}_ELEMENTS,").unwrap();
         writeln!(out, "    }},").unwrap();

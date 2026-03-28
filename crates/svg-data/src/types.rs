@@ -8,6 +8,7 @@ pub struct ElementDef {
     pub experimental: bool,
     pub spec_url: Option<&'static str>,
     pub baseline: Option<BaselineStatus>,
+    pub browser_support: Option<BrowserSupport>,
     pub content_model: ContentModel,
     pub required_attrs: &'static [&'static str],
     pub attrs: &'static [&'static str],
@@ -33,6 +34,7 @@ pub struct AttributeDef {
     pub experimental: bool,
     pub spec_url: Option<&'static str>,
     pub baseline: Option<BaselineStatus>,
+    pub browser_support: Option<BrowserSupport>,
     pub values: AttributeValues,
     pub elements: &'static [&'static str],
 }
@@ -62,6 +64,18 @@ pub enum BaselineStatus {
     Widely { since: u16 },
     Newly { since: u16 },
     Limited,
+}
+
+/// Per-browser `version_added` for the four major desktop browsers.
+///
+/// `None` means the browser does not support the feature.
+/// `Some("85")` means support was added in that version.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct BrowserSupport {
+    pub chrome: Option<&'static str>,
+    pub edge: Option<&'static str>,
+    pub firefox: Option<&'static str>,
+    pub safari: Option<&'static str>,
 }
 
 /// SVG element categories for content model grouping.

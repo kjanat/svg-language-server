@@ -6,7 +6,7 @@ use std::sync::{Arc, LazyLock, OnceLock, RwLock as StdRwLock};
 
 use arboard::Clipboard;
 use serde_json::Value;
-use svg_data::{AttributeValues, BaselineStatus, ContentModel};
+use svg_data::{AttributeValues, BaselineStatus, BrowserSupport, ContentModel};
 use tokio::sync::RwLock;
 use tower_lsp_server::jsonrpc::Result;
 use tower_lsp_server::ls_types::{
@@ -66,11 +66,21 @@ struct HoverSourceLink {
     target: String,
 }
 
+/// Runtime per-browser version data (owned strings, unlike `BrowserSupport`).
+#[derive(Clone)]
+struct RuntimeBrowserSupport {
+    chrome: Option<String>,
+    edge: Option<String>,
+    firefox: Option<String>,
+    safari: Option<String>,
+}
+
 /// Runtime compat override for a single element or attribute.
 struct CompatOverride {
     deprecated: bool,
     experimental: bool,
     baseline: Option<BaselineStatus>,
+    browser_support: Option<RuntimeBrowserSupport>,
 }
 
 /// Runtime-fetched compat data, overlays the baked-in catalog.
@@ -339,12 +349,14 @@ fn fetch_runtime_compat() -> Option<RuntimeCompat> {
                 .unwrap_or(false);
             let compat_key = format!("svg.elements.{el_name}");
             let baseline = resolve_baseline(compat, wf_features, &compat_key);
+            let browser_support = extract_runtime_browser_support(compat);
             elements.insert(
                 el_name.clone(),
                 CompatOverride {
                     deprecated,
                     experimental,
                     baseline,
+                    browser_support,
                 },
             );
         }
@@ -366,6 +378,7 @@ fn fetch_runtime_compat() -> Option<RuntimeCompat> {
                         .unwrap_or(false);
                     let compat_key = format!("svg.elements.{el_name}.{key}");
                     let baseline = resolve_baseline(compat, wf_features, &compat_key);
+                    let browser_support = extract_runtime_browser_support(compat);
                     attributes
                         .entry(key.clone())
                         .and_modify(|existing: &mut CompatOverride| {
@@ -387,11 +400,19 @@ fn fetch_runtime_compat() -> Option<RuntimeCompat> {
                                 }
                                 _ => {}
                             }
+                            // Conservative browser support: if new source lacks support, drop it
+                            if let Some(new_bs) = &browser_support {
+                                merge_runtime_browser_support(
+                                    &mut existing.browser_support,
+                                    new_bs,
+                                );
+                            }
                         })
                         .or_insert(CompatOverride {
                             deprecated,
                             experimental,
                             baseline,
+                            browser_support,
                         });
                 }
             }
@@ -414,12 +435,14 @@ fn fetch_runtime_compat() -> Option<RuntimeCompat> {
                     .unwrap_or(false);
                 let compat_key = format!("svg.global_attributes.{attr_name}");
                 let baseline = resolve_baseline(compat, wf_features, &compat_key);
+                let browser_support = extract_runtime_browser_support(compat);
                 attributes
                     .entry(attr_name.clone())
                     .or_insert(CompatOverride {
                         deprecated,
                         experimental,
                         baseline,
+                        browser_support,
                     });
             }
         }
@@ -476,6 +499,51 @@ fn parse_baseline_value(status: &serde_json::Value) -> Option<BaselineStatus> {
 
 fn parse_year(status: &serde_json::Value, key: &str) -> Option<u16> {
     status.get(key)?.as_str()?.split('-').next()?.parse().ok()
+}
+
+/// Extract runtime browser support from a BCD `__compat.support` object.
+fn extract_runtime_browser_support(compat: &serde_json::Value) -> Option<RuntimeBrowserSupport> {
+    let support = compat.get("support")?;
+
+    let version_added = |browser: &str| -> Option<String> {
+        let entry = support.get(browser)?;
+        let stmt = if entry.is_array() {
+            entry.get(0)?
+        } else {
+            entry
+        };
+        stmt.get("version_added")?.as_str().map(String::from)
+    };
+
+    Some(RuntimeBrowserSupport {
+        chrome: version_added("chrome"),
+        edge: version_added("edge"),
+        firefox: version_added("firefox"),
+        safari: version_added("safari"),
+    })
+}
+
+/// Conservative merge of runtime browser support.
+fn merge_runtime_browser_support(
+    existing: &mut Option<RuntimeBrowserSupport>,
+    new: &RuntimeBrowserSupport,
+) {
+    let Some(existing) = existing.as_mut() else {
+        *existing = Some(new.clone());
+        return;
+    };
+    if new.chrome.is_none() {
+        existing.chrome = None;
+    }
+    if new.edge.is_none() {
+        existing.edge = None;
+    }
+    if new.firefox.is_none() {
+        existing.firefox = None;
+    }
+    if new.safari.is_none() {
+        existing.safari = None;
+    }
 }
 
 /// Ordering for conservative merge: lower = worse support.
@@ -1266,6 +1334,14 @@ fn format_element_hover(el: &svg_data::ElementDef, rt: Option<&CompatOverride>) 
         parts.push(format_baseline(baseline));
     }
 
+    if let Some(line) = format_browser_support_line(
+        el.browser_support.as_ref(),
+        rt.and_then(|r| r.browser_support.as_ref()),
+    ) {
+        parts.push(String::new());
+        parts.push(line);
+    }
+
     parts.push(String::new());
     let mut links = vec![format!("[MDN Reference]({})", el.mdn_url)];
     if let Some(spec_url) = el.spec_url {
@@ -1323,6 +1399,14 @@ fn format_attribute_hover(attr: &svg_data::AttributeDef, rt: Option<&CompatOverr
     if let Some(baseline) = baseline {
         parts.push(String::new());
         parts.push(format_baseline(baseline));
+    }
+
+    if let Some(line) = format_browser_support_line(
+        attr.browser_support.as_ref(),
+        rt.and_then(|r| r.browser_support.as_ref()),
+    ) {
+        parts.push(String::new());
+        parts.push(line);
     }
 
     parts.push(String::new());
@@ -1489,6 +1573,55 @@ fn format_baseline(baseline: &BaselineStatus) -> String {
             format!("![Baseline icon]({icon}) _Limited availability across major browsers_")
         }
     }
+}
+
+/// Format a browser support line for hover.
+///
+/// Renders: `Chrome 1 | Edge 12 | Firefox 1.5 | Safari 3.1`
+/// Unsupported browsers show: `Firefox ✗`
+fn format_browser_support_line(
+    baked: Option<&BrowserSupport>,
+    runtime: Option<&RuntimeBrowserSupport>,
+) -> Option<String> {
+    let fmt = |name: &str, baked_ver: Option<&str>, rt_ver: Option<Option<&str>>| -> String {
+        // Runtime overrides baked-in
+        let ver = match rt_ver {
+            Some(v) => v,
+            None => baked_ver,
+        };
+        match ver {
+            Some(v) => format!("{name} {v}"),
+            None => format!("{name} \u{2717}"),
+        }
+    };
+
+    // Need at least one source
+    if baked.is_none() && runtime.is_none() {
+        return None;
+    }
+
+    let chrome = fmt(
+        "Chrome",
+        baked.and_then(|b| b.chrome),
+        runtime.map(|r| r.chrome.as_deref()),
+    );
+    let edge = fmt(
+        "Edge",
+        baked.and_then(|b| b.edge),
+        runtime.map(|r| r.edge.as_deref()),
+    );
+    let firefox = fmt(
+        "Firefox",
+        baked.and_then(|b| b.firefox),
+        runtime.map(|r| r.firefox.as_deref()),
+    );
+    let safari = fmt(
+        "Safari",
+        baked.and_then(|b| b.safari),
+        runtime.map(|r| r.safari.as_deref()),
+    );
+
+    Some(format!("{chrome} | {edge} | {firefox} | {safari}"))
 }
 
 /// Attribute name node kinds recognized by the tree-sitter-svg grammar.

@@ -56,7 +56,7 @@ pub fn attributes_for(element_name: &str) -> Vec<&'static AttributeDef> {
     result
 }
 
-pub fn elements_in_category(cat: ElementCategory) -> Vec<&'static str> {
+pub fn elements_in_category(cat: ElementCategory) -> &'static [&'static str] {
     categories::elements_in_category(cat)
 }
 

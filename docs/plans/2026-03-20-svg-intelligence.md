@@ -218,7 +218,7 @@ Example structure (include at least these elements: `svg`, `g`, `defs`,
 	{
 		"name": "svg",
 		"description": "The svg element is a container for SVG graphics.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/svg",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/svg",
 		"deprecated": false,
 		"content_model": {
 			"children": [
@@ -249,7 +249,7 @@ Example structure (include at least these elements: `svg`, `g`, `defs`,
 	{
 		"name": "rect",
 		"description": "The rect element is a basic SVG shape that draws rectangles.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/rect",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/rect",
 		"deprecated": false,
 		"content_model": "void",
 		"required_attrs": [],
@@ -259,7 +259,7 @@ Example structure (include at least these elements: `svg`, `g`, `defs`,
 	{
 		"name": "text",
 		"description": "The text element defines a graphics element consisting of text.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/text",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/text",
 		"deprecated": false,
 		"content_model": { "children": ["Text", "Descriptive"] },
 		"required_attrs": [],
@@ -269,7 +269,7 @@ Example structure (include at least these elements: `svg`, `g`, `defs`,
 	{
 		"name": "tspan",
 		"description": "The tspan element defines a subtext within a text element.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/tspan",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/tspan",
 		"deprecated": false,
 		"content_model": { "children": ["Text", "Descriptive"] },
 		"required_attrs": [],
@@ -282,7 +282,7 @@ Example structure (include at least these elements: `svg`, `g`, `defs`,
 Include all ~30 elements listed above, with accurate descriptions from MDN,
 correct content models from the SVG 2 spec, and element-specific attributes.
 
-Reference: https://developer.mozilla.org/en-US/docs/Web/SVG/Element
+Reference: https://developer.mozilla.org/docs/Web/SVG/Element
 Reference: https://www.w3.org/TR/SVG2/struct.html (content models)
 
 - [ ] **Step 2: Commit**
@@ -339,7 +339,7 @@ Example:
 	{
 		"name": "fill",
 		"description": "Defines the color used to paint the interior of the element.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/fill",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Attribute/fill",
 		"deprecated": false,
 		"values": { "type": "color" },
 		"elements": ["*"]
@@ -347,7 +347,7 @@ Example:
 	{
 		"name": "stroke-linecap",
 		"description": "Defines the shape to be used at the end of open subpaths.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-linecap",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Attribute/stroke-linecap",
 		"deprecated": false,
 		"values": { "type": "enum", "values": ["butt", "round", "square"] },
 		"elements": ["*"]
@@ -355,7 +355,7 @@ Example:
 	{
 		"name": "d",
 		"description": "Defines a path to be drawn.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Attribute/d",
 		"deprecated": false,
 		"values": { "type": "path_data" },
 		"elements": ["path"]

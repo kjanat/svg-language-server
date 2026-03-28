@@ -17,6 +17,8 @@ struct JsonElement {
     required_attrs: Vec<String>,
     attrs: Vec<String>,
     global_attrs: bool,
+    #[serde(default)]
+    category: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -738,6 +740,49 @@ fn main() {
         writeln!(out, "        global_attrs: {},", el.global_attrs).unwrap();
         writeln!(out, "    }},").unwrap();
     }
+    // 2) BCD-only elements (auto-generated, Void content model)
+    let curated_el_names: std::collections::HashSet<&str> =
+        elements.iter().map(|e| e.name.as_str()).collect();
+    let mut bcd_only_elements: Vec<(&str, &CompatEntry)> = compat
+        .elements
+        .iter()
+        .filter(|(name, _)| !curated_el_names.contains(name.as_str()))
+        .map(|(name, entry)| (name.as_str(), entry))
+        .collect();
+    bcd_only_elements.sort_by_key(|(name, _)| *name);
+
+    for (name, entry) in &bcd_only_elements {
+        let mdn_url = format!(
+            "https://developer.mozilla.org/docs/Web/SVG/Element/{}",
+            name
+        );
+        let description = format!("The {} SVG element.", name);
+        let deprecated = entry.deprecated;
+        let experimental = entry.experimental;
+        let spec_url_str = format_option_str(entry.spec_url.as_deref());
+        let baseline_str = format_baseline(entry.baseline.as_ref());
+        let browser_support_str = format_browser_support(entry.browser_support.as_ref());
+        writeln!(out, "    ElementDef {{").unwrap();
+        writeln!(out, "        name: \"{}\",", escape(name)).unwrap();
+        writeln!(out, "        description: \"{}\",", escape(&description)).unwrap();
+        writeln!(out, "        mdn_url: \"{}\",", escape(&mdn_url)).unwrap();
+        writeln!(out, "        deprecated: {deprecated},").unwrap();
+        writeln!(out, "        experimental: {experimental},").unwrap();
+        writeln!(out, "        spec_url: {spec_url_str},").unwrap();
+        writeln!(out, "        baseline: {baseline_str},").unwrap();
+        writeln!(out, "        browser_support: {browser_support_str},").unwrap();
+        writeln!(out, "        content_model: ContentModel::Void,").unwrap();
+        writeln!(out, "        required_attrs: &[],").unwrap();
+        writeln!(out, "        attrs: &[],").unwrap();
+        writeln!(out, "        global_attrs: true,").unwrap();
+        writeln!(out, "    }},").unwrap();
+    }
+
+    println!(
+        "cargo::warning=compat: merged {} BCD-only elements into catalog",
+        bcd_only_elements.len()
+    );
+
     writeln!(out, "];").unwrap();
     writeln!(out).unwrap();
 
@@ -831,7 +876,7 @@ fn main() {
     for (name, bcd) in &bcd_only {
         let id = ident_from(name);
         let mdn_url = format!(
-            "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/{}",
+            "https://developer.mozilla.org/docs/Web/SVG/Attribute/{}",
             name
         );
         let description = format!("The {} SVG attribute.", name);
@@ -855,6 +900,45 @@ fn main() {
     }
 
     writeln!(out, "];").unwrap();
+    writeln!(out).unwrap();
+
+    // ---- Category mapping (generated from elements.json "category" field) ----
+
+    // Collect category -> [element names] from curated JSON
+    let mut category_map: HashMap<&str, Vec<&str>> = HashMap::new();
+    for el in &elements {
+        if let Some(cat) = &el.category {
+            category_map.entry(cat.as_str()).or_default().push(&el.name);
+        }
+    }
+
+    writeln!(out, "#[allow(unreachable_patterns)]").unwrap();
+    writeln!(
+        out,
+        "pub(crate) fn generated_elements_in_category(cat: ElementCategory) -> &'static [&'static str] {{"
+    )
+    .unwrap();
+    writeln!(out, "    match cat {{").unwrap();
+
+    // Sort categories and element names for deterministic output
+    for names in category_map.values_mut() {
+        names.sort();
+    }
+    let mut cats: Vec<&str> = category_map.keys().copied().collect();
+    cats.sort();
+    for cat in &cats {
+        let names = category_map.get(cat).unwrap();
+        let names_str = names
+            .iter()
+            .map(|n| format!("\"{}\"", escape(n)))
+            .collect::<Vec<_>>()
+            .join(", ");
+        writeln!(out, "        ElementCategory::{cat} => &[{names_str}],").unwrap();
+    }
+    // Default arm for categories with no curated elements
+    writeln!(out, "        _ => &[],").unwrap();
+    writeln!(out, "    }}").unwrap();
+    writeln!(out, "}}").unwrap();
 
     fs::write(&out_path, out).expect("failed to write catalog.rs");
 }

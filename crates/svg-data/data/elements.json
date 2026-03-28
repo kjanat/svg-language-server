@@ -2,8 +2,9 @@
 	{
 		"name": "svg",
 		"description": "The svg element is a container that defines a new coordinate system and viewport for SVG content.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/svg",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/svg",
 		"deprecated": false,
+		"category": "Container",
 		"content_model": {
 			"children": [
 				"Container",
@@ -26,8 +27,9 @@
 	{
 		"name": "g",
 		"description": "The g element is a container used to group other SVG elements.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/g",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/g",
 		"deprecated": false,
+		"category": "Container",
 		"content_model": {
 			"children": [
 				"Container",
@@ -50,8 +52,9 @@
 	{
 		"name": "defs",
 		"description": "The defs element is used to store graphical objects that will be used at a later time.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/defs",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/defs",
 		"deprecated": false,
+		"category": "Container",
 		"content_model": {
 			"children": [
 				"Container",
@@ -74,8 +77,9 @@
 	{
 		"name": "use",
 		"description": "The use element takes nodes from within the SVG document, and duplicates them somewhere else.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/use",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/use",
 		"deprecated": false,
+		"category": "Structural",
 		"content_model": "void",
 		"required_attrs": [],
 		"attrs": ["href", "x", "y", "width", "height"],
@@ -84,8 +88,9 @@
 	{
 		"name": "symbol",
 		"description": "The symbol element is used to define graphical template objects which can be instantiated by a use element.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/symbol",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/symbol",
 		"deprecated": false,
+		"category": "Container",
 		"content_model": {
 			"children": [
 				"Container",
@@ -108,8 +113,9 @@
 	{
 		"name": "rect",
 		"description": "The rect element is a basic SVG shape that draws rectangles, defined by their position, width, and height.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/rect",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/rect",
 		"deprecated": false,
+		"category": "Shape",
 		"content_model": "void",
 		"required_attrs": [],
 		"attrs": ["x", "y", "width", "height", "rx", "ry"],
@@ -118,8 +124,9 @@
 	{
 		"name": "circle",
 		"description": "The circle element is an SVG basic shape used to draw circles based on a center point and a radius.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/circle",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/circle",
 		"deprecated": false,
+		"category": "Shape",
 		"content_model": "void",
 		"required_attrs": [],
 		"attrs": ["cx", "cy", "r"],
@@ -128,8 +135,9 @@
 	{
 		"name": "ellipse",
 		"description": "The ellipse element is an SVG basic shape used to create ellipses based on a center coordinate and both x and y radii.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/ellipse",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/ellipse",
 		"deprecated": false,
+		"category": "Shape",
 		"content_model": "void",
 		"required_attrs": [],
 		"attrs": ["cx", "cy", "rx", "ry"],
@@ -138,8 +146,9 @@
 	{
 		"name": "line",
 		"description": "The line element is an SVG basic shape used to create a line connecting two points.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/line",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/line",
 		"deprecated": false,
+		"category": "Shape",
 		"content_model": "void",
 		"required_attrs": [],
 		"attrs": ["x1", "y1", "x2", "y2"],
@@ -148,8 +157,9 @@
 	{
 		"name": "polyline",
 		"description": "The polyline element is an SVG basic shape that creates straight lines connecting several points.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/polyline",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/polyline",
 		"deprecated": false,
+		"category": "Shape",
 		"content_model": "void",
 		"required_attrs": [],
 		"attrs": ["points"],
@@ -158,8 +168,9 @@
 	{
 		"name": "polygon",
 		"description": "The polygon element defines a closed shape consisting of a set of connected straight line segments.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/polygon",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/polygon",
 		"deprecated": false,
+		"category": "Shape",
 		"content_model": "void",
 		"required_attrs": [],
 		"attrs": ["points"],
@@ -168,8 +179,9 @@
 	{
 		"name": "path",
 		"description": "The path element is the generic element to define a shape in SVG using path data commands.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/path",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/path",
 		"deprecated": false,
+		"category": "Shape",
 		"content_model": "void",
 		"required_attrs": [],
 		"attrs": ["d"],
@@ -178,8 +190,9 @@
 	{
 		"name": "text",
 		"description": "The text element draws a graphics element consisting of text.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/text",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/text",
 		"deprecated": false,
+		"category": "Text",
 		"content_model": {
 			"children": ["Text", "Descriptive"]
 		},
@@ -190,8 +203,9 @@
 	{
 		"name": "tspan",
 		"description": "The tspan element defines a subtext within a text element or another tspan element.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/tspan",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/tspan",
 		"deprecated": false,
+		"category": "Text",
 		"content_model": {
 			"children": ["Text", "Descriptive"]
 		},
@@ -202,8 +216,9 @@
 	{
 		"name": "textPath",
 		"description": "The textPath element renders text along the shape of a path element.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/textPath",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/textPath",
 		"deprecated": false,
+		"category": "Text",
 		"content_model": {
 			"children": ["Text", "Descriptive"]
 		},
@@ -214,8 +229,9 @@
 	{
 		"name": "a",
 		"description": "The a element creates a hyperlink to other web pages, files, locations within the same page, email addresses, or any other URL.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/a",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/a",
 		"deprecated": false,
+		"category": "Container",
 		"content_model": {
 			"children": [
 				"Container",
@@ -238,8 +254,9 @@
 	{
 		"name": "image",
 		"description": "The image element includes images inside SVG documents, supporting raster image formats and SVG files.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/image",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/image",
 		"deprecated": false,
+		"category": "Structural",
 		"content_model": "void",
 		"required_attrs": [],
 		"attrs": ["href", "x", "y", "width", "height", "preserveAspectRatio"],
@@ -248,8 +265,9 @@
 	{
 		"name": "title",
 		"description": "The title element provides an accessible, short-text description of any SVG container element or graphics element.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/title",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/title",
 		"deprecated": false,
+		"category": "Descriptive",
 		"content_model": "text",
 		"required_attrs": [],
 		"attrs": [],
@@ -258,8 +276,9 @@
 	{
 		"name": "desc",
 		"description": "The desc element provides an accessible, long-text description of any SVG container element or graphics element.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/desc",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/desc",
 		"deprecated": false,
+		"category": "Descriptive",
 		"content_model": "text",
 		"required_attrs": [],
 		"attrs": [],
@@ -268,8 +287,9 @@
 	{
 		"name": "metadata",
 		"description": "The metadata element adds metadata to SVG content, allowing structured data to be attached to SVG documents.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/metadata",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/metadata",
 		"deprecated": false,
+		"category": "Descriptive",
 		"content_model": "text",
 		"required_attrs": [],
 		"attrs": [],
@@ -278,8 +298,9 @@
 	{
 		"name": "clipPath",
 		"description": "The clipPath element defines a clipping path that can be applied to other elements via the clip-path property.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/clipPath",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/clipPath",
 		"deprecated": false,
+		"category": "ClipMask",
 		"content_model": {
 			"children": ["Shape", "Text", "Descriptive"]
 		},
@@ -290,8 +311,9 @@
 	{
 		"name": "mask",
 		"description": "The mask element defines an alpha mask for compositing the current object into the background.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/mask",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/mask",
 		"deprecated": false,
+		"category": "ClipMask",
 		"content_model": {
 			"children": [
 				"Container",
@@ -310,8 +332,9 @@
 	{
 		"name": "linearGradient",
 		"description": "The linearGradient element lets authors define linear gradients to apply to other SVG elements.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/linearGradient",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/linearGradient",
 		"deprecated": false,
+		"category": "Gradient",
 		"content_model": {
 			"children": ["Gradient", "Descriptive", "Animation"]
 		},
@@ -331,8 +354,9 @@
 	{
 		"name": "radialGradient",
 		"description": "The radialGradient element lets authors define radial gradients to apply to other SVG elements.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/radialGradient",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/radialGradient",
 		"deprecated": false,
+		"category": "Gradient",
 		"content_model": {
 			"children": ["Gradient", "Descriptive", "Animation"]
 		},
@@ -354,8 +378,9 @@
 	{
 		"name": "stop",
 		"description": "The stop element defines a color and its position to use on a gradient.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/stop",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/stop",
 		"deprecated": false,
+		"category": "Gradient",
 		"content_model": "void",
 		"required_attrs": [],
 		"attrs": ["offset"],
@@ -364,8 +389,9 @@
 	{
 		"name": "pattern",
 		"description": "The pattern element defines a graphics object which can be redrawn at repeated x- and y-coordinate intervals to cover an area.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/pattern",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/pattern",
 		"deprecated": false,
+		"category": "PaintServer",
 		"content_model": {
 			"children": [
 				"Container",
@@ -397,8 +423,9 @@
 	{
 		"name": "filter",
 		"description": "The filter element serves as container for atomic filter operations, defined by filter primitives.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/filter",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/filter",
 		"deprecated": false,
+		"category": "Filter",
 		"content_model": {
 			"children": ["FilterPrimitive", "Descriptive"]
 		},
@@ -409,8 +436,9 @@
 	{
 		"name": "feGaussianBlur",
 		"description": "The feGaussianBlur filter primitive performs a Gaussian blur on the input image.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feGaussianBlur",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/feGaussianBlur",
 		"deprecated": false,
+		"category": "FilterPrimitive",
 		"content_model": "void",
 		"required_attrs": [],
 		"attrs": ["in", "stdDeviation"],
@@ -419,8 +447,9 @@
 	{
 		"name": "foreignObject",
 		"description": "The foreignObject element allows inclusion of elements from a different XML namespace inside SVG.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/foreignObject",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/foreignObject",
 		"deprecated": false,
+		"category": "Structural",
 		"content_model": "foreign",
 		"required_attrs": [],
 		"attrs": ["x", "y", "width", "height"],
@@ -429,8 +458,9 @@
 	{
 		"name": "style",
 		"description": "The style element allows style sheets to be embedded directly within SVG content.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/style",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/style",
 		"deprecated": false,
+		"category": "NeverRendered",
 		"content_model": "text",
 		"required_attrs": [],
 		"attrs": ["type"],
@@ -439,11 +469,421 @@
 	{
 		"name": "script",
 		"description": "The script element allows scripts to be embedded within or referenced from an SVG document.",
-		"mdn_url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/script",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/script",
 		"deprecated": false,
+		"category": "NeverRendered",
 		"content_model": "text",
 		"required_attrs": [],
 		"attrs": ["href", "type"],
+		"global_attrs": false
+	},
+	{
+		"name": "marker",
+		"description": "The marker element defines a graphic used for drawing arrows or polymarkers on elements such as path, line, polyline and polygon.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/marker",
+		"deprecated": false,
+		"category": "Container",
+		"content_model": {
+			"children": ["Shape", "Text", "Gradient", "Filter", "Descriptive", "Animation", "PaintServer", "ClipMask"]
+		},
+		"required_attrs": [],
+		"attrs": ["refX", "refY", "markerWidth", "markerHeight", "markerUnits", "orient", "viewBox", "preserveAspectRatio"],
+		"global_attrs": true
+	},
+	{
+		"name": "switch",
+		"description": "The switch element evaluates the requiredFeatures, requiredExtensions and systemLanguage attributes on its direct child elements, and renders the first child for which the attributes evaluate to true.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/switch",
+		"deprecated": false,
+		"category": "Structural",
+		"content_model": {
+			"children": ["Container", "Shape", "Text", "Structural", "Animation"]
+		},
+		"required_attrs": [],
+		"attrs": [],
+		"global_attrs": true
+	},
+	{
+		"name": "animate",
+		"description": "The animate element provides a way to animate an attribute of an element over time.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/animate",
+		"deprecated": false,
+		"category": "Animation",
+		"content_model": {
+			"children": ["Descriptive"]
+		},
+		"required_attrs": [],
+		"attrs": [
+			"attributeName",
+			"begin",
+			"dur",
+			"end",
+			"from",
+			"to",
+			"by",
+			"values",
+			"repeatCount",
+			"repeatDur",
+			"fill",
+			"keyTimes",
+			"keySplines",
+			"calcMode"
+		],
+		"global_attrs": true
+	},
+	{
+		"name": "animateMotion",
+		"description": "The animateMotion element causes a referenced element to move along a motion path.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/animateMotion",
+		"deprecated": false,
+		"category": "Animation",
+		"content_model": {
+			"children": ["MotionPath", "Descriptive"]
+		},
+		"required_attrs": [],
+		"attrs": [
+			"path",
+			"keyPoints",
+			"rotate",
+			"begin",
+			"dur",
+			"end",
+			"from",
+			"to",
+			"by",
+			"values",
+			"repeatCount",
+			"repeatDur",
+			"fill",
+			"keyTimes",
+			"keySplines",
+			"calcMode"
+		],
+		"global_attrs": true
+	},
+	{
+		"name": "animateTransform",
+		"description": "The animateTransform element animates a transformation attribute on a target element, thereby allowing animations to control translation, scaling, rotation, and/or skewing.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/animateTransform",
+		"deprecated": false,
+		"category": "Animation",
+		"content_model": {
+			"children": ["Descriptive"]
+		},
+		"required_attrs": [],
+		"attrs": [
+			"attributeName",
+			"type",
+			"begin",
+			"dur",
+			"end",
+			"from",
+			"to",
+			"by",
+			"values",
+			"repeatCount",
+			"repeatDur",
+			"fill",
+			"keyTimes",
+			"keySplines",
+			"calcMode"
+		],
+		"global_attrs": true
+	},
+	{
+		"name": "set",
+		"description": "The set element provides a simple means of setting the value of an attribute for a specified duration.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/set",
+		"deprecated": false,
+		"category": "Animation",
+		"content_model": {
+			"children": ["Descriptive"]
+		},
+		"required_attrs": [],
+		"attrs": ["attributeName", "to", "begin", "dur", "end", "fill"],
+		"global_attrs": true
+	},
+	{
+		"name": "mpath",
+		"description": "The mpath element provides the ability to reference an external path as the definition of a motion path for animateMotion.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/mpath",
+		"deprecated": false,
+		"category": "MotionPath",
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["href"],
+		"global_attrs": false
+	},
+	{
+		"name": "feDistantLight",
+		"description": "The feDistantLight filter primitive defines a distant light source that can be used within a lighting filter primitive.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/feDistantLight",
+		"deprecated": false,
+		"category": "LightSource",
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["azimuth", "elevation"],
+		"global_attrs": false
+	},
+	{
+		"name": "fePointLight",
+		"description": "The fePointLight filter primitive defines a point light source that can be used within a lighting filter primitive.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/fePointLight",
+		"deprecated": false,
+		"category": "LightSource",
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["x", "y", "z"],
+		"global_attrs": false
+	},
+	{
+		"name": "feSpotLight",
+		"description": "The feSpotLight filter primitive defines a spot light source that can be used within a lighting filter primitive.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/feSpotLight",
+		"deprecated": false,
+		"category": "LightSource",
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["x", "y", "z", "pointsAtX", "pointsAtY", "pointsAtZ", "specularExponent", "limitingConeAngle"],
+		"global_attrs": false
+	},
+	{
+		"name": "feBlend",
+		"description": "The feBlend filter primitive composites two objects together by the specified blending mode.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/feBlend",
+		"deprecated": false,
+		"category": "FilterPrimitive",
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["in", "in2", "mode"],
+		"global_attrs": false
+	},
+	{
+		"name": "feColorMatrix",
+		"description": "The feColorMatrix filter primitive applies a matrix transformation on color values.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/feColorMatrix",
+		"deprecated": false,
+		"category": "FilterPrimitive",
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["in", "type", "values"],
+		"global_attrs": false
+	},
+	{
+		"name": "feComponentTransfer",
+		"description": "The feComponentTransfer filter primitive allows component-wise remapping of the input image.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/feComponentTransfer",
+		"deprecated": false,
+		"category": "FilterPrimitive",
+		"content_model": {
+			"children": ["TransferFunction"]
+		},
+		"required_attrs": [],
+		"attrs": ["in"],
+		"global_attrs": false
+	},
+	{
+		"name": "feComposite",
+		"description": "The feComposite filter primitive performs combination of images using Porter-Duff compositing operations.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/feComposite",
+		"deprecated": false,
+		"category": "FilterPrimitive",
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["in", "in2", "operator", "k1", "k2", "k3", "k4"],
+		"global_attrs": false
+	},
+	{
+		"name": "feConvolveMatrix",
+		"description": "The feConvolveMatrix filter primitive applies a matrix convolution filter effect.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/feConvolveMatrix",
+		"deprecated": false,
+		"category": "FilterPrimitive",
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": [
+			"in",
+			"order",
+			"kernelMatrix",
+			"divisor",
+			"bias",
+			"targetX",
+			"targetY",
+			"edgeMode",
+			"kernelUnitLength",
+			"preserveAlpha"
+		],
+		"global_attrs": false
+	},
+	{
+		"name": "feDiffuseLighting",
+		"description": "The feDiffuseLighting filter primitive lights an image using its alpha channel as a bump map.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/feDiffuseLighting",
+		"deprecated": false,
+		"category": "FilterPrimitive",
+		"content_model": {
+			"children": ["LightSource"]
+		},
+		"required_attrs": [],
+		"attrs": ["in", "surfaceScale", "diffuseConstant", "kernelUnitLength"],
+		"global_attrs": false
+	},
+	{
+		"name": "feDisplacementMap",
+		"description": "The feDisplacementMap filter primitive uses pixel values from the second input to spatially displace the first input.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/feDisplacementMap",
+		"deprecated": false,
+		"category": "FilterPrimitive",
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["in", "in2", "scale", "xChannelSelector", "yChannelSelector"],
+		"global_attrs": false
+	},
+	{
+		"name": "feFlood",
+		"description": "The feFlood filter primitive fills the subregion with a single color and opacity.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/feFlood",
+		"deprecated": false,
+		"category": "FilterPrimitive",
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["flood-color", "flood-opacity"],
+		"global_attrs": false
+	},
+	{
+		"name": "feImage",
+		"description": "The feImage filter primitive fetches image data from an external source and provides the pixel data as output.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/feImage",
+		"deprecated": false,
+		"category": "FilterPrimitive",
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["href", "preserveAspectRatio"],
+		"global_attrs": false
+	},
+	{
+		"name": "feMerge",
+		"description": "The feMerge filter primitive composites input image layers on top of each other.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/feMerge",
+		"deprecated": false,
+		"category": "FilterPrimitive",
+		"content_model": {
+			"children": ["MergeNode"]
+		},
+		"required_attrs": [],
+		"attrs": [],
+		"global_attrs": false
+	},
+	{
+		"name": "feMergeNode",
+		"description": "The feMergeNode element represents one input layer within a feMerge composition.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/feMergeNode",
+		"deprecated": false,
+		"category": "MergeNode",
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["in"],
+		"global_attrs": false
+	},
+	{
+		"name": "feMorphology",
+		"description": "The feMorphology filter primitive thins or fattens the input image.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/feMorphology",
+		"deprecated": false,
+		"category": "FilterPrimitive",
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["in", "operator", "radius"],
+		"global_attrs": false
+	},
+	{
+		"name": "feOffset",
+		"description": "The feOffset filter primitive offsets the input image.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/feOffset",
+		"deprecated": false,
+		"category": "FilterPrimitive",
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["in", "dx", "dy"],
+		"global_attrs": false
+	},
+	{
+		"name": "feSpecularLighting",
+		"description": "The feSpecularLighting filter primitive lights a source graphic using its alpha channel as a bump map, producing a specular reflection.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/feSpecularLighting",
+		"deprecated": false,
+		"category": "FilterPrimitive",
+		"content_model": {
+			"children": ["LightSource"]
+		},
+		"required_attrs": [],
+		"attrs": ["in", "surfaceScale", "specularConstant", "specularExponent", "kernelUnitLength"],
+		"global_attrs": false
+	},
+	{
+		"name": "feTile",
+		"description": "The feTile filter primitive fills a target rectangle with a repeated, tiled pattern of an input image.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/feTile",
+		"deprecated": false,
+		"category": "FilterPrimitive",
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["in"],
+		"global_attrs": false
+	},
+	{
+		"name": "feTurbulence",
+		"description": "The feTurbulence filter primitive creates an image using the Perlin turbulence function.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/feTurbulence",
+		"deprecated": false,
+		"category": "FilterPrimitive",
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["baseFrequency", "numOctaves", "seed", "stitchTiles", "type"],
+		"global_attrs": false
+	},
+	{
+		"name": "feFuncR",
+		"description": "The feFuncR element defines the transfer function for the red component.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/feFuncR",
+		"deprecated": false,
+		"category": "TransferFunction",
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["type", "tableValues", "slope", "intercept", "amplitude", "exponent", "offset"],
+		"global_attrs": false
+	},
+	{
+		"name": "feFuncG",
+		"description": "The feFuncG element defines the transfer function for the green component.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/feFuncG",
+		"deprecated": false,
+		"category": "TransferFunction",
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["type", "tableValues", "slope", "intercept", "amplitude", "exponent", "offset"],
+		"global_attrs": false
+	},
+	{
+		"name": "feFuncB",
+		"description": "The feFuncB element defines the transfer function for the blue component.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/feFuncB",
+		"deprecated": false,
+		"category": "TransferFunction",
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["type", "tableValues", "slope", "intercept", "amplitude", "exponent", "offset"],
+		"global_attrs": false
+	},
+	{
+		"name": "feFuncA",
+		"description": "The feFuncA element defines the transfer function for the alpha component.",
+		"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Element/feFuncA",
+		"deprecated": false,
+		"category": "TransferFunction",
+		"content_model": "void",
+		"required_attrs": [],
+		"attrs": ["type", "tableValues", "slope", "intercept", "amplitude", "exponent", "offset"],
 		"global_attrs": false
 	}
 ]

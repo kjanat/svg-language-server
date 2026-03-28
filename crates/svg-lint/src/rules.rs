@@ -257,10 +257,7 @@ const ATTR_NAME_KINDS: &[&str] = &[
 
 /// XML infrastructure prefixes — skip these in attribute checks.
 fn is_xml_infrastructure(name: &str) -> bool {
-    name == "xmlns"
-        || name.starts_with("xmlns:")
-        || name.starts_with("xml:")
-        || name.starts_with("xlink:")
+    name == "xmlns" || name.starts_with("xmlns:") || name.starts_with("xml:")
 }
 
 fn check_attributes(
@@ -281,6 +278,24 @@ fn check_attributes(
         };
         let attr_name = std::str::from_utf8(&source[name_node.byte_range()]).unwrap_or("");
         if attr_name.is_empty() || is_xml_infrastructure(attr_name) {
+            continue;
+        }
+
+        // All xlink: attributes are deprecated in SVG2.
+        if attr_name.starts_with("xlink:") {
+            let msg = if attr_name == "xlink:href" {
+                "xlink:href is deprecated; use href instead".to_string()
+            } else {
+                format!("{attr_name} is deprecated")
+            };
+            push_diag(
+                diagnostics,
+                suppressions,
+                name_node,
+                Severity::Warning,
+                DiagnosticCode::DeprecatedAttribute,
+                msg,
+            );
             continue;
         }
 
@@ -567,6 +582,8 @@ fn all_diagnostic_codes() -> &'static [DiagnosticCode] {
         DiagnosticCode::MissingRequiredAttr,
         DiagnosticCode::DeprecatedElement,
         DiagnosticCode::DeprecatedAttribute,
+        DiagnosticCode::ExperimentalElement,
+        DiagnosticCode::ExperimentalAttribute,
         DiagnosticCode::UnknownElement,
         DiagnosticCode::UnknownAttribute,
         DiagnosticCode::DuplicateId,

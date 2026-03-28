@@ -93,5 +93,8 @@ pub enum ElementCategory {
     ClipMask,
     LightSource,
     FilterPrimitive,
+    TransferFunction,
+    MergeNode,
+    MotionPath,
     NeverRendered,
 }

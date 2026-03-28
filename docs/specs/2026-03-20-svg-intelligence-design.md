@@ -322,7 +322,7 @@ The `<text>` element defines a graphics element consisting of text.
 
 ◇◇ Widely available across major browsers (Baseline since 2015)
 
-[MDN Reference](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/text)
+[MDN Reference](https://developer.mozilla.org/docs/Web/SVG/Element/text)
 ```
 
 Deprecated element hover:
@@ -332,7 +332,7 @@ Deprecated element hover:
 
 ⚠️ **Deprecated** — removed in SVG 2.
 
-[MDN Reference](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/cursor)
+[MDN Reference](https://developer.mozilla.org/docs/Web/SVG/Element/cursor)
 ```
 
 ## LSP: Diagnostics

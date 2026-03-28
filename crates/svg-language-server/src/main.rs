@@ -1312,6 +1312,7 @@ fn format_element_hover(el: &svg_data::ElementDef, rt: Option<&CompatOverride>) 
     let baseline = rt
         .and_then(|r| r.baseline.as_ref())
         .or(el.baseline.as_ref());
+    let show_unsupported = experimental || matches!(baseline, Some(BaselineStatus::Limited));
 
     let mut parts = Vec::new();
 
@@ -1325,6 +1326,16 @@ fn format_element_hover(el: &svg_data::ElementDef, rt: Option<&CompatOverride>) 
         parts.push("**Experimental**".to_owned());
     } else {
         parts.push(el.description.to_owned());
+    }
+
+    if show_unsupported
+        && let Some(line) = format_unsupported_browsers_line(
+            el.browser_support.as_ref(),
+            rt.and_then(|r| r.browser_support.as_ref()),
+        )
+    {
+        parts.push(String::new());
+        parts.push(line);
     }
 
     if let Some(baseline) = baseline {
@@ -1358,6 +1369,7 @@ fn format_attribute_hover(attr: &svg_data::AttributeDef, rt: Option<&CompatOverr
     let baseline = rt
         .and_then(|r| r.baseline.as_ref())
         .or(attr.baseline.as_ref());
+    let show_unsupported = experimental || matches!(baseline, Some(BaselineStatus::Limited));
 
     let mut parts = Vec::new();
 
@@ -1371,6 +1383,16 @@ fn format_attribute_hover(attr: &svg_data::AttributeDef, rt: Option<&CompatOverr
         parts.push("**Experimental**".to_owned());
     } else {
         parts.push(attr.description.to_owned());
+    }
+
+    if show_unsupported
+        && let Some(line) = format_unsupported_browsers_line(
+            attr.browser_support.as_ref(),
+            rt.and_then(|r| r.browser_support.as_ref()),
+        )
+    {
+        parts.push(String::new());
+        parts.push(line);
     }
 
     // Show allowed values for enumerated attributes
@@ -1431,6 +1453,25 @@ fn format_external_attribute_hover(
     )
 }
 
+/// Format a deprecated externally sourced attribute as Markdown with strikethrough.
+fn format_deprecated_external_attribute_hover(
+    description: impl AsRef<str>,
+    replacement: Option<&str>,
+    reference_label: &str,
+    reference_url: &str,
+) -> String {
+    let mut parts = vec![format!("~~{}~~", description.as_ref())];
+    parts.push(String::new());
+    parts.push("**Deprecated**".to_owned());
+    if let Some(r) = replacement {
+        parts.push(String::new());
+        parts.push(format!("Use `{r}` instead."));
+    }
+    parts.push(String::new());
+    parts.push(format!("[{reference_label}]({reference_url})"));
+    parts.join("\n")
+}
+
 fn external_attribute_hover(kind: &str, attr_name: &str) -> Option<String> {
     const XML_NAMES_URL: &str = "https://www.w3.org/TR/REC-xml-names/";
     const XML_DECL_URL: &str = "https://www.w3.org/TR/xml/";
@@ -1479,7 +1520,7 @@ fn external_attribute_hover(kind: &str, attr_name: &str) -> Option<String> {
     }
 
     let mdn_reference_url = |name: &str| {
-        format!("https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/{name}")
+        format!("https://developer.mozilla.org/docs/Web/SVG/Reference/Attribute/{name}")
     };
 
     match attr_name {
@@ -1498,38 +1539,45 @@ fn external_attribute_hover(kind: &str, attr_name: &str) -> Option<String> {
             "MDN Reference",
             &mdn_reference_url(attr_name),
         )),
-        "xlink:href" => Some(format_external_attribute_hover(
+        "xlink:href" => Some(format_deprecated_external_attribute_hover(
             "Legacy XLink form of `href` used to point at linked resources in SVG.",
+            Some("href"),
             "MDN Reference",
             &mdn_reference_url(attr_name),
         )),
-        "xlink:arcrole" => Some(format_external_attribute_hover(
+        "xlink:arcrole" => Some(format_deprecated_external_attribute_hover(
             "Legacy XLink attribute that identifies the semantic role of the link arc.",
+            None,
             "MDN Reference",
             &mdn_reference_url(attr_name),
         )),
-        "xlink:role" => Some(format_external_attribute_hover(
+        "xlink:role" => Some(format_deprecated_external_attribute_hover(
             "Legacy XLink attribute that identifies the semantic role of the linked resource.",
+            None,
             "MDN Reference",
             &mdn_reference_url(attr_name),
         )),
-        "xlink:show" => Some(format_external_attribute_hover(
+        "xlink:show" => Some(format_deprecated_external_attribute_hover(
             "Legacy XLink attribute that hints how the linked resource should be presented.",
+            None,
             "MDN Reference",
             &mdn_reference_url(attr_name),
         )),
-        "xlink:title" => Some(format_external_attribute_hover(
+        "xlink:title" => Some(format_deprecated_external_attribute_hover(
             "Legacy XLink attribute that provides a human-readable title for the link.",
+            None,
             "MDN Reference",
             &mdn_reference_url(attr_name),
         )),
-        "xlink:type" => Some(format_external_attribute_hover(
+        "xlink:type" => Some(format_deprecated_external_attribute_hover(
             "Legacy XLink attribute that declares the XLink link type.",
+            None,
             "MDN Reference",
             &mdn_reference_url(attr_name),
         )),
-        "xlink:actuate" => Some(format_external_attribute_hover(
+        "xlink:actuate" => Some(format_deprecated_external_attribute_hover(
             "Legacy XLink attribute that hints when the linked resource should be traversed.",
+            None,
             "MDN Reference",
             &mdn_reference_url(attr_name),
         )),
@@ -1570,6 +1618,55 @@ fn format_baseline(baseline: &BaselineStatus) -> String {
             let icon = &*BASELINE_LIMITED;
             format!("![Baseline icon]({icon}) _Limited availability across major browsers_")
         }
+    }
+}
+
+/// List browsers that do not support a feature.
+///
+/// Returns e.g. `Some("Not supported in: Safari, Firefox")` when at least one
+/// browser lacks support, `None` when all four are supported or no data exists.
+fn format_unsupported_browsers_line(
+    baked: Option<&BrowserSupport>,
+    runtime: Option<&RuntimeBrowserSupport>,
+) -> Option<String> {
+    if baked.is_none() && runtime.is_none() {
+        return None;
+    }
+    let is_unsupported = |baked_ver: Option<&str>, rt_ver: Option<Option<&str>>| -> bool {
+        match rt_ver {
+            Some(v) => v.is_none(),
+            None => baked_ver.is_none(),
+        }
+    };
+    let mut unsupported = Vec::new();
+    if is_unsupported(
+        baked.and_then(|b| b.chrome),
+        runtime.map(|r| r.chrome.as_deref()),
+    ) {
+        unsupported.push("Chrome");
+    }
+    if is_unsupported(
+        baked.and_then(|b| b.edge),
+        runtime.map(|r| r.edge.as_deref()),
+    ) {
+        unsupported.push("Edge");
+    }
+    if is_unsupported(
+        baked.and_then(|b| b.firefox),
+        runtime.map(|r| r.firefox.as_deref()),
+    ) {
+        unsupported.push("Firefox");
+    }
+    if is_unsupported(
+        baked.and_then(|b| b.safari),
+        runtime.map(|r| r.safari.as_deref()),
+    ) {
+        unsupported.push("Safari");
+    }
+    if unsupported.is_empty() {
+        None
+    } else {
+        Some(format!("Not supported in: {}", unsupported.join(", ")))
     }
 }
 

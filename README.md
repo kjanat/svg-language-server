@@ -1,5 +1,9 @@
 # svg-language-server
 
+> [!IMPORTANT]
+> THIS LSP IS NOT PUBLISHED NOR DO I HAVE A TIMELINE FOR PUBLICATION.
+> IT IS CURRENTLY IN DEVELOPMENT AND SUBJECT TO BREAKING CHANGES.
+
 LSP server for SVG files — color swatches, hover docs, completions, and diagnostics.
 
 ## Features
@@ -39,5 +43,4 @@ languages = ["SVG"]
 
 ## dprint Plugin
 
-The formatter plugin now lives in a separate repository:
-`https://github.com/kjanat/dprint-plugin-svg`.
+The formatter plugin now lives in a separate repository: https://github.com/kjanat/dprint-plugin-svg.

@@ -58,6 +58,71 @@ package = "tree-sitter-svg"
 git     = "https://github.com/kjanat/tree-sitter-svg"
 rev     = "8ef7d70591529b85624439337e1e9b3c38b47b14"
 
+[workspace.lints.clippy]
+expect_used                        = "deny"
+identity_op                        = "deny"
+manual_clamp                       = "deny"
+manual_filter                      = "deny"
+manual_find                        = "deny"
+manual_flatten                     = "deny"
+manual_map                         = "deny"
+manual_memcpy                      = "deny"
+manual_non_exhaustive              = "deny"
+manual_ok_or                       = "deny"
+manual_range_contains              = "deny"
+manual_retain                      = "deny"
+manual_strip                       = "deny"
+manual_try_fold                    = "deny"
+manual_unwrap_or                   = "deny"
+module_name_repetitions            = "warn"
+must_use_candidate                 = "deny"
+needless_borrow                    = "deny"
+needless_borrowed_reference        = "deny"
+needless_collect                   = "deny"
+needless_late_init                 = "deny"
+needless_option_as_deref           = "deny"
+needless_question_mark             = "deny"
+needless_update                    = "deny"
+redundant_clone                    = "deny"
+redundant_closure                  = "deny"
+redundant_closure_for_method_calls = "deny"
+redundant_static_lifetimes         = "deny"
+trivially_copy_pass_by_ref         = "deny"
+uninlined_format_args              = "deny"
+unnecessary_filter_map             = "deny"
+unnecessary_lazy_evaluations       = "deny"
+unnecessary_sort_by                = "deny"
+unnecessary_to_owned               = "deny"
+unwrap_used                        = "deny"
+
+[workspace.lints.clippy.all]
+level    = "warn"
+priority = -1
+
+[workspace.lints.clippy.nursery]
+level    = "warn"
+priority = -1
+
+[workspace.lints.clippy.pedantic]
+level    = "warn"
+priority = -1
+
+[workspace.lints.rust]
+missing_docs = "warn"
+unsafe_code  = "forbid"
+
+[workspace.lints.rustdoc]
+bare_urls                    = "deny"
+broken_intra_doc_links       = "deny"
+invalid_codeblock_attributes = "warn"
+invalid_html_tags            = "deny"
+invalid_rust_codeblocks      = "deny"
+missing_crate_level_docs     = "forbid"
+private_doc_tests            = "warn"
+private_intra_doc_links      = "warn"
+redundant_explicit_links     = "deny"
+unescaped_backticks          = "warn"
+
 # The profile that 'dist' will build with
 [profile.dist]
 inherits = "release"

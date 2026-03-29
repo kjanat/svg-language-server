@@ -5,6 +5,13 @@ struct HoverSourceLink {
     target: String,
 }
 
+fn direct_hover_source_link(uri: &Uri, line: usize) -> HoverSourceLink {
+    HoverSourceLink {
+        label: format!("{}:{line}", uri.as_str()),
+        target: uri.as_str().to_owned(),
+    }
+}
+
 pub(crate) fn format_class_hover(class_name: &str, definitions: &[ClassDefinitionHover]) -> String {
     format_definition_hover(
         definitions.iter().map(|definition| {
@@ -62,19 +69,13 @@ fn format_definition_hover(
 fn hover_source_link(uri: &Uri, start_row: usize) -> HoverSourceLink {
     let line = start_row + 1;
     let Ok(url) = Url::parse(uri.as_str()) else {
-        return HoverSourceLink {
-            label: format!("{}:{line}", uri.as_str()),
-            target: uri.as_str().to_owned(),
-        };
+        return direct_hover_source_link(uri, line);
     };
 
     match url.scheme() {
         "file" => {
             let Ok(path) = url.to_file_path() else {
-                return HoverSourceLink {
-                    label: format!("{}:{line}", uri.as_str()),
-                    target: uri.as_str().to_owned(),
-                };
+                return direct_hover_source_link(uri, line);
             };
 
             let target = format!("{}#L{line}", url);
@@ -106,10 +107,7 @@ fn hover_source_link(uri: &Uri, start_row: usize) -> HoverSourceLink {
                 target: format!("{url}#L{line}"),
             }
         }
-        _ => HoverSourceLink {
-            label: format!("{}:{line}", uri.as_str()),
-            target: uri.as_str().to_owned(),
-        },
+        _ => direct_hover_source_link(uri, line),
     }
 }
 

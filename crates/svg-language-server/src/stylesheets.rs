@@ -15,11 +15,31 @@ pub(crate) struct ClassDefinitionHover {
     pub(crate) definition: svg_references::NamedSpan,
 }
 
+impl ClassDefinitionHover {
+    pub(crate) fn new(uri: Uri, source: String, definition: svg_references::NamedSpan) -> Self {
+        Self {
+            uri,
+            source,
+            definition,
+        }
+    }
+}
+
 #[derive(Clone)]
 pub(crate) struct CustomPropertyDefinitionHover {
     pub(crate) uri: Uri,
     pub(crate) source: String,
     pub(crate) definition: svg_references::NamedSpan,
+}
+
+impl CustomPropertyDefinitionHover {
+    pub(crate) fn new(uri: Uri, source: String, definition: svg_references::NamedSpan) -> Self {
+        Self {
+            uri,
+            source,
+            definition,
+        }
+    }
 }
 
 pub(crate) fn class_definition_hovers_from_stylesheet(
@@ -30,11 +50,7 @@ pub(crate) fn class_definition_hovers_from_stylesheet(
     svg_references::collect_class_definitions_from_stylesheet(source, 0, 0)
         .into_iter()
         .filter(|definition| definition.name == target_class)
-        .map(|definition| ClassDefinitionHover {
-            uri: uri.clone(),
-            source: source.to_owned(),
-            definition,
-        })
+        .map(|definition| ClassDefinitionHover::new(uri.clone(), source.to_owned(), definition))
         .collect()
 }
 
@@ -46,10 +62,8 @@ pub(crate) fn custom_property_definition_hovers_from_stylesheet(
     svg_references::collect_custom_property_definitions_from_stylesheet(source, 0, 0)
         .into_iter()
         .filter(|definition| definition.name == target_property)
-        .map(|definition| CustomPropertyDefinitionHover {
-            uri: uri.clone(),
-            source: source.to_owned(),
-            definition,
+        .map(|definition| {
+            CustomPropertyDefinitionHover::new(uri.clone(), source.to_owned(), definition)
         })
         .collect()
 }
@@ -140,8 +154,9 @@ pub(crate) fn resolve_external_stylesheet(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::time::{SystemTime, UNIX_EPOCH};
+
+    use super::*;
 
     #[test]
     fn resolve_stylesheet_url_handles_relative_file_href() {

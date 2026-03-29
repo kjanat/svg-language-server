@@ -14,3 +14,6 @@ categories           = ["development-tools"]
 tree-sitter.workspace     = true
 tree-sitter-css.workspace = true
 tree-sitter-svg.workspace = true
+
+[lints]
+workspace = true

@@ -83,6 +83,66 @@ pub(crate) fn style_completion_items(
     Some(css_completion_items(&stylesheet.css, css_offset))
 }
 
+fn completion_item(label: impl Into<String>, kind: CompletionItemKind) -> CompletionItem {
+    CompletionItem {
+        label: label.into(),
+        kind: Some(kind),
+        ..Default::default()
+    }
+}
+
+fn detailed_completion_item(
+    label: impl Into<String>,
+    kind: CompletionItemKind,
+    detail: impl Into<String>,
+) -> CompletionItem {
+    CompletionItem {
+        detail: Some(detail.into()),
+        ..completion_item(label, kind)
+    }
+}
+
+fn snippet_completion_item(
+    label: impl Into<String>,
+    kind: CompletionItemKind,
+    snippet: impl Into<String>,
+) -> CompletionItem {
+    CompletionItem {
+        insert_text: Some(snippet.into()),
+        insert_text_format: Some(InsertTextFormat::SNIPPET),
+        ..completion_item(label, kind)
+    }
+}
+
+fn detailed_snippet_completion_item(
+    label: impl Into<String>,
+    kind: CompletionItemKind,
+    snippet: impl Into<String>,
+    detail: impl Into<String>,
+) -> CompletionItem {
+    CompletionItem {
+        detail: Some(detail.into()),
+        ..snippet_completion_item(label, kind, snippet)
+    }
+}
+
+fn replace_completion_item(
+    label: impl Into<String>,
+    kind: CompletionItemKind,
+    detail: impl Into<String>,
+    range: Range,
+    new_text: impl Into<String>,
+) -> CompletionItem {
+    CompletionItem {
+        detail: Some(detail.into()),
+        text_edit: Some(CompletionTextEdit::Edit(TextEdit::new(
+            range,
+            new_text.into(),
+        ))),
+        ..completion_item(label, kind)
+    }
+}
+
 fn css_completion_items(css: &str, byte_offset: usize) -> Vec<CompletionItem> {
     let context = css_completion_context(css, byte_offset);
     let custom_properties =
@@ -127,35 +187,22 @@ fn css_completion_context(css: &str, byte_offset: usize) -> CssCompletionContext
 
 fn css_selector_completions() -> Vec<CompletionItem> {
     let mut items = vec![
-        CompletionItem {
-            label: ":root".to_owned(),
-            kind: Some(CompletionItemKind::KEYWORD),
-            detail: Some("CSS root selector".to_owned()),
-            ..Default::default()
-        },
-        CompletionItem {
-            label: ".".to_owned(),
-            kind: Some(CompletionItemKind::REFERENCE),
-            insert_text: Some(".$0".to_owned()),
-            insert_text_format: Some(InsertTextFormat::SNIPPET),
-            detail: Some("Class selector".to_owned()),
-            ..Default::default()
-        },
-        CompletionItem {
-            label: "#".to_owned(),
-            kind: Some(CompletionItemKind::REFERENCE),
-            insert_text: Some("#$0".to_owned()),
-            insert_text_format: Some(InsertTextFormat::SNIPPET),
-            detail: Some("ID selector".to_owned()),
-            ..Default::default()
-        },
+        detailed_completion_item(":root", CompletionItemKind::KEYWORD, "CSS root selector"),
+        detailed_snippet_completion_item(
+            ".",
+            CompletionItemKind::REFERENCE,
+            ".$0",
+            "Class selector",
+        ),
+        detailed_snippet_completion_item("#", CompletionItemKind::REFERENCE, "#$0", "ID selector"),
     ];
 
-    items.extend(svg_data::elements().iter().map(|element| CompletionItem {
-        label: element.name.to_owned(),
-        kind: Some(CompletionItemKind::CLASS),
-        detail: Some("SVG element selector".to_owned()),
-        ..Default::default()
+    items.extend(svg_data::elements().iter().map(|element| {
+        detailed_completion_item(
+            element.name,
+            CompletionItemKind::CLASS,
+            "SVG element selector",
+        )
     }));
 
     items
@@ -164,23 +211,21 @@ fn css_selector_completions() -> Vec<CompletionItem> {
 fn css_property_completions() -> Vec<CompletionItem> {
     let mut items: Vec<CompletionItem> = CSS_PROPERTY_NAMES
         .iter()
-        .map(|property| CompletionItem {
-            label: (*property).to_owned(),
-            kind: Some(CompletionItemKind::PROPERTY),
-            insert_text: Some(format!("{property}: $0;")),
-            insert_text_format: Some(InsertTextFormat::SNIPPET),
-            ..Default::default()
+        .map(|property| {
+            snippet_completion_item(
+                *property,
+                CompletionItemKind::PROPERTY,
+                format!("{property}: $0;"),
+            )
         })
         .collect();
 
-    items.push(CompletionItem {
-        label: "--custom-property".to_owned(),
-        kind: Some(CompletionItemKind::VARIABLE),
-        insert_text: Some("--$1: $0;".to_owned()),
-        insert_text_format: Some(InsertTextFormat::SNIPPET),
-        detail: Some("CSS custom property".to_owned()),
-        ..Default::default()
-    });
+    items.push(detailed_snippet_completion_item(
+        "--custom-property",
+        CompletionItemKind::VARIABLE,
+        "--$1: $0;",
+        "CSS custom property",
+    ));
 
     items
 }
@@ -212,35 +257,23 @@ fn css_value_completions(custom_properties: &[svg_references::NamedSpan]) -> Vec
         if !seen.insert(property.name.clone()) {
             continue;
         }
-        items.push(CompletionItem {
-            label: format!("var({})", property.name),
-            kind: Some(CompletionItemKind::VARIABLE),
-            insert_text: Some(format!("var({})", property.name)),
-            detail: Some("CSS custom property".to_owned()),
-            ..Default::default()
-        });
+        let reference = format!("var({})", property.name);
+        items.push(detailed_completion_item(
+            reference.clone(),
+            CompletionItemKind::VARIABLE,
+            "CSS custom property",
+        ));
     }
 
     items
 }
 
 fn css_value_keyword(keyword: &str) -> CompletionItem {
-    CompletionItem {
-        label: keyword.to_owned(),
-        kind: Some(CompletionItemKind::VALUE),
-        ..Default::default()
-    }
+    completion_item(keyword, CompletionItemKind::VALUE)
 }
 
 fn css_value_function(label: &str, snippet: &str, detail: &str) -> CompletionItem {
-    CompletionItem {
-        label: label.to_owned(),
-        kind: Some(CompletionItemKind::FUNCTION),
-        insert_text: Some(snippet.to_owned()),
-        insert_text_format: Some(InsertTextFormat::SNIPPET),
-        detail: Some(detail.to_owned()),
-        ..Default::default()
-    }
+    detailed_snippet_completion_item(label, CompletionItemKind::FUNCTION, snippet, detail)
 }
 
 pub(crate) fn is_attribute_name_kind(kind: &str) -> bool {
@@ -412,16 +445,43 @@ fn href_value_completions(
     ids.dedup();
 
     ids.into_iter()
-        .map(|fragment| CompletionItem {
-            label: fragment.clone(),
-            kind: Some(CompletionItemKind::REFERENCE),
-            detail: Some("In-document fragment reference".to_string()),
-            text_edit: Some(CompletionTextEdit::Edit(TextEdit::new(
+        .map(|fragment| {
+            replace_completion_item(
+                fragment.clone(),
+                CompletionItemKind::REFERENCE,
+                "In-document fragment reference",
                 replace_range,
                 fragment,
-            ))),
-            ..Default::default()
+            )
         })
+        .collect()
+}
+
+pub(crate) fn attribute_completion_items(
+    elem_name: &str,
+    existing: &HashSet<String>,
+) -> Vec<CompletionItem> {
+    svg_data::attributes_for(elem_name)
+        .into_iter()
+        .filter(|attr| !attr.deprecated)
+        .filter(|attr| !existing.contains(attr.name))
+        .map(attribute_completion_item)
+        .collect()
+}
+
+pub(crate) fn child_element_completion_items(elem_name: &str) -> Vec<CompletionItem> {
+    svg_data::allowed_children(elem_name)
+        .into_iter()
+        .filter_map(svg_data::element)
+        .filter(|el| !el.deprecated)
+        .map(element_completion_item)
+        .collect()
+}
+
+pub(crate) fn root_element_completion_items() -> Vec<CompletionItem> {
+    svg_data::element("svg")
+        .into_iter()
+        .map(element_completion_item)
         .collect()
 }
 
@@ -441,20 +501,16 @@ pub(crate) fn value_completions(
     match &attr_def.values {
         AttributeValues::Enum(values) => values
             .iter()
-            .map(|v| CompletionItem {
-                label: v.to_string(),
-                kind: Some(CompletionItemKind::VALUE),
-                ..Default::default()
-            })
+            .map(|value| completion_item(value.to_string(), CompletionItemKind::VALUE))
             .collect(),
         AttributeValues::Transform(funcs) => funcs
             .iter()
-            .map(|f| CompletionItem {
-                label: f.to_string(),
-                kind: Some(CompletionItemKind::FUNCTION),
-                insert_text: Some(format!("{f}($0)")),
-                insert_text_format: Some(InsertTextFormat::SNIPPET),
-                ..Default::default()
+            .map(|function| {
+                snippet_completion_item(
+                    function.to_string(),
+                    CompletionItemKind::FUNCTION,
+                    format!("{function}($0)"),
+                )
             })
             .collect(),
         AttributeValues::PreserveAspectRatio {
@@ -463,21 +519,28 @@ pub(crate) fn value_completions(
         } => {
             let mut items: Vec<CompletionItem> = alignments
                 .iter()
-                .map(|a| CompletionItem {
-                    label: a.to_string(),
-                    kind: Some(CompletionItemKind::ENUM_MEMBER),
-                    ..Default::default()
+                .map(|alignment| {
+                    completion_item(alignment.to_string(), CompletionItemKind::ENUM_MEMBER)
                 })
                 .collect();
-            items.extend(meet_or_slice.iter().map(|m| CompletionItem {
-                label: m.to_string(),
-                kind: Some(CompletionItemKind::ENUM_MEMBER),
-                ..Default::default()
-            }));
+            items.extend(
+                meet_or_slice
+                    .iter()
+                    .map(|mode| completion_item(mode.to_string(), CompletionItemKind::ENUM_MEMBER)),
+            );
             items
         }
         _ => Vec::new(),
     }
+}
+
+fn attribute_completion_item(attr: &svg_data::AttributeDef) -> CompletionItem {
+    detailed_snippet_completion_item(
+        attr.name,
+        CompletionItemKind::PROPERTY,
+        format!("{}=\"$0\"", attr.name),
+        attr.description,
+    )
 }
 
 pub(crate) fn element_completion_item(el: &svg_data::ElementDef) -> CompletionItem {

@@ -1,25 +1,30 @@
-use std::collections::{HashMap, HashSet};
-use std::fs;
-use std::sync::{Arc, LazyLock, OnceLock, RwLock as StdRwLock};
+use std::{
+    collections::{HashMap, HashSet},
+    fs,
+    sync::{Arc, LazyLock, OnceLock, RwLock as StdRwLock},
+};
 
 use serde_json::Value;
 use svg_data::{AttributeValues, BaselineStatus, BrowserSupport, ContentModel};
 use tokio::sync::RwLock;
-use tower_lsp_server::jsonrpc::Result;
-use tower_lsp_server::ls_types::{
-    CodeAction, CodeActionKind, CodeActionOrCommand, CodeActionParams,
-    CodeActionProviderCapability, CodeActionResponse, Color, ColorInformation, ColorPresentation,
-    ColorPresentationParams, ColorProviderCapability, Command, CompletionItem, CompletionItemKind,
-    CompletionItemTag, CompletionOptions, CompletionParams, CompletionResponse, CompletionTextEdit,
-    Diagnostic, DiagnosticSeverity, DiagnosticTag, DidChangeTextDocumentParams,
-    DidCloseTextDocumentParams, DidOpenTextDocumentParams, DocumentColorParams,
-    DocumentFormattingParams, ExecuteCommandOptions, ExecuteCommandParams, GotoDefinitionParams,
-    GotoDefinitionResponse, Hover, HoverContents, HoverParams, HoverProviderCapability,
-    InitializeParams, InitializeResult, InsertTextFormat, Location, MarkupContent, MarkupKind,
-    MessageType, NumberOrString, OneOf, Position, Range, ServerCapabilities,
-    TextDocumentSyncCapability, TextDocumentSyncKind, TextEdit, Uri, WorkspaceEdit,
+use tower_lsp_server::{
+    Client, LanguageServer, LspService, Server,
+    jsonrpc::Result,
+    ls_types::{
+        CodeAction, CodeActionKind, CodeActionOrCommand, CodeActionParams,
+        CodeActionProviderCapability, CodeActionResponse, Color, ColorInformation,
+        ColorPresentation, ColorPresentationParams, ColorProviderCapability, Command,
+        CompletionItem, CompletionItemKind, CompletionItemTag, CompletionOptions, CompletionParams,
+        CompletionResponse, CompletionTextEdit, Diagnostic, DiagnosticSeverity, DiagnosticTag,
+        DidChangeTextDocumentParams, DidCloseTextDocumentParams, DidOpenTextDocumentParams,
+        DocumentColorParams, DocumentFormattingParams, ExecuteCommandOptions, ExecuteCommandParams,
+        GotoDefinitionParams, GotoDefinitionResponse, Hover, HoverContents, HoverParams,
+        HoverProviderCapability, InitializeParams, InitializeResult, InsertTextFormat, Location,
+        MarkupContent, MarkupKind, MessageType, NumberOrString, OneOf, Position, Range,
+        ServerCapabilities, TextDocumentSyncCapability, TextDocumentSyncKind, TextEdit, Uri,
+        WorkspaceEdit,
+    },
 };
-use tower_lsp_server::{Client, LanguageServer, LspService, Server};
 use url::Url;
 
 mod clipboard;
@@ -38,10 +43,11 @@ use code_actions::{
 };
 use compat::fetch_runtime_compat;
 use completion::{
-    completion_trigger_characters, deepest_node_at, element_completion_item,
-    enclosing_element_name, existing_attribute_names, find_ancestor_any, first_attribute_name_text,
-    is_attribute_name_kind, is_comment_like_context, is_embedded_non_svg_context,
-    style_completion_items, tag_element_name, value_completions,
+    attribute_completion_items, child_element_completion_items, completion_trigger_characters,
+    deepest_node_at, enclosing_element_name, existing_attribute_names, find_ancestor_any,
+    first_attribute_name_text, is_attribute_name_kind, is_comment_like_context,
+    is_embedded_non_svg_context, root_element_completion_items, style_completion_items,
+    tag_element_name, value_completions,
 };
 use diagnostics::publish_lint_diagnostics;
 use hover::{
@@ -92,6 +98,40 @@ struct CompatOverride {
 struct RuntimeCompat {
     elements: HashMap<String, CompatOverride>,
     attributes: HashMap<String, CompatOverride>,
+}
+
+fn server_capabilities() -> ServerCapabilities {
+    ServerCapabilities {
+        text_document_sync: Some(TextDocumentSyncCapability::Kind(TextDocumentSyncKind::FULL)),
+        color_provider: Some(ColorProviderCapability::Simple(true)),
+        hover_provider: Some(HoverProviderCapability::Simple(true)),
+        definition_provider: Some(OneOf::Left(true)),
+        code_action_provider: Some(CodeActionProviderCapability::Simple(true)),
+        execute_command_provider: Some(ExecuteCommandOptions {
+            commands: vec![COPY_DATA_URI_COMMAND.to_owned()],
+            ..Default::default()
+        }),
+        document_formatting_provider: Some(OneOf::Left(true)),
+        completion_provider: Some(CompletionOptions {
+            trigger_characters: Some(completion_trigger_characters()),
+            ..Default::default()
+        }),
+        ..Default::default()
+    }
+}
+
+fn markdown_hover(value: String) -> Hover {
+    Hover {
+        contents: HoverContents::Markup(MarkupContent {
+            kind: MarkupKind::Markdown,
+            value,
+        }),
+        range: None,
+    }
+}
+
+fn completion_response(items: Vec<CompletionItem>) -> Option<CompletionResponse> {
+    (!items.is_empty()).then_some(CompletionResponse::Array(items))
 }
 
 struct SvgLanguageServer {
@@ -202,25 +242,7 @@ impl LanguageServer for SvgLanguageServer {
         });
 
         Ok(InitializeResult {
-            capabilities: ServerCapabilities {
-                text_document_sync: Some(TextDocumentSyncCapability::Kind(
-                    TextDocumentSyncKind::FULL,
-                )),
-                color_provider: Some(ColorProviderCapability::Simple(true)),
-                hover_provider: Some(HoverProviderCapability::Simple(true)),
-                definition_provider: Some(OneOf::Left(true)),
-                code_action_provider: Some(CodeActionProviderCapability::Simple(true)),
-                execute_command_provider: Some(ExecuteCommandOptions {
-                    commands: vec![COPY_DATA_URI_COMMAND.to_owned()],
-                    ..Default::default()
-                }),
-                document_formatting_provider: Some(OneOf::Left(true)),
-                completion_provider: Some(CompletionOptions {
-                    trigger_characters: Some(completion_trigger_characters()),
-                    ..Default::default()
-                }),
-                ..Default::default()
-            },
+            capabilities: server_capabilities(),
             ..Default::default()
         })
     }
@@ -431,10 +453,8 @@ impl LanguageServer for SvgLanguageServer {
                         )
                     })
                     .filter(|definition| definition.name == *target_class)
-                    .map(|definition| ClassDefinitionHover {
-                        uri: uri.clone(),
-                        source: doc.source.clone(),
-                        definition,
+                    .map(|definition| {
+                        ClassDefinitionHover::new(uri.clone(), doc.source.clone(), definition)
                     })
                     .collect::<Vec<_>>();
 
@@ -457,10 +477,12 @@ impl LanguageServer for SvgLanguageServer {
                             )
                         })
                         .filter(|definition| definition.name == *target_property)
-                        .map(|definition| CustomPropertyDefinitionHover {
-                            uri: uri.clone(),
-                            source: doc.source.clone(),
-                            definition,
+                        .map(|definition| {
+                            CustomPropertyDefinitionHover::new(
+                                uri.clone(),
+                                doc.source.clone(),
+                                definition,
+                            )
                         })
                         .collect::<Vec<_>>();
 
@@ -478,23 +500,11 @@ impl LanguageServer for SvgLanguageServer {
         };
 
         if let Some(markdown) = element_markdown {
-            return Ok(Some(Hover {
-                contents: HoverContents::Markup(MarkupContent {
-                    kind: MarkupKind::Markdown,
-                    value: markdown,
-                }),
-                range: None,
-            }));
+            return Ok(Some(markdown_hover(markdown)));
         }
 
         if let Some(markdown) = attribute_markdown {
-            return Ok(Some(Hover {
-                contents: HoverContents::Markup(MarkupContent {
-                    kind: MarkupKind::Markdown,
-                    value: markdown,
-                }),
-                range: None,
-            }));
+            return Ok(Some(markdown_hover(markdown)));
         }
 
         let (target_class, mut class_definitions, stylesheet_hrefs) = class_hover;
@@ -526,13 +536,10 @@ impl LanguageServer for SvgLanguageServer {
             class_definitions.extend(remote_definitions);
 
             if !class_definitions.is_empty() {
-                return Ok(Some(Hover {
-                    contents: HoverContents::Markup(MarkupContent {
-                        kind: MarkupKind::Markdown,
-                        value: format_class_hover(&target_class, &class_definitions),
-                    }),
-                    range: None,
-                }));
+                return Ok(Some(markdown_hover(format_class_hover(
+                    &target_class,
+                    &class_definitions,
+                ))));
             }
         }
 
@@ -565,16 +572,10 @@ impl LanguageServer for SvgLanguageServer {
             property_definitions.extend(remote_definitions);
 
             if !property_definitions.is_empty() {
-                return Ok(Some(Hover {
-                    contents: HoverContents::Markup(MarkupContent {
-                        kind: MarkupKind::Markdown,
-                        value: format_custom_property_hover(
-                            &target_property,
-                            &property_definitions,
-                        ),
-                    }),
-                    range: None,
-                }));
+                return Ok(Some(markdown_hover(format_custom_property_hover(
+                    &target_property,
+                    &property_definitions,
+                ))));
             }
         }
 
@@ -790,9 +791,9 @@ impl LanguageServer for SvgLanguageServer {
         }
 
         if let Some(items) = style_completion_items(source, &doc.tree, byte_offset)
-            && !items.is_empty()
+            && let Some(response) = completion_response(items)
         {
-            return Ok(Some(CompletionResponse::Array(items)));
+            return Ok(Some(response));
         }
 
         if is_embedded_non_svg_context(node, source) {
@@ -812,8 +813,8 @@ impl LanguageServer for SvgLanguageServer {
                     && let Some(attr_name) = first_attribute_name_text(attr_wrapper, source)
                 {
                     let items = value_completions(&attr_name, source, &doc.tree, cursor);
-                    if !items.is_empty() {
-                        return Ok(Some(CompletionResponse::Array(items)));
+                    if let Some(response) = completion_response(items) {
+                        return Ok(Some(response));
                     }
                 }
                 return Ok(None);
@@ -823,21 +824,9 @@ impl LanguageServer for SvgLanguageServer {
             if kind == "start_tag" || kind == "self_closing_tag" {
                 let elem_name = tag_element_name(cursor, source).unwrap_or("");
                 let existing = existing_attribute_names(cursor, source);
-                let attrs = svg_data::attributes_for(elem_name);
-                let items: Vec<CompletionItem> = attrs
-                    .into_iter()
-                    .filter(|attr| !attr.deprecated)
-                    .filter(|attr| !existing.contains(attr.name))
-                    .map(|attr| CompletionItem {
-                        label: attr.name.to_string(),
-                        kind: Some(CompletionItemKind::PROPERTY),
-                        detail: Some(attr.description.to_string()),
-                        insert_text: Some(format!("{}=\"$0\"", attr.name)),
-                        insert_text_format: Some(InsertTextFormat::SNIPPET),
-                        ..Default::default()
-                    })
-                    .collect();
-                return Ok(Some(CompletionResponse::Array(items)));
+                return Ok(completion_response(attribute_completion_items(
+                    elem_name, &existing,
+                )));
             }
 
             // Inside an element → child element completions
@@ -847,26 +836,14 @@ impl LanguageServer for SvgLanguageServer {
                     return Ok(None);
                 };
 
-                let items: Vec<CompletionItem> = svg_data::allowed_children(elem_name)
-                    .into_iter()
-                    .filter_map(svg_data::element)
-                    .filter(|el| !el.deprecated)
-                    .map(element_completion_item)
-                    .collect();
-
-                if items.is_empty() {
-                    return Ok(None);
-                }
-                return Ok(Some(CompletionResponse::Array(items)));
+                return Ok(completion_response(child_element_completion_items(
+                    elem_name,
+                )));
             }
 
             // Reached root document without matching → suggest root svg element
             if kind == "document" {
-                let items: Vec<CompletionItem> = svg_data::element("svg")
-                    .into_iter()
-                    .map(element_completion_item)
-                    .collect();
-                return Ok(Some(CompletionResponse::Array(items)));
+                return Ok(completion_response(root_element_completion_items()));
             }
 
             match cursor.parent() {

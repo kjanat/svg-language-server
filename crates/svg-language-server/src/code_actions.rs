@@ -63,6 +63,39 @@ fn suppression_workspace_edit(uri: &Uri, range: Range, new_text: String) -> Work
     }
 }
 
+fn quickfix_action(
+    title: String,
+    diagnostic: &Diagnostic,
+    edit: WorkspaceEdit,
+) -> CodeActionOrCommand {
+    CodeActionOrCommand::CodeAction(CodeAction {
+        title,
+        kind: Some(CodeActionKind::QUICKFIX),
+        diagnostics: Some(vec![diagnostic.clone()]),
+        edit: Some(edit),
+        is_preferred: Some(false),
+        ..Default::default()
+    })
+}
+
+fn command_code_action(
+    title: &str,
+    kind: CodeActionKind,
+    command: &str,
+    arguments: Vec<Value>,
+) -> CodeActionOrCommand {
+    CodeActionOrCommand::CodeAction(CodeAction {
+        title: title.to_owned(),
+        kind: Some(kind),
+        command: Some(Command {
+            title: title.to_owned(),
+            command: command.to_owned(),
+            arguments: Some(arguments),
+        }),
+        ..Default::default()
+    })
+}
+
 pub(crate) fn suppression_code_actions_for_diagnostic(
     uri: &Uri,
     source: &str,
@@ -79,42 +112,28 @@ pub(crate) fn suppression_code_actions_for_diagnostic(
     let file_position = file_suppression_insert_position(source);
 
     vec![
-        CodeActionOrCommand::CodeAction(CodeAction {
-            title: format!("Suppress {code} on this line"),
-            kind: Some(CodeActionKind::QUICKFIX),
-            diagnostics: Some(vec![diagnostic.clone()]),
-            edit: Some(suppression_workspace_edit(
+        quickfix_action(
+            format!("Suppress {code} on this line"),
+            diagnostic,
+            suppression_workspace_edit(
                 uri,
                 line_start_range(diagnostic.range.start.line),
                 line_comment,
-            )),
-            is_preferred: Some(false),
-            ..Default::default()
-        }),
-        CodeActionOrCommand::CodeAction(CodeAction {
-            title: format!("Suppress {code} in this file"),
-            kind: Some(CodeActionKind::QUICKFIX),
-            diagnostics: Some(vec![diagnostic.clone()]),
-            edit: Some(suppression_workspace_edit(
-                uri,
-                Range::new(file_position, file_position),
-                file_comment,
-            )),
-            is_preferred: Some(false),
-            ..Default::default()
-        }),
+            ),
+        ),
+        quickfix_action(
+            format!("Suppress {code} in this file"),
+            diagnostic,
+            suppression_workspace_edit(uri, Range::new(file_position, file_position), file_comment),
+        ),
     ]
 }
 
 pub(crate) fn copy_data_uri_code_action(uri: &Uri) -> CodeActionOrCommand {
-    CodeActionOrCommand::CodeAction(CodeAction {
-        title: COPY_DATA_URI_ACTION_TITLE.to_owned(),
-        kind: Some(CodeActionKind::SOURCE),
-        command: Some(Command {
-            title: COPY_DATA_URI_ACTION_TITLE.to_owned(),
-            command: COPY_DATA_URI_COMMAND.to_owned(),
-            arguments: Some(vec![Value::String(uri.as_str().to_owned())]),
-        }),
-        ..Default::default()
-    })
+    command_code_action(
+        COPY_DATA_URI_ACTION_TITLE,
+        CodeActionKind::SOURCE,
+        COPY_DATA_URI_COMMAND,
+        vec![Value::String(uri.as_str().to_owned())],
+    )
 }

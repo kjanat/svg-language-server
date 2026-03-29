@@ -36,3 +36,6 @@ tree-sitter.workspace        = true
 tree-sitter-svg.workspace    = true
 ureq.workspace               = true
 url.workspace                = true
+
+[lints]
+workspace = true

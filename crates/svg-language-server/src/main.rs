@@ -2733,6 +2733,68 @@ mod tests {
     }
 
     #[test]
+    fn ascii_fixture_lengths_match_inline_probes() {
+        assert_eq!(r#"<svg><rect height="32" /></svg>"#.len(), 31);
+        assert_eq!(r#"<svg><script>con</script></svg>"#.len(), 31);
+        assert_eq!(r#"<svg><rect></rect></svg>"#.len(), 24);
+        assert_eq!(r#"<svg><use height="32" /></svg>"#.len(), 30);
+        assert_eq!(
+            r#"<svg><defs><linearGradient id="g1" /></defs><use href="" /></svg>"#.len(),
+            65
+        );
+    }
+
+    #[test]
+    fn byte_offsets_match_inline_completion_probes() {
+        let cases = [
+            (r#"<svg><rect height="32" /></svg>"#, 22u32, 22usize),
+            (r#"<svg><use height="32" /></svg>"#, 22u32, 22usize),
+            (r#"<svg><script>con</script></svg>"#, 15u32, 15usize),
+            (
+                r#"<svg><defs><linearGradient id="g1" /></defs><use href="" /></svg>"#,
+                55u32,
+                55usize,
+            ),
+        ];
+
+        for (source, character, expected_offset) in cases {
+            let position = Position::new(0, character);
+            let actual_offset = byte_offset_for_position(source.as_bytes(), position);
+            assert_eq!(
+                actual_offset, expected_offset,
+                "unexpected byte offset for {source:?} at UTF-16 column {character}"
+            );
+            assert_eq!(
+                position_for_byte_offset(source.as_bytes(), expected_offset),
+                position,
+                "offset round-trip failed for {source:?} at byte {expected_offset}"
+            );
+        }
+    }
+
+    #[test]
+    fn multiline_completion_probe_positions_match_inline_checks() {
+        let source = r#"<svg>
+    <filter id="f1">
+        <!-- Place cursor after < here -->
+    </filter>
+</svg>"#;
+        let position = Position::new(2, 33);
+        let expected_offset = offset_of(source, "< here") + 1;
+
+        assert_eq!(
+            byte_offset_for_position(source.as_bytes(), position),
+            expected_offset,
+            "unexpected byte offset for multiline comment completion probe"
+        );
+        assert_eq!(
+            position_for_byte_offset(source.as_bytes(), expected_offset),
+            position,
+            "multiline comment completion probe should round-trip"
+        );
+    }
+
+    #[test]
     fn goto_definition_target_resolves_paint_server_reference() {
         let source = r#"<svg><rect fill="url(#style-gradient)" /><linearGradient id="style-gradient" /></svg>"#;
         let offset = offset_of(source, "style-gradient)") + 2;

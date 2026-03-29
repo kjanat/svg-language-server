@@ -674,8 +674,13 @@ impl<'a> Formatter<'a> {
         if child.kind() == "comment" {
             if self.is_ignore_directive(child, "ignore-start") {
                 *in_ignore_range = true;
-                // Write the directive comment itself with its leading gap.
-                self.write_source_span(*prev_end, child.end_byte());
+                // Emit the gap before the start comment using normal
+                // blank-line rules so Insert/Truncate apply consistently.
+                if let Some(end) = *prev_end {
+                    self.emit_gap(end, child.start_byte(), *prev_was_comment);
+                }
+                // Write only the comment node itself (not the leading gap).
+                self.write_source_span(Some(child.start_byte()), child.end_byte());
                 *prev_was_comment = true;
                 *prev_end = Some(child.end_byte());
                 return true;
@@ -1441,5 +1446,117 @@ mod tests {
         let input = "<svg>\n<!-- svg-format-ignore -->\n<text>  spaced  </text>\n</svg>";
         let result = format(input);
         assert!(result.contains("<text>  spaced  </text>"));
+    }
+
+    #[test]
+    fn ignore_range_outside_svg_with_blank_lines_is_idempotent() {
+        // Reproduces diagnostics-errors.svg: ignore range after </svg>
+        // with blank lines between comment groups.
+        let input = "\
+</svg>
+<!-- dprint-ignore-start -->
+<!-- comment A -->
+
+<!-- comment B -->
+<!-- comment C -->
+
+<!-- comment D -->
+<!-- comment E -->
+<!-- comment F -->
+
+<!-- comment G -->
+<!-- comment H -->
+<!-- comment I -->
+<!-- comment J -->
+<!-- dprint-ignore-end -->
+";
+        let opts = FormatOptions {
+            ignore_prefixes: vec!["dprint".into()],
+            blank_lines: BlankLines::Insert,
+            ..Default::default()
+        };
+        let pass1 = format_with_options(input, opts.clone());
+        let pass2 = format_with_options(&pass1, opts.clone());
+        assert_eq!(
+            pass1, pass2,
+            "not idempotent:\n--- pass1:\n{pass1}\n--- pass2:\n{pass2}"
+        );
+    }
+
+    #[test]
+    fn ignore_range_inside_svg_with_blank_lines_is_idempotent() {
+        let input = "\
+<svg>
+\t<rect />
+\t<!-- dprint-ignore-start -->
+\t<rect y=\"2\" x=\"1\"/>
+
+\t<circle r=\"3\"/>
+\t<!-- dprint-ignore-end -->
+\t<rect />
+</svg>
+";
+        let opts = FormatOptions {
+            ignore_prefixes: vec!["dprint".into()],
+            blank_lines: BlankLines::Insert,
+            ..Default::default()
+        };
+        let pass1 = format_with_options(input, opts.clone());
+        let pass2 = format_with_options(&pass1, opts.clone());
+        assert_eq!(
+            pass1, pass2,
+            "not idempotent:\n--- pass1:\n{pass1}\n--- pass2:\n{pass2}"
+        );
+    }
+
+    #[test]
+    fn ignore_range_preserves_exact_source_bytes() {
+        // The exact bytes between ignore-start and ignore-end must be
+        // preserved, including blank lines, indentation, and spacing.
+        let input = "\
+<svg>
+<!-- dprint-ignore-start -->
+<rect y=\"2\"
+      x=\"1\"/>
+
+<circle r=\"3\"/>
+<!-- dprint-ignore-end -->
+</svg>
+";
+        let opts = FormatOptions {
+            ignore_prefixes: vec!["dprint".into()],
+            ..Default::default()
+        };
+        let result = format_with_options(input, opts);
+        assert!(
+            result.contains("<rect y=\"2\"\n      x=\"1\"/>\n\n<circle r=\"3\"/>"),
+            "source bytes not preserved:\n{result}"
+        );
+    }
+
+    #[test]
+    fn ignore_range_with_insert_blank_lines_is_stable() {
+        // Insert mode should not add blank lines inside an ignore range.
+        let input = "\
+<svg>
+\t<rect />
+\t<!-- dprint-ignore-start -->
+\t<rect y=\"2\" x=\"1\"/>
+\t<circle r=\"3\"/>
+\t<!-- dprint-ignore-end -->
+\t<rect />
+</svg>
+";
+        let opts = FormatOptions {
+            ignore_prefixes: vec!["dprint".into()],
+            blank_lines: BlankLines::Insert,
+            ..Default::default()
+        };
+        let pass1 = format_with_options(input, opts.clone());
+        // No blank line should be inserted between the two ignored elements.
+        assert!(
+            pass1.contains("<rect y=\"2\" x=\"1\"/>\n\t<circle r=\"3\"/>"),
+            "insert mode modified ignored content:\n{pass1}"
+        );
     }
 }

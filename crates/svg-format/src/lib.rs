@@ -545,7 +545,7 @@ impl<'a> Formatter<'a> {
         children: &[Node<'_>],
         depth: usize,
         fmt: &mut dyn FnMut(EmbeddedContent<'_>) -> Option<String>,
-    ) -> Option<String> {
+    ) -> Option<()> {
         let start_tag = children.iter().find(|c| c.kind() == "start_tag")?;
         let end_tag = children.iter().find(|c| c.kind() == "end_tag")?;
 
@@ -573,7 +573,7 @@ impl<'a> Formatter<'a> {
         self.write_indented_block(&formatted, depth + 1);
         let end_text = self.node_text(*end_tag).trim().to_string();
         self.write_line(depth, &end_text);
-        Some(String::new()) // Signal success; actual output written to self.out.
+        Some(())
     }
 
     /// Write pre-formatted text, re-indented to the given depth.

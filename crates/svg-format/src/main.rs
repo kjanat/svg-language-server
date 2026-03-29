@@ -5,8 +5,8 @@ use std::process::ExitCode;
 
 use clap::{Parser, ValueEnum};
 use svg_format::{
-    AttributeLayout, AttributeSort, FormatOptions, QuoteStyle, WrappedAttributeIndent,
-    format_with_options,
+    AttributeLayout, AttributeSort, BlankLines, FormatOptions, QuoteStyle, TextContentMode,
+    WrappedAttributeIndent, format_with_options,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
@@ -79,6 +79,44 @@ impl From<WrappedAttributeIndentArg> for WrappedAttributeIndent {
     }
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
+#[value(rename_all = "kebab-case")]
+enum TextContentArg {
+    Collapse,
+    Maintain,
+    Prettify,
+}
+
+impl From<TextContentArg> for TextContentMode {
+    fn from(value: TextContentArg) -> Self {
+        match value {
+            TextContentArg::Collapse => TextContentMode::Collapse,
+            TextContentArg::Maintain => TextContentMode::Maintain,
+            TextContentArg::Prettify => TextContentMode::Prettify,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
+#[value(rename_all = "kebab-case")]
+enum BlankLinesArg {
+    Remove,
+    Preserve,
+    Truncate,
+    Insert,
+}
+
+impl From<BlankLinesArg> for BlankLines {
+    fn from(value: BlankLinesArg) -> Self {
+        match value {
+            BlankLinesArg::Remove => BlankLines::Remove,
+            BlankLinesArg::Preserve => BlankLines::Preserve,
+            BlankLinesArg::Truncate => BlankLines::Truncate,
+            BlankLinesArg::Insert => BlankLines::Insert,
+        }
+    }
+}
+
 #[derive(Debug, Parser)]
 #[command(
     name = "svg-format",
@@ -130,6 +168,12 @@ struct Cli {
 
     #[arg(long, value_enum, default_value_t = WrappedAttributeIndentArg::OneLevel)]
     wrapped_attribute_indent: WrappedAttributeIndentArg,
+
+    #[arg(long, value_enum, default_value_t = TextContentArg::Maintain)]
+    text_content: TextContentArg,
+
+    #[arg(long, value_enum, default_value_t = BlankLinesArg::Truncate)]
+    blank_lines: BlankLinesArg,
 }
 
 fn run() -> Result<ExitCode, String> {
@@ -172,6 +216,9 @@ fn run() -> Result<ExitCode, String> {
         },
         quote_style: cli.quote_style.into(),
         wrapped_attribute_indent: cli.wrapped_attribute_indent.into(),
+        text_content: cli.text_content.into(),
+        blank_lines: cli.blank_lines.into(),
+        ignore_prefixes: defaults.ignore_prefixes,
     };
 
     let input = match (read_stdin, cli.path.as_ref()) {

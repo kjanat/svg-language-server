@@ -58,6 +58,27 @@ pub enum TextContentMode {
     Prettify,
 }
 
+/// The language of embedded content found within an SVG element.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EmbeddedLanguage {
+    /// CSS inside `<style>`.
+    Css,
+    /// JavaScript inside `<script>`.
+    JavaScript,
+    /// HTML/XHTML inside `<foreignObject>`.
+    Html,
+}
+
+/// A request to format embedded content within an SVG document.
+pub struct EmbeddedContent<'a> {
+    /// The language of the embedded content.
+    pub language: EmbeddedLanguage,
+    /// The raw content text (common indent removed).
+    pub content: &'a str,
+    /// The nesting depth in the SVG tree where this content lives.
+    pub indent_depth: usize,
+}
+
 /// Formatter configuration for SVG pretty-printing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct FormatOptions {
@@ -107,6 +128,19 @@ pub fn format(source: &str) -> String {
 
 /// Format an SVG source string with explicit options.
 pub fn format_with_options(source: &str, options: FormatOptions) -> String {
+    format_with_host(source, options, &mut |_| None)
+}
+
+/// Format an SVG source string, delegating embedded content to a callback.
+///
+/// The callback receives [`EmbeddedContent`] for `<style>`, `<script>`, and
+/// `<foreignObject>` blocks. Return `Some(formatted)` to use the formatted
+/// result, or `None` to fall back to the default text-handling behavior.
+pub fn format_with_host(
+    source: &str,
+    options: FormatOptions,
+    format_embedded: &mut dyn FnMut(EmbeddedContent<'_>) -> Option<String>,
+) -> String {
     let mut parser = Parser::new();
     parser
         .set_language(&tree_sitter_svg::LANGUAGE.into())
@@ -121,7 +155,7 @@ pub fn format_with_options(source: &str, options: FormatOptions) -> String {
     }
 
     let mut formatter = Formatter::new(source.as_bytes(), options);
-    formatter.format_node(tree.root_node(), 0);
+    formatter.format_node(tree.root_node(), 0, format_embedded);
     formatter.finish(source)
 }
 
@@ -150,10 +184,15 @@ impl<'a> Formatter<'a> {
         self.out
     }
 
-    fn format_node(&mut self, node: Node<'_>, depth: usize) {
+    fn format_node(
+        &mut self,
+        node: Node<'_>,
+        depth: usize,
+        fmt: &mut dyn FnMut(EmbeddedContent<'_>) -> Option<String>,
+    ) {
         match node.kind() {
-            "source_file" => self.format_children(node, depth),
-            "svg_root_element" | "element" => self.format_element_like(node, depth),
+            "source_file" => self.format_children(node, depth, fmt),
+            "svg_root_element" | "element" => self.format_element_like(node, depth, fmt),
             "start_tag" => self.write_tag_node(node, depth, false),
             "self_closing_tag" => self.write_tag_node(node, depth, true),
             "end_tag" => {
@@ -177,18 +216,28 @@ impl<'a> Formatter<'a> {
                 let text = self.node_text(node).trim().to_string();
                 self.write_line(depth, &text);
             }
-            _ => self.format_children(node, depth),
+            _ => self.format_children(node, depth, fmt),
         }
     }
 
-    fn format_children(&mut self, node: Node<'_>, depth: usize) {
+    fn format_children(
+        &mut self,
+        node: Node<'_>,
+        depth: usize,
+        fmt: &mut dyn FnMut(EmbeddedContent<'_>) -> Option<String>,
+    ) {
         let mut cursor = node.walk();
         for child in node.named_children(&mut cursor) {
-            self.format_node(child, depth);
+            self.format_node(child, depth, fmt);
         }
     }
 
-    fn format_element_like(&mut self, node: Node<'_>, depth: usize) {
+    fn format_element_like(
+        &mut self,
+        node: Node<'_>,
+        depth: usize,
+        fmt: &mut dyn FnMut(EmbeddedContent<'_>) -> Option<String>,
+    ) {
         let mut cursor = node.walk();
         let children: Vec<Node<'_>> = node.named_children(&mut cursor).collect();
         if children.is_empty() {
@@ -197,13 +246,41 @@ impl<'a> Formatter<'a> {
 
         // Self-closing form: <rect .../>
         if children.len() == 1 && children[0].kind() == "self_closing_tag" {
-            self.format_node(children[0], depth);
+            self.format_node(children[0], depth, fmt);
             return;
+        }
+
+        // Detect the element's tag name for embedded content handling.
+        let tag_name = children
+            .iter()
+            .find(|c| c.kind() == "start_tag")
+            .and_then(|tag| {
+                let text = self.node_text(*tag).trim();
+                text.strip_prefix('<')
+                    .and_then(|s| s.split(|c: char| c.is_whitespace() || c == '>').next())
+            })
+            .unwrap_or("");
+
+        let embedded_lang = match tag_name {
+            "style" => Some(EmbeddedLanguage::Css),
+            "script" => Some(EmbeddedLanguage::JavaScript),
+            "foreignObject" => Some(EmbeddedLanguage::Html),
+            _ => None,
+        };
+
+        // For foreignObject, try to format the entire inner content as HTML.
+        if embedded_lang == Some(EmbeddedLanguage::Html) {
+            if self
+                .try_format_foreign_object(&children, depth, fmt)
+                .is_some()
+            {
+                return;
+            }
         }
 
         for child in children {
             match child.kind() {
-                "start_tag" | "end_tag" => self.format_node(child, depth),
+                "start_tag" | "end_tag" => self.format_node(child, depth, fmt),
                 "style_text_double" | "style_text_single" | "script_text_double"
                 | "script_text_single" => {
                     if !self.node_text(child).trim().is_empty() {
@@ -211,11 +288,20 @@ impl<'a> Formatter<'a> {
                     }
                 }
                 "text" | "raw_text" => {
-                    if !self.node_text(child).trim().is_empty() {
-                        self.write_text_node(child, depth + 1);
+                    if self.node_text(child).trim().is_empty() {
+                        continue;
                     }
+                    // Try embedded formatting for style/script raw_text.
+                    if let Some(lang) = embedded_lang {
+                        if lang != EmbeddedLanguage::Html {
+                            if self.try_format_embedded_text(child, lang, depth + 1, fmt) {
+                                continue;
+                            }
+                        }
+                    }
+                    self.write_text_node(child, depth + 1);
                 }
-                _ => self.format_node(child, depth + 1),
+                _ => self.format_node(child, depth + 1, fmt),
             }
         }
     }
@@ -384,6 +470,86 @@ impl<'a> Formatter<'a> {
         for line in block {
             let without_common_indent = line.chars().skip(min_leading).collect::<String>();
             self.write_line(depth, without_common_indent.trim_end());
+        }
+    }
+
+    /// Try to format embedded text (style/script raw_text) via the callback.
+    /// Returns `true` if the callback produced a result.
+    fn try_format_embedded_text(
+        &mut self,
+        node: Node<'_>,
+        language: EmbeddedLanguage,
+        depth: usize,
+        fmt: &mut dyn FnMut(EmbeddedContent<'_>) -> Option<String>,
+    ) -> bool {
+        let raw = self.node_text(node).to_string();
+        let content = dedent_block(&raw);
+        if content.is_empty() {
+            return false;
+        }
+        let req = EmbeddedContent {
+            language,
+            content: &content,
+            indent_depth: depth,
+        };
+        if let Some(formatted) = fmt(req) {
+            self.write_indented_block(&formatted, depth);
+            true
+        } else {
+            false
+        }
+    }
+
+    /// Try to format foreignObject inner content via the callback.
+    /// On success, writes the full element (start tag, formatted content, end tag).
+    fn try_format_foreign_object(
+        &mut self,
+        children: &[Node<'_>],
+        depth: usize,
+        fmt: &mut dyn FnMut(EmbeddedContent<'_>) -> Option<String>,
+    ) -> Option<String> {
+        let start_tag = children.iter().find(|c| c.kind() == "start_tag")?;
+        let end_tag = children.iter().find(|c| c.kind() == "end_tag")?;
+
+        let content_start = start_tag.end_byte();
+        let content_end = end_tag.start_byte();
+        if content_start >= content_end {
+            return None;
+        }
+
+        let raw = std::str::from_utf8(&self.source[content_start..content_end]).ok()?;
+        let content = dedent_block(raw);
+        if content.is_empty() {
+            return None;
+        }
+
+        let req = EmbeddedContent {
+            language: EmbeddedLanguage::Html,
+            content: &content,
+            indent_depth: depth + 1,
+        };
+        let formatted = fmt(req)?;
+
+        // Write start tag, formatted content, end tag.
+        self.write_tag_node(*start_tag, depth, false);
+        self.write_indented_block(&formatted, depth + 1);
+        let end_text = self.node_text(*end_tag).trim().to_string();
+        self.write_line(depth, &end_text);
+        Some(String::new()) // Signal success; actual output written to self.out.
+    }
+
+    /// Write pre-formatted text, re-indented to the given depth.
+    /// Preserves the content's internal indentation structure.
+    fn write_indented_block(&mut self, text: &str, depth: usize) {
+        let indent = self.indent(depth);
+        for line in text.lines() {
+            if line.trim().is_empty() {
+                self.out.push('\n');
+            } else {
+                self.out.push_str(&indent);
+                self.out.push_str(line);
+                self.out.push('\n');
+            }
         }
     }
 
@@ -617,6 +783,38 @@ fn parse_attribute(attribute: &str) -> ParsedAttribute {
     }
 }
 
+/// Remove common leading whitespace from a block of text,
+/// trimming leading/trailing blank lines.
+fn dedent_block(text: &str) -> String {
+    let lines: Vec<&str> = text.lines().collect();
+    let first_non_empty = lines.iter().position(|l| !l.trim().is_empty());
+    let last_non_empty = lines.iter().rposition(|l| !l.trim().is_empty());
+    let (Some(start), Some(end)) = (first_non_empty, last_non_empty) else {
+        return String::new();
+    };
+
+    let block = &lines[start..=end];
+    let min_indent = block
+        .iter()
+        .filter(|l| !l.trim().is_empty())
+        .map(|l| l.chars().take_while(|c| c.is_whitespace()).count())
+        .min()
+        .unwrap_or(0);
+
+    block
+        .iter()
+        .map(|l| {
+            if l.trim().is_empty() {
+                ""
+            } else {
+                let skip: usize = l.chars().take(min_indent).map(|c| c.len_utf8()).sum();
+                &l[skip..]
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
 /// Collapse runs of whitespace into single spaces and trim.
 fn collapse_whitespace(text: &str) -> String {
     let mut result = String::with_capacity(text.len());
@@ -808,6 +1006,74 @@ mod tests {
         assert_eq!(
             FormatOptions::default().text_content,
             TextContentMode::Maintain
+        );
+    }
+
+    #[test]
+    fn format_with_host_delegates_style_content() {
+        let input = "<svg><style>.a{fill:red}</style></svg>";
+        let mut called_lang = None;
+        let mut called_content = None;
+        let result = format_with_host(input, FormatOptions::default(), &mut |req| {
+            called_lang = Some(req.language);
+            called_content = Some(req.content.to_string());
+            Some(".a {\n  fill: red;\n}".to_string())
+        });
+        assert_eq!(called_lang, Some(EmbeddedLanguage::Css));
+        assert_eq!(called_content.as_deref(), Some(".a{fill:red}"));
+        // Re-indented CSS at depth 2 (inside <svg><style>)
+        assert_eq!(
+            result,
+            "<svg>\n\t<style>\n\t\t.a {\n\t\t  fill: red;\n\t\t}\n\t</style>\n</svg>"
+        );
+    }
+
+    #[test]
+    fn format_with_host_falls_back_when_callback_returns_none() {
+        let input = "<svg><style>.a { fill: red; }</style></svg>";
+        let result = format_with_host(input, FormatOptions::default(), &mut |_| None);
+        let fallback = format_with_options(input, FormatOptions::default());
+        assert_eq!(result, fallback);
+    }
+
+    #[test]
+    fn format_with_host_delegates_script_content() {
+        let input = "<svg><script>alert(1)</script></svg>";
+        let mut called_lang = None;
+        format_with_host(input, FormatOptions::default(), &mut |req| {
+            called_lang = Some(req.language);
+            None
+        });
+        assert_eq!(called_lang, Some(EmbeddedLanguage::JavaScript));
+    }
+
+    #[test]
+    fn format_with_host_delegates_foreign_object_content() {
+        let input = r#"<svg><foreignObject width="200" height="200"><div>hello</div></foreignObject></svg>"#;
+        let mut called_lang = None;
+        let mut called_content = None;
+        format_with_host(input, FormatOptions::default(), &mut |req| {
+            called_lang = Some(req.language);
+            called_content = Some(req.content.to_string());
+            None
+        });
+        assert_eq!(called_lang, Some(EmbeddedLanguage::Html));
+        assert!(called_content.unwrap().contains("<div>hello</div>"));
+    }
+
+    #[test]
+    fn format_with_host_foreign_object_with_formatted_html() {
+        let input = r#"<svg><foreignObject width="200" height="200"><div>hello</div></foreignObject></svg>"#;
+        let result = format_with_host(input, FormatOptions::default(), &mut |req| {
+            if req.language == EmbeddedLanguage::Html {
+                Some("<div>\n  hello\n</div>".to_string())
+            } else {
+                None
+            }
+        });
+        assert_eq!(
+            result,
+            "<svg>\n\t<foreignObject width=\"200\" height=\"200\">\n\t\t<div>\n\t\t  hello\n\t\t</div>\n\t</foreignObject>\n</svg>"
         );
     }
 }

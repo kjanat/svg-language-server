@@ -2,47 +2,59 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200">
 	<defs>
 		<linearGradient id="cardBg" x1="0" y1="0" x2="0" y2="1">
-			<stop offset="0%" stop-color="#1a1a2e"/>
-			<stop offset="100%" stop-color="#16213e"/>
+			<stop offset="0%" stop-color="#1a1a2e" />
+			<stop offset="100%" stop-color="#16213e" />
 		</linearGradient>
 		<linearGradient id="barGrad" x1="0" y1="0" x2="1" y2="0">
-			<stop offset="0%" stop-color="#0f3460"/>
-			<stop offset="100%" stop-color="#e94560"/>
+			<stop offset="0%" stop-color="#0f3460" />
+			<stop offset="100%" stop-color="#e94560" />
 		</linearGradient>
 		<clipPath id="roundedCard">
-			<rect width="320" height="200" rx="12"/>
+			<rect rx="12" width="320" height="200" />
 		</clipPath>
 	</defs>
 
 	<!-- Card background -->
 	<g clip-path="url(#roundedCard)">
-		<rect width="320" height="200" fill="url(#cardBg)"/>
+		<rect width="320" height="200" fill="url(#cardBg)" />
 
 		<!-- Header line -->
-		<line x1="20" y1="45" x2="300" y2="45" stroke="#533483" stroke-width="1" stroke-opacity="0.5"/>
+		<line x1="20" y1="45" x2="300" y2="45" stroke="#533483" stroke-width="1" stroke-opacity="0.5" />
 
 		<!-- Title -->
-		<text x="20" y="32" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#eee">
+		<text
+			x="20"
+			y="32"
+			fill="#eee"
+			font-family="system-ui, sans-serif"
+			font-size="14"
+			font-weight="bold">
 			Monthly Revenue
 		</text>
 
 		<!-- Metric -->
-		<text x="20" y="80" font-family="system-ui, sans-serif" font-size="28" font-weight="bold" fill="white">
+		<text
+			x="20"
+			y="80"
+			fill="white"
+			font-family="system-ui, sans-serif"
+			font-size="28"
+			font-weight="bold">
 			$48,250
 		</text>
-		<text x="152" y="71" font-family="system-ui, sans-serif" font-size="12" fill="#4ecca3">
+		<text x="152" y="71" fill="#4ecca3" font-family="system-ui, sans-serif" font-size="12">
 			▲ 12.5%
 		</text>
 
 		<!-- Bar chart -->
 		<g transform="translate(20, 100)">
-			<rect x="0"   y="28" width="30" height="52" rx="4" fill="url(#barGrad)" fill-opacity="0.6"/>
-			<rect x="40"  y="18" width="30" height="62" rx="4" fill="url(#barGrad)" fill-opacity="0.7"/>
-			<rect x="80"  y="8"  width="30" height="72" rx="4" fill="url(#barGrad)" fill-opacity="0.8"/>
-			<rect x="120" y="2"  width="30" height="78" rx="4" fill="url(#barGrad)" fill-opacity="0.9"/>
-			<rect x="160" y="-4" width="30" height="84" rx="4" fill="url(#barGrad)"/>
-			<rect x="200" y="12" width="30" height="68" rx="4" fill="url(#barGrad)" fill-opacity="0.75"/>
-			<rect x="240" y="22" width="30" height="58" rx="4" fill="url(#barGrad)" fill-opacity="0.65"/>
+			<rect x="0" y="28" rx="4" width="30" height="52" fill="url(#barGrad)" fill-opacity="0.6" />
+			<rect x="40" y="18" rx="4" width="30" height="62" fill="url(#barGrad)" fill-opacity="0.7" />
+			<rect x="80" y="8" rx="4" width="30" height="72" fill="url(#barGrad)" fill-opacity="0.8" />
+			<rect x="120" y="2" rx="4" width="30" height="78" fill="url(#barGrad)" fill-opacity="0.9" />
+			<rect x="160" y="-4" rx="4" width="30" height="84" fill="url(#barGrad)" />
+			<rect x="200" y="12" rx="4" width="30" height="68" fill="url(#barGrad)" fill-opacity="0.75" />
+			<rect x="240" y="22" rx="4" width="30" height="58" fill="url(#barGrad)" fill-opacity="0.65" />
 		</g>
 
 		<!-- Sparkline -->
@@ -52,6 +64,6 @@
 			stroke="#e94560"
 			stroke-width="2"
 			stroke-linecap="round"
-			stroke-linejoin="round"/>
+			stroke-linejoin="round" />
 	</g>
 </svg>

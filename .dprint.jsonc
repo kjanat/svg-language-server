@@ -41,7 +41,6 @@
 	"excludes": [
 		"**/*.lock",
 		"**/node_modules",
-		"**/samples",
 		"**/target",
 	],
 	"plugins": [

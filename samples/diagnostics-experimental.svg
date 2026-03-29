@@ -2,31 +2,48 @@
 <!-- In editors, experimental names render with a subtle fade (DiagnosticTag::UNNECESSARY) -->
 <!-- Hover any experimental attribute to see the "Experimental" badge -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
-
 	<!-- EXPERIMENTAL: fetchpriority (resource loading priority) -->
-	<image href="icon.png" x="10" y="10" width="48" height="48"
-		fetchpriority="high"/>
+	<image
+		x="10"
+		y="10"
+		width="48"
+		height="48"
+		href="icon.png"
+		fetchpriority="high" />
 
 	<!-- EXPERIMENTAL: ping (URL notification on link activation) -->
 	<a href="https://example.com" ping="https://analytics.example.com/click">
-		<text x="10" y="90" font-size="14" fill="#264653">Link with ping</text>
+		<text x="10" y="90" fill="#264653" font-size="14">
+			Link with ping
+		</text>
 	</a>
 
 	<!-- EXPERIMENTAL: side (text-on-path side selection) -->
 	<defs>
-		<path id="curve" d="M 50,200 Q 200,100 350,200"/>
+		<path id="curve" d="M 50,200 Q 200,100 350,200" />
 	</defs>
 	<text font-size="12">
-		<textPath href="#curve" side="left">Text on the left side of the path</textPath>
+		<textPath href="#curve" side="left">
+			Text on the left side of the path
+		</textPath>
 	</text>
 
 	<!-- EXPERIMENTAL: path (on textPath — alternative inline path data) -->
-	<text font-size="12" y="260">
-		<textPath path="M 10,0 Q 200,-50 390,0">Inline path on textPath</textPath>
+	<text y="260" font-size="12">
+		<textPath path="M 10,0 Q 200,-50 390,0">
+			Inline path on textPath
+		</textPath>
 	</text>
 
 	<!-- NO DIAGNOSTIC — valid non-experimental attributes -->
-	<rect x="10" y="120" width="80" height="40"
-		fill="#2a9d8f" stroke="#264653" stroke-width="2" rx="4"/>
-	<circle cx="200" cy="140" r="20" fill="#e76f51" opacity="0.8"/>
+	<rect
+		x="10"
+		y="120"
+		rx="4"
+		width="80"
+		height="40"
+		fill="#2a9d8f"
+		stroke="#264653"
+		stroke-width="2" />
+	<circle cx="200" cy="140" r="20" fill="#e76f51" opacity="0.8" />
 </svg>

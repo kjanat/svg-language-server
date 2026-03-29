@@ -1,211 +1,253 @@
 <!-- Colors in this sample come from the <style> block, not presentation attributes. -->
 <!-- Use it to verify document colors inside embedded CSS rules. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 840">
-  <style>
-    :root {
-      --base: oklch(22.84% 0.038 283);
-      --toolbar-bg: color-mix(in oklch, var(--base), white 8%);
-      --panel-bg: color-mix(in oklch, var(--base) 96%, transparent);
-    }
+	<style>
+		:root {
+			--base: oklch(22.84% 0.038 283);
+			--toolbar-bg: color-mix(in oklch, var(--base), white 8%);
+			--panel-bg: color-mix(in oklch, var(--base) 96%, transparent);
+		}
 
-    .label {
-      fill: #223040;
-      font: 600 18px monospace;
-    }
+		.label {
+			fill: #223040;
+			font: 600 18px monospace;
+		}
 
-    .subtle {
-      fill: #5c7085;
-      font: 14px monospace;
-    }
+		.subtle {
+			fill: #5c7085;
+			font: 14px monospace;
+		}
 
-    .hex-6 {
-      fill: #ff6b35;
-    }
+		.hex-6 {
+			fill: #ff6b35;
+		}
 
-    .hex-3 {
-      fill: #0bf;
-    }
+		.hex-3 {
+			fill: #0bf;
+		}
 
-    .hex-8 {
-      fill: #2a9d8f99;
-    }
+		.hex-8 {
+			fill: #2a9d8f99;
+		}
 
-    .rgb {
-      fill: rgb(255 99 71);
-    }
+		.rgb {
+			fill: rgb(255 99 71);
+		}
 
-    .rgba {
-      fill: rgb(0 128 255 / 0.55);
-    }
+		.rgba {
+			fill: rgb(0 128 255 / 0.55);
+		}
 
-    .hsl {
-      fill: hsl(210 80% 50%);
-    }
+		.hsl {
+			fill: hsl(210 80% 50%);
+		}
 
-    .hsla {
-      fill: hsl(340 70% 55% / 0.8);
-    }
+		.hsla {
+			fill: hsl(340 70% 55% / 0.8);
+		}
 
-    .named {
-      fill: mediumseagreen;
-    }
+		.named {
+			fill: mediumseagreen;
+		}
 
-    .oklab {
-      fill: oklab(62% 0.16 0.08);
-    }
+		.oklab {
+			fill: oklab(62% 0.16 0.08);
+		}
 
-    .oklch {
-      fill: oklch(72% 0.19 320);
-    }
+		.oklch {
+			fill: oklch(72% 0.19 320);
+		}
 
-    .hwb {
-      fill: hwb(120 15% 10%);
-    }
+		.hwb {
+			fill: hwb(120 15% 10%);
+		}
 
-    .lab {
-      fill: lab(60% -5.3654 58.956);
-    }
+		.lab {
+			fill: lab(60% -5.3654 58.956);
+		}
 
-    .lch {
-      fill: lch(62.2345% 59.2 126.2);
-    }
+		.lch {
+			fill: lch(62.2345% 59.2 126.2);
+		}
 
-    .transparent-fill {
-      fill: transparent;
-      stroke: #223040;
-      stroke-width: 3;
-      stroke-dasharray: 8 6;
-    }
+		.transparent-fill {
+			fill: transparent;
+			stroke: #223040;
+			stroke-width: 3;
+			stroke-dasharray: 8 6;
+		}
 
-    .stroke-only {
-      fill: none;
-      stroke: darkorange;
-      stroke-width: 8;
-    }
+		.stroke-only {
+			fill: none;
+			stroke: darkorange;
+			stroke-width: 8;
+		}
 
-    .uses-color {
-      color: rebeccapurple;
-      fill: currentColor;
-      font: 700 28px monospace;
-    }
+		.uses-color {
+			color: rebeccapurple;
+			fill: currentColor;
+			font: 700 28px monospace;
+		}
 
-    .gradient-start {
-      stop-color: gold;
-    }
+		.gradient-start {
+			stop-color: gold;
+		}
 
-    .gradient-mid {
-      stop-color: rgb(0, 200, 140);
-    }
+		.gradient-mid {
+			stop-color: rgb(0, 200, 140);
+		}
 
-    .gradient-end {
-      stop-color: #7c3aed;
-    }
+		.gradient-end {
+			stop-color: #7c3aed;
+		}
 
-    .panel {
-      fill: #f7fafc;
-      stroke: #d8e1ea;
-      stroke-width: 2;
-    }
+		.panel {
+			fill: #f7fafc;
+			stroke: #d8e1ea;
+			stroke-width: 2;
+		}
 
-    .var-base {
-      fill: var(--base);
-    }
+		.var-base {
+			fill: var(--base);
+		}
 
-    .var-mix {
-      fill: var(--toolbar-bg);
-    }
+		.var-mix {
+			fill: var(--toolbar-bg);
+		}
 
-    .var-alpha {
-      fill: var(--panel-bg);
-      stroke: #223040;
-      stroke-width: 3;
-    }
+		.var-alpha {
+			fill: var(--panel-bg);
+			stroke: #223040;
+			stroke-width: 3;
+		}
 
-    .ignore-me {
-      display: block;
-      animation-name: red;
-    }
+		.ignore-me {
+			display: block;
+			animation-name: red;
+		}
 
-    @media (prefers-color-scheme: dark) {
-      .hex-6 {
-        fill: #ffd166;
-      }
+		@media (prefers-color-scheme: dark) {
+			.hex-6 {
+				fill: #ffd166;
+			}
 
-      .uses-color {
-        color: plum;
-      }
-    }
-  </style>
+			.uses-color {
+				color: plum;
+			}
+		}
+	</style>
 
-  <defs>
-    <linearGradient id="style-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop class="gradient-start" offset="0%" />
-      <stop class="gradient-mid" offset="50%" />
-      <stop class="gradient-end" offset="100%" />
-    </linearGradient>
-  </defs>
+	<defs>
+		<linearGradient id="style-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+			<stop class="gradient-start" offset="0%" />
+			<stop class="gradient-mid" offset="50%" />
+			<stop class="gradient-end" offset="100%" />
+		</linearGradient>
+	</defs>
 
-  <rect class="panel" x="20" y="20" width="760" height="800" rx="20" />
+	<rect class="panel" x="20" y="20" rx="20" width="760" height="800" />
 
-  <text class="label" x="36" y="58">Embedded &lt;style&gt; colors</text>
-  <text class="subtle" x="36" y="84">hex, rgb(a), hsl(a), hwb, lab, lch, oklab, oklch, transparent, stop-color, CSS vars, and color-mix()</text>
+	<text class="label" x="36" y="58">Embedded &lt;style&gt; colors</text>
+	<text class="subtle" x="36" y="84">
+		hex, rgb(a), hsl(a), hwb, lab, lch, oklab, oklch, transparent, stop-color, CSS vars, and color-mix()
+	</text>
 
-  <rect class="hex-6" x="40" y="120" width="120" height="70" rx="12" />
-  <text class="subtle" x="40" y="214">#ff6b35</text>
+	<rect class="hex-6" x="40" y="120" rx="12" width="120" height="70" />
+	<text class="subtle" x="40" y="214">
+		#ff6b35
+	</text>
 
-  <rect class="hex-3" x="190" y="120" width="120" height="70" rx="12" />
-  <text class="subtle" x="190" y="214">#0bf</text>
+	<rect class="hex-3" x="190" y="120" rx="12" width="120" height="70" />
+	<text class="subtle" x="190" y="214">
+		#0bf
+	</text>
 
-  <rect class="hex-8" x="340" y="120" width="120" height="70" rx="12" />
-  <text class="subtle" x="340" y="214">#2a9d8f99</text>
+	<rect class="hex-8" x="340" y="120" rx="12" width="120" height="70" />
+	<text class="subtle" x="340" y="214">
+		#2a9d8f99
+	</text>
 
-  <rect class="rgb" x="490" y="120" width="120" height="70" rx="12" />
-  <text class="subtle" x="490" y="214">rgb(255 99 71)</text>
+	<rect class="rgb" x="490" y="120" rx="12" width="120" height="70" />
+	<text class="subtle" x="490" y="214">
+		rgb(255 99 71)
+	</text>
 
-  <rect class="rgba" x="640" y="120" width="120" height="70" rx="12" />
-  <text class="subtle" x="632" y="214">rgb(0 128 255 / 0.55)</text>
+	<rect class="rgba" x="640" y="120" rx="12" width="120" height="70" />
+	<text class="subtle" x="632" y="214">
+		rgb(0 128 255 / 0.55)
+	</text>
 
-  <circle class="hsl" cx="100" cy="310" r="42" />
-  <text class="subtle" x="40" y="382">hsl(210 80% 50%)</text>
+	<circle class="hsl" cx="100" cy="310" r="42" />
+	<text class="subtle" x="40" y="382">
+		hsl(210 80% 50%)
+	</text>
 
-  <circle class="hsla" cx="250" cy="310" r="42" />
-  <text class="subtle" x="182" y="382">hsl(340 70% 55% / 0.8)</text>
+	<circle class="hsla" cx="250" cy="310" r="42" />
+	<text class="subtle" x="182" y="382">
+		hsl(340 70% 55% / 0.8)
+	</text>
 
-  <circle class="named" cx="400" cy="310" r="42" />
-  <text class="subtle" x="340" y="382">mediumseagreen</text>
+	<circle class="named" cx="400" cy="310" r="42" />
+	<text class="subtle" x="340" y="382">
+		mediumseagreen
+	</text>
 
-  <circle class="oklab" cx="520" cy="310" r="42" />
-  <text class="subtle" x="470" y="382">oklab(62% 0.16 0.08)</text>
+	<circle class="oklab" cx="520" cy="310" r="42" />
+	<text class="subtle" x="470" y="382">
+		oklab(62% 0.16 0.08)
+	</text>
 
-  <circle class="oklch" cx="670" cy="310" r="42" />
-  <text class="subtle" x="620" y="382">oklch(72% 0.19 320)</text>
+	<circle class="oklch" cx="670" cy="310" r="42" />
+	<text class="subtle" x="620" y="382">
+		oklch(72% 0.19 320)
+	</text>
 
-  <circle class="stroke-only" cx="100" cy="430" r="42" />
-  <text class="subtle" x="40" y="502">stroke: darkorange</text>
+	<circle class="stroke-only" cx="100" cy="430" r="42" />
+	<text class="subtle" x="40" y="502">
+		stroke: darkorange
+	</text>
 
-  <rect x="190" y="388" width="120" height="84" rx="16" fill="url(#style-gradient)" />
-  <text class="subtle" x="170" y="502">stop-color via classes</text>
+	<rect x="190" y="388" rx="16" width="120" height="84" fill="url(#style-gradient)" />
+	<text class="subtle" x="170" y="502">
+		stop-color via classes
+	</text>
 
-  <text class="uses-color" x="380" y="448">color: rebeccapurple</text>
+	<text class="uses-color" x="380" y="448">
+		color: rebeccapurple
+	</text>
 
-  <circle class="hwb" cx="100" cy="590" r="42" />
-  <text class="subtle" x="40" y="662">hwb(120 15% 10%)</text>
+	<circle class="hwb" cx="100" cy="590" r="42" />
+	<text class="subtle" x="40" y="662">
+		hwb(120 15% 10%)
+	</text>
 
-  <circle class="lab" cx="280" cy="590" r="42" />
-  <text class="subtle" x="220" y="662">lab(60% -5.3654 58.956)</text>
+	<circle class="lab" cx="280" cy="590" r="42" />
+	<text class="subtle" x="220" y="662">
+		lab(60% -5.3654 58.956)
+	</text>
 
-  <circle class="lch" cx="500" cy="590" r="42" />
-  <text class="subtle" x="432" y="662">lch(62.2345% 59.2 126.2)</text>
+	<circle class="lch" cx="500" cy="590" r="42" />
+	<text class="subtle" x="432" y="662">
+		lch(62.2345% 59.2 126.2)
+	</text>
 
-  <rect class="transparent-fill" x="638" y="548" width="72" height="84" rx="14" />
-  <text class="subtle" x="600" y="662">transparent</text>
+	<rect class="transparent-fill" x="638" y="548" rx="14" width="72" height="84" />
+	<text class="subtle" x="600" y="662">
+		transparent
+	</text>
 
-  <rect class="var-base" x="70" y="710" width="120" height="70" rx="12" />
-  <text class="subtle" x="54" y="804">var(--base)</text>
+	<rect class="var-base" x="70" y="710" rx="12" width="120" height="70" />
+	<text class="subtle" x="54" y="804">
+		var(--base)
+	</text>
 
-  <rect class="var-mix" x="300" y="710" width="120" height="70" rx="12" />
-  <text class="subtle" x="234" y="804">color-mix(var(--base), white)</text>
+	<rect class="var-mix" x="300" y="710" rx="12" width="120" height="70" />
+	<text class="subtle" x="234" y="804">
+		color-mix(var(--base), white)
+	</text>
 
-  <rect class="var-alpha" x="540" y="710" width="120" height="70" rx="12" />
-  <text class="subtle" x="478" y="804">color-mix(var(--base), transparent)</text>
+	<rect class="var-alpha" x="540" y="710" rx="12" width="120" height="70" />
+	<text class="subtle" x="478" y="804">
+		color-mix(var(--base), transparent)
+	</text>
 </svg>

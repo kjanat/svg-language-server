@@ -266,49 +266,13 @@ impl<'a> Formatter<'a> {
         let mut ignore_next = false;
         let mut in_ignore_range = false;
         for child in node.named_children(&mut cursor) {
-            let mut skip_ignore_self = false;
-
-            // Check ignore directives on comment nodes.
-            if child.kind() == "comment" {
-                if self.is_ignore_directive(child, "ignore-start") {
-                    in_ignore_range = true;
-                    self.write_raw(child);
-                    prev_was_comment = true;
-                    prev_end = Some(child.end_byte());
-                    continue;
-                }
-                if self.is_ignore_directive(child, "ignore-end") {
-                    in_ignore_range = false;
-                    self.write_raw(child);
-                    prev_was_comment = true;
-                    prev_end = Some(child.end_byte());
-                    continue;
-                }
-                if self.is_ignore_directive(child, "ignore") {
-                    ignore_next = true;
-                    skip_ignore_self = true;
-                }
-            }
-
-            // Skip whitespace-only text — but not inside an ignore range,
-            // where we need to preserve everything verbatim.
-            if !in_ignore_range
-                && matches!(child.kind(), "text" | "raw_text")
-                && self.node_text(child).trim().is_empty()
-            {
-                continue;
-            }
-
-            if !skip_ignore_self && (in_ignore_range || ignore_next) {
-                self.write_raw(child);
-                // For single-line ignore, whitespace text nodes are skipped,
-                // so we need to ensure a trailing newline.
-                if ignore_next && !self.out.ends_with('\n') {
-                    self.out.push('\n');
-                }
-                ignore_next = false;
-                prev_was_comment = child.kind() == "comment";
-                prev_end = Some(child.end_byte());
+            if self.handle_ignore(
+                child,
+                &mut in_ignore_range,
+                &mut ignore_next,
+                &mut prev_was_comment,
+                &mut prev_end,
+            ) {
                 continue;
             }
 
@@ -371,46 +335,13 @@ impl<'a> Formatter<'a> {
         let mut ignore_next = false;
         let mut in_ignore_range = false;
         for child in children {
-            let mut skip_ignore_self = false;
-            // Check ignore directives on comment nodes.
-            if child.kind() == "comment" {
-                if self.is_ignore_directive(child, "ignore-start") {
-                    in_ignore_range = true;
-                    self.write_raw(child);
-                    prev_was_comment = true;
-                    prev_end = Some(child.end_byte());
-                    continue;
-                }
-                if self.is_ignore_directive(child, "ignore-end") {
-                    in_ignore_range = false;
-                    self.write_raw(child);
-                    prev_was_comment = true;
-                    prev_end = Some(child.end_byte());
-                    continue;
-                }
-                if self.is_ignore_directive(child, "ignore") {
-                    ignore_next = true;
-                    skip_ignore_self = true;
-                }
-            }
-
-            // Skip whitespace-only text — but not inside an ignore range,
-            // where we need to preserve everything verbatim.
-            if !in_ignore_range
-                && matches!(child.kind(), "text" | "raw_text")
-                && self.node_text(child).trim().is_empty()
-            {
-                continue;
-            }
-
-            if !skip_ignore_self && (in_ignore_range || ignore_next) {
-                self.write_raw(child);
-                if ignore_next && !self.out.ends_with('\n') {
-                    self.out.push('\n');
-                }
-                ignore_next = false;
-                prev_was_comment = child.kind() == "comment";
-                prev_end = Some(child.end_byte());
+            if self.handle_ignore(
+                child,
+                &mut in_ignore_range,
+                &mut ignore_next,
+                &mut prev_was_comment,
+                &mut prev_end,
+            ) {
                 continue;
             }
 
@@ -706,6 +637,63 @@ impl<'a> Formatter<'a> {
                 self.out.push('\n');
             }
         }
+    }
+
+    /// Process ignore directives and whitespace-skip logic for a child node.
+    ///
+    /// Returns `true` if the child was fully handled (caller should `continue`).
+    fn handle_ignore(
+        &mut self,
+        child: Node<'_>,
+        in_ignore_range: &mut bool,
+        ignore_next: &mut bool,
+        prev_was_comment: &mut bool,
+        prev_end: &mut Option<usize>,
+    ) -> bool {
+        let mut skip_ignore_self = false;
+
+        if child.kind() == "comment" {
+            if self.is_ignore_directive(child, "ignore-start") {
+                *in_ignore_range = true;
+                self.write_raw(child);
+                *prev_was_comment = true;
+                *prev_end = Some(child.end_byte());
+                return true;
+            }
+            if self.is_ignore_directive(child, "ignore-end") {
+                *in_ignore_range = false;
+                self.write_raw(child);
+                *prev_was_comment = true;
+                *prev_end = Some(child.end_byte());
+                return true;
+            }
+            if self.is_ignore_directive(child, "ignore") {
+                *ignore_next = true;
+                skip_ignore_self = true;
+            }
+        }
+
+        // Skip whitespace-only text — but not inside an ignore range,
+        // where we need to preserve everything verbatim.
+        if !*in_ignore_range
+            && matches!(child.kind(), "text" | "raw_text")
+            && self.node_text(child).trim().is_empty()
+        {
+            return true;
+        }
+
+        if !skip_ignore_self && (*in_ignore_range || *ignore_next) {
+            self.write_raw(child);
+            if *ignore_next && !self.out.ends_with('\n') {
+                self.out.push('\n');
+            }
+            *ignore_next = false;
+            *prev_was_comment = child.kind() == "comment";
+            *prev_end = Some(child.end_byte());
+            return true;
+        }
+
+        false
     }
 
     /// Check if a comment node matches `<!-- {prefix}-{suffix} -->`.

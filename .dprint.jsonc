@@ -1,19 +1,41 @@
 {
 	"useTabs": true,
 	"json": {},
-	"markdown": { "textWrap": "maintain", "emphasisKind": "asterisks" },
+	"markdown": {
+		"textWrap": "maintain",
+		"emphasisKind": "asterisks",
+	},
 	"malva": {},
 	"markup": {
-		"associations": ["!**/*.svg"],
+		"associations": [
+			"!**/*.svg",
+		],
 		"ignoreCommentDirective": "dprint-ignore",
 		"ignoreFileCommentDirective": "dprint-ignore-file",
 	},
-	"yaml": { "printWidth": 160 },
+	"yaml": {
+		"printWidth": 160,
+	},
 	"exec": {
 		"commands": [
-			{ "command": "tombi format - --stdin-filename {{file_path}}", "exts": ["toml"] },
-			{ "command": "rustfmt --edition 2024", "exts": ["rs"] },
-			{ "command": "just --dump --justfile {{file_path}}", "fileNames": ["justfile"] },
+			{
+				"command": "tombi format - --stdin-filename {{file_path}}",
+				"exts": [
+					"toml",
+				],
+			},
+			{
+				"command": "rustfmt --edition 2024",
+				"exts": [
+					"rs",
+				],
+			},
+			{
+				"command": "just --dump --justfile {{file_path}}",
+				"fileNames": [
+					"justfile",
+				],
+			},
 		],
 	},
 	"excludes": [
@@ -29,6 +51,6 @@
 		"https://plugins.dprint.dev/g-plane/markup_fmt-v0.27.0.wasm",
 		"https://plugins.dprint.dev/g-plane/pretty_yaml-v0.6.0.wasm",
 		"https://plugins.dprint.dev/exec-0.6.2.json@df98f54ffd3092b8a841aedd6d098a2651f16d0a796a40535774f1a8b4b9d463",
-		"https://plugins.dprint.dev/kjanat/svg-v0.2.1.wasm",
+		"https://plugins.dprint.dev/kjanat/svg-v0.2.2.wasm",
 	],
 }

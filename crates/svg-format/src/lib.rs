@@ -46,6 +46,18 @@ pub enum WrappedAttributeIndent {
     AlignToTagName,
 }
 
+/// How the formatter handles whitespace in text nodes.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum TextContentMode {
+    /// Collapse runs of whitespace into single spaces, trim lines, skip blanks.
+    Collapse,
+    /// Preserve content structure; dedent then re-indent to SVG depth.
+    #[default]
+    Maintain,
+    /// Trim each line, remove blank lines, re-indent to SVG depth.
+    Prettify,
+}
+
 /// Formatter configuration for SVG pretty-printing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct FormatOptions {
@@ -67,6 +79,8 @@ pub struct FormatOptions {
     pub quote_style: QuoteStyle,
     /// Indentation style for wrapped attributes.
     pub wrapped_attribute_indent: WrappedAttributeIndent,
+    /// How text-node whitespace is handled.
+    pub text_content: TextContentMode,
 }
 
 impl Default for FormatOptions {
@@ -81,6 +95,7 @@ impl Default for FormatOptions {
             space_before_self_close: true,
             quote_style: QuoteStyle::Preserve,
             wrapped_attribute_indent: WrappedAttributeIndent::OneLevel,
+            text_content: TextContentMode::Maintain,
         }
     }
 }
@@ -320,12 +335,28 @@ impl<'a> Formatter<'a> {
             return;
         }
 
-        for line in text.lines() {
-            let trimmed = line.trim();
-            if trimmed.is_empty() {
-                continue;
+        match self.options.text_content {
+            TextContentMode::Collapse => {
+                for line in text.lines() {
+                    let collapsed = collapse_whitespace(line);
+                    if collapsed.is_empty() {
+                        continue;
+                    }
+                    self.write_line(depth, &collapsed);
+                }
             }
-            self.write_line(depth, trimmed);
+            TextContentMode::Maintain => {
+                self.write_preserved_block_text(node, depth);
+            }
+            TextContentMode::Prettify => {
+                for line in text.lines() {
+                    let trimmed = line.trim();
+                    if trimmed.is_empty() {
+                        continue;
+                    }
+                    self.write_line(depth, trimmed);
+                }
+            }
         }
     }
 
@@ -586,6 +617,28 @@ fn parse_attribute(attribute: &str) -> ParsedAttribute {
     }
 }
 
+/// Collapse runs of whitespace into single spaces and trim.
+fn collapse_whitespace(text: &str) -> String {
+    let mut result = String::with_capacity(text.len());
+    let mut prev_ws = true; // treat start as whitespace to trim leading
+    for ch in text.chars() {
+        if ch.is_whitespace() {
+            if !prev_ws {
+                result.push(' ');
+            }
+            prev_ws = true;
+        } else {
+            result.push(ch);
+            prev_ws = false;
+        }
+    }
+    // trim trailing space
+    if result.ends_with(' ') {
+        result.pop();
+    }
+    result
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -617,12 +670,15 @@ mod tests {
 
     #[test]
     fn preserves_style_block_content_shape() {
+        // Default text_content is Maintain — preserves relative indentation.
+        // .b has 2 extra spaces of indentation relative to .a in the source,
+        // which is preserved in the output.
         let input = r#"<svg><style>
   .a { fill: red; }
     .b { stroke: blue; }
 </style></svg>"#;
         let expected =
-            "<svg>\n\t<style>\n\t\t.a { fill: red; }\n\t\t.b { stroke: blue; }\n\t</style>\n</svg>";
+            "<svg>\n\t<style>\n\t\t.a { fill: red; }\n\t\t  .b { stroke: blue; }\n\t</style>\n</svg>";
         assert_eq!(format(input), expected);
     }
 
@@ -712,5 +768,46 @@ mod tests {
     fn parse_error_returns_original_source() {
         let input = r#"<svg><path d="m0 0 l"/></svg>"#;
         assert_eq!(format(input), input);
+    }
+
+    #[test]
+    fn text_content_maintain_preserves_relative_indentation() {
+        let input = "<svg><text>\n  hello\n    world\n</text></svg>";
+        let options = FormatOptions {
+            text_content: TextContentMode::Maintain,
+            ..Default::default()
+        };
+        let expected = "<svg>\n\t<text>\n\t\thello\n\t\t  world\n\t</text>\n</svg>";
+        assert_eq!(format_with_options(input, options), expected);
+    }
+
+    #[test]
+    fn text_content_collapse_collapses_whitespace() {
+        let input = "<svg><text>\n  hello   world  \n    foo    bar  \n</text></svg>";
+        let options = FormatOptions {
+            text_content: TextContentMode::Collapse,
+            ..Default::default()
+        };
+        let expected = "<svg>\n\t<text>\n\t\thello world\n\t\tfoo bar\n\t</text>\n</svg>";
+        assert_eq!(format_with_options(input, options), expected);
+    }
+
+    #[test]
+    fn text_content_prettify_trims_and_reindents() {
+        let input = "<svg><text>\n  hello  \n    world  \n</text></svg>";
+        let options = FormatOptions {
+            text_content: TextContentMode::Prettify,
+            ..Default::default()
+        };
+        let expected = "<svg>\n\t<text>\n\t\thello\n\t\tworld\n\t</text>\n</svg>";
+        assert_eq!(format_with_options(input, options), expected);
+    }
+
+    #[test]
+    fn text_content_default_is_maintain() {
+        assert_eq!(
+            FormatOptions::default().text_content,
+            TextContentMode::Maintain
+        );
     }
 }

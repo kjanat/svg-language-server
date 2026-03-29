@@ -172,6 +172,7 @@ fn run() -> Result<ExitCode, String> {
         },
         quote_style: cli.quote_style.into(),
         wrapped_attribute_indent: cli.wrapped_attribute_indent.into(),
+        text_content: defaults.text_content,
     };
 
     let input = match (read_stdin, cli.path.as_ref()) {
@@ -223,6 +224,41 @@ fn main() -> ExitCode {
         Err(message) => {
             eprintln!("svg-format: {message}");
             ExitCode::from(2)
+        }
+    }
+}
+
+#[cfg(test)]
+mod debug_tests {
+    use super::*;
+    use tree_sitter::Parser;
+
+    #[test]
+    fn debug_tree_structure() {
+        let source = r#"<svg><style>
+  .a { fill: red; }
+</style><script>
+  console.log("hello");
+</script></svg>"#;
+
+        let mut parser = Parser::new();
+        parser
+            .set_language(&tree_sitter_svg::LANGUAGE.into())
+            .unwrap();
+
+        if let Some(tree) = parser.parse(source.as_bytes(), None) {
+            fn print_tree(node: tree_sitter::Node, source: &[u8], depth: usize) {
+                let indent = "  ".repeat(depth);
+                let text = std::str::from_utf8(&source[node.byte_range()]).unwrap_or("?");
+                let short = if text.len() > 30 { &text[..30] } else { text };
+                eprintln!("{}kind={}", indent, node.kind());
+
+                let mut cursor = node.walk();
+                for child in node.named_children(&mut cursor) {
+                    print_tree(child, source, depth + 1);
+                }
+            }
+            print_tree(tree.root_node(), source.as_bytes(), 0);
         }
     }
 }

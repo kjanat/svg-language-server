@@ -1725,4 +1725,32 @@ mod tests {
             "ignore-file inside nested element did not skip formatting"
         );
     }
+
+    #[test]
+    fn ignore_range_as_first_child_after_start_tag() {
+        // ignore-start immediately after <svg> — prev_end is None when
+        // handle_ignore first sees the start directive.
+        let input = "<svg>\n<!-- svg-format-ignore-start -->\n<rect y=\"2\" x=\"1\"/>\n<!-- svg-format-ignore-end -->\n</svg>";
+        let result = format(input);
+        assert!(
+            result.contains("y=\"2\" x=\"1\""),
+            "ignore range lost content when prev_end was None:\n{result}"
+        );
+    }
+
+    #[test]
+    fn ignore_range_first_content_child_not_lost() {
+        // The first element inside the range must not be dropped due to
+        // write_source_span receiving None as `from`.
+        let input = "<svg>\n<!-- svg-format-ignore-start -->\n<rect y=\"2\" x=\"1\"/>\n<circle r=\"3\"/>\n<!-- svg-format-ignore-end -->\n</svg>";
+        let result = format(input);
+        assert!(
+            result.contains("<rect y=\"2\" x=\"1\"/>"),
+            "first element inside range was lost:\n{result}"
+        );
+        assert!(
+            result.contains("<circle r=\"3\"/>"),
+            "second element inside range was lost:\n{result}"
+        );
+    }
 }

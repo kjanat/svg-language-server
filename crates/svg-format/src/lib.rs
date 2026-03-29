@@ -245,11 +245,13 @@ impl<'a> Formatter<'a> {
     ) {
         let mut cursor = node.walk();
         let mut prev_end: Option<usize> = None;
+        let mut prev_was_comment = false;
         for child in node.named_children(&mut cursor) {
             if let Some(end) = prev_end {
-                self.emit_gap(end, child.start_byte());
+                self.emit_gap(end, child.start_byte(), prev_was_comment);
             }
             self.format_node(child, depth, fmt);
+            prev_was_comment = child.kind() == "comment";
             prev_end = Some(child.end_byte());
         }
     }
@@ -300,6 +302,7 @@ impl<'a> Formatter<'a> {
         }
 
         let mut prev_end: Option<usize> = None;
+        let mut prev_was_comment = false;
         for child in children {
             match child.kind() {
                 "start_tag" => {
@@ -313,6 +316,7 @@ impl<'a> Formatter<'a> {
                     if !self.node_text(child).trim().is_empty() {
                         self.write_preserved_block_text(child, depth + 1);
                     }
+                    prev_was_comment = false;
                     prev_end = Some(child.end_byte());
                 }
                 "text" | "raw_text" => {
@@ -320,24 +324,27 @@ impl<'a> Formatter<'a> {
                         continue;
                     }
                     if let Some(end) = prev_end {
-                        self.emit_gap(end, child.start_byte());
+                        self.emit_gap(end, child.start_byte(), prev_was_comment);
                     }
                     // Try embedded formatting for style/script raw_text.
                     if let Some(lang) = embedded_lang
                         && lang != EmbeddedLanguage::Html
                         && self.try_format_embedded_text(child, lang, depth + 1, fmt)
                     {
+                        prev_was_comment = false;
                         prev_end = Some(child.end_byte());
                         continue;
                     }
                     self.write_text_node(child, depth + 1);
+                    prev_was_comment = false;
                     prev_end = Some(child.end_byte());
                 }
                 _ => {
                     if let Some(end) = prev_end {
-                        self.emit_gap(end, child.start_byte());
+                        self.emit_gap(end, child.start_byte(), prev_was_comment);
                     }
                     self.format_node(child, depth + 1, fmt);
+                    prev_was_comment = child.kind() == "comment";
                     prev_end = Some(child.end_byte());
                 }
             }
@@ -602,13 +609,22 @@ impl<'a> Formatter<'a> {
     }
 
     /// Emit blank lines between siblings based on the `blank_lines` option.
-    fn emit_gap(&mut self, prev_end: usize, next_start: usize) {
+    ///
+    /// When `prev_was_comment` is true and mode is `Insert`, the gap is
+    /// skipped — comments attach downward to the element they annotate.
+    fn emit_gap(&mut self, prev_end: usize, next_start: usize, prev_was_comment: bool) {
         let source_gaps = self.source_blank_lines(prev_end, next_start);
         let count = match self.options.blank_lines {
             BlankLines::Remove => 0,
             BlankLines::Preserve => source_gaps,
             BlankLines::Truncate => source_gaps.min(1),
-            BlankLines::Insert => source_gaps.max(1),
+            BlankLines::Insert => {
+                if prev_was_comment {
+                    source_gaps.min(1)
+                } else {
+                    source_gaps.max(1)
+                }
+            }
         };
         for _ in 0..count {
             self.out.push('\n');
@@ -1190,6 +1206,18 @@ mod tests {
             ..Default::default()
         };
         let expected = "<svg>\n\t<rect />\n\n\t<circle />\n</svg>";
+        assert_eq!(format_with_options(input, options), expected);
+    }
+
+    #[test]
+    fn blank_lines_insert_comments_attach_downward() {
+        let input = "<svg><rect/><!--legend--><circle/></svg>";
+        let options = FormatOptions {
+            blank_lines: BlankLines::Insert,
+            ..Default::default()
+        };
+        // Blank line before comment, but NOT between comment and circle.
+        let expected = "<svg>\n\t<rect />\n\n\t<!--legend-->\n\t<circle />\n</svg>";
         assert_eq!(format_with_options(input, options), expected);
     }
 

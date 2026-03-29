@@ -173,6 +173,7 @@ fn run() -> Result<ExitCode, String> {
         quote_style: cli.quote_style.into(),
         wrapped_attribute_indent: cli.wrapped_attribute_indent.into(),
         text_content: defaults.text_content,
+        blank_lines: defaults.blank_lines,
     };
 
     let input = match (read_stdin, cli.path.as_ref()) {

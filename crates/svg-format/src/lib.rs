@@ -46,6 +46,20 @@ pub enum WrappedAttributeIndent {
     AlignToTagName,
 }
 
+/// How blank lines between sibling elements are handled.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum BlankLines {
+    /// Strip all blank lines between siblings.
+    Remove,
+    /// Keep blank lines from source verbatim.
+    Preserve,
+    /// Collapse 2+ blank lines to exactly 1.
+    #[default]
+    Truncate,
+    /// Force exactly 1 blank line between every sibling.
+    Insert,
+}
+
 /// How the formatter handles whitespace in text nodes.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum TextContentMode {
@@ -102,6 +116,8 @@ pub struct FormatOptions {
     pub wrapped_attribute_indent: WrappedAttributeIndent,
     /// How text-node whitespace is handled.
     pub text_content: TextContentMode,
+    /// How blank lines between sibling elements are handled.
+    pub blank_lines: BlankLines,
 }
 
 impl Default for FormatOptions {
@@ -117,6 +133,7 @@ impl Default for FormatOptions {
             quote_style: QuoteStyle::Preserve,
             wrapped_attribute_indent: WrappedAttributeIndent::OneLevel,
             text_content: TextContentMode::Maintain,
+            blank_lines: BlankLines::Truncate,
         }
     }
 }
@@ -227,8 +244,13 @@ impl<'a> Formatter<'a> {
         fmt: &mut dyn FnMut(EmbeddedContent<'_>) -> Option<String>,
     ) {
         let mut cursor = node.walk();
+        let mut prev_end: Option<usize> = None;
         for child in node.named_children(&mut cursor) {
+            if let Some(end) = prev_end {
+                self.emit_gap(end, child.start_byte());
+            }
             self.format_node(child, depth, fmt);
+            prev_end = Some(child.end_byte());
         }
     }
 
@@ -278,30 +300,48 @@ impl<'a> Formatter<'a> {
             }
         }
 
+        let mut prev_end: Option<usize> = None;
         for child in children {
             match child.kind() {
-                "start_tag" | "end_tag" => self.format_node(child, depth, fmt),
+                "start_tag" => {
+                    self.format_node(child, depth, fmt);
+                }
+                "end_tag" => {
+                    self.format_node(child, depth, fmt);
+                }
                 "style_text_double" | "style_text_single" | "script_text_double"
                 | "script_text_single" => {
                     if !self.node_text(child).trim().is_empty() {
                         self.write_preserved_block_text(child, depth + 1);
                     }
+                    prev_end = Some(child.end_byte());
                 }
                 "text" | "raw_text" => {
                     if self.node_text(child).trim().is_empty() {
                         continue;
                     }
+                    if let Some(end) = prev_end {
+                        self.emit_gap(end, child.start_byte());
+                    }
                     // Try embedded formatting for style/script raw_text.
                     if let Some(lang) = embedded_lang {
                         if lang != EmbeddedLanguage::Html {
                             if self.try_format_embedded_text(child, lang, depth + 1, fmt) {
+                                prev_end = Some(child.end_byte());
                                 continue;
                             }
                         }
                     }
                     self.write_text_node(child, depth + 1);
+                    prev_end = Some(child.end_byte());
                 }
-                _ => self.format_node(child, depth + 1, fmt),
+                _ => {
+                    if let Some(end) = prev_end {
+                        self.emit_gap(end, child.start_byte());
+                    }
+                    self.format_node(child, depth + 1, fmt);
+                    prev_end = Some(child.end_byte());
+                }
             }
         }
     }
@@ -550,6 +590,30 @@ impl<'a> Formatter<'a> {
                 self.out.push_str(line);
                 self.out.push('\n');
             }
+        }
+    }
+
+    /// Count blank lines in the source gap between two byte positions.
+    fn source_blank_lines(&self, from: usize, to: usize) -> usize {
+        if from >= to {
+            return 0;
+        }
+        let gap = std::str::from_utf8(&self.source[from..to]).unwrap_or_default();
+        let newlines = gap.chars().filter(|&c| c == '\n').count();
+        newlines.saturating_sub(1)
+    }
+
+    /// Emit blank lines between siblings based on the `blank_lines` option.
+    fn emit_gap(&mut self, prev_end: usize, next_start: usize) {
+        let source_gaps = self.source_blank_lines(prev_end, next_start);
+        let count = match self.options.blank_lines {
+            BlankLines::Remove => 0,
+            BlankLines::Preserve => source_gaps,
+            BlankLines::Truncate => source_gaps.min(1),
+            BlankLines::Insert => source_gaps.max(1),
+        };
+        for _ in 0..count {
+            self.out.push('\n');
         }
     }
 
@@ -1075,5 +1139,65 @@ mod tests {
             result,
             "<svg>\n\t<foreignObject width=\"200\" height=\"200\">\n\t\t<div>\n\t\t  hello\n\t\t</div>\n\t</foreignObject>\n</svg>"
         );
+    }
+
+    #[test]
+    fn blank_lines_remove_strips_all_gaps() {
+        let input = "<svg>\n\t<rect />\n\n\t<!--legend-->\n\t<circle />\n</svg>";
+        let options = FormatOptions {
+            blank_lines: BlankLines::Remove,
+            ..Default::default()
+        };
+        let expected = "<svg>\n\t<rect />\n\t<!--legend-->\n\t<circle />\n</svg>";
+        assert_eq!(format_with_options(input, options), expected);
+    }
+
+    #[test]
+    fn blank_lines_preserve_keeps_source_gaps() {
+        let input = "<svg>\n\t<rect />\n\n\n\t<!--legend-->\n\t<circle />\n</svg>";
+        let options = FormatOptions {
+            blank_lines: BlankLines::Preserve,
+            ..Default::default()
+        };
+        let expected = "<svg>\n\t<rect />\n\n\n\t<!--legend-->\n\t<circle />\n</svg>";
+        assert_eq!(format_with_options(input, options), expected);
+    }
+
+    #[test]
+    fn blank_lines_truncate_collapses_multiple() {
+        let input = "<svg>\n\t<rect />\n\n\n\n\t<!--legend-->\n\t<circle />\n</svg>";
+        let options = FormatOptions {
+            blank_lines: BlankLines::Truncate,
+            ..Default::default()
+        };
+        let expected = "<svg>\n\t<rect />\n\n\t<!--legend-->\n\t<circle />\n</svg>";
+        assert_eq!(format_with_options(input, options), expected);
+    }
+
+    #[test]
+    fn blank_lines_truncate_keeps_single() {
+        let input = "<svg>\n\t<rect />\n\n\t<!--legend-->\n\t<circle />\n</svg>";
+        let options = FormatOptions {
+            blank_lines: BlankLines::Truncate,
+            ..Default::default()
+        };
+        let expected = "<svg>\n\t<rect />\n\n\t<!--legend-->\n\t<circle />\n</svg>";
+        assert_eq!(format_with_options(input, options), expected);
+    }
+
+    #[test]
+    fn blank_lines_insert_adds_gaps() {
+        let input = "<svg><rect/><circle/></svg>";
+        let options = FormatOptions {
+            blank_lines: BlankLines::Insert,
+            ..Default::default()
+        };
+        let expected = "<svg>\n\t<rect />\n\n\t<circle />\n</svg>";
+        assert_eq!(format_with_options(input, options), expected);
+    }
+
+    #[test]
+    fn blank_lines_default_is_truncate() {
+        assert_eq!(FormatOptions::default().blank_lines, BlankLines::Truncate);
     }
 }

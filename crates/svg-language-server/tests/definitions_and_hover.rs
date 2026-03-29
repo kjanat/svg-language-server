@@ -1,0 +1,212 @@
+mod support;
+
+use serde_json::json;
+use support::TestServer;
+
+#[test]
+fn class_and_custom_property_definition_and_hover() {
+    let mut server = TestServer::new();
+
+    let class_svg = r#"<svg><style>.uses-color{fill:red}</style><rect class="uses-color"/></svg>"#;
+    server.open("file:///class-test.svg", class_svg);
+
+    let class_ref = class_svg
+        .rfind("uses-color")
+        .expect("class reference present") as u32
+        + 2;
+    let definition_resp = server.request(
+        "textDocument/definition",
+        json!({
+            "textDocument": { "uri": "file:///class-test.svg" },
+            "position": { "line": 0, "character": class_ref }
+        }),
+    );
+    let definition = &definition_resp["result"];
+    let expected_class_start = class_svg.find(".uses-color").expect("class selector") as u64 + 1;
+    assert_eq!(
+        definition["uri"].as_str(),
+        Some("file:///class-test.svg"),
+        "definition should stay in the same SVG document: {definition_resp}"
+    );
+    assert_eq!(
+        definition["range"]["start"]["line"].as_u64(),
+        Some(0),
+        "class definition should be on the first line: {definition_resp}"
+    );
+    assert_eq!(
+        definition["range"]["start"]["character"].as_u64(),
+        Some(expected_class_start),
+        "definition should point at the CSS class token, not the attribute wrapper: {definition_resp}"
+    );
+
+    let hover_resp = server.request(
+        "textDocument/hover",
+        json!({
+            "textDocument": { "uri": "file:///class-test.svg" },
+            "position": { "line": 0, "character": class_ref }
+        }),
+    );
+    let hover_text = hover_resp["result"]["contents"]["value"]
+        .as_str()
+        .expect("hover markdown");
+    assert!(
+        hover_text.contains(".uses-color"),
+        "class hover should include the selector name: {hover_resp}"
+    );
+    assert!(
+        hover_text.contains("```css"),
+        "class hover should render the definition as CSS markdown: {hover_resp}"
+    );
+    assert!(
+        hover_text.contains("fill:red"),
+        "class hover should include the CSS definition snippet: {hover_resp}"
+    );
+    assert!(
+        hover_text.contains("[class-test.svg:1](file:///class-test.svg#L1)"),
+        "class hover should provide a clickable source link: {hover_resp}"
+    );
+
+    let vars_svg = r#"<svg><style>:root { --panel-bg: red; } .var-alpha { fill: var(--panel-bg); }</style></svg>"#;
+    server.open("file:///vars-test.svg", vars_svg);
+
+    let var_ref = vars_svg.find("var(--panel-bg)").expect("var reference") as u32 + 6;
+    let var_definition_resp = server.request(
+        "textDocument/definition",
+        json!({
+            "textDocument": { "uri": "file:///vars-test.svg" },
+            "position": { "line": 0, "character": var_ref }
+        }),
+    );
+    let var_definition = &var_definition_resp["result"];
+    let expected_var_start = vars_svg
+        .find("--panel-bg: red")
+        .expect("property definition") as u64;
+    assert_eq!(
+        var_definition["uri"].as_str(),
+        Some("file:///vars-test.svg"),
+        "custom property definition should stay in the same SVG document: {var_definition_resp}"
+    );
+    assert_eq!(
+        var_definition["range"]["start"]["character"].as_u64(),
+        Some(expected_var_start),
+        "definition should point at the custom property declaration: {var_definition_resp}"
+    );
+
+    let var_hover_resp = server.request(
+        "textDocument/hover",
+        json!({
+            "textDocument": { "uri": "file:///vars-test.svg" },
+            "position": { "line": 0, "character": var_ref }
+        }),
+    );
+    let var_hover_text = var_hover_resp["result"]["contents"]["value"]
+        .as_str()
+        .expect("custom property hover markdown");
+    assert!(
+        var_hover_text.contains("--panel-bg: red"),
+        "custom property hover should include the declaration snippet: {var_hover_resp}"
+    );
+    assert!(
+        var_hover_text.contains("```css"),
+        "custom property hover should render the declaration as CSS markdown: {var_hover_resp}"
+    );
+    assert!(
+        var_hover_text.contains("[vars-test.svg:1](file:///vars-test.svg#L1)"),
+        "custom property hover should provide a clickable source link: {var_hover_resp}"
+    );
+
+    server.shutdown_and_exit();
+}
+
+#[test]
+fn element_and_attribute_hover_resolve_catalog_and_external_docs() {
+    let mut server = TestServer::new();
+
+    let test_svg = r##"<svg><rect fill="#ff0000" stroke="blue"/></svg>"##;
+    server.open("file:///test.svg", test_svg);
+
+    let element_hover_resp = server.request(
+        "textDocument/hover",
+        json!({
+            "textDocument": { "uri": "file:///test.svg" },
+            "position": { "line": 0, "character": 7 }
+        }),
+    );
+    let element_hover_value = element_hover_resp["result"]["contents"]["value"]
+        .as_str()
+        .unwrap_or("");
+    assert!(
+        element_hover_value.contains("MDN Reference"),
+        "element hover should contain MDN link: {element_hover_resp}"
+    );
+
+    let hover_svg =
+        r#"<svg xmlns="http://www.w3.org/2000/svg" xml:lang="en"><path d="M0 0"/></svg>"#;
+    server.open("file:///hover.svg", hover_svg);
+
+    let d_hover_resp = server.request(
+        "textDocument/hover",
+        json!({
+            "textDocument": { "uri": "file:///hover.svg" },
+            "position": { "line": 0, "character": 60 }
+        }),
+    );
+    let d_hover_value = d_hover_resp["result"]["contents"]["value"]
+        .as_str()
+        .unwrap_or("");
+    assert!(
+        d_hover_value.contains("Defines a path to be drawn."),
+        "`d` hover should come from the local attribute catalog: {d_hover_resp}"
+    );
+
+    let xmlns_hover_resp = server.request(
+        "textDocument/hover",
+        json!({
+            "textDocument": { "uri": "file:///hover.svg" },
+            "position": { "line": 0, "character": 7 }
+        }),
+    );
+    let xmlns_hover_value = xmlns_hover_resp["result"]["contents"]["value"]
+        .as_str()
+        .unwrap_or("");
+    assert!(
+        xmlns_hover_value.contains("W3C Namespaces in XML"),
+        "`xmlns` hover should use the external namespace reference: {xmlns_hover_resp}"
+    );
+
+    let typed_attribute_hover_svg = r#"<svg><defs><clipPath id="clip"><rect width="10" height="10" /></clipPath><linearGradient id="grad"><stop offset="50%" stop-color="red" /></linearGradient><filter id="blur"><feGaussianBlur stdDeviation="3" /></filter></defs><g clip-path="url(#clip)"><line stroke-dasharray="10 5" /></g><text><tspan dx="5">Hello</tspan></text><animate dur="2s" repeatCount="2" /></svg>"#;
+    server.open(
+        "file:///typed-attribute-hover.svg",
+        typed_attribute_hover_svg,
+    );
+
+    for attribute_name in [
+        "stroke-dasharray",
+        "offset",
+        "stdDeviation",
+        "dx",
+        "dur",
+        "repeatCount",
+    ] {
+        let character = typed_attribute_hover_svg
+            .find(attribute_name)
+            .expect("typed attribute name present") as u32
+            + 1;
+        let hover_resp = server.request(
+            "textDocument/hover",
+            json!({
+                "textDocument": { "uri": "file:///typed-attribute-hover.svg" },
+                "position": { "line": 0, "character": character }
+            }),
+        );
+
+        assert!(
+            hover_resp["result"]["contents"]["value"]
+                .as_str()
+                .is_some_and(|value| !value.is_empty()),
+            "typed attribute hover should resolve for {attribute_name}: {hover_resp}"
+        );
+    }
+
+    server.shutdown_and_exit();
+}

@@ -42,6 +42,11 @@ install-format profile="release":
 lint fix="" allow-dirty="":
     cargo clippy --workspace --all-targets --all-features{{ fix }}{{ allow-dirty }} -- -D clippy::all
 
+# Filesizes
+filesize:
+    wc -l crates/**/*.* | sort -rn | head -20 | tail -n +2
+    cargo bloat --release --crates --filter svg-language-server
+
 # Run all workspace tests
 test *ARGS:
     cargo test --workspace {{ ARGS }}

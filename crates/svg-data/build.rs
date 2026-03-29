@@ -1,9 +1,22 @@
+#[path = "build/bcd.rs"]
+mod bcd;
+#[path = "build/codegen.rs"]
+mod codegen;
+#[path = "build/spec.rs"]
+mod spec;
+
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::fmt::Write as _;
 use std::fs;
 use std::path::Path;
 use std::time::SystemTime;
+
+use bcd::BcdAttribute;
+use codegen::{
+    escape, format_baseline, format_browser_support, format_option_str, ident_from,
+    write_static_str_slice,
+};
 
 // ---- JSON schema types ----
 
@@ -64,7 +77,6 @@ enum ValuesJson {
 
 // ---- Compat data types ----
 
-/// Per-browser `version_added` for the four major desktop browsers.
 #[derive(Clone, Default)]
 struct BrowserSupportValue {
     chrome: Option<String>,
@@ -73,7 +85,6 @@ struct BrowserSupportValue {
     safari: Option<String>,
 }
 
-/// Resolved compat data for one element or attribute.
 struct CompatEntry {
     deprecated: bool,
     experimental: bool,
@@ -90,7 +101,6 @@ enum BaselineValue {
 }
 
 impl BaselineValue {
-    /// Ordering for conservative merge: lower = worse support.
     fn rank(&self) -> u8 {
         match self {
             Self::Limited => 0,
@@ -100,240 +110,10 @@ impl BaselineValue {
     }
 }
 
-// ---- Codegen helpers ----
+// ---- Caching ----
 
-fn escape(s: &str) -> String {
-    s.replace('\\', "\\\\").replace('"', "\\\"")
-}
+const CACHE_MAX_AGE_SECS: u64 = 24 * 60 * 60;
 
-fn write_static_str_slice(out: &mut String, name: &str, items: &[String]) {
-    write!(out, "static {name}: &[&str] = &[").unwrap();
-    for (i, item) in items.iter().enumerate() {
-        if i > 0 {
-            out.push_str(", ");
-        }
-        write!(out, "\"{}\"", escape(item)).unwrap();
-    }
-    writeln!(out, "];").unwrap();
-}
-
-fn ident_from(name: &str) -> String {
-    name.replace('-', "_").to_uppercase()
-}
-
-// ---- Spec description fetching ----
-
-/// Base URL for raw svgwg spec HTML files on GitHub.
-const SVGWG_RAW: &str = "https://raw.githubusercontent.com/w3c/svgwg/main/master";
-
-/// Spec HTML files and the elements they document.
-const SVGWG_SPEC_FILES: &[&str] = &[
-    "shapes.html",
-    "struct.html",
-    "text.html",
-    "paths.html",
-    "painting.html",
-    "pservers.html",
-    "linking.html",
-    "interact.html",
-    "embedded.html",
-    "masking.html",
-];
-
-/// SVG Animations spec (separate module in the same repo).
-const SVGWG_ANIM_URL: &str =
-    "https://raw.githubusercontent.com/w3c/svgwg/main/specs/animations/master/Overview.html";
-
-/// Fetch element descriptions from the W3C svgwg spec sources.
-/// Returns a map of element name → spec description (HTML stripped).
-fn fetch_spec_descriptions(out_dir: &Path, offline: bool) -> HashMap<String, String> {
-    let mut descriptions = HashMap::new();
-
-    // Fetch each spec file and extract descriptions
-    for file in SVGWG_SPEC_FILES {
-        let url = format!("{SVGWG_RAW}/{file}");
-        let cache_name = format!("svgwg-{file}");
-        let cache_path = out_dir.join(&cache_name);
-
-        match ensure_cached(&url, &cache_path, offline) {
-            Ok(true) => {
-                if let Ok(html) = fs::read_to_string(&cache_path) {
-                    extract_element_descriptions(&html, &mut descriptions);
-                }
-            }
-            Ok(false) => {}
-            Err(e) => {
-                println!("cargo::warning=spec: failed to fetch {file}: {e}");
-            }
-        }
-    }
-
-    // Fetch animations spec
-    let anim_cache = out_dir.join("svgwg-animations.html");
-    match ensure_cached(SVGWG_ANIM_URL, &anim_cache, offline) {
-        Ok(true) => {
-            if let Ok(html) = fs::read_to_string(&anim_cache) {
-                extract_element_descriptions(&html, &mut descriptions);
-            }
-        }
-        Ok(false) => {}
-        Err(e) => {
-            println!("cargo::warning=spec: failed to fetch animations spec: {e}");
-        }
-    }
-
-    println!(
-        "cargo::warning=spec: loaded {} element descriptions from svgwg",
-        descriptions.len()
-    );
-    descriptions
-}
-
-/// Extract element descriptions from an svgwg spec HTML file.
-///
-/// Uses two strategies:
-/// 1. Heading id="XxxElement" → first `<p>` after heading (most reliable)
-/// 2. `<edit:with element='name'>` → first `<p>` (fallback, validated)
-fn extract_element_descriptions(html: &str, out: &mut HashMap<String, String>) {
-    // Strategy 1 (primary): heading id="XxxElement" followed by <p>
-    let mut search_from = 0;
-    while let Some(id_pos) = html[search_from..].find("Element\">") {
-        let abs_pos = search_from + id_pos;
-        let prefix = &html[search_from..abs_pos];
-        if let Some(id_start) = prefix.rfind("id=\"") {
-            let name_start = search_from + id_start + 4;
-            let raw_id = &html[name_start..abs_pos + "Element".len()];
-            if let Some(elem_name) = raw_id.strip_suffix("Element") {
-                let elem_name = uncapitalize_element_name(elem_name);
-                if !elem_name.is_empty()
-                    && !out.contains_key(&elem_name)
-                    && let Some(desc) =
-                        extract_first_paragraph(&html[abs_pos + "Element\">".len()..])
-                {
-                    let clean = strip_html_tags(&desc);
-                    if is_element_description(&clean, &elem_name) {
-                        out.insert(elem_name, truncate_description(&clean));
-                    }
-                }
-            }
-        }
-        search_from = abs_pos + "Element\">".len();
-    }
-
-    // Strategy 2 (fallback): <edit:with element='name'> followed by <p>
-    let mut search_from = 0;
-    while let Some(edit_pos) = html[search_from..].find("<edit:with element='") {
-        let abs_pos = search_from + edit_pos;
-        let after_tag = abs_pos + "<edit:with element='".len();
-        let Some(quote_end) = html[after_tag..].find('\'') else {
-            search_from = after_tag;
-            continue;
-        };
-        let elem_name = &html[after_tag..after_tag + quote_end];
-
-        if !out.contains_key(elem_name)
-            && let Some(desc) = extract_first_paragraph(&html[after_tag + quote_end..])
-        {
-            let clean = strip_html_tags(&desc);
-            if is_element_description(&clean, elem_name) {
-                out.insert(elem_name.to_string(), truncate_description(&clean));
-            }
-        }
-        search_from = after_tag + quote_end;
-    }
-}
-
-/// Check if a description paragraph is actually about the element itself
-/// (not about an attribute that applies to it or some other context).
-fn is_element_description(text: &str, elem_name: &str) -> bool {
-    // Reject clearly non-element descriptions
-    if text.starts_with("The following")
-        || text.starts_with("This attribute")
-        || text.starts_with("The outline of")
-        || text.starts_with("Except for")
-    {
-        return false;
-    }
-    // Best: description mentions the element by name
-    if text.contains(&format!("'{elem_name}'")) || text.contains(&format!("<{elem_name}>")) {
-        return true;
-    }
-    // Good: starts with typical spec description patterns
-    if text.starts_with("The '") || text.starts_with("A ") || text.starts_with("An ") {
-        return true;
-    }
-    false
-}
-
-/// Truncate a description to its first two sentences for conciseness.
-fn truncate_description(text: &str) -> String {
-    let bytes = text.as_bytes();
-    let mut sentences = 0;
-    for i in 0..bytes.len().saturating_sub(2) {
-        if bytes[i] == b'.' && bytes[i + 1] == b' ' && bytes[i + 2].is_ascii_uppercase() {
-            sentences += 1;
-            if sentences >= 2 {
-                return text[..=i].to_string();
-            }
-        }
-    }
-    text.to_string()
-}
-
-/// Extract text content of the first `<p>...</p>` block in the given HTML slice.
-fn extract_first_paragraph(html: &str) -> Option<String> {
-    // Skip whitespace, comments, edit: tags to find the first <p>
-    let p_start = html.find("<p>")?;
-    // Don't look too far (skip if >2000 chars away — probably not the description)
-    if p_start > 2000 {
-        return None;
-    }
-    let content_start = p_start + 3;
-    let p_end = html[content_start..].find("</p>")?;
-    Some(html[content_start..content_start + p_end].to_string())
-}
-
-/// Strip HTML tags from a string, leaving only text content.
-fn strip_html_tags(html: &str) -> String {
-    let mut result = String::with_capacity(html.len());
-    let mut in_tag = false;
-    for ch in html.chars() {
-        match ch {
-            '<' => in_tag = true,
-            '>' => in_tag = false,
-            _ if !in_tag => result.push(ch),
-            _ => {}
-        }
-    }
-    // Normalize whitespace: collapse runs of whitespace into single spaces
-    let collapsed: String = result.split_whitespace().collect::<Vec<_>>().join(" ");
-    // Remove surrounding single quotes from element references like 'rect'
-    collapsed
-        .replace("\u{2018}", "'") // left single quote
-        .replace("\u{2019}", "'") // right single quote
-}
-
-/// Convert a PascalCase element ID to the actual element name.
-/// e.g. "Rect" → "rect", "LinearGradient" → "linearGradient",
-///      "FeGaussianBlur" → "feGaussianBlur"
-fn uncapitalize_element_name(id: &str) -> String {
-    let mut chars = id.chars();
-    match chars.next() {
-        None => String::new(),
-        Some(first) => format!("{}{}", first.to_lowercase(), chars.as_str()),
-    }
-}
-
-// ---- Compat data fetching ----
-
-const BCD_URL: &str = "https://unpkg.com/@mdn/browser-compat-data@latest/data.json";
-const WEB_FEATURES_URL: &str = "https://unpkg.com/web-features@latest/data.json";
-
-const CACHE_MAX_AGE_SECS: u64 = 24 * 60 * 60; // 24 hours
-
-/// Download `url` to `dest` if the file is missing or older than 24h.
-/// Returns `Ok(true)` if file is ready, `Ok(false)` if skipped (offline mode),
-/// `Err` on failure.
 fn ensure_cached(url: &str, dest: &Path, offline: bool) -> Result<bool, String> {
     if offline {
         if dest.exists() {
@@ -350,7 +130,6 @@ fn ensure_cached(url: &str, dest: &Path, offline: bool) -> Result<bool, String> 
         return Ok(false);
     }
 
-    // Check if existing cache is fresh enough.
     if dest.exists()
         && let Ok(meta) = fs::metadata(dest)
         && let Ok(modified) = meta.modified()
@@ -381,419 +160,7 @@ fn ensure_cached(url: &str, dest: &Path, offline: bool) -> Result<bool, String> 
     Ok(true)
 }
 
-/// Which elements a BCD-discovered attribute applies to.
-struct BcdAttribute {
-    compat: CompatEntry,
-    elements: Vec<String>,
-}
-
-fn bcd_attr_applies_globally(elements: &[String]) -> bool {
-    elements.iter().any(|element| element == "*")
-}
-
-struct CompatData {
-    elements: HashMap<String, CompatEntry>,
-    /// Attributes from BCD (global + element-specific, merged).
-    attributes: HashMap<String, BcdAttribute>,
-}
-
-/// Build lookup maps for elements + attributes.
-/// On any failure, prints a cargo warning and returns empty maps.
-fn fetch_compat_data(out_dir: &Path) -> CompatData {
-    let offline = std::env::var("SVG_DATA_OFFLINE").is_ok();
-
-    let bcd_path = out_dir.join("bcd-data.json");
-    let wf_path = out_dir.join("web-features-data.json");
-
-    let bcd_ok = match ensure_cached(BCD_URL, &bcd_path, offline) {
-        Ok(v) => v,
-        Err(e) => {
-            println!("cargo::warning=compat: BCD fetch failed: {e}");
-            false
-        }
-    };
-
-    let wf_ok = match ensure_cached(WEB_FEATURES_URL, &wf_path, offline) {
-        Ok(v) => v,
-        Err(e) => {
-            println!("cargo::warning=compat: web-features fetch failed: {e}");
-            false
-        }
-    };
-
-    let empty = CompatData {
-        elements: HashMap::new(),
-        attributes: HashMap::new(),
-    };
-
-    if !bcd_ok {
-        println!("cargo::warning=compat: no BCD data — all entries get baseline: None");
-        return empty;
-    }
-
-    // Parse BCD: we only need svg.elements
-    let bcd_raw = match fs::read_to_string(&bcd_path) {
-        Ok(s) => s,
-        Err(e) => {
-            println!("cargo::warning=compat: failed to read BCD cache: {e}");
-            return empty;
-        }
-    };
-
-    let bcd_root: serde_json::Value = match serde_json::from_str(&bcd_raw) {
-        Ok(v) => v,
-        Err(e) => {
-            println!("cargo::warning=compat: failed to parse BCD JSON: {e}");
-            return empty;
-        }
-    };
-
-    let svg_elements = match bcd_root.pointer("/svg/elements") {
-        Some(v) => v,
-        None => {
-            println!("cargo::warning=compat: BCD missing /svg/elements path");
-            return empty;
-        }
-    };
-
-    // Parse web-features (optional — only needed for baseline mapping)
-    let wf_features: Option<serde_json::Value> = if wf_ok {
-        match fs::read_to_string(&wf_path) {
-            Ok(s) => match serde_json::from_str::<serde_json::Value>(&s) {
-                Ok(v) => v.get("features").cloned(),
-                Err(e) => {
-                    println!("cargo::warning=compat: failed to parse web-features JSON: {e}");
-                    None
-                }
-            },
-            Err(e) => {
-                println!("cargo::warning=compat: failed to read web-features cache: {e}");
-                None
-            }
-        }
-    } else {
-        None
-    };
-
-    let svg_elements_obj = match svg_elements.as_object() {
-        Some(o) => o,
-        None => {
-            println!("cargo::warning=compat: /svg/elements is not an object");
-            return empty;
-        }
-    };
-
-    let mut map = HashMap::new();
-
-    for (el_name, el_data) in svg_elements_obj {
-        let compat = match el_data.pointer("/__compat") {
-            Some(c) => c,
-            None => continue,
-        };
-
-        // Extract status flags
-        let deprecated = compat
-            .pointer("/status/deprecated")
-            .and_then(|v| v.as_bool())
-            .unwrap_or(false);
-        let experimental = compat
-            .pointer("/status/experimental")
-            .and_then(|v| v.as_bool())
-            .unwrap_or(false);
-        let spec_url = extract_spec_url(compat);
-        let browser_support = extract_browser_support(compat);
-        let compat_key = format!("svg.elements.{el_name}");
-        let baseline = extract_baseline(compat, &wf_features, &compat_key);
-
-        map.insert(
-            el_name.clone(),
-            CompatEntry {
-                deprecated,
-                experimental,
-                spec_url,
-                baseline,
-                browser_support,
-            },
-        );
-    }
-
-    println!(
-        "cargo::warning=compat: loaded {} element entries from BCD",
-        map.len()
-    );
-
-    // Collect attributes from BCD: global + element-specific
-    let mut attr_map: HashMap<String, BcdAttribute> = HashMap::new();
-
-    // 1) Global attributes (apply to all elements)
-    if let Some(global_attrs) = bcd_root.pointer("/svg/global_attributes")
-        && let Some(obj) = global_attrs.as_object()
-    {
-        for (attr_name, attr_data) in obj {
-            let Some(compat) = attr_data.pointer("/__compat") else {
-                continue;
-            };
-            let deprecated = compat
-                .pointer("/status/deprecated")
-                .and_then(|v| v.as_bool())
-                .unwrap_or(false);
-            let experimental = compat
-                .pointer("/status/experimental")
-                .and_then(|v| v.as_bool())
-                .unwrap_or(false);
-            let spec_url = extract_spec_url(compat);
-            let browser_support = extract_browser_support(compat);
-            let compat_key = format!("svg.global_attributes.{attr_name}");
-            let baseline = extract_baseline(compat, &wf_features, &compat_key);
-            attr_map.insert(
-                attr_name.clone(),
-                BcdAttribute {
-                    compat: CompatEntry {
-                        deprecated,
-                        experimental,
-                        spec_url,
-                        baseline,
-                        browser_support,
-                    },
-                    elements: vec!["*".to_string()],
-                },
-            );
-        }
-    }
-
-    // 2) Element-specific attributes (e.g. svg.elements.svg.baseProfile)
-    for (el_name, el_data) in svg_elements_obj {
-        let Some(el_obj) = el_data.as_object() else {
-            continue;
-        };
-        for (key, val) in el_obj {
-            if key == "__compat" {
-                continue;
-            }
-            let Some(compat) = val.pointer("/__compat") else {
-                continue;
-            };
-            let deprecated = compat
-                .pointer("/status/deprecated")
-                .and_then(|v| v.as_bool())
-                .unwrap_or(false);
-            let experimental = compat
-                .pointer("/status/experimental")
-                .and_then(|v| v.as_bool())
-                .unwrap_or(false);
-            let spec_url = extract_spec_url(compat);
-            let browser_support = extract_browser_support(compat);
-            let compat_key = format!("svg.elements.{el_name}.{key}");
-            let baseline = extract_baseline(compat, &wf_features, &compat_key);
-
-            attr_map
-                .entry(key.clone())
-                .and_modify(|existing| {
-                    // Merge: promote deprecated if any source says so
-                    if deprecated {
-                        existing.compat.deprecated = true;
-                    }
-                    // Promote experimental if any source says so
-                    if experimental {
-                        existing.compat.experimental = true;
-                    }
-                    // Keep first spec URL
-                    if existing.compat.spec_url.is_none() {
-                        existing.compat.spec_url = spec_url.clone();
-                    }
-                    // Add element association if not already global
-                    if !bcd_attr_applies_globally(&existing.elements)
-                        && !existing.elements.iter().any(|element| element == el_name)
-                    {
-                        existing.elements.push(el_name.clone());
-                    }
-                    // Conservative baseline merge: keep the worst (most limited)
-                    match (&existing.compat.baseline, &baseline) {
-                        (None, _) => existing.compat.baseline = baseline.clone(),
-                        (Some(current), Some(new)) if new.rank() < current.rank() => {
-                            existing.compat.baseline = baseline.clone();
-                        }
-                        _ => {}
-                    }
-                    // Conservative browser support merge: keep the lowest version per browser
-                    if let Some(new_bs) = &browser_support {
-                        merge_browser_support(&mut existing.compat.browser_support, new_bs);
-                    }
-                })
-                .or_insert(BcdAttribute {
-                    compat: CompatEntry {
-                        deprecated,
-                        experimental,
-                        spec_url,
-                        baseline,
-                        browser_support,
-                    },
-                    elements: vec![el_name.clone()],
-                });
-        }
-    }
-
-    println!(
-        "cargo::warning=compat: loaded {} attribute entries from BCD",
-        attr_map.len()
-    );
-
-    CompatData {
-        elements: map,
-        attributes: attr_map,
-    }
-}
-
-/// Given a BCD `__compat` object, web-features data, and BCD compat key,
-/// resolve baseline status.
-///
-/// Resolution order:
-/// 1. `by_compat_key[compat_key]` — per-key override (most precise)
-/// 2. Feature-level `status.baseline` — fallback
-fn extract_baseline(
-    compat: &serde_json::Value,
-    wf_features: &Option<serde_json::Value>,
-    compat_key: &str,
-) -> Option<BaselineValue> {
-    let wf = wf_features.as_ref()?;
-
-    // Find the web-features tag
-    let tags = compat.get("tags")?.as_array()?;
-    let feature_id = tags.iter().find_map(|tag| {
-        let s = tag.as_str()?;
-        s.strip_prefix("web-features:")
-    })?;
-
-    // Look up in web-features data
-    let feature = wf.get(feature_id)?;
-    let status = feature.get("status")?;
-
-    // Try per-compat-key override first
-    if let Some(by_key) = status.get("by_compat_key")
-        && let Some(override_status) = by_key.get(compat_key)
-    {
-        return parse_baseline_value(override_status);
-    }
-
-    // Fall back to feature-level baseline
-    parse_baseline_value(status)
-}
-
-/// Parse a baseline value from a status object containing `baseline`,
-/// `baseline_high_date`, and `baseline_low_date` fields.
-fn parse_baseline_value(status: &serde_json::Value) -> Option<BaselineValue> {
-    match status.get("baseline")? {
-        serde_json::Value::Bool(false) => Some(BaselineValue::Limited),
-        serde_json::Value::String(s) if s == "high" => {
-            let year = extract_year(status, "baseline_high_date")?;
-            Some(BaselineValue::Widely { since: year })
-        }
-        serde_json::Value::String(s) if s == "low" => {
-            let year = extract_year(status, "baseline_low_date")?;
-            Some(BaselineValue::Newly { since: year })
-        }
-        _ => None,
-    }
-}
-
-/// Conservative merge of browser support: if any source lacks support for
-/// a browser (None), the merged result is None for that browser.
-fn merge_browser_support(existing: &mut Option<BrowserSupportValue>, new: &BrowserSupportValue) {
-    let Some(existing) = existing.as_mut() else {
-        *existing = Some(new.clone());
-        return;
-    };
-
-    // Conservative: if the new source doesn't support a browser, drop it
-    if new.chrome.is_none() {
-        existing.chrome = None;
-    }
-    if new.edge.is_none() {
-        existing.edge = None;
-    }
-    if new.firefox.is_none() {
-        existing.firefox = None;
-    }
-    if new.safari.is_none() {
-        existing.safari = None;
-    }
-}
-
-/// Extract `version_added` for Chrome, Edge, Firefox, Safari from a BCD
-/// `__compat.support` object.
-fn extract_browser_support(compat: &serde_json::Value) -> Option<BrowserSupportValue> {
-    let support = compat.get("support")?;
-
-    let version_added = |browser: &str| -> Option<String> {
-        let entry = support.get(browser)?;
-        // Handle both single statement and array (take first entry)
-        let stmt = if entry.is_array() {
-            entry.get(0)?
-        } else {
-            entry
-        };
-        // version_added is either a string or false
-        stmt.get("version_added")?.as_str().map(String::from)
-    };
-
-    Some(BrowserSupportValue {
-        chrome: version_added("chrome"),
-        edge: version_added("edge"),
-        firefox: version_added("firefox"),
-        safari: version_added("safari"),
-    })
-}
-
-/// Extract the first `spec_url` from a BCD `__compat` object.
-///
-/// BCD `spec_url` can be a single string or an array of strings.
-fn extract_spec_url(compat: &serde_json::Value) -> Option<String> {
-    match compat.get("spec_url")? {
-        serde_json::Value::String(s) => Some(s.clone()),
-        serde_json::Value::Array(arr) => arr.first().and_then(|v| v.as_str()).map(String::from),
-        _ => None,
-    }
-}
-
-/// Extract the year from a date string like "2020-01-15".
-fn extract_year(status: &serde_json::Value, key: &str) -> Option<u16> {
-    let date_str = status.get(key)?.as_str()?;
-    let year_str = date_str.split('-').next()?;
-    year_str.parse::<u16>().ok()
-}
-
-fn format_baseline(baseline: Option<&BaselineValue>) -> String {
-    match baseline {
-        None => "None".to_string(),
-        Some(BaselineValue::Widely { since }) => {
-            format!("Some(BaselineStatus::Widely {{ since: {since} }})")
-        }
-        Some(BaselineValue::Newly { since }) => {
-            format!("Some(BaselineStatus::Newly {{ since: {since} }})")
-        }
-        Some(BaselineValue::Limited) => "Some(BaselineStatus::Limited)".to_string(),
-    }
-}
-
-fn format_browser_support(bs: Option<&BrowserSupportValue>) -> String {
-    let Some(bs) = bs else {
-        return "None".to_string();
-    };
-    format!(
-        "Some(BrowserSupport {{ chrome: {}, edge: {}, firefox: {}, safari: {} }})",
-        format_option_str(bs.chrome.as_deref()),
-        format_option_str(bs.edge.as_deref()),
-        format_option_str(bs.firefox.as_deref()),
-        format_option_str(bs.safari.as_deref()),
-    )
-}
-
-fn format_option_str(value: Option<&str>) -> String {
-    match value {
-        None => "None".to_string(),
-        Some(s) => format!("Some(\"{}\")", escape(s)),
-    }
-}
+// ---- Code generation ----
 
 fn main() {
     println!("cargo::rerun-if-changed=data/elements.json");
@@ -816,12 +183,8 @@ fn main() {
         serde_json::from_str(&attributes_json).expect("failed to parse attributes.json");
 
     let offline = std::env::var("SVG_DATA_OFFLINE").is_ok();
-
-    // Fetch compat data (graceful fallback on failure)
-    let compat = fetch_compat_data(out_dir);
-
-    // Fetch spec descriptions from svgwg (graceful fallback)
-    let spec_descriptions = fetch_spec_descriptions(out_dir, offline);
+    let compat = bcd::fetch_compat_data(out_dir);
+    let spec_descriptions = spec::fetch_spec_descriptions(out_dir, offline);
 
     let mut out = String::with_capacity(16384);
 
@@ -830,7 +193,6 @@ fn main() {
 
     // ---- Element statics ----
 
-    // Build a map of element name -> index for unique static names
     let el_idents: HashMap<&str, String> = elements
         .iter()
         .map(|e| (e.name.as_str(), ident_from(&e.name)))
@@ -838,15 +200,12 @@ fn main() {
 
     for el in &elements {
         let id = &el_idents[el.name.as_str()];
-
         write_static_str_slice(
             &mut out,
             &format!("EL_{id}_REQUIRED_ATTRS"),
             &el.required_attrs,
         );
         write_static_str_slice(&mut out, &format!("EL_{id}_ATTRS"), &el.attrs);
-
-        // Children categories (if applicable)
         if let ContentModelJson::Children { children } = &el.content_model {
             write!(out, "static EL_{id}_CHILDREN: &[ElementCategory] = &[").unwrap();
             for (i, cat) in children.iter().enumerate() {
@@ -857,7 +216,6 @@ fn main() {
             }
             writeln!(out, "];").unwrap();
         }
-
         writeln!(out).unwrap();
     }
 
@@ -870,9 +228,7 @@ fn main() {
 
     for attr in &attributes {
         let id = &attr_idents[attr.name.as_str()];
-
         write_static_str_slice(&mut out, &format!("ATTR_{id}_ELEMENTS"), &attr.elements);
-
         match &attr.values {
             ValuesJson::Enum { values } => {
                 write_static_str_slice(&mut out, &format!("ATTR_{id}_VALUES"), values);
@@ -893,7 +249,6 @@ fn main() {
             }
             _ => {}
         }
-
         writeln!(out).unwrap();
     }
 
@@ -914,7 +269,6 @@ fn main() {
             }
         };
 
-        // Use compat data if available, otherwise fall back to JSON values
         let (deprecated, experimental, spec_url_str, baseline_str, browser_support_str) =
             match compat.elements.get(&el.name) {
                 Some(entry) => (
@@ -933,9 +287,7 @@ fn main() {
                 ),
             };
 
-        // Prefer spec description over hand-written JSON description
         let description = spec_descriptions.get(&el.name).unwrap_or(&el.description);
-
         writeln!(out, "    ElementDef {{").unwrap();
         writeln!(out, "        name: \"{}\",", escape(&el.name)).unwrap();
         writeln!(out, "        description: \"{}\",", escape(description)).unwrap();
@@ -951,7 +303,8 @@ fn main() {
         writeln!(out, "        global_attrs: {},", el.global_attrs).unwrap();
         writeln!(out, "    }},").unwrap();
     }
-    // 2) BCD-only elements (auto-generated, Void content model)
+
+    // BCD-only elements
     let curated_el_names: std::collections::HashSet<&str> =
         elements.iter().map(|e| e.name.as_str()).collect();
     let mut bcd_only_elements: Vec<(&str, &CompatEntry)> = compat
@@ -969,38 +322,45 @@ fn main() {
         );
         let fallback_desc = format!("The {} SVG element.", name);
         let description = spec_descriptions.get(*name).unwrap_or(&fallback_desc);
-        let deprecated = entry.deprecated;
-        let experimental = entry.experimental;
-        let spec_url_str = format_option_str(entry.spec_url.as_deref());
-        let baseline_str = format_baseline(entry.baseline.as_ref());
-        let browser_support_str = format_browser_support(entry.browser_support.as_ref());
         writeln!(out, "    ElementDef {{").unwrap();
         writeln!(out, "        name: \"{}\",", escape(name)).unwrap();
         writeln!(out, "        description: \"{}\",", escape(description)).unwrap();
         writeln!(out, "        mdn_url: \"{}\",", escape(&mdn_url)).unwrap();
-        writeln!(out, "        deprecated: {deprecated},").unwrap();
-        writeln!(out, "        experimental: {experimental},").unwrap();
-        writeln!(out, "        spec_url: {spec_url_str},").unwrap();
-        writeln!(out, "        baseline: {baseline_str},").unwrap();
-        writeln!(out, "        browser_support: {browser_support_str},").unwrap();
+        writeln!(out, "        deprecated: {},", entry.deprecated).unwrap();
+        writeln!(out, "        experimental: {},", entry.experimental).unwrap();
+        writeln!(
+            out,
+            "        spec_url: {},",
+            format_option_str(entry.spec_url.as_deref())
+        )
+        .unwrap();
+        writeln!(
+            out,
+            "        baseline: {},",
+            format_baseline(entry.baseline.as_ref())
+        )
+        .unwrap();
+        writeln!(
+            out,
+            "        browser_support: {},",
+            format_browser_support(entry.browser_support.as_ref())
+        )
+        .unwrap();
         writeln!(out, "        content_model: ContentModel::Void,").unwrap();
         writeln!(out, "        required_attrs: &[],").unwrap();
         writeln!(out, "        attrs: &[],").unwrap();
         writeln!(out, "        global_attrs: true,").unwrap();
         writeln!(out, "    }},").unwrap();
     }
-
     println!(
         "cargo::warning=compat: merged {} BCD-only elements into catalog",
         bcd_only_elements.len()
     );
-
     writeln!(out, "];").unwrap();
     writeln!(out).unwrap();
 
     // ---- BCD-only attribute statics ----
 
-    // Collect BCD attributes not in the curated set
     let curated_names: std::collections::HashSet<&str> =
         attributes.iter().map(|a| a.name.as_str()).collect();
     let mut bcd_only: Vec<(&str, &BcdAttribute)> = compat
@@ -1016,7 +376,6 @@ fn main() {
         write_static_str_slice(&mut out, &format!("ATTR_{id}_ELEMENTS"), &bcd.elements);
         writeln!(out).unwrap();
     }
-
     println!(
         "cargo::warning=compat: merged {} BCD-only attributes into catalog",
         bcd_only.len()
@@ -1026,7 +385,6 @@ fn main() {
 
     writeln!(out, "pub(crate) static ATTRIBUTES: &[AttributeDef] = &[").unwrap();
 
-    // 1) Curated attributes (rich types, descriptions)
     for attr in &attributes {
         let id = &attr_idents[attr.name.as_str()];
         let values = match &attr.values {
@@ -1040,23 +398,12 @@ fn main() {
                 format!("AttributeValues::Transform(ATTR_{id}_FUNCTIONS)")
             }
             ValuesJson::Viewbox => "AttributeValues::ViewBox".to_string(),
-            ValuesJson::PreserveAspectRatio { .. } => {
-                format!(
-                    "AttributeValues::PreserveAspectRatio {{ alignments: ATTR_{id}_ALIGNMENTS, meet_or_slice: ATTR_{id}_MEET_OR_SLICE }}"
-                )
-            }
+            ValuesJson::PreserveAspectRatio { .. } => format!(
+                "AttributeValues::PreserveAspectRatio {{ alignments: ATTR_{id}_ALIGNMENTS, meet_or_slice: ATTR_{id}_MEET_OR_SLICE }}"
+            ),
             ValuesJson::Points => "AttributeValues::Points".to_string(),
             ValuesJson::PathData => "AttributeValues::PathData".to_string(),
         };
-        writeln!(out, "    AttributeDef {{").unwrap();
-        writeln!(out, "        name: \"{}\",", escape(&attr.name)).unwrap();
-        writeln!(
-            out,
-            "        description: \"{}\",",
-            escape(&attr.description)
-        )
-        .unwrap();
-        writeln!(out, "        mdn_url: \"{}\",", escape(&attr.mdn_url)).unwrap();
         let (deprecated, experimental, spec_url_str, baseline_str, browser_support_str) =
             match compat.attributes.get(&attr.name) {
                 Some(bcd) => (
@@ -1074,6 +421,15 @@ fn main() {
                     "None".to_string(),
                 ),
             };
+        writeln!(out, "    AttributeDef {{").unwrap();
+        writeln!(out, "        name: \"{}\",", escape(&attr.name)).unwrap();
+        writeln!(
+            out,
+            "        description: \"{}\",",
+            escape(&attr.description)
+        )
+        .unwrap();
+        writeln!(out, "        mdn_url: \"{}\",", escape(&attr.mdn_url)).unwrap();
         writeln!(out, "        deprecated: {deprecated},").unwrap();
         writeln!(out, "        experimental: {experimental},").unwrap();
         writeln!(out, "        spec_url: {spec_url_str},").unwrap();
@@ -1084,7 +440,6 @@ fn main() {
         writeln!(out, "    }},").unwrap();
     }
 
-    // 2) BCD-only attributes (auto-generated, FreeText values)
     for (name, bcd) in &bcd_only {
         let id = ident_from(name);
         let mdn_url = format!(
@@ -1092,20 +447,30 @@ fn main() {
             name
         );
         let description = format!("The {} SVG attribute.", name);
-        let deprecated = bcd.compat.deprecated;
-        let experimental = bcd.compat.experimental;
-        let spec_url_str = format_option_str(bcd.compat.spec_url.as_deref());
-        let baseline_str = format_baseline(bcd.compat.baseline.as_ref());
-        let browser_support_str = format_browser_support(bcd.compat.browser_support.as_ref());
         writeln!(out, "    AttributeDef {{").unwrap();
         writeln!(out, "        name: \"{}\",", escape(name)).unwrap();
         writeln!(out, "        description: \"{}\",", escape(&description)).unwrap();
         writeln!(out, "        mdn_url: \"{}\",", escape(&mdn_url)).unwrap();
-        writeln!(out, "        deprecated: {deprecated},").unwrap();
-        writeln!(out, "        experimental: {experimental},").unwrap();
-        writeln!(out, "        spec_url: {spec_url_str},").unwrap();
-        writeln!(out, "        baseline: {baseline_str},").unwrap();
-        writeln!(out, "        browser_support: {browser_support_str},").unwrap();
+        writeln!(out, "        deprecated: {},", bcd.compat.deprecated).unwrap();
+        writeln!(out, "        experimental: {},", bcd.compat.experimental).unwrap();
+        writeln!(
+            out,
+            "        spec_url: {},",
+            format_option_str(bcd.compat.spec_url.as_deref())
+        )
+        .unwrap();
+        writeln!(
+            out,
+            "        baseline: {},",
+            format_baseline(bcd.compat.baseline.as_ref())
+        )
+        .unwrap();
+        writeln!(
+            out,
+            "        browser_support: {},",
+            format_browser_support(bcd.compat.browser_support.as_ref())
+        )
+        .unwrap();
         writeln!(out, "        values: AttributeValues::FreeText,").unwrap();
         writeln!(out, "        elements: ATTR_{id}_ELEMENTS,").unwrap();
         writeln!(out, "    }},").unwrap();
@@ -1114,9 +479,8 @@ fn main() {
     writeln!(out, "];").unwrap();
     writeln!(out).unwrap();
 
-    // ---- Category mapping (generated from elements.json "category" field) ----
+    // ---- Category mapping ----
 
-    // Collect category -> [element names] from curated JSON
     let mut category_map: HashMap<&str, Vec<&str>> = HashMap::new();
     for el in &elements {
         if let Some(cat) = &el.category {
@@ -1125,14 +489,8 @@ fn main() {
     }
 
     writeln!(out, "#[allow(unreachable_patterns)]").unwrap();
-    writeln!(
-        out,
-        "pub(crate) fn generated_elements_in_category(cat: ElementCategory) -> &'static [&'static str] {{"
-    )
-    .unwrap();
+    writeln!(out, "pub(crate) fn generated_elements_in_category(cat: ElementCategory) -> &'static [&'static str] {{").unwrap();
     writeln!(out, "    match cat {{").unwrap();
-
-    // Sort categories and element names for deterministic output
     for names in category_map.values_mut() {
         names.sort();
     }
@@ -1147,7 +505,6 @@ fn main() {
             .join(", ");
         writeln!(out, "        ElementCategory::{cat} => &[{names_str}],").unwrap();
     }
-    // Default arm for categories with no curated elements
     writeln!(out, "        _ => &[],").unwrap();
     writeln!(out, "    }}").unwrap();
     writeln!(out, "}}").unwrap();

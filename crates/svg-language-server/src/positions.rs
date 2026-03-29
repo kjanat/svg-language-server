@@ -1,0 +1,107 @@
+use super::*;
+
+/// Convert a byte-offset column to UTF-16 code unit count within a given row.
+///
+/// LSP positions use UTF-16 code units by default. Tree-sitter reports byte offsets,
+/// so we must re-encode the line prefix to count UTF-16 units.
+pub(crate) fn byte_col_to_utf16(source: &[u8], row: usize, byte_col: usize) -> u32 {
+    let line_start: usize = source
+        .split(|&b| b == b'\n')
+        .take(row)
+        .map(|line| line.len() + 1)
+        .sum();
+
+    let end = (line_start + byte_col).min(source.len());
+    let line_bytes = &source[line_start..end];
+    String::from_utf8_lossy(line_bytes).encode_utf16().count() as u32
+}
+
+/// Convert a UTF-16 column offset to a byte offset within a given row.
+///
+/// Inverse of `byte_col_to_utf16`: LSP sends UTF-16 positions, but tree-sitter
+/// uses byte offsets.
+pub(crate) fn utf16_to_byte_col(source: &[u8], row: usize, utf16_col: u32) -> usize {
+    let line_start: usize = source
+        .split(|&b| b == b'\n')
+        .take(row)
+        .map(|line| line.len() + 1)
+        .sum();
+    let line_end = source[line_start..]
+        .iter()
+        .position(|&b| b == b'\n')
+        .map_or(source.len(), |p| line_start + p);
+    let line_str = String::from_utf8_lossy(&source[line_start..line_end]);
+    let mut utf16_count = 0u32;
+    let mut byte_offset = 0usize;
+    for ch in line_str.chars() {
+        if utf16_count >= utf16_col {
+            break;
+        }
+        utf16_count += ch.len_utf16() as u32;
+        byte_offset += ch.len_utf8();
+    }
+    byte_offset
+}
+
+pub(crate) fn byte_offset_for_position(source: &[u8], position: Position) -> usize {
+    let byte_col = utf16_to_byte_col(source, position.line as usize, position.character);
+    byte_offset_for_row_col(source, position.line as usize, byte_col)
+}
+
+pub(crate) fn byte_offset_for_row_col(source: &[u8], row: usize, byte_col: usize) -> usize {
+    let line_start: usize = source
+        .split(|&b| b == b'\n')
+        .take(row)
+        .map(|line| line.len() + 1)
+        .sum();
+    line_start + byte_col
+}
+
+pub(crate) fn end_position_utf16(source: &str) -> Position {
+    let mut line = 0u32;
+    let mut character = 0u32;
+    for ch in source.chars() {
+        if ch == '\n' {
+            line += 1;
+            character = 0;
+        } else {
+            character += ch.len_utf16() as u32;
+        }
+    }
+    Position::new(line, character)
+}
+
+pub(crate) fn span_range_utf16(source: &[u8], span: &svg_references::Span) -> Range {
+    Range::new(
+        Position::new(
+            span.start_row as u32,
+            byte_col_to_utf16(source, span.start_row, span.start_col),
+        ),
+        Position::new(
+            span.end_row as u32,
+            byte_col_to_utf16(source, span.end_row, span.end_col),
+        ),
+    )
+}
+
+pub(crate) fn named_span_location(
+    uri: Uri,
+    source: &[u8],
+    named: &svg_references::NamedSpan,
+) -> Location {
+    Location::new(uri, span_range_utf16(source, &named.span))
+}
+
+pub(crate) fn position_for_byte_offset(source: &[u8], byte_offset: usize) -> Position {
+    let clamped = byte_offset.min(source.len());
+    let row = source[..clamped]
+        .iter()
+        .filter(|&&byte| byte == b'\n')
+        .count();
+    let line_start = source[..clamped]
+        .iter()
+        .rposition(|&byte| byte == b'\n')
+        .map_or(0, |idx| idx + 1);
+    let col = byte_col_to_utf16(source, row, clamped.saturating_sub(line_start));
+    Position::new(row as u32, col)
+}

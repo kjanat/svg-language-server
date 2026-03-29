@@ -11,6 +11,10 @@ license.workspace    = true
 keywords             = ["completions", "diagnostics", "language-server", "lsp", "svg"]
 categories           = ["development-tools", "text-editors"]
 
+[lib]
+name = "svg_language_server"
+path = "src/lib.rs"
+
 [[bin]]
 name = "svg-language-server"
 path = "src/main.rs"

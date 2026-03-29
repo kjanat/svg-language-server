@@ -290,8 +290,10 @@ impl<'a> Formatter<'a> {
                 }
             }
 
-            // Skip whitespace-only text before checking ignore.
-            if matches!(child.kind(), "text" | "raw_text")
+            // Skip whitespace-only text — but not inside an ignore range,
+            // where we need to preserve everything verbatim.
+            if !in_ignore_range
+                && matches!(child.kind(), "text" | "raw_text")
                 && self.node_text(child).trim().is_empty()
             {
                 continue;
@@ -387,9 +389,10 @@ impl<'a> Formatter<'a> {
                 }
             }
 
-            // Skip whitespace-only text before checking ignore — don't let
-            // inter-element whitespace consume the ignore_next flag.
-            if matches!(child.kind(), "text" | "raw_text")
+            // Skip whitespace-only text — but not inside an ignore range,
+            // where we need to preserve everything verbatim.
+            if !in_ignore_range
+                && matches!(child.kind(), "text" | "raw_text")
                 && self.node_text(child).trim().is_empty()
             {
                 continue;

@@ -175,6 +175,11 @@ fn lsp_end_to_end() {
         caps.get("documentFormattingProvider").is_some(),
         "documentFormattingProvider capability missing from initialize response: {init_resp}"
     );
+    assert_eq!(
+        caps["executeCommandProvider"]["commands"][0].as_str(),
+        Some("svg.copyDataUri"),
+        "executeCommandProvider should advertise the copy-data-uri command: {init_resp}"
+    );
 
     // --- 2. initialized ---
     send_message(
@@ -498,11 +503,20 @@ fn lsp_end_to_end() {
         }),
         "file suppression quick-fix should be offered: {code_action_resp}"
     );
+    let copy_as_data_uri_action = code_actions
+        .iter()
+        .find(|action| action["title"].as_str() == Some("Copy SVG as data URI"))
+        .expect("copy-as-data-uri source action should be offered");
+    assert_eq!(
+        copy_as_data_uri_action["command"]["command"].as_str(),
+        Some("svg.copyDataUri"),
+        "copy-as-data-uri source action should use the server copy command: {code_action_resp}"
+    );
     assert!(
-        code_actions
-            .iter()
-            .any(|action| action["title"].as_str() == Some("Copy SVG as data URI")),
-        "copy-as-data-uri source action should be offered: {code_action_resp}"
+        copy_as_data_uri_action["command"]["arguments"][0]
+            .as_str()
+            .is_some_and(|value| value == "file:///missing-ref.svg"),
+        "copy-as-data-uri source action should pass the document uri: {code_action_resp}"
     );
     assert!(
         code_actions.iter().any(|action| {

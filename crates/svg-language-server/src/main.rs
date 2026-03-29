@@ -1,10 +1,11 @@
 use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::fs::OpenOptions;
+use std::io::Write as _;
 use std::path::PathBuf;
+use std::process::{Command as ProcessCommand, Stdio};
 use std::sync::{Arc, LazyLock, OnceLock, RwLock as StdRwLock};
 
-use arboard::Clipboard;
 use serde_json::Value;
 use svg_data::{AttributeValues, BaselineStatus, BrowserSupport, ContentModel};
 use tokio::sync::RwLock;
@@ -38,6 +39,7 @@ struct DocumentState {
 type ColorKindCache = Arc<RwLock<HashMap<(Uri, u32, u32), svg_color::ColorKind>>>;
 type StylesheetCache = Arc<StdRwLock<HashMap<String, Arc<OnceLock<Option<CachedStylesheet>>>>>>;
 const COPY_DATA_URI_COMMAND: &str = "svg.copyDataUri";
+const COPY_DATA_URI_ACTION_TITLE: &str = "Copy SVG as data URI";
 
 #[derive(Clone)]
 struct CachedStylesheet {
@@ -157,12 +159,110 @@ impl SvgLanguageServer {
         };
 
         let data_uri = svg_data_uri(&source);
-        let mut clipboard =
-            Clipboard::new().map_err(|err| format!("Clipboard unavailable: {err}"))?;
-        clipboard
-            .set_text(data_uri)
-            .map_err(|err| format!("Failed to copy data URI to clipboard: {err}"))?;
-        Ok(())
+        tokio::task::spawn_blocking(move || copy_text_to_system_clipboard(&data_uri))
+            .await
+            .map_err(|err| format!("Clipboard task failed: {err}"))?
+    }
+}
+
+struct ClipboardCommandSpec {
+    program: &'static str,
+    args: &'static [&'static str],
+}
+
+#[cfg(target_os = "macos")]
+const CLIPBOARD_COMMANDS: &[ClipboardCommandSpec] = &[ClipboardCommandSpec {
+    program: "pbcopy",
+    args: &[],
+}];
+
+#[cfg(target_os = "windows")]
+const CLIPBOARD_COMMANDS: &[ClipboardCommandSpec] = &[
+    ClipboardCommandSpec {
+        program: "clip.exe",
+        args: &[],
+    },
+    ClipboardCommandSpec {
+        program: "clip",
+        args: &[],
+    },
+];
+
+#[cfg(all(unix, not(target_os = "macos")))]
+const CLIPBOARD_COMMANDS: &[ClipboardCommandSpec] = &[
+    ClipboardCommandSpec {
+        program: "wl-copy",
+        args: &[],
+    },
+    ClipboardCommandSpec {
+        program: "xclip",
+        args: &["-selection", "clipboard"],
+    },
+    ClipboardCommandSpec {
+        program: "xsel",
+        args: &["--clipboard", "--input"],
+    },
+];
+
+fn copy_text_to_system_clipboard(text: &str) -> std::result::Result<(), String> {
+    let mut attempts = Vec::new();
+
+    for command in CLIPBOARD_COMMANDS {
+        match run_clipboard_command(command, text) {
+            Ok(()) => return Ok(()),
+            Err(err) => attempts.push(format!("{}: {err}", command.program)),
+        }
+    }
+
+    let commands = CLIPBOARD_COMMANDS
+        .iter()
+        .map(|command| command.program)
+        .collect::<Vec<_>>()
+        .join(", ");
+    if attempts.is_empty() {
+        Err(
+            "Clipboard unavailable. No supported clipboard command configured for this platform."
+                .to_string(),
+        )
+    } else {
+        Err(format!(
+            "Clipboard unavailable. Tried {commands}. {}",
+            attempts.join("; ")
+        ))
+    }
+}
+
+fn run_clipboard_command(
+    command: &ClipboardCommandSpec,
+    text: &str,
+) -> std::result::Result<(), String> {
+    let mut child = ProcessCommand::new(command.program)
+        .args(command.args)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::null())
+        .stderr(Stdio::piped())
+        .spawn()
+        .map_err(|err| err.to_string())?;
+
+    let mut stdin = child
+        .stdin
+        .take()
+        .ok_or_else(|| "stdin unavailable".to_owned())?;
+    stdin
+        .write_all(text.as_bytes())
+        .map_err(|err| err.to_string())?;
+    drop(stdin);
+
+    let output = child.wait_with_output().map_err(|err| err.to_string())?;
+    if output.status.success() {
+        return Ok(());
+    }
+
+    let stderr = String::from_utf8_lossy(&output.stderr).trim().to_owned();
+    if stderr.is_empty() {
+        Err(format!("exited with status {}", output.status))
+    } else {
+        Err(stderr)
     }
 }
 
@@ -1162,10 +1262,10 @@ fn suppression_code_actions_for_diagnostic(
 
 fn copy_data_uri_code_action(uri: &Uri) -> CodeActionOrCommand {
     CodeActionOrCommand::CodeAction(CodeAction {
-        title: "Copy SVG as data URI".to_owned(),
+        title: COPY_DATA_URI_ACTION_TITLE.to_owned(),
         kind: Some(CodeActionKind::SOURCE),
         command: Some(Command {
-            title: "Copy SVG as data URI".to_owned(),
+            title: COPY_DATA_URI_ACTION_TITLE.to_owned(),
             command: COPY_DATA_URI_COMMAND.to_owned(),
             arguments: Some(vec![Value::String(uri.as_str().to_owned())]),
         }),
@@ -2792,6 +2892,28 @@ mod tests {
             position,
             "multiline comment completion probe should round-trip"
         );
+    }
+
+    #[test]
+    fn copy_data_uri_code_action_uses_document_uri() {
+        let action = copy_data_uri_code_action(
+            &"file:///test.svg"
+                .parse::<Uri>()
+                .expect("valid document uri"),
+        );
+        let CodeActionOrCommand::CodeAction(action) = action else {
+            panic!("expected code action");
+        };
+        let command = action.command.expect("copy action should have a command");
+        let uri = command
+            .arguments
+            .expect("copy action should have a uri")
+            .into_iter()
+            .next()
+            .expect("copy action should include exactly one uri");
+
+        assert_eq!(command.command, COPY_DATA_URI_COMMAND);
+        assert_eq!(uri.as_str(), Some("file:///test.svg"));
     }
 
     #[test]

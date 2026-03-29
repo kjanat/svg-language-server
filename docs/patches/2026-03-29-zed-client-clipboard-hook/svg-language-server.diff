@@ -1,0 +1,327 @@
+diff --git a/Cargo.toml b/Cargo.toml
+index 9de913a..2465427 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -10,7 +10,6 @@ keywords   = ["svg"]
+ categories = ["development-tools"]
+ 
+ [workspace.dependencies]
+-arboard          = "3"
+ base64           = "0.22"
+ clap             = "4.5"
+ serde_json       = "1"
+diff --git a/crates/svg-language-server/Cargo.toml b/crates/svg-language-server/Cargo.toml
+index e646a69..90242fd 100644
+--- a/crates/svg-language-server/Cargo.toml
++++ b/crates/svg-language-server/Cargo.toml
+@@ -13,7 +13,6 @@ name = "svg-language-server"
+ path = "src/main.rs"
+ 
+ [dependencies]
+-arboard.workspace            = true
+ base64.workspace             = true
+ serde_json.workspace         = true
+ svg-color.workspace          = true
+diff --git a/crates/svg-language-server/src/main.rs b/crates/svg-language-server/src/main.rs
+index 75faf6f..cde56e2 100644
+--- a/crates/svg-language-server/src/main.rs
++++ b/crates/svg-language-server/src/main.rs
+@@ -4,7 +4,6 @@ use std::fs::OpenOptions;
+ use std::path::PathBuf;
+ use std::sync::{Arc, LazyLock, OnceLock, RwLock as StdRwLock};
+ 
+-use arboard::Clipboard;
+ use serde_json::Value;
+ use svg_data::{AttributeValues, BaselineStatus, BrowserSupport, ContentModel};
+ use tokio::sync::RwLock;
+@@ -37,7 +36,8 @@ struct DocumentState {
+ /// Cache mapping (URI, start_line, start_character) to the original color kind.
+ type ColorKindCache = Arc<RwLock<HashMap<(Uri, u32, u32), svg_color::ColorKind>>>;
+ type StylesheetCache = Arc<StdRwLock<HashMap<String, Arc<OnceLock<Option<CachedStylesheet>>>>>>;
+-const COPY_DATA_URI_COMMAND: &str = "svg.copyDataUri";
++const COPY_TO_CLIPBOARD_COMMAND: &str = "editor.copyToClipboard";
++const COPY_DATA_URI_ACTION_TITLE: &str = "Copy SVG as data URI";
+ 
+ #[derive(Clone)]
+ struct CachedStylesheet {
+@@ -96,6 +96,7 @@ struct SvgLanguageServer {
+     color_kinds: ColorKindCache,
+     stylesheet_cache: StylesheetCache,
+     runtime_compat: Arc<RwLock<Option<RuntimeCompat>>>,
++    copy_to_clipboard_hook_enabled: Arc<RwLock<bool>>,
+ }
+ 
+ struct LoggingGuards {
+@@ -116,6 +117,7 @@ impl SvgLanguageServer {
+             color_kinds: Arc::new(RwLock::new(HashMap::new())),
+             stylesheet_cache: Arc::new(StdRwLock::new(HashMap::new())),
+             runtime_compat: Arc::new(RwLock::new(None)),
++            copy_to_clipboard_hook_enabled: Arc::new(RwLock::new(false)),
+         }
+     }
+ 
+@@ -139,31 +141,6 @@ impl SvgLanguageServer {
+             .await
+             .insert(uri, DocumentState { source, tree });
+     }
+-
+-    async fn copy_svg_as_data_uri(&self, uri: &Uri) -> std::result::Result<(), String> {
+-        let source = {
+-            let docs = self.documents.read().await;
+-            if let Some(doc) = docs.get(uri) {
+-                doc.source.clone()
+-            } else {
+-                let url = Url::parse(uri.as_str())
+-                    .map_err(|err| format!("Invalid URI {}: {err}", uri.as_str()))?;
+-                let path = url
+-                    .to_file_path()
+-                    .map_err(|_| format!("Cannot resolve file path for {}", uri.as_str()))?;
+-                fs::read_to_string(&path)
+-                    .map_err(|err| format!("Failed to read {}: {err}", path.display()))?
+-            }
+-        };
+-
+-        let data_uri = svg_data_uri(&source);
+-        let mut clipboard =
+-            Clipboard::new().map_err(|err| format!("Clipboard unavailable: {err}"))?;
+-        clipboard
+-            .set_text(data_uri)
+-            .map_err(|err| format!("Failed to copy data URI to clipboard: {err}"))?;
+-        Ok(())
+-    }
+ }
+ 
+ fn lint_diagnostic_to_lsp(source: &[u8], diagnostic: svg_lint::SvgDiagnostic) -> Diagnostic {
+@@ -1160,19 +1137,35 @@ fn suppression_code_actions_for_diagnostic(
+     ]
+ }
+ 
+-fn copy_data_uri_code_action(uri: &Uri) -> CodeActionOrCommand {
++fn copy_data_uri_code_action(source: &str) -> CodeActionOrCommand {
+     CodeActionOrCommand::CodeAction(CodeAction {
+-        title: "Copy SVG as data URI".to_owned(),
++        title: COPY_DATA_URI_ACTION_TITLE.to_owned(),
+         kind: Some(CodeActionKind::SOURCE),
+         command: Some(Command {
+-            title: "Copy SVG as data URI".to_owned(),
+-            command: COPY_DATA_URI_COMMAND.to_owned(),
+-            arguments: Some(vec![Value::String(uri.as_str().to_owned())]),
++            title: COPY_DATA_URI_ACTION_TITLE.to_owned(),
++            command: COPY_TO_CLIPBOARD_COMMAND.to_owned(),
++            arguments: Some(vec![serde_json::json!({
++                "text": svg_data_uri(source),
++                "label": COPY_DATA_URI_ACTION_TITLE,
++                "kind": "svg-data-uri",
++                "mimeType": "image/svg+xml",
++            })]),
+         }),
+         ..Default::default()
+     })
+ }
+ 
++fn supports_copy_to_clipboard_hook(params: &InitializeParams) -> bool {
++    params
++        .initialization_options
++        .as_ref()
++        .and_then(|value| value.get("experimental"))
++        .and_then(|value| value.get("commands"))
++        .and_then(|value| value.get(COPY_TO_CLIPBOARD_COMMAND))
++        .and_then(Value::as_bool)
++        .unwrap_or(false)
++}
++
+ fn css_rule_snippet(source: &str, span: &svg_references::Span) -> String {
+     let source_bytes = source.as_bytes();
+     let start = byte_offset_for_row_col(source_bytes, span.start_row, span.start_col);
+@@ -1966,8 +1959,10 @@ fn value_completions(
+ }
+ 
+ impl LanguageServer for SvgLanguageServer {
+-    async fn initialize(&self, _params: InitializeParams) -> Result<InitializeResult> {
++    async fn initialize(&self, params: InitializeParams) -> Result<InitializeResult> {
+         tracing::info!("initialize");
++        let copy_to_clipboard_hook_enabled = supports_copy_to_clipboard_hook(&params);
++        *self.copy_to_clipboard_hook_enabled.write().await = copy_to_clipboard_hook_enabled;
+ 
+         // Spawn background compat data refresh
+         let compat = self.runtime_compat.clone();
+@@ -2012,10 +2007,12 @@ impl LanguageServer for SvgLanguageServer {
+                 hover_provider: Some(HoverProviderCapability::Simple(true)),
+                 definition_provider: Some(OneOf::Left(true)),
+                 code_action_provider: Some(CodeActionProviderCapability::Simple(true)),
+-                execute_command_provider: Some(ExecuteCommandOptions {
+-                    commands: vec![COPY_DATA_URI_COMMAND.to_owned()],
+-                    ..Default::default()
+-                }),
++                execute_command_provider: copy_to_clipboard_hook_enabled.then_some(
++                    ExecuteCommandOptions {
++                        commands: vec![COPY_TO_CLIPBOARD_COMMAND.to_owned()],
++                        ..Default::default()
++                    },
++                ),
+                 document_formatting_provider: Some(OneOf::Left(true)),
+                 completion_provider: Some(CompletionOptions {
+                     trigger_characters: Some(vec![
+@@ -2402,7 +2399,10 @@ impl LanguageServer for SvgLanguageServer {
+         };
+ 
+         let mut seen = std::collections::HashSet::new();
+-        let mut actions = vec![copy_data_uri_code_action(uri)];
++        let mut actions = Vec::new();
++        if *self.copy_to_clipboard_hook_enabled.read().await {
++            actions.push(copy_data_uri_code_action(&source));
++        }
+ 
+         for diagnostic in &params.context.diagnostics {
+             let Some(code) = suppression_code(diagnostic) else {
+@@ -2426,34 +2426,13 @@ impl LanguageServer for SvgLanguageServer {
+ 
+     async fn execute_command(&self, params: ExecuteCommandParams) -> Result<Option<Value>> {
+         match params.command.as_str() {
+-            COPY_DATA_URI_COMMAND => {
+-                let uri = params
+-                    .arguments
+-                    .first()
+-                    .and_then(Value::as_str)
+-                    .and_then(|value| value.parse::<Uri>().ok());
+-
+-                let Some(uri) = uri else {
+-                    self.client
+-                        .show_message(
+-                            MessageType::ERROR,
+-                            "Copy SVG as data URI requires a document URI.",
+-                        )
+-                        .await;
+-                    return Ok(None);
+-                };
+-
+-                match self.copy_svg_as_data_uri(&uri).await {
+-                    Ok(()) => {
+-                        self.client
+-                            .show_message(MessageType::INFO, "Copied SVG as data URI.")
+-                            .await;
+-                    }
+-                    Err(message) => {
+-                        self.client.show_message(MessageType::ERROR, message).await;
+-                    }
+-                }
+-
++            COPY_TO_CLIPBOARD_COMMAND => {
++                self.client
++                    .show_message(
++                        MessageType::ERROR,
++                        "editor.copyToClipboard must be handled by the editor client.",
++                    )
++                    .await;
+                 Ok(None)
+             }
+             _ => Ok(None),
+@@ -2794,6 +2773,51 @@ mod tests {
+         );
+     }
+ 
++    #[test]
++    fn copy_to_clipboard_hook_is_detected_from_initialization_options() {
++        let params = InitializeParams {
++            initialization_options: Some(serde_json::json!({
++                "experimental": {
++                    "commands": {
++                        "editor.copyToClipboard": true
++                    }
++                }
++            })),
++            ..Default::default()
++        };
++
++        assert!(supports_copy_to_clipboard_hook(&params));
++        assert!(!supports_copy_to_clipboard_hook(
++            &InitializeParams::default()
++        ));
++    }
++
++    #[test]
++    fn copy_data_uri_code_action_embeds_client_payload() {
++        let action = copy_data_uri_code_action(r#"<svg><rect width="10" height="10" /></svg>"#);
++        let CodeActionOrCommand::CodeAction(action) = action else {
++            panic!("expected code action");
++        };
++        let command = action.command.expect("copy action should have a command");
++        let payload = command
++            .arguments
++            .expect("copy action should have a payload")
++            .into_iter()
++            .next()
++            .expect("copy action should include exactly one payload");
++
++        assert_eq!(command.command, COPY_TO_CLIPBOARD_COMMAND);
++        assert_eq!(payload["label"].as_str(), Some(COPY_DATA_URI_ACTION_TITLE));
++        assert_eq!(payload["kind"].as_str(), Some("svg-data-uri"));
++        assert_eq!(payload["mimeType"].as_str(), Some("image/svg+xml"));
++        assert!(
++            payload["text"]
++                .as_str()
++                .is_some_and(|value| value.starts_with("data:image/svg+xml;base64,")),
++            "copy action payload should embed a data URI"
++        );
++    }
++
+     #[test]
+     fn goto_definition_target_resolves_paint_server_reference() {
+         let source = r#"<svg><rect fill="url(#style-gradient)" /><linearGradient id="style-gradient" /></svg>"#;
+diff --git a/crates/svg-language-server/tests/integration.rs b/crates/svg-language-server/tests/integration.rs
+index a171566..652a7f3 100644
+--- a/crates/svg-language-server/tests/integration.rs
++++ b/crates/svg-language-server/tests/integration.rs
+@@ -160,7 +160,14 @@ fn lsp_end_to_end() {
+             "params": {
+                 "processId": null,
+                 "rootUri": null,
+-                "capabilities": {}
++                "capabilities": {},
++                "initializationOptions": {
++                    "experimental": {
++                        "commands": {
++                            "editor.copyToClipboard": true
++                        }
++                    }
++                }
+             }
+         }),
+     );
+@@ -175,6 +182,11 @@ fn lsp_end_to_end() {
+         caps.get("documentFormattingProvider").is_some(),
+         "documentFormattingProvider capability missing from initialize response: {init_resp}"
+     );
++    assert_eq!(
++        caps["executeCommandProvider"]["commands"][0].as_str(),
++        Some("editor.copyToClipboard"),
++        "executeCommandProvider should advertise the client clipboard hook: {init_resp}"
++    );
+ 
+     // --- 2. initialized ---
+     send_message(
+@@ -498,11 +510,20 @@ fn lsp_end_to_end() {
+         }),
+         "file suppression quick-fix should be offered: {code_action_resp}"
+     );
++    let copy_as_data_uri_action = code_actions
++        .iter()
++        .find(|action| action["title"].as_str() == Some("Copy SVG as data URI"))
++        .expect("copy-as-data-uri source action should be offered");
++    assert_eq!(
++        copy_as_data_uri_action["command"]["command"].as_str(),
++        Some("editor.copyToClipboard"),
++        "copy-as-data-uri source action should use the client clipboard hook: {code_action_resp}"
++    );
+     assert!(
+-        code_actions
+-            .iter()
+-            .any(|action| action["title"].as_str() == Some("Copy SVG as data URI")),
+-        "copy-as-data-uri source action should be offered: {code_action_resp}"
++        copy_as_data_uri_action["command"]["arguments"][0]["text"]
++            .as_str()
++            .is_some_and(|value| value.starts_with("data:image/svg+xml;base64,")),
++        "copy-as-data-uri source action should embed the data URI payload: {code_action_resp}"
+     );
+     assert!(
+         code_actions.iter().any(|action| {

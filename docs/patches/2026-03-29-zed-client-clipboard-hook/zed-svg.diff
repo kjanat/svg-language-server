@@ -1,0 +1,52 @@
+diff --git a/src/lib.rs b/src/lib.rs
+index fe4b9dd..19495eb 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -1,7 +1,17 @@
+-use zed_extension_api as zed;
++use zed_extension_api::{self as zed, serde_json::json};
+ 
+ struct SvgExtension;
+ 
++fn initialization_options() -> zed::serde_json::Value {
++    json!({
++        "experimental": {
++            "commands": {
++                "editor.copyToClipboard": true
++            }
++        }
++    })
++}
++
+ impl zed::Extension for SvgExtension {
+     fn new() -> Self {
+         SvgExtension
+@@ -23,6 +33,28 @@ impl zed::Extension for SvgExtension {
+             env: Default::default(),
+         })
+     }
++
++    fn language_server_initialization_options(
++        &mut self,
++        _language_server_id: &zed::LanguageServerId,
++        _worktree: &zed::Worktree,
++    ) -> zed::Result<Option<zed::serde_json::Value>> {
++        Ok(Some(initialization_options()))
++    }
+ }
+ 
+ zed::register_extension!(SvgExtension);
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++
++    #[test]
++    fn initialization_options_enable_client_clipboard_hook() {
++        assert_eq!(
++            initialization_options()["experimental"]["commands"]["editor.copyToClipboard"]
++                .as_bool(),
++            Some(true)
++        );
++    }
++}

@@ -1,0 +1,104 @@
+diff --git a/crates/editor/src/editor.rs b/crates/editor/src/editor.rs
+index e4b3d1a6bb..4d0f5e626e 100644
+--- a/crates/editor/src/editor.rs
++++ b/crates/editor/src/editor.rs
+@@ -171,6 +171,7 @@ use rpc::{ErrorCode, ErrorExt, proto::PeerId};
+ use scroll::{Autoscroll, OngoingScroll, ScrollAnchor, ScrollManager};
+ use selections_collection::{MutableSelectionsCollection, SelectionsCollection};
+ use serde::{Deserialize, Serialize};
++use serde_json::Value;
+ use settings::{
+     GitGutterSetting, RelativeLineNumbers, Settings, SettingsLocation, SettingsStore,
+     update_settings_file,
+@@ -26296,6 +26297,41 @@ pub trait CodeActionProvider {
+     ) -> Task<Result<ProjectTransaction>>;
+ }
+ 
++pub(crate) const CLIENT_COPY_TO_CLIPBOARD_COMMAND: &str = "editor.copyToClipboard";
++
++pub(crate) fn handle_client_clipboard_code_action(action: &CodeAction, cx: &mut App) -> bool {
++    let command = match &action.lsp_action {
++        LspAction::Action(action) => action.command.as_ref(),
++        LspAction::Command(command) => Some(command),
++        LspAction::CodeLens(lens) => lens.command.as_ref(),
++    };
++    let Some(command) = command else {
++        return false;
++    };
++    if command.command != CLIENT_COPY_TO_CLIPBOARD_COMMAND {
++        return false;
++    }
++
++    let Some(text) = command
++        .arguments
++        .as_ref()
++        .and_then(|arguments| arguments.first())
++        .and_then(|argument| match argument {
++            Value::String(text) => Some(text.to_owned()),
++            Value::Object(payload) => payload
++                .get("text")
++                .and_then(Value::as_str)
++                .map(ToOwned::to_owned),
++            _ => None,
++        })
++    else {
++        return false;
++    };
++
++    cx.write_to_clipboard(ClipboardItem::new_string(text));
++    true
++}
++
+ impl CodeActionProvider for Entity<Project> {
+     fn id(&self) -> Arc<str> {
+         "project".into()
+@@ -26337,6 +26373,9 @@ impl CodeActionProvider for Entity<Project> {
+         _window: &mut Window,
+         cx: &mut App,
+     ) -> Task<Result<ProjectTransaction>> {
++        if handle_client_clipboard_code_action(&action, cx) {
++            return Task::ready(Ok(ProjectTransaction::default()));
++        }
+         self.update(cx, |project, cx| {
+             project.apply_code_action(buffer_handle, action, push_to_history, cx)
+         })
+diff --git a/crates/editor/src/editor_tests.rs b/crates/editor/src/editor_tests.rs
+index 6a5242d30d..5580c47641 100644
+--- a/crates/editor/src/editor_tests.rs
++++ b/crates/editor/src/editor_tests.rs
+@@ -25249,6 +25249,35 @@ async fn test_apply_code_lens_actions_with_commands(cx: &mut gpui::TestAppContex
+     );
+ }
+ 
++#[gpui::test]
++async fn test_client_clipboard_code_action_hook(cx: &mut TestAppContext) {
++    init_test(cx, |_| {});
++
++    let data_uri = "data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=";
++    let action = CodeAction {
++        server_id: lsp::LanguageServerId(0),
++        range: language::Anchor::MIN..language::Anchor::MIN,
++        lsp_action: LspAction::Command(lsp::Command {
++            title: "Copy SVG as data URI".into(),
++            command: CLIENT_COPY_TO_CLIPBOARD_COMMAND.into(),
++            arguments: Some(vec![json!({
++                "text": data_uri,
++                "label": "Copy SVG as data URI",
++                "kind": "svg-data-uri",
++                "mimeType": "image/svg+xml",
++            })]),
++        }),
++        resolved: true,
++    };
++
++    assert!(cx.update(|cx| handle_client_clipboard_code_action(&action, cx)));
++    assert_eq!(
++        cx.read_from_clipboard()
++            .and_then(|item| item.text().as_deref().map(str::to_string)),
++        Some(data_uri.to_string())
++    );
++}
++
+ #[gpui::test]
+ async fn test_editor_restore_data_different_in_panes(cx: &mut TestAppContext) {
+     init_test(cx, |_| {});

@@ -301,6 +301,11 @@ impl<'a> Formatter<'a> {
 
             if !skip_ignore_self && (in_ignore_range || ignore_next) {
                 self.write_raw(child);
+                // For single-line ignore, whitespace text nodes are skipped,
+                // so we need to ensure a trailing newline.
+                if ignore_next && !self.out.ends_with('\n') {
+                    self.out.push('\n');
+                }
                 ignore_next = false;
                 prev_was_comment = child.kind() == "comment";
                 prev_end = Some(child.end_byte());
@@ -400,6 +405,9 @@ impl<'a> Formatter<'a> {
 
             if !skip_ignore_self && (in_ignore_range || ignore_next) {
                 self.write_raw(child);
+                if ignore_next && !self.out.ends_with('\n') {
+                    self.out.push('\n');
+                }
                 ignore_next = false;
                 prev_was_comment = child.kind() == "comment";
                 prev_end = Some(child.end_byte());
@@ -715,13 +723,14 @@ impl<'a> Formatter<'a> {
             .any(|prefix| inner == format!("{prefix}-{suffix}"))
     }
 
-    /// Write a node's original source bytes verbatim (no formatting).
+    /// Write a node's original source bytes verbatim.
+    ///
+    /// Does not append newlines — callers handle trailing newlines
+    /// based on context (ignore-range vs ignore-next).
     fn write_raw(&mut self, node: Node<'_>) {
-        let text = self.node_text(node).to_string();
-        self.out.push_str(&text);
-        if !text.ends_with('\n') {
-            self.out.push('\n');
-        }
+        let range = node.byte_range();
+        self.out
+            .push_str(std::str::from_utf8(&self.source[range]).unwrap_or_default());
     }
 
     /// Count blank lines in the source gap between two byte positions.

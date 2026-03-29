@@ -709,10 +709,23 @@ impl<'a> Formatter<'a> {
             return true;
         }
 
-        if !skip_ignore_self && (*in_ignore_range || *ignore_next) {
-            // Write the source span from prev_end through this node,
-            // preserving original gaps and content verbatim.
+        if !skip_ignore_self && *in_ignore_range {
+            // Inside an ignore range: write from prev_end through this node,
+            // preserving the original gap + content verbatim.
             self.write_source_span(*prev_end, child.end_byte());
+            *prev_was_comment = child.kind() == "comment";
+            *prev_end = Some(child.end_byte());
+            return true;
+        }
+
+        if !skip_ignore_self && *ignore_next {
+            // Single-element ignore: write only the node bytes.
+            // The gap before it was already emitted by the previous
+            // write_line/emit_gap, so don't re-emit it.
+            self.write_source_span(Some(child.start_byte()), child.end_byte());
+            if !self.out.ends_with('\n') {
+                self.out.push('\n');
+            }
             *ignore_next = false;
             *prev_was_comment = child.kind() == "comment";
             *prev_end = Some(child.end_byte());
@@ -1557,6 +1570,144 @@ mod tests {
         assert!(
             pass1.contains("<rect y=\"2\" x=\"1\"/>\n\t<circle r=\"3\"/>"),
             "insert mode modified ignored content:\n{pass1}"
+        );
+    }
+
+    // ── Edge-case ignore directive tests ────────────────────────────
+
+    #[test]
+    fn two_consecutive_ignore_next_skip_two_siblings() {
+        let input = "<svg>\n<!-- svg-format-ignore -->\n<rect y=\"2\" x=\"1\"/>\n<!-- svg-format-ignore -->\n<circle r=\"3\" cx=\"1\" cy=\"2\"/>\n<ellipse ry=\"1\" rx=\"2\"/>\n</svg>";
+        let result = format(input);
+        // Both rect and circle should be unformatted (original attr order)
+        assert!(
+            result.contains("y=\"2\" x=\"1\""),
+            "first ignored element was formatted:\n{result}"
+        );
+        assert!(
+            result.contains("r=\"3\" cx=\"1\" cy=\"2\""),
+            "second ignored element was formatted:\n{result}"
+        );
+        // ellipse should be formatted (canonical order)
+        assert!(
+            result.contains("<ellipse rx=\"2\" ry=\"1\" />"),
+            "non-ignored element was not formatted:\n{result}"
+        );
+    }
+
+    #[test]
+    fn ignore_end_without_start_is_harmless() {
+        // A stray ignore-end should not crash or alter behavior.
+        let input = "<svg>\n<!-- svg-format-ignore-end -->\n<rect y=\"2\" x=\"1\"/>\n</svg>";
+        let result = format(input);
+        // rect should still be formatted (canonical order)
+        assert!(
+            result.contains("<rect x=\"1\" y=\"2\" />"),
+            "formatting was suppressed by stray ignore-end:\n{result}"
+        );
+    }
+
+    #[test]
+    fn ignore_start_without_end_ignores_rest_of_siblings() {
+        let input = "<svg>\n<rect id=\"a\"/>\n<!-- svg-format-ignore-start -->\n<rect y=\"2\" x=\"1\"/>\n<circle r=\"3\" cx=\"1\" cy=\"2\"/>\n</svg>";
+        let result = format(input);
+        // rect id=a should be formatted
+        assert!(
+            result.contains("<rect id=\"a\" />"),
+            "element before ignore-start was not formatted:\n{result}"
+        );
+        // Both elements after ignore-start should be unformatted
+        assert!(
+            result.contains("y=\"2\" x=\"1\""),
+            "element after unclosed ignore-start was formatted:\n{result}"
+        );
+        assert!(
+            result.contains("r=\"3\" cx=\"1\" cy=\"2\""),
+            "element after unclosed ignore-start was formatted:\n{result}"
+        );
+    }
+
+    #[test]
+    fn nested_ignore_start_is_harmless() {
+        // A second ignore-start inside an active range should not break anything.
+        let input = "<svg>\n<!-- svg-format-ignore-start -->\n<rect y=\"2\" x=\"1\"/>\n<!-- svg-format-ignore-start -->\n<circle r=\"3\" cx=\"1\" cy=\"2\"/>\n<!-- svg-format-ignore-end -->\n<ellipse ry=\"1\" rx=\"2\"/>\n</svg>";
+        let result = format(input);
+        // rect and circle inside range should be unformatted
+        assert!(
+            result.contains("y=\"2\" x=\"1\""),
+            "inner content was formatted:\n{result}"
+        );
+        assert!(
+            result.contains("r=\"3\" cx=\"1\" cy=\"2\""),
+            "inner content was formatted:\n{result}"
+        );
+        // ellipse after ignore-end should be formatted
+        assert!(
+            result.contains("<ellipse rx=\"2\" ry=\"1\" />"),
+            "element after ignore-end was not formatted:\n{result}"
+        );
+    }
+
+    #[test]
+    fn ignore_next_inside_ignore_range_is_preserved_verbatim() {
+        let input = "<svg>\n<!-- svg-format-ignore-start -->\n<!-- svg-format-ignore -->\n<rect y=\"2\" x=\"1\"/>\n<!-- svg-format-ignore-end -->\n</svg>";
+        let result = format(input);
+        // The ignore directive comment inside the range should be preserved
+        assert!(
+            result.contains("<!-- svg-format-ignore -->"),
+            "inner directive was stripped:\n{result}"
+        );
+        assert!(
+            result.contains("y=\"2\" x=\"1\""),
+            "inner content was formatted:\n{result}"
+        );
+    }
+
+    #[test]
+    fn ignore_directives_work_inside_nested_elements() {
+        let input = "<svg>\n<g>\n<!-- svg-format-ignore -->\n<rect y=\"2\" x=\"1\"/>\n<circle r=\"3\" cx=\"1\" cy=\"2\"/>\n</g>\n</svg>";
+        let result = format(input);
+        // rect inside <g> should be unformatted
+        assert!(
+            result.contains("y=\"2\" x=\"1\""),
+            "ignored element inside <g> was formatted:\n{result}"
+        );
+        // circle should be formatted
+        assert!(
+            result.contains("<circle cx=\"1\" cy=\"2\" r=\"3\" />"),
+            "non-ignored element inside <g> was not formatted:\n{result}"
+        );
+    }
+
+    #[test]
+    fn ignore_next_with_insert_puts_blank_line_before_comment() {
+        let input =
+            "<svg><rect/>\n<!-- svg-format-ignore -->\n<circle r=\"3\" cx=\"1\" cy=\"2\"/>\n</svg>";
+        let opts = FormatOptions {
+            blank_lines: BlankLines::Insert,
+            ..Default::default()
+        };
+        let result = format_with_options(input, opts);
+        // Blank line should be before the ignore comment (between rect and comment),
+        // not between the comment and the ignored circle.
+        assert!(
+            result.contains("<rect />\n\n\t<!-- svg-format-ignore -->"),
+            "no blank line before ignore comment:\n{result}"
+        );
+        assert!(
+            result.contains("<!-- svg-format-ignore -->\n<circle"),
+            "blank line inserted between comment and ignored element:\n{result}"
+        );
+    }
+
+    #[test]
+    fn ignore_file_inside_nested_element_still_skips_file() {
+        let input =
+            "<svg>\n<g>\n<!-- svg-format-ignore-file -->\n<rect y=\"2\" x=\"1\"/>\n</g>\n</svg>";
+        assert_eq!(
+            format(input),
+            input,
+            "ignore-file inside nested element did not skip formatting"
         );
     }
 }

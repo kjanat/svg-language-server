@@ -559,6 +559,175 @@ fn lsp_end_to_end() {
         "SVG element completions should not leak into <style> CSS context: {completion_resp}"
     );
 
+    let comment_completion_svg = r#"<svg>
+    <filter id="f1">
+        <!-- Place cursor after < here -->
+    </filter>
+</svg>"#;
+    send_message(
+        &mut stdin,
+        &json!({
+            "jsonrpc": "2.0",
+            "method": "textDocument/didOpen",
+            "params": {
+                "textDocument": {
+                    "uri": "file:///comment-completion.svg",
+                    "languageId": "svg",
+                    "version": 1,
+                    "text": comment_completion_svg
+                }
+            }
+        }),
+    );
+
+    send_message(
+        &mut stdin,
+        &json!({
+            "jsonrpc": "2.0",
+            "id": 14,
+            "method": "textDocument/completion",
+            "params": {
+                "textDocument": { "uri": "file:///comment-completion.svg" },
+                "position": { "line": 2, "character": 33 }
+            }
+        }),
+    );
+
+    let comment_completion_resp = recv_response(&rx, 14, timeout);
+    assert!(
+        comment_completion_resp["result"].is_null(),
+        "completion should be disabled inside XML comments: {comment_completion_resp}"
+    );
+
+    let attribute_completion_svg = r#"<svg><use height="32" /></svg>"#;
+    send_message(
+        &mut stdin,
+        &json!({
+            "jsonrpc": "2.0",
+            "method": "textDocument/didOpen",
+            "params": {
+                "textDocument": {
+                    "uri": "file:///attribute-completion.svg",
+                    "languageId": "svg",
+                    "version": 1,
+                    "text": attribute_completion_svg
+                }
+            }
+        }),
+    );
+
+    send_message(
+        &mut stdin,
+        &json!({
+            "jsonrpc": "2.0",
+            "id": 15,
+            "method": "textDocument/completion",
+            "params": {
+                "textDocument": { "uri": "file:///attribute-completion.svg" },
+                "position": { "line": 0, "character": 22 }
+            }
+        }),
+    );
+
+    let attribute_completion_resp = recv_response(&rx, 15, timeout);
+    let attribute_completion_items = attribute_completion_resp["result"]
+        .as_array()
+        .expect("attribute completion result should be an array");
+    let attribute_labels: Vec<&str> = attribute_completion_items
+        .iter()
+        .filter_map(|item| item["label"].as_str())
+        .collect();
+    assert!(
+        attribute_labels.contains(&"width"),
+        "applicable attribute completions should still be returned: {attribute_completion_resp}"
+    );
+    assert!(
+        !attribute_labels.contains(&"height"),
+        "already-specified attributes should not be suggested again: {attribute_completion_resp}"
+    );
+    assert!(
+        !attribute_labels.contains(&"xlink_href"),
+        "deprecated attributes should not be suggested: {attribute_completion_resp}"
+    );
+
+    let script_completion_svg = r#"<svg><script>con</script></svg>"#;
+    send_message(
+        &mut stdin,
+        &json!({
+            "jsonrpc": "2.0",
+            "method": "textDocument/didOpen",
+            "params": {
+                "textDocument": {
+                    "uri": "file:///script-completion.svg",
+                    "languageId": "svg",
+                    "version": 1,
+                    "text": script_completion_svg
+                }
+            }
+        }),
+    );
+
+    send_message(
+        &mut stdin,
+        &json!({
+            "jsonrpc": "2.0",
+            "id": 16,
+            "method": "textDocument/completion",
+            "params": {
+                "textDocument": { "uri": "file:///script-completion.svg" },
+                "position": { "line": 0, "character": 15 }
+            }
+        }),
+    );
+
+    let script_completion_resp = recv_response(&rx, 16, timeout);
+    assert!(
+        script_completion_resp["result"].is_null(),
+        "SVG completions should not leak into <script> text content: {script_completion_resp}"
+    );
+
+    let href_completion_svg =
+        r#"<svg><defs><linearGradient id="g1" /></defs><use href="" /></svg>"#;
+    send_message(
+        &mut stdin,
+        &json!({
+            "jsonrpc": "2.0",
+            "method": "textDocument/didOpen",
+            "params": {
+                "textDocument": {
+                    "uri": "file:///href-completion.svg",
+                    "languageId": "svg",
+                    "version": 1,
+                    "text": href_completion_svg
+                }
+            }
+        }),
+    );
+
+    send_message(
+        &mut stdin,
+        &json!({
+            "jsonrpc": "2.0",
+            "id": 17,
+            "method": "textDocument/completion",
+            "params": {
+                "textDocument": { "uri": "file:///href-completion.svg" },
+                "position": { "line": 0, "character": 55 }
+            }
+        }),
+    );
+
+    let href_completion_resp = recv_response(&rx, 17, timeout);
+    let href_completion_items = href_completion_resp["result"]
+        .as_array()
+        .expect("href completion result should be an array");
+    assert!(
+        href_completion_items
+            .iter()
+            .any(|item| item["label"].as_str() == Some("#g1")),
+        "href value completions should include in-document fragment references: {href_completion_resp}"
+    );
+
     // --- 6. colorPresentation for the first color (red) ---
     let red_range = &red_entry["range"];
     send_message(
@@ -722,8 +891,8 @@ fn lsp_end_to_end() {
         .filter_map(|i| i["label"].as_str())
         .collect();
     assert!(
-        labels.contains(&"fill"),
-        "completions should include fill: {labels:?}"
+        labels.contains(&"stroke-width"),
+        "completions should include other applicable attributes: {labels:?}"
     );
 
     // --- 8. diagnostics test ---

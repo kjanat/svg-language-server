@@ -364,11 +364,11 @@ impl<'a> Formatter<'a> {
                     .filter(|c| !matches!(c.kind(), "start_tag" | "end_tag"))
                     .all(|c| matches!(c.kind(), "text" | "raw_text" | "entity_reference"));
 
-                if let (Some(start), Some(end)) = (start_node, end_node) {
-                    if all_inline {
-                        self.format_text_content_element(start, end, depth);
-                        return;
-                    }
+                if let (Some(start), Some(end)) = (start_node, end_node)
+                    && all_inline
+                {
+                    self.format_text_content_element(start, end, depth);
+                    return;
                 }
             }
         }

@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::fs::OpenOptions;
 use std::path::PathBuf;
@@ -13,14 +13,14 @@ use tower_lsp_server::ls_types::{
     CodeAction, CodeActionKind, CodeActionOrCommand, CodeActionParams,
     CodeActionProviderCapability, CodeActionResponse, Color, ColorInformation, ColorPresentation,
     ColorPresentationParams, ColorProviderCapability, Command, CompletionItem, CompletionItemKind,
-    CompletionItemTag, CompletionOptions, CompletionParams, CompletionResponse, Diagnostic,
-    DiagnosticSeverity, DiagnosticTag, DidChangeTextDocumentParams, DidCloseTextDocumentParams,
-    DidOpenTextDocumentParams, DocumentColorParams, DocumentFormattingParams,
-    ExecuteCommandOptions, ExecuteCommandParams, GotoDefinitionParams, GotoDefinitionResponse,
-    Hover, HoverContents, HoverParams, HoverProviderCapability, InitializeParams, InitializeResult,
-    InsertTextFormat, Location, MarkupContent, MarkupKind, MessageType, NumberOrString, OneOf,
-    Position, Range, ServerCapabilities, TextDocumentSyncCapability, TextDocumentSyncKind,
-    TextEdit, Uri, WorkspaceEdit,
+    CompletionItemTag, CompletionOptions, CompletionParams, CompletionResponse, CompletionTextEdit,
+    Diagnostic, DiagnosticSeverity, DiagnosticTag, DidChangeTextDocumentParams,
+    DidCloseTextDocumentParams, DidOpenTextDocumentParams, DocumentColorParams,
+    DocumentFormattingParams, ExecuteCommandOptions, ExecuteCommandParams, GotoDefinitionParams,
+    GotoDefinitionResponse, Hover, HoverContents, HoverParams, HoverProviderCapability,
+    InitializeParams, InitializeResult, InsertTextFormat, Location, MarkupContent, MarkupKind,
+    MessageType, NumberOrString, OneOf, Position, Range, ServerCapabilities,
+    TextDocumentSyncCapability, TextDocumentSyncKind, TextEdit, Uri, WorkspaceEdit,
 };
 use tower_lsp_server::{Client, LanguageServer, LspService, Server};
 use tracing_subscriber::filter::LevelFilter;
@@ -1762,6 +1762,85 @@ fn find_ancestor_any<'a>(
     }
 }
 
+fn is_comment_like_context(node: tree_sitter::Node<'_>) -> bool {
+    find_ancestor_any(
+        node,
+        &[
+            "comment",
+            "cdata_section",
+            "doctype",
+            "processing_instruction",
+            "xml_declaration",
+        ],
+    )
+    .is_some()
+}
+
+fn is_embedded_non_svg_context(node: tree_sitter::Node<'_>, source: &[u8]) -> bool {
+    let text_like = find_ancestor_any(
+        node,
+        &[
+            "text",
+            "raw_text",
+            "style_text_double",
+            "style_text_single",
+            "script_text_double",
+            "script_text_single",
+        ],
+    );
+    let Some(text_like) = text_like else {
+        return false;
+    };
+
+    matches!(
+        enclosing_element_name(text_like, source),
+        Some("style" | "script" | "foreignObject")
+    )
+}
+
+fn collect_existing_attribute_names(
+    node: tree_sitter::Node<'_>,
+    source: &[u8],
+    names: &mut HashSet<String>,
+) {
+    let kind = node.kind();
+    if ATTRIBUTE_NAME_KINDS.contains(&kind) || kind == "attribute_name" {
+        if let Ok(name) = node.utf8_text(source) {
+            names.insert(name.to_string());
+        }
+        return;
+    }
+
+    for i in 0..node.child_count() {
+        if let Some(child) = node.child(i as u32) {
+            collect_existing_attribute_names(child, source, names);
+        }
+    }
+}
+
+fn existing_attribute_names(tag_node: tree_sitter::Node<'_>, source: &[u8]) -> HashSet<String> {
+    let mut names = HashSet::new();
+    collect_existing_attribute_names(tag_node, source, &mut names);
+    names
+}
+
+fn first_attribute_name_text(node: tree_sitter::Node<'_>, source: &[u8]) -> Option<String> {
+    let kind = node.kind();
+    if ATTRIBUTE_NAME_KINDS.contains(&kind) || kind == "attribute_name" {
+        return node.utf8_text(source).ok().map(str::to_string);
+    }
+
+    for i in 0..node.child_count() {
+        if let Some(child) = node.child(i as u32)
+            && let Some(name) = first_attribute_name_text(child, source)
+        {
+            return Some(name);
+        }
+    }
+
+    None
+}
+
 /// Extract element name from a start_tag, self_closing_tag, or end_tag node.
 fn tag_element_name<'a>(tag_node: tree_sitter::Node<'_>, source: &'a [u8]) -> Option<&'a str> {
     let name_node = tag_node.child_by_field_name("name")?;
@@ -1783,7 +1862,64 @@ fn enclosing_element_name<'a>(node: tree_sitter::Node<'_>, source: &'a [u8]) -> 
 }
 
 /// Build completion items for attribute values based on the attribute's value type.
-fn value_completions(attr_name: &str) -> Vec<CompletionItem> {
+fn attribute_value_inner_range(source: &[u8], value_node: tree_sitter::Node<'_>) -> Range {
+    let text = value_node.utf8_text(source).unwrap_or_default();
+    let quoted = text.len() >= 2
+        && matches!(text.as_bytes().first().copied(), Some(b'"') | Some(b'\''))
+        && text.as_bytes().first() == text.as_bytes().last();
+
+    let (start_byte, end_byte) = if quoted {
+        (
+            value_node.start_byte() + 1,
+            value_node.end_byte().saturating_sub(1),
+        )
+    } else {
+        (value_node.start_byte(), value_node.end_byte())
+    };
+
+    Range::new(
+        position_for_byte_offset(source, start_byte),
+        position_for_byte_offset(source, end_byte),
+    )
+}
+
+fn href_value_completions(
+    source: &[u8],
+    tree: &tree_sitter::Tree,
+    value_node: tree_sitter::Node<'_>,
+) -> Vec<CompletionItem> {
+    let replace_range = attribute_value_inner_range(source, value_node);
+    let mut ids: Vec<String> = svg_references::collect_id_definitions(source, tree)
+        .into_iter()
+        .map(|definition| format!("#{}", definition.name))
+        .collect();
+    ids.sort();
+    ids.dedup();
+
+    ids.into_iter()
+        .map(|fragment| CompletionItem {
+            label: fragment.clone(),
+            kind: Some(CompletionItemKind::REFERENCE),
+            detail: Some("In-document fragment reference".to_string()),
+            text_edit: Some(CompletionTextEdit::Edit(TextEdit::new(
+                replace_range,
+                fragment,
+            ))),
+            ..Default::default()
+        })
+        .collect()
+}
+
+fn value_completions(
+    attr_name: &str,
+    source: &[u8],
+    tree: &tree_sitter::Tree,
+    value_node: tree_sitter::Node<'_>,
+) -> Vec<CompletionItem> {
+    if matches!(attr_name, "href" | "xlink_href" | "xlink:href") {
+        return href_value_completions(source, tree, value_node);
+    }
+
     let Some(attr_def) = svg_data::attribute(attr_name) else {
         return Vec::new();
     };
@@ -2456,20 +2592,21 @@ impl LanguageServer for SvgLanguageServer {
         };
 
         let source = doc.source.as_bytes();
-        let byte_col = utf16_to_byte_col(source, pos.line as usize, pos.character);
-        let line_start: usize = source
-            .split(|&b| b == b'\n')
-            .take(pos.line as usize)
-            .map(|line| line.len() + 1)
-            .sum();
-        let byte_offset = line_start + byte_col;
-
+        let byte_offset = byte_offset_for_position(source, pos);
         let node = deepest_node_at(&doc.tree, byte_offset);
+
+        if is_comment_like_context(node) {
+            return Ok(None);
+        }
 
         if let Some(items) = style_completion_items(source, &doc.tree, byte_offset)
             && !items.is_empty()
         {
             return Ok(Some(CompletionResponse::Array(items)));
+        }
+
+        if is_embedded_non_svg_context(node, source) {
+            return Ok(None);
         }
 
         // Detect completion context by walking ancestors
@@ -2482,20 +2619,11 @@ impl LanguageServer for SvgLanguageServer {
                 // Walk up to find the attribute name
                 if let Some(attr_wrapper) =
                     find_ancestor_any(cursor, &["generic_attribute", "attribute"])
+                    && let Some(attr_name) = first_attribute_name_text(attr_wrapper, source)
                 {
-                    // First child or child named with attribute name
-                    for i in 0..attr_wrapper.child_count() {
-                        if let Some(child) = attr_wrapper.child(i as u32)
-                            && (ATTRIBUTE_NAME_KINDS.contains(&child.kind())
-                                || child.kind() == "attribute_name")
-                        {
-                            let attr_name = child.utf8_text(source).unwrap_or("");
-                            let items = value_completions(attr_name);
-                            if !items.is_empty() {
-                                return Ok(Some(CompletionResponse::Array(items)));
-                            }
-                            break;
-                        }
+                    let items = value_completions(&attr_name, source, &doc.tree, cursor);
+                    if !items.is_empty() {
+                        return Ok(Some(CompletionResponse::Array(items)));
                     }
                 }
                 return Ok(None);
@@ -2504,19 +2632,16 @@ impl LanguageServer for SvgLanguageServer {
             // Inside a tag → attribute name completions
             if kind == "start_tag" || kind == "self_closing_tag" {
                 let elem_name = tag_element_name(cursor, source).unwrap_or("");
+                let existing = existing_attribute_names(cursor, source);
                 let attrs = svg_data::attributes_for(elem_name);
                 let items: Vec<CompletionItem> = attrs
                     .into_iter()
+                    .filter(|attr| !attr.deprecated)
+                    .filter(|attr| !existing.contains(attr.name))
                     .map(|attr| CompletionItem {
                         label: attr.name.to_string(),
                         kind: Some(CompletionItemKind::PROPERTY),
                         detail: Some(attr.description.to_string()),
-                        deprecated: if attr.deprecated { Some(true) } else { None },
-                        tags: if attr.deprecated {
-                            Some(vec![CompletionItemTag::DEPRECATED])
-                        } else {
-                            None
-                        },
                         insert_text: Some(format!("{}=\"$0\"", attr.name)),
                         insert_text_format: Some(InsertTextFormat::SNIPPET),
                         ..Default::default()
@@ -2528,27 +2653,27 @@ impl LanguageServer for SvgLanguageServer {
             // Inside an element → child element completions
             if kind == "element" || kind == "svg_root_element" {
                 let elem_name = enclosing_element_name(cursor, source).unwrap_or("");
-                let children = svg_data::allowed_children(elem_name);
-                let items: Vec<CompletionItem> = if children.is_empty() {
-                    // Fallback: suggest all elements
-                    svg_data::elements()
-                        .iter()
-                        .map(element_completion_item)
-                        .collect()
-                } else {
-                    children
-                        .into_iter()
-                        .filter_map(|name| svg_data::element(name))
-                        .map(element_completion_item)
-                        .collect()
+                let Some(_) = svg_data::element(elem_name) else {
+                    return Ok(None);
                 };
+
+                let items: Vec<CompletionItem> = svg_data::allowed_children(elem_name)
+                    .into_iter()
+                    .filter_map(svg_data::element)
+                    .filter(|el| !el.deprecated)
+                    .map(element_completion_item)
+                    .collect();
+
+                if items.is_empty() {
+                    return Ok(None);
+                }
                 return Ok(Some(CompletionResponse::Array(items)));
             }
 
-            // Reached root document without matching → suggest all elements
+            // Reached root document without matching → suggest root svg element
             if kind == "document" {
-                let items: Vec<CompletionItem> = svg_data::elements()
-                    .iter()
+                let items: Vec<CompletionItem> = svg_data::element("svg")
+                    .into_iter()
                     .map(element_completion_item)
                     .collect();
                 return Ok(Some(CompletionResponse::Array(items)));

@@ -620,9 +620,9 @@ impl<'a> Formatter<'a> {
             BlankLines::Truncate => source_gaps.min(1),
             BlankLines::Insert => {
                 if prev_was_comment {
-                    source_gaps.min(1)
+                    0
                 } else {
-                    source_gaps.max(1)
+                    1
                 }
             }
         };
@@ -1218,6 +1218,17 @@ mod tests {
         };
         // Blank line before comment, but NOT between comment and circle.
         let expected = "<svg>\n\t<rect />\n\n\t<!--legend-->\n\t<circle />\n</svg>";
+        assert_eq!(format_with_options(input, options), expected);
+    }
+
+    #[test]
+    fn blank_lines_insert_normalizes_multiple_to_one() {
+        let input = "<svg>\n\t<rect />\n\n\n\n\t<circle />\n</svg>";
+        let options = FormatOptions {
+            blank_lines: BlankLines::Insert,
+            ..Default::default()
+        };
+        let expected = "<svg>\n\t<rect />\n\n\t<circle />\n</svg>";
         assert_eq!(format_with_options(input, options), expected);
     }
 

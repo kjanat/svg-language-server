@@ -52,6 +52,7 @@ including:
 - Rust toolchain
 - `just`
 - `dprint`
+- `bun`
 
 ### Build And Test
 
@@ -72,6 +73,15 @@ just run-lsp
 just install
 just install-format
 ```
+
+### Install Published Binaries With npm
+
+```sh
+npm install --global svg-language-server
+npm install --global svg-format
+```
+
+These are thin installer packages: they fetch only the matching GitHub Release artifact for the current OS/architecture instead of bundling every platform into the npm tarball.
 
 If you want to install directly from GitHub instead of a local checkout:
 
@@ -101,6 +111,7 @@ samples/                manual fixtures and examples
 just check
 just format
 just lint
+just typecheck
 just test
 just ci
 ```
@@ -120,3 +131,10 @@ languages = ["SVG"]
 
 The dprint plugin lives in a separate repository:
 https://github.com/kjanat/dprint-plugin-svg
+
+## Release Publishing
+
+- Git tags publish both binaries to one GitHub Release.
+- npm packages `svg-language-server` and `svg-format` are published from GitHub Actions.
+- Run `just release-prepare <version>` to bump versions, run CI, commit, and create the local `v<version>` tag. This requires `bun` locally. Pushing that tag triggers publication.
+- See `docs/releasing.md` for the bootstrap and trusted-publisher details.

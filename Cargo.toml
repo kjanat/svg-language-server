@@ -1,11 +1,16 @@
+#:tombi lint.disabled = true
+
 [workspace]
 resolver = "3"
 members  = ["crates/*"]
 
 [workspace.package]
 version    = "0.1.0"
+authors    = ["Kaj Kowalski <info@kajkowalski.nl>"]
 edition    = "2024"
+homepage   = "https://github.com/kjanat/svg-language-server#readme"
 repository = "https://github.com/kjanat/svg-language-server"
+license    = "MIT"
 keywords   = ["svg"]
 categories = ["development-tools"]
 
@@ -52,6 +57,11 @@ features = ["fmt"]
 package = "tree-sitter-svg"
 git     = "https://github.com/kjanat/tree-sitter-svg"
 rev     = "8ef7d70591529b85624439337e1e9b3c38b47b14"
+
+# The profile that 'dist' will build with
+[profile.dist]
+inherits = "release"
+lto      = "thin"
 
 # [workspace.dependencies.tree-sitter-svg]
 # package = "tree-sitter-svg"

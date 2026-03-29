@@ -1,10 +1,13 @@
 [package]
 name                 = "svg-data"
 version.workspace    = true
+authors.workspace    = true
 edition.workspace    = true
 description          = "Compile-time SVG spec catalog from MDN browser-compat-data"
 readme               = "README.md"
+homepage             = "https://github.com/kjanat/svg-language-server/tree/master/crates/svg-data"
 repository.workspace = true
+license.workspace    = true
 keywords             = ["browser-compat-data", "codegen", "mdn", "spec", "svg"]
 categories           = ["development-tools::build-utils", "web-programming"]
 build                = "build.rs"

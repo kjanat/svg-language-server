@@ -1,9 +1,12 @@
 [package]
 name                 = "svg-references"
 version.workspace    = true
+authors.workspace    = true
 edition.workspace    = true
 description          = "Shared SVG/CSS symbol extraction for references and definitions"
+homepage             = "https://github.com/kjanat/svg-language-server/tree/master/crates/svg-references"
 repository.workspace = true
+license.workspace    = true
 keywords             = ["css", "references", "svg", "tree-sitter"]
 categories           = ["development-tools"]
 

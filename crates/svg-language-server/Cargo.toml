@@ -1,10 +1,13 @@
 [package]
 name                 = "svg-language-server"
 version.workspace    = true
+authors.workspace    = true
 edition.workspace    = true
 description          = "LSP server for SVG"
 readme               = "README.md"
+homepage             = "https://github.com/kjanat/svg-language-server/tree/master/crates/svg-language-server"
 repository.workspace = true
+license.workspace    = true
 keywords             = ["completions", "diagnostics", "language-server", "lsp", "svg"]
 categories           = ["development-tools", "text-editors"]
 

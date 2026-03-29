@@ -1,10 +1,13 @@
 [package]
 name                 = "svg-color"
 version.workspace    = true
+authors.workspace    = true
 edition.workspace    = true
 description          = "Color extraction and format conversion for SVG documents"
 readme               = "README.md"
+homepage             = "https://github.com/kjanat/svg-language-server/tree/master/crates/svg-color"
 repository.workspace = true
+license.workspace    = true
 keywords             = ["color", "hex", "hsl", "rgb", "svg"]
 categories           = ["graphics", "parsing"]
 

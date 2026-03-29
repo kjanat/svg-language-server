@@ -1,9 +1,12 @@
 [package]
 name                 = "svg-format"
 version.workspace    = true
+authors.workspace    = true
 edition.workspace    = true
 description          = "Structural formatter for SVG documents"
+homepage             = "https://github.com/kjanat/svg-language-server/tree/master/crates/svg-format"
 repository.workspace = true
+license.workspace    = true
 keywords             = ["format", "pretty-print", "svg", "tree-sitter"]
 categories           = ["development-tools", "text-editors"]
 

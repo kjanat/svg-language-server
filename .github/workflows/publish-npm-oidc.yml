@@ -1,0 +1,49 @@
+name: publish-npm-oidc
+
+on:
+  workflow_call:
+    inputs:
+      plan:
+        required: true
+        type: string
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      PLAN: ${{ inputs.plan }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+    steps:
+      - name: Fetch npm packages
+        uses: actions/download-artifact@v8
+        with:
+          pattern: artifacts-*
+          path: dist-npm/
+          merge-multiple: true
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24.x"
+          registry-url: "https://registry.npmjs.org"
+      - name: Publish dist npm installers
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          npm install -g npm@latest
+
+          publish_pkg() {
+            local source="$1"
+            if [[ -n "${NPM_TOKEN:-}" ]]; then
+              NODE_AUTH_TOKEN="$NPM_TOKEN" npm publish --access public "$source"
+            else
+              npm publish --provenance --access public "$source"
+            fi
+          }
+
+          for release in $(echo "$PLAN" | jq --compact-output '.releases[] | select([.artifacts[] | endswith("-npm-package.tar.gz")] | any)'); do
+            pkg=$(echo "$release" | jq '.artifacts[] | select(endswith("-npm-package.tar.gz"))' --raw-output)
+            publish_pkg "./dist-npm/${pkg}"
+          done

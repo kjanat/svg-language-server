@@ -1,2 +1,4 @@
 target/
 /_*.md
+bun.lock
+node_modules

@@ -58,9 +58,14 @@ build *ARGS:
 build-release *ARGS:
     cargo build --workspace --release {{ ARGS }}
 
+# Typecheck Bun/TypeScript helper scripts
+typecheck:
+    bun --cwd=scripts typecheck
+
 # Local preflight checks
 ci:
     just check
+    just typecheck
     just lint
     just test
 
@@ -73,3 +78,15 @@ run-lsp *ARGS:
 [arg("variant", long="variant", short="v")]
 commit model="openai/gpt-5.4" variant="medium" *$MESSAGE:
     opencode run --command commit --model={{ model }} --variant={{ variant }} "$MESSAGE"
+
+# Preview release artifacts and package layout
+dist-plan *ARGS:
+    cargo dist plan --allow-dirty {{ ARGS }}
+
+# Refresh generated dist CI after config changes
+dist-generate:
+    cargo dist generate --mode=ci
+
+# Prepare a release commit and local tag without pushing
+release-prepare VERSION:
+    bun scripts/release-prepare.ts {{ VERSION }}

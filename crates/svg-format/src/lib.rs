@@ -323,17 +323,18 @@ impl<'a> Formatter<'a> {
         }
 
         // Detect the element's tag name for embedded content handling.
-        let tag_name = children
+        let tag_name: String = children
             .iter()
             .find(|c| c.kind() == "start_tag")
             .and_then(|tag| {
                 let text = self.node_text(*tag).trim();
                 text.strip_prefix('<')
                     .and_then(|s| s.split(|c: char| c.is_whitespace() || c == '>').next())
+                    .map(str::to_string)
             })
-            .unwrap_or("");
+            .unwrap_or_default();
 
-        let embedded_lang = match tag_name {
+        let embedded_lang = match tag_name.as_str() {
             "style" => Some(EmbeddedLanguage::Css),
             "script" => Some(EmbeddedLanguage::JavaScript),
             "foreignObject" => Some(EmbeddedLanguage::Html),
@@ -347,6 +348,29 @@ impl<'a> Formatter<'a> {
                 .is_some()
         {
             return;
+        }
+
+        // Text-content elements with entity references (&lt; &amp; etc.):
+        // extract raw content between tags as a unified text block so entity
+        // references aren't split onto separate lines.
+        if is_text_content_element(&tag_name) {
+            let has_entity_refs = children.iter().any(|c| c.kind() == "entity_reference");
+
+            if has_entity_refs {
+                let start_node = children.iter().find(|c| c.kind() == "start_tag").copied();
+                let end_node = children.iter().find(|c| c.kind() == "end_tag").copied();
+                let all_inline = children
+                    .iter()
+                    .filter(|c| !matches!(c.kind(), "start_tag" | "end_tag"))
+                    .all(|c| matches!(c.kind(), "text" | "raw_text" | "entity_reference"));
+
+                if let (Some(start), Some(end)) = (start_node, end_node) {
+                    if all_inline {
+                        self.format_text_content_element(start, end, depth);
+                        return;
+                    }
+                }
+            }
         }
 
         let mut prev_end: Option<usize> = None;
@@ -409,6 +433,47 @@ impl<'a> Formatter<'a> {
                 }
             }
         }
+    }
+
+    /// Format a text-content element whose children include entity
+    /// references mixed with text. Extracts the raw source between start
+    /// and end tags, normalizes whitespace into a single line, and inlines
+    /// with the tags when it fits.
+    ///
+    /// Called only when entity_reference nodes are present — the whitespace
+    /// around them is a formatting artifact, not meaningful content, so we
+    /// always normalize regardless of [`TextContentMode`].
+    fn format_text_content_element(&mut self, start: Node<'_>, end: Node<'_>, depth: usize) {
+        let raw = std::str::from_utf8(&self.source[start.end_byte()..end.start_byte()])
+            .unwrap_or_default();
+        let normalized = normalize_text_content_with_entities(raw);
+        let end_text = self.node_text(end).trim().to_string();
+
+        // Render the start tag (capture output for potential inline rewrite).
+        let out_before = self.out.len();
+        self.write_tag_node(start, depth, false);
+        let tag_output = self.out[out_before..].to_string();
+
+        if normalized.is_empty() {
+            self.write_line(depth, &end_text);
+            return;
+        }
+
+        // Try to keep everything on one line: <tag>content</tag>
+        let tag_str = tag_output.trim_end_matches('\n');
+        if !tag_str.contains('\n') {
+            let tag_inline = tag_str.trim_start();
+            let candidate = format!("{tag_inline}{normalized}{end_text}");
+            if self.indent(depth).len() + candidate.len() <= self.options.max_inline_tag_width {
+                self.out.truncate(out_before);
+                self.write_line(depth, &candidate);
+                return;
+            }
+        }
+
+        // Doesn't fit inline — write normalized content on its own line.
+        self.write_line(depth + 1, &normalized);
+        self.write_line(depth, &end_text);
     }
 
     fn write_tag_node(&mut self, node: Node<'_>, depth: usize, self_closing: bool) {
@@ -522,6 +587,10 @@ impl<'a> Formatter<'a> {
 
     fn write_text_node(&mut self, node: Node<'_>, depth: usize) {
         let text = self.node_text(node).to_string();
+        self.write_text_str(&text, depth);
+    }
+
+    fn write_text_str(&mut self, text: &str, depth: usize) {
         if text.trim().is_empty() {
             return;
         }
@@ -537,7 +606,7 @@ impl<'a> Formatter<'a> {
                 }
             }
             TextContentMode::Maintain => {
-                self.write_preserved_block_text(node, depth);
+                self.write_preserved_str(text, depth);
             }
             TextContentMode::Prettify => {
                 for line in text.lines() {
@@ -553,6 +622,10 @@ impl<'a> Formatter<'a> {
 
     fn write_preserved_block_text(&mut self, node: Node<'_>, depth: usize) {
         let text = self.node_text(node).to_string();
+        self.write_preserved_str(&text, depth);
+    }
+
+    fn write_preserved_str(&mut self, text: &str, depth: usize) {
         if text.trim().is_empty() {
             return;
         }
@@ -1058,6 +1131,148 @@ fn dedent_block(text: &str) -> String {
 }
 
 /// Collapse runs of whitespace into single spaces and trim.
+/// SVG elements whose content is whitespace-sensitive inline text.
+///
+/// For these elements the formatter preserves raw content between the start
+/// and end tags as a single text block instead of formatting each child node
+/// on its own line (which would break entity references like `&lt;` apart
+/// from surrounding text).
+fn is_text_content_element(tag_name: &str) -> bool {
+    matches!(tag_name, "text" | "tspan" | "textPath" | "title" | "desc")
+}
+
+#[derive(Clone, Copy)]
+enum TextContentToken<'a> {
+    Text(&'a str),
+    Entity(&'a str),
+    Whitespace(&'a str),
+}
+
+fn normalize_text_content_with_entities(text: &str) -> String {
+    let mut tokens = Vec::new();
+    let mut offset = 0;
+    while offset < text.len() {
+        let rest = &text[offset..];
+        let ch = rest.chars().next().expect("offset within bounds");
+
+        if ch.is_whitespace() {
+            let start = offset;
+            offset += ch.len_utf8();
+            while offset < text.len() {
+                let next = text[offset..].chars().next().expect("offset within bounds");
+                if !next.is_whitespace() {
+                    break;
+                }
+                offset += next.len_utf8();
+            }
+            tokens.push(TextContentToken::Whitespace(&text[start..offset]));
+            continue;
+        }
+
+        if ch == '&'
+            && let Some(len) = entity_reference_len(rest)
+        {
+            tokens.push(TextContentToken::Entity(&text[offset..offset + len]));
+            offset += len;
+            continue;
+        }
+
+        let start = offset;
+        offset += ch.len_utf8();
+        while offset < text.len() {
+            let next = text[offset..].chars().next().expect("offset within bounds");
+            if next.is_whitespace() {
+                break;
+            }
+            if next == '&' && entity_reference_len(&text[offset..]).is_some() {
+                break;
+            }
+            offset += next.len_utf8();
+        }
+        tokens.push(TextContentToken::Text(&text[start..offset]));
+    }
+
+    let mut normalized = String::new();
+    for (index, token) in tokens.iter().enumerate() {
+        match token {
+            TextContentToken::Text(text) | TextContentToken::Entity(text) => {
+                normalized.push_str(text)
+            }
+            TextContentToken::Whitespace(space) => {
+                let prev = tokens[..index]
+                    .iter()
+                    .rev()
+                    .find(|token| !matches!(token, TextContentToken::Whitespace(_)));
+                let next = tokens[index + 1..]
+                    .iter()
+                    .find(|token| !matches!(token, TextContentToken::Whitespace(_)));
+
+                let (Some(prev), Some(next)) = (prev, next) else {
+                    continue;
+                };
+
+                if should_strip_entity_boundary_space(*prev, *next, space) {
+                    continue;
+                }
+
+                if !normalized.ends_with(' ') {
+                    normalized.push(' ');
+                }
+            }
+        }
+    }
+
+    normalized.trim().to_string()
+}
+
+fn should_strip_entity_boundary_space(
+    prev: TextContentToken<'_>,
+    next: TextContentToken<'_>,
+    whitespace: &str,
+) -> bool {
+    if !whitespace.contains(['\n', '\r']) {
+        return false;
+    }
+
+    matches!(prev, TextContentToken::Entity(entity) if is_open_angle_entity(entity))
+        && matches!(next, TextContentToken::Text(_))
+        || matches!(prev, TextContentToken::Text(_))
+            && matches!(next, TextContentToken::Entity(entity) if is_close_angle_entity(entity))
+}
+
+fn entity_reference_len(text: &str) -> Option<usize> {
+    let end = text.find(';')?;
+    let candidate = &text[..=end];
+    let body = &candidate[1..candidate.len() - 1];
+    if body.is_empty() {
+        return None;
+    }
+
+    let valid = if let Some(hex) = body.strip_prefix("#x").or_else(|| body.strip_prefix("#X")) {
+        !hex.is_empty() && hex.chars().all(|ch| ch.is_ascii_hexdigit())
+    } else if let Some(decimal) = body.strip_prefix('#') {
+        !decimal.is_empty() && decimal.chars().all(|ch| ch.is_ascii_digit())
+    } else {
+        body.chars().all(|ch| ch.is_ascii_alphanumeric())
+    };
+
+    valid.then_some(candidate.len())
+}
+
+fn is_open_angle_entity(entity: &str) -> bool {
+    matches!(
+        entity.to_ascii_lowercase().as_str(),
+        "&lt;" | "&#60;" | "&#x3c;"
+    )
+}
+
+fn is_close_angle_entity(entity: &str) -> bool {
+    matches!(
+        entity.to_ascii_lowercase().as_str(),
+        "&gt;" | "&#62;" | "&#x3e;"
+    )
+}
+
 fn collapse_whitespace(text: &str) -> String {
     let mut result = String::with_capacity(text.len());
     let mut prev_ws = true; // treat start as whitespace to trim leading
@@ -1751,6 +1966,80 @@ mod tests {
         assert!(
             result.contains("<circle r=\"3\"/>"),
             "second element inside range was lost:\n{result}"
+        );
+    }
+
+    // ── Text-content element whitespace sensitivity ──────────────
+
+    #[test]
+    fn text_element_entity_refs_stay_inline() {
+        let input =
+            r#"<svg><text class="label" x="36" y="58">Embedded &lt;style&gt; colors</text></svg>"#;
+        let expected = "<svg>\n\t<text class=\"label\" x=\"36\" y=\"58\">Embedded &lt;style&gt; colors</text>\n</svg>";
+        assert_eq!(format(input), expected);
+    }
+
+    #[test]
+    fn text_element_entity_refs_idempotent() {
+        let input =
+            r#"<svg><text class="label" x="36" y="58">Embedded &lt;style&gt; colors</text></svg>"#;
+        let once = format(input);
+        let twice = format(&once);
+        assert_eq!(once, twice, "not idempotent:\n{once}");
+    }
+
+    #[test]
+    fn text_element_broken_entity_refs_repaired() {
+        // Source previously mangled by a formatter that split entity refs
+        // onto separate lines — must collapse back to a single line.
+        let input = "<svg>\n<text class=\"label\" x=\"36\" y=\"58\">\n\tEmbedded\n\t&lt;\n\tstyle\n\t&gt;\n\tcolors\n</text>\n</svg>";
+        let expected = "<svg>\n\t<text class=\"label\" x=\"36\" y=\"58\">Embedded &lt;style&gt; colors</text>\n</svg>";
+        assert_eq!(format(input), expected);
+    }
+
+    #[test]
+    fn text_element_comparison_entity_refs_keep_spaces() {
+        let input = "<svg><text>a &lt; b &gt; c</text></svg>";
+        let expected = "<svg>\n\t<text>a &lt; b &gt; c</text>\n</svg>";
+        assert_eq!(format(input), expected);
+    }
+
+    #[test]
+    fn desc_element_entity_ref_stays_inline() {
+        let input = "<svg><desc>A &amp; B</desc></svg>";
+        let expected = "<svg>\n\t<desc>A &amp; B</desc>\n</svg>";
+        assert_eq!(format(input), expected);
+    }
+
+    #[test]
+    fn text_element_long_entity_ref_content_wraps_to_own_line() {
+        // Content with entity refs that exceeds max_inline_tag_width.
+        let input = "<svg><text class=\"subtle\" x=\"36\" y=\"84\">hex, rgb(a), hsl(a), hwb, lab, lch, oklab, oklch, transparent, stop-color, CSS vars, and color-mix() &amp; more</text></svg>";
+        let result = format(input);
+        // Content too wide for inline — should be on its own line.
+        assert!(
+            result.contains(">\n\t\thex, rgb(a)"),
+            "long content not on own line:\n{result}"
+        );
+        // Must stay as a single line, not split across multiple.
+        let content_lines: Vec<&str> = result
+            .lines()
+            .filter(|l| l.contains("hex, rgb(a)"))
+            .collect();
+        assert_eq!(
+            content_lines.len(),
+            1,
+            "content split across multiple lines:\n{result}"
+        );
+    }
+
+    #[test]
+    fn tspan_entity_refs_stay_inline() {
+        let input = "<svg><text><tspan>a &amp; b</tspan></text></svg>";
+        let result = format(input);
+        assert!(
+            result.contains("<tspan>a &amp; b</tspan>"),
+            "tspan content was split:\n{result}"
         );
     }
 }

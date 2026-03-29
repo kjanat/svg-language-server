@@ -8,6 +8,7 @@ alias l := lint
 alias fmt := format
 alias t := test
 alias b := build
+alias br := build-release
 alias cmt := commit
 
 # Returns the list of all available commands

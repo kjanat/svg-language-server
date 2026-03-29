@@ -1,5 +1,7 @@
 # Discoveries
 
+> This is a memory file for AI agents. It contains notes on quirks, gotchas, and other non-obvious details discovered during development. It is not intended for human consumption, but may be useful for debugging or future reference.
+
 ## tree-sitter-svg Consumer Gotchas
 
 - `descendant_for_byte_range` returns **anonymous leaf nodes** whose `kind()` is the literal text (e.g. `"font-size"`) instead of the named grammar node kind (`"length_attribute_name"`). Must walk to `parent()` with `is_named()` check to get the typed node for attribute dispatch.

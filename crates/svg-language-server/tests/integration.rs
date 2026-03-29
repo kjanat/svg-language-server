@@ -664,6 +664,107 @@ fn lsp_end_to_end() {
         "deprecated attributes should not be suggested: {attribute_completion_resp}"
     );
 
+    let typed_attribute_hover_svg = r#"<svg><defs><clipPath id="clip"><rect width="10" height="10" /></clipPath><linearGradient id="grad"><stop offset="50%" stop-color="red" /></linearGradient><filter id="blur"><feGaussianBlur stdDeviation="3" /></filter></defs><g clip-path="url(#clip)"><line stroke-dasharray="10 5" /></g><text><tspan dx="5">Hello</tspan></text><animate dur="2s" repeatCount="2" /></svg>"#;
+    send_message(
+        &mut stdin,
+        &json!({
+            "jsonrpc": "2.0",
+            "method": "textDocument/didOpen",
+            "params": {
+                "textDocument": {
+                    "uri": "file:///typed-attribute-hover.svg",
+                    "languageId": "svg",
+                    "version": 1,
+                    "text": typed_attribute_hover_svg
+                }
+            }
+        }),
+    );
+
+    for (id, attribute_name) in [
+        (18_u64, "stroke-dasharray"),
+        (19_u64, "offset"),
+        (20_u64, "stdDeviation"),
+        (21_u64, "dx"),
+        (22_u64, "dur"),
+        (23_u64, "repeatCount"),
+    ] {
+        let character = typed_attribute_hover_svg
+            .find(attribute_name)
+            .expect("typed attribute name present") as u32
+            + 1;
+        send_message(
+            &mut stdin,
+            &json!({
+                "jsonrpc": "2.0",
+                "id": id,
+                "method": "textDocument/hover",
+                "params": {
+                    "textDocument": { "uri": "file:///typed-attribute-hover.svg" },
+                    "position": { "line": 0, "character": character }
+                }
+            }),
+        );
+
+        let typed_attr_hover_resp = recv_response(&rx, id, timeout);
+        assert!(
+            typed_attr_hover_resp["result"]["contents"]["value"]
+                .as_str()
+                .is_some_and(|value| !value.is_empty()),
+            "typed attribute hover should resolve for {attribute_name}: {typed_attr_hover_resp}"
+        );
+    }
+
+    let typed_attribute_completion_svg = r#"<svg><animate dur="2s" /></svg>"#;
+    send_message(
+        &mut stdin,
+        &json!({
+            "jsonrpc": "2.0",
+            "method": "textDocument/didOpen",
+            "params": {
+                "textDocument": {
+                    "uri": "file:///typed-attribute-completion.svg",
+                    "languageId": "svg",
+                    "version": 1,
+                    "text": typed_attribute_completion_svg
+                }
+            }
+        }),
+    );
+
+    send_message(
+        &mut stdin,
+        &json!({
+            "jsonrpc": "2.0",
+            "id": 24,
+            "method": "textDocument/completion",
+            "params": {
+                "textDocument": { "uri": "file:///typed-attribute-completion.svg" },
+                "position": {
+                    "line": 0,
+                    "character": typed_attribute_completion_svg.find("/>").expect("self-closing tag") as u32 - 1
+                }
+            }
+        }),
+    );
+
+    let typed_attribute_completion_resp = recv_response(&rx, 24, timeout);
+    let typed_attribute_completion_items = typed_attribute_completion_resp["result"]
+        .as_array()
+        .expect("typed attribute completion result should be an array");
+    let typed_attribute_labels: Vec<&str> = typed_attribute_completion_items
+        .iter()
+        .filter_map(|item| item["label"].as_str())
+        .collect();
+    assert!(
+        !typed_attribute_labels.contains(&"dur"),
+        "already-specified typed attributes should not be suggested again: {typed_attribute_completion_resp}"
+    );
+    assert!(
+        typed_attribute_labels.contains(&"attributeName"),
+        "other animate attributes should still be suggested: {typed_attribute_completion_resp}"
+    );
+
     let script_completion_svg = r#"<svg><script>con</script></svg>"#;
     send_message(
         &mut stdin,

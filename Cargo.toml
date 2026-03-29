@@ -51,7 +51,7 @@ features = ["fmt"]
 [workspace.dependencies.tree-sitter-svg]
 package = "tree-sitter-svg"
 git     = "https://github.com/kjanat/tree-sitter-svg"
-rev     = "db84810d2bc74be80688f7d57ea8e5d17b3322b0"
+rev     = "8ef7d70591529b85624439337e1e9b3c38b47b14"
 
 # [workspace.dependencies.tree-sitter-svg]
 # package = "tree-sitter-svg"

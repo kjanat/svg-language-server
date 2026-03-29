@@ -1206,7 +1206,7 @@ checksum = "009994f150cc0cd50ff54917d5bc8bffe8cad10ca10d81c34da2ec421ae61782"
 [[package]]
 name = "tree-sitter-svg"
 version = "0.1.0"
-source = "git+https://github.com/kjanat/tree-sitter-svg?rev=db84810d2bc74be80688f7d57ea8e5d17b3322b0#db84810d2bc74be80688f7d57ea8e5d17b3322b0"
+source = "git+https://github.com/kjanat/tree-sitter-svg?rev=8ef7d70591529b85624439337e1e9b3c38b47b14#8ef7d70591529b85624439337e1e9b3c38b47b14"
 dependencies = [
  "cc",
  "tree-sitter-language",

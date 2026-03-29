@@ -236,24 +236,10 @@ fn check_element(
     matches!(def.content_model, svg_data::ContentModel::Foreign)
 }
 
-/// Attribute name node kinds that carry the attribute name text.
-const ATTR_NAME_KINDS: &[&str] = &[
-    "attribute_name",
-    "paint_attribute_name",
-    "length_attribute_name",
-    "transform_attribute_name",
-    "viewbox_attribute_name",
-    "preserve_aspect_ratio_attribute_name",
-    "points_attribute_name",
-    "d_attribute_name",
-    "id_attribute_name",
-    "href_attribute_name",
-    "style_attribute_name",
-    "functional_iri_attribute_name",
-    "opacity_attribute_name",
-    "class_attribute_name",
-    "event_attribute_name",
-];
+/// tree-sitter-svg adds more typed `*_attribute_name` nodes as value grammars expand.
+fn is_attribute_name_kind(kind: &str) -> bool {
+    kind == "attribute_name" || kind.ends_with("_attribute_name")
+}
 
 /// XML infrastructure prefixes — skip these in attribute checks.
 fn is_xml_infrastructure(name: &str) -> bool {
@@ -331,13 +317,13 @@ fn find_attr_name(attr_node: Node) -> Option<Node> {
     let mut cursor = attr_node.walk();
     for child in attr_node.children(&mut cursor) {
         // Check if this child itself is a name node
-        if ATTR_NAME_KINDS.contains(&child.kind()) {
+        if is_attribute_name_kind(child.kind()) {
             return Some(child);
         }
         // Check the child's children (typed attributes nest name inside)
         let mut inner_cursor = child.walk();
         for grandchild in child.children(&mut inner_cursor) {
-            if ATTR_NAME_KINDS.contains(&grandchild.kind()) {
+            if is_attribute_name_kind(grandchild.kind()) {
                 return Some(grandchild);
             }
         }
@@ -637,5 +623,53 @@ fn make_diag(
         severity,
         code,
         message,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tree_sitter::{Parser, Tree};
+
+    fn parse_svg(source: &str) -> Tree {
+        let mut parser = Parser::new();
+        parser
+            .set_language(&tree_sitter_svg::LANGUAGE.into())
+            .expect("SVG grammar");
+        parser.parse(source, None).expect("parse")
+    }
+
+    fn first_attribute_node<'a>(tree: &'a Tree) -> Node<'a> {
+        fn visit<'a>(node: Node<'a>) -> Option<Node<'a>> {
+            if node.kind() == "attribute" {
+                return Some(node);
+            }
+
+            let mut cursor = node.walk();
+            for child in node.children(&mut cursor) {
+                if let Some(found) = visit(child) {
+                    return Some(found);
+                }
+            }
+            None
+        }
+
+        visit(tree.root_node()).expect("expected an attribute node")
+    }
+
+    #[test]
+    fn find_attr_name_matches_new_duration_attribute_kind() {
+        let tree = parse_svg(r#"<svg><animate dur="2s" /></svg>"#);
+        let attr = first_attribute_node(&tree);
+        let name = find_attr_name(attr).expect("duration attribute name");
+        assert_eq!(name.kind(), "duration_attribute_name");
+    }
+
+    #[test]
+    fn find_attr_name_matches_new_stroke_dasharray_attribute_kind() {
+        let tree = parse_svg(r#"<svg><line stroke-dasharray="10 5" /></svg>"#);
+        let attr = first_attribute_node(&tree);
+        let name = find_attr_name(attr).expect("stroke-dasharray attribute name");
+        assert_eq!(name.kind(), "stroke_dasharray_attribute_name");
     }
 }

@@ -1819,27 +1819,10 @@ fn format_browser_support_line(
     Some(format!("{chrome} | {edge} | {firefox} | {safari}"))
 }
 
-/// Attribute name node kinds recognized by the tree-sitter-svg grammar.
-const ATTRIBUTE_NAME_KINDS: &[&str] = &[
-    "attribute_name",
-    "paint_attribute_name",
-    "length_attribute_name",
-    "transform_attribute_name",
-    "viewbox_attribute_name",
-    "preserve_aspect_ratio_attribute_name",
-    "points_attribute_name",
-    "d_attribute_name",
-    "href_attribute_name",
-    "style_attribute_name",
-    "functional_iri_attribute_name",
-    "opacity_attribute_name",
-    "class_attribute_name",
-    "event_attribute_name",
-    "id_attribute_name",
-    "xml_version_attribute_name",
-    "xml_encoding_attribute_name",
-    "xml_standalone_attribute_name",
-];
+/// tree-sitter-svg adds more typed `*_attribute_name` nodes as value grammars expand.
+fn is_attribute_name_kind(kind: &str) -> bool {
+    kind == "attribute_name" || kind.ends_with("_attribute_name")
+}
 
 /// Find the tree-sitter node at a given byte offset, preferring the deepest (leaf) node.
 fn deepest_node_at(tree: &tree_sitter::Tree, byte_offset: usize) -> tree_sitter::Node<'_> {
@@ -1904,7 +1887,7 @@ fn collect_existing_attribute_names(
     names: &mut HashSet<String>,
 ) {
     let kind = node.kind();
-    if ATTRIBUTE_NAME_KINDS.contains(&kind) || kind == "attribute_name" {
+    if is_attribute_name_kind(kind) {
         if let Ok(name) = node.utf8_text(source) {
             names.insert(name.to_string());
         }
@@ -1926,7 +1909,7 @@ fn existing_attribute_names(tag_node: tree_sitter::Node<'_>, source: &[u8]) -> H
 
 fn first_attribute_name_text(node: tree_sitter::Node<'_>, source: &[u8]) -> Option<String> {
     let kind = node.kind();
-    if ATTRIBUTE_NAME_KINDS.contains(&kind) || kind == "attribute_name" {
+    if is_attribute_name_kind(kind) {
         return node.utf8_text(source).ok().map(str::to_string);
     }
 
@@ -2311,17 +2294,16 @@ impl LanguageServer for SvgLanguageServer {
                 None
             };
 
-            let attribute_markdown =
-                if ATTRIBUTE_NAME_KINDS.contains(&kind.as_str()) || kind == "attribute_name" {
-                    if let Some(attr) = svg_data::attribute(&node_text) {
-                        let rt_override = rt.as_ref().and_then(|r| r.attributes.get(&node_text));
-                        Some(format_attribute_hover(attr, rt_override))
-                    } else {
-                        external_attribute_hover(&kind, &node_text)
-                    }
+            let attribute_markdown = if is_attribute_name_kind(&kind) {
+                if let Some(attr) = svg_data::attribute(&node_text) {
+                    let rt_override = rt.as_ref().and_then(|r| r.attributes.get(&node_text));
+                    Some(format_attribute_hover(attr, rt_override))
                 } else {
-                    None
-                };
+                    external_attribute_hover(&kind, &node_text)
+                }
+            } else {
+                None
+            };
 
             let definition_target =
                 svg_references::definition_target_at(source, &doc.tree, byte_offset);

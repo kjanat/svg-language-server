@@ -231,7 +231,6 @@ fn main() -> ExitCode {
 
 #[cfg(test)]
 mod debug_tests {
-    use super::*;
     use tree_sitter::Parser;
 
     #[test]
@@ -252,7 +251,7 @@ mod debug_tests {
                 let indent = "  ".repeat(depth);
                 let text = std::str::from_utf8(&source[node.byte_range()]).unwrap_or("?");
                 let short = if text.len() > 30 { &text[..30] } else { text };
-                eprintln!("{}kind={}", indent, node.kind());
+                eprintln!("{}kind={} text={:?}", indent, node.kind(), short);
 
                 let mut cursor = node.walk();
                 for child in node.named_children(&mut cursor) {

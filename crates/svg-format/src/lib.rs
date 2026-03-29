@@ -291,13 +291,12 @@ impl<'a> Formatter<'a> {
         };
 
         // For foreignObject, try to format the entire inner content as HTML.
-        if embedded_lang == Some(EmbeddedLanguage::Html) {
-            if self
+        if embedded_lang == Some(EmbeddedLanguage::Html)
+            && self
                 .try_format_foreign_object(&children, depth, fmt)
                 .is_some()
-            {
-                return;
-            }
+        {
+            return;
         }
 
         let mut prev_end: Option<usize> = None;
@@ -324,13 +323,12 @@ impl<'a> Formatter<'a> {
                         self.emit_gap(end, child.start_byte());
                     }
                     // Try embedded formatting for style/script raw_text.
-                    if let Some(lang) = embedded_lang {
-                        if lang != EmbeddedLanguage::Html {
-                            if self.try_format_embedded_text(child, lang, depth + 1, fmt) {
-                                prev_end = Some(child.end_byte());
-                                continue;
-                            }
-                        }
+                    if let Some(lang) = embedded_lang
+                        && lang != EmbeddedLanguage::Html
+                        && self.try_format_embedded_text(child, lang, depth + 1, fmt)
+                    {
+                        prev_end = Some(child.end_byte());
+                        continue;
                     }
                     self.write_text_node(child, depth + 1);
                     prev_end = Some(child.end_byte());
@@ -939,8 +937,7 @@ mod tests {
   .a { fill: red; }
     .b { stroke: blue; }
 </style></svg>"#;
-        let expected =
-            "<svg>\n\t<style>\n\t\t.a { fill: red; }\n\t\t  .b { stroke: blue; }\n\t</style>\n</svg>";
+        let expected = "<svg>\n\t<style>\n\t\t.a { fill: red; }\n\t\t  .b { stroke: blue; }\n\t</style>\n</svg>";
         assert_eq!(format(input), expected);
     }
 

@@ -6,21 +6,21 @@
 	"markup": {
 		"associations": ["!**/*.svg"],
 		"ignoreCommentDirective": "dprint-ignore",
-		"ignoreFileCommentDirective": "dprint-ignore-file"
+		"ignoreFileCommentDirective": "dprint-ignore-file",
 	},
 	"yaml": { "printWidth": 160 },
 	"exec": {
 		"commands": [
 			{ "command": "tombi format - --stdin-filename {{file_path}}", "exts": ["toml"] },
 			{ "command": "rustfmt --edition 2024", "exts": ["rs"] },
-			{ "command": "just --dump --justfile {{file_path}}", "fileNames": ["justfile"] }
-		]
+			{ "command": "just --dump --justfile {{file_path}}", "fileNames": ["justfile"] },
+		],
 	},
 	"excludes": [
 		"**/*.lock",
 		"**/node_modules",
 		"**/samples",
-		"**/target"
+		"**/target",
 	],
 	"plugins": [
 		"https://plugins.dprint.dev/json-0.21.3.wasm",
@@ -28,6 +28,6 @@
 		"https://plugins.dprint.dev/g-plane/malva-v0.15.2.wasm",
 		"https://plugins.dprint.dev/g-plane/markup_fmt-v0.26.0.wasm",
 		"https://plugins.dprint.dev/g-plane/pretty_yaml-v0.6.0.wasm",
-		"https://plugins.dprint.dev/exec-0.6.0.json@a054130d458f124f9b5c91484833828950723a5af3f8ff2bd1523bd47b83b364"
-	]
+		"https://plugins.dprint.dev/exec-0.6.0.json@a054130d458f124f9b5c91484833828950723a5af3f8ff2bd1523bd47b83b364",
+	],
 }

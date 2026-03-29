@@ -94,7 +94,7 @@ pub struct EmbeddedContent<'a> {
 }
 
 /// Formatter configuration for SVG pretty-printing.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FormatOptions {
     /// Number of spaces per indentation level when `insert_spaces` is true.
     pub indent_width: usize,
@@ -118,6 +118,15 @@ pub struct FormatOptions {
     pub text_content: TextContentMode,
     /// How blank lines between sibling elements are handled.
     pub blank_lines: BlankLines,
+    /// Comment prefixes that trigger ignore directives.
+    ///
+    /// For each prefix `p`, the formatter recognizes:
+    /// - `<!-- p-ignore -->` — skip formatting the next sibling
+    /// - `<!-- p-ignore-file -->` — skip the entire file (detected anywhere)
+    /// - `<!-- p-ignore-start -->` / `<!-- p-ignore-end -->` — skip a range
+    ///
+    /// Defaults to `["svg-format"]`.
+    pub ignore_prefixes: Vec<String>,
 }
 
 impl Default for FormatOptions {
@@ -134,6 +143,7 @@ impl Default for FormatOptions {
             wrapped_attribute_indent: WrappedAttributeIndent::OneLevel,
             text_content: TextContentMode::Maintain,
             blank_lines: BlankLines::Truncate,
+            ignore_prefixes: vec!["svg-format".to_string()],
         }
     }
 }
@@ -169,6 +179,13 @@ pub fn format_with_host(
 
     if tree.root_node().has_error() {
         return source.to_owned();
+    }
+
+    // Check for ignore-file directive anywhere in the source.
+    for prefix in &options.ignore_prefixes {
+        if source.contains(&format!("{prefix}-ignore-file")) {
+            return source.to_owned();
+        }
     }
 
     let mut formatter = Formatter::new(source.as_bytes(), options);
@@ -246,7 +263,48 @@ impl<'a> Formatter<'a> {
         let mut cursor = node.walk();
         let mut prev_end: Option<usize> = None;
         let mut prev_was_comment = false;
+        let mut ignore_next = false;
+        let mut in_ignore_range = false;
         for child in node.named_children(&mut cursor) {
+            let mut skip_ignore_self = false;
+
+            // Check ignore directives on comment nodes.
+            if child.kind() == "comment" {
+                if self.is_ignore_directive(child, "ignore-start") {
+                    in_ignore_range = true;
+                    self.write_raw(child);
+                    prev_was_comment = true;
+                    prev_end = Some(child.end_byte());
+                    continue;
+                }
+                if self.is_ignore_directive(child, "ignore-end") {
+                    in_ignore_range = false;
+                    self.write_raw(child);
+                    prev_was_comment = true;
+                    prev_end = Some(child.end_byte());
+                    continue;
+                }
+                if self.is_ignore_directive(child, "ignore") {
+                    ignore_next = true;
+                    skip_ignore_self = true;
+                }
+            }
+
+            // Skip whitespace-only text before checking ignore.
+            if matches!(child.kind(), "text" | "raw_text")
+                && self.node_text(child).trim().is_empty()
+            {
+                continue;
+            }
+
+            if !skip_ignore_self && (in_ignore_range || ignore_next) {
+                self.write_raw(child);
+                ignore_next = false;
+                prev_was_comment = child.kind() == "comment";
+                prev_end = Some(child.end_byte());
+                continue;
+            }
+
             if let Some(end) = prev_end {
                 self.emit_gap(end, child.start_byte(), prev_was_comment);
             }
@@ -303,7 +361,48 @@ impl<'a> Formatter<'a> {
 
         let mut prev_end: Option<usize> = None;
         let mut prev_was_comment = false;
+        let mut ignore_next = false;
+        let mut in_ignore_range = false;
         for child in children {
+            let mut skip_ignore_self = false;
+            // Check ignore directives on comment nodes.
+            if child.kind() == "comment" {
+                if self.is_ignore_directive(child, "ignore-start") {
+                    in_ignore_range = true;
+                    self.write_raw(child);
+                    prev_was_comment = true;
+                    prev_end = Some(child.end_byte());
+                    continue;
+                }
+                if self.is_ignore_directive(child, "ignore-end") {
+                    in_ignore_range = false;
+                    self.write_raw(child);
+                    prev_was_comment = true;
+                    prev_end = Some(child.end_byte());
+                    continue;
+                }
+                if self.is_ignore_directive(child, "ignore") {
+                    ignore_next = true;
+                    skip_ignore_self = true;
+                }
+            }
+
+            // Skip whitespace-only text before checking ignore — don't let
+            // inter-element whitespace consume the ignore_next flag.
+            if matches!(child.kind(), "text" | "raw_text")
+                && self.node_text(child).trim().is_empty()
+            {
+                continue;
+            }
+
+            if !skip_ignore_self && (in_ignore_range || ignore_next) {
+                self.write_raw(child);
+                ignore_next = false;
+                prev_was_comment = child.kind() == "comment";
+                prev_end = Some(child.end_byte());
+                continue;
+            }
+
             match child.kind() {
                 "start_tag" => {
                     self.format_node(child, depth, fmt);
@@ -595,6 +694,30 @@ impl<'a> Formatter<'a> {
                 self.out.push_str(line);
                 self.out.push('\n');
             }
+        }
+    }
+
+    /// Check if a comment node matches `<!-- {prefix}-{suffix} -->`.
+    ///
+    /// Uses the tree-sitter `text` field on the comment node to get
+    /// the inner content without manual `<!--`/`-->` stripping.
+    fn is_ignore_directive(&self, node: Node<'_>, suffix: &str) -> bool {
+        let inner = node
+            .child_by_field_name("text")
+            .map(|t| self.node_text(t).trim())
+            .unwrap_or("");
+        self.options
+            .ignore_prefixes
+            .iter()
+            .any(|prefix| inner == format!("{prefix}-{suffix}"))
+    }
+
+    /// Write a node's original source bytes verbatim (no formatting).
+    fn write_raw(&mut self, node: Node<'_>) {
+        let text = self.node_text(node).to_string();
+        self.out.push_str(&text);
+        if !text.ends_with('\n') {
+            self.out.push('\n');
         }
     }
 
@@ -1235,5 +1358,41 @@ mod tests {
     #[test]
     fn blank_lines_default_is_truncate() {
         assert_eq!(FormatOptions::default().blank_lines, BlankLines::Truncate);
+    }
+
+    #[test]
+    fn ignore_file_skips_formatting() {
+        let input = "<svg><rect y=\"2\" x=\"1\"/>\n<!-- svg-format-ignore-file -->\n</svg>";
+        assert_eq!(format(input), input);
+    }
+
+    #[test]
+    fn ignore_next_skips_one_sibling() {
+        let input = "<svg>\n<!-- svg-format-ignore -->\n<rect y=\"2\" x=\"1\"/>\n<circle cx=\"1\" cy=\"2\" r=\"3\"/>\n</svg>";
+        let result = format(input);
+        // rect keeps original attr order (y before x), circle gets sorted
+        assert!(result.contains("y=\"2\" x=\"1\""));
+        assert!(result.contains("<circle cx=\"1\" cy=\"2\" r=\"3\" />"));
+    }
+
+    #[test]
+    fn ignore_range_preserves_content() {
+        let input = "<svg>\n<rect id=\"a\"/>\n<!-- svg-format-ignore-start -->\n<rect y=\"2\" x=\"1\"/>\n<circle r=\"3\" cx=\"1\" cy=\"2\"/>\n<!-- svg-format-ignore-end -->\n<rect y=\"2\" x=\"1\" id=\"b\"/>\n</svg>";
+        let result = format(input);
+        // Inside range: preserved verbatim
+        assert!(result.contains("<rect y=\"2\" x=\"1\"/>"));
+        assert!(result.contains("<circle r=\"3\" cx=\"1\" cy=\"2\"/>"));
+        // Outside range: formatted
+        assert!(result.contains("<rect id=\"b\" x=\"1\" y=\"2\" />"));
+    }
+
+    #[test]
+    fn custom_ignore_prefix_works() {
+        let input = "<svg><!-- custom-ignore-file --><rect/></svg>";
+        let options = FormatOptions {
+            ignore_prefixes: vec!["custom".to_string()],
+            ..Default::default()
+        };
+        assert_eq!(format_with_options(input, options), input);
     }
 }

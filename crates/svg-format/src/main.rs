@@ -218,6 +218,7 @@ fn run() -> Result<ExitCode, String> {
         wrapped_attribute_indent: cli.wrapped_attribute_indent.into(),
         text_content: cli.text_content.into(),
         blank_lines: cli.blank_lines.into(),
+        ignore_prefixes: defaults.ignore_prefixes,
     };
 
     let input = match (read_stdin, cli.path.as_ref()) {

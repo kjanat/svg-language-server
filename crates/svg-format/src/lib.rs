@@ -672,31 +672,33 @@ impl<'a> Formatter<'a> {
         let mut skip_ignore_self = false;
 
         if child.kind() == "comment" {
-            if self.is_ignore_directive(child, "ignore-start") {
-                *in_ignore_range = true;
-                // Emit the gap before the start comment using normal
-                // blank-line rules so Insert/Truncate apply consistently.
-                if let Some(end) = *prev_end {
-                    self.emit_gap(end, child.start_byte(), *prev_was_comment);
+            // Inside an ignore range, only look for the end marker.
+            // All other directives are preserved verbatim.
+            if *in_ignore_range {
+                if self.is_ignore_directive(child, "ignore-end") {
+                    self.write_source_span(*prev_end, child.end_byte());
+                    *in_ignore_range = false;
+                    *prev_was_comment = true;
+                    *prev_end = Some(child.end_byte());
+                    return true;
                 }
-                // Write only the comment node itself (not the leading gap).
-                self.write_source_span(Some(child.start_byte()), child.end_byte());
-                *prev_was_comment = true;
-                *prev_end = Some(child.end_byte());
-                return true;
-            }
-            if self.is_ignore_directive(child, "ignore-end") {
-                // Write everything from prev_end through end of this comment
-                // (preserves the gap + the end directive).
-                self.write_source_span(*prev_end, child.end_byte());
-                *in_ignore_range = false;
-                *prev_was_comment = true;
-                *prev_end = Some(child.end_byte());
-                return true;
-            }
-            if self.is_ignore_directive(child, "ignore") {
-                *ignore_next = true;
-                skip_ignore_self = true;
+                // Not an end marker — fall through to the in_ignore_range
+                // raw-write below. Don't set ignore_next or skip_ignore_self.
+            } else {
+                if self.is_ignore_directive(child, "ignore-start") {
+                    *in_ignore_range = true;
+                    if let Some(end) = *prev_end {
+                        self.emit_gap(end, child.start_byte(), *prev_was_comment);
+                    }
+                    self.write_source_span(Some(child.start_byte()), child.end_byte());
+                    *prev_was_comment = true;
+                    *prev_end = Some(child.end_byte());
+                    return true;
+                }
+                if self.is_ignore_directive(child, "ignore") {
+                    *ignore_next = true;
+                    skip_ignore_self = true;
+                }
             }
         }
 
@@ -1660,6 +1662,19 @@ mod tests {
         assert!(
             result.contains("y=\"2\" x=\"1\""),
             "inner content was formatted:\n{result}"
+        );
+    }
+
+    #[test]
+    fn ignore_next_inside_range_does_not_leak_after_end() {
+        // An ignore directive inside a range must not leak ignore_next
+        // state past the ignore-end, causing the next sibling to be skipped.
+        let input = "<svg>\n<!-- svg-format-ignore-start -->\n<!-- svg-format-ignore -->\n<rect y=\"2\" x=\"1\"/>\n<!-- svg-format-ignore-end -->\n<ellipse ry=\"1\" rx=\"2\"/>\n</svg>";
+        let result = format(input);
+        // ellipse after ignore-end must be formatted (canonical order)
+        assert!(
+            result.contains("<ellipse rx=\"2\" ry=\"1\" />"),
+            "ignore_next leaked past ignore-end:\n{result}"
         );
     }
 

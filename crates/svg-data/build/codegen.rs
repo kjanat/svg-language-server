@@ -1,19 +1,24 @@
-use super::{BaselineValue, BrowserSupportValue};
 use std::fmt::Write as _;
+
+use super::{BaselineValue, BrowserSupportValue};
 
 pub(super) fn escape(s: &str) -> String {
     s.replace('\\', "\\\\").replace('"', "\\\"")
 }
 
-pub(super) fn write_static_str_slice(out: &mut String, name: &str, items: &[String]) {
-    write!(out, "static {name}: &[&str] = &[").unwrap();
+pub(super) fn write_static_str_slice(
+    out: &mut String,
+    name: &str,
+    items: &[String],
+) -> std::fmt::Result {
+    write!(out, "static {name}: &[&str] = &[")?;
     for (i, item) in items.iter().enumerate() {
         if i > 0 {
             out.push_str(", ");
         }
-        write!(out, "\"{}\"", escape(item)).unwrap();
+        write!(out, "\"{}\"", escape(item))?;
     }
-    writeln!(out, "];").unwrap();
+    writeln!(out, "];")
 }
 
 pub(super) fn ident_from(name: &str) -> String {

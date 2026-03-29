@@ -1,7 +1,9 @@
-use std::fs;
-use std::io::{self, Read, Write};
-use std::path::PathBuf;
-use std::process::ExitCode;
+use std::{
+    fs,
+    io::{self, Read, Write},
+    path::PathBuf,
+    process::ExitCode,
+};
 
 use clap::{Parser, ValueEnum};
 use svg_format::{
@@ -250,7 +252,9 @@ fn run() -> Result<ExitCode, String> {
 
     if cli.in_place {
         if changed {
-            let path = cli.path.as_ref().expect("path checked above");
+            let Some(path) = cli.path.as_ref() else {
+                return Err("--in-place requires FILE input".to_string());
+            };
             fs::write(path, formatted)
                 .map_err(|err| format!("failed writing '{}': {err}", path.display()))?;
         }

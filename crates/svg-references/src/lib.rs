@@ -29,16 +29,25 @@ pub struct InlineStylesheet {
     pub start_col: usize,
 }
 
+fn css_tree(css: &str) -> Option<Tree> {
+    let mut parser = Parser::new();
+    parser
+        .set_language(&tree_sitter_css::LANGUAGE.into())
+        .ok()?;
+    parser.parse(css.as_bytes(), None)
+}
+
+#[must_use]
 pub fn definition_target_at(
     source: &[u8],
     tree: &Tree,
     byte_offset: usize,
 ) -> Option<DefinitionTarget> {
     let raw_node = deepest_node_at(tree, byte_offset);
-    let node = if !raw_node.is_named() {
-        raw_node.parent().unwrap_or(raw_node)
-    } else {
+    let node = if raw_node.is_named() {
         raw_node
+    } else {
+        raw_node.parent().unwrap_or(raw_node)
     };
 
     if let Some(class_name) = find_ancestor_any(node, &["class_name"])
@@ -75,16 +84,12 @@ fn custom_property_name_at_svg_node(node: tree_sitter::Node<'_>, source: &[u8]) 
 }
 
 fn definition_target_in_stylesheet(css: &str, byte_offset: usize) -> Option<DefinitionTarget> {
-    let mut parser = Parser::new();
-    parser
-        .set_language(&tree_sitter_css::LANGUAGE.into())
-        .expect("CSS grammar");
-    let tree = parser.parse(css.as_bytes(), None)?;
+    let tree = css_tree(css)?;
     let raw_node = deepest_node_at(&tree, byte_offset);
-    let node = if !raw_node.is_named() {
-        raw_node.parent().unwrap_or(raw_node)
-    } else {
+    let node = if raw_node.is_named() {
         raw_node
+    } else {
+        raw_node.parent().unwrap_or(raw_node)
     };
 
     if let Some(name) = css_custom_property_reference_name(node, css.as_bytes()) {
@@ -115,6 +120,7 @@ fn css_custom_property_reference_name(
         .then(|| name.to_owned())
 }
 
+#[must_use]
 pub fn collect_id_definitions(source: &[u8], tree: &Tree) -> Vec<NamedSpan> {
     let mut results = Vec::new();
     let mut cursor = tree.root_node().walk();
@@ -133,6 +139,7 @@ pub fn collect_id_definitions(source: &[u8], tree: &Tree) -> Vec<NamedSpan> {
     results
 }
 
+#[must_use]
 pub fn collect_inline_stylesheets(source: &[u8], tree: &Tree) -> Vec<InlineStylesheet> {
     let mut stylesheets = Vec::new();
     let mut cursor = tree.root_node().walk();
@@ -169,16 +176,13 @@ pub fn collect_inline_stylesheets(source: &[u8], tree: &Tree) -> Vec<InlineStyle
     stylesheets
 }
 
+#[must_use]
 pub fn collect_class_definitions_from_stylesheet(
     css: &str,
     start_row: usize,
     start_col: usize,
 ) -> Vec<NamedSpan> {
-    let mut parser = Parser::new();
-    parser
-        .set_language(&tree_sitter_css::LANGUAGE.into())
-        .expect("CSS grammar");
-    let Some(tree) = parser.parse(css.as_bytes(), None) else {
+    let Some(tree) = css_tree(css) else {
         return Vec::new();
     };
 
@@ -221,16 +225,13 @@ pub fn collect_class_definitions_from_stylesheet(
     results
 }
 
+#[must_use]
 pub fn collect_custom_property_definitions_from_stylesheet(
     css: &str,
     start_row: usize,
     start_col: usize,
 ) -> Vec<NamedSpan> {
-    let mut parser = Parser::new();
-    parser
-        .set_language(&tree_sitter_css::LANGUAGE.into())
-        .expect("CSS grammar");
-    let Some(tree) = parser.parse(css.as_bytes(), None) else {
+    let Some(tree) = css_tree(css) else {
         return Vec::new();
     };
 
@@ -265,6 +266,7 @@ pub fn collect_custom_property_definitions_from_stylesheet(
     results
 }
 
+#[must_use]
 pub fn extract_xml_stylesheet_hrefs(source: &[u8]) -> Vec<String> {
     let mut hrefs = Vec::new();
     let Ok(text) = std::str::from_utf8(source) else {

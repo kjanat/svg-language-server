@@ -6,10 +6,11 @@ const OKLCH_ACHROMATIC_CHROMA_THRESHOLD: f64 = 4e-6;
 
 /// Parse a hex color string like `#RGB`, `#RGBA`, `#RRGGBB`, `#RRGGBBAA`.
 /// Returns (r, g, b, a) as f32 values 0.0–1.0, or None if invalid.
+#[must_use]
 pub fn parse_hex(text: &str) -> Option<(f32, f32, f32, f32)> {
     let hex = text.strip_prefix('#')?;
 
-    let to_f32 = |b: u8| b as f32 / 255.0;
+    let to_f32 = |b: u8| f32::from(b) / 255.0;
 
     match hex.len() {
         3 => {
@@ -65,6 +66,7 @@ fn hex_digit(b: u8) -> Option<u8> {
 }
 
 /// Parse a CSS functional color string and return normalized sRGB + alpha.
+#[must_use]
 pub fn parse_functional(text: &str) -> Option<(f32, f32, f32, f32)> {
     let text = text.trim();
 
@@ -96,6 +98,7 @@ pub fn parse_functional(text: &str) -> Option<(f32, f32, f32, f32)> {
     }
 }
 
+#[must_use]
 pub fn mix_colors(
     space: &str,
     left: (f32, f32, f32, f32),
@@ -103,8 +106,8 @@ pub fn mix_colors(
     right: (f32, f32, f32, f32),
     right_weight: f32,
 ) -> Option<(f32, f32, f32, f32)> {
-    let left_weight = left_weight as f64;
-    let right_weight = right_weight as f64;
+    let left_weight = f64::from(left_weight);
+    let right_weight = f64::from(right_weight);
     if !left_weight.is_finite()
         || !right_weight.is_finite()
         || left_weight < 0.0

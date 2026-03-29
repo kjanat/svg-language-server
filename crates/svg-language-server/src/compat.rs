@@ -31,11 +31,11 @@ pub(crate) fn fetch_runtime_compat() -> Option<RuntimeCompat> {
         if let Some(compat) = el_data.pointer("/__compat") {
             let deprecated = compat
                 .pointer("/status/deprecated")
-                .and_then(|v| v.as_bool())
+                .and_then(serde_json::Value::as_bool)
                 .unwrap_or(false);
             let experimental = compat
                 .pointer("/status/experimental")
-                .and_then(|v| v.as_bool())
+                .and_then(serde_json::Value::as_bool)
                 .unwrap_or(false);
             let compat_key = format!("svg.elements.{el_name}");
             let baseline = resolve_baseline(compat, wf_features, &compat_key);
@@ -59,11 +59,11 @@ pub(crate) fn fetch_runtime_compat() -> Option<RuntimeCompat> {
                 if let Some(compat) = val.pointer("/__compat") {
                     let deprecated = compat
                         .pointer("/status/deprecated")
-                        .and_then(|v| v.as_bool())
+                        .and_then(serde_json::Value::as_bool)
                         .unwrap_or(false);
                     let experimental = compat
                         .pointer("/status/experimental")
-                        .and_then(|v| v.as_bool())
+                        .and_then(serde_json::Value::as_bool)
                         .unwrap_or(false);
                     let compat_key = format!("svg.elements.{el_name}.{key}");
                     let baseline = resolve_baseline(compat, wf_features, &compat_key);
@@ -80,7 +80,7 @@ pub(crate) fn fetch_runtime_compat() -> Option<RuntimeCompat> {
                             match (&existing.baseline, &baseline) {
                                 (None, _) => existing.baseline = baseline,
                                 (Some(current), Some(new))
-                                    if baseline_rank(new) < baseline_rank(current) =>
+                                    if baseline_rank(*new) < baseline_rank(*current) =>
                                 {
                                     existing.baseline = baseline;
                                 }
@@ -111,11 +111,11 @@ pub(crate) fn fetch_runtime_compat() -> Option<RuntimeCompat> {
             if let Some(compat) = attr_data.pointer("/__compat") {
                 let deprecated = compat
                     .pointer("/status/deprecated")
-                    .and_then(|v| v.as_bool())
+                    .and_then(serde_json::Value::as_bool)
                     .unwrap_or(false);
                 let experimental = compat
                     .pointer("/status/experimental")
-                    .and_then(|v| v.as_bool())
+                    .and_then(serde_json::Value::as_bool)
                     .unwrap_or(false);
                 let compat_key = format!("svg.global_attributes.{attr_name}");
                 let baseline = resolve_baseline(compat, wf_features, &compat_key);
@@ -221,8 +221,8 @@ fn merge_runtime_browser_support(
     }
 }
 
-fn baseline_rank(b: &BaselineStatus) -> u8 {
-    match b {
+fn baseline_rank(baseline: BaselineStatus) -> u8 {
+    match baseline {
         BaselineStatus::Limited => 0,
         BaselineStatus::Newly { .. } => 1,
         BaselineStatus::Widely { .. } => 2,

@@ -3,37 +3,40 @@ mod catalog;
 pub mod categories;
 pub mod types;
 
+use catalog::{ATTRIBUTES, ELEMENTS};
 pub use types::{
     AttributeDef, AttributeValues, BaselineStatus, BrowserSupport, ContentModel, ElementCategory,
     ElementDef,
 };
 
-use catalog::{ATTRIBUTES, ELEMENTS};
-
+#[must_use]
 pub fn element(name: &str) -> Option<&'static ElementDef> {
     ELEMENTS.iter().find(|e| e.name == name)
 }
 
+#[must_use]
 pub fn attribute(name: &str) -> Option<&'static AttributeDef> {
     ATTRIBUTES.iter().find(|a| a.name == name)
 }
 
+#[must_use]
 pub fn elements() -> &'static [ElementDef] {
     ELEMENTS
 }
 
+#[must_use]
 pub fn attributes() -> &'static [AttributeDef] {
     ATTRIBUTES
 }
 
+#[must_use]
 pub fn allowed_children(parent: &str) -> Vec<&'static str> {
     categories::allowed_children(parent)
 }
 
+#[must_use]
 pub fn allows_foreign_children(parent: &str) -> bool {
-    element(parent)
-        .map(|el| matches!(el.content_model, ContentModel::Foreign))
-        .unwrap_or(false)
+    element(parent).is_some_and(|el| matches!(el.content_model, ContentModel::Foreign))
 }
 
 fn attribute_applies_to(attr: &AttributeDef, element_name: &str) -> bool {
@@ -43,6 +46,7 @@ fn attribute_applies_to(attr: &AttributeDef, element_name: &str) -> bool {
         || attr.elements.contains(&element_name)
 }
 
+#[must_use]
 pub fn attributes_for(element_name: &str) -> Vec<&'static AttributeDef> {
     let Some(el) = element(element_name) else {
         return Vec::new();
@@ -56,6 +60,7 @@ pub fn attributes_for(element_name: &str) -> Vec<&'static AttributeDef> {
     result
 }
 
+#[must_use]
 pub fn elements_in_category(cat: ElementCategory) -> &'static [&'static str] {
     categories::elements_in_category(cat)
 }

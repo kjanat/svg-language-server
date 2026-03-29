@@ -149,11 +149,13 @@ impl Default for FormatOptions {
 }
 
 /// Format an SVG source string with default options.
+#[must_use]
 pub fn format(source: &str) -> String {
     format_with_options(source, FormatOptions::default())
 }
 
 /// Format an SVG source string with explicit options.
+#[must_use]
 pub fn format_with_options(source: &str, options: FormatOptions) -> String {
     format_with_host(source, options, &mut |_| None)
 }
@@ -163,15 +165,19 @@ pub fn format_with_options(source: &str, options: FormatOptions) -> String {
 /// The callback receives [`EmbeddedContent`] for `<style>`, `<script>`, and
 /// `<foreignObject>` blocks. Return `Some(formatted)` to use the formatted
 /// result, or `None` to fall back to the default text-handling behavior.
+#[must_use]
 pub fn format_with_host(
     source: &str,
     options: FormatOptions,
     format_embedded: &mut dyn FnMut(EmbeddedContent<'_>) -> Option<String>,
 ) -> String {
     let mut parser = Parser::new();
-    parser
+    if parser
         .set_language(&tree_sitter_svg::LANGUAGE.into())
-        .expect("SVG grammar");
+        .is_err()
+    {
+        return source.to_owned();
+    }
 
     let Some(tree) = parser.parse(source.as_bytes(), None) else {
         return source.to_owned();
@@ -201,8 +207,7 @@ fn has_ignore_file_comment(node: Node<'_>, source: &[u8], prefixes: &[String]) -
         let inner = node
             .child_by_field_name("text")
             .and_then(|t| std::str::from_utf8(&source[t.byte_range()]).ok())
-            .map(|s| s.trim())
-            .unwrap_or("");
+            .map_or("", str::trim);
         if prefixes.iter().any(|p| inner == format!("{p}-ignore-file")) {
             return true;
         }
@@ -1122,7 +1127,7 @@ fn dedent_block(text: &str) -> String {
             if l.trim().is_empty() {
                 ""
             } else {
-                let skip: usize = l.chars().take(min_indent).map(|c| c.len_utf8()).sum();
+                let skip: usize = l.chars().take(min_indent).map(char::len_utf8).sum();
                 &l[skip..]
             }
         })
@@ -1153,13 +1158,17 @@ fn normalize_text_content_with_entities(text: &str) -> String {
     let mut offset = 0;
     while offset < text.len() {
         let rest = &text[offset..];
-        let ch = rest.chars().next().expect("offset within bounds");
+        let Some(ch) = rest.chars().next() else {
+            break;
+        };
 
         if ch.is_whitespace() {
             let start = offset;
             offset += ch.len_utf8();
             while offset < text.len() {
-                let next = text[offset..].chars().next().expect("offset within bounds");
+                let Some(next) = text[offset..].chars().next() else {
+                    break;
+                };
                 if !next.is_whitespace() {
                     break;
                 }
@@ -1180,7 +1189,9 @@ fn normalize_text_content_with_entities(text: &str) -> String {
         let start = offset;
         offset += ch.len_utf8();
         while offset < text.len() {
-            let next = text[offset..].chars().next().expect("offset within bounds");
+            let Some(next) = text[offset..].chars().next() else {
+                break;
+            };
             if next.is_whitespace() {
                 break;
             }
@@ -1196,7 +1207,7 @@ fn normalize_text_content_with_entities(text: &str) -> String {
     for (index, token) in tokens.iter().enumerate() {
         match token {
             TextContentToken::Text(text) | TextContentToken::Entity(text) => {
-                normalized.push_str(text)
+                normalized.push_str(text);
             }
             TextContentToken::Whitespace(space) => {
                 let prev = tokens[..index]

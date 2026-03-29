@@ -78,7 +78,7 @@ fn hover_source_link(uri: &Uri, start_row: usize) -> HoverSourceLink {
                 return direct_hover_source_link(uri, line);
             };
 
-            let target = format!("{}#L{line}", url);
+            let target = format!("{url}#L{line}");
             if let Ok(cwd) = std::env::current_dir()
                 && let Ok(relative) = path.strip_prefix(&cwd)
             {
@@ -220,7 +220,7 @@ pub(crate) fn format_element_hover(
 
     if let Some(baseline) = baseline {
         parts.push(String::new());
-        parts.push(format_baseline(baseline));
+        parts.push(format_baseline(*baseline));
     }
 
     if let Some(line) = format_browser_support_line(
@@ -298,7 +298,7 @@ pub(crate) fn format_attribute_hover(
 
     if let Some(baseline) = baseline {
         parts.push(String::new());
-        parts.push(format_baseline(baseline));
+        parts.push(format_baseline(*baseline));
     }
 
     if let Some(line) = format_browser_support_line(
@@ -470,7 +470,7 @@ static BASELINE_LOW: LazyLock<String> =
 static BASELINE_LIMITED: LazyLock<String> =
     LazyLock::new(|| svg_data_uri(include_str!("../assets/baseline-limited.svg")));
 
-fn format_baseline(baseline: &BaselineStatus) -> String {
+fn format_baseline(baseline: BaselineStatus) -> String {
     match baseline {
         BaselineStatus::Widely { since } => {
             let icon = &*BASELINE_HIGH;

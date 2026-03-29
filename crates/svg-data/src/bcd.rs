@@ -7,8 +7,9 @@
 //! [`@mdn/browser-compat-data`]: https://github.com/mdn/browser-compat-data
 //! [BCD JSON-Schema]: https://github.com/mdn/browser-compat-data/tree/main/schemas
 
-use serde::Deserialize;
 use std::collections::HashMap;
+
+use serde::Deserialize;
 
 // ---------------------------------------------------------------------------
 // Browser identifiers & enums
@@ -197,6 +198,7 @@ pub enum SpecUrl {
 
 impl SpecUrl {
     /// Returns the first spec URL.
+    #[must_use]
     pub fn first(&self) -> &str {
         match self {
             Self::One(url) => url,

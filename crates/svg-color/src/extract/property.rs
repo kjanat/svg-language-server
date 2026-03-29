@@ -18,9 +18,7 @@ pub(super) fn is_style_raw_text(node: tree_sitter::Node<'_>, source: &[u8]) -> b
     loop {
         let child = cursor.node();
         if child.kind() == "start_tag" {
-            return tag_name(child, source)
-                .map(|name| name.eq_ignore_ascii_case("style"))
-                .unwrap_or(false);
+            return tag_name(child, source).is_some_and(|name| name.eq_ignore_ascii_case("style"));
         }
 
         if !cursor.goto_next_sibling() {
@@ -132,7 +130,7 @@ pub(super) fn declaration_value_text<'a>(
     loop {
         let child = cursor.node();
         if child.is_named() && child.kind() != "property_name" {
-            start.get_or_insert(child.start_byte());
+            start.get_or_insert_with(|| child.start_byte());
             end = Some(child.end_byte());
         }
 

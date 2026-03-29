@@ -5,6 +5,7 @@
 ///
 /// RGB values are sourced from the W3C CSS Color Level 4 specification:
 /// <https://www.w3.org/TR/css-color-4/#named-colors>
+#[must_use]
 pub fn lookup(name: &str) -> Option<(f32, f32, f32)> {
     let rgb = match name.to_ascii_lowercase().as_str() {
         "aliceblue" => (240, 248, 255),

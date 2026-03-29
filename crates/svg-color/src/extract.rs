@@ -1,10 +1,17 @@
 mod property;
 mod resolve;
 
-use crate::{parse, types::ColorInfo, types::ColorKind};
-use std::collections::{HashMap, HashSet};
-use std::ops::Range;
+use std::{
+    collections::{HashMap, HashSet},
+    ops::Range,
+};
+
 use tree_sitter::{Parser, Point, Tree, TreeCursor};
+
+use crate::{
+    parse,
+    types::{ColorInfo, ColorKind},
+};
 
 type CustomProperties = HashMap<String, String>;
 type Rgba = (f32, f32, f32, f32);
@@ -12,21 +19,31 @@ type ResolvedColor = (f32, f32, f32, f32, ColorKind);
 type ColorStop = (Rgba, Option<f64>);
 
 /// Extract all colors from SVG source text.
+#[must_use]
 pub fn extract_colors(source: &[u8]) -> Vec<ColorInfo> {
     let mut parser = Parser::new();
-    parser
+    if parser
         .set_language(&tree_sitter_svg::LANGUAGE.into())
-        .expect("failed to load SVG grammar");
-    let tree = parser.parse(source, None).expect("failed to parse");
+        .is_err()
+    {
+        return Vec::new();
+    }
+    let Some(tree) = parser.parse(source, None) else {
+        return Vec::new();
+    };
     extract_colors_from_tree(source, &tree)
 }
 
 /// Extract colors from an already-parsed tree.
+#[must_use]
 pub fn extract_colors_from_tree(source: &[u8], tree: &Tree) -> Vec<ColorInfo> {
     let mut css_parser = Parser::new();
-    css_parser
+    if css_parser
         .set_language(&tree_sitter_css::LANGUAGE.into())
-        .expect("failed to load CSS grammar");
+        .is_err()
+    {
+        return Vec::new();
+    }
 
     let mut colors = Vec::new();
     let mut cursor = tree.root_node().walk();

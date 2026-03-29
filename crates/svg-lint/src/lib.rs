@@ -1,21 +1,27 @@
 mod rules;
 pub mod types;
 
+use tree_sitter::Parser;
 pub use types::{DiagnosticCode, Severity, SvgDiagnostic};
 
-use tree_sitter::Parser;
-
 /// Parse source and lint.
+#[must_use]
 pub fn lint(source: &[u8]) -> Vec<SvgDiagnostic> {
     let mut parser = Parser::new();
-    parser
+    if parser
         .set_language(&tree_sitter_svg::LANGUAGE.into())
-        .expect("SVG grammar");
-    let tree = parser.parse(source, None).expect("parse");
+        .is_err()
+    {
+        return Vec::new();
+    }
+    let Some(tree) = parser.parse(source, None) else {
+        return Vec::new();
+    };
     lint_tree(source, &tree)
 }
 
 /// Lint an already-parsed tree.
+#[must_use]
 pub fn lint_tree(source: &[u8], tree: &tree_sitter::Tree) -> Vec<SvgDiagnostic> {
     rules::check_all(source, tree)
 }

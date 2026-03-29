@@ -1,7 +1,6 @@
+use std::{collections::HashMap, fs, path::Path};
+
 use super::{BaselineValue, BrowserSupportValue, CompatEntry, ensure_cached};
-use std::collections::HashMap;
-use std::fs;
-use std::path::Path;
 
 const BCD_URL: &str = "https://unpkg.com/@mdn/browser-compat-data@latest/data.json";
 const WEB_FEATURES_URL: &str = "https://unpkg.com/web-features@latest/data.json";
@@ -119,11 +118,11 @@ pub(super) fn fetch_compat_data(out_dir: &Path) -> CompatData {
         // Extract status flags
         let deprecated = compat
             .pointer("/status/deprecated")
-            .and_then(|v| v.as_bool())
+            .and_then(serde_json::Value::as_bool)
             .unwrap_or(false);
         let experimental = compat
             .pointer("/status/experimental")
-            .and_then(|v| v.as_bool())
+            .and_then(serde_json::Value::as_bool)
             .unwrap_or(false);
         let spec_url = extract_spec_url(compat);
         let browser_support = extract_browser_support(compat);
@@ -160,11 +159,11 @@ pub(super) fn fetch_compat_data(out_dir: &Path) -> CompatData {
             };
             let deprecated = compat
                 .pointer("/status/deprecated")
-                .and_then(|v| v.as_bool())
+                .and_then(serde_json::Value::as_bool)
                 .unwrap_or(false);
             let experimental = compat
                 .pointer("/status/experimental")
-                .and_then(|v| v.as_bool())
+                .and_then(serde_json::Value::as_bool)
                 .unwrap_or(false);
             let spec_url = extract_spec_url(compat);
             let browser_support = extract_browser_support(compat);
@@ -200,11 +199,11 @@ pub(super) fn fetch_compat_data(out_dir: &Path) -> CompatData {
             };
             let deprecated = compat
                 .pointer("/status/deprecated")
-                .and_then(|v| v.as_bool())
+                .and_then(serde_json::Value::as_bool)
                 .unwrap_or(false);
             let experimental = compat
                 .pointer("/status/experimental")
-                .and_then(|v| v.as_bool())
+                .and_then(serde_json::Value::as_bool)
                 .unwrap_or(false);
             let spec_url = extract_spec_url(compat);
             let browser_support = extract_browser_support(compat);

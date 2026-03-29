@@ -207,7 +207,7 @@ fn reverse_named_lookup(ri: u8, gi: u8, bi: u8) -> Option<&'static str> {
 /// Format alpha as a minimal decimal string (no trailing zeros beyond one decimal place).
 fn fmt_alpha(a: f32) -> String {
     // Use up to 4 significant decimal digits, then strip trailing zeros.
-    let s = format!("{:.4}", a);
+    let s = format!("{a:.4}");
     let s = s.trim_end_matches('0');
     // Always keep at least one decimal place (e.g. "0.5" not "0.").
     if s.ends_with('.') {
@@ -231,6 +231,7 @@ fn fmt_alpha(a: f32) -> String {
 ///   Named colors are never emitted for semi-transparent colors.
 /// - The named color is included only when an exact RGB match exists in the
 ///   148-color CSS table and `a == 1.0`.
+#[must_use]
 pub fn color_presentations(r: f32, g: f32, b: f32, a: f32, original: ColorKind) -> Vec<String> {
     let opaque = (a - 1.0).abs() < f32::EPSILON;
 
@@ -244,21 +245,21 @@ pub fn color_presentations(r: f32, g: f32, b: f32, a: f32, original: ColorKind) 
 
     // Build each format string.
     let hex = if opaque {
-        format!("#{:02x}{:02x}{:02x}", ri, gi, bi)
+        format!("#{ri:02x}{gi:02x}{bi:02x}")
     } else {
-        format!("#{:02x}{:02x}{:02x}{:02x}", ri, gi, bi, ai)
+        format!("#{ri:02x}{gi:02x}{bi:02x}{ai:02x}")
     };
 
     let rgb_str = if opaque {
-        format!("rgb({}, {}, {})", ri, gi, bi)
+        format!("rgb({ri}, {gi}, {bi})")
     } else {
-        format!("rgba({}, {}, {}, {})", ri, gi, bi, alpha_str)
+        format!("rgba({ri}, {gi}, {bi}, {alpha_str})")
     };
 
     let hsl_str = if opaque {
-        format!("hsl({}, {}%, {}%)", hh, hs, hl)
+        format!("hsl({hh}, {hs}%, {hl}%)")
     } else {
-        format!("hsla({}, {}%, {}%, {})", hh, hs, hl, alpha_str)
+        format!("hsla({hh}, {hs}%, {hl}%, {alpha_str})")
     };
 
     let named: Option<&'static str> = if opaque {
@@ -271,7 +272,7 @@ pub fn color_presentations(r: f32, g: f32, b: f32, a: f32, original: ColorKind) 
     let mut all: Vec<String> = Vec::with_capacity(4);
     all.push(hex.clone());
     all.push(rgb_str.clone());
-    all.push(hsl_str.clone());
+    all.push(hsl_str);
     if let Some(n) = named {
         all.push(n.to_owned());
     }
@@ -280,7 +281,7 @@ pub fn color_presentations(r: f32, g: f32, b: f32, a: f32, original: ColorKind) 
     let original_str: String = match original {
         ColorKind::Hex => hex,
         ColorKind::Functional => rgb_str,
-        ColorKind::Named => named.map(|n| n.to_owned()).unwrap_or_else(|| rgb_str),
+        ColorKind::Named => named.map_or(rgb_str, str::to_owned),
     };
 
     // Put the original format first; keep the rest in stable order.

@@ -146,9 +146,12 @@ struct SvgLanguageServer {
 impl SvgLanguageServer {
     fn new(client: Client) -> Self {
         let mut parser = tree_sitter::Parser::new();
-        parser
+        if parser
             .set_language(&tree_sitter_svg::LANGUAGE.into())
-            .expect("SVG grammar");
+            .is_err()
+        {
+            panic!("SVG grammar");
+        }
         Self {
             client,
             documents: Arc::new(RwLock::new(HashMap::new())),

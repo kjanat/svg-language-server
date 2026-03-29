@@ -1,5 +1,4 @@
-use std::ops::Range;
-use std::str::FromStr;
+use std::{ops::Range, str::FromStr};
 
 /// A single diagnostic produced by the SVG linter.
 #[derive(Debug, Clone, PartialEq)]
@@ -40,6 +39,7 @@ pub enum DiagnosticCode {
 }
 
 impl DiagnosticCode {
+    #[must_use]
     pub fn as_str(self) -> &'static str {
         match self {
             Self::InvalidChild => "InvalidChild",

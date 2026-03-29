@@ -1,12 +1,16 @@
-use crate::catalog::{ELEMENTS, generated_elements_in_category};
-use crate::types::{ContentModel, ElementCategory};
+use crate::{
+    catalog::{ELEMENTS, generated_elements_in_category},
+    types::{ContentModel, ElementCategory},
+};
 
 /// Return all element names belonging to the given category.
+#[must_use]
 pub fn elements_in_category(cat: ElementCategory) -> &'static [&'static str] {
     generated_elements_in_category(cat)
 }
 
 /// Concrete element names allowed as children of `parent`.
+#[must_use]
 pub fn allowed_children(parent: &str) -> Vec<&'static str> {
     let Some(el) = ELEMENTS.iter().find(|e| e.name == parent) else {
         return Vec::new();

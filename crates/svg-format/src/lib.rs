@@ -181,16 +181,35 @@ pub fn format_with_host(
         return source.to_owned();
     }
 
-    // Check for ignore-file directive anywhere in the source.
-    for prefix in &options.ignore_prefixes {
-        if source.contains(&format!("{prefix}-ignore-file")) {
-            return source.to_owned();
-        }
+    // Check for ignore-file directive in actual comment nodes only.
+    if has_ignore_file_comment(
+        tree.root_node(),
+        source.as_bytes(),
+        &options.ignore_prefixes,
+    ) {
+        return source.to_owned();
     }
 
     let mut formatter = Formatter::new(source.as_bytes(), options);
     formatter.format_node(tree.root_node(), 0, format_embedded);
     formatter.finish(source)
+}
+
+/// Walk the AST looking for `<!-- {prefix}-ignore-file -->` in comment nodes.
+fn has_ignore_file_comment(node: Node<'_>, source: &[u8], prefixes: &[String]) -> bool {
+    if node.kind() == "comment" {
+        let inner = node
+            .child_by_field_name("text")
+            .and_then(|t| std::str::from_utf8(&source[t.byte_range()]).ok())
+            .map(|s| s.trim())
+            .unwrap_or("");
+        if prefixes.iter().any(|p| inner == format!("{p}-ignore-file")) {
+            return true;
+        }
+    }
+    let mut cursor = node.walk();
+    node.named_children(&mut cursor)
+        .any(|child| has_ignore_file_comment(child, source, prefixes))
 }
 
 struct Formatter<'a> {
@@ -655,14 +674,17 @@ impl<'a> Formatter<'a> {
         if child.kind() == "comment" {
             if self.is_ignore_directive(child, "ignore-start") {
                 *in_ignore_range = true;
-                self.write_raw(child);
+                // Write the directive comment itself with its leading gap.
+                self.write_source_span(*prev_end, child.end_byte());
                 *prev_was_comment = true;
                 *prev_end = Some(child.end_byte());
                 return true;
             }
             if self.is_ignore_directive(child, "ignore-end") {
+                // Write everything from prev_end through end of this comment
+                // (preserves the gap + the end directive).
+                self.write_source_span(*prev_end, child.end_byte());
                 *in_ignore_range = false;
-                self.write_raw(child);
                 *prev_was_comment = true;
                 *prev_end = Some(child.end_byte());
                 return true;
@@ -683,10 +705,9 @@ impl<'a> Formatter<'a> {
         }
 
         if !skip_ignore_self && (*in_ignore_range || *ignore_next) {
-            self.write_raw(child);
-            if *ignore_next && !self.out.ends_with('\n') {
-                self.out.push('\n');
-            }
+            // Write the source span from prev_end through this node,
+            // preserving original gaps and content verbatim.
+            self.write_source_span(*prev_end, child.end_byte());
             *ignore_next = false;
             *prev_was_comment = child.kind() == "comment";
             *prev_end = Some(child.end_byte());
@@ -711,14 +732,14 @@ impl<'a> Formatter<'a> {
             .any(|prefix| inner == format!("{prefix}-{suffix}"))
     }
 
-    /// Write a node's original source bytes verbatim.
-    ///
-    /// Does not append newlines — callers handle trailing newlines
-    /// based on context (ignore-range vs ignore-next).
-    fn write_raw(&mut self, node: Node<'_>) {
-        let range = node.byte_range();
-        self.out
-            .push_str(std::str::from_utf8(&self.source[range]).unwrap_or_default());
+    /// Write a source span verbatim, from `from` (or start of node if None)
+    /// through `to`. Preserves original whitespace, gaps, and content exactly.
+    fn write_source_span(&mut self, from: Option<usize>, to: usize) {
+        let start = from.unwrap_or(to);
+        if start < to {
+            self.out
+                .push_str(std::str::from_utf8(&self.source[start..to]).unwrap_or_default());
+        }
     }
 
     /// Count blank lines in the source gap between two byte positions.
@@ -1394,5 +1415,31 @@ mod tests {
             ..Default::default()
         };
         assert_eq!(format_with_options(input, options), input);
+    }
+
+    #[test]
+    fn ignore_file_only_matches_comments_not_text() {
+        // The string "svg-format-ignore-file" inside a <text> should NOT
+        // trigger file-level ignore — only an actual comment does.
+        let input = "<svg><text>svg-format-ignore-file</text></svg>";
+        let result = format(input);
+        // Should be formatted (not returned as-is)
+        assert_ne!(result, input);
+    }
+
+    #[test]
+    fn ignore_range_preserves_gaps_verbatim() {
+        // Blank lines and indentation inside ignore range must survive.
+        let input = "<svg>\n<!-- svg-format-ignore-start -->\n<rect y=\"2\"\n      x=\"1\"/>\n\n<circle r=\"3\"/>\n<!-- svg-format-ignore-end -->\n</svg>";
+        let result = format(input);
+        // The exact content between start/end markers should be preserved.
+        assert!(result.contains("<rect y=\"2\"\n      x=\"1\"/>\n\n<circle r=\"3\"/>"));
+    }
+
+    #[test]
+    fn ignore_next_preserves_inline_text() {
+        let input = "<svg>\n<!-- svg-format-ignore -->\n<text>  spaced  </text>\n</svg>";
+        let result = format(input);
+        assert!(result.contains("<text>  spaced  </text>"));
     }
 }

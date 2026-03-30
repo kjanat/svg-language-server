@@ -1,6 +1,6 @@
 /// Remove common leading whitespace from a block of text,
 /// trimming leading/trailing blank lines.
-pub(crate) fn dedent_block(text: &str) -> String {
+pub fn dedent_block(text: &str) -> String {
     let lines: Vec<&str> = text.lines().collect();
     let first_non_empty = lines.iter().position(|l| !l.trim().is_empty());
     let last_non_empty = lines.iter().rposition(|l| !l.trim().is_empty());
@@ -31,7 +31,7 @@ pub(crate) fn dedent_block(text: &str) -> String {
 }
 
 /// Collapse runs of whitespace into single spaces and trim.
-pub(crate) fn collapse_whitespace(text: &str) -> String {
+pub fn collapse_whitespace(text: &str) -> String {
     let mut result = String::with_capacity(text.len());
     let mut prev_ws = true; // treat start as whitespace to trim leading
     for ch in text.chars() {
@@ -58,7 +58,7 @@ pub(crate) fn collapse_whitespace(text: &str) -> String {
 /// and end tags as a single text block instead of formatting each child node
 /// on its own line (which would break entity references like `&lt;` apart
 /// from surrounding text).
-pub(crate) fn is_text_content_element(tag_name: &str) -> bool {
+pub fn is_text_content_element(tag_name: &str) -> bool {
     matches!(tag_name, "text" | "tspan" | "textPath" | "title" | "desc")
 }
 
@@ -69,7 +69,7 @@ enum TextContentToken<'a> {
     Whitespace(&'a str),
 }
 
-pub(crate) fn normalize_text_content_with_entities(text: &str) -> String {
+pub fn normalize_text_content_with_entities(text: &str) -> String {
     let mut tokens = Vec::new();
     let mut offset = 0;
     while offset < text.len() {

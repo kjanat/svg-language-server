@@ -4,7 +4,7 @@ use svg_data::BaselineStatus;
 
 /// Runtime per-browser version data (owned strings, unlike `BrowserSupport`).
 #[derive(Clone)]
-pub(crate) struct RuntimeBrowserSupport {
+pub struct RuntimeBrowserSupport {
     pub chrome: Option<String>,
     pub edge: Option<String>,
     pub firefox: Option<String>,
@@ -12,7 +12,7 @@ pub(crate) struct RuntimeBrowserSupport {
 }
 
 /// Runtime compat override for a single element or attribute.
-pub(crate) struct CompatOverride {
+pub struct CompatOverride {
     pub deprecated: bool,
     pub experimental: bool,
     pub baseline: Option<BaselineStatus>,
@@ -20,7 +20,7 @@ pub(crate) struct CompatOverride {
 }
 
 /// Runtime-fetched compat data, overlays the baked-in catalog.
-pub(crate) struct RuntimeCompat {
+pub struct RuntimeCompat {
     pub elements: HashMap<String, CompatOverride>,
     pub attributes: HashMap<String, CompatOverride>,
 }
@@ -135,14 +135,13 @@ fn compat_override(
     wf_features: Option<&serde_json::Value>,
     compat_key: &str,
 ) -> CompatOverride {
-    let browser_support = svg_data::compat_parse::extract_browser_versions(compat).map(
-        |(chrome, edge, firefox, safari)| RuntimeBrowserSupport {
-            chrome,
-            edge,
-            firefox,
-            safari,
-        },
-    );
+    let browser_support =
+        svg_data::compat_parse::extract_browser_versions(compat).map(|bv| RuntimeBrowserSupport {
+            chrome: bv.chrome,
+            edge: bv.edge,
+            firefox: bv.firefox,
+            safari: bv.safari,
+        });
     CompatOverride {
         deprecated: compat
             .pointer("/status/deprecated")

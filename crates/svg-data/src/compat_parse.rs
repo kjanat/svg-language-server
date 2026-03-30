@@ -52,19 +52,24 @@ pub fn resolve_baseline(
     parse_baseline_value(status)
 }
 
+/// Per-browser `version_added` strings extracted from BCD support data.
+pub struct BrowserVersions {
+    /// Chrome `version_added`.
+    pub chrome: Option<String>,
+    /// Edge `version_added`.
+    pub edge: Option<String>,
+    /// Firefox `version_added`.
+    pub firefox: Option<String>,
+    /// Safari `version_added`.
+    pub safari: Option<String>,
+}
+
 /// Extract `support/{browser}/version_added` for the four major browsers.
 ///
 /// Returns `None` for browsers without support data or where the version is
 /// not a string (e.g. `version_added: true` without a concrete version).
 #[must_use]
-pub fn extract_browser_versions(
-    compat: &serde_json::Value,
-) -> Option<(
-    Option<String>,
-    Option<String>,
-    Option<String>,
-    Option<String>,
-)> {
+pub fn extract_browser_versions(compat: &serde_json::Value) -> Option<BrowserVersions> {
     let support = compat.get("support")?;
 
     let version_added = |browser: &str| -> Option<String> {
@@ -77,12 +82,12 @@ pub fn extract_browser_versions(
         stmt.get("version_added")?.as_str().map(String::from)
     };
 
-    Some((
-        version_added("chrome"),
-        version_added("edge"),
-        version_added("firefox"),
-        version_added("safari"),
-    ))
+    Some(BrowserVersions {
+        chrome: version_added("chrome"),
+        edge: version_added("edge"),
+        firefox: version_added("firefox"),
+        safari: version_added("safari"),
+    })
 }
 
 /// Extract the first calendar year from a date string like `"2023-03-27"`.

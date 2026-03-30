@@ -3,13 +3,13 @@ use super::{
     named_span_location,
 };
 
-pub(crate) struct DefinitionContext {
+pub struct DefinitionContext {
     pub target: svg_references::DefinitionTarget,
     pub inline_locations: Vec<Location>,
     pub stylesheet_hrefs: Vec<String>,
 }
 
-pub(crate) fn build_definition_context(
+pub fn build_definition_context(
     uri: &Uri,
     pos: Position,
     doc: &DocumentState,
@@ -75,7 +75,7 @@ fn inline_definition_locations(
     }
 }
 
-pub(crate) fn stylesheet_definition_locations(
+pub fn stylesheet_definition_locations(
     stylesheet: &CachedStylesheet,
     target: &svg_references::DefinitionTarget,
 ) -> Vec<Location> {

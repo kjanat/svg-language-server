@@ -1,24 +1,24 @@
 use crate::AttributeSort;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct ParsedTag {
+pub struct ParsedTag {
     pub name: String,
     pub attributes: Vec<ParsedAttribute>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct ParsedAttribute {
+pub struct ParsedAttribute {
     pub name: String,
     pub value: Option<ParsedAttributeValue>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct ParsedAttributeValue {
+pub struct ParsedAttributeValue {
     pub raw: String,
     pub original_quote: Option<char>,
 }
 
-pub(crate) fn reorder_attributes(attributes: &mut [ParsedAttribute], mode: AttributeSort) {
+pub fn reorder_attributes(attributes: &mut [ParsedAttribute], mode: AttributeSort) {
     match mode {
         AttributeSort::None => {}
         AttributeSort::Alphabetical => {
@@ -85,7 +85,7 @@ fn canonical_geometry_order(name: &str) -> Option<u16> {
         .and_then(|i| u16::try_from(i).ok())
 }
 
-pub(crate) fn parse_tag(raw: &str, self_closing: bool) -> Option<ParsedTag> {
+pub fn parse_tag(raw: &str, self_closing: bool) -> Option<ParsedTag> {
     let trimmed = raw.trim();
     if !trimmed.starts_with('<') {
         return None;
@@ -172,7 +172,7 @@ pub(crate) fn parse_tag(raw: &str, self_closing: bool) -> Option<ParsedTag> {
     })
 }
 
-pub(crate) fn parse_attribute(attribute: &str) -> ParsedAttribute {
+pub fn parse_attribute(attribute: &str) -> ParsedAttribute {
     let trimmed = attribute.trim();
     if let Some((name, raw_value)) = trimmed.split_once('=') {
         let name = name.trim().to_string();

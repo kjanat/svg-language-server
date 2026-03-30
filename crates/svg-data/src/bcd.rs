@@ -19,22 +19,39 @@ use serde::Deserialize;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum BrowserName {
+    /// Bun.
     Bun,
+    /// Google Chrome.
     Chrome,
+    /// Chrome on Android.
     ChromeAndroid,
+    /// Deno.
     Deno,
+    /// Microsoft Edge.
     Edge,
+    /// Mozilla Firefox.
     Firefox,
+    /// Firefox on Android.
     FirefoxAndroid,
+    /// Internet Explorer.
     Ie,
+    /// Node.js.
     Nodejs,
+    /// Oculus Browser.
     Oculus,
+    /// Opera.
     Opera,
+    /// Opera on Android.
     OperaAndroid,
+    /// Safari on macOS.
     Safari,
+    /// Safari on iOS.
     SafariIos,
+    /// Samsung Internet on Android.
     SamsunginternetAndroid,
+    /// Android WebView.
     WebviewAndroid,
+    /// iOS WebView.
     WebviewIos,
 }
 
@@ -52,21 +69,32 @@ pub enum VersionValue {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum BrowserType {
+    /// Desktop browser/runtime.
     Desktop,
+    /// Mobile browser/runtime.
     Mobile,
+    /// XR browser/runtime.
     Xr,
+    /// Server-side runtime.
     Server,
 }
 
 /// Name of a browser's rendering/JS engine.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize)]
 pub enum BrowserEngine {
+    /// Blink.
     Blink,
+    /// EdgeHTML.
     EdgeHTML,
+    /// Gecko.
     Gecko,
+    /// Presto.
     Presto,
+    /// Trident.
     Trident,
+    /// WebKit.
     WebKit,
+    /// V8.
     V8,
 }
 
@@ -74,11 +102,17 @@ pub enum BrowserEngine {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum BrowserReleaseStatus {
+    /// No longer supported.
     Retired,
+    /// Current stable release.
     Current,
+    /// Beta or preview release.
     Beta,
+    /// Nightly or canary-style release.
     Nightly,
+    /// Extended support release.
     Esr,
+    /// Planned but not yet released.
     Planned,
 }
 
@@ -279,7 +313,9 @@ pub struct FlagStatement {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum FlagType {
+    /// Preference-style toggle.
     Preference,
+    /// Runtime feature flag.
     RuntimeFlag,
 }
 

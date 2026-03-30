@@ -1,4 +1,4 @@
-use super::*;
+use super::{Location, Position, Range, Uri};
 
 /// Convert a byte-offset column to UTF-16 code unit count within a given row.
 ///

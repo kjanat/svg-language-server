@@ -99,6 +99,10 @@ pub fn parse_functional(text: &str) -> Option<(f32, f32, f32, f32)> {
 }
 
 #[must_use]
+/// Mix two colors in the requested interpolation space.
+///
+/// Returns normalized RGBA output in the same `[0.0, 1.0]` channel range used
+/// throughout this crate, or `None` when the space or weights are invalid.
 pub fn mix_colors(
     space: &str,
     left: (f32, f32, f32, f32),

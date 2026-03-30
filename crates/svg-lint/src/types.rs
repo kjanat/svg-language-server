@@ -3,43 +3,67 @@ use std::{ops::Range, str::FromStr};
 /// A single diagnostic produced by the SVG linter.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SvgDiagnostic {
+    /// Byte range in the original source.
     pub byte_range: Range<usize>,
+    /// Start line in zero-based row coordinates.
     pub start_row: usize,
+    /// Start column in bytes within `start_row`.
     pub start_col: usize,
+    /// End line in zero-based row coordinates.
     pub end_row: usize,
+    /// End column in bytes within `end_row`.
     pub end_col: usize,
+    /// Diagnostic severity.
     pub severity: Severity,
+    /// Machine-readable diagnostic code.
     pub code: DiagnosticCode,
+    /// Human-readable diagnostic message.
     pub message: String,
 }
 
 /// Diagnostic severity levels (mirrors LSP).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Severity {
+    /// Error severity.
     Error,
+    /// Warning severity.
     Warning,
+    /// Informational severity.
     Information,
+    /// Hint severity.
     Hint,
 }
 
 /// Machine-readable diagnostic codes.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum DiagnosticCode {
+    /// Child element is not allowed under its parent.
     InvalidChild,
+    /// Required attribute is missing.
     MissingRequiredAttr,
+    /// Deprecated element usage.
     DeprecatedElement,
+    /// Deprecated attribute usage.
     DeprecatedAttribute,
+    /// Experimental element usage.
     ExperimentalElement,
+    /// Experimental attribute usage.
     ExperimentalAttribute,
+    /// Unknown element name.
     UnknownElement,
+    /// Unknown attribute name.
     UnknownAttribute,
+    /// Duplicate `id` value.
     DuplicateId,
+    /// Reference target such as `url(#id)` is missing a definition.
     MissingReferenceDefinition,
+    /// A suppression directive did not suppress anything.
     UnusedSuppression,
 }
 
 impl DiagnosticCode {
     #[must_use]
+    /// Return the stable string representation used in diagnostics and comments.
     pub fn as_str(self) -> &'static str {
         match self {
             Self::InvalidChild => "InvalidChild",

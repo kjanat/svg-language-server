@@ -1,4 +1,4 @@
-use super::*;
+use super::{BaselineStatus, CompatOverride, HashMap, RuntimeBrowserSupport, RuntimeCompat};
 
 const BCD_URL: &str = "https://unpkg.com/@mdn/browser-compat-data@latest/data.json";
 const WEB_FEATURES_URL: &str = "https://unpkg.com/web-features@latest/data.json";

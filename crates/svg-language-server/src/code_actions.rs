@@ -1,4 +1,8 @@
-use super::*;
+use super::{
+    COPY_DATA_URI_ACTION_TITLE, COPY_DATA_URI_COMMAND, CodeAction, CodeActionKind,
+    CodeActionOrCommand, Command, Diagnostic, HashMap, NumberOrString, Position, Range, TextEdit,
+    Uri, Value, WorkspaceEdit, position_for_byte_offset,
+};
 
 pub(crate) fn suppression_code(diagnostic: &Diagnostic) -> Option<&str> {
     if diagnostic.source.as_deref() != Some("svg-lint") {

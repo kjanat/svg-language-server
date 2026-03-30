@@ -1,6 +1,15 @@
+//! Generated SVG catalog and browser-compat lookup APIs.
+//!
+//! This crate exposes the baked element and attribute metadata consumed by the
+//! language server, linter, formatter, and other workspace crates.
+
+/// Browser-compat-data model types used by the generated SVG compatibility
+/// catalog.
 pub mod bcd;
 mod catalog;
+/// Category-based helpers for allowed-child and grouping queries.
 pub mod categories;
+/// Public catalog type definitions.
 pub mod types;
 
 use catalog::{ATTRIBUTES, ELEMENTS};
@@ -10,31 +19,37 @@ pub use types::{
 };
 
 #[must_use]
+/// Look up a single SVG element definition by tag name.
 pub fn element(name: &str) -> Option<&'static ElementDef> {
     ELEMENTS.iter().find(|e| e.name == name)
 }
 
 #[must_use]
+/// Look up a single SVG attribute definition by attribute name.
 pub fn attribute(name: &str) -> Option<&'static AttributeDef> {
     ATTRIBUTES.iter().find(|a| a.name == name)
 }
 
 #[must_use]
+/// Return the full generated SVG element catalog.
 pub fn elements() -> &'static [ElementDef] {
     ELEMENTS
 }
 
 #[must_use]
+/// Return the full generated SVG attribute catalog.
 pub fn attributes() -> &'static [AttributeDef] {
     ATTRIBUTES
 }
 
 #[must_use]
+/// Return the concrete child element names allowed under `parent`.
 pub fn allowed_children(parent: &str) -> Vec<&'static str> {
     categories::allowed_children(parent)
 }
 
 #[must_use]
+/// Return whether `parent` accepts foreign-namespace children.
 pub fn allows_foreign_children(parent: &str) -> bool {
     element(parent).is_some_and(|el| matches!(el.content_model, ContentModel::Foreign))
 }
@@ -47,6 +62,7 @@ fn attribute_applies_to(attr: &AttributeDef, element_name: &str) -> bool {
 }
 
 #[must_use]
+/// Return all attributes that apply to `element_name`, including global ones.
 pub fn attributes_for(element_name: &str) -> Vec<&'static AttributeDef> {
     let Some(el) = element(element_name) else {
         return Vec::new();
@@ -61,6 +77,7 @@ pub fn attributes_for(element_name: &str) -> Vec<&'static AttributeDef> {
 }
 
 #[must_use]
+/// Return all element names belonging to the given catalog category.
 pub fn elements_in_category(cat: ElementCategory) -> &'static [&'static str] {
     categories::elements_in_category(cat)
 }

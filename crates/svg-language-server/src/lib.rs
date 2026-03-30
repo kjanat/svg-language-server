@@ -1,3 +1,9 @@
+//! Language-server implementation for SVG editing features.
+//!
+//! This crate wires together the shared workspace crates for catalog lookup,
+//! linting, formatting, color handling, and reference resolution behind the
+//! Language Server Protocol.
+
 use std::{
     collections::{HashMap, HashSet},
     fs,
@@ -859,6 +865,7 @@ impl LanguageServer for SvgLanguageServer {
     }
 }
 
+/// Run the SVG language server over stdio using the LSP transport.
 pub async fn run_stdio_server() {
     let _logging = init_logging();
     let stdin = tokio::io::stdin();

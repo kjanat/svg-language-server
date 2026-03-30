@@ -1,4 +1,8 @@
-use super::*;
+use super::{
+    BaselineStatus, BrowserSupport, ClassDefinitionHover, CompatOverride,
+    CustomPropertyDefinitionHover, LazyLock, RuntimeBrowserSupport, Uri, Url,
+    byte_offset_for_row_col, svg_data_uri,
+};
 
 struct HoverSourceLink {
     label: String,

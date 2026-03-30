@@ -1,9 +1,6 @@
-use super::*;
-use std::fs::OpenOptions;
-use std::path::PathBuf;
-use tracing_subscriber::filter::LevelFilter;
-use tracing_subscriber::layer::SubscriberExt;
-use tracing_subscriber::{Layer, Registry};
+use std::{fs, fs::OpenOptions, path::PathBuf};
+
+use tracing_subscriber::{Layer, Registry, filter::LevelFilter, layer::SubscriberExt};
 
 pub(crate) struct LoggingGuards {
     pub(crate) _file_guard: Option<tracing_appender::non_blocking::WorkerGuard>,

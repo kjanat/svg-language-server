@@ -1,4 +1,7 @@
-use super::*;
+use super::{
+    AttributeValues, CompletionItem, CompletionItemKind, CompletionItemTag, CompletionTextEdit,
+    ContentModel, HashSet, InsertTextFormat, Range, TextEdit, position_for_byte_offset,
+};
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum CssCompletionContext {

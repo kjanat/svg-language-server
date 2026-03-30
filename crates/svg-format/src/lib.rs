@@ -1,3 +1,5 @@
+//! Deterministic structural formatting for SVG documents.
+
 use tree_sitter::{Node, Parser};
 
 /// Attribute ordering mode.

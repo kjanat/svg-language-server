@@ -1,3 +1,5 @@
+//! Command-line entrypoint for the `svg-format` formatter.
+
 use std::{
     fs,
     io::{self, Read, Write},

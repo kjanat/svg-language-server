@@ -1,31 +1,51 @@
+//! Reference and definition helpers for SVG ids, CSS classes, and custom
+//! properties.
+
 use tree_sitter::{Parser, Tree, TreeCursor};
 
+/// A reference target that can be resolved to one or more definitions.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DefinitionTarget {
+    /// An `id` reference such as `url(#clip)` or `href="#id"`.
     Id(String),
+    /// A CSS class selector reference.
     Class(String),
+    /// A CSS custom-property reference such as `var(--accent)`.
     CustomProperty(String),
 }
 
+/// A zero-based source span.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Span {
+    /// Start line.
     pub start_row: usize,
+    /// Start column in bytes.
     pub start_col: usize,
+    /// End line.
     pub end_row: usize,
+    /// End column in bytes.
     pub end_col: usize,
 }
 
+/// A named symbol paired with its source span.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NamedSpan {
+    /// Symbol name.
     pub name: String,
+    /// Definition span.
     pub span: Span,
 }
 
+/// Inline stylesheet content extracted from an SVG document.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct InlineStylesheet {
+    /// Raw CSS source.
     pub css: String,
+    /// Byte offset where the stylesheet starts in the SVG source.
     pub start_byte: usize,
+    /// Start line in the SVG source.
     pub start_row: usize,
+    /// Start column in bytes within `start_row`.
     pub start_col: usize,
 }
 
@@ -38,6 +58,7 @@ fn css_tree(css: &str) -> Option<Tree> {
 }
 
 #[must_use]
+/// Resolve the definition target under the given SVG byte offset.
 pub fn definition_target_at(
     source: &[u8],
     tree: &Tree,
@@ -121,6 +142,7 @@ fn css_custom_property_reference_name(
 }
 
 #[must_use]
+/// Collect all `id` definitions from an SVG tree.
 pub fn collect_id_definitions(source: &[u8], tree: &Tree) -> Vec<NamedSpan> {
     let mut results = Vec::new();
     let mut cursor = tree.root_node().walk();
@@ -140,6 +162,7 @@ pub fn collect_id_definitions(source: &[u8], tree: &Tree) -> Vec<NamedSpan> {
 }
 
 #[must_use]
+/// Collect inline `<style>` blocks from an SVG tree.
 pub fn collect_inline_stylesheets(source: &[u8], tree: &Tree) -> Vec<InlineStylesheet> {
     let mut stylesheets = Vec::new();
     let mut cursor = tree.root_node().walk();
@@ -177,6 +200,7 @@ pub fn collect_inline_stylesheets(source: &[u8], tree: &Tree) -> Vec<InlineStyle
 }
 
 #[must_use]
+/// Collect CSS class definitions from a stylesheet, offset into SVG coordinates.
 pub fn collect_class_definitions_from_stylesheet(
     css: &str,
     start_row: usize,
@@ -226,6 +250,8 @@ pub fn collect_class_definitions_from_stylesheet(
 }
 
 #[must_use]
+/// Collect CSS custom-property definitions from a stylesheet, offset into SVG
+/// coordinates.
 pub fn collect_custom_property_definitions_from_stylesheet(
     css: &str,
     start_row: usize,
@@ -267,6 +293,7 @@ pub fn collect_custom_property_definitions_from_stylesheet(
 }
 
 #[must_use]
+/// Extract `href` values from `<?xml-stylesheet ...?>` processing instructions.
 pub fn extract_xml_stylesheet_hrefs(source: &[u8]) -> Vec<String> {
     let mut hrefs = Vec::new();
     let Ok(text) = std::str::from_utf8(source) else {

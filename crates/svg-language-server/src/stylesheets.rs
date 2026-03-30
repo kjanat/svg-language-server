@@ -1,4 +1,6 @@
-use super::*;
+use std::fs;
+
+use super::{Arc, GotoDefinitionResponse, Location, OnceLock, StylesheetCache, Uri, Url};
 
 #[derive(Clone)]
 pub(crate) struct CachedStylesheet {

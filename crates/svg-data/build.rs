@@ -1,3 +1,9 @@
+//! Build script that generates the baked SVG catalog from JSON fixtures,
+//! browser-compat data, and spec-derived descriptions.
+//!
+//! The generated Rust source is written into `OUT_DIR` and then included by
+//! the `svg-data` crate at compile time.
+
 #[path = "build/bcd.rs"]
 mod bcd;
 #[path = "build/codegen.rs"]
@@ -279,21 +285,29 @@ fn main() -> Result<(), Box<dyn Error>> {
                 ),
             };
 
-        let description = spec_descriptions.get(&el.name).unwrap_or(&el.description);
-        writeln!(out, "    ElementDef {{")?;
-        writeln!(out, "        name: \"{}\",", escape(&el.name))?;
-        writeln!(out, "        description: \"{}\",", escape(description))?;
-        writeln!(out, "        mdn_url: \"{}\",", escape(&el.mdn_url))?;
-        writeln!(out, "        deprecated: {deprecated},")?;
-        writeln!(out, "        experimental: {experimental},")?;
-        writeln!(out, "        spec_url: {spec_url_str},")?;
-        writeln!(out, "        baseline: {baseline_str},")?;
-        writeln!(out, "        browser_support: {browser_support_str},")?;
-        writeln!(out, "        content_model: {content_model},")?;
-        writeln!(out, "        required_attrs: EL_{id}_REQUIRED_ATTRS,")?;
-        writeln!(out, "        attrs: EL_{id}_ATTRS,")?;
-        writeln!(out, "        global_attrs: {},", el.global_attrs)?;
-        writeln!(out, "    }},")?;
+        let name = escape(&el.name);
+        let description = escape(spec_descriptions.get(&el.name).unwrap_or(&el.description));
+        let mdn_url = escape(&el.mdn_url);
+        let global_attrs = el.global_attrs;
+
+        write!(
+            out,
+            r#"    ElementDef {{
+        name: "{name}",
+        description: "{description}",
+        mdn_url: "{mdn_url}",
+        deprecated: {deprecated},
+        experimental: {experimental},
+        spec_url: {spec_url_str},
+        baseline: {baseline_str},
+        browser_support: {browser_support_str},
+        content_model: {content_model},
+        required_attrs: EL_{id}_REQUIRED_ATTRS,
+        attrs: EL_{id}_ATTRS,
+        global_attrs: {global_attrs},
+    }},
+"#
+        )?;
     }
 
     // BCD-only elements
@@ -310,33 +324,34 @@ fn main() -> Result<(), Box<dyn Error>> {
     for (name, entry) in &bcd_only_elements {
         let mdn_url = format!("https://developer.mozilla.org/docs/Web/SVG/Element/{name}");
         let fallback_desc = format!("The {name} SVG element.");
-        let description = spec_descriptions.get(*name).unwrap_or(&fallback_desc);
-        writeln!(out, "    ElementDef {{")?;
-        writeln!(out, "        name: \"{}\",", escape(name))?;
-        writeln!(out, "        description: \"{}\",", escape(description))?;
-        writeln!(out, "        mdn_url: \"{}\",", escape(&mdn_url))?;
-        writeln!(out, "        deprecated: {},", entry.deprecated)?;
-        writeln!(out, "        experimental: {},", entry.experimental)?;
-        writeln!(
+        let raw_name = *name;
+        let name = escape(raw_name);
+        let description = escape(spec_descriptions.get(raw_name).unwrap_or(&fallback_desc));
+        let mdn_url = escape(&mdn_url);
+        let deprecated = entry.deprecated;
+        let experimental = entry.experimental;
+        let spec_url_str = format_option_str(entry.spec_url.as_deref());
+        let baseline_str = format_baseline(entry.baseline.as_ref());
+        let browser_support_str = format_browser_support(entry.browser_support.as_ref());
+
+        write!(
             out,
-            "        spec_url: {},",
-            format_option_str(entry.spec_url.as_deref())
+            r#"    ElementDef {{
+        name: "{name}",
+        description: "{description}",
+        mdn_url: "{mdn_url}",
+        deprecated: {deprecated},
+        experimental: {experimental},
+        spec_url: {spec_url_str},
+        baseline: {baseline_str},
+        browser_support: {browser_support_str},
+        content_model: ContentModel::Void,
+        required_attrs: &[],
+        attrs: &[],
+        global_attrs: true,
+    }},
+"#
         )?;
-        writeln!(
-            out,
-            "        baseline: {},",
-            format_baseline(entry.baseline.as_ref())
-        )?;
-        writeln!(
-            out,
-            "        browser_support: {},",
-            format_browser_support(entry.browser_support.as_ref())
-        )?;
-        writeln!(out, "        content_model: ContentModel::Void,")?;
-        writeln!(out, "        required_attrs: &[],")?;
-        writeln!(out, "        attrs: &[],")?;
-        writeln!(out, "        global_attrs: true,")?;
-        writeln!(out, "    }},")?;
     }
     println!(
         "cargo::warning=compat: merged {} BCD-only elements into catalog",
@@ -407,52 +422,57 @@ fn main() -> Result<(), Box<dyn Error>> {
                     "None".to_string(),
                 ),
             };
-        writeln!(out, "    AttributeDef {{")?;
-        writeln!(out, "        name: \"{}\",", escape(&attr.name))?;
-        writeln!(
+        let name = escape(&attr.name);
+        let description = escape(&attr.description);
+        let mdn_url = escape(&attr.mdn_url);
+
+        write!(
             out,
-            "        description: \"{}\",",
-            escape(&attr.description)
+            r#"    AttributeDef {{
+        name: "{name}",
+        description: "{description}",
+        mdn_url: "{mdn_url}",
+        deprecated: {deprecated},
+        experimental: {experimental},
+        spec_url: {spec_url_str},
+        baseline: {baseline_str},
+        browser_support: {browser_support_str},
+        values: {values},
+        elements: ATTR_{id}_ELEMENTS,
+    }},
+"#
         )?;
-        writeln!(out, "        mdn_url: \"{}\",", escape(&attr.mdn_url))?;
-        writeln!(out, "        deprecated: {deprecated},")?;
-        writeln!(out, "        experimental: {experimental},")?;
-        writeln!(out, "        spec_url: {spec_url_str},")?;
-        writeln!(out, "        baseline: {baseline_str},")?;
-        writeln!(out, "        browser_support: {browser_support_str},")?;
-        writeln!(out, "        values: {values},")?;
-        writeln!(out, "        elements: ATTR_{id}_ELEMENTS,")?;
-        writeln!(out, "    }},")?;
     }
 
     for (name, bcd) in &bcd_only {
         let id = ident_from(name);
         let mdn_url = format!("https://developer.mozilla.org/docs/Web/SVG/Attribute/{name}");
         let description = format!("The {name} SVG attribute.");
-        writeln!(out, "    AttributeDef {{")?;
-        writeln!(out, "        name: \"{}\",", escape(name))?;
-        writeln!(out, "        description: \"{}\",", escape(&description))?;
-        writeln!(out, "        mdn_url: \"{}\",", escape(&mdn_url))?;
-        writeln!(out, "        deprecated: {},", bcd.compat.deprecated)?;
-        writeln!(out, "        experimental: {},", bcd.compat.experimental)?;
-        writeln!(
+        let name = escape(name);
+        let description = escape(&description);
+        let mdn_url = escape(&mdn_url);
+        let deprecated = bcd.compat.deprecated;
+        let experimental = bcd.compat.experimental;
+        let spec_url_str = format_option_str(bcd.compat.spec_url.as_deref());
+        let baseline_str = format_baseline(bcd.compat.baseline.as_ref());
+        let browser_support_str = format_browser_support(bcd.compat.browser_support.as_ref());
+
+        write!(
             out,
-            "        spec_url: {},",
-            format_option_str(bcd.compat.spec_url.as_deref())
+            r#"    AttributeDef {{
+        name: "{name}",
+        description: "{description}",
+        mdn_url: "{mdn_url}",
+        deprecated: {deprecated},
+        experimental: {experimental},
+        spec_url: {spec_url_str},
+        baseline: {baseline_str},
+        browser_support: {browser_support_str},
+        values: AttributeValues::FreeText,
+        elements: ATTR_{id}_ELEMENTS,
+    }},
+"#
         )?;
-        writeln!(
-            out,
-            "        baseline: {},",
-            format_baseline(bcd.compat.baseline.as_ref())
-        )?;
-        writeln!(
-            out,
-            "        browser_support: {},",
-            format_browser_support(bcd.compat.browser_support.as_ref())
-        )?;
-        writeln!(out, "        values: AttributeValues::FreeText,")?;
-        writeln!(out, "        elements: ATTR_{id}_ELEMENTS,")?;
-        writeln!(out, "    }},")?;
     }
 
     writeln!(out, "];")?;

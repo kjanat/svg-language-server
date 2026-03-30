@@ -13,6 +13,7 @@ categories           = ["development-tools"]
 
 [dependencies]
 svg-data.workspace        = true
+svg-tree.workspace        = true
 tree-sitter.workspace     = true
 tree-sitter-svg.workspace = true
 

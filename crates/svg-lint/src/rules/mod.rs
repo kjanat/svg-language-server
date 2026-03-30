@@ -3,6 +3,7 @@ mod suppressions;
 use std::collections::{HashMap, HashSet};
 
 use suppressions::Suppressions;
+use svg_tree::{is_attribute_name_kind, walk_tree};
 use tree_sitter::{Node, Tree};
 
 use crate::types::{DiagnosticCode, Severity, SvgDiagnostic};
@@ -141,11 +142,6 @@ fn check_element(
     check_children(source, node, name_str, diagnostics, suppressions);
 
     matches!(def.content_model, svg_data::ContentModel::Foreign)
-}
-
-/// tree-sitter-svg adds more typed `*_attribute_name` nodes as value grammars expand.
-fn is_attribute_name_kind(kind: &str) -> bool {
-    kind == "attribute_name" || kind.ends_with("_attribute_name")
 }
 
 /// XML infrastructure prefixes — skip these in attribute checks.
@@ -392,22 +388,6 @@ fn collect_defined_ids(source: &[u8], tree: &Tree) -> HashSet<String> {
         }
     });
     ids
-}
-
-fn walk_tree(cursor: &mut tree_sitter::TreeCursor<'_>, f: &mut impl FnMut(Node<'_>)) {
-    loop {
-        let node = cursor.node();
-        f(node);
-
-        if cursor.goto_first_child() {
-            walk_tree(cursor, f);
-            cursor.goto_parent();
-        }
-
-        if !cursor.goto_next_sibling() {
-            break;
-        }
-    }
 }
 
 fn push_diag(

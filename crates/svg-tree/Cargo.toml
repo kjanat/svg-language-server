@@ -1,0 +1,17 @@
+[package]
+name                 = "svg-tree"
+version.workspace    = true
+authors.workspace    = true
+edition.workspace    = true
+description          = "Shared tree-sitter traversal helpers for SVG workspace crates"
+homepage             = "https://github.com/kjanat/svg-language-server/tree/master/crates/svg-tree"
+repository.workspace = true
+license.workspace    = true
+keywords             = ["svg", "traversal", "tree-sitter"]
+categories           = ["development-tools"]
+
+[dependencies]
+tree-sitter.workspace = true
+
+[lints]
+workspace = true

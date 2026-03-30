@@ -863,6 +863,7 @@ checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 name = "svg-color"
 version = "0.1.0"
 dependencies = [
+ "svg-tree",
  "tree-sitter",
  "tree-sitter-css",
  "tree-sitter-svg",
@@ -897,6 +898,7 @@ dependencies = [
  "svg-format",
  "svg-lint",
  "svg-references",
+ "svg-tree",
  "tokio",
  "tower-lsp-server",
  "tracing",
@@ -913,6 +915,7 @@ name = "svg-lint"
 version = "0.1.0"
 dependencies = [
  "svg-data",
+ "svg-tree",
  "tree-sitter",
  "tree-sitter-svg",
 ]
@@ -921,9 +924,17 @@ dependencies = [
 name = "svg-references"
 version = "0.1.0"
 dependencies = [
+ "svg-tree",
  "tree-sitter",
  "tree-sitter-css",
  "tree-sitter-svg",
+]
+
+[[package]]
+name = "svg-tree"
+version = "0.1.0"
+dependencies = [
+ "tree-sitter",
 ]
 
 [[package]]

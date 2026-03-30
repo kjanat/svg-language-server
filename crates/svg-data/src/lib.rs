@@ -9,8 +9,12 @@ pub mod bcd;
 mod catalog;
 /// Category-based helpers for allowed-child and grouping queries.
 pub mod categories;
+/// Shared BCD JSON parsing helpers for runtime compat overlays.
+pub mod compat_parse;
 /// Public catalog type definitions.
 pub mod types;
+
+use std::{collections::HashMap, sync::LazyLock};
 
 use catalog::{ATTRIBUTES, ELEMENTS};
 pub use types::{
@@ -18,16 +22,22 @@ pub use types::{
     ElementDef,
 };
 
+static ELEMENT_MAP: LazyLock<HashMap<&'static str, &'static ElementDef>> =
+    LazyLock::new(|| ELEMENTS.iter().map(|e| (e.name, e)).collect());
+
+static ATTRIBUTE_MAP: LazyLock<HashMap<&'static str, &'static AttributeDef>> =
+    LazyLock::new(|| ATTRIBUTES.iter().map(|a| (a.name, a)).collect());
+
 #[must_use]
 /// Look up a single SVG element definition by tag name.
 pub fn element(name: &str) -> Option<&'static ElementDef> {
-    ELEMENTS.iter().find(|e| e.name == name)
+    ELEMENT_MAP.get(name).copied()
 }
 
 #[must_use]
 /// Look up a single SVG attribute definition by attribute name.
 pub fn attribute(name: &str) -> Option<&'static AttributeDef> {
-    ATTRIBUTES.iter().find(|a| a.name == name)
+    ATTRIBUTE_MAP.get(name).copied()
 }
 
 #[must_use]

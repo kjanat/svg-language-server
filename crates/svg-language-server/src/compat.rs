@@ -1,4 +1,29 @@
-use super::{BaselineStatus, CompatOverride, HashMap, RuntimeBrowserSupport, RuntimeCompat};
+use std::collections::HashMap;
+
+use svg_data::BaselineStatus;
+
+/// Runtime per-browser version data (owned strings, unlike `BrowserSupport`).
+#[derive(Clone)]
+pub(crate) struct RuntimeBrowserSupport {
+    pub chrome: Option<String>,
+    pub edge: Option<String>,
+    pub firefox: Option<String>,
+    pub safari: Option<String>,
+}
+
+/// Runtime compat override for a single element or attribute.
+pub(crate) struct CompatOverride {
+    pub deprecated: bool,
+    pub experimental: bool,
+    pub baseline: Option<BaselineStatus>,
+    pub browser_support: Option<RuntimeBrowserSupport>,
+}
+
+/// Runtime-fetched compat data, overlays the baked-in catalog.
+pub(crate) struct RuntimeCompat {
+    pub elements: HashMap<String, CompatOverride>,
+    pub attributes: HashMap<String, CompatOverride>,
+}
 
 const BCD_URL: &str = "https://unpkg.com/@mdn/browser-compat-data@latest/data.json";
 const WEB_FEATURES_URL: &str = "https://unpkg.com/web-features@latest/data.json";
@@ -110,6 +135,14 @@ fn compat_override(
     wf_features: Option<&serde_json::Value>,
     compat_key: &str,
 ) -> CompatOverride {
+    let browser_support = svg_data::compat_parse::extract_browser_versions(compat).map(
+        |(chrome, edge, firefox, safari)| RuntimeBrowserSupport {
+            chrome,
+            edge,
+            firefox,
+            safari,
+        },
+    );
     CompatOverride {
         deprecated: compat
             .pointer("/status/deprecated")
@@ -119,8 +152,8 @@ fn compat_override(
             .pointer("/status/experimental")
             .and_then(serde_json::Value::as_bool)
             .unwrap_or(false),
-        baseline: resolve_baseline(compat, wf_features, compat_key),
-        browser_support: extract_runtime_browser_support(compat),
+        baseline: svg_data::compat_parse::resolve_baseline(compat, wf_features, compat_key),
+        browser_support,
     }
 }
 
@@ -148,67 +181,6 @@ fn merge_compat_override(
             }
         })
         .or_insert(new_override);
-}
-
-fn resolve_baseline(
-    compat: &serde_json::Value,
-    wf_features: Option<&serde_json::Value>,
-    compat_key: &str,
-) -> Option<BaselineStatus> {
-    let wf = wf_features?;
-    let tags = compat.get("tags")?.as_array()?;
-    let feature_id = tags
-        .iter()
-        .find_map(|t| t.as_str()?.strip_prefix("web-features:"))?;
-    let status = wf.get(feature_id)?.get("status")?;
-
-    if let Some(by_key) = status.get("by_compat_key")
-        && let Some(override_status) = by_key.get(compat_key)
-    {
-        return parse_baseline_value(override_status);
-    }
-
-    parse_baseline_value(status)
-}
-
-fn parse_baseline_value(status: &serde_json::Value) -> Option<BaselineStatus> {
-    match status.get("baseline")? {
-        serde_json::Value::Bool(false) => Some(BaselineStatus::Limited),
-        serde_json::Value::String(s) if s == "high" => {
-            let since = parse_year(status, "baseline_high_date")?;
-            Some(BaselineStatus::Widely { since })
-        }
-        serde_json::Value::String(s) if s == "low" => {
-            let since = parse_year(status, "baseline_low_date")?;
-            Some(BaselineStatus::Newly { since })
-        }
-        _ => None,
-    }
-}
-
-fn parse_year(status: &serde_json::Value, key: &str) -> Option<u16> {
-    status.get(key)?.as_str()?.split('-').next()?.parse().ok()
-}
-
-fn extract_runtime_browser_support(compat: &serde_json::Value) -> Option<RuntimeBrowserSupport> {
-    let support = compat.get("support")?;
-
-    let version_added = |browser: &str| -> Option<String> {
-        let entry = support.get(browser)?;
-        let stmt = if entry.is_array() {
-            entry.get(0)?
-        } else {
-            entry
-        };
-        stmt.get("version_added")?.as_str().map(String::from)
-    };
-
-    Some(RuntimeBrowserSupport {
-        chrome: version_added("chrome"),
-        edge: version_added("edge"),
-        firefox: version_added("firefox"),
-        safari: version_added("safari"),
-    })
 }
 
 fn merge_runtime_browser_support(

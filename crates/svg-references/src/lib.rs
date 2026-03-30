@@ -1,7 +1,8 @@
 //! Reference and definition helpers for SVG ids, CSS classes, and custom
 //! properties.
 
-use tree_sitter::{Parser, Tree, TreeCursor};
+use svg_tree::{child_of_kind, deepest_node_at, find_ancestor_any, has_ancestor, walk_tree};
+use tree_sitter::{Parser, Tree};
 
 /// A reference target that can be resolved to one or more definitions.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -322,22 +323,6 @@ pub fn extract_xml_stylesheet_hrefs(source: &[u8]) -> Vec<String> {
     hrefs
 }
 
-fn walk_tree(cursor: &mut TreeCursor<'_>, f: &mut impl FnMut(tree_sitter::Node<'_>)) {
-    loop {
-        let node = cursor.node();
-        f(node);
-
-        if cursor.goto_first_child() {
-            walk_tree(cursor, f);
-            cursor.goto_parent();
-        }
-
-        if !cursor.goto_next_sibling() {
-            break;
-        }
-    }
-}
-
 fn inline_stylesheet_containing_offset(
     source: &[u8],
     tree: &Tree,
@@ -349,52 +334,6 @@ fn inline_stylesheet_containing_offset(
             let end = stylesheet.start_byte + stylesheet.css.len();
             (stylesheet.start_byte..end).contains(&byte_offset)
         })
-}
-
-fn deepest_node_at(tree: &Tree, byte_offset: usize) -> tree_sitter::Node<'_> {
-    tree.root_node()
-        .descendant_for_byte_range(byte_offset, byte_offset)
-        .unwrap_or_else(|| tree.root_node())
-}
-
-fn find_ancestor_any<'a>(
-    node: tree_sitter::Node<'a>,
-    kinds: &[&str],
-) -> Option<tree_sitter::Node<'a>> {
-    let mut current = node;
-    loop {
-        if kinds.contains(&current.kind()) {
-            return Some(current);
-        }
-        current = current.parent()?;
-    }
-}
-
-fn has_ancestor(node: tree_sitter::Node<'_>, kind: &str) -> bool {
-    let mut current = node;
-    while let Some(parent) = current.parent() {
-        if parent.kind() == kind {
-            return true;
-        }
-        current = parent;
-    }
-    false
-}
-
-fn child_of_kind<'a>(node: tree_sitter::Node<'a>, kind: &str) -> Option<tree_sitter::Node<'a>> {
-    let mut cursor = node.walk();
-    if !cursor.goto_first_child() {
-        return None;
-    }
-    loop {
-        let child = cursor.node();
-        if child.kind() == kind {
-            return Some(child);
-        }
-        if !cursor.goto_next_sibling() {
-            return None;
-        }
-    }
 }
 
 fn is_style_name(name: &str) -> bool {

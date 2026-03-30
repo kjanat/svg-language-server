@@ -1,0 +1,97 @@
+//! Shared tree-sitter traversal and query helpers.
+//!
+//! This crate provides the small set of tree-sitter utility functions used by
+//! multiple workspace crates (`svg-references`, `svg-lint`, `svg-color`,
+//! `svg-language-server`).  Centralising them here eliminates duplicated
+//! implementations and keeps the helpers in sync.
+
+/// Recursive depth-first traversal of every node reachable from `cursor`.
+///
+/// Calls `f` on each node visited.  Uses `TreeCursor` internally for
+/// efficiency (no per-node allocation).
+pub fn walk_tree(
+    cursor: &mut tree_sitter::TreeCursor<'_>,
+    f: &mut impl FnMut(tree_sitter::Node<'_>),
+) {
+    loop {
+        let node = cursor.node();
+        f(node);
+
+        if cursor.goto_first_child() {
+            walk_tree(cursor, f);
+            cursor.goto_parent();
+        }
+
+        if !cursor.goto_next_sibling() {
+            break;
+        }
+    }
+}
+
+#[must_use]
+/// Return the deepest (most specific) node that spans `byte_offset`.
+///
+/// Falls back to the tree root when no descendant covers the offset.
+pub fn deepest_node_at(tree: &tree_sitter::Tree, byte_offset: usize) -> tree_sitter::Node<'_> {
+    tree.root_node()
+        .descendant_for_byte_range(byte_offset, byte_offset)
+        .unwrap_or_else(|| tree.root_node())
+}
+
+#[must_use]
+/// Walk up from `node` and return the first ancestor whose kind is in `kinds`.
+///
+/// The search includes `node` itself.
+pub fn find_ancestor_any<'a>(
+    node: tree_sitter::Node<'a>,
+    kinds: &[&str],
+) -> Option<tree_sitter::Node<'a>> {
+    let mut current = node;
+    loop {
+        if kinds.contains(&current.kind()) {
+            return Some(current);
+        }
+        current = current.parent()?;
+    }
+}
+
+#[must_use]
+/// Return `true` if any ancestor of `node` (exclusive) has the given `kind`.
+pub fn has_ancestor(node: tree_sitter::Node<'_>, kind: &str) -> bool {
+    let mut current = node;
+    while let Some(parent) = current.parent() {
+        if parent.kind() == kind {
+            return true;
+        }
+        current = parent;
+    }
+    false
+}
+
+#[must_use]
+/// Return the first direct child of `node` whose kind matches `kind`.
+pub fn child_of_kind<'a>(node: tree_sitter::Node<'a>, kind: &str) -> Option<tree_sitter::Node<'a>> {
+    let mut cursor = node.walk();
+    if !cursor.goto_first_child() {
+        return None;
+    }
+    loop {
+        let child = cursor.node();
+        if child.kind() == kind {
+            return Some(child);
+        }
+        if !cursor.goto_next_sibling() {
+            return None;
+        }
+    }
+}
+
+#[must_use]
+/// Check whether a tree-sitter node kind represents an attribute name.
+///
+/// tree-sitter-svg emits `attribute_name` for plain attributes and
+/// `*_attribute_name` variants (e.g. `viewBox_attribute_name`) as value
+/// grammars expand.
+pub fn is_attribute_name_kind(kind: &str) -> bool {
+    kind == "attribute_name" || kind.ends_with("_attribute_name")
+}

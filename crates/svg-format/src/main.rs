@@ -7,119 +7,11 @@ use std::{
     process::ExitCode,
 };
 
-use clap::{Args, Parser, ValueEnum};
+use clap::{Args, Parser};
 use svg_format::{
     AttributeLayout, AttributeSort, BlankLines, FormatOptions, QuoteStyle, TextContentMode,
     WrappedAttributeIndent, format_with_options,
 };
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
-#[value(rename_all = "kebab-case")]
-enum AttributeSortArg {
-    None,
-    Canonical,
-    Alphabetical,
-}
-
-impl From<AttributeSortArg> for AttributeSort {
-    fn from(value: AttributeSortArg) -> Self {
-        match value {
-            AttributeSortArg::None => Self::None,
-            AttributeSortArg::Canonical => Self::Canonical,
-            AttributeSortArg::Alphabetical => Self::Alphabetical,
-        }
-    }
-}
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
-#[value(rename_all = "kebab-case")]
-enum AttributeLayoutArg {
-    Auto,
-    SingleLine,
-    MultiLine,
-}
-
-impl From<AttributeLayoutArg> for AttributeLayout {
-    fn from(value: AttributeLayoutArg) -> Self {
-        match value {
-            AttributeLayoutArg::Auto => Self::Auto,
-            AttributeLayoutArg::SingleLine => Self::SingleLine,
-            AttributeLayoutArg::MultiLine => Self::MultiLine,
-        }
-    }
-}
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
-#[value(rename_all = "kebab-case")]
-enum QuoteStyleArg {
-    Preserve,
-    Double,
-    Single,
-}
-
-impl From<QuoteStyleArg> for QuoteStyle {
-    fn from(value: QuoteStyleArg) -> Self {
-        match value {
-            QuoteStyleArg::Preserve => Self::Preserve,
-            QuoteStyleArg::Double => Self::Double,
-            QuoteStyleArg::Single => Self::Single,
-        }
-    }
-}
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
-#[value(rename_all = "kebab-case")]
-enum WrappedAttributeIndentArg {
-    OneLevel,
-    AlignToTagName,
-}
-
-impl From<WrappedAttributeIndentArg> for WrappedAttributeIndent {
-    fn from(value: WrappedAttributeIndentArg) -> Self {
-        match value {
-            WrappedAttributeIndentArg::OneLevel => Self::OneLevel,
-            WrappedAttributeIndentArg::AlignToTagName => Self::AlignToTagName,
-        }
-    }
-}
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
-#[value(rename_all = "kebab-case")]
-enum TextContentArg {
-    Collapse,
-    Maintain,
-    Prettify,
-}
-
-impl From<TextContentArg> for TextContentMode {
-    fn from(value: TextContentArg) -> Self {
-        match value {
-            TextContentArg::Collapse => Self::Collapse,
-            TextContentArg::Maintain => Self::Maintain,
-            TextContentArg::Prettify => Self::Prettify,
-        }
-    }
-}
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
-#[value(rename_all = "kebab-case")]
-enum BlankLinesArg {
-    Remove,
-    Preserve,
-    Truncate,
-    Insert,
-}
-
-impl From<BlankLinesArg> for BlankLines {
-    fn from(value: BlankLinesArg) -> Self {
-        match value {
-            BlankLinesArg::Remove => Self::Remove,
-            BlankLinesArg::Preserve => Self::Preserve,
-            BlankLinesArg::Truncate => Self::Truncate,
-            BlankLinesArg::Insert => Self::Insert,
-        }
-    }
-}
 
 #[derive(Debug, Parser)]
 #[command(
@@ -143,11 +35,11 @@ struct Cli {
     #[arg(long, default_value_t = 100)]
     max_inline_tag_width: usize,
 
-    #[arg(long, value_enum, default_value_t = AttributeSortArg::Canonical)]
-    attribute_sort: AttributeSortArg,
+    #[arg(long, value_enum, default_value_t = AttributeSort::Canonical)]
+    attribute_sort: AttributeSort,
 
-    #[arg(long, value_enum, default_value_t = AttributeLayoutArg::Auto)]
-    attribute_layout: AttributeLayoutArg,
+    #[arg(long, value_enum, default_value_t = AttributeLayout::Auto)]
+    attribute_layout: AttributeLayout,
 
     #[arg(long, default_value_t = 1)]
     attributes_per_line: usize,
@@ -155,17 +47,17 @@ struct Cli {
     #[command(flatten)]
     self_close: SelfCloseArgs,
 
-    #[arg(long, value_enum, default_value_t = QuoteStyleArg::Preserve)]
-    quote_style: QuoteStyleArg,
+    #[arg(long, value_enum, default_value_t = QuoteStyle::Preserve)]
+    quote_style: QuoteStyle,
 
-    #[arg(long, value_enum, default_value_t = WrappedAttributeIndentArg::OneLevel)]
-    wrapped_attribute_indent: WrappedAttributeIndentArg,
+    #[arg(long, value_enum, default_value_t = WrappedAttributeIndent::OneLevel)]
+    wrapped_attribute_indent: WrappedAttributeIndent,
 
-    #[arg(long, value_enum, default_value_t = TextContentArg::Maintain)]
-    text_content: TextContentArg,
+    #[arg(long, value_enum, default_value_t = TextContentMode::Maintain)]
+    text_content: TextContentMode,
 
-    #[arg(long, value_enum, default_value_t = BlankLinesArg::Truncate)]
-    blank_lines: BlankLinesArg,
+    #[arg(long, value_enum, default_value_t = BlankLines::Truncate)]
+    blank_lines: BlankLines,
 }
 
 #[derive(Args, Debug)]
@@ -226,8 +118,8 @@ fn run() -> Result<ExitCode, String> {
             defaults.insert_spaces
         },
         max_inline_tag_width: cli.max_inline_tag_width,
-        attribute_sort: cli.attribute_sort.into(),
-        attribute_layout: cli.attribute_layout.into(),
+        attribute_sort: cli.attribute_sort,
+        attribute_layout: cli.attribute_layout,
         attributes_per_line: cli.attributes_per_line,
         space_before_self_close: if cli.self_close.no_space_before_self_close {
             false
@@ -236,10 +128,10 @@ fn run() -> Result<ExitCode, String> {
         } else {
             defaults.space_before_self_close
         },
-        quote_style: cli.quote_style.into(),
-        wrapped_attribute_indent: cli.wrapped_attribute_indent.into(),
-        text_content: cli.text_content.into(),
-        blank_lines: cli.blank_lines.into(),
+        quote_style: cli.quote_style,
+        wrapped_attribute_indent: cli.wrapped_attribute_indent,
+        text_content: cli.text_content,
+        blank_lines: cli.blank_lines,
         ignore_prefixes: defaults.ignore_prefixes,
     };
 

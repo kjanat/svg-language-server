@@ -1,0 +1,92 @@
+//! Shared BCD JSON parsing helpers for runtime compat overlays.
+//!
+//! Build-time compat parsing in `build/bcd.rs` uses structurally identical
+//! logic but cannot import from this crate (build scripts compile separately).
+//! When modifying these helpers, keep `build/bcd.rs` in sync.
+
+use crate::BaselineStatus;
+
+/// Parse a baseline status value from a web-features `status` JSON object.
+///
+/// Expects the `{ "baseline": "high"|"low"|false, "baseline_high_date": "YYYY-...", ... }` shape.
+#[must_use]
+pub fn parse_baseline_value(status: &serde_json::Value) -> Option<BaselineStatus> {
+    match status.get("baseline")? {
+        serde_json::Value::Bool(false) => Some(BaselineStatus::Limited),
+        serde_json::Value::String(s) if s == "high" => {
+            let since = parse_year(status, "baseline_high_date")?;
+            Some(BaselineStatus::Widely { since })
+        }
+        serde_json::Value::String(s) if s == "low" => {
+            let since = parse_year(status, "baseline_low_date")?;
+            Some(BaselineStatus::Newly { since })
+        }
+        _ => None,
+    }
+}
+
+/// Resolve baseline status for a BCD compat entry via web-features tags.
+///
+/// Looks up the feature ID from BCD `tags`, finds the web-features entry,
+/// and checks for compat-key-specific overrides before falling back to the
+/// top-level status.
+#[must_use]
+pub fn resolve_baseline(
+    compat: &serde_json::Value,
+    wf_features: Option<&serde_json::Value>,
+    compat_key: &str,
+) -> Option<BaselineStatus> {
+    let wf = wf_features?;
+    let tags = compat.get("tags")?.as_array()?;
+    let feature_id = tags
+        .iter()
+        .find_map(|t| t.as_str()?.strip_prefix("web-features:"))?;
+    let status = wf.get(feature_id)?.get("status")?;
+
+    if let Some(by_key) = status.get("by_compat_key")
+        && let Some(override_status) = by_key.get(compat_key)
+    {
+        return parse_baseline_value(override_status);
+    }
+
+    parse_baseline_value(status)
+}
+
+/// Extract `support/{browser}/version_added` for the four major browsers.
+///
+/// Returns `None` for browsers without support data or where the version is
+/// not a string (e.g. `version_added: true` without a concrete version).
+#[must_use]
+pub fn extract_browser_versions(
+    compat: &serde_json::Value,
+) -> Option<(
+    Option<String>,
+    Option<String>,
+    Option<String>,
+    Option<String>,
+)> {
+    let support = compat.get("support")?;
+
+    let version_added = |browser: &str| -> Option<String> {
+        let entry = support.get(browser)?;
+        let stmt = if entry.is_array() {
+            entry.get(0)?
+        } else {
+            entry
+        };
+        stmt.get("version_added")?.as_str().map(String::from)
+    };
+
+    Some((
+        version_added("chrome"),
+        version_added("edge"),
+        version_added("firefox"),
+        version_added("safari"),
+    ))
+}
+
+/// Extract the first calendar year from a date string like `"2023-03-27"`.
+#[must_use]
+pub fn parse_year(status: &serde_json::Value, key: &str) -> Option<u16> {
+    status.get(key)?.as_str()?.split('-').next()?.parse().ok()
+}

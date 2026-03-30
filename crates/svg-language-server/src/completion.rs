@@ -279,28 +279,7 @@ fn css_value_function(label: &str, snippet: &str, detail: &str) -> CompletionIte
     detailed_snippet_completion_item(label, CompletionItemKind::FUNCTION, snippet, detail)
 }
 
-pub fn is_attribute_name_kind(kind: &str) -> bool {
-    kind == "attribute_name" || kind.ends_with("_attribute_name")
-}
-
-pub fn deepest_node_at(tree: &tree_sitter::Tree, byte_offset: usize) -> tree_sitter::Node<'_> {
-    tree.root_node()
-        .descendant_for_byte_range(byte_offset, byte_offset)
-        .unwrap_or_else(|| tree.root_node())
-}
-
-pub fn find_ancestor_any<'a>(
-    node: tree_sitter::Node<'a>,
-    kinds: &[&str],
-) -> Option<tree_sitter::Node<'a>> {
-    let mut current = node;
-    loop {
-        if kinds.contains(&current.kind()) {
-            return Some(current);
-        }
-        current = current.parent()?;
-    }
-}
+pub use svg_tree::{deepest_node_at, find_ancestor_any, is_attribute_name_kind};
 
 pub fn is_comment_like_context(node: tree_sitter::Node<'_>) -> bool {
     find_ancestor_any(

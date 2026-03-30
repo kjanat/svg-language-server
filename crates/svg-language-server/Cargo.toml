@@ -27,6 +27,7 @@ svg-data.workspace           = true
 svg-format.workspace         = true
 svg-lint.workspace           = true
 svg-references.workspace     = true
+svg-tree.workspace           = true
 tokio.workspace              = true
 tower-lsp-server.workspace   = true
 tracing.workspace            = true

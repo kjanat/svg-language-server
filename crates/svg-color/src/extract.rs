@@ -6,6 +6,7 @@ use std::{
     ops::Range,
 };
 
+use svg_tree::walk_tree;
 use tree_sitter::{Parser, Point, Tree, TreeCursor};
 
 use crate::{
@@ -244,7 +245,7 @@ fn try_extract_css_declaration(
 fn collect_css_custom_properties(css_source: &[u8], tree: &Tree) -> CustomProperties {
     let mut properties = HashMap::new();
     let mut cursor = tree.root_node().walk();
-    walk_css_tree(&mut cursor, &mut |node| {
+    walk_tree(&mut cursor, &mut |node| {
         if node.kind() != "declaration" {
             return;
         }
@@ -260,22 +261,6 @@ fn collect_css_custom_properties(css_source: &[u8], tree: &Tree) -> CustomProper
         properties.insert(prop_name.to_owned(), value_text.to_owned());
     });
     properties
-}
-
-fn walk_css_tree(cursor: &mut TreeCursor<'_>, f: &mut impl FnMut(tree_sitter::Node<'_>)) {
-    loop {
-        let node = cursor.node();
-        f(node);
-
-        if cursor.goto_first_child() {
-            walk_css_tree(cursor, f);
-            cursor.goto_parent();
-        }
-
-        if !cursor.goto_next_sibling() {
-            break;
-        }
-    }
 }
 
 const fn build_color_info(

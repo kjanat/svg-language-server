@@ -11,6 +11,7 @@ keywords             = ["css", "references", "svg", "tree-sitter"]
 categories           = ["development-tools"]
 
 [dependencies]
+svg-tree.workspace        = true
 tree-sitter.workspace     = true
 tree-sitter-css.workspace = true
 tree-sitter-svg.workspace = true

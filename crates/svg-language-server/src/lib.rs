@@ -37,6 +37,7 @@ mod clipboard;
 mod code_actions;
 mod compat;
 mod completion;
+mod definition;
 mod diagnostics;
 mod hover;
 mod logging;
@@ -47,7 +48,7 @@ use clipboard::{copy_text_to_system_clipboard, svg_data_uri};
 use code_actions::{
     copy_data_uri_code_action, suppression_code, suppression_code_actions_for_diagnostic,
 };
-use compat::fetch_runtime_compat;
+use compat::{CompatOverride, RuntimeBrowserSupport, RuntimeCompat, fetch_runtime_compat};
 use completion::{
     attribute_completion_items, child_element_completion_items, completion_trigger_characters,
     deepest_node_at, enclosing_element_name, existing_attribute_names, find_ancestor_any,
@@ -55,6 +56,7 @@ use completion::{
     is_embedded_non_svg_context, root_element_completion_items, style_completion_items,
     tag_element_name, value_completions,
 };
+use definition::{DefinitionContext, build_definition_context, stylesheet_definition_locations};
 use diagnostics::publish_lint_diagnostics;
 use hover::{
     external_attribute_hover, format_attribute_hover, format_class_hover,
@@ -83,29 +85,6 @@ type ColorKindCache = Arc<RwLock<HashMap<(Uri, u32, u32), svg_color::ColorKind>>
 type StylesheetCache = Arc<StdRwLock<HashMap<String, Arc<OnceLock<Option<CachedStylesheet>>>>>>;
 const COPY_DATA_URI_COMMAND: &str = "svg.copyDataUri";
 const COPY_DATA_URI_ACTION_TITLE: &str = "Copy SVG as data URI";
-
-/// Runtime per-browser version data (owned strings, unlike `BrowserSupport`).
-#[derive(Clone)]
-struct RuntimeBrowserSupport {
-    chrome: Option<String>,
-    edge: Option<String>,
-    firefox: Option<String>,
-    safari: Option<String>,
-}
-
-/// Runtime compat override for a single element or attribute.
-struct CompatOverride {
-    deprecated: bool,
-    experimental: bool,
-    baseline: Option<BaselineStatus>,
-    browser_support: Option<RuntimeBrowserSupport>,
-}
-
-/// Runtime-fetched compat data, overlays the baked-in catalog.
-struct RuntimeCompat {
-    elements: HashMap<String, CompatOverride>,
-    attributes: HashMap<String, CompatOverride>,
-}
 
 fn server_capabilities() -> ServerCapabilities {
     ServerCapabilities {
@@ -158,12 +137,6 @@ struct HoverContext {
     attribute_markdown: Option<String>,
     class_hover: ClassHoverContext,
     property_hover: PropertyHoverContext,
-}
-
-struct DefinitionContext {
-    target: svg_references::DefinitionTarget,
-    inline_locations: Vec<Location>,
-    stylesheet_hrefs: Vec<String>,
 }
 
 const fn empty_class_hover_context() -> ClassHoverContext {
@@ -291,105 +264,6 @@ fn build_hover_context(
         attribute_markdown,
         class_hover,
         property_hover,
-    }
-}
-
-fn build_definition_context(
-    uri: &Uri,
-    pos: Position,
-    doc: &DocumentState,
-) -> Option<DefinitionContext> {
-    let source = doc.source.as_bytes();
-    let byte_offset = byte_offset_for_position(source, pos);
-    let target = svg_references::definition_target_at(source, &doc.tree, byte_offset)?;
-    let (inline_locations, stylesheet_hrefs) =
-        inline_definition_locations(uri, source, &doc.tree, &target);
-
-    Some(DefinitionContext {
-        target,
-        inline_locations,
-        stylesheet_hrefs,
-    })
-}
-
-fn inline_definition_locations(
-    uri: &Uri,
-    source: &[u8],
-    tree: &tree_sitter::Tree,
-    target: &svg_references::DefinitionTarget,
-) -> (Vec<Location>, Vec<String>) {
-    match target {
-        svg_references::DefinitionTarget::Id(target_id) => (
-            svg_references::collect_id_definitions(source, tree)
-                .into_iter()
-                .filter(|definition| definition.name == *target_id)
-                .map(|definition| named_span_location(uri.clone(), source, &definition))
-                .collect(),
-            Vec::new(),
-        ),
-        svg_references::DefinitionTarget::Class(target_class) => (
-            svg_references::collect_inline_stylesheets(source, tree)
-                .into_iter()
-                .flat_map(|stylesheet| {
-                    svg_references::collect_class_definitions_from_stylesheet(
-                        &stylesheet.css,
-                        stylesheet.start_row,
-                        stylesheet.start_col,
-                    )
-                })
-                .filter(|definition| definition.name == *target_class)
-                .map(|definition| named_span_location(uri.clone(), source, &definition))
-                .collect(),
-            svg_references::extract_xml_stylesheet_hrefs(source),
-        ),
-        svg_references::DefinitionTarget::CustomProperty(target_property) => (
-            svg_references::collect_inline_stylesheets(source, tree)
-                .into_iter()
-                .flat_map(|stylesheet| {
-                    svg_references::collect_custom_property_definitions_from_stylesheet(
-                        &stylesheet.css,
-                        stylesheet.start_row,
-                        stylesheet.start_col,
-                    )
-                })
-                .filter(|definition| definition.name == *target_property)
-                .map(|definition| named_span_location(uri.clone(), source, &definition))
-                .collect(),
-            svg_references::extract_xml_stylesheet_hrefs(source),
-        ),
-    }
-}
-
-fn stylesheet_definition_locations(
-    stylesheet: &CachedStylesheet,
-    target: &svg_references::DefinitionTarget,
-) -> Vec<Location> {
-    match target {
-        svg_references::DefinitionTarget::Class(target_class) => stylesheet
-            .class_definitions
-            .iter()
-            .filter(|definition| definition.name == *target_class)
-            .map(|definition| {
-                named_span_location(
-                    stylesheet.uri.clone(),
-                    stylesheet.source.as_bytes(),
-                    definition,
-                )
-            })
-            .collect(),
-        svg_references::DefinitionTarget::CustomProperty(target_property) => stylesheet
-            .custom_property_definitions
-            .iter()
-            .filter(|definition| definition.name == *target_property)
-            .map(|definition| {
-                named_span_location(
-                    stylesheet.uri.clone(),
-                    stylesheet.source.as_bytes(),
-                    definition,
-                )
-            })
-            .collect(),
-        svg_references::DefinitionTarget::Id(_) => Vec::new(),
     }
 }
 

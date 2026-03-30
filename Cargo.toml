@@ -45,6 +45,9 @@ path = "crates/svg-lint"
 [workspace.dependencies.svg-references]
 path = "crates/svg-references"
 
+[workspace.dependencies.svg-tree]
+path = "crates/svg-tree"
+
 [workspace.dependencies.tokio]
 version  = "1"
 features = ["io-std", "macros", "rt-multi-thread"]

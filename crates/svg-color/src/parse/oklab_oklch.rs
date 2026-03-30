@@ -1,0 +1,67 @@
+use super::{
+    OKLCH_ACHROMATIC_CHROMA_THRESHOLD, parse_hue_f64, parse_modern_alpha, space, split_modern_args,
+};
+
+pub(super) fn parse_oklab(rest: &str) -> Option<(f32, f32, f32, f32)> {
+    let (components, alpha) = split_modern_args(rest)?;
+    let l = parse_oklab_lightness(components[0])?;
+    let a = parse_oklab_axis(components[1])?;
+    let b = parse_oklab_axis(components[2])?;
+    let alpha = parse_modern_alpha(alpha)?;
+    space::oklab_to_srgb(l, a, b, alpha)
+}
+
+pub(super) fn parse_oklch(rest: &str) -> Option<(f32, f32, f32, f32)> {
+    let (components, alpha) = split_modern_args(rest)?;
+    let lightness = parse_oklab_lightness(components[0])?;
+    let chroma = parse_oklch_chroma(components[1])?;
+    let hue_angle = parse_oklch_hue(components[2])?;
+    let alpha = parse_modern_alpha(alpha)?;
+
+    let hue = if chroma <= OKLCH_ACHROMATIC_CHROMA_THRESHOLD {
+        0.0
+    } else {
+        hue_angle
+    };
+    let axis_a = chroma * hue.to_radians().cos();
+    let axis_b = chroma * hue.to_radians().sin();
+    space::oklab_to_srgb(lightness, axis_a, axis_b, alpha)
+}
+
+fn parse_oklab_lightness(s: &str) -> Option<f64> {
+    if s.eq_ignore_ascii_case("none") {
+        return Some(0.0);
+    }
+    let value = if let Some(percent) = s.strip_suffix('%') {
+        percent.trim().parse::<f64>().ok()? / 100.0
+    } else {
+        s.trim().parse::<f64>().ok()?
+    };
+    Some(value.clamp(0.0, 1.0))
+}
+
+fn parse_oklab_axis(s: &str) -> Option<f64> {
+    if s.eq_ignore_ascii_case("none") {
+        return Some(0.0);
+    }
+    if let Some(percent) = s.strip_suffix('%') {
+        return Some(percent.trim().parse::<f64>().ok()? * 0.4 / 100.0);
+    }
+    s.trim().parse::<f64>().ok()
+}
+
+fn parse_oklch_chroma(s: &str) -> Option<f64> {
+    if s.eq_ignore_ascii_case("none") {
+        return Some(0.0);
+    }
+    let value = if let Some(percent) = s.strip_suffix('%') {
+        percent.trim().parse::<f64>().ok()? * 0.4 / 100.0
+    } else {
+        s.trim().parse::<f64>().ok()?
+    };
+    Some(value.max(0.0))
+}
+
+fn parse_oklch_hue(s: &str) -> Option<f64> {
+    parse_hue_f64(s)
+}

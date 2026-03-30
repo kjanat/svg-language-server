@@ -34,7 +34,7 @@ install profile="release":
 
 # Install the svg-format bin to ~/.cargo/bin
 install-format profile="release":
-    cargo install --path crates/svg-format --bin svg-format --profile={{ profile }}
+    cargo install --path crates/svg-format --bin svg-format --features="cli" --profile={{ profile }}
 
 # Clippy all
 [arg("allow-dirty", long="allow-dirty", short="a", value=" --allow-dirty")]

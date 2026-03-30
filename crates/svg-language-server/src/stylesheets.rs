@@ -158,27 +158,27 @@ mod tests {
 
     use super::*;
 
+    type TestResult = std::result::Result<(), Box<dyn std::error::Error>>;
+
     #[test]
-    fn resolve_stylesheet_url_handles_relative_file_href() {
-        let base: Uri = "file:///tmp/example.svg".parse().expect("uri");
-        let resolved = resolve_stylesheet_url(&base, "styles/site.css").expect("resolved");
+    fn resolve_stylesheet_url_handles_relative_file_href() -> TestResult {
+        let base: Uri = "file:///tmp/example.svg".parse()?;
+        let resolved = resolve_stylesheet_url(&base, "styles/site.css").ok_or("resolved")?;
 
         assert_eq!(resolved.as_str(), "file:///tmp/styles/site.css");
+        Ok(())
     }
 
     #[test]
-    fn resolve_file_stylesheet_collects_class_definitions() {
-        let unique = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .expect("duration")
-            .as_nanos();
+    fn resolve_file_stylesheet_collects_class_definitions() -> TestResult {
+        let unique = SystemTime::now().duration_since(UNIX_EPOCH)?.as_nanos();
         let temp_dir = std::env::temp_dir().join(format!("svg-ls-style-{unique}"));
-        fs::create_dir_all(&temp_dir).expect("temp dir");
+        fs::create_dir_all(&temp_dir)?;
         let css_path = temp_dir.join("style.css");
-        fs::write(&css_path, ".uses-color { fill: red; }").expect("css written");
+        fs::write(&css_path, ".uses-color { fill: red; }")?;
 
-        let url = Url::from_file_path(&css_path).expect("file url");
-        let stylesheet = resolve_file_stylesheet(&url).expect("stylesheet");
+        let url = Url::from_file_path(&css_path).map_err(|()| "file url")?;
+        let stylesheet = resolve_file_stylesheet(&url).ok_or("stylesheet")?;
 
         assert_eq!(
             stylesheet
@@ -189,7 +189,8 @@ mod tests {
             vec!["uses-color"]
         );
 
-        fs::remove_file(&css_path).expect("cleanup css");
-        fs::remove_dir(&temp_dir).expect("cleanup dir");
+        fs::remove_file(&css_path)?;
+        fs::remove_dir(&temp_dir)?;
+        Ok(())
     }
 }

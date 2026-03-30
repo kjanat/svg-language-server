@@ -424,20 +424,24 @@ fn make_diag(
 
 #[cfg(test)]
 mod tests {
+    use std::error::Error;
+
     use tree_sitter::{Parser, Tree};
 
     use super::*;
 
-    fn parse_svg(source: &str) -> Tree {
+    fn parse_svg(source: &str) -> Result<Tree, Box<dyn Error>> {
         let mut parser = Parser::new();
         parser
             .set_language(&tree_sitter_svg::LANGUAGE.into())
-            .expect("SVG grammar");
-        parser.parse(source, None).expect("parse")
+            .map_err(|e| format!("SVG grammar: {e}"))?;
+        parser
+            .parse(source, None)
+            .ok_or("parse returned None".into())
     }
 
-    fn first_attribute_node<'a>(tree: &'a Tree) -> Node<'a> {
-        fn visit<'a>(node: Node<'a>) -> Option<Node<'a>> {
+    fn first_attribute_node(tree: &Tree) -> Result<Node<'_>, Box<dyn Error>> {
+        fn visit(node: Node<'_>) -> Option<Node<'_>> {
             if node.kind() == "attribute" {
                 return Some(node);
             }
@@ -451,22 +455,24 @@ mod tests {
             None
         }
 
-        visit(tree.root_node()).expect("expected an attribute node")
+        visit(tree.root_node()).ok_or("expected an attribute node".into())
     }
 
     #[test]
-    fn find_attr_name_matches_new_duration_attribute_kind() {
-        let tree = parse_svg(r#"<svg><animate dur="2s" /></svg>"#);
-        let attr = first_attribute_node(&tree);
-        let name = find_attr_name(attr).expect("duration attribute name");
+    fn find_attr_name_matches_new_duration_attribute_kind() -> Result<(), Box<dyn Error>> {
+        let tree = parse_svg(r#"<svg><animate dur="2s" /></svg>"#)?;
+        let attr = first_attribute_node(&tree)?;
+        let name = find_attr_name(attr).ok_or("duration attribute name")?;
         assert_eq!(name.kind(), "duration_attribute_name");
+        Ok(())
     }
 
     #[test]
-    fn find_attr_name_matches_new_stroke_dasharray_attribute_kind() {
-        let tree = parse_svg(r#"<svg><line stroke-dasharray="10 5" /></svg>"#);
-        let attr = first_attribute_node(&tree);
-        let name = find_attr_name(attr).expect("stroke-dasharray attribute name");
+    fn find_attr_name_matches_new_stroke_dasharray_attribute_kind() -> Result<(), Box<dyn Error>> {
+        let tree = parse_svg(r#"<svg><line stroke-dasharray="10 5" /></svg>"#)?;
+        let attr = first_attribute_node(&tree)?;
+        let name = find_attr_name(attr).ok_or("stroke-dasharray attribute name")?;
         assert_eq!(name.kind(), "stroke_dasharray_attribute_name");
+        Ok(())
     }
 }

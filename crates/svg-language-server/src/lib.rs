@@ -843,15 +843,17 @@ pub async fn run_stdio_server() {
 mod tests {
     use super::*;
 
-    fn offset_of(source: &str, needle: &str) -> usize {
-        source.find(needle).expect("needle present")
+    type TestResult = std::result::Result<(), Box<dyn std::error::Error>>;
+
+    fn offset_of(source: &str, needle: &str) -> std::result::Result<usize, &'static str> {
+        source.find(needle).ok_or("needle not present")
     }
 
     #[test]
     fn ascii_fixture_lengths_match_inline_probes() {
         assert_eq!(r#"<svg><rect height="32" /></svg>"#.len(), 31);
-        assert_eq!(r#"<svg><script>con</script></svg>"#.len(), 31);
-        assert_eq!(r#"<svg><rect></rect></svg>"#.len(), 24);
+        assert_eq!(r"<svg><script>con</script></svg>".len(), 31);
+        assert_eq!(r"<svg><rect></rect></svg>".len(), 24);
         assert_eq!(r#"<svg><use height="32" /></svg>"#.len(), 30);
         assert_eq!(
             r#"<svg><defs><linearGradient id="g1" /></defs><use href="" /></svg>"#.len(),
@@ -864,7 +866,7 @@ mod tests {
         let cases = [
             (r#"<svg><rect height="32" /></svg>"#, 22u32, 22usize),
             (r#"<svg><use height="32" /></svg>"#, 22u32, 22usize),
-            (r#"<svg><script>con</script></svg>"#, 15u32, 15usize),
+            (r"<svg><script>con</script></svg>", 15u32, 15usize),
             (
                 r#"<svg><defs><linearGradient id="g1" /></defs><use href="" /></svg>"#,
                 55u32,
@@ -888,14 +890,14 @@ mod tests {
     }
 
     #[test]
-    fn multiline_completion_probe_positions_match_inline_checks() {
+    fn multiline_completion_probe_positions_match_inline_checks() -> TestResult {
         let source = r#"<svg>
     <filter id="f1">
         <!-- Place cursor after < here -->
     </filter>
 </svg>"#;
         let position = Position::new(2, 33);
-        let expected_offset = offset_of(source, "< here") + 1;
+        let expected_offset = offset_of(source, "< here")? + 1;
 
         assert_eq!(
             byte_offset_for_position(source.as_bytes(), position),
@@ -907,81 +909,84 @@ mod tests {
             position,
             "multiline comment completion probe should round-trip"
         );
+        Ok(())
     }
 
     #[test]
-    fn copy_data_uri_code_action_uses_document_uri() {
-        let action = copy_data_uri_code_action(
-            &"file:///test.svg"
-                .parse::<Uri>()
-                .expect("valid document uri"),
-        );
+    fn copy_data_uri_code_action_uses_document_uri() -> TestResult {
+        let action = copy_data_uri_code_action(&"file:///test.svg".parse::<Uri>()?);
         let CodeActionOrCommand::CodeAction(action) = action else {
             panic!("expected code action");
         };
-        let command = action.command.expect("copy action should have a command");
+        let command = action.command.ok_or("copy action should have a command")?;
         let uri = command
             .arguments
-            .expect("copy action should have a uri")
+            .ok_or("copy action should have a uri")?
             .into_iter()
             .next()
-            .expect("copy action should include exactly one uri");
+            .ok_or("copy action should include exactly one uri")?;
 
         assert_eq!(command.command, COPY_DATA_URI_COMMAND);
         assert_eq!(uri.as_str(), Some("file:///test.svg"));
+        Ok(())
     }
 
     #[test]
-    fn goto_definition_target_resolves_paint_server_reference() {
+    fn goto_definition_target_resolves_paint_server_reference() -> TestResult {
         let source = r#"<svg><rect fill="url(#style-gradient)" /><linearGradient id="style-gradient" /></svg>"#;
-        let offset = offset_of(source, "style-gradient)") + 2;
+        let offset = offset_of(source, "style-gradient)")? + 2;
 
         assert_eq!(
             svg_references::definition_target_at(
                 source.as_bytes(),
-                &svg_references_test_tree(source),
+                &svg_references_test_tree(source)?,
                 offset,
             ),
             Some(svg_references::DefinitionTarget::Id(
                 "style-gradient".into()
             ))
         );
+        Ok(())
     }
 
     #[test]
-    fn goto_definition_target_does_not_resolve_url_wrapper() {
+    fn goto_definition_target_does_not_resolve_url_wrapper() -> TestResult {
         let source = r#"<svg><rect fill="url(#style-gradient)" /><linearGradient id="style-gradient" /></svg>"#;
-        let offset = offset_of(source, "url(") + 1;
+        let offset = offset_of(source, "url(")? + 1;
 
         assert_eq!(
             svg_references::definition_target_at(
                 source.as_bytes(),
-                &svg_references_test_tree(source),
+                &svg_references_test_tree(source)?,
                 offset,
             ),
             None
         );
+        Ok(())
     }
 
     #[test]
-    fn collect_id_definitions_matches_id_token() {
+    fn collect_id_definitions_matches_id_token() -> TestResult {
         let source = r#"<svg><rect fill="url(#style-gradient)" /><linearGradient id="style-gradient" /></svg>"#;
         let definitions = svg_references::collect_id_definitions(
             source.as_bytes(),
-            &svg_references_test_tree(source),
+            &svg_references_test_tree(source)?,
         );
         assert!(
             definitions
                 .iter()
                 .any(|definition| definition.name == "style-gradient")
         );
+        Ok(())
     }
 
-    fn svg_references_test_tree(source: &str) -> tree_sitter::Tree {
+    fn svg_references_test_tree(
+        source: &str,
+    ) -> std::result::Result<tree_sitter::Tree, &'static str> {
         let mut parser = tree_sitter::Parser::new();
         parser
             .set_language(&tree_sitter_svg::LANGUAGE.into())
-            .expect("SVG grammar");
-        parser.parse(source, None).expect("tree")
+            .map_err(|_| "SVG grammar")?;
+        parser.parse(source, None).ok_or("tree")
     }
 }

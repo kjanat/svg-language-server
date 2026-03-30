@@ -10,63 +10,68 @@ use serde_json::{Value, json};
 
 const TIMEOUT: Duration = Duration::from_secs(10);
 
-fn send_message(stdin: &mut impl Write, msg: &Value) {
-    let body = serde_json::to_string(msg).expect("serialize JSON-RPC message");
+type TestResult<T = ()> = std::result::Result<T, Box<dyn std::error::Error>>;
+
+fn send_message(stdin: &mut impl Write, msg: &Value) -> TestResult {
+    let body = serde_json::to_string(msg)?;
     let header = format!("Content-Length: {}\r\n\r\n", body.len());
-    stdin
-        .write_all(header.as_bytes())
-        .expect("write header to stdin");
-    stdin
-        .write_all(body.as_bytes())
-        .expect("write body to stdin");
-    stdin.flush().expect("flush stdin");
+    stdin.write_all(header.as_bytes())?;
+    stdin.write_all(body.as_bytes())?;
+    stdin.flush()?;
+    Ok(())
 }
 
-fn read_message(reader: &mut BufReader<impl std::io::Read>) -> Value {
+fn read_message(reader: &mut BufReader<impl std::io::Read>) -> TestResult<Value> {
     let mut content_length: Option<usize> = None;
 
     loop {
         let mut line = String::new();
-        reader.read_line(&mut line).expect("read header line");
+        reader.read_line(&mut line)?;
         let trimmed = line.trim();
         if trimmed.is_empty() {
             break;
         }
         if let Some(val) = trimmed.strip_prefix("Content-Length: ") {
-            content_length = Some(val.parse().expect("parse Content-Length"));
+            content_length = Some(val.parse()?);
         }
     }
 
-    let len = content_length.expect("Content-Length header missing");
+    let len = content_length.ok_or("Content-Length header missing")?;
     let mut buf = vec![0u8; len];
-    std::io::Read::read_exact(reader, &mut buf).expect("read message body");
-    serde_json::from_slice(&buf).expect("parse JSON body")
+    std::io::Read::read_exact(reader, &mut buf)?;
+    let value: Value = serde_json::from_slice(&buf)?;
+    Ok(value)
 }
 
-fn server_binary() -> &'static PathBuf {
+fn server_binary() -> TestResult<&'static PathBuf> {
     static BINARY: OnceLock<PathBuf> = OnceLock::new();
-    BINARY.get_or_init(|| {
-        let project_root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-            .parent()
-            .and_then(|p| p.parent())
-            .expect("resolve workspace root");
+    if let Some(path) = BINARY.get() {
+        return Ok(path);
+    }
 
-        let status = Command::new("cargo")
-            .args(["build", "-p", "svg-language-server"])
-            .current_dir(project_root)
-            .status()
-            .expect("run cargo build");
-        assert!(status.success(), "cargo build failed");
+    let project_root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .and_then(|p| p.parent())
+        .ok_or("cannot resolve workspace root")?;
 
-        let exe_name = if std::env::consts::EXE_EXTENSION.is_empty() {
-            "svg-language-server".to_string()
-        } else {
-            format!("svg-language-server.{}", std::env::consts::EXE_EXTENSION)
-        };
-        let binary = project_root.join("target/debug").join(exe_name);
-        assert!(binary.exists(), "binary not found at {}", binary.display());
-        binary
-    })
+    let status = Command::new("cargo")
+        .args(["build", "-p", "svg-language-server"])
+        .current_dir(project_root)
+        .status()?;
+    assert!(status.success(), "cargo build failed");
+
+    let exe_name = if std::env::consts::EXE_EXTENSION.is_empty() {
+        "svg-language-server".to_string()
+    } else {
+        format!("svg-language-server.{}", std::env::consts::EXE_EXTENSION)
+    };
+    let binary = project_root.join("target/debug").join(exe_name);
+    assert!(binary.exists(), "binary not found at {}", binary.display());
+
+    // If another thread raced us, `set` returns Err but the value is
+    // still present via `get`, so both paths are fine.
+    let _ = BINARY.set(binary);
+    BINARY.get().ok_or_else(|| "OnceLock was not set".into())
 }
 
 pub struct TestServer {
@@ -79,22 +84,20 @@ pub struct TestServer {
 }
 
 impl TestServer {
-    pub fn new() -> Self {
-        let mut child = Command::new(server_binary())
+    pub fn start() -> TestResult<Self> {
+        let mut child = Command::new(server_binary()?)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::null())
-            .spawn()
-            .expect("spawn svg-language-server");
+            .spawn()?;
 
-        let stdin = child.stdin.take().expect("take stdin");
-        let stdout = child.stdout.take().expect("take stdout");
+        let stdin = child.stdin.take().ok_or("take stdin")?;
+        let stdout = child.stdout.take().ok_or("take stdout")?;
 
         let (tx, rx) = std::sync::mpsc::channel::<Value>();
         let reader_thread = std::thread::spawn(move || {
             let mut reader = BufReader::new(stdout);
-            loop {
-                let msg = read_message(&mut reader);
+            while let Ok(msg) = read_message(&mut reader) {
                 if tx.send(msg).is_err() {
                     break;
                 }
@@ -112,46 +115,46 @@ impl TestServer {
 
         server.init_response = server.request(
             "initialize",
-            json!({
+            &json!({
                 "processId": null,
                 "rootUri": null,
                 "capabilities": {}
             }),
-        );
-        server.notify("initialized", json!({}));
-        server
+        )?;
+        server.notify("initialized", &json!({}))?;
+        Ok(server)
     }
 
-    pub fn notify(&mut self, method: &str, params: Value) {
+    pub fn notify(&mut self, method: &str, params: &Value) -> TestResult {
         send_message(
-            self.stdin.as_mut().expect("stdin available"),
+            self.stdin.as_mut().ok_or("stdin available")?,
             &json!({
                 "jsonrpc": "2.0",
                 "method": method,
-                "params": params,
+                "params": params.clone(),
             }),
-        );
+        )
     }
 
-    pub fn request(&mut self, method: &str, params: Value) -> Value {
+    pub fn request(&mut self, method: &str, params: &Value) -> TestResult<Value> {
         let id = self.next_id;
         self.next_id += 1;
         send_message(
-            self.stdin.as_mut().expect("stdin available"),
+            self.stdin.as_mut().ok_or("stdin available")?,
             &json!({
                 "jsonrpc": "2.0",
                 "id": id,
                 "method": method,
-                "params": params,
+                "params": params.clone(),
             }),
-        );
+        )?;
         self.recv_response(id)
     }
 
-    pub fn open(&mut self, uri: &str, text: &str) {
+    pub fn open(&mut self, uri: &str, text: &str) -> TestResult {
         self.notify(
             "textDocument/didOpen",
-            json!({
+            &json!({
                 "textDocument": {
                     "uri": uri,
                     "languageId": "svg",
@@ -159,19 +162,19 @@ impl TestServer {
                     "text": text
                 }
             }),
-        );
+        )
     }
 
-    pub fn shutdown_and_exit(&mut self) {
-        let response = self.request("shutdown", Value::Null);
+    pub fn shutdown_and_exit(&mut self) -> TestResult {
+        let response = self.request("shutdown", &Value::Null)?;
         assert!(
             response.get("result").is_some(),
             "shutdown should return a result: {response}"
         );
-        self.notify("exit", Value::Null);
+        self.notify("exit", &Value::Null)?;
 
         drop(self.stdin.take());
-        let status = self.child.wait().expect("wait for server process");
+        let status = self.child.wait()?;
         assert!(
             status.success(),
             "server exited with non-zero status: {status}"
@@ -180,19 +183,21 @@ impl TestServer {
         if let Some(reader_thread) = self.reader_thread.take() {
             let _ = reader_thread.join();
         }
+        Ok(())
     }
 
-    fn recv_response(&mut self, expected_id: u64) -> Value {
+    fn recv_response(&self, expected_id: u64) -> TestResult<Value> {
         let deadline = Instant::now() + TIMEOUT;
         loop {
             let remaining = deadline.saturating_duration_since(Instant::now());
-            if remaining.is_zero() {
-                panic!("timed out waiting for response with id {expected_id}");
-            }
+            assert!(
+                !remaining.is_zero(),
+                "timed out waiting for response with id {expected_id}"
+            );
             match self.rx.recv_timeout(remaining) {
                 Ok(msg) => {
                     if msg.get("id").and_then(Value::as_u64) == Some(expected_id) {
-                        return msg;
+                        return Ok(msg);
                     }
                 }
                 Err(std::sync::mpsc::RecvTimeoutError::Timeout) => {

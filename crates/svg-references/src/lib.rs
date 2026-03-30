@@ -419,40 +419,48 @@ fn parse_pi_attributes(content: &str) -> std::collections::HashMap<String, Strin
 
 #[cfg(test)]
 mod tests {
+    use std::error::Error;
+
     use super::*;
 
-    fn parse_svg(source: &str) -> Tree {
+    fn parse_svg(source: &str) -> Result<Tree, Box<dyn Error>> {
         let mut parser = Parser::new();
         parser
             .set_language(&tree_sitter_svg::LANGUAGE.into())
-            .expect("SVG grammar");
-        parser.parse(source, None).expect("tree")
+            .map_err(|e| format!("SVG grammar: {e}"))?;
+        parser
+            .parse(source, None)
+            .ok_or("parse returned None".into())
     }
 
-    fn offset_of(source: &str, needle: &str) -> usize {
-        source.find(needle).expect("needle present")
+    fn offset_of(source: &str, needle: &str) -> Result<usize, Box<dyn Error>> {
+        source
+            .find(needle)
+            .ok_or_else(|| format!("needle {needle:?} not found").into())
     }
 
     #[test]
-    fn definition_target_uses_clicked_class_only() {
+    fn definition_target_uses_clicked_class_only() -> Result<(), Box<dyn Error>> {
         let source = r#"<svg><rect class="a b c"/></svg>"#;
-        let tree = parse_svg(source);
-        let target = definition_target_at(source.as_bytes(), &tree, offset_of(source, "b c"));
+        let tree = parse_svg(source)?;
+        let target = definition_target_at(source.as_bytes(), &tree, offset_of(source, "b c")?);
         assert_eq!(target, Some(DefinitionTarget::Class("b".into())));
+        Ok(())
     }
 
     #[test]
-    fn definition_target_ignores_class_whitespace() {
+    fn definition_target_ignores_class_whitespace() -> Result<(), Box<dyn Error>> {
         let source = r#"<svg><rect class="a b c"/></svg>"#;
-        let tree = parse_svg(source);
-        let offset = offset_of(source, "a b c") + 1;
+        let tree = parse_svg(source)?;
+        let offset = offset_of(source, "a b c")? + 1;
         assert_eq!(definition_target_at(source.as_bytes(), &tree, offset), None);
+        Ok(())
     }
 
     #[test]
-    fn collects_inline_styles_and_css_classes() {
-        let source = r#"<svg><style>.a,.b:hover,.c.d{fill:red}</style></svg>"#;
-        let tree = parse_svg(source);
+    fn collects_inline_styles_and_css_classes() -> Result<(), Box<dyn Error>> {
+        let source = r"<svg><style>.a,.b:hover,.c.d{fill:red}</style></svg>";
+        let tree = parse_svg(source)?;
         let styles = collect_inline_stylesheets(source.as_bytes(), &tree);
         assert_eq!(styles.len(), 1);
         let defs = collect_class_definitions_from_stylesheet(
@@ -462,6 +470,7 @@ mod tests {
         );
         let names: Vec<_> = defs.into_iter().map(|d| d.name).collect();
         assert_eq!(names, vec!["a", "b", "c", "d"]);
+        Ok(())
     }
 
     #[test]
@@ -482,15 +491,17 @@ mod tests {
     }
 
     #[test]
-    fn definition_target_resolves_custom_property_reference_in_style() {
-        let source = r#"<svg><style>:root { --panel-bg: red; } .var-alpha { fill: var(--panel-bg); }</style></svg>"#;
-        let tree = parse_svg(source);
-        let offset = offset_of(source, "--panel-bg);") + 2;
+    fn definition_target_resolves_custom_property_reference_in_style() -> Result<(), Box<dyn Error>>
+    {
+        let source = r"<svg><style>:root { --panel-bg: red; } .var-alpha { fill: var(--panel-bg); }</style></svg>";
+        let tree = parse_svg(source)?;
+        let offset = offset_of(source, "--panel-bg);")? + 2;
 
         assert_eq!(
             definition_target_at(source.as_bytes(), &tree, offset),
             Some(DefinitionTarget::CustomProperty("--panel-bg".into()))
         );
+        Ok(())
     }
 
     #[test]

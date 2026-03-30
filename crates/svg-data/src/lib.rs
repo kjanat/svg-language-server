@@ -94,14 +94,17 @@ pub const fn elements_in_category(cat: ElementCategory) -> &'static [&'static st
 
 #[cfg(test)]
 mod tests {
+    use std::error::Error;
+
     use super::*;
 
     #[test]
-    fn element_lookup() {
-        let rect = element("rect").expect("rect should exist");
+    fn element_lookup() -> Result<(), Box<dyn Error>> {
+        let rect = element("rect").ok_or("rect should exist")?;
         assert_eq!(rect.name, "rect");
         assert!(!rect.deprecated);
         assert!(matches!(rect.content_model, ContentModel::Void));
+        Ok(())
     }
 
     #[test]
@@ -110,19 +113,21 @@ mod tests {
     }
 
     #[test]
-    fn text_content_model() {
-        let text = element("text").expect("text should exist");
+    fn text_content_model() -> Result<(), Box<dyn Error>> {
+        let text = element("text").ok_or("text should exist")?;
         assert!(matches!(text.content_model, ContentModel::Children(_)));
+        Ok(())
     }
 
     #[test]
-    fn foreign_object_content_model() {
-        let foreign_object = element("foreignObject").expect("foreignObject should exist");
+    fn foreign_object_content_model() -> Result<(), Box<dyn Error>> {
+        let foreign_object = element("foreignObject").ok_or("foreignObject should exist")?;
         assert!(matches!(
             foreign_object.content_model,
             ContentModel::Foreign
         ));
         assert!(allows_foreign_children("foreignObject"));
+        Ok(())
     }
 
     #[test]
@@ -139,16 +144,18 @@ mod tests {
     }
 
     #[test]
-    fn attribute_lookup() {
-        let fill = attribute("fill").expect("fill should exist");
+    fn attribute_lookup() -> Result<(), Box<dyn Error>> {
+        let fill = attribute("fill").ok_or("fill should exist")?;
         assert!(matches!(fill.values, AttributeValues::Color));
+        Ok(())
     }
 
     #[test]
-    fn attribute_d_on_path() {
-        let d = attribute("d").expect("d should exist");
+    fn attribute_d_on_path() -> Result<(), Box<dyn Error>> {
+        let d = attribute("d").ok_or("d should exist")?;
         assert!(d.elements.contains(&"path"));
         assert!(matches!(d.values, AttributeValues::PathData));
+        Ok(())
     }
 
     #[test]

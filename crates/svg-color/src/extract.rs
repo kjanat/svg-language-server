@@ -308,9 +308,9 @@ mod tests {
         let src = b"<svg><rect fill=\"#ff0000\"/></svg>";
         let colors = extract_colors(src);
         assert_eq!(colors.len(), 1);
-        assert_eq!(colors[0].r, 1.0);
-        assert_eq!(colors[0].g, 0.0);
-        assert_eq!(colors[0].b, 0.0);
+        assert!((colors[0].r - 1.0).abs() < f32::EPSILON);
+        assert!((colors[0].g - 0.0).abs() < f32::EPSILON);
+        assert!((colors[0].b - 0.0).abs() < f32::EPSILON);
         assert_eq!(colors[0].kind, ColorKind::Hex);
     }
 
@@ -319,7 +319,7 @@ mod tests {
         let src = b"<svg><circle stroke=\"red\"/></svg>";
         let colors = extract_colors(src);
         assert_eq!(colors.len(), 1);
-        assert_eq!(colors[0].r, 1.0);
+        assert!((colors[0].r - 1.0).abs() < f32::EPSILON);
         assert_eq!(colors[0].kind, ColorKind::Named);
     }
 
@@ -336,7 +336,7 @@ mod tests {
         let src = b"<svg><rect fill=\"url(#grad) #00ff00\"/></svg>";
         let colors = extract_colors(src);
         assert_eq!(colors.len(), 1);
-        assert_eq!(colors[0].g, 1.0);
+        assert!((colors[0].g - 1.0).abs() < f32::EPSILON);
     }
 
     #[test]
@@ -359,7 +359,7 @@ mod tests {
         let colors = extract_colors(src);
         assert_eq!(colors.len(), 1);
         assert_eq!(colors[0].kind, ColorKind::Named);
-        assert_eq!(colors[0].a, 0.0);
+        assert!(colors[0].a.abs() < f32::EPSILON);
     }
 
     #[test]
@@ -374,7 +374,7 @@ mod tests {
         let src = b"<svg><!-- fill=\"#ff0000\" --><rect fill=\"blue\"/></svg>";
         let colors = extract_colors(src);
         assert_eq!(colors.len(), 1);
-        assert_eq!(colors[0].b, 1.0); // blue, not the comment's red
+        assert!((colors[0].b - 1.0).abs() < f32::EPSILON); // blue, not the comment's red
     }
 
     #[test]
@@ -385,12 +385,13 @@ mod tests {
     }
 
     #[test]
-    fn byte_range_correct() {
+    fn byte_range_correct() -> Result<(), Box<dyn std::error::Error>> {
         let src = b"<svg><rect fill=\"#ff0000\"/></svg>";
         let colors = extract_colors(src);
         assert_eq!(colors.len(), 1);
-        let color_text = std::str::from_utf8(&src[colors[0].byte_range.clone()]).unwrap();
+        let color_text = std::str::from_utf8(&src[colors[0].byte_range.clone()])?;
         assert_eq!(color_text, "#ff0000");
+        Ok(())
     }
 
     #[test]
@@ -402,7 +403,7 @@ mod tests {
 
     #[test]
     fn colors_inside_style_element() {
-        let src = br#"<svg><style>rect { fill: #ff0000; stroke: rgb(0 128 255 / 50%); color: red; background-color: oklch(0.627966 0.257704 29.2346); outline-color: oklab(62.7966% 0.22488 0.125859); border-color: hwb(120 0% 0%); text-decoration-color: lab(29.2345% 39.3825 20.0664); column-rule-color: lch(29.2345% 44.2 27); }</style></svg>"#;
+        let src = br"<svg><style>rect { fill: #ff0000; stroke: rgb(0 128 255 / 50%); color: red; background-color: oklch(0.627966 0.257704 29.2346); outline-color: oklab(62.7966% 0.22488 0.125859); border-color: hwb(120 0% 0%); text-decoration-color: lab(29.2345% 39.3825 20.0664); column-rule-color: lch(29.2345% 44.2 27); }</style></svg>";
         let colors = extract_colors(src);
         assert_eq!(colors.len(), 8);
         assert_eq!(colors[0].kind, ColorKind::Hex);
@@ -416,48 +417,47 @@ mod tests {
     }
 
     #[test]
-    fn non_color_css_plain_values_are_ignored() {
+    fn non_color_css_plain_values_are_ignored() -> Result<(), Box<dyn std::error::Error>> {
         let src =
-            br#"<svg><style>rect { display: block; animation-name: red; fill: red; }</style></svg>"#;
+            br"<svg><style>rect { display: block; animation-name: red; fill: red; }</style></svg>";
         let colors = extract_colors(src);
         assert_eq!(colors.len(), 1);
         assert_eq!(colors[0].kind, ColorKind::Named);
-        let color_text = std::str::from_utf8(&src[colors[0].byte_range.clone()]).unwrap();
+        let color_text = std::str::from_utf8(&src[colors[0].byte_range.clone()])?;
         assert_eq!(color_text, "red");
+        Ok(())
     }
 
     #[test]
-    fn style_color_byte_range_and_position_are_absolute() {
+    fn style_color_byte_range_and_position_are_absolute() -> Result<(), Box<dyn std::error::Error>>
+    {
         let src = b"<svg>\n<style>\nrect {\n  fill: red;\n}\n</style>\n</svg>";
         let colors = extract_colors(src);
         assert_eq!(colors.len(), 1);
         let color = &colors[0];
-        assert_eq!(
-            std::str::from_utf8(&src[color.byte_range.clone()]).unwrap(),
-            "red"
-        );
+        assert_eq!(std::str::from_utf8(&src[color.byte_range.clone()])?, "red");
         assert_eq!(color.start_row, 3);
         assert_eq!(color.start_col, 8);
         assert_eq!(color.end_row, 3);
         assert_eq!(color.end_col, 11);
+        Ok(())
     }
 
     #[test]
-    fn css_custom_properties_and_color_mix_are_resolved() {
-        let src = br#"<svg><style>:root { --base: oklch(22.84% 0.038 283); --toolbar-bg: color-mix(in oklch, var(--base), white 8%); } rect { fill: var(--toolbar-bg); stroke: var(--base); }</style></svg>"#;
+    fn css_custom_properties_and_color_mix_are_resolved() -> Result<(), Box<dyn std::error::Error>>
+    {
+        let src = br"<svg><style>:root { --base: oklch(22.84% 0.038 283); --toolbar-bg: color-mix(in oklch, var(--base), white 8%); } rect { fill: var(--toolbar-bg); stroke: var(--base); }</style></svg>";
         let colors = extract_colors(src);
         assert_eq!(colors.len(), 4);
 
         let mut by_text = HashMap::new();
         for color in &colors {
-            by_text.insert(
-                std::str::from_utf8(&src[color.byte_range.clone()]).unwrap(),
-                color,
-            );
+            by_text.insert(std::str::from_utf8(&src[color.byte_range.clone()])?, color);
         }
 
-        let base = parse::functional("oklch(22.84% 0.038 283)").unwrap();
-        let mixed = parse::mix_colors("oklch", base, 0.92, (1.0, 1.0, 1.0, 1.0), 0.08).unwrap();
+        let base = parse::functional("oklch(22.84% 0.038 283)").ok_or("parse failed")?;
+        let mixed = parse::mix_colors("oklch", base, 0.92, (1.0, 1.0, 1.0, 1.0), 0.08)
+            .ok_or("mix failed")?;
 
         let base_decl = by_text["oklch(22.84% 0.038 283)"];
         assert!((base_decl.r - base.0).abs() < 0.02);
@@ -477,25 +477,29 @@ mod tests {
         assert!((stroke_ref.r - base.0).abs() < 0.02);
         assert!((stroke_ref.g - base.1).abs() < 0.02);
         assert!((stroke_ref.b - base.2).abs() < 0.02);
+        Ok(())
     }
 
     #[test]
-    fn color_mix_with_transparent_preserves_base_hue() {
-        let src = br#"<svg><style>:root { --base: oklch(22.84% 0.038 283); --panel-bg: color-mix(in oklch, var(--base) 96%, transparent); } rect { fill: var(--panel-bg); }</style></svg>"#;
+    fn color_mix_with_transparent_preserves_base_hue() -> Result<(), Box<dyn std::error::Error>> {
+        let src = br"<svg><style>:root { --base: oklch(22.84% 0.038 283); --panel-bg: color-mix(in oklch, var(--base) 96%, transparent); } rect { fill: var(--panel-bg); }</style></svg>";
         let colors = extract_colors(src);
 
         let fill_ref = colors
             .iter()
             .find(|color| {
-                std::str::from_utf8(&src[color.byte_range.clone()]).unwrap() == "var(--panel-bg)"
+                std::str::from_utf8(&src[color.byte_range.clone()])
+                    .ok()
+                    .is_some_and(|t| t == "var(--panel-bg)")
             })
-            .expect("resolved panel color");
-        let base = parse::functional("oklch(22.84% 0.038 283)").unwrap();
+            .ok_or("resolved panel color not found")?;
+        let base = parse::functional("oklch(22.84% 0.038 283)").ok_or("parse failed")?;
 
         assert!((fill_ref.r - base.0).abs() < 0.03);
         assert!((fill_ref.g - base.1).abs() < 0.03);
         assert!((fill_ref.b - base.2).abs() < 0.03);
         assert!(fill_ref.a < 1.0);
         assert!(fill_ref.a > 0.9);
+        Ok(())
     }
 }

@@ -169,7 +169,9 @@ fn text_content_default_is_maintain() {
 
 #[test]
 fn format_with_host_delegates_style_content() {
-    let input = "<svg><style>.a{fill:red}</style></svg>";
+    let css_body = "{fill:red}";
+    let input = format!("<svg><style>.a{css_body}</style></svg>");
+    let input = input.as_str();
     let mut called_lang = None;
     let mut called_content = None;
     let result = format_with_host(input, FormatOptions::default(), &mut |req| {
@@ -178,7 +180,8 @@ fn format_with_host_delegates_style_content() {
         Some(".a {\n  fill: red;\n}".to_string())
     });
     assert_eq!(called_lang, Some(EmbeddedLanguage::Css));
-    assert_eq!(called_content.as_deref(), Some(".a{fill:red}"));
+    let expected_css = [".a", css_body].concat();
+    assert_eq!(called_content.as_deref(), Some(expected_css.as_str()));
     assert_eq!(
         result,
         "<svg>\n\t<style>\n\t\t.a {\n\t\t  fill: red;\n\t\t}\n\t</style>\n</svg>"

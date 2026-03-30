@@ -16,8 +16,6 @@ fn lint_diagnostic_to_lsp(source: &[u8], diagnostic: svg_lint::SvgDiagnostic) ->
     let tags = match diagnostic.code {
         svg_lint::DiagnosticCode::DeprecatedElement
         | svg_lint::DiagnosticCode::DeprecatedAttribute => Some(vec![DiagnosticTag::DEPRECATED]),
-        svg_lint::DiagnosticCode::ExperimentalElement
-        | svg_lint::DiagnosticCode::ExperimentalAttribute => None,
         _ => None,
     };
 

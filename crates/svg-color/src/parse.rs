@@ -269,7 +269,7 @@ mod tests {
     fn hex_4_digit_alpha() {
         assert_eq!(
             parse_hex("#f008"),
-            Some((1.0, 0.0, 0.0, 0x88 as f32 / 255.0))
+            Some((1.0, 0.0, 0.0, f32::from(0x88_u8) / 255.0))
         );
     }
 
@@ -320,10 +320,11 @@ mod tests {
     }
 
     #[test]
-    fn rgba_with_alpha() {
-        let result = parse_functional("rgba(255, 0, 0, 50%)").unwrap();
+    fn rgba_with_alpha() -> Result<(), Box<dyn std::error::Error>> {
+        let result = parse_functional("rgba(255, 0, 0, 50%)").ok_or("parse failed")?;
         assert!((result.0 - 1.0).abs() < 0.01);
         assert!((result.3 - 0.5).abs() < 0.01);
+        Ok(())
     }
 
     #[test]
@@ -335,96 +336,110 @@ mod tests {
     }
 
     #[test]
-    fn hsl_basic() {
-        let result = parse_functional("hsl(0, 100%, 50%)").unwrap();
+    fn hsl_basic() -> Result<(), Box<dyn std::error::Error>> {
+        let result = parse_functional("hsl(0, 100%, 50%)").ok_or("parse failed")?;
         assert!((result.0 - 1.0).abs() < 0.02);
         assert!(result.1 < 0.02);
         assert!(result.2 < 0.02);
+        Ok(())
     }
 
     #[test]
-    fn modern_hsl_space_separated() {
-        let result = parse_functional("hsl(120deg 100% 50% / 25%)").unwrap();
+    fn modern_hsl_space_separated() -> Result<(), Box<dyn std::error::Error>> {
+        let result = parse_functional("hsl(120deg 100% 50% / 25%)").ok_or("parse failed")?;
         assert!(result.0 < 0.02);
         assert!((result.1 - 1.0).abs() < 0.02);
         assert!(result.2 < 0.02);
         assert!((result.3 - 0.25).abs() < 0.01);
+        Ok(())
     }
 
     #[test]
-    fn hsl_green() {
-        let result = parse_functional("hsl(120, 100%, 50%)").unwrap();
+    fn hsl_green() -> Result<(), Box<dyn std::error::Error>> {
+        let result = parse_functional("hsl(120, 100%, 50%)").ok_or("parse failed")?;
         assert!(result.0 < 0.02);
         assert!((result.1 - 1.0).abs() < 0.02);
         assert!(result.2 < 0.02);
+        Ok(())
     }
 
     #[test]
-    fn hsla_with_alpha() {
-        let result = parse_functional("hsla(0, 100%, 50%, 0.5)").unwrap();
+    fn hsla_with_alpha() -> Result<(), Box<dyn std::error::Error>> {
+        let result = parse_functional("hsla(0, 100%, 50%, 0.5)").ok_or("parse failed")?;
         assert!((result.3 - 0.5).abs() < 0.01);
+        Ok(())
     }
 
     #[test]
-    fn hwb_green() {
-        let result = parse_functional("hwb(120 0% 0%)").unwrap();
+    fn hwb_green() -> Result<(), Box<dyn std::error::Error>> {
+        let result = parse_functional("hwb(120 0% 0%)").ok_or("parse failed")?;
         assert_rgb_close(result, (0.0, 1.0, 0.0, 1.0), 0.02);
+        Ok(())
     }
 
     #[test]
-    fn hwb_achromatic() {
-        let result = parse_functional("hwb(45 40% 80%)").unwrap();
+    fn hwb_achromatic() -> Result<(), Box<dyn std::error::Error>> {
+        let result = parse_functional("hwb(45 40% 80%)").ok_or("parse failed")?;
         assert!((result.0 - result.1).abs() < 0.001);
         assert!((result.1 - result.2).abs() < 0.001);
         assert!((result.0 - (40.0 / 120.0)).abs() < 0.02);
+        Ok(())
     }
 
     #[test]
-    fn lab_and_lch_equivalent() {
-        let lab = parse_functional("lab(29.2345% 39.3825 20.0664)").unwrap();
-        let lch = parse_functional("lch(29.2345% 44.2 27)").unwrap();
+    fn lab_and_lch_equivalent() -> Result<(), Box<dyn std::error::Error>> {
+        let lab = parse_functional("lab(29.2345% 39.3825 20.0664)").ok_or("parse failed")?;
+        let lch = parse_functional("lch(29.2345% 44.2 27)").ok_or("parse failed")?;
         assert_rgb_close(lab, lch, 0.02);
+        Ok(())
     }
 
     #[test]
-    fn lab_none_components_map_to_gray() {
-        let result = parse_functional("lab(50% none none / 50%)").unwrap();
+    fn lab_none_components_map_to_gray() -> Result<(), Box<dyn std::error::Error>> {
+        let result = parse_functional("lab(50% none none / 50%)").ok_or("parse failed")?;
         assert!((result.0 - result.1).abs() < 0.001);
         assert!((result.1 - result.2).abs() < 0.001);
         assert!((result.3 - 0.5).abs() < 0.01);
+        Ok(())
     }
 
     #[test]
-    fn lch_achromatic_none_hue_is_gray() {
-        let result = parse_functional("lch(50% 0 none)").unwrap();
+    fn lch_achromatic_none_hue_is_gray() -> Result<(), Box<dyn std::error::Error>> {
+        let result = parse_functional("lch(50% 0 none)").ok_or("parse failed")?;
         assert!((result.0 - result.1).abs() < 0.001);
         assert!((result.1 - result.2).abs() < 0.001);
+        Ok(())
     }
 
     #[test]
-    fn oklch_red_round_trip() {
-        let result = parse_functional("oklch(0.627966 0.257704 29.2346)").unwrap();
+    fn oklch_red_round_trip() -> Result<(), Box<dyn std::error::Error>> {
+        let result = parse_functional("oklch(0.627966 0.257704 29.2346)").ok_or("parse failed")?;
         assert_rgb_close(result, (1.0, 0.0, 0.0, 1.0), 0.02);
+        Ok(())
     }
 
     #[test]
-    fn oklab_red_round_trip() {
-        let result = parse_functional("oklab(62.7966% 0.22488 0.125859)").unwrap();
+    fn oklab_red_round_trip() -> Result<(), Box<dyn std::error::Error>> {
+        let result = parse_functional("oklab(62.7966% 0.22488 0.125859)").ok_or("parse failed")?;
         assert_rgb_close(result, (1.0, 0.0, 0.0, 1.0), 0.02);
+        Ok(())
     }
 
     #[test]
-    fn oklab_percentage_axes_round_trip() {
-        let result = parse_functional("oklab(62.7966% 56.22% 31.46475% / 50%)").unwrap();
+    fn oklab_percentage_axes_round_trip() -> Result<(), Box<dyn std::error::Error>> {
+        let result =
+            parse_functional("oklab(62.7966% 56.22% 31.46475% / 50%)").ok_or("parse failed")?;
         assert_rgb_close(result, (1.0, 0.0, 0.0, 0.5), 0.02);
+        Ok(())
     }
 
     #[test]
-    fn oklch_achromatic_none_hue_is_gray() {
-        let result = parse_functional("oklch(59.99% 0 none)").unwrap();
+    fn oklch_achromatic_none_hue_is_gray() -> Result<(), Box<dyn std::error::Error>> {
+        let result = parse_functional("oklch(59.99% 0 none)").ok_or("parse failed")?;
         assert!((result.0 - result.1).abs() < 0.001);
         assert!((result.1 - result.2).abs() < 0.001);
         assert!((result.0 - (128.0 / 255.0)).abs() < 0.02);
+        Ok(())
     }
 
     #[test]
@@ -436,28 +451,34 @@ mod tests {
     }
 
     #[test]
-    fn oklch_hue_units_are_supported() {
-        let deg = parse_functional("oklch(0.627966 0.257704 29.2346)").unwrap();
-        let turn = parse_functional("oklch(0.627966 0.257704 0.0812072222turn)").unwrap();
-        let rad = parse_functional("oklch(0.627966 0.257704 0.510239rad)").unwrap();
+    fn oklch_hue_units_are_supported() -> Result<(), Box<dyn std::error::Error>> {
+        let deg = parse_functional("oklch(0.627966 0.257704 29.2346)").ok_or("parse failed")?;
+        let turn =
+            parse_functional("oklch(0.627966 0.257704 0.0812072222turn)").ok_or("parse failed")?;
+        let rad = parse_functional("oklch(0.627966 0.257704 0.510239rad)").ok_or("parse failed")?;
         assert_rgb_close(deg, turn, 0.01);
         assert_rgb_close(deg, rad, 0.02);
+        Ok(())
     }
 
     #[test]
-    fn mix_colors_oklch_lightens_toward_white() {
-        let base = parse_functional("oklch(22.84% 0.038 283)").unwrap();
-        let mixed = mix_colors("oklch", base, 0.92, (1.0, 1.0, 1.0, 1.0), 0.08).unwrap();
+    fn mix_colors_oklch_lightens_toward_white() -> Result<(), Box<dyn std::error::Error>> {
+        let base = parse_functional("oklch(22.84% 0.038 283)").ok_or("parse failed")?;
+        let mixed =
+            mix_colors("oklch", base, 0.92, (1.0, 1.0, 1.0, 1.0), 0.08).ok_or("mix failed")?;
         assert!(mixed.0 > base.0);
         assert!(mixed.1 > base.1);
         assert!(mixed.2 > base.2);
+        Ok(())
     }
 
     #[test]
-    fn mix_colors_oklch_with_transparent_reduces_alpha() {
-        let base = parse_functional("oklch(22.84% 0.038 283)").unwrap();
-        let mixed = mix_colors("oklch", base, 0.96, (0.0, 0.0, 0.0, 0.0), 0.04).unwrap();
+    fn mix_colors_oklch_with_transparent_reduces_alpha() -> Result<(), Box<dyn std::error::Error>> {
+        let base = parse_functional("oklch(22.84% 0.038 283)").ok_or("parse failed")?;
+        let mixed =
+            mix_colors("oklch", base, 0.96, (0.0, 0.0, 0.0, 0.0), 0.04).ok_or("mix failed")?;
         assert_rgb_close(mixed, (base.0, base.1, base.2, 0.96), 0.04);
+        Ok(())
     }
 
     #[test]

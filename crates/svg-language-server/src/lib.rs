@@ -551,7 +551,7 @@ impl LanguageServer for SvgLanguageServer {
 
         let options = svg_format::FormatOptions {
             indent_width: params.options.tab_size as usize,
-            insert_spaces: false,
+            insert_spaces: params.options.insert_spaces,
             ..Default::default()
         };
         let formatted = svg_format::format_with_options(&doc.source, options);

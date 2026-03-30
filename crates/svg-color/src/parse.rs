@@ -330,13 +330,13 @@ fn parse_hue(s: &str) -> Option<f32> {
         return v.trim().parse::<f32>().ok();
     }
     if let Some(v) = strip_suffix_ci(s, "grad") {
-        return Some(v.trim().parse::<f32>().ok()?.mul_add(0.9, 0.0));
+        return Some(v.trim().parse::<f32>().ok()? * 0.9);
     }
     if let Some(v) = strip_suffix_ci(s, "rad") {
         return Some(v.trim().parse::<f32>().ok()? * (180.0 / std::f32::consts::PI));
     }
     if let Some(v) = strip_suffix_ci(s, "turn") {
-        return Some(v.trim().parse::<f32>().ok()?.mul_add(360.0, 0.0));
+        return Some(v.trim().parse::<f32>().ok()? * 360.0);
     }
 
     s.parse::<f32>().ok()

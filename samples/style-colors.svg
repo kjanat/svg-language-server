@@ -8,83 +8,67 @@
 			--panel-bg: color-mix(in oklch, var(--base) 96%, transparent);
 		}
 
-
 		.label {
 			fill: #223040;
 			font: 600 18px monospace;
 		}
-
 
 		.subtle {
 			fill: #5c7085;
 			font: 14px monospace;
 		}
 
-
 		.hex-6 {
 			fill: #ff6b35;
 		}
-
 
 		.hex-3 {
 			fill: #0bf;
 		}
 
-
 		.hex-8 {
 			fill: #2a9d8f99;
 		}
-
 
 		.rgb {
 			fill: rgb(255 99 71);
 		}
 
-
 		.rgba {
 			fill: rgb(0 128 255 / 0.55);
 		}
-
 
 		.hsl {
 			fill: hsl(210 80% 50%);
 		}
 
-
 		.hsla {
 			fill: hsl(340 70% 55% / 0.8);
 		}
-
 
 		.named {
 			fill: mediumseagreen;
 		}
 
-
 		.oklab {
 			fill: oklab(62% 0.16 0.08);
 		}
-
 
 		.oklch {
 			fill: oklch(72% 0.19 320);
 		}
 
-
 		.hwb {
 			fill: hwb(120 15% 10%);
 		}
-
 
 		.lab {
 			fill: lab(60% -5.3654 58.956);
 		}
 
-
 		.lch {
 			fill: lch(62.2345% 59.2 126.2);
 		}
-
 
 		.transparent-fill {
 			fill: transparent;
@@ -93,13 +77,11 @@
 			stroke-dasharray: 8 6;
 		}
 
-
 		.stroke-only {
 			fill: none;
 			stroke: darkorange;
 			stroke-width: 8;
 		}
-
 
 		.uses-color {
 			color: rebeccapurple;
@@ -107,21 +89,17 @@
 			font: 700 28px monospace;
 		}
 
-
 		.gradient-start {
 			stop-color: gold;
 		}
-
 
 		.gradient-mid {
 			stop-color: rgb(0, 200, 140);
 		}
 
-
 		.gradient-end {
 			stop-color: #7c3aed;
 		}
-
 
 		.panel {
 			fill: #f7fafc;
@@ -129,16 +107,13 @@
 			stroke-width: 2;
 		}
 
-
 		.var-base {
 			fill: var(--base);
 		}
 
-
 		.var-mix {
 			fill: var(--toolbar-bg);
 		}
-
 
 		.var-alpha {
 			fill: var(--panel-bg);
@@ -146,18 +121,15 @@
 			stroke-width: 3;
 		}
 
-
 		.ignore-me {
 			display: block;
 			animation-name: red;
 		}
 
-
 		@media (prefers-color-scheme: dark) {
 			.hex-6 {
 				fill: #ffd166;
 			}
-
 
 			.uses-color {
 				color: plum;

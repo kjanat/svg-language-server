@@ -76,7 +76,6 @@
 			}
 		}
 
-
 		function createTargetPattern(svg, centerX, centerY, radius, density, spreadType, label) {
 			const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
 			group.setAttribute("transform", `translate(${centerX},${centerY})`);
@@ -100,7 +99,6 @@
 			innerRedCircle.setAttribute("fill", "#FF5733");
 			group.appendChild(innerRedCircle);
 
-
 			generateSpreadPattern(group, 0, 0, radius, density, spreadType);
 			const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
 			text.setAttribute("x", "0");
@@ -113,7 +111,6 @@
 			text.textContent = label;
 			group.appendChild(text);
 		}
-
 
 		document.addEventListener("DOMContentLoaded", function() {
 			const svg = document.querySelector("svg");

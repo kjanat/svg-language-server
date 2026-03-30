@@ -728,11 +728,22 @@ impl<'a> Formatter<'a> {
 
     /// Write pre-formatted text, re-indented to the given depth.
     /// Preserves the content's internal indentation structure.
-    /// Consecutive blank lines are normalized per the `blank_lines` option.
+    /// Leading/trailing blank lines are stripped; interior consecutive
+    /// blank lines are normalized per the `blank_lines` option.
     fn write_indented_block(&mut self, text: &str, depth: usize) {
+        let lines: Vec<&str> = text.lines().collect();
+        let Some(first) = lines.iter().position(|l| !l.trim().is_empty()) else {
+            return;
+        };
+        let last = lines
+            .iter()
+            .rposition(|l| !l.trim().is_empty())
+            .unwrap_or(first);
+        let block = &lines[first..=last];
+
         let indent = self.indent(depth);
         let mut consecutive_blank = 0usize;
-        for line in text.lines() {
+        for line in block {
             if line.trim().is_empty() {
                 consecutive_blank += 1;
                 if self.should_emit_embedded_blank(consecutive_blank) {

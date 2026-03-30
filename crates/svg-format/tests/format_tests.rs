@@ -410,6 +410,23 @@ fn blank_lines_truncate_collapses_in_host_formatted_block() {
 }
 
 #[test]
+fn host_formatted_block_strips_leading_trailing_blanks() {
+    let css_body = "{fill:red}";
+    let input = format!("<svg><style>.a{css_body}</style></svg>");
+    let input = input.as_str();
+    // Host returns content with leading and trailing blank lines.
+    let result = format_with_host(input, FormatOptions::default(), &mut |_| {
+        Some("\n\n.a {\n  fill: red;\n}\n\n".to_string())
+    });
+    // Leading/trailing blanks must be stripped — no blank line between
+    // <style> and the first rule, or between the last rule and </style>.
+    assert_eq!(
+        result,
+        "<svg>\n\t<style>\n\t\t.a {\n\t\t  fill: red;\n\t\t}\n\t</style>\n</svg>"
+    );
+}
+
+#[test]
 fn ignore_file_skips_formatting() {
     let input = "<svg><rect y=\"2\" x=\"1\"/>\n<!-- svg-format-ignore-file -->\n</svg>";
     assert_eq!(format(input), input);

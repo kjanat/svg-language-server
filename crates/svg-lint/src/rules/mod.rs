@@ -437,7 +437,7 @@ mod tests {
             .map_err(|e| format!("SVG grammar: {e}"))?;
         parser
             .parse(source, None)
-            .ok_or("parse returned None".into())
+            .ok_or_else(|| "parse returned None".into())
     }
 
     fn first_attribute_node(tree: &Tree) -> Result<Node<'_>, Box<dyn Error>> {
@@ -455,7 +455,7 @@ mod tests {
             None
         }
 
-        visit(tree.root_node()).ok_or("expected an attribute node".into())
+        visit(tree.root_node()).ok_or_else(|| "expected an attribute node".into())
     }
 
     #[test]

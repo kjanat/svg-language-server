@@ -430,7 +430,7 @@ mod tests {
             .map_err(|e| format!("SVG grammar: {e}"))?;
         parser
             .parse(source, None)
-            .ok_or("parse returned None".into())
+            .ok_or_else(|| "parse returned None".into())
     }
 
     fn offset_of(source: &str, needle: &str) -> Result<usize, Box<dyn Error>> {
@@ -459,7 +459,9 @@ mod tests {
 
     #[test]
     fn collects_inline_styles_and_css_classes() -> Result<(), Box<dyn Error>> {
-        let source = r"<svg><style>.a,.b:hover,.c.d{fill:red}</style></svg>";
+        let css_body = "{fill:red}";
+        let source = format!("<svg><style>.a,.b:hover,.c.d{css_body}</style></svg>");
+        let source = source.as_str();
         let tree = parse_svg(source)?;
         let styles = collect_inline_stylesheets(source.as_bytes(), &tree);
         assert_eq!(styles.len(), 1);

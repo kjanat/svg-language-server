@@ -45,7 +45,7 @@ mod tests {
 
     #[test]
     fn unknown_element() {
-        let src = br#"<svg><banana/></svg>"#;
+        let src = br"<svg><banana/></svg>";
         let diags = lint(src);
         assert!(
             diags
@@ -62,7 +62,7 @@ mod tests {
     #[test]
     fn invalid_child_in_void_element() {
         // rect is Void — no children allowed
-        let src = br#"<svg><rect><circle/></rect></svg>"#;
+        let src = br"<svg><rect><circle/></rect></svg>";
         let diags = lint(src);
         assert!(
             diags.iter().any(|d| d.code == DiagnosticCode::InvalidChild),
@@ -73,7 +73,7 @@ mod tests {
     #[test]
     fn invalid_child_wrong_category() {
         // filter only allows FilterPrimitive + Descriptive children
-        let src = br#"<svg><filter><rect/></filter></svg>"#;
+        let src = br"<svg><filter><rect/></filter></svg>";
         let diags = lint(src);
         assert!(
             diags.iter().any(|d| d.code == DiagnosticCode::InvalidChild),
@@ -93,7 +93,7 @@ mod tests {
 
     #[test]
     fn rect_in_svg_is_valid() {
-        let src = br#"<svg><rect/></svg>"#;
+        let src = br"<svg><rect/></svg>";
         let diags = lint(src);
         let invalid = diags.iter().any(|d| d.code == DiagnosticCode::InvalidChild);
         assert!(!invalid, "rect in svg should be valid: {diags:?}");
@@ -101,7 +101,7 @@ mod tests {
 
     #[test]
     fn nested_valid_structure() {
-        let src = br#"<svg><g><rect/><circle/></g></svg>"#;
+        let src = br"<svg><g><rect/><circle/></g></svg>";
         let diags = lint(src);
         assert!(diags.is_empty(), "valid nested: {diags:?}");
     }

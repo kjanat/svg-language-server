@@ -1,3 +1,5 @@
+//! Integration tests for the svg-format crate.
+
 use svg_format::{
     AttributeLayout, AttributeSort, BlankLines, EmbeddedLanguage, FormatOptions, QuoteStyle,
     TextContentMode, WrappedAttributeIndent, format, format_with_host, format_with_options,
@@ -5,7 +7,7 @@ use svg_format::{
 
 #[test]
 fn formats_nested_elements() {
-    let input = r#"<svg><g><rect/></g></svg>"#;
+    let input = r"<svg><g><rect/></g></svg>";
     let expected = "<svg>\n\t<g>\n\t\t<rect />\n\t</g>\n</svg>";
     assert_eq!(format(input), expected);
 }
@@ -60,7 +62,7 @@ fn attribute_sort_alphabetical_orders_by_name() {
 
 #[test]
 fn quote_style_double_normalizes_quotes() {
-    let input = r#"<svg><rect class='hero' id='x'/></svg>"#;
+    let input = r"<svg><rect class='hero' id='x'/></svg>";
     let options = FormatOptions {
         quote_style: QuoteStyle::Double,
         ..Default::default()
@@ -214,7 +216,11 @@ fn format_with_host_delegates_foreign_object_content() {
         None
     });
     assert_eq!(called_lang, Some(EmbeddedLanguage::Html));
-    assert!(called_content.unwrap().contains("<div>hello</div>"));
+    assert!(
+        called_content
+            .as_deref()
+            .is_some_and(|c| c.contains("<div>hello</div>"))
+    );
 }
 
 #[test]
@@ -396,7 +402,7 @@ fn ignore_range_outside_svg_with_blank_lines_is_idempotent() {
         ..Default::default()
     };
     let pass1 = format_with_options(input, opts.clone());
-    let pass2 = format_with_options(&pass1, opts.clone());
+    let pass2 = format_with_options(&pass1, opts);
     assert_eq!(
         pass1, pass2,
         "not idempotent:\n--- pass1:\n{pass1}\n--- pass2:\n{pass2}"
@@ -422,7 +428,7 @@ fn ignore_range_inside_svg_with_blank_lines_is_idempotent() {
         ..Default::default()
     };
     let pass1 = format_with_options(input, opts.clone());
-    let pass2 = format_with_options(&pass1, opts.clone());
+    let pass2 = format_with_options(&pass1, opts);
     assert_eq!(
         pass1, pass2,
         "not idempotent:\n--- pass1:\n{pass1}\n--- pass2:\n{pass2}"
@@ -469,7 +475,7 @@ fn ignore_range_with_insert_blank_lines_is_stable() {
         blank_lines: BlankLines::Insert,
         ..Default::default()
     };
-    let pass1 = format_with_options(input, opts.clone());
+    let pass1 = format_with_options(input, opts);
     assert!(
         pass1.contains("<rect y=\"2\" x=\"1\"/>\n\t<circle r=\"3\"/>"),
         "insert mode modified ignored content:\n{pass1}"
@@ -682,12 +688,8 @@ fn text_element_long_entity_ref_content_wraps_to_own_line() {
         result.contains(">\n\t\thex, rgb(a)"),
         "long content not on own line:\n{result}"
     );
-    let content_lines: Vec<&str> = result
-        .lines()
-        .filter(|l| l.contains("hex, rgb(a)"))
-        .collect();
     assert_eq!(
-        content_lines.len(),
+        result.lines().filter(|l| l.contains("hex, rgb(a)")).count(),
         1,
         "content split across multiple lines:\n{result}"
     );

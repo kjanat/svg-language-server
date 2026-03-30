@@ -28,10 +28,10 @@ fn default_log_dir() -> PathBuf {
 fn install_panic_hook() {
     let previous_hook = std::panic::take_hook();
     std::panic::set_hook(Box::new(move |panic_info| {
-        let location = panic_info
-            .location()
-            .map(|loc| format!("{}:{}:{}", loc.file(), loc.line(), loc.column()))
-            .unwrap_or_else(|| "unknown location".to_string());
+        let location = panic_info.location().map_or_else(
+            || "unknown location".to_string(),
+            |loc| format!("{}:{}:{}", loc.file(), loc.line(), loc.column()),
+        );
 
         let payload = panic_info
             .payload()

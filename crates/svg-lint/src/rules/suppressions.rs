@@ -43,7 +43,7 @@ impl Suppressions {
         suppressed
     }
 
-    pub fn unused_diagnostics(&mut self) -> Vec<SvgDiagnostic> {
+    pub fn unused_diagnostics(&self) -> Vec<SvgDiagnostic> {
         let mut diagnostics = Vec::new();
         let rows: Vec<_> = self
             .directives
@@ -178,7 +178,7 @@ fn parse_suppression_codes(text: &str) -> Vec<DiagnosticCode> {
         .collect()
 }
 
-fn all_diagnostic_codes() -> &'static [DiagnosticCode] {
+const fn all_diagnostic_codes() -> &'static [DiagnosticCode] {
     &[
         DiagnosticCode::InvalidChild,
         DiagnosticCode::MissingRequiredAttr,

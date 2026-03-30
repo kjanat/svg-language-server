@@ -252,7 +252,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // ---- ELEMENTS array ----
 
-    writeln!(out, "pub(crate) static ELEMENTS: &[ElementDef] = &[")?;
+    writeln!(out, "pub static ELEMENTS: &[ElementDef] = &[")?;
     for el in &elements {
         let id = &el_idents[el.name.as_str()];
         let content_model = match &el.content_model {
@@ -388,7 +388,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // ---- ATTRIBUTES array ----
 
-    writeln!(out, "pub(crate) static ATTRIBUTES: &[AttributeDef] = &[")?;
+    writeln!(out, "pub static ATTRIBUTES: &[AttributeDef] = &[")?;
 
     for attr in &attributes {
         let id = &attr_idents[attr.name.as_str()];
@@ -498,7 +498,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     writeln!(out, "#[allow(unreachable_patterns)]")?;
     writeln!(
         out,
-        "pub(crate) fn generated_elements_in_category(cat: ElementCategory) -> &'static [&'static str] {{"
+        "pub const fn generated_elements_in_category(cat: ElementCategory) -> &'static [&'static str] {{"
     )?;
     writeln!(out, "    match cat {{")?;
     for names in category_map.values_mut() {

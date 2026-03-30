@@ -23,8 +23,14 @@ fn lint_diagnostic_to_lsp(source: &[u8], diagnostic: svg_lint::SvgDiagnostic) ->
 
     Diagnostic {
         range: Range::new(
-            Position::new(diagnostic.start_row as u32, start_char),
-            Position::new(diagnostic.end_row as u32, end_char),
+            Position::new(
+                u32::try_from(diagnostic.start_row).unwrap_or(u32::MAX),
+                start_char,
+            ),
+            Position::new(
+                u32::try_from(diagnostic.end_row).unwrap_or(u32::MAX),
+                end_char,
+            ),
         ),
         severity: Some(severity),
         code: Some(NumberOrString::String(diagnostic.code.as_str().to_owned())),

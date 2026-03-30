@@ -1,3 +1,5 @@
+use std::fmt::Write as _;
+
 use super::{
     BaselineStatus, BrowserSupport, ClassDefinitionHover, CompatOverride,
     CustomPropertyDefinitionHover, LazyLock, RuntimeBrowserSupport, Uri, Url,
@@ -52,7 +54,7 @@ fn format_definition_hover(
             let trimmed = snippet.trim();
             let mut section = String::new();
             if trimmed.is_empty() {
-                section.push_str(&format!("`{fallback_label}`"));
+                let _ = write!(section, "`{fallback_label}`");
             } else {
                 section.push_str("```css\n");
                 section.push_str(trimmed);
@@ -500,10 +502,7 @@ fn format_unsupported_browsers_line(
         return None;
     }
     let is_unsupported = |baked_ver: Option<&str>, rt_ver: Option<Option<&str>>| -> bool {
-        match rt_ver {
-            Some(v) => v.is_none(),
-            None => baked_ver.is_none(),
-        }
+        rt_ver.map_or_else(|| baked_ver.is_none(), |version| version.is_none())
     };
     let mut unsupported = Vec::new();
     if is_unsupported(
@@ -542,14 +541,10 @@ fn format_browser_support_line(
     runtime: Option<&RuntimeBrowserSupport>,
 ) -> Option<String> {
     let fmt = |name: &str, baked_ver: Option<&str>, rt_ver: Option<Option<&str>>| -> String {
-        let ver = match rt_ver {
-            Some(v) => v,
-            None => baked_ver,
-        };
-        match ver {
-            Some(v) => format!("{name} {v}"),
-            None => format!("{name} \u{2717}"),
-        }
+        rt_ver.map_or(baked_ver, |value| value).map_or_else(
+            || format!("{name} \u{2717}"),
+            |version| format!("{name} {version}"),
+        )
     };
 
     let chrome = fmt(

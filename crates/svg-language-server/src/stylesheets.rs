@@ -18,7 +18,7 @@ pub struct ClassDefinitionHover {
 }
 
 impl ClassDefinitionHover {
-    pub fn new(uri: Uri, source: String, definition: svg_references::NamedSpan) -> Self {
+    pub const fn new(uri: Uri, source: String, definition: svg_references::NamedSpan) -> Self {
         Self {
             uri,
             source,
@@ -35,7 +35,7 @@ pub struct CustomPropertyDefinitionHover {
 }
 
 impl CustomPropertyDefinitionHover {
-    pub fn new(uri: Uri, source: String, definition: svg_references::NamedSpan) -> Self {
+    pub const fn new(uri: Uri, source: String, definition: svg_references::NamedSpan) -> Self {
         Self {
             uri,
             source,
@@ -45,7 +45,7 @@ impl CustomPropertyDefinitionHover {
 }
 
 pub fn class_definition_hovers_from_stylesheet(
-    uri: Uri,
+    uri: &Uri,
     source: &str,
     target_class: &str,
 ) -> Vec<ClassDefinitionHover> {
@@ -57,7 +57,7 @@ pub fn class_definition_hovers_from_stylesheet(
 }
 
 pub fn custom_property_definition_hovers_from_stylesheet(
-    uri: Uri,
+    uri: &Uri,
     source: &str,
     target_property: &str,
 ) -> Vec<CustomPropertyDefinitionHover> {
@@ -113,20 +113,18 @@ pub fn resolve_file_stylesheet(url: &Url) -> Option<CachedStylesheet> {
 
 fn resolve_remote_stylesheet(cache: &StylesheetCache, url: &Url) -> Option<CachedStylesheet> {
     let key = url.as_str().to_owned();
-    let cell = if let Ok(guard) = cache.read() {
-        guard.get(&key).cloned()
-    } else {
-        None
-    }
-    .or_else(|| {
-        let mut guard = cache.write().ok()?;
-        Some(
-            guard
-                .entry(key)
-                .or_insert_with(|| Arc::new(OnceLock::new()))
-                .clone(),
-        )
-    })?;
+    let cell = cache
+        .read()
+        .map_or_else(|_| None, |guard| guard.get(&key).cloned())
+        .or_else(|| {
+            let mut guard = cache.write().ok()?;
+            Some(
+                guard
+                    .entry(key)
+                    .or_insert_with(|| Arc::new(OnceLock::new()))
+                    .clone(),
+            )
+        })?;
 
     cell.get_or_init(|| {
         let source = ureq::get(url.as_str())

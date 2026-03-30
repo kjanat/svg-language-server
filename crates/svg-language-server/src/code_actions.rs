@@ -28,7 +28,7 @@ fn line_indentation(source: &str, row: usize) -> String {
         .collect()
 }
 
-fn line_start_range(row: u32) -> Range {
+const fn line_start_range(row: u32) -> Range {
     Range::new(Position::new(row, 0), Position::new(row, 0))
 }
 

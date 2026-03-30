@@ -1,5 +1,10 @@
 use super::{Location, Position, Range, Uri};
 
+#[inline]
+fn u32_from_usize(value: usize) -> u32 {
+    u32::try_from(value).unwrap_or(u32::MAX)
+}
+
 /// Convert a byte-offset column to UTF-16 code unit count within a given row.
 ///
 /// LSP positions use UTF-16 code units by default. Tree-sitter reports byte offsets,
@@ -13,7 +18,7 @@ pub fn byte_col_to_utf16(source: &[u8], row: usize, byte_col: usize) -> u32 {
 
     let end = (line_start + byte_col).min(source.len());
     let line_bytes = &source[line_start..end];
-    String::from_utf8_lossy(line_bytes).encode_utf16().count() as u32
+    u32_from_usize(String::from_utf8_lossy(line_bytes).encode_utf16().count())
 }
 
 /// Convert a UTF-16 column offset to a byte offset within a given row.
@@ -37,7 +42,7 @@ pub fn utf16_to_byte_col(source: &[u8], row: usize, utf16_col: u32) -> usize {
         if utf16_count >= utf16_col {
             break;
         }
-        utf16_count += ch.len_utf16() as u32;
+        utf16_count += u32_from_usize(ch.len_utf16());
         byte_offset += ch.len_utf8();
     }
     byte_offset
@@ -65,7 +70,7 @@ pub fn end_position_utf16(source: &str) -> Position {
             line += 1;
             character = 0;
         } else {
-            character += ch.len_utf16() as u32;
+            character += u32_from_usize(ch.len_utf16());
         }
     }
     Position::new(line, character)
@@ -74,11 +79,11 @@ pub fn end_position_utf16(source: &str) -> Position {
 pub fn span_range_utf16(source: &[u8], span: &svg_references::Span) -> Range {
     Range::new(
         Position::new(
-            span.start_row as u32,
+            u32_from_usize(span.start_row),
             byte_col_to_utf16(source, span.start_row, span.start_col),
         ),
         Position::new(
-            span.end_row as u32,
+            u32_from_usize(span.end_row),
             byte_col_to_utf16(source, span.end_row, span.end_col),
         ),
     )
@@ -91,13 +96,13 @@ pub fn named_span_location(uri: Uri, source: &[u8], named: &svg_references::Name
 pub fn position_for_byte_offset(source: &[u8], byte_offset: usize) -> Position {
     let clamped = byte_offset.min(source.len());
     let row = source[..clamped]
-        .iter()
-        .filter(|&&byte| byte == b'\n')
-        .count();
+        .split(|&byte| byte == b'\n')
+        .count()
+        .saturating_sub(1);
     let line_start = source[..clamped]
         .iter()
         .rposition(|&byte| byte == b'\n')
         .map_or(0, |idx| idx + 1);
     let col = byte_col_to_utf16(source, row, clamped.saturating_sub(line_start));
-    Position::new(row as u32, col)
+    Position::new(u32_from_usize(row), col)
 }

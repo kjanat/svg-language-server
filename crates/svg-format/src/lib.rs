@@ -650,7 +650,7 @@ impl<'a> Formatter<'a> {
         }
     }
 
-    /// Try to format embedded text (style/script raw_text) via the callback.
+    /// Try to format embedded text (style/script `raw_text`) via the callback.
     /// Returns `true` if the callback produced a result.
     fn try_format_embedded_text(
         &mut self,
@@ -669,12 +669,10 @@ impl<'a> Formatter<'a> {
             content: &content,
             indent_depth: depth,
         };
-        if let Some(formatted) = fmt(req) {
+        fmt(req).map_or(false, |formatted| {
             self.write_indented_block(&formatted, depth);
             true
-        } else {
-            false
-        }
+        })
     }
 
     /// Try to format `foreignObject` inner content via the callback.
@@ -725,8 +723,8 @@ impl<'a> Formatter<'a> {
             } else {
                 self.out.push_str(&indent);
                 self.out.push_str(line);
-                self.out.push('\n');
             }
+            self.out.push('\n');
         }
     }
 
@@ -960,7 +958,7 @@ fn canonical_geometry_order(name: &str) -> Option<u16> {
     order
         .iter()
         .position(|candidate| *candidate == name)
-        .map(|i| i as u16)
+        .and_then(|i| u16::try_from(i).ok())
 }
 
 fn parse_tag(raw: &str, self_closing: bool) -> Option<ParsedTag> {
@@ -1055,28 +1053,31 @@ fn parse_attribute(attribute: &str) -> ParsedAttribute {
     if let Some((name, raw_value)) = trimmed.split_once('=') {
         let name = name.trim().to_string();
         let raw_value = raw_value.trim();
-        let value = if let Some(inner) = raw_value
+        let value = raw_value
             .strip_prefix('"')
             .and_then(|value| value.strip_suffix('"'))
-        {
-            ParsedAttributeValue {
-                raw: inner.to_string(),
-                original_quote: Some('"'),
-            }
-        } else if let Some(inner) = raw_value
-            .strip_prefix('\'')
-            .and_then(|value| value.strip_suffix('\''))
-        {
-            ParsedAttributeValue {
-                raw: inner.to_string(),
-                original_quote: Some('\''),
-            }
-        } else {
-            ParsedAttributeValue {
-                raw: raw_value.to_string(),
-                original_quote: None,
-            }
-        };
+            .map_or_else(
+                || {
+                    if let Some(inner) = raw_value
+                        .strip_prefix('\'')
+                        .and_then(|value| value.strip_suffix('\''))
+                    {
+                        ParsedAttributeValue {
+                            raw: inner.to_string(),
+                            original_quote: Some('\''),
+                        }
+                    } else {
+                        ParsedAttributeValue {
+                            raw: raw_value.to_string(),
+                            original_quote: None,
+                        }
+                    }
+                },
+                |inner| ParsedAttributeValue {
+                    raw: inner.to_string(),
+                    original_quote: Some('"'),
+                },
+            );
 
         ParsedAttribute {
             name,
@@ -1246,13 +1247,19 @@ fn entity_reference_len(text: &str) -> Option<usize> {
         return None;
     }
 
-    let valid = if let Some(hex) = body.strip_prefix("#x").or_else(|| body.strip_prefix("#X")) {
-        !hex.is_empty() && hex.chars().all(|ch| ch.is_ascii_hexdigit())
-    } else if let Some(decimal) = body.strip_prefix('#') {
-        !decimal.is_empty() && decimal.chars().all(|ch| ch.is_ascii_digit())
-    } else {
-        body.chars().all(|ch| ch.is_ascii_alphanumeric())
-    };
+    let valid = body
+        .strip_prefix("#x")
+        .or_else(|| body.strip_prefix("#X"))
+        .map_or_else(
+            || {
+                if let Some(decimal) = body.strip_prefix('#') {
+                    !decimal.is_empty() && decimal.chars().all(|ch| ch.is_ascii_digit())
+                } else {
+                    body.chars().all(|ch| ch.is_ascii_alphanumeric())
+                }
+            },
+            |hex| !hex.is_empty() && hex.chars().all(|ch| ch.is_ascii_hexdigit()),
+        );
 
     valid.then_some(candidate.len())
 }

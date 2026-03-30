@@ -49,9 +49,9 @@ pub enum BrowserName {
     SafariIos,
     /// Samsung Internet on Android.
     SamsunginternetAndroid,
-    /// Android WebView.
+    /// Android `WebView`.
     WebviewAndroid,
-    /// iOS WebView.
+    /// iOS `WebView`.
     WebviewIos,
 }
 
@@ -82,19 +82,19 @@ pub enum BrowserType {
 /// Name of a browser's rendering/JS engine.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize)]
 pub enum BrowserEngine {
-    /// Blink.
+    /// `Blink`.
     Blink,
-    /// EdgeHTML.
+    /// `EdgeHTML`.
     EdgeHTML,
-    /// Gecko.
+    /// `Gecko`.
     Gecko,
-    /// Presto.
+    /// `Presto`.
     Presto,
-    /// Trident.
+    /// `Trident`.
     Trident,
-    /// WebKit.
+    /// `WebKit`.
     WebKit,
-    /// V8.
+    /// `V8`.
     V8,
 }
 
@@ -189,13 +189,13 @@ pub struct Identifier {
 pub type SupportBlock = HashMap<BrowserName, SupportStatement>;
 
 /// Support information: either a single statement or an array of statements
-/// (e.g. when a feature was removed and re-added).
+/// (for example when a feature was removed and re-added).
 #[derive(Debug, Clone, Deserialize)]
 #[serde(untagged)]
 pub enum SupportStatement {
     /// A single support entry.
     Single(SimpleSupportStatement),
-    /// Multiple support entries (e.g. feature removed then re-added).
+    /// Multiple support entries, for example a feature removed then re-added.
     Multiple(Vec<SimpleSupportStatement>),
 }
 
@@ -208,7 +208,7 @@ pub struct CompatStatement {
     pub mdn_url: Option<String>,
     /// Specification URL(s), each containing a fragment identifier.
     pub spec_url: Option<SpecUrl>,
-    /// Tags assigned to this feature (e.g. `web-features:svg`).
+    /// Tags assigned to this feature, for example `web-features:svg`.
     pub tags: Option<Vec<String>>,
     /// Path to the source file in the BCD repository (auto-generated).
     pub source_file: Option<String>,
@@ -360,7 +360,8 @@ pub struct CompatData {
     /// [JavaScript](https://developer.mozilla.org/docs/Web/JavaScript) built-ins, statements, operators.
     pub javascript: Identifier,
 
-    /// Manifest data (e.g. [Web App Manifest](https://developer.mozilla.org/docs/Web/Progressive_web_apps/manifest)).
+    /// Manifest data, for example
+    /// [Web App Manifest](https://developer.mozilla.org/docs/Web/Progressive_web_apps/manifest).
     pub manifests: Identifier,
 
     /// [MathML](https://developer.mozilla.org/docs/Web/MathML) elements, attributes, globals.

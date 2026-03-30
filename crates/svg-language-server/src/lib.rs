@@ -77,7 +77,7 @@ struct DocumentState {
     tree: tree_sitter::Tree,
 }
 
-/// Cache mapping (URI, start_line, start_character) to the original color kind.
+/// Cache mapping (URI, `start_line`, `start_character`) to the original color kind.
 type ColorKindCache = Arc<RwLock<HashMap<(Uri, u32, u32), svg_color::ColorKind>>>;
 type StylesheetCache = Arc<StdRwLock<HashMap<String, Arc<OnceLock<Option<CachedStylesheet>>>>>>;
 const COPY_DATA_URI_COMMAND: &str = "svg.copyDataUri";
@@ -126,7 +126,7 @@ fn server_capabilities() -> ServerCapabilities {
     }
 }
 
-fn markdown_hover(value: String) -> Hover {
+const fn markdown_hover(value: String) -> Hover {
     Hover {
         contents: HoverContents::Markup(MarkupContent {
             kind: MarkupKind::Markdown,
@@ -199,7 +199,7 @@ impl SvgLanguageServer {
                     .map_err(|err| format!("Invalid URI {}: {err}", uri.as_str()))?;
                 let path = url
                     .to_file_path()
-                    .map_err(|_| format!("Cannot resolve file path for {}", uri.as_str()))?;
+                    .map_err(|()| format!("Cannot resolve file path for {}", uri.as_str()))?;
                 fs::read_to_string(&path)
                     .map_err(|err| format!("Failed to read {}: {err}", path.display()))?
             }
@@ -529,7 +529,7 @@ impl LanguageServer for SvgLanguageServer {
                 };
 
                 let defs = class_definition_hovers_from_stylesheet(
-                    stylesheet.uri.clone(),
+                    &stylesheet.uri,
                     &stylesheet.source,
                     &target_class,
                 );
@@ -565,7 +565,7 @@ impl LanguageServer for SvgLanguageServer {
                 };
 
                 let defs = custom_property_definition_hovers_from_stylesheet(
-                    stylesheet.uri.clone(),
+                    &stylesheet.uri,
                     &stylesheet.source,
                     &target_property,
                 );

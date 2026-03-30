@@ -354,6 +354,62 @@ fn blank_lines_default_is_truncate() {
 }
 
 #[test]
+fn blank_lines_truncate_collapses_inside_script() {
+    // Two blank lines between functions → collapsed to one.
+    let input = "<svg>\n<script>\nfunction a() {}\n\n\nfunction b() {}\n</script>\n</svg>";
+    let expected =
+        "<svg>\n\t<script>\n\t\tfunction a() {}\n\n\t\tfunction b() {}\n\t</script>\n</svg>";
+    assert_eq!(format(input), expected);
+}
+
+#[test]
+fn blank_lines_truncate_collapses_inside_style() {
+    let input = "<svg>\n<style>\n.a { fill: red; }\n\n\n.b { stroke: blue; }\n</style>\n</svg>";
+    let expected =
+        "<svg>\n\t<style>\n\t\t.a { fill: red; }\n\n\t\t.b { stroke: blue; }\n\t</style>\n</svg>";
+    assert_eq!(format(input), expected);
+}
+
+#[test]
+fn blank_lines_remove_strips_inside_script() {
+    let input = "<svg>\n<script>\nfunction a() {}\n\n\nfunction b() {}\n</script>\n</svg>";
+    let options = FormatOptions {
+        blank_lines: BlankLines::Remove,
+        ..Default::default()
+    };
+    let expected =
+        "<svg>\n\t<script>\n\t\tfunction a() {}\n\t\tfunction b() {}\n\t</script>\n</svg>";
+    assert_eq!(format_with_options(input, options), expected);
+}
+
+#[test]
+fn blank_lines_preserve_keeps_inside_script() {
+    let input = "<svg>\n<script>\nfunction a() {}\n\n\nfunction b() {}\n</script>\n</svg>";
+    let options = FormatOptions {
+        blank_lines: BlankLines::Preserve,
+        ..Default::default()
+    };
+    let expected =
+        "<svg>\n\t<script>\n\t\tfunction a() {}\n\n\n\t\tfunction b() {}\n\t</script>\n</svg>";
+    assert_eq!(format_with_options(input, options), expected);
+}
+
+#[test]
+fn blank_lines_truncate_collapses_in_host_formatted_block() {
+    let css_body = "{fill:red}";
+    let input = format!("<svg><style>.a{css_body}</style></svg>");
+    let input = input.as_str();
+    let result = format_with_host(input, FormatOptions::default(), &mut |_| {
+        Some(".a {\n  fill: red;\n}\n\n\n.b {\n  stroke: blue;\n}".to_string())
+    });
+    // Host returned 2 blank lines between rules → collapsed to 1.
+    assert_eq!(
+        result,
+        "<svg>\n\t<style>\n\t\t.a {\n\t\t  fill: red;\n\t\t}\n\n\t\t.b {\n\t\t  stroke: blue;\n\t\t}\n\t</style>\n</svg>"
+    );
+}
+
+#[test]
 fn ignore_file_skips_formatting() {
     let input = "<svg><rect y=\"2\" x=\"1\"/>\n<!-- svg-format-ignore-file -->\n</svg>";
     assert_eq!(format(input), input);

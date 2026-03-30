@@ -646,9 +646,19 @@ impl<'a> Formatter<'a> {
             .min()
             .unwrap_or(0);
 
+        let mut consecutive_blank = 0usize;
         for line in block {
             let without_common_indent = line.chars().skip(min_leading).collect::<String>();
-            self.write_line(depth, without_common_indent.trim_end());
+            let trimmed = without_common_indent.trim_end();
+            if trimmed.is_empty() {
+                consecutive_blank += 1;
+                if self.should_emit_embedded_blank(consecutive_blank) {
+                    self.out.push('\n');
+                }
+            } else {
+                consecutive_blank = 0;
+                self.write_line(depth, trimmed);
+            }
         }
     }
 
@@ -718,16 +728,22 @@ impl<'a> Formatter<'a> {
 
     /// Write pre-formatted text, re-indented to the given depth.
     /// Preserves the content's internal indentation structure.
+    /// Consecutive blank lines are normalized per the `blank_lines` option.
     fn write_indented_block(&mut self, text: &str, depth: usize) {
         let indent = self.indent(depth);
+        let mut consecutive_blank = 0usize;
         for line in text.lines() {
             if line.trim().is_empty() {
-                self.out.push('\n');
+                consecutive_blank += 1;
+                if self.should_emit_embedded_blank(consecutive_blank) {
+                    self.out.push('\n');
+                }
             } else {
+                consecutive_blank = 0;
                 self.out.push_str(&indent);
                 self.out.push_str(line);
+                self.out.push('\n');
             }
-            self.out.push('\n');
         }
     }
 
@@ -858,6 +874,20 @@ impl<'a> Formatter<'a> {
         };
         for _ in 0..count {
             self.out.push('\n');
+        }
+    }
+
+    /// Whether an embedded-content blank line should be emitted.
+    ///
+    /// `consecutive` is how many blank lines in a row have been seen so far
+    /// (1 = first blank, 2 = second, etc.). `Truncate` collapses runs of 2+
+    /// to 1, `Remove` strips all, and `Preserve`/`Insert` pass through
+    /// (those modes only meaningfully apply to sibling element gaps).
+    const fn should_emit_embedded_blank(&self, consecutive: usize) -> bool {
+        match self.options.blank_lines {
+            BlankLines::Remove => false,
+            BlankLines::Truncate => consecutive <= 1,
+            BlankLines::Preserve | BlankLines::Insert => true,
         }
     }
 

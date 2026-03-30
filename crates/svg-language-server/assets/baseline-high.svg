@@ -4,6 +4,7 @@
 			fill: #c4eed0; /* Light mode */
 		}
 
+
 		@media (prefers-color-scheme: dark) {
 			.green-shape {
 				fill: #125225; /* Dark mode */

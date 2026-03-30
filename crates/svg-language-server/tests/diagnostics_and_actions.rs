@@ -117,6 +117,71 @@ fn missing_reference_diagnostics_and_code_actions() -> TestResult {
 }
 
 #[test]
+fn multiline_tag_suppression_inserts_before_opening_tag() -> TestResult {
+    let mut server = TestServer::start()?;
+
+    // Multiline tag with deprecated attribute on a later line
+    let svg =
+        "<svg>\n<text x=\"10\" y=\"260\"\n\tclip=\"rect(0,100,100,0)\">deprecated</text>\n</svg>";
+    server.open("file:///multiline.svg", svg)?;
+
+    let diag_msg = wait_for_notification(&server, "textDocument/publishDiagnostics", |msg| {
+        msg["params"]["uri"].as_str() == Some("file:///multiline.svg")
+    });
+    let diag_list = diag_msg["params"]["diagnostics"]
+        .as_array()
+        .ok_or("diagnostics should be array")?;
+
+    // Verify there's a DeprecatedAttribute diagnostic on row 2 (the `clip` line)
+    let deprecated_diag = diag_list
+        .iter()
+        .find(|d| d["code"].as_str() == Some("DeprecatedAttribute"))
+        .ok_or("expected DeprecatedAttribute diagnostic")?;
+    assert_eq!(
+        deprecated_diag["range"]["start"]["line"].as_u64(),
+        Some(2),
+        "deprecated attr should be on line 2 (0-indexed): {deprecated_diag}"
+    );
+
+    let code_action_resp = server.request(
+        "textDocument/codeAction",
+        &json!({
+            "textDocument": { "uri": "file:///multiline.svg" },
+            "range": {
+                "start": { "line": 2, "character": 0 },
+                "end": { "line": 2, "character": 0 }
+            },
+            "context": {
+                "diagnostics": [deprecated_diag]
+            }
+        }),
+    )?;
+    let code_actions = code_action_resp["result"]
+        .as_array()
+        .ok_or("codeAction result should be an array")?;
+
+    // The line suppression should insert BEFORE the <text line (row 1), not on the clip line (row 2)
+    let line_action = code_actions
+        .iter()
+        .find(|a| {
+            a["title"]
+                .as_str()
+                .is_some_and(|t| t.contains("Suppress") && t.contains("on this line"))
+        })
+        .ok_or("line suppression action should exist")?;
+
+    let edit_range = &line_action["edit"]["changes"]["file:///multiline.svg"][0]["range"];
+    assert_eq!(
+        edit_range["start"]["line"].as_u64(),
+        Some(1),
+        "suppression comment should be inserted at the tag's start line (row 1), not the attr line (row 2): {line_action}"
+    );
+
+    server.shutdown_and_exit()?;
+    Ok(())
+}
+
+#[test]
 fn invalid_svg_publishes_diagnostics() -> TestResult {
     let mut server = TestServer::start()?;
 

@@ -26,13 +26,28 @@ enum SuppressionScope {
 }
 
 impl Suppressions {
-    pub fn suppresses(&mut self, row: usize, code: DiagnosticCode) -> bool {
+    /// Check whether a diagnostic at `row` should be suppressed.
+    ///
+    /// `tag_start_row` is the start row of the enclosing opening tag when the
+    /// diagnostic originates from an attribute or other node inside a
+    /// `start_tag`/`self_closing_tag`. When set, a `disable-next-line` directive
+    /// targeting the tag's start row also covers diagnostics on later rows within
+    /// that same tag span. This prevents invalid XML from being generated when
+    /// the quick-fix inserts a comment before a multiline opening tag.
+    pub fn suppresses(
+        &mut self,
+        row: usize,
+        code: DiagnosticCode,
+        tag_start_row: Option<usize>,
+    ) -> bool {
         let mut suppressed = false;
 
         for directive in &mut self.directives {
             let applies = match directive.scope {
                 SuppressionScope::File => true,
-                SuppressionScope::NextLine(target_row) => target_row == row,
+                SuppressionScope::NextLine(target_row) => {
+                    target_row == row || tag_start_row.is_some_and(|tag_row| target_row == tag_row)
+                }
             };
             if applies && directive.codes.contains(&code) {
                 directive.used_codes.insert(code);

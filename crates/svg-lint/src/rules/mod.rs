@@ -155,6 +155,7 @@ fn check_attributes(
     diagnostics: &mut Vec<SvgDiagnostic>,
     suppressions: &mut Suppressions,
 ) {
+    let tag_start = tag.start_position().row;
     let mut cursor = tag.walk();
     for attr_node in tag.children(&mut cursor) {
         if attr_node.kind() != "attribute" {
@@ -177,10 +178,11 @@ fn check_attributes(
             } else {
                 format!("{attr_name} is deprecated")
             };
-            push_diag(
+            push_diag_in_tag(
                 diagnostics,
                 suppressions,
                 name_node,
+                Some(tag_start),
                 Severity::Warning,
                 DiagnosticCode::DeprecatedAttribute,
                 msg,
@@ -193,19 +195,21 @@ fn check_attributes(
         // miss as "unknown" makes diagnostics depend on build-time BCD fetch state.
         if let Some(def) = svg_data::attribute(attr_name) {
             if def.deprecated {
-                push_diag(
+                push_diag_in_tag(
                     diagnostics,
                     suppressions,
                     name_node,
+                    Some(tag_start),
                     Severity::Warning,
                     DiagnosticCode::DeprecatedAttribute,
                     format!("{attr_name} is deprecated"),
                 );
             } else if def.experimental {
-                push_diag(
+                push_diag_in_tag(
                     diagnostics,
                     suppressions,
                     name_node,
+                    Some(tag_start),
                     Severity::Hint,
                     DiagnosticCode::ExperimentalAttribute,
                     format!("{attr_name} is experimental"),
@@ -241,6 +245,7 @@ fn check_duplicate_id(
     suppressions: &mut Suppressions,
     seen_ids: &mut HashMap<String, usize>,
 ) {
+    let tag_start = tag.start_position().row;
     let mut cursor = tag.walk();
     for attr_node in tag.children(&mut cursor) {
         if attr_node.kind() != "attribute" {
@@ -261,10 +266,11 @@ fn check_duplicate_id(
                 }
                 let id_text = std::str::from_utf8(&source[v.byte_range()]).unwrap_or("");
                 if let Some(&first_row) = seen_ids.get(id_text) {
-                    push_diag(
+                    push_diag_in_tag(
                         diagnostics,
                         suppressions,
                         v,
+                        Some(tag_start),
                         Severity::Warning,
                         DiagnosticCode::DuplicateId,
                         format!(
@@ -332,6 +338,7 @@ fn check_missing_reference_definitions(
     suppressions: &mut Suppressions,
     defined_ids: &HashSet<String>,
 ) {
+    let tag_start = tag.start_position().row;
     let mut cursor = tag.walk();
     for attr_node in tag.children(&mut cursor) {
         if attr_node.kind() != "attribute" {
@@ -362,10 +369,11 @@ fn check_missing_reference_definitions(
                 return;
             }
 
-            push_diag(
+            push_diag_in_tag(
                 diagnostics,
                 suppressions,
                 node,
+                Some(tag_start),
                 Severity::Warning,
                 DiagnosticCode::MissingReferenceDefinition,
                 format!(
@@ -398,7 +406,29 @@ fn push_diag(
     code: DiagnosticCode,
     message: String,
 ) {
-    if suppressions.suppresses(node.start_position().row, code) {
+    push_diag_in_tag(
+        diagnostics,
+        suppressions,
+        node,
+        None,
+        severity,
+        code,
+        message,
+    );
+}
+
+/// Like `push_diag` but accepts the enclosing tag's start row so that a
+/// `disable-next-line` before a multiline opening tag covers all attributes.
+fn push_diag_in_tag(
+    diagnostics: &mut Vec<SvgDiagnostic>,
+    suppressions: &mut Suppressions,
+    node: Node,
+    tag_start_row: Option<usize>,
+    severity: Severity,
+    code: DiagnosticCode,
+    message: String,
+) {
+    if suppressions.suppresses(node.start_position().row, code, tag_start_row) {
         return;
     }
     diagnostics.push(make_diag(node, severity, code, message));

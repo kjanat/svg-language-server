@@ -46,7 +46,8 @@ mod stylesheets;
 
 use clipboard::{copy_text_to_system_clipboard, svg_data_uri};
 use code_actions::{
-    copy_data_uri_code_action, suppression_code, suppression_code_actions_for_diagnostic,
+    copy_data_uri_code_action, effective_suppression_row, suppression_code,
+    suppression_code_actions_for_diagnostic,
 };
 use compat::{CompatOverride, RuntimeBrowserSupport, RuntimeCompat, fetch_runtime_compat};
 use completion::{
@@ -633,7 +634,7 @@ impl LanguageServer for SvgLanguageServer {
 
     async fn code_action(&self, params: CodeActionParams) -> Result<Option<CodeActionResponse>> {
         let uri = &params.text_document.uri;
-        let Some(source) = self.document_state(uri).await.map(|doc| doc.source) else {
+        let Some(doc) = self.document_state(uri).await else {
             return Ok(None);
         };
 
@@ -644,12 +645,17 @@ impl LanguageServer for SvgLanguageServer {
             let Some(code) = suppression_code(diagnostic) else {
                 continue;
             };
-            let key = (code.to_owned(), diagnostic.range.start.line);
+            let effective_row =
+                effective_suppression_row(doc.source.as_bytes(), &doc.tree, diagnostic);
+            let key = (code.to_owned(), effective_row);
             if !seen.insert(key) {
                 continue;
             }
             actions.extend(suppression_code_actions_for_diagnostic(
-                uri, &source, diagnostic,
+                uri,
+                &doc.source,
+                diagnostic,
+                effective_row,
             ));
         }
 

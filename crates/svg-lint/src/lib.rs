@@ -318,4 +318,80 @@ mod tests {
             "the nested directive should still report its own unused UnusedSuppression entry: {diags:?}"
         );
     }
+
+    #[test]
+    fn multiline_tag_suppression_covers_attr_on_later_line() {
+        let src = br#"<svg>
+<!-- svg-lint-disable-next-line DeprecatedAttribute -->
+<text x="10" y="260"
+	clip="rect(0,100,100,0)"
+	font-stretch="condensed">deprecated</text>
+</svg>"#;
+        let diags = lint(src);
+
+        assert!(
+            !diags
+                .iter()
+                .any(|d| d.code == DiagnosticCode::DeprecatedAttribute),
+            "directive before multiline tag should suppress attribute diagnostics on later rows: {diags:?}"
+        );
+        assert!(
+            !diags
+                .iter()
+                .any(|d| d.code == DiagnosticCode::UnusedSuppression),
+            "used multiline suppression should not be reported as unused: {diags:?}"
+        );
+    }
+
+    #[test]
+    fn multiline_tag_suppression_does_not_reach_next_element() {
+        let src = br#"<svg>
+<!-- svg-lint-disable-next-line DeprecatedAttribute -->
+<rect x="0" y="0" width="10" height="10"/>
+<text clip="rect(0,100,100,0)">next element</text>
+</svg>"#;
+        let diags = lint(src);
+
+        assert!(
+            diags.iter().any(
+                |d| d.code == DiagnosticCode::DeprecatedAttribute && d.message.contains("clip")
+            ),
+            "directive should not suppress diagnostics on a different element: {diags:?}"
+        );
+    }
+
+    #[test]
+    fn single_line_tag_suppression_still_works() {
+        let src = br#"<svg>
+<!-- svg-lint-disable-next-line DeprecatedAttribute -->
+<text clip="rect(0,100,100,0)">deprecated</text>
+</svg>"#;
+        let diags = lint(src);
+
+        assert!(
+            !diags
+                .iter()
+                .any(|d| d.code == DiagnosticCode::DeprecatedAttribute),
+            "single-line tag suppression should still work: {diags:?}"
+        );
+    }
+
+    #[test]
+    fn multiline_tag_suppression_multiple_deprecated_attrs() {
+        let src = br##"<svg>
+<!-- svg-lint-disable-next-line DeprecatedAttribute -->
+<text x="10" y="260"
+	clip="rect(0,100,100,0)"
+	font-stretch="condensed"
+	xlink:href="#foo">multiple deprecated</text>
+</svg>"##;
+        let diags = lint(src);
+
+        assert!(
+            !diags
+                .iter()
+                .any(|d| d.code == DiagnosticCode::DeprecatedAttribute),
+            "all deprecated attrs in multiline tag should be suppressed: {diags:?}"
+        );
+    }
 }

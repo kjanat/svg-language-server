@@ -5,7 +5,7 @@ use crate::{
 
 /// Return all element names belonging to the given category.
 #[must_use]
-pub fn elements_in_category(cat: ElementCategory) -> &'static [&'static str] {
+pub const fn elements_in_category(cat: ElementCategory) -> &'static [&'static str] {
     generated_elements_in_category(cat)
 }
 

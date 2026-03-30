@@ -156,36 +156,36 @@ const NAMED_COLOR_NAMES: &[&str] = &[
 /// Convert RGB (each in `[0.0, 1.0]`) to HSL.
 ///
 /// Returns `(hue_degrees, saturation_percent, lightness_percent)` as integers.
-fn rgb_to_hsl(r: f32, g: f32, b: f32) -> (u16, u8, u8) {
-    let max = r.max(g).max(b);
-    let min = r.min(g).min(b);
+fn rgb_to_hsl(red: f32, green: f32, blue: f32) -> (u16, u8, u8) {
+    let max = red.max(green).max(blue);
+    let min = red.min(green).min(blue);
     let delta = max - min;
 
-    let l = (max + min) / 2.0;
+    let lightness = f32::midpoint(max, min);
 
-    let s = if delta == 0.0 {
+    let saturation = if delta <= f32::EPSILON {
         0.0_f32
     } else {
-        delta / (1.0 - (2.0 * l - 1.0).abs())
+        delta / (1.0 - 2.0f32.mul_add(lightness, -1.0).abs())
     };
 
-    let h = if delta == 0.0 {
+    let hue = if delta <= f32::EPSILON {
         0.0_f32
-    } else if max == r {
-        60.0 * (((g - b) / delta) % 6.0)
-    } else if max == g {
-        60.0 * ((b - r) / delta + 2.0)
+    } else if (max - red).abs() < f32::EPSILON {
+        60.0 * (((green - blue) / delta) % 6.0)
+    } else if (max - green).abs() < f32::EPSILON {
+        60.0 * ((blue - red) / delta + 2.0)
     } else {
-        60.0 * ((r - g) / delta + 4.0)
+        60.0 * ((red - green) / delta + 4.0)
     };
 
     // Normalise hue to [0, 360)
-    let h = ((h % 360.0) + 360.0) % 360.0;
+    let hue = ((hue % 360.0) + 360.0) % 360.0;
 
     (
-        h.round() as u16,
-        (s * 100.0).round() as u8,
-        (l * 100.0).round() as u8,
+        round_degrees_to_u16(hue),
+        round_percent_to_u8(saturation),
+        round_percent_to_u8(lightness),
     )
 }
 
@@ -193,9 +193,9 @@ fn rgb_to_hsl(r: f32, g: f32, b: f32) -> (u16, u8, u8) {
 fn reverse_named_lookup(ri: u8, gi: u8, bi: u8) -> Option<&'static str> {
     for &name in NAMED_COLOR_NAMES {
         if let Some((nr, ng, nb)) = named_colors::lookup(name) {
-            let nri = (nr * 255.0).round() as u8;
-            let ngi = (ng * 255.0).round() as u8;
-            let nbi = (nb * 255.0).round() as u8;
+            let nri = round_channel_to_u8(nr);
+            let ngi = round_channel_to_u8(ng);
+            let nbi = round_channel_to_u8(nb);
             if nri == ri && ngi == gi && nbi == bi {
                 return Some(name);
             }
@@ -217,6 +217,34 @@ fn fmt_alpha(a: f32) -> String {
     }
 }
 
+fn round_channel_to_u8(value: f32) -> u8 {
+    round_nonnegative_to_u8(value.clamp(0.0, 1.0).mul_add(255.0, 0.0).round())
+}
+
+fn round_percent_to_u8(value: f32) -> u8 {
+    round_nonnegative_to_u8(value.clamp(0.0, 1.0).mul_add(100.0, 0.0).round())
+}
+
+fn round_degrees_to_u16(value: f32) -> u16 {
+    round_nonnegative_to_u16(value.rem_euclid(360.0).round())
+}
+
+fn round_nonnegative_to_u8(target: f32) -> u8 {
+    let mut candidate = 0u8;
+    while candidate < u8::MAX && f32::from(candidate) < target {
+        candidate += 1;
+    }
+    candidate
+}
+
+fn round_nonnegative_to_u16(target: f32) -> u16 {
+    let mut candidate = 0u16;
+    while candidate < u16::MAX && f32::from(candidate) < target {
+        candidate += 1;
+    }
+    candidate
+}
+
 /// Generate color presentation strings for a given RGBA color.
 ///
 /// Returns a `Vec<String>` of alternative format strings, with the original
@@ -235,10 +263,10 @@ fn fmt_alpha(a: f32) -> String {
 pub fn color_presentations(r: f32, g: f32, b: f32, a: f32, original: ColorKind) -> Vec<String> {
     let opaque = (a - 1.0).abs() < f32::EPSILON;
 
-    let ri = (r * 255.0).round() as u8;
-    let gi = (g * 255.0).round() as u8;
-    let bi = (b * 255.0).round() as u8;
-    let ai = (a * 255.0).round() as u8;
+    let ri = round_channel_to_u8(r);
+    let gi = round_channel_to_u8(g);
+    let bi = round_channel_to_u8(b);
+    let ai = round_channel_to_u8(a);
 
     let (hh, hs, hl) = rgb_to_hsl(r, g, b);
     let alpha_str = fmt_alpha(a);

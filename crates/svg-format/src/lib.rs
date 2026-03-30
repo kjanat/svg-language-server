@@ -353,27 +353,9 @@ impl<'a> Formatter<'a> {
             return;
         }
 
-        // Text-content elements with entity references (&lt; &amp; etc.):
-        // extract raw content between tags as a unified text block so entity
-        // references aren't split onto separate lines.
-        if is_text_content_element(&tag_name) {
-            let has_entity_refs = children.iter().any(|c| c.kind() == "entity_reference");
-
-            if has_entity_refs {
-                let start_node = children.iter().find(|c| c.kind() == "start_tag").copied();
-                let end_node = children.iter().find(|c| c.kind() == "end_tag").copied();
-                let all_inline = children
-                    .iter()
-                    .filter(|c| !matches!(c.kind(), "start_tag" | "end_tag"))
-                    .all(|c| matches!(c.kind(), "text" | "raw_text" | "entity_reference"));
-
-                if let (Some(start), Some(end)) = (start_node, end_node)
-                    && all_inline
-                {
-                    self.format_text_content_element(start, end, depth);
-                    return;
-                }
-            }
+        if let Some((start, end)) = text_content_entity_bounds(&children, &tag_name) {
+            self.format_text_content_element(start, end, depth);
+            return;
         }
 
         let mut prev_end: Option<usize> = None;
@@ -669,7 +651,7 @@ impl<'a> Formatter<'a> {
             content: &content,
             indent_depth: depth,
         };
-        fmt(req).map_or(false, |formatted| {
+        fmt(req).is_some_and(|formatted| {
             self.write_indented_block(&formatted, depth);
             true
         })
@@ -877,6 +859,34 @@ impl<'a> Formatter<'a> {
     }
 }
 
+fn text_content_entity_bounds<'a>(
+    children: &[Node<'a>],
+    tag_name: &str,
+) -> Option<(Node<'a>, Node<'a>)> {
+    if !is_text_content_element(tag_name)
+        || !children
+            .iter()
+            .any(|child| child.kind() == "entity_reference")
+    {
+        return None;
+    }
+
+    let start = children
+        .iter()
+        .find(|child| child.kind() == "start_tag")
+        .copied()?;
+    let end = children
+        .iter()
+        .find(|child| child.kind() == "end_tag")
+        .copied()?;
+    let all_inline = children
+        .iter()
+        .filter(|child| !matches!(child.kind(), "start_tag" | "end_tag"))
+        .all(|child| matches!(child.kind(), "text" | "raw_text" | "entity_reference"));
+
+    all_inline.then_some((start, end))
+}
+
 struct ParsedTag {
     name: String,
     attributes: Vec<ParsedAttribute>,
@@ -1058,20 +1068,19 @@ fn parse_attribute(attribute: &str) -> ParsedAttribute {
             .and_then(|value| value.strip_suffix('"'))
             .map_or_else(
                 || {
-                    if let Some(inner) = raw_value
+                    raw_value
                         .strip_prefix('\'')
                         .and_then(|value| value.strip_suffix('\''))
-                    {
-                        ParsedAttributeValue {
-                            raw: inner.to_string(),
-                            original_quote: Some('\''),
-                        }
-                    } else {
-                        ParsedAttributeValue {
-                            raw: raw_value.to_string(),
-                            original_quote: None,
-                        }
-                    }
+                        .map_or_else(
+                            || ParsedAttributeValue {
+                                raw: raw_value.to_string(),
+                                original_quote: None,
+                            },
+                            |inner| ParsedAttributeValue {
+                                raw: inner.to_string(),
+                                original_quote: Some('\''),
+                            },
+                        )
                 },
                 |inner| ParsedAttributeValue {
                     raw: inner.to_string(),
@@ -1252,11 +1261,10 @@ fn entity_reference_len(text: &str) -> Option<usize> {
         .or_else(|| body.strip_prefix("#X"))
         .map_or_else(
             || {
-                if let Some(decimal) = body.strip_prefix('#') {
-                    !decimal.is_empty() && decimal.chars().all(|ch| ch.is_ascii_digit())
-                } else {
-                    body.chars().all(|ch| ch.is_ascii_alphanumeric())
-                }
+                body.strip_prefix('#').map_or_else(
+                    || body.chars().all(|ch| ch.is_ascii_alphanumeric()),
+                    |decimal| !decimal.is_empty() && decimal.chars().all(|ch| ch.is_ascii_digit()),
+                )
             },
             |hex| !hex.is_empty() && hex.chars().all(|ch| ch.is_ascii_hexdigit()),
         );
@@ -1501,7 +1509,7 @@ mod tests {
     fn format_with_host_delegates_script_content() {
         let input = "<svg><script>alert(1)</script></svg>";
         let mut called_lang = None;
-        format_with_host(input, FormatOptions::default(), &mut |req| {
+        let _ = format_with_host(input, FormatOptions::default(), &mut |req| {
             called_lang = Some(req.language);
             None
         });
@@ -1513,7 +1521,7 @@ mod tests {
         let input = r#"<svg><foreignObject width="200" height="200"><div>hello</div></foreignObject></svg>"#;
         let mut called_lang = None;
         let mut called_content = None;
-        format_with_host(input, FormatOptions::default(), &mut |req| {
+        let _ = format_with_host(input, FormatOptions::default(), &mut |req| {
             called_lang = Some(req.language);
             called_content = Some(req.content.to_string());
             None

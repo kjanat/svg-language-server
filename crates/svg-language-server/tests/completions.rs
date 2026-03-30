@@ -1,3 +1,5 @@
+//! Integration tests for SVG completion behavior.
+
 mod support;
 
 use serde_json::json;

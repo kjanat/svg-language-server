@@ -1,8 +1,10 @@
+//! Integration tests for diagnostics and code actions.
+
 mod support;
 
-use serde_json::Value;
-use serde_json::json;
 use std::time::{Duration, Instant};
+
+use serde_json::{Value, json};
 use support::TestServer;
 
 fn wait_for_notification<F>(server: &mut TestServer, method: &str, mut predicate: F) -> Value

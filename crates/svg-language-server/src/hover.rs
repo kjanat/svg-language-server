@@ -226,13 +226,11 @@ pub fn format_element_hover(el: &svg_data::ElementDef, rt: Option<&CompatOverrid
         parts.push(format_baseline(*baseline));
     }
 
-    if let Some(line) = format_browser_support_line(
+    parts.push(String::new());
+    parts.push(format_browser_support_line(
         el.browser_support.as_ref(),
         rt.and_then(|r| r.browser_support.as_ref()),
-    ) {
-        parts.push(String::new());
-        parts.push(line);
-    }
+    ));
 
     parts.push(String::new());
     let mut links = vec![format!("[MDN Reference]({})", el.mdn_url)];
@@ -304,13 +302,11 @@ pub fn format_attribute_hover(
         parts.push(format_baseline(*baseline));
     }
 
-    if let Some(line) = format_browser_support_line(
+    parts.push(String::new());
+    parts.push(format_browser_support_line(
         attr.browser_support.as_ref(),
         rt.and_then(|r| r.browser_support.as_ref()),
-    ) {
-        parts.push(String::new());
-        parts.push(line);
-    }
+    ));
 
     parts.push(String::new());
     let mut links = vec![format!("[MDN Reference]({})", attr.mdn_url)];
@@ -357,53 +353,66 @@ pub fn external_attribute_hover(kind: &str, attr_name: &str) -> Option<String> {
     const XML_NAMES_URL: &str = "https://www.w3.org/TR/REC-xml-names/";
     const XML_DECL_URL: &str = "https://www.w3.org/TR/xml/";
 
-    match kind {
-        "xml_version_attribute_name" => {
-            return Some(format_external_attribute_hover(
-                "Specifies the XML version used by the document declaration.",
-                "W3C XML Reference",
-                XML_DECL_URL,
-            ));
-        }
-        "xml_encoding_attribute_name" => {
-            return Some(format_external_attribute_hover(
-                "Specifies the character encoding declared for the XML document.",
-                "W3C XML Reference",
-                XML_DECL_URL,
-            ));
-        }
-        "xml_standalone_attribute_name" => {
-            return Some(format_external_attribute_hover(
-                "Declares whether the XML document relies on external markup declarations.",
-                "W3C XML Reference",
-                XML_DECL_URL,
-            ));
-        }
-        _ => {}
+    if let Some(markdown) = xml_declaration_attribute_hover(kind, XML_DECL_URL) {
+        return Some(markdown);
     }
 
-    if attr_name == "xmlns" {
-        return Some(format_external_attribute_hover(
-            "Declares the default XML namespace for this element and its descendants.",
-            "W3C Namespaces in XML",
-            XML_NAMES_URL,
-        ));
-    }
-
-    if let Some(prefix) = attr_name.strip_prefix("xmlns:") {
-        return Some(format_external_attribute_hover(
-            format!(
-                "Declares the `{prefix}` XML namespace prefix for this element and its descendants."
-            ),
-            "W3C Namespaces in XML",
-            XML_NAMES_URL,
-        ));
+    if let Some(markdown) = namespace_attribute_hover(attr_name, XML_NAMES_URL) {
+        return Some(markdown);
     }
 
     let mdn_reference_url = |name: &str| {
         format!("https://developer.mozilla.org/docs/Web/SVG/Reference/Attribute/{name}")
     };
 
+    legacy_svg_attribute_hover(attr_name, &mdn_reference_url)
+}
+
+fn xml_declaration_attribute_hover(kind: &str, reference_url: &str) -> Option<String> {
+    let description = match kind {
+        "xml_version_attribute_name" => {
+            "Specifies the XML version used by the document declaration."
+        }
+        "xml_encoding_attribute_name" => {
+            "Specifies the character encoding declared for the XML document."
+        }
+        "xml_standalone_attribute_name" => {
+            "Declares whether the XML document relies on external markup declarations."
+        }
+        _ => return None,
+    };
+
+    Some(format_external_attribute_hover(
+        description,
+        "W3C XML Reference",
+        reference_url,
+    ))
+}
+
+fn namespace_attribute_hover(attr_name: &str, reference_url: &str) -> Option<String> {
+    if attr_name == "xmlns" {
+        return Some(format_external_attribute_hover(
+            "Declares the default XML namespace for this element and its descendants.",
+            "W3C Namespaces in XML",
+            reference_url,
+        ));
+    }
+
+    attr_name.strip_prefix("xmlns:").map(|prefix| {
+        format_external_attribute_hover(
+            format!(
+                "Declares the `{prefix}` XML namespace prefix for this element and its descendants."
+            ),
+            "W3C Namespaces in XML",
+            reference_url,
+        )
+    })
+}
+
+fn legacy_svg_attribute_hover(
+    attr_name: &str,
+    mdn_reference_url: &impl Fn(&str) -> String,
+) -> Option<String> {
     match attr_name {
         "xml:lang" => Some(format_external_attribute_hover(
             "Specifies the natural language used by the element's text content and attribute values.",
@@ -539,7 +548,7 @@ fn format_unsupported_browsers_line(
 fn format_browser_support_line(
     baked: Option<&BrowserSupport>,
     runtime: Option<&RuntimeBrowserSupport>,
-) -> Option<String> {
+) -> String {
     let fmt = |name: &str, baked_ver: Option<&str>, rt_ver: Option<Option<&str>>| -> String {
         rt_ver.map_or(baked_ver, |value| value).map_or_else(
             || format!("{name} \u{2717}"),
@@ -568,5 +577,5 @@ fn format_browser_support_line(
         runtime.map(|r| r.safari.as_deref()),
     );
 
-    Some(format!("{chrome} | {edge} | {firefox} | {safari}"))
+    format!("{chrome} | {edge} | {firefox} | {safari}")
 }

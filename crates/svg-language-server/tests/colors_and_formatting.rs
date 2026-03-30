@@ -1,3 +1,5 @@
+//! Integration tests for color and formatting LSP flows.
+
 mod support;
 
 use serde_json::json;

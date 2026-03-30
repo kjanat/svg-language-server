@@ -1,6 +1,7 @@
 use super::{
     AttributeValues, CompletionItem, CompletionItemKind, CompletionItemTag, CompletionTextEdit,
     ContentModel, HashSet, InsertTextFormat, Range, TextEdit, position_for_byte_offset,
+    positions::u32_from_usize,
 };
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -352,7 +353,7 @@ fn collect_existing_attribute_names(
     }
 
     for i in 0..node.child_count() {
-        if let Some(child) = node.child(i as u32) {
+        if let Some(child) = node.child(u32_from_usize(i)) {
             collect_existing_attribute_names(child, source, names);
         }
     }
@@ -371,7 +372,7 @@ pub fn first_attribute_name_text(node: tree_sitter::Node<'_>, source: &[u8]) -> 
     }
 
     for i in 0..node.child_count() {
-        if let Some(child) = node.child(i as u32)
+        if let Some(child) = node.child(u32_from_usize(i))
             && let Some(name) = first_attribute_name_text(child, source)
         {
             return Some(name);
@@ -392,7 +393,7 @@ pub fn enclosing_element_name<'a>(
 ) -> Option<&'a str> {
     let elem = find_ancestor_any(node, &["element", "svg_root_element"])?;
     for i in 0..elem.child_count() {
-        let child = elem.child(i as u32)?;
+        let child = elem.child(u32_from_usize(i))?;
         let kind = child.kind();
         if kind == "start_tag" || kind == "self_closing_tag" {
             return tag_element_name(child, source);

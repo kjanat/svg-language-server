@@ -7,10 +7,30 @@
 /// <https://www.w3.org/TR/css-color-4/#named-colors>
 #[must_use]
 pub fn lookup(name: &str) -> Option<(f32, f32, f32)> {
-    let rgb = match name.to_ascii_lowercase().as_str() {
+    let lower = name.to_ascii_lowercase();
+    let rgb = lookup_rgb(lower.as_str())?;
+    Some((
+        f32::from(rgb.0) / 255.0,
+        f32::from(rgb.1) / 255.0,
+        f32::from(rgb.2) / 255.0,
+    ))
+}
+
+fn lookup_rgb(name: &str) -> Option<(u8, u8, u8)> {
+    match name.as_bytes().first().copied()? {
+        b'a'..=b'd' => lookup_rgb_a_to_d(name),
+        b'e'..=b'l' => lookup_rgb_e_to_l(name),
+        b'm'..=b'r' => lookup_rgb_m_to_r(name),
+        b's'..=b'z' => lookup_rgb_s_to_z(name),
+        _ => None,
+    }
+}
+
+fn lookup_rgb_a_to_d(name: &str) -> Option<(u8, u8, u8)> {
+    let rgb: (u8, u8, u8) = match name {
         "aliceblue" => (240, 248, 255),
         "antiquewhite" => (250, 235, 215),
-        "aqua" => (0, 255, 255),
+        "aqua" | "cyan" => (0, 255, 255),
         "aquamarine" => (127, 255, 212),
         "azure" => (240, 255, 255),
         "beige" => (245, 245, 220),
@@ -28,13 +48,11 @@ pub fn lookup(name: &str) -> Option<(f32, f32, f32)> {
         "cornflowerblue" => (100, 149, 237),
         "cornsilk" => (255, 248, 220),
         "crimson" => (220, 20, 60),
-        "cyan" => (0, 255, 255),
         "darkblue" => (0, 0, 139),
         "darkcyan" => (0, 139, 139),
         "darkgoldenrod" => (184, 134, 11),
-        "darkgray" => (169, 169, 169),
+        "darkgray" | "darkgrey" => (169, 169, 169),
         "darkgreen" => (0, 100, 0),
-        "darkgrey" => (169, 169, 169),
         "darkkhaki" => (189, 183, 107),
         "darkmagenta" => (139, 0, 139),
         "darkolivegreen" => (85, 107, 47),
@@ -44,15 +62,20 @@ pub fn lookup(name: &str) -> Option<(f32, f32, f32)> {
         "darksalmon" => (233, 150, 122),
         "darkseagreen" => (143, 188, 143),
         "darkslateblue" => (72, 61, 139),
-        "darkslategray" => (47, 79, 79),
-        "darkslategrey" => (47, 79, 79),
+        "darkslategray" | "darkslategrey" => (47, 79, 79),
         "darkturquoise" => (0, 206, 209),
         "darkviolet" => (148, 0, 211),
         "deeppink" => (255, 20, 147),
         "deepskyblue" => (0, 191, 255),
-        "dimgray" => (105, 105, 105),
-        "dimgrey" => (105, 105, 105),
+        "dimgray" | "dimgrey" => (105, 105, 105),
         "dodgerblue" => (30, 144, 255),
+        _ => return None,
+    };
+    Some(rgb)
+}
+
+fn lookup_rgb_e_to_l(name: &str) -> Option<(u8, u8, u8)> {
+    let rgb: (u8, u8, u8) = match name {
         "firebrick" => (178, 34, 34),
         "floralwhite" => (255, 250, 240),
         "forestgreen" => (34, 139, 34),
@@ -61,10 +84,9 @@ pub fn lookup(name: &str) -> Option<(f32, f32, f32)> {
         "ghostwhite" => (248, 248, 255),
         "gold" => (255, 215, 0),
         "goldenrod" => (218, 165, 32),
-        "gray" => (128, 128, 128),
+        "gray" | "grey" => (128, 128, 128),
         "green" => (0, 128, 0),
         "greenyellow" => (173, 255, 47),
-        "grey" => (128, 128, 128),
         "honeydew" => (240, 255, 240),
         "hotpink" => (255, 105, 180),
         "indianred" => (205, 92, 92),
@@ -79,20 +101,25 @@ pub fn lookup(name: &str) -> Option<(f32, f32, f32)> {
         "lightcoral" => (240, 128, 128),
         "lightcyan" => (224, 255, 255),
         "lightgoldenrodyellow" => (250, 250, 210),
-        "lightgray" => (211, 211, 211),
+        "lightgray" | "lightgrey" => (211, 211, 211),
         "lightgreen" => (144, 238, 144),
-        "lightgrey" => (211, 211, 211),
         "lightpink" => (255, 182, 193),
         "lightsalmon" => (255, 160, 122),
         "lightseagreen" => (32, 178, 170),
         "lightskyblue" => (135, 206, 250),
-        "lightslategray" => (119, 136, 153),
-        "lightslategrey" => (119, 136, 153),
+        "lightslategray" | "lightslategrey" => (119, 136, 153),
         "lightsteelblue" => (176, 196, 222),
         "lightyellow" => (255, 255, 224),
         "lime" => (0, 255, 0),
         "limegreen" => (50, 205, 50),
         "linen" => (250, 240, 230),
+        _ => return None,
+    };
+    Some(rgb)
+}
+
+fn lookup_rgb_m_to_r(name: &str) -> Option<(u8, u8, u8)> {
+    let rgb: (u8, u8, u8) = match name {
         "magenta" => (255, 0, 255),
         "maroon" => (128, 0, 0),
         "mediumaquamarine" => (102, 205, 170),
@@ -131,6 +158,13 @@ pub fn lookup(name: &str) -> Option<(f32, f32, f32)> {
         "red" => (255, 0, 0),
         "rosybrown" => (188, 143, 143),
         "royalblue" => (65, 105, 225),
+        _ => return None,
+    };
+    Some(rgb)
+}
+
+fn lookup_rgb_s_to_z(name: &str) -> Option<(u8, u8, u8)> {
+    let rgb: (u8, u8, u8) = match name {
         "saddlebrown" => (139, 69, 19),
         "salmon" => (250, 128, 114),
         "sandybrown" => (244, 164, 96),
@@ -140,8 +174,7 @@ pub fn lookup(name: &str) -> Option<(f32, f32, f32)> {
         "silver" => (192, 192, 192),
         "skyblue" => (135, 206, 235),
         "slateblue" => (106, 90, 205),
-        "slategray" => (112, 128, 144),
-        "slategrey" => (112, 128, 144),
+        "slategray" | "slategrey" => (112, 128, 144),
         "snow" => (255, 250, 250),
         "springgreen" => (0, 255, 127),
         "steelblue" => (70, 130, 180),
@@ -158,11 +191,7 @@ pub fn lookup(name: &str) -> Option<(f32, f32, f32)> {
         "yellowgreen" => (154, 205, 50),
         _ => return None,
     };
-    Some((
-        rgb.0 as f32 / 255.0,
-        rgb.1 as f32 / 255.0,
-        rgb.2 as f32 / 255.0,
-    ))
+    Some(rgb)
 }
 
 #[cfg(test)]

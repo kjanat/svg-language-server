@@ -11,6 +11,6 @@ pub mod present;
 /// Shared color metadata types.
 pub mod types;
 
-pub use extract::{extract_colors, extract_colors_from_tree};
+pub use extract::{colors as extract_colors, colors_from_tree as extract_colors_from_tree};
 pub use present::color_presentations;
 pub use types::{ColorInfo, ColorKind};

@@ -338,8 +338,9 @@ git commit -m "feat(svg-color): CSS named color lookup table"
 Create `crates/svg-color/src/parse.rs`:
 
 ```rust
-use crate::types::{ColorInfo, ColorKind};
 use std::ops::Range;
+
+use crate::types::{ColorInfo, ColorKind};
 
 /// Parse a hex color string like `#RGB`, `#RGBA`, `#RRGGBB`, `#RRGGBBAA`.
 /// Returns (r, g, b, a) as f32 values 0.0–1.0, or None if invalid.
@@ -860,12 +861,10 @@ Replace `crates/svg-language-server/src/main.rs`.
 the crate docs at build time — the snippets below are guidance, not copy-paste.
 
 ```rust
-use std::collections::HashMap;
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
+
 use tokio::sync::RwLock;
-use tower_lsp_server::jsonrpc::Result;
-use tower_lsp_server::ls_types::*;
-use tower_lsp_server::{Client, LanguageServer, LspService, Server};
+use tower_lsp_server::{Client, LanguageServer, LspService, Server, jsonrpc::Result, ls_types::*};
 
 struct SvgLanguageServer {
     client: Client,

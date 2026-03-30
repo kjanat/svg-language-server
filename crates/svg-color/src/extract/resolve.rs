@@ -1,7 +1,7 @@
-use super::{ColorStop, CustomProperties, ResolvedColor};
-use crate::types::ColorKind;
-use crate::{named_colors, parse};
 use std::collections::HashSet;
+
+use super::{ColorStop, CustomProperties, ResolvedColor};
+use crate::{named_colors, parse, types::ColorKind};
 
 pub(super) fn resolve_css_color(
     text: &str,
@@ -35,10 +35,10 @@ pub(super) fn parse_named_color(text: &str) -> Option<(f32, f32, f32, f32, Color
 }
 
 fn parse_literal_css_color(text: &str) -> Option<ResolvedColor> {
-    if let Some((r, g, b, a)) = parse::parse_hex(text) {
+    if let Some((r, g, b, a)) = parse::hex(text) {
         return Some((r, g, b, a, ColorKind::Hex));
     }
-    if let Some((r, g, b, a)) = parse::parse_functional(text) {
+    if let Some((r, g, b, a)) = parse::functional(text) {
         return Some((r, g, b, a, ColorKind::Functional));
     }
     parse_named_color(text)
@@ -82,8 +82,8 @@ fn resolve_color_mix(
     let (right, right_pct) = parse_color_mix_stop(right_stop, custom_properties, seen)?;
     let (left_weight, right_weight, alpha_scale) = resolve_mix_weights(left_pct, right_pct)?;
 
-    let mut mixed = parse::mix_colors(space, left, left_weight as f32, right, right_weight as f32)?;
-    mixed.3 = (mixed.3 * alpha_scale as f32).clamp(0.0, 1.0);
+    let mut mixed = parse::mix_colors(space, left, left_weight, right, right_weight)?;
+    mixed.3 = parse::clamp_channel(f64::from(mixed.3) * alpha_scale);
     Some((mixed.0, mixed.1, mixed.2, mixed.3, ColorKind::Functional))
 }
 
@@ -157,10 +157,7 @@ fn split_color_stop_percentage(stop: &str) -> (&str, Option<f64>) {
         return (stop, None);
     }
 
-    match parse_mix_percentage(candidate) {
-        Some(percentage) => (color, Some(percentage)),
-        None => (stop, None),
-    }
+    parse_mix_percentage(candidate).map_or((stop, None), |percentage| (color, Some(percentage)))
 }
 
 fn parse_mix_percentage(text: &str) -> Option<f64> {

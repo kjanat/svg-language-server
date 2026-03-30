@@ -78,7 +78,7 @@ pub fn attributes_for(element_name: &str) -> Vec<&'static AttributeDef> {
 
 #[must_use]
 /// Return all element names belonging to the given catalog category.
-pub fn elements_in_category(cat: ElementCategory) -> &'static [&'static str] {
+pub const fn elements_in_category(cat: ElementCategory) -> &'static [&'static str] {
     categories::elements_in_category(cat)
 }
 

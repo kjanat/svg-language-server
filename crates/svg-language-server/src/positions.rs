@@ -1,7 +1,7 @@
 use super::{Location, Position, Range, Uri};
 
 #[inline]
-fn u32_from_usize(value: usize) -> u32 {
+pub fn u32_from_usize(value: usize) -> u32 {
     u32::try_from(value).unwrap_or(u32::MAX)
 }
 

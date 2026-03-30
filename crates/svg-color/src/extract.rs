@@ -20,7 +20,7 @@ type ColorStop = (Rgba, Option<f64>);
 
 /// Extract all colors from SVG source text.
 #[must_use]
-pub fn extract_colors(source: &[u8]) -> Vec<ColorInfo> {
+pub fn colors(source: &[u8]) -> Vec<ColorInfo> {
     let mut parser = Parser::new();
     if parser
         .set_language(&tree_sitter_svg::LANGUAGE.into())
@@ -31,12 +31,12 @@ pub fn extract_colors(source: &[u8]) -> Vec<ColorInfo> {
     let Some(tree) = parser.parse(source, None) else {
         return Vec::new();
     };
-    extract_colors_from_tree(source, &tree)
+    colors_from_tree(source, &tree)
 }
 
 /// Extract colors from an already-parsed tree.
 #[must_use]
-pub fn extract_colors_from_tree(source: &[u8], tree: &Tree) -> Vec<ColorInfo> {
+pub fn colors_from_tree(source: &[u8], tree: &Tree) -> Vec<ColorInfo> {
     let mut css_parser = Parser::new();
     if css_parser
         .set_language(&tree_sitter_css::LANGUAGE.into())
@@ -82,11 +82,11 @@ fn try_extract_svg(node: tree_sitter::Node<'_>, source: &[u8]) -> Option<ColorIn
 
     let (r, g, b, a, kind) = match node.kind() {
         "hex_color" => {
-            let (r, g, b, a) = parse::parse_hex(text)?;
+            let (r, g, b, a) = parse::hex(text)?;
             (r, g, b, a, ColorKind::Hex)
         }
         "functional_color" => {
-            let (r, g, b, a) = parse::parse_functional(text)?;
+            let (r, g, b, a) = parse::functional(text)?;
             (r, g, b, a, ColorKind::Functional)
         }
         "named_color" => resolve::parse_named_color(text)?,
@@ -179,7 +179,7 @@ fn try_extract_css_leaf(
 
     let (r, g, b, a, kind) = match node.kind() {
         "color_value" => {
-            let (r, g, b, a) = parse::parse_hex(text)?;
+            let (r, g, b, a) = parse::hex(text)?;
             (r, g, b, a, ColorKind::Hex)
         }
         "call_expression" => {
@@ -190,7 +190,7 @@ fn try_extract_css_leaf(
             ) {
                 return None;
             }
-            let (r, g, b, a) = parse::parse_functional(text)?;
+            let (r, g, b, a) = parse::functional(text)?;
             (r, g, b, a, ColorKind::Functional)
         }
         "plain_value" => {
@@ -278,7 +278,7 @@ fn walk_css_tree(cursor: &mut TreeCursor<'_>, f: &mut impl FnMut(tree_sitter::No
     }
 }
 
-fn build_color_info(
+const fn build_color_info(
     (r, g, b, a): (f32, f32, f32, f32),
     byte_range: Range<usize>,
     start: Point,
@@ -299,11 +299,11 @@ fn build_color_info(
     }
 }
 
-fn offset_range(range: Range<usize>, base_byte: usize) -> Range<usize> {
+const fn offset_range(range: Range<usize>, base_byte: usize) -> Range<usize> {
     (range.start + base_byte)..(range.end + base_byte)
 }
 
-fn offset_point(point: Point, base: Point) -> Point {
+const fn offset_point(point: Point, base: Point) -> Point {
     Point {
         row: point.row + base.row,
         column: if point.row == 0 {
@@ -316,7 +316,7 @@ fn offset_point(point: Point, base: Point) -> Point {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::{colors as extract_colors, *};
 
     #[test]
     fn hex_fill() {
@@ -471,7 +471,7 @@ mod tests {
             );
         }
 
-        let base = parse::parse_functional("oklch(22.84% 0.038 283)").unwrap();
+        let base = parse::functional("oklch(22.84% 0.038 283)").unwrap();
         let mixed = parse::mix_colors("oklch", base, 0.92, (1.0, 1.0, 1.0, 1.0), 0.08).unwrap();
 
         let base_decl = by_text["oklch(22.84% 0.038 283)"];
@@ -505,7 +505,7 @@ mod tests {
                 std::str::from_utf8(&src[color.byte_range.clone()]).unwrap() == "var(--panel-bg)"
             })
             .expect("resolved panel color");
-        let base = parse::parse_functional("oklch(22.84% 0.038 283)").unwrap();
+        let base = parse::functional("oklch(22.84% 0.038 283)").unwrap();
 
         assert!((fill_ref.r - base.0).abs() < 0.03);
         assert!((fill_ref.g - base.1).abs() < 0.03);

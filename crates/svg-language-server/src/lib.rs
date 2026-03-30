@@ -63,7 +63,7 @@ use hover::{
 use logging::init_logging;
 use positions::{
     byte_col_to_utf16, byte_offset_for_position, byte_offset_for_row_col, end_position_utf16,
-    named_span_location, position_for_byte_offset,
+    named_span_location, position_for_byte_offset, u32_from_usize,
 };
 use stylesheets::{
     CachedStylesheet, ClassDefinitionHover, CustomPropertyDefinitionHover,
@@ -72,6 +72,7 @@ use stylesheets::{
 };
 
 /// Parsed document state: source text + tree-sitter tree.
+#[derive(Clone)]
 struct DocumentState {
     source: String,
     tree: tree_sitter::Tree,
@@ -140,6 +141,258 @@ fn completion_response(items: Vec<CompletionItem>) -> Option<CompletionResponse>
     (!items.is_empty()).then_some(CompletionResponse::Array(items))
 }
 
+struct ClassHoverContext {
+    target: String,
+    definitions: Vec<ClassDefinitionHover>,
+    stylesheet_hrefs: Vec<String>,
+}
+
+struct PropertyHoverContext {
+    target: String,
+    definitions: Vec<CustomPropertyDefinitionHover>,
+    stylesheet_hrefs: Vec<String>,
+}
+
+struct HoverContext {
+    element_markdown: Option<String>,
+    attribute_markdown: Option<String>,
+    class_hover: ClassHoverContext,
+    property_hover: PropertyHoverContext,
+}
+
+struct DefinitionContext {
+    target: svg_references::DefinitionTarget,
+    inline_locations: Vec<Location>,
+    stylesheet_hrefs: Vec<String>,
+}
+
+const fn empty_class_hover_context() -> ClassHoverContext {
+    ClassHoverContext {
+        target: String::new(),
+        definitions: Vec::new(),
+        stylesheet_hrefs: Vec::new(),
+    }
+}
+
+const fn empty_property_hover_context() -> PropertyHoverContext {
+    PropertyHoverContext {
+        target: String::new(),
+        definitions: Vec::new(),
+        stylesheet_hrefs: Vec::new(),
+    }
+}
+
+fn build_hover_context(
+    uri: &Uri,
+    pos: Position,
+    doc: &DocumentState,
+    runtime_compat: Option<&RuntimeCompat>,
+) -> HoverContext {
+    let source = doc.source.as_bytes();
+    let byte_offset = byte_offset_for_position(source, pos);
+    let raw_node = deepest_node_at(&doc.tree, byte_offset);
+    let node = if raw_node.is_named() {
+        raw_node
+    } else {
+        raw_node.parent().unwrap_or(raw_node)
+    };
+    let kind = node.kind().to_owned();
+    let node_text = node.utf8_text(source).unwrap_or("").to_owned();
+
+    let element_markdown = if kind == "name" {
+        node.parent().and_then(|parent| {
+            let parent_kind = parent.kind();
+            if parent_kind == "start_tag"
+                || parent_kind == "self_closing_tag"
+                || parent_kind == "end_tag"
+            {
+                svg_data::element(&node_text).map(|element| {
+                    let runtime_override =
+                        runtime_compat.and_then(|runtime| runtime.elements.get(&node_text));
+                    format_element_hover(element, runtime_override)
+                })
+            } else {
+                None
+            }
+        })
+    } else {
+        None
+    };
+
+    let attribute_markdown = if is_attribute_name_kind(&kind) {
+        svg_data::attribute(&node_text).map_or_else(
+            || external_attribute_hover(&kind, &node_text),
+            |attribute| {
+                let runtime_override =
+                    runtime_compat.and_then(|runtime| runtime.attributes.get(&node_text));
+                Some(format_attribute_hover(attribute, runtime_override))
+            },
+        )
+    } else {
+        None
+    };
+
+    let definition_target = svg_references::definition_target_at(source, &doc.tree, byte_offset);
+    let stylesheet_hrefs = svg_references::extract_xml_stylesheet_hrefs(source);
+    let inline_stylesheets = svg_references::collect_inline_stylesheets(source, &doc.tree);
+
+    let class_hover = match &definition_target {
+        Some(svg_references::DefinitionTarget::Class(target_class)) => ClassHoverContext {
+            target: target_class.clone(),
+            definitions: inline_stylesheets
+                .iter()
+                .flat_map(|stylesheet| {
+                    svg_references::collect_class_definitions_from_stylesheet(
+                        &stylesheet.css,
+                        stylesheet.start_row,
+                        stylesheet.start_col,
+                    )
+                })
+                .filter(|definition| definition.name == *target_class)
+                .map(|definition| {
+                    ClassDefinitionHover::new(uri.clone(), doc.source.clone(), definition)
+                })
+                .collect(),
+            stylesheet_hrefs: stylesheet_hrefs.clone(),
+        },
+        _ => empty_class_hover_context(),
+    };
+
+    let property_hover = match &definition_target {
+        Some(svg_references::DefinitionTarget::CustomProperty(target_property)) => {
+            PropertyHoverContext {
+                target: target_property.clone(),
+                definitions: inline_stylesheets
+                    .iter()
+                    .flat_map(|stylesheet| {
+                        svg_references::collect_custom_property_definitions_from_stylesheet(
+                            &stylesheet.css,
+                            stylesheet.start_row,
+                            stylesheet.start_col,
+                        )
+                    })
+                    .filter(|definition| definition.name == *target_property)
+                    .map(|definition| {
+                        CustomPropertyDefinitionHover::new(
+                            uri.clone(),
+                            doc.source.clone(),
+                            definition,
+                        )
+                    })
+                    .collect(),
+                stylesheet_hrefs,
+            }
+        }
+        _ => empty_property_hover_context(),
+    };
+
+    HoverContext {
+        element_markdown,
+        attribute_markdown,
+        class_hover,
+        property_hover,
+    }
+}
+
+fn build_definition_context(
+    uri: &Uri,
+    pos: Position,
+    doc: &DocumentState,
+) -> Option<DefinitionContext> {
+    let source = doc.source.as_bytes();
+    let byte_offset = byte_offset_for_position(source, pos);
+    let target = svg_references::definition_target_at(source, &doc.tree, byte_offset)?;
+    let (inline_locations, stylesheet_hrefs) =
+        inline_definition_locations(uri, source, &doc.tree, &target);
+
+    Some(DefinitionContext {
+        target,
+        inline_locations,
+        stylesheet_hrefs,
+    })
+}
+
+fn inline_definition_locations(
+    uri: &Uri,
+    source: &[u8],
+    tree: &tree_sitter::Tree,
+    target: &svg_references::DefinitionTarget,
+) -> (Vec<Location>, Vec<String>) {
+    match target {
+        svg_references::DefinitionTarget::Id(target_id) => (
+            svg_references::collect_id_definitions(source, tree)
+                .into_iter()
+                .filter(|definition| definition.name == *target_id)
+                .map(|definition| named_span_location(uri.clone(), source, &definition))
+                .collect(),
+            Vec::new(),
+        ),
+        svg_references::DefinitionTarget::Class(target_class) => (
+            svg_references::collect_inline_stylesheets(source, tree)
+                .into_iter()
+                .flat_map(|stylesheet| {
+                    svg_references::collect_class_definitions_from_stylesheet(
+                        &stylesheet.css,
+                        stylesheet.start_row,
+                        stylesheet.start_col,
+                    )
+                })
+                .filter(|definition| definition.name == *target_class)
+                .map(|definition| named_span_location(uri.clone(), source, &definition))
+                .collect(),
+            svg_references::extract_xml_stylesheet_hrefs(source),
+        ),
+        svg_references::DefinitionTarget::CustomProperty(target_property) => (
+            svg_references::collect_inline_stylesheets(source, tree)
+                .into_iter()
+                .flat_map(|stylesheet| {
+                    svg_references::collect_custom_property_definitions_from_stylesheet(
+                        &stylesheet.css,
+                        stylesheet.start_row,
+                        stylesheet.start_col,
+                    )
+                })
+                .filter(|definition| definition.name == *target_property)
+                .map(|definition| named_span_location(uri.clone(), source, &definition))
+                .collect(),
+            svg_references::extract_xml_stylesheet_hrefs(source),
+        ),
+    }
+}
+
+fn stylesheet_definition_locations(
+    stylesheet: &CachedStylesheet,
+    target: &svg_references::DefinitionTarget,
+) -> Vec<Location> {
+    match target {
+        svg_references::DefinitionTarget::Class(target_class) => stylesheet
+            .class_definitions
+            .iter()
+            .filter(|definition| definition.name == *target_class)
+            .map(|definition| {
+                named_span_location(
+                    stylesheet.uri.clone(),
+                    stylesheet.source.as_bytes(),
+                    definition,
+                )
+            })
+            .collect(),
+        svg_references::DefinitionTarget::CustomProperty(target_property) => stylesheet
+            .custom_property_definitions
+            .iter()
+            .filter(|definition| definition.name == *target_property)
+            .map(|definition| {
+                named_span_location(
+                    stylesheet.uri.clone(),
+                    stylesheet.source.as_bytes(),
+                    definition,
+                )
+            })
+            .collect(),
+        svg_references::DefinitionTarget::Id(_) => Vec::new(),
+    }
+}
+
 struct SvgLanguageServer {
     client: Client,
     documents: Arc<RwLock<HashMap<Uri, DocumentState>>>,
@@ -166,6 +419,11 @@ impl SvgLanguageServer {
             stylesheet_cache: Arc::new(StdRwLock::new(HashMap::new())),
             runtime_compat: Arc::new(RwLock::new(None)),
         }
+    }
+
+    async fn document_state(&self, uri: &Uri) -> Option<DocumentState> {
+        let docs = self.documents.read().await;
+        docs.get(uri).cloned()
     }
 
     /// Parse source, run linter, publish diagnostics, store document state.
@@ -287,8 +545,7 @@ impl LanguageServer for SvgLanguageServer {
     }
 
     async fn formatting(&self, params: DocumentFormattingParams) -> Result<Option<Vec<TextEdit>>> {
-        let docs = self.documents.read().await;
-        let Some(doc) = docs.get(&params.text_document.uri) else {
+        let Some(doc) = self.document_state(&params.text_document.uri).await else {
             return Ok(None);
         };
 
@@ -310,46 +567,47 @@ impl LanguageServer for SvgLanguageServer {
     }
 
     async fn document_color(&self, params: DocumentColorParams) -> Result<Vec<ColorInformation>> {
-        let docs = self.documents.read().await;
-        let Some(doc) = docs.get(&params.text_document.uri) else {
+        let Some(doc) = self.document_state(&params.text_document.uri).await else {
             return Ok(Vec::new());
         };
         let source_bytes = doc.source.as_bytes();
-        let colors = svg_color::extract_colors_from_tree(source_bytes, &doc.tree);
-
-        let mut kinds = self.color_kinds.write().await;
-        // Clear stale entries for this URI
-        kinds.retain(|(uri, _, _), _| *uri != params.text_document.uri);
-
-        let result = colors
+        let entries = svg_color::extract_colors_from_tree(source_bytes, &doc.tree)
             .into_iter()
-            .map(|c| {
-                let start_char = byte_col_to_utf16(source_bytes, c.start_row, c.start_col);
-                let end_char = byte_col_to_utf16(source_bytes, c.end_row, c.end_col);
-
-                kinds.insert(
-                    (
-                        params.text_document.uri.clone(),
-                        c.start_row as u32,
-                        start_char,
-                    ),
-                    c.kind,
+            .map(|color| {
+                let start_char = byte_col_to_utf16(source_bytes, color.start_row, color.start_col);
+                let end_char = byte_col_to_utf16(source_bytes, color.end_row, color.end_col);
+                let key = (
+                    params.text_document.uri.clone(),
+                    u32_from_usize(color.start_row),
+                    start_char,
                 );
-
-                ColorInformation {
+                let info = ColorInformation {
                     range: Range::new(
-                        Position::new(c.start_row as u32, start_char),
-                        Position::new(c.end_row as u32, end_char),
+                        Position::new(u32_from_usize(color.start_row), start_char),
+                        Position::new(u32_from_usize(color.end_row), end_char),
                     ),
                     color: Color {
-                        red: c.r,
-                        green: c.g,
-                        blue: c.b,
-                        alpha: c.a,
+                        red: color.r,
+                        green: color.g,
+                        blue: color.b,
+                        alpha: color.a,
                     },
-                }
+                };
+                (info, key, color.kind)
             })
-            .collect();
+            .collect::<Vec<_>>();
+        let uri = params.text_document.uri.clone();
+
+        let result = entries.iter().map(|(info, _, _)| info.clone()).collect();
+
+        {
+            let mut kinds = self.color_kinds.write().await;
+            // Clear stale entries for this URI
+            kinds.retain(|(cached_uri, _, _), _| *cached_uri != uri);
+            for (_, key, kind) in entries {
+                kinds.insert(key, kind);
+            }
+        }
 
         Ok(result)
     }
@@ -395,117 +653,17 @@ impl LanguageServer for SvgLanguageServer {
         let uri = &params.text_document_position_params.text_document.uri;
         let pos = params.text_document_position_params.position;
 
-        let (element_markdown, attribute_markdown, class_hover, property_hover) = {
-            let docs = self.documents.read().await;
-            let Some(doc) = docs.get(uri) else {
-                return Ok(None);
-            };
-
-            let source = doc.source.as_bytes();
-            let byte_offset = byte_offset_for_position(source, pos);
-
-            let raw_node = deepest_node_at(&doc.tree, byte_offset);
-            let node = if !raw_node.is_named() {
-                raw_node.parent().unwrap_or(raw_node)
-            } else {
-                raw_node
-            };
-            let kind = node.kind().to_owned();
-            let node_text = node.utf8_text(source).unwrap_or("").to_owned();
-
-            let rt = self.runtime_compat.read().await;
-            let element_markdown = if kind == "name" {
-                node.parent().and_then(|parent| {
-                    let parent_kind = parent.kind();
-                    if parent_kind == "start_tag"
-                        || parent_kind == "self_closing_tag"
-                        || parent_kind == "end_tag"
-                    {
-                        svg_data::element(&node_text).map(|el| {
-                            let rt_override = rt.as_ref().and_then(|r| r.elements.get(&node_text));
-                            format_element_hover(el, rt_override)
-                        })
-                    } else {
-                        None
-                    }
-                })
-            } else {
-                None
-            };
-
-            let attribute_markdown = if is_attribute_name_kind(&kind) {
-                if let Some(attr) = svg_data::attribute(&node_text) {
-                    let rt_override = rt.as_ref().and_then(|r| r.attributes.get(&node_text));
-                    Some(format_attribute_hover(attr, rt_override))
-                } else {
-                    external_attribute_hover(&kind, &node_text)
-                }
-            } else {
-                None
-            };
-
-            let definition_target =
-                svg_references::definition_target_at(source, &doc.tree, byte_offset);
-            let stylesheet_hrefs = svg_references::extract_xml_stylesheet_hrefs(source);
-            let inline_stylesheets = svg_references::collect_inline_stylesheets(source, &doc.tree);
-
-            let class_hover = if let Some(svg_references::DefinitionTarget::Class(target_class)) =
-                &definition_target
-            {
-                let definitions = inline_stylesheets
-                    .iter()
-                    .flat_map(|stylesheet| {
-                        svg_references::collect_class_definitions_from_stylesheet(
-                            &stylesheet.css,
-                            stylesheet.start_row,
-                            stylesheet.start_col,
-                        )
-                    })
-                    .filter(|definition| definition.name == *target_class)
-                    .map(|definition| {
-                        ClassDefinitionHover::new(uri.clone(), doc.source.clone(), definition)
-                    })
-                    .collect::<Vec<_>>();
-
-                (target_class.clone(), definitions, stylesheet_hrefs.clone())
-            } else {
-                (String::new(), Vec::new(), Vec::new())
-            };
-
-            let property_hover =
-                if let Some(svg_references::DefinitionTarget::CustomProperty(target_property)) =
-                    &definition_target
-                {
-                    let definitions = inline_stylesheets
-                        .iter()
-                        .flat_map(|stylesheet| {
-                            svg_references::collect_custom_property_definitions_from_stylesheet(
-                                &stylesheet.css,
-                                stylesheet.start_row,
-                                stylesheet.start_col,
-                            )
-                        })
-                        .filter(|definition| definition.name == *target_property)
-                        .map(|definition| {
-                            CustomPropertyDefinitionHover::new(
-                                uri.clone(),
-                                doc.source.clone(),
-                                definition,
-                            )
-                        })
-                        .collect::<Vec<_>>();
-
-                    (target_property.clone(), definitions, stylesheet_hrefs)
-                } else {
-                    (String::new(), Vec::new(), Vec::new())
-                };
-
-            (
-                element_markdown,
-                attribute_markdown,
-                class_hover,
-                property_hover,
-            )
+        let Some(doc) = self.document_state(uri).await else {
+            return Ok(None);
+        };
+        let HoverContext {
+            element_markdown,
+            attribute_markdown,
+            class_hover,
+            property_hover,
+        } = {
+            let runtime_compat = self.runtime_compat.read().await;
+            build_hover_context(uri, pos, &doc, runtime_compat.as_ref())
         };
 
         if let Some(markdown) = element_markdown {
@@ -516,7 +674,11 @@ impl LanguageServer for SvgLanguageServer {
             return Ok(Some(markdown_hover(markdown)));
         }
 
-        let (target_class, mut class_definitions, stylesheet_hrefs) = class_hover;
+        let ClassHoverContext {
+            target: target_class,
+            mut definitions,
+            stylesheet_hrefs,
+        } = class_hover;
         if !target_class.is_empty() {
             let mut local_definitions = Vec::new();
             let mut remote_definitions = Vec::new();
@@ -541,18 +703,22 @@ impl LanguageServer for SvgLanguageServer {
                 }
             }
 
-            class_definitions.extend(local_definitions);
-            class_definitions.extend(remote_definitions);
+            definitions.extend(local_definitions);
+            definitions.extend(remote_definitions);
 
-            if !class_definitions.is_empty() {
+            if !definitions.is_empty() {
                 return Ok(Some(markdown_hover(format_class_hover(
                     &target_class,
-                    &class_definitions,
+                    &definitions,
                 ))));
             }
         }
 
-        let (target_property, mut property_definitions, stylesheet_hrefs) = property_hover;
+        let PropertyHoverContext {
+            target: target_property,
+            mut definitions,
+            stylesheet_hrefs,
+        } = property_hover;
         if !target_property.is_empty() {
             let mut local_definitions = Vec::new();
             let mut remote_definitions = Vec::new();
@@ -577,13 +743,13 @@ impl LanguageServer for SvgLanguageServer {
                 }
             }
 
-            property_definitions.extend(local_definitions);
-            property_definitions.extend(remote_definitions);
+            definitions.extend(local_definitions);
+            definitions.extend(remote_definitions);
 
-            if !property_definitions.is_empty() {
+            if !definitions.is_empty() {
                 return Ok(Some(markdown_hover(format_custom_property_hover(
                     &target_property,
-                    &property_definitions,
+                    &definitions,
                 ))));
             }
         }
@@ -593,12 +759,8 @@ impl LanguageServer for SvgLanguageServer {
 
     async fn code_action(&self, params: CodeActionParams) -> Result<Option<CodeActionResponse>> {
         let uri = &params.text_document.uri;
-        let source = {
-            let docs = self.documents.read().await;
-            let Some(doc) = docs.get(uri) else {
-                return Ok(None);
-            };
-            doc.source.clone()
+        let Some(source) = self.document_state(uri).await.map(|doc| doc.source) else {
+            return Ok(None);
         };
 
         let mut seen = std::collections::HashSet::new();
@@ -667,63 +829,16 @@ impl LanguageServer for SvgLanguageServer {
         let uri = &params.text_document_position_params.text_document.uri;
         let pos = params.text_document_position_params.position;
 
-        let (target, inline_locations, stylesheet_hrefs) = {
-            let docs = self.documents.read().await;
-            let Some(doc) = docs.get(uri) else {
-                return Ok(None);
-            };
-
-            let source = doc.source.as_bytes();
-            let byte_offset = byte_offset_for_position(source, pos);
-            let Some(target) = svg_references::definition_target_at(source, &doc.tree, byte_offset)
-            else {
-                return Ok(None);
-            };
-
-            match &target {
-                svg_references::DefinitionTarget::Id(target_id) => {
-                    let locations = svg_references::collect_id_definitions(source, &doc.tree)
-                        .into_iter()
-                        .filter(|definition| definition.name == *target_id)
-                        .map(|definition| named_span_location(uri.clone(), source, &definition))
-                        .collect();
-                    (target, locations, Vec::new())
-                }
-                svg_references::DefinitionTarget::Class(target_class) => {
-                    let inline_locations =
-                        svg_references::collect_inline_stylesheets(source, &doc.tree)
-                            .into_iter()
-                            .flat_map(|stylesheet| {
-                                svg_references::collect_class_definitions_from_stylesheet(
-                                    &stylesheet.css,
-                                    stylesheet.start_row,
-                                    stylesheet.start_col,
-                                )
-                            })
-                            .filter(|definition| definition.name == *target_class)
-                            .map(|definition| named_span_location(uri.clone(), source, &definition))
-                            .collect();
-                    let hrefs = svg_references::extract_xml_stylesheet_hrefs(source);
-                    (target, inline_locations, hrefs)
-                }
-                svg_references::DefinitionTarget::CustomProperty(target_property) => {
-                    let inline_locations =
-                        svg_references::collect_inline_stylesheets(source, &doc.tree)
-                            .into_iter()
-                            .flat_map(|stylesheet| {
-                                svg_references::collect_custom_property_definitions_from_stylesheet(
-                                    &stylesheet.css,
-                                    stylesheet.start_row,
-                                    stylesheet.start_col,
-                                )
-                            })
-                            .filter(|definition| definition.name == *target_property)
-                            .map(|definition| named_span_location(uri.clone(), source, &definition))
-                            .collect();
-                    let hrefs = svg_references::extract_xml_stylesheet_hrefs(source);
-                    (target, inline_locations, hrefs)
-                }
-            }
+        let Some(doc) = self.document_state(uri).await else {
+            return Ok(None);
+        };
+        let Some(DefinitionContext {
+            target,
+            inline_locations,
+            stylesheet_hrefs,
+        }) = build_definition_context(uri, pos, &doc)
+        else {
+            return Ok(None);
         };
 
         if matches!(target, svg_references::DefinitionTarget::Id(_)) {
@@ -741,33 +856,7 @@ impl LanguageServer for SvgLanguageServer {
                 continue;
             };
 
-            let defs = match &target {
-                svg_references::DefinitionTarget::Class(target_class) => stylesheet
-                    .class_definitions
-                    .iter()
-                    .filter(|definition| definition.name == *target_class)
-                    .map(|definition| {
-                        named_span_location(
-                            stylesheet.uri.clone(),
-                            stylesheet.source.as_bytes(),
-                            definition,
-                        )
-                    })
-                    .collect::<Vec<_>>(),
-                svg_references::DefinitionTarget::CustomProperty(target_property) => stylesheet
-                    .custom_property_definitions
-                    .iter()
-                    .filter(|definition| definition.name == *target_property)
-                    .map(|definition| {
-                        named_span_location(
-                            stylesheet.uri.clone(),
-                            stylesheet.source.as_bytes(),
-                            definition,
-                        )
-                    })
-                    .collect::<Vec<_>>(),
-                svg_references::DefinitionTarget::Id(_) => Vec::new(),
-            };
+            let defs = stylesheet_definition_locations(&stylesheet, &target);
 
             if is_remote {
                 remote_locations.extend(defs);
@@ -786,8 +875,7 @@ impl LanguageServer for SvgLanguageServer {
         let uri = &params.text_document_position.text_document.uri;
         let pos = params.text_document_position.position;
 
-        let docs = self.documents.read().await;
-        let Some(doc) = docs.get(uri) else {
+        let Some(doc) = self.document_state(uri).await else {
             return Ok(None);
         };
 

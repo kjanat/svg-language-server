@@ -25,239 +25,263 @@ pub struct CompatData {
 /// On any failure, prints a cargo warning and returns empty maps.
 pub fn fetch_compat_data(out_dir: &Path) -> CompatData {
     let offline = std::env::var("SVG_DATA_OFFLINE").is_ok();
-
-    let bcd_path = out_dir.join("bcd-data.json");
-    let wf_path = out_dir.join("web-features-data.json");
-
-    let bcd_ok = match ensure_cached(BCD_URL, &bcd_path, offline) {
-        Ok(v) => v,
-        Err(e) => {
-            println!("cargo::warning=compat: BCD fetch failed: {e}");
-            false
-        }
-    };
-
-    let wf_ok = match ensure_cached(WEB_FEATURES_URL, &wf_path, offline) {
-        Ok(v) => v,
-        Err(e) => {
-            println!("cargo::warning=compat: web-features fetch failed: {e}");
-            false
-        }
-    };
-
-    let empty = CompatData {
+    let (bcd_ok, wf_ok, bcd_path, wf_path) = prepare_cache_paths(out_dir, offline);
+    let empty_data = CompatData {
         elements: HashMap::new(),
         attributes: HashMap::new(),
     };
 
     if !bcd_ok {
         println!("cargo::warning=compat: no BCD data — all entries get baseline: None");
-        return empty;
+        return empty_data;
     }
 
-    // Parse BCD: we only need svg.elements
-    let bcd_raw = match fs::read_to_string(&bcd_path) {
-        Ok(s) => s,
-        Err(e) => {
-            println!("cargo::warning=compat: failed to read BCD cache: {e}");
-            return empty;
-        }
+    let Some(bcd_root) = read_cached_json(&bcd_path, "BCD") else {
+        return empty_data;
     };
-
-    let bcd_root: serde_json::Value = match serde_json::from_str(&bcd_raw) {
-        Ok(v) => v,
-        Err(e) => {
-            println!("cargo::warning=compat: failed to parse BCD JSON: {e}");
-            return empty;
-        }
+    let Some(svg_elements_obj) = svg_elements_object(&bcd_root) else {
+        return empty_data;
     };
-
-    let Some(svg_elements) = bcd_root.pointer("/svg/elements") else {
-        println!("cargo::warning=compat: BCD missing /svg/elements path");
-        return empty;
-    };
-
-    // Parse web-features (optional — only needed for baseline mapping)
-    let wf_features: Option<serde_json::Value> = if wf_ok {
-        match fs::read_to_string(&wf_path) {
-            Ok(s) => match serde_json::from_str::<serde_json::Value>(&s) {
-                Ok(v) => v.get("features").cloned(),
-                Err(e) => {
-                    println!("cargo::warning=compat: failed to parse web-features JSON: {e}");
-                    None
-                }
-            },
-            Err(e) => {
-                println!("cargo::warning=compat: failed to read web-features cache: {e}");
-                None
-            }
-        }
-    } else {
-        None
-    };
-
-    let Some(svg_elements_obj) = svg_elements.as_object() else {
-        println!("cargo::warning=compat: /svg/elements is not an object");
-        return empty;
-    };
-
-    let mut map = HashMap::new();
-
-    for (el_name, el_data) in svg_elements_obj {
-        let Some(compat) = el_data.pointer("/__compat") else {
-            continue;
-        };
-
-        // Extract status flags
-        let deprecated = compat
-            .pointer("/status/deprecated")
-            .and_then(serde_json::Value::as_bool)
-            .unwrap_or(false);
-        let experimental = compat
-            .pointer("/status/experimental")
-            .and_then(serde_json::Value::as_bool)
-            .unwrap_or(false);
-        let spec_url = extract_spec_url(compat);
-        let browser_support = extract_browser_support(compat);
-        let compat_key = format!("svg.elements.{el_name}");
-        let baseline = extract_baseline(compat, wf_features.as_ref(), &compat_key);
-
-        map.insert(
-            el_name.clone(),
-            CompatEntry {
-                deprecated,
-                experimental,
-                spec_url,
-                baseline,
-                browser_support,
-            },
-        );
-    }
+    let wf_features = read_web_features(&wf_path, wf_ok);
+    let elements = collect_element_entries(svg_elements_obj, wf_features.as_ref());
 
     println!(
         "cargo::warning=compat: loaded {} element entries from BCD",
-        map.len()
+        elements.len()
     );
 
-    // Collect attributes from BCD: global + element-specific
-    let mut attr_map: HashMap<String, BcdAttribute> = HashMap::new();
-
-    // 1) Global attributes (apply to all elements)
-    if let Some(global_attrs) = bcd_root.pointer("/svg/global_attributes")
-        && let Some(obj) = global_attrs.as_object()
-    {
-        for (attr_name, attr_data) in obj {
-            let Some(compat) = attr_data.pointer("/__compat") else {
-                continue;
-            };
-            let deprecated = compat
-                .pointer("/status/deprecated")
-                .and_then(serde_json::Value::as_bool)
-                .unwrap_or(false);
-            let experimental = compat
-                .pointer("/status/experimental")
-                .and_then(serde_json::Value::as_bool)
-                .unwrap_or(false);
-            let spec_url = extract_spec_url(compat);
-            let browser_support = extract_browser_support(compat);
-            let compat_key = format!("svg.global_attributes.{attr_name}");
-            let baseline = extract_baseline(compat, wf_features.as_ref(), &compat_key);
-            attr_map.insert(
-                attr_name.clone(),
-                BcdAttribute {
-                    compat: CompatEntry {
-                        deprecated,
-                        experimental,
-                        spec_url,
-                        baseline,
-                        browser_support,
-                    },
-                    elements: vec!["*".to_string()],
-                },
-            );
-        }
-    }
-
-    // 2) Element-specific attributes (e.g. svg.elements.svg.baseProfile)
-    for (el_name, el_data) in svg_elements_obj {
-        let Some(el_obj) = el_data.as_object() else {
-            continue;
-        };
-        for (key, val) in el_obj {
-            if key == "__compat" {
-                continue;
-            }
-            let Some(compat) = val.pointer("/__compat") else {
-                continue;
-            };
-            let deprecated = compat
-                .pointer("/status/deprecated")
-                .and_then(serde_json::Value::as_bool)
-                .unwrap_or(false);
-            let experimental = compat
-                .pointer("/status/experimental")
-                .and_then(serde_json::Value::as_bool)
-                .unwrap_or(false);
-            let spec_url = extract_spec_url(compat);
-            let browser_support = extract_browser_support(compat);
-            let compat_key = format!("svg.elements.{el_name}.{key}");
-            let baseline = extract_baseline(compat, wf_features.as_ref(), &compat_key);
-
-            attr_map
-                .entry(key.clone())
-                .and_modify(|existing| {
-                    // Merge: promote deprecated if any source says so
-                    if deprecated {
-                        existing.compat.deprecated = true;
-                    }
-                    // Promote experimental if any source says so
-                    if experimental {
-                        existing.compat.experimental = true;
-                    }
-                    // Keep first spec URL
-                    if existing.compat.spec_url.is_none() {
-                        existing.compat.spec_url.clone_from(&spec_url);
-                    }
-                    // Add element association if not already global
-                    if !bcd_attr_applies_globally(&existing.elements)
-                        && !existing.elements.iter().any(|element| element == el_name)
-                    {
-                        existing.elements.push(el_name.clone());
-                    }
-                    // Conservative baseline merge: keep the worst (most limited)
-                    match (&existing.compat.baseline, &baseline) {
-                        (None, _) => existing.compat.baseline.clone_from(&baseline),
-                        (Some(current), Some(new)) if new.rank() < current.rank() => {
-                            existing.compat.baseline.clone_from(&baseline);
-                        }
-                        _ => {}
-                    }
-                    // Conservative browser support merge: keep the lowest version per browser
-                    if let Some(new_bs) = &browser_support {
-                        merge_browser_support(&mut existing.compat.browser_support, new_bs);
-                    }
-                })
-                .or_insert_with(|| BcdAttribute {
-                    compat: CompatEntry {
-                        deprecated,
-                        experimental,
-                        spec_url,
-                        baseline,
-                        browser_support,
-                    },
-                    elements: vec![el_name.clone()],
-                });
-        }
-    }
+    let attributes = collect_attribute_entries(&bcd_root, svg_elements_obj, wf_features.as_ref());
 
     println!(
         "cargo::warning=compat: loaded {} attribute entries from BCD",
-        attr_map.len()
+        attributes.len()
     );
 
     CompatData {
-        elements: map,
-        attributes: attr_map,
+        elements,
+        attributes,
+    }
+}
+
+fn prepare_cache_paths(
+    out_dir: &Path,
+    offline: bool,
+) -> (bool, bool, std::path::PathBuf, std::path::PathBuf) {
+    let bcd_path = out_dir.join("bcd-data.json");
+    let wf_path = out_dir.join("web-features-data.json");
+    let bcd_ok = ensure_cached_with_warning(BCD_URL, &bcd_path, offline, "BCD");
+    let wf_ok = ensure_cached_with_warning(WEB_FEATURES_URL, &wf_path, offline, "web-features");
+    (bcd_ok, wf_ok, bcd_path, wf_path)
+}
+
+fn ensure_cached_with_warning(url: &str, path: &Path, offline: bool, label: &str) -> bool {
+    match ensure_cached(url, path, offline) {
+        Ok(value) => value,
+        Err(error) => {
+            println!("cargo::warning=compat: {label} fetch failed: {error}");
+            false
+        }
+    }
+}
+
+fn read_cached_json(path: &Path, label: &str) -> Option<serde_json::Value> {
+    let raw = match fs::read_to_string(path) {
+        Ok(source) => source,
+        Err(error) => {
+            println!("cargo::warning=compat: failed to read {label} cache: {error}");
+            return None;
+        }
+    };
+
+    match serde_json::from_str(&raw) {
+        Ok(json) => Some(json),
+        Err(error) => {
+            println!("cargo::warning=compat: failed to parse {label} JSON: {error}");
+            None
+        }
+    }
+}
+
+fn svg_elements_object(
+    bcd_root: &serde_json::Value,
+) -> Option<&serde_json::Map<String, serde_json::Value>> {
+    let Some(svg_elements) = bcd_root.pointer("/svg/elements") else {
+        println!("cargo::warning=compat: BCD missing /svg/elements path");
+        return None;
+    };
+    let Some(elements) = svg_elements.as_object() else {
+        println!("cargo::warning=compat: /svg/elements is not an object");
+        return None;
+    };
+    Some(elements)
+}
+
+fn read_web_features(path: &Path, wf_ok: bool) -> Option<serde_json::Value> {
+    if !wf_ok {
+        return None;
+    }
+
+    match fs::read_to_string(path) {
+        Ok(source) => match serde_json::from_str::<serde_json::Value>(&source) {
+            Ok(json) => json.get("features").cloned(),
+            Err(error) => {
+                println!("cargo::warning=compat: failed to parse web-features JSON: {error}");
+                None
+            }
+        },
+        Err(error) => {
+            println!("cargo::warning=compat: failed to read web-features cache: {error}");
+            None
+        }
+    }
+}
+
+fn collect_element_entries(
+    svg_elements_obj: &serde_json::Map<String, serde_json::Value>,
+    wf_features: Option<&serde_json::Value>,
+) -> HashMap<String, CompatEntry> {
+    svg_elements_obj
+        .iter()
+        .filter_map(|(element_name, element_data)| {
+            let compat = element_data.pointer("/__compat")?;
+            Some((
+                element_name.clone(),
+                compat_entry(compat, wf_features, &format!("svg.elements.{element_name}")),
+            ))
+        })
+        .collect()
+}
+
+fn collect_attribute_entries(
+    bcd_root: &serde_json::Value,
+    svg_elements_obj: &serde_json::Map<String, serde_json::Value>,
+    wf_features: Option<&serde_json::Value>,
+) -> HashMap<String, BcdAttribute> {
+    let mut attributes = HashMap::new();
+    collect_global_attributes(&mut attributes, bcd_root, wf_features);
+    collect_element_specific_attributes(&mut attributes, svg_elements_obj, wf_features);
+    attributes
+}
+
+fn collect_global_attributes(
+    attributes: &mut HashMap<String, BcdAttribute>,
+    bcd_root: &serde_json::Value,
+    wf_features: Option<&serde_json::Value>,
+) {
+    let Some(global_attributes) = bcd_root.pointer("/svg/global_attributes") else {
+        return;
+    };
+    let Some(attribute_map) = global_attributes.as_object() else {
+        return;
+    };
+
+    for (attribute_name, attribute_data) in attribute_map {
+        let Some(compat) = attribute_data.pointer("/__compat") else {
+            continue;
+        };
+        attributes.insert(
+            attribute_name.clone(),
+            BcdAttribute {
+                compat: compat_entry(
+                    compat,
+                    wf_features,
+                    &format!("svg.global_attributes.{attribute_name}"),
+                ),
+                elements: vec!["*".to_string()],
+            },
+        );
+    }
+}
+
+fn collect_element_specific_attributes(
+    attributes: &mut HashMap<String, BcdAttribute>,
+    svg_elements_obj: &serde_json::Map<String, serde_json::Value>,
+    wf_features: Option<&serde_json::Value>,
+) {
+    for (element_name, element_data) in svg_elements_obj {
+        let Some(element_map) = element_data.as_object() else {
+            continue;
+        };
+
+        for (attribute_name, attribute_data) in element_map {
+            if attribute_name == "__compat" {
+                continue;
+            }
+
+            let Some(compat) = attribute_data.pointer("/__compat") else {
+                continue;
+            };
+
+            let compat_entry = compat_entry(
+                compat,
+                wf_features,
+                &format!("svg.elements.{element_name}.{attribute_name}"),
+            );
+            merge_attribute_entry(attributes, attribute_name, element_name, compat_entry);
+        }
+    }
+}
+
+fn merge_attribute_entry(
+    attributes: &mut HashMap<String, BcdAttribute>,
+    attribute_name: &str,
+    element_name: &str,
+    compat: CompatEntry,
+) {
+    attributes
+        .entry(attribute_name.to_string())
+        .and_modify(|existing| {
+            if compat.deprecated {
+                existing.compat.deprecated = true;
+            }
+            if compat.experimental {
+                existing.compat.experimental = true;
+            }
+            if existing.compat.spec_url.is_none() {
+                existing.compat.spec_url.clone_from(&compat.spec_url);
+            }
+            if !bcd_attr_applies_globally(&existing.elements)
+                && !existing
+                    .elements
+                    .iter()
+                    .any(|element| element == element_name)
+            {
+                existing.elements.push(element_name.to_string());
+            }
+            match (&existing.compat.baseline, &compat.baseline) {
+                (None, _) => existing.compat.baseline.clone_from(&compat.baseline),
+                (Some(current), Some(new)) if new.rank() < current.rank() => {
+                    existing.compat.baseline.clone_from(&compat.baseline);
+                }
+                _ => {}
+            }
+            if let Some(browser_support) = &compat.browser_support {
+                merge_browser_support(&mut existing.compat.browser_support, browser_support);
+            }
+        })
+        .or_insert_with(|| BcdAttribute {
+            compat,
+            elements: vec![element_name.to_string()],
+        });
+}
+
+fn compat_entry(
+    compat: &serde_json::Value,
+    wf_features: Option<&serde_json::Value>,
+    compat_key: &str,
+) -> CompatEntry {
+    CompatEntry {
+        deprecated: compat
+            .pointer("/status/deprecated")
+            .and_then(serde_json::Value::as_bool)
+            .unwrap_or(false),
+        experimental: compat
+            .pointer("/status/experimental")
+            .and_then(serde_json::Value::as_bool)
+            .unwrap_or(false),
+        spec_url: extract_spec_url(compat),
+        baseline: extract_baseline(compat, wf_features, compat_key),
+        browser_support: extract_browser_support(compat),
     }
 }
 

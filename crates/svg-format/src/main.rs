@@ -7,7 +7,7 @@ use std::{
     process::ExitCode,
 };
 
-use clap::{Parser, ValueEnum};
+use clap::{Args, Parser, ValueEnum};
 use svg_format::{
     AttributeLayout, AttributeSort, BlankLines, FormatOptions, QuoteStyle, TextContentMode,
     WrappedAttributeIndent, format_with_options,
@@ -131,23 +131,14 @@ struct Cli {
     #[arg(value_name = "FILE", conflicts_with = "stdin")]
     path: Option<PathBuf>,
 
-    #[arg(short = 'i', long, requires = "path")]
-    in_place: bool,
-
-    #[arg(long)]
-    check: bool,
-
-    #[arg(long, conflicts_with = "path")]
-    stdin: bool,
+    #[command(flatten)]
+    io: IoArgs,
 
     #[arg(long, default_value_t = 2)]
     indent_width: usize,
 
-    #[arg(long, conflicts_with = "use_spaces")]
-    use_tabs: bool,
-
-    #[arg(long, conflicts_with = "use_tabs")]
-    use_spaces: bool,
+    #[command(flatten)]
+    indent_style: IndentStyleArgs,
 
     #[arg(long, default_value_t = 100)]
     max_inline_tag_width: usize,
@@ -161,11 +152,8 @@ struct Cli {
     #[arg(long, default_value_t = 1)]
     attributes_per_line: usize,
 
-    #[arg(long, conflicts_with = "no_space_before_self_close")]
-    space_before_self_close: bool,
-
-    #[arg(long, conflicts_with = "space_before_self_close")]
-    no_space_before_self_close: bool,
+    #[command(flatten)]
+    self_close: SelfCloseArgs,
 
     #[arg(long, value_enum, default_value_t = QuoteStyleArg::Preserve)]
     quote_style: QuoteStyleArg,
@@ -180,12 +168,42 @@ struct Cli {
     blank_lines: BlankLinesArg,
 }
 
+#[derive(Args, Debug)]
+struct IoArgs {
+    #[arg(short = 'i', long, requires = "path")]
+    in_place: bool,
+
+    #[arg(long)]
+    check: bool,
+
+    #[arg(long, conflicts_with = "path")]
+    stdin: bool,
+}
+
+#[derive(Args, Debug)]
+struct IndentStyleArgs {
+    #[arg(long, conflicts_with = "use_spaces")]
+    use_tabs: bool,
+
+    #[arg(long, conflicts_with = "use_tabs")]
+    use_spaces: bool,
+}
+
+#[derive(Args, Debug)]
+struct SelfCloseArgs {
+    #[arg(long, conflicts_with = "no_space_before_self_close")]
+    space_before_self_close: bool,
+
+    #[arg(long, conflicts_with = "space_before_self_close")]
+    no_space_before_self_close: bool,
+}
+
 fn run() -> Result<ExitCode, String> {
     let cli = Cli::parse();
     let defaults = FormatOptions::default();
-    let read_stdin = cli.stdin || cli.path.is_none();
+    let read_stdin = cli.io.stdin || cli.path.is_none();
 
-    if cli.in_place && read_stdin {
+    if cli.io.in_place && read_stdin {
         return Err("--in-place requires FILE input".to_string());
     }
     if cli.indent_width == 0 {
@@ -200,9 +218,9 @@ fn run() -> Result<ExitCode, String> {
 
     let options = FormatOptions {
         indent_width: cli.indent_width,
-        insert_spaces: if cli.use_spaces {
+        insert_spaces: if cli.indent_style.use_spaces {
             true
-        } else if cli.use_tabs {
+        } else if cli.indent_style.use_tabs {
             false
         } else {
             defaults.insert_spaces
@@ -211,9 +229,9 @@ fn run() -> Result<ExitCode, String> {
         attribute_sort: cli.attribute_sort.into(),
         attribute_layout: cli.attribute_layout.into(),
         attributes_per_line: cli.attributes_per_line,
-        space_before_self_close: if cli.no_space_before_self_close {
+        space_before_self_close: if cli.self_close.no_space_before_self_close {
             false
-        } else if cli.space_before_self_close {
+        } else if cli.self_close.space_before_self_close {
             true
         } else {
             defaults.space_before_self_close
@@ -240,7 +258,7 @@ fn run() -> Result<ExitCode, String> {
     let formatted = format_with_options(&input, options);
     let changed = formatted != input;
 
-    if cli.check {
+    if cli.io.check {
         if changed {
             if let Some(path) = &cli.path {
                 eprintln!("would reformat {}", path.display());
@@ -252,7 +270,7 @@ fn run() -> Result<ExitCode, String> {
         return Ok(ExitCode::SUCCESS);
     }
 
-    if cli.in_place {
+    if cli.io.in_place {
         if changed {
             let Some(path) = cli.path.as_ref() else {
                 return Err("--in-place requires FILE input".to_string());

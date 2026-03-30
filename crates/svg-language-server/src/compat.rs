@@ -6,136 +6,148 @@ const WEB_FEATURES_URL: &str = "https://unpkg.com/web-features@latest/data.json"
 /// Fetch BCD + web-features from unpkg, parse into a `RuntimeCompat` overlay.
 /// Runs synchronously (intended for `spawn_blocking`).
 pub fn fetch_runtime_compat() -> Option<RuntimeCompat> {
-    let bcd_text = ureq::get(BCD_URL)
-        .call()
-        .ok()?
-        .body_mut()
-        .read_to_string()
-        .ok()?;
-    let bcd_json: serde_json::Value = serde_json::from_str(&bcd_text).ok()?;
-
-    let wf_json: serde_json::Value = ureq::get(WEB_FEATURES_URL)
-        .call()
-        .ok()
-        .and_then(|mut r| r.body_mut().read_to_string().ok())
-        .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or(serde_json::Value::Null);
-
+    let bcd_json = fetch_json(BCD_URL)?;
+    let wf_json = fetch_json(WEB_FEATURES_URL).unwrap_or(serde_json::Value::Null);
     let wf_features = wf_json.get("features");
     let svg_elements = bcd_json.pointer("/svg/elements")?.as_object()?;
 
-    let mut elements = HashMap::new();
-    let mut attributes = HashMap::new();
-
-    for (el_name, el_data) in svg_elements {
-        if let Some(compat) = el_data.pointer("/__compat") {
-            let deprecated = compat
-                .pointer("/status/deprecated")
-                .and_then(serde_json::Value::as_bool)
-                .unwrap_or(false);
-            let experimental = compat
-                .pointer("/status/experimental")
-                .and_then(serde_json::Value::as_bool)
-                .unwrap_or(false);
-            let compat_key = format!("svg.elements.{el_name}");
-            let baseline = resolve_baseline(compat, wf_features, &compat_key);
-            let browser_support = extract_runtime_browser_support(compat);
-            elements.insert(
-                el_name.clone(),
-                CompatOverride {
-                    deprecated,
-                    experimental,
-                    baseline,
-                    browser_support,
-                },
-            );
-        }
-
-        if let Some(obj) = el_data.as_object() {
-            for (key, val) in obj {
-                if key == "__compat" {
-                    continue;
-                }
-                if let Some(compat) = val.pointer("/__compat") {
-                    let deprecated = compat
-                        .pointer("/status/deprecated")
-                        .and_then(serde_json::Value::as_bool)
-                        .unwrap_or(false);
-                    let experimental = compat
-                        .pointer("/status/experimental")
-                        .and_then(serde_json::Value::as_bool)
-                        .unwrap_or(false);
-                    let compat_key = format!("svg.elements.{el_name}.{key}");
-                    let baseline = resolve_baseline(compat, wf_features, &compat_key);
-                    let browser_support = extract_runtime_browser_support(compat);
-                    attributes
-                        .entry(key.clone())
-                        .and_modify(|existing: &mut CompatOverride| {
-                            if deprecated {
-                                existing.deprecated = true;
-                            }
-                            if experimental {
-                                existing.experimental = true;
-                            }
-                            match (&existing.baseline, &baseline) {
-                                (None, _) => existing.baseline = baseline,
-                                (Some(current), Some(new))
-                                    if baseline_rank(*new) < baseline_rank(*current) =>
-                                {
-                                    existing.baseline = baseline;
-                                }
-                                _ => {}
-                            }
-                            if let Some(new_bs) = &browser_support {
-                                merge_runtime_browser_support(
-                                    &mut existing.browser_support,
-                                    new_bs,
-                                );
-                            }
-                        })
-                        .or_insert(CompatOverride {
-                            deprecated,
-                            experimental,
-                            baseline,
-                            browser_support,
-                        });
-                }
-            }
-        }
-    }
-
-    if let Some(global_attrs) = bcd_json.pointer("/svg/global_attributes")
-        && let Some(obj) = global_attrs.as_object()
-    {
-        for (attr_name, attr_data) in obj {
-            if let Some(compat) = attr_data.pointer("/__compat") {
-                let deprecated = compat
-                    .pointer("/status/deprecated")
-                    .and_then(serde_json::Value::as_bool)
-                    .unwrap_or(false);
-                let experimental = compat
-                    .pointer("/status/experimental")
-                    .and_then(serde_json::Value::as_bool)
-                    .unwrap_or(false);
-                let compat_key = format!("svg.global_attributes.{attr_name}");
-                let baseline = resolve_baseline(compat, wf_features, &compat_key);
-                let browser_support = extract_runtime_browser_support(compat);
-                attributes
-                    .entry(attr_name.clone())
-                    .or_insert(CompatOverride {
-                        deprecated,
-                        experimental,
-                        baseline,
-                        browser_support,
-                    });
-            }
-        }
-    }
+    let elements = collect_element_overrides(svg_elements, wf_features);
+    let mut attributes = collect_element_attribute_overrides(svg_elements, wf_features);
+    apply_global_attribute_overrides(&mut attributes, &bcd_json, wf_features);
 
     Some(RuntimeCompat {
         elements,
         attributes,
     })
+}
+
+fn fetch_json(url: &str) -> Option<serde_json::Value> {
+    let text = ureq::get(url)
+        .call()
+        .ok()?
+        .body_mut()
+        .read_to_string()
+        .ok()?;
+    serde_json::from_str(&text).ok()
+}
+
+fn collect_element_overrides(
+    svg_elements: &serde_json::Map<String, serde_json::Value>,
+    wf_features: Option<&serde_json::Value>,
+) -> HashMap<String, CompatOverride> {
+    svg_elements
+        .iter()
+        .filter_map(|(element_name, element_data)| {
+            let compat = element_data.pointer("/__compat")?;
+            Some((
+                element_name.clone(),
+                compat_override(compat, wf_features, &format!("svg.elements.{element_name}")),
+            ))
+        })
+        .collect()
+}
+
+fn collect_element_attribute_overrides(
+    svg_elements: &serde_json::Map<String, serde_json::Value>,
+    wf_features: Option<&serde_json::Value>,
+) -> HashMap<String, CompatOverride> {
+    let mut attributes = HashMap::new();
+
+    for (element_name, element_data) in svg_elements {
+        let Some(attribute_map) = element_data.as_object() else {
+            continue;
+        };
+
+        for (attribute_name, attribute_data) in attribute_map {
+            if attribute_name == "__compat" {
+                continue;
+            }
+
+            let Some(compat) = attribute_data.pointer("/__compat") else {
+                continue;
+            };
+
+            let new_override = compat_override(
+                compat,
+                wf_features,
+                &format!("svg.elements.{element_name}.{attribute_name}"),
+            );
+            merge_compat_override(attributes.entry(attribute_name.clone()), new_override);
+        }
+    }
+
+    attributes
+}
+
+fn apply_global_attribute_overrides(
+    attributes: &mut HashMap<String, CompatOverride>,
+    bcd_json: &serde_json::Value,
+    wf_features: Option<&serde_json::Value>,
+) {
+    let Some(global_attributes) = bcd_json.pointer("/svg/global_attributes") else {
+        return;
+    };
+    let Some(attribute_map) = global_attributes.as_object() else {
+        return;
+    };
+
+    for (attribute_name, attribute_data) in attribute_map {
+        let Some(compat) = attribute_data.pointer("/__compat") else {
+            continue;
+        };
+        attributes.entry(attribute_name.clone()).or_insert_with(|| {
+            compat_override(
+                compat,
+                wf_features,
+                &format!("svg.global_attributes.{attribute_name}"),
+            )
+        });
+    }
+}
+
+fn compat_override(
+    compat: &serde_json::Value,
+    wf_features: Option<&serde_json::Value>,
+    compat_key: &str,
+) -> CompatOverride {
+    CompatOverride {
+        deprecated: compat
+            .pointer("/status/deprecated")
+            .and_then(serde_json::Value::as_bool)
+            .unwrap_or(false),
+        experimental: compat
+            .pointer("/status/experimental")
+            .and_then(serde_json::Value::as_bool)
+            .unwrap_or(false),
+        baseline: resolve_baseline(compat, wf_features, compat_key),
+        browser_support: extract_runtime_browser_support(compat),
+    }
+}
+
+fn merge_compat_override(
+    entry: std::collections::hash_map::Entry<'_, String, CompatOverride>,
+    new_override: CompatOverride,
+) {
+    entry
+        .and_modify(|existing| {
+            if new_override.deprecated {
+                existing.deprecated = true;
+            }
+            if new_override.experimental {
+                existing.experimental = true;
+            }
+            match (&existing.baseline, &new_override.baseline) {
+                (None, _) => existing.baseline = new_override.baseline,
+                (Some(current), Some(new)) if baseline_rank(*new) < baseline_rank(*current) => {
+                    existing.baseline = new_override.baseline;
+                }
+                _ => {}
+            }
+            if let Some(new_browser_support) = &new_override.browser_support {
+                merge_runtime_browser_support(&mut existing.browser_support, new_browser_support);
+            }
+        })
+        .or_insert(new_override);
 }
 
 fn resolve_baseline(
@@ -221,7 +233,7 @@ fn merge_runtime_browser_support(
     }
 }
 
-fn baseline_rank(baseline: BaselineStatus) -> u8 {
+const fn baseline_rank(baseline: BaselineStatus) -> u8 {
     match baseline {
         BaselineStatus::Limited => 0,
         BaselineStatus::Newly { .. } => 1,

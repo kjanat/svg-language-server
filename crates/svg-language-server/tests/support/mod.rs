@@ -1,8 +1,10 @@
-use std::io::{BufRead, BufReader, Write};
-use std::path::PathBuf;
-use std::process::{Child, ChildStdin, Command, Stdio};
-use std::sync::OnceLock;
-use std::time::{Duration, Instant};
+use std::{
+    io::{BufRead, BufReader, Write},
+    path::PathBuf,
+    process::{Child, ChildStdin, Command, Stdio},
+    sync::OnceLock,
+    time::{Duration, Instant},
+};
 
 use serde_json::{Value, json};
 

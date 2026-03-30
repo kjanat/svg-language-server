@@ -7,7 +7,7 @@ const OKLCH_ACHROMATIC_CHROMA_THRESHOLD: f64 = 4e-6;
 /// Parse a hex color string like `#RGB`, `#RGBA`, `#RRGGBB`, `#RRGGBBAA`.
 /// Returns (r, g, b, a) as f32 values 0.0–1.0, or None if invalid.
 #[must_use]
-pub fn parse_hex(text: &str) -> Option<(f32, f32, f32, f32)> {
+pub fn hex(text: &str) -> Option<(f32, f32, f32, f32)> {
     let hex = text.strip_prefix('#')?;
 
     let to_f32 = |b: u8| f32::from(b) / 255.0;
@@ -56,7 +56,7 @@ fn hex_nibble_pair(s: &str, pos: usize) -> Option<u8> {
     Some((n << 4) | n)
 }
 
-fn hex_digit(b: u8) -> Option<u8> {
+const fn hex_digit(b: u8) -> Option<u8> {
     match b {
         b'0'..=b'9' => Some(b - b'0'),
         b'a'..=b'f' => Some(b - b'a' + 10),
@@ -67,7 +67,7 @@ fn hex_digit(b: u8) -> Option<u8> {
 
 /// Parse a CSS functional color string and return normalized sRGB + alpha.
 #[must_use]
-pub fn parse_functional(text: &str) -> Option<(f32, f32, f32, f32)> {
+pub fn functional(text: &str) -> Option<(f32, f32, f32, f32)> {
     let text = text.trim();
 
     let paren_open = text.find('(')?;
@@ -106,12 +106,10 @@ pub fn parse_functional(text: &str) -> Option<(f32, f32, f32, f32)> {
 pub fn mix_colors(
     space: &str,
     left: (f32, f32, f32, f32),
-    left_weight: f32,
+    left_weight: f64,
     right: (f32, f32, f32, f32),
-    right_weight: f32,
+    right_weight: f64,
 ) -> Option<(f32, f32, f32, f32)> {
-    let left_weight = f64::from(left_weight);
-    let right_weight = f64::from(right_weight);
     if !left_weight.is_finite()
         || !right_weight.is_finite()
         || left_weight < 0.0
@@ -121,7 +119,7 @@ pub fn mix_colors(
     }
 
     match space.trim().to_ascii_lowercase().as_str() {
-        "srgb" => mix::mix_srgb(left, left_weight, right, right_weight),
+        "srgb" => Some(mix::mix_srgb(left, left_weight, right, right_weight)),
         "oklab" => mix::mix_oklab(left, left_weight, right, right_weight),
         "oklch" => mix::mix_oklch(left, left_weight, right, right_weight),
         _ => None,
@@ -152,17 +150,17 @@ fn parse_legacy_hsl(rest: &str) -> Option<(f32, f32, f32, f32)> {
         return None;
     }
 
-    let h = parse_hue(raw_args[0])?;
-    let s = parse_legacy_percent(raw_args[1])?;
-    let l = parse_legacy_percent(raw_args[2])?;
-    let a = if raw_args.len() == 4 {
+    let hue = parse_hue(raw_args[0])?;
+    let saturation = parse_legacy_percent(raw_args[1])?;
+    let lightness = parse_legacy_percent(raw_args[2])?;
+    let alpha = if raw_args.len() == 4 {
         parse_alpha(raw_args[3])?
     } else {
         1.0
     };
 
-    let (r, g, b) = space::hsl_to_rgb(h, s, l);
-    Some((r, g, b, a))
+    let (red, green, blue) = space::hsl_to_rgb(hue, saturation, lightness);
+    Some((red, green, blue, alpha))
 }
 
 fn split_legacy_args(rest: &str) -> Option<Vec<&str>> {
@@ -184,12 +182,12 @@ fn parse_modern_rgb(rest: &str) -> Option<(f32, f32, f32, f32)> {
 
 fn parse_modern_hsl(rest: &str) -> Option<(f32, f32, f32, f32)> {
     let (components, alpha) = split_modern_args(rest)?;
-    let h = parse_hue(components[0])?;
-    let s = parse_modern_percent_or_number_100(components[1])?;
-    let l = parse_modern_percent_or_number_100(components[2])?;
-    let a = clamp_channel(parse_modern_alpha(alpha)?);
-    let (r, g, b) = space::hsl_to_rgb(h, s, l);
-    Some((r, g, b, a))
+    let hue = parse_hue(components[0])?;
+    let saturation = parse_modern_percent_or_number_100(components[1])?;
+    let lightness = parse_modern_percent_or_number_100(components[2])?;
+    let alpha = clamp_channel(parse_modern_alpha(alpha)?);
+    let (red, green, blue) = space::hsl_to_rgb(hue, saturation, lightness);
+    Some((red, green, blue, alpha))
 }
 
 fn parse_hwb(rest: &str) -> Option<(f32, f32, f32, f32)> {
@@ -203,28 +201,28 @@ fn parse_hwb(rest: &str) -> Option<(f32, f32, f32, f32)> {
 
 fn parse_lab(rest: &str) -> Option<(f32, f32, f32, f32)> {
     let (components, alpha) = split_modern_args(rest)?;
-    let l = parse_lab_lightness(components[0])?;
-    let a = parse_lab_axis(components[1])?;
-    let b = parse_lab_axis(components[2])?;
+    let lightness = parse_lab_lightness(components[0])?;
+    let axis_a = parse_lab_axis(components[1])?;
+    let axis_b = parse_lab_axis(components[2])?;
     let alpha = parse_modern_alpha(alpha)?;
-    space::lab_to_srgb(l, a, b, alpha)
+    space::lab_to_srgb(lightness, axis_a, axis_b, alpha)
 }
 
 fn parse_lch(rest: &str) -> Option<(f32, f32, f32, f32)> {
     let (components, alpha) = split_modern_args(rest)?;
-    let l = parse_lab_lightness(components[0])?;
-    let c = parse_lch_chroma(components[1])?;
-    let h = parse_lch_hue(components[2])?;
+    let lightness = parse_lab_lightness(components[0])?;
+    let chroma = parse_lch_chroma(components[1])?;
+    let hue_angle = parse_lch_hue(components[2])?;
     let alpha = parse_modern_alpha(alpha)?;
 
-    let hue = if c <= LCH_ACHROMATIC_CHROMA_THRESHOLD {
+    let hue = if chroma <= LCH_ACHROMATIC_CHROMA_THRESHOLD {
         0.0
     } else {
-        h
+        hue_angle
     };
-    let a = c * hue.to_radians().cos();
-    let b = c * hue.to_radians().sin();
-    space::lab_to_srgb(l, a, b, alpha)
+    let axis_a = chroma * hue.to_radians().cos();
+    let axis_b = chroma * hue.to_radians().sin();
+    space::lab_to_srgb(lightness, axis_a, axis_b, alpha)
 }
 
 fn parse_oklab(rest: &str) -> Option<(f32, f32, f32, f32)> {
@@ -238,19 +236,19 @@ fn parse_oklab(rest: &str) -> Option<(f32, f32, f32, f32)> {
 
 fn parse_oklch(rest: &str) -> Option<(f32, f32, f32, f32)> {
     let (components, alpha) = split_modern_args(rest)?;
-    let l = parse_oklab_lightness(components[0])?;
-    let c = parse_oklch_chroma(components[1])?;
-    let h = parse_oklch_hue(components[2])?;
+    let lightness = parse_oklab_lightness(components[0])?;
+    let chroma = parse_oklch_chroma(components[1])?;
+    let hue_angle = parse_oklch_hue(components[2])?;
     let alpha = parse_modern_alpha(alpha)?;
 
-    let hue = if c <= OKLCH_ACHROMATIC_CHROMA_THRESHOLD {
+    let hue = if chroma <= OKLCH_ACHROMATIC_CHROMA_THRESHOLD {
         0.0
     } else {
-        h
+        hue_angle
     };
-    let a = c * hue.to_radians().cos();
-    let b = c * hue.to_radians().sin();
-    space::oklab_to_srgb(l, a, b, alpha)
+    let axis_a = chroma * hue.to_radians().cos();
+    let axis_b = chroma * hue.to_radians().sin();
+    space::oklab_to_srgb(lightness, axis_a, axis_b, alpha)
 }
 
 fn split_modern_args(rest: &str) -> Option<([&str; 3], Option<&str>)> {
@@ -323,7 +321,25 @@ fn parse_modern_percent_or_number_100(s: &str) -> Option<f32> {
 
 /// Parse a CSS hue angle, defaulting bare numbers to degrees.
 fn parse_hue(s: &str) -> Option<f32> {
-    parse_hue_f64(s).map(|h| h as f32)
+    let s = s.trim();
+    if s.eq_ignore_ascii_case("none") {
+        return Some(0.0);
+    }
+
+    if let Some(v) = strip_suffix_ci(s, "deg") {
+        return v.trim().parse::<f32>().ok();
+    }
+    if let Some(v) = strip_suffix_ci(s, "grad") {
+        return Some(v.trim().parse::<f32>().ok()?.mul_add(0.9, 0.0));
+    }
+    if let Some(v) = strip_suffix_ci(s, "rad") {
+        return Some(v.trim().parse::<f32>().ok()? * (180.0 / std::f32::consts::PI));
+    }
+    if let Some(v) = strip_suffix_ci(s, "turn") {
+        return Some(v.trim().parse::<f32>().ok()?.mul_add(360.0, 0.0));
+    }
+
+    s.parse::<f32>().ok()
 }
 
 fn parse_hue_f64(s: &str) -> Option<f64> {
@@ -346,6 +362,13 @@ fn parse_hue_f64(s: &str) -> Option<f64> {
     };
 
     Some(hue.rem_euclid(360.0))
+}
+
+fn strip_suffix_ci<'a>(text: &'a str, suffix: &str) -> Option<&'a str> {
+    let prefix_len = text.len().checked_sub(suffix.len())?;
+    text[prefix_len..]
+        .eq_ignore_ascii_case(suffix)
+        .then_some(&text[..prefix_len])
 }
 
 /// Parse an alpha value in 0.0–1.0 or 0%–100%.
@@ -464,18 +487,22 @@ fn parse_oklch_hue(s: &str) -> Option<f64> {
     parse_hue_f64(s)
 }
 
-fn clamp_channel(value: f64) -> f32 {
+pub(crate) fn clamp_channel(value: f64) -> f32 {
     let value = value.clamp(0.0, 1.0);
     if value.abs() < 1e-12 {
         0.0
     } else {
-        value as f32
+        f64_to_f32(value)
     }
+}
+
+fn f64_to_f32(value: f64) -> f32 {
+    value.to_string().parse::<f32>().unwrap_or(0.0)
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::{functional as parse_functional, hex as parse_hex, *};
 
     fn assert_rgb_close(
         actual: (f32, f32, f32, f32),

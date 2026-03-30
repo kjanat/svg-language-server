@@ -1,3 +1,5 @@
+//! Integration tests for definition and hover behavior.
+
 mod support;
 
 use serde_json::json;

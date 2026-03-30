@@ -1,19 +1,25 @@
-use super::OKLCH_ACHROMATIC_CHROMA_THRESHOLD;
-use super::clamp_channel;
-use super::space::{oklab_to_srgb, srgb_to_oklab, srgb_to_oklch};
+use super::{
+    OKLCH_ACHROMATIC_CHROMA_THRESHOLD, clamp_channel,
+    space::{oklab_to_srgb, srgb_to_oklab, srgb_to_oklch},
+};
 
 pub(super) fn mix_srgb(
     left: (f32, f32, f32, f32),
     left_weight: f64,
     right: (f32, f32, f32, f32),
     right_weight: f64,
-) -> Option<(f32, f32, f32, f32)> {
-    let left = [left.0 as f64, left.1 as f64, left.2 as f64, left.3 as f64];
+) -> (f32, f32, f32, f32) {
+    let left = [
+        f64::from(left.0),
+        f64::from(left.1),
+        f64::from(left.2),
+        f64::from(left.3),
+    ];
     let right = [
-        right.0 as f64,
-        right.1 as f64,
-        right.2 as f64,
-        right.3 as f64,
+        f64::from(right.0),
+        f64::from(right.1),
+        f64::from(right.2),
+        f64::from(right.3),
     ];
     let (coords, alpha) = mix_premultiplied(
         [left[0], left[1], left[2]],
@@ -23,12 +29,12 @@ pub(super) fn mix_srgb(
         left_weight,
         right_weight,
     );
-    Some((
+    (
         clamp_channel(coords[0]),
         clamp_channel(coords[1]),
         clamp_channel(coords[2]),
         clamp_channel(alpha),
-    ))
+    )
 }
 
 pub(super) fn mix_oklab(
@@ -41,9 +47,9 @@ pub(super) fn mix_oklab(
     let right_lab = srgb_to_oklab(right.0, right.1, right.2)?;
     let (coords, alpha) = mix_premultiplied(
         left_lab,
-        left.3 as f64,
+        f64::from(left.3),
         right_lab,
-        right.3 as f64,
+        f64::from(right.3),
         left_weight,
         right_weight,
     );
@@ -58,8 +64,8 @@ pub(super) fn mix_oklch(
 ) -> Option<(f32, f32, f32, f32)> {
     let mut left_lch = srgb_to_oklch(left.0, left.1, left.2)?;
     let mut right_lch = srgb_to_oklch(right.0, right.1, right.2)?;
-    let left_alpha = left.3 as f64;
-    let right_alpha = right.3 as f64;
+    let left_alpha = f64::from(left.3);
+    let right_alpha = f64::from(right.3);
 
     if left_alpha <= 1e-12 && right_alpha > 1e-12 {
         left_lch = right_lch;
@@ -74,17 +80,17 @@ pub(super) fn mix_oklch(
         right_lch[2] = left_lch[2];
     }
 
-    let alpha = left_alpha * left_weight + right_alpha * right_weight;
+    let alpha = right_alpha.mul_add(right_weight, left_alpha * left_weight);
     if alpha <= 1e-12 {
         return Some((0.0, 0.0, 0.0, 0.0));
     }
 
-    let l = left_lch[0] * left_weight + right_lch[0] * right_weight;
-    let c = left_lch[1] * left_weight + right_lch[1] * right_weight;
-    let h = mix_hue_shorter(left_lch[2], right_lch[2], left_weight, right_weight);
-    let a = c * h.to_radians().cos();
-    let b = c * h.to_radians().sin();
-    oklab_to_srgb(l, a, b, alpha)
+    let lightness = right_lch[0].mul_add(right_weight, left_lch[0] * left_weight);
+    let chroma = right_lch[1].mul_add(right_weight, left_lch[1] * left_weight);
+    let hue = mix_hue_shorter(left_lch[2], right_lch[2], left_weight, right_weight);
+    let axis_a = chroma * hue.to_radians().cos();
+    let axis_b = chroma * hue.to_radians().sin();
+    oklab_to_srgb(lightness, axis_a, axis_b, alpha)
 }
 
 fn mix_premultiplied(
@@ -95,17 +101,20 @@ fn mix_premultiplied(
     left_weight: f64,
     right_weight: f64,
 ) -> ([f64; 3], f64) {
-    let alpha = left_alpha * left_weight + right_alpha * right_weight;
+    let alpha = right_alpha.mul_add(right_weight, left_alpha * left_weight);
     if alpha <= 1e-12 {
         return ([0.0, 0.0, 0.0], 0.0);
     }
 
     let coords = [
-        (left_coords[0] * left_alpha * left_weight + right_coords[0] * right_alpha * right_weight)
+        (right_coords[0] * right_alpha)
+            .mul_add(right_weight, left_coords[0] * left_alpha * left_weight)
             / alpha,
-        (left_coords[1] * left_alpha * left_weight + right_coords[1] * right_alpha * right_weight)
+        (right_coords[1] * right_alpha)
+            .mul_add(right_weight, left_coords[1] * left_alpha * left_weight)
             / alpha,
-        (left_coords[2] * left_alpha * left_weight + right_coords[2] * right_alpha * right_weight)
+        (right_coords[2] * right_alpha)
+            .mul_add(right_weight, left_coords[2] * left_alpha * left_weight)
             / alpha,
     ];
     (coords, alpha)

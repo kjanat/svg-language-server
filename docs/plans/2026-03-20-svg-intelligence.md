@@ -410,10 +410,9 @@ The generated code should use `&'static` references throughout. For arrays,
 generate static slices: `static RECT_ATTRS: &[&str] = &["x", "y", ...];`
 
 ```rust
+use std::{env, fs, io::Write, path::Path};
+
 use serde::Deserialize;
-use std::io::Write;
-use std::path::Path;
-use std::{env, fs};
 
 #[derive(Deserialize)]
 struct JsonElement {
@@ -658,8 +657,10 @@ include!(concat!(env!("OUT_DIR"), "/catalog.rs"));
 Create `crates/svg-data/src/categories.rs`:
 
 ```rust
-use crate::catalog::ELEMENTS;
-use crate::types::{ContentModel, ElementCategory};
+use crate::{
+    catalog::ELEMENTS,
+    types::{ContentModel, ElementCategory},
+};
 
 /// Return all element names that belong to the given category.
 pub fn elements_in_category(cat: ElementCategory) -> Vec<&'static str> {
@@ -734,11 +735,10 @@ mod catalog;
 pub mod categories;
 pub mod types;
 
+use catalog::{ATTRIBUTES, ELEMENTS};
 pub use types::{
     AttributeDef, AttributeValues, BaselineStatus, ContentModel, ElementCategory, ElementDef,
 };
-
-use catalog::{ATTRIBUTES, ELEMENTS};
 
 /// Lookup an element definition by name.
 pub fn element(name: &str) -> Option<&'static ElementDef> {
@@ -1107,9 +1107,11 @@ Expected: FAIL (compilation error — `rules` module doesn't exist yet)
 Create `crates/svg-lint/src/rules.rs`:
 
 ```rust
-use crate::types::{DiagnosticCode, Severity, SvgDiagnostic};
 use std::collections::HashMap;
+
 use tree_sitter::{Node, Tree};
+
+use crate::types::{DiagnosticCode, Severity, SvgDiagnostic};
 
 pub fn check_all(source: &[u8], tree: &Tree) -> Vec<SvgDiagnostic> {
     let mut diagnostics = Vec::new();

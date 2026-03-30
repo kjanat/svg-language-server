@@ -573,6 +573,25 @@ fn write_bcd_only_attribute(
 }
 
 fn write_category_mapping(out: &mut String, elements: &[JsonElement]) -> std::fmt::Result {
+    const ALL_ELEMENT_CATEGORIES: &[&str] = &[
+        "Container",
+        "Shape",
+        "Text",
+        "Gradient",
+        "Filter",
+        "Descriptive",
+        "Structural",
+        "Animation",
+        "PaintServer",
+        "ClipMask",
+        "LightSource",
+        "FilterPrimitive",
+        "TransferFunction",
+        "MergeNode",
+        "MotionPath",
+        "NeverRendered",
+    ];
+
     let mut category_map: HashMap<&str, Vec<&str>> = HashMap::new();
     for element in elements {
         if let Some(category) = &element.category {
@@ -583,7 +602,6 @@ fn write_category_mapping(out: &mut String, elements: &[JsonElement]) -> std::fm
         }
     }
 
-    writeln!(out, "#[allow(unreachable_patterns)]")?;
     writeln!(
         out,
         "pub const fn generated_elements_in_category(cat: ElementCategory) -> &'static [&'static str] {{"
@@ -592,23 +610,21 @@ fn write_category_mapping(out: &mut String, elements: &[JsonElement]) -> std::fm
     for names in category_map.values_mut() {
         names.sort_unstable();
     }
-    let mut categories: Vec<&str> = category_map.keys().copied().collect();
-    categories.sort_unstable();
-    for category in &categories {
-        let Some(names) = category_map.get(category) else {
-            continue;
-        };
-        let names_str = names
-            .iter()
-            .map(|name| format!("\"{}\"", escape(name)))
-            .collect::<Vec<_>>()
-            .join(", ");
-        writeln!(
-            out,
-            "        ElementCategory::{category} => &[{names_str}],"
-        )?;
+    for category in ALL_ELEMENT_CATEGORIES {
+        if let Some(names) = category_map.get(category) {
+            let names_str = names
+                .iter()
+                .map(|name| format!("\"{}\"", escape(name)))
+                .collect::<Vec<_>>()
+                .join(", ");
+            writeln!(
+                out,
+                "        ElementCategory::{category} => &[{names_str}],"
+            )?;
+        } else {
+            writeln!(out, "        ElementCategory::{category} => &[],")?;
+        }
     }
-    writeln!(out, "        _ => &[],")?;
     writeln!(out, "    }}")?;
     writeln!(out, "}}")
 }

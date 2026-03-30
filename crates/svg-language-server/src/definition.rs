@@ -1,6 +1,9 @@
-use super::{
-    CachedStylesheet, DocumentState, Location, Position, Uri, byte_offset_for_position,
-    named_span_location,
+use tower_lsp_server::ls_types::{Location, Position, Uri};
+
+use crate::{
+    DocumentState,
+    positions::{byte_offset_for_position, named_span_location},
+    stylesheets::CachedStylesheet,
 };
 
 pub struct DefinitionContext {

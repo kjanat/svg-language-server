@@ -5,30 +5,26 @@
 //! Language Server Protocol.
 
 use std::{
-    collections::{HashMap, HashSet},
+    collections::HashMap,
     fs,
-    sync::{Arc, LazyLock, OnceLock, RwLock as StdRwLock},
+    sync::{Arc, OnceLock, RwLock as StdRwLock},
 };
 
 use serde_json::Value;
-use svg_data::{AttributeValues, BaselineStatus, BrowserSupport, ContentModel};
 use tokio::sync::RwLock;
 use tower_lsp_server::{
     Client, LanguageServer, LspService, Server,
     jsonrpc::Result,
     ls_types::{
-        CodeAction, CodeActionKind, CodeActionOrCommand, CodeActionParams,
-        CodeActionProviderCapability, CodeActionResponse, Color, ColorInformation,
-        ColorPresentation, ColorPresentationParams, ColorProviderCapability, Command,
-        CompletionItem, CompletionItemKind, CompletionItemTag, CompletionOptions, CompletionParams,
-        CompletionResponse, CompletionTextEdit, Diagnostic, DiagnosticSeverity, DiagnosticTag,
+        CodeActionParams, CodeActionProviderCapability, CodeActionResponse, Color,
+        ColorInformation, ColorPresentation, ColorPresentationParams, ColorProviderCapability,
+        CompletionItem, CompletionOptions, CompletionParams, CompletionResponse,
         DidChangeTextDocumentParams, DidCloseTextDocumentParams, DidOpenTextDocumentParams,
         DocumentColorParams, DocumentFormattingParams, ExecuteCommandOptions, ExecuteCommandParams,
         GotoDefinitionParams, GotoDefinitionResponse, Hover, HoverContents, HoverParams,
-        HoverProviderCapability, InitializeParams, InitializeResult, InsertTextFormat, Location,
-        MarkupContent, MarkupKind, MessageType, NumberOrString, OneOf, Position, Range,
-        ServerCapabilities, TextDocumentSyncCapability, TextDocumentSyncKind, TextEdit, Uri,
-        WorkspaceEdit,
+        HoverProviderCapability, InitializeParams, InitializeResult, MarkupContent, MarkupKind,
+        MessageType, OneOf, Position, Range, ServerCapabilities, TextDocumentSyncCapability,
+        TextDocumentSyncKind, TextEdit, Uri,
     },
 };
 use url::Url;
@@ -49,13 +45,12 @@ use code_actions::{
     copy_data_uri_code_action, effective_suppression_row, suppression_code,
     suppression_code_actions_for_diagnostic,
 };
-use compat::{CompatOverride, RuntimeBrowserSupport, RuntimeCompat, fetch_runtime_compat};
+use compat::{RuntimeCompat, fetch_runtime_compat};
 use completion::{
     attribute_completion_items, child_element_completion_items, completion_trigger_characters,
-    deepest_node_at, enclosing_element_name, existing_attribute_names, find_ancestor_any,
-    first_attribute_name_text, is_attribute_name_kind, is_comment_like_context,
-    is_embedded_non_svg_context, root_element_completion_items, style_completion_items,
-    tag_element_name, value_completions,
+    enclosing_element_name, existing_attribute_names, first_attribute_name_text,
+    is_comment_like_context, is_embedded_non_svg_context, root_element_completion_items,
+    style_completion_items, tag_element_name, value_completions,
 };
 use definition::{DefinitionContext, build_definition_context, stylesheet_definition_locations};
 use diagnostics::publish_lint_diagnostics;
@@ -64,26 +59,25 @@ use hover::{
     format_custom_property_hover, format_element_hover,
 };
 use logging::init_logging;
-use positions::{
-    byte_col_to_utf16, byte_offset_for_position, byte_offset_for_row_col, end_position_utf16,
-    named_span_location, position_for_byte_offset, u32_from_usize,
-};
+use positions::{byte_col_to_utf16, byte_offset_for_position, end_position_utf16, u32_from_usize};
 use stylesheets::{
     CachedStylesheet, ClassDefinitionHover, CustomPropertyDefinitionHover,
     class_definition_hovers_from_stylesheet, custom_property_definition_hovers_from_stylesheet,
     definition_response_from_locations, resolve_external_stylesheet,
 };
+use svg_tree::{deepest_node_at, find_ancestor_any, is_attribute_name_kind};
 
 /// Parsed document state: source text + tree-sitter tree.
 #[derive(Clone)]
-struct DocumentState {
-    source: String,
-    tree: tree_sitter::Tree,
+pub(crate) struct DocumentState {
+    pub(crate) source: String,
+    pub(crate) tree: tree_sitter::Tree,
 }
 
 /// Cache mapping (URI, `start_line`, `start_character`) to the original color kind.
 type ColorKindCache = Arc<RwLock<HashMap<(Uri, u32, u32), svg_color::ColorKind>>>;
-type StylesheetCache = Arc<StdRwLock<HashMap<String, Arc<OnceLock<Option<CachedStylesheet>>>>>>;
+pub(crate) type StylesheetCache =
+    Arc<StdRwLock<HashMap<String, Arc<OnceLock<Option<CachedStylesheet>>>>>>;
 const COPY_DATA_URI_COMMAND: &str = "svg.copyDataUri";
 const COPY_DATA_URI_ACTION_TITLE: &str = "Copy SVG as data URI";
 
@@ -284,7 +278,7 @@ impl SvgLanguageServer {
             .set_language(&tree_sitter_svg::LANGUAGE.into())
             .is_err()
         {
-            panic!("SVG grammar");
+            panic!("failed to load tree-sitter SVG grammar");
         }
         Self {
             client,
@@ -365,13 +359,19 @@ impl LanguageServer for SvgLanguageServer {
                         attributes = attr_count,
                         "runtime compat data loaded"
                     );
-                    // Re-lint all open documents with fresh data
-                    let docs = documents.read().await;
-                    for (uri, doc) in docs.iter() {
+                    // Re-lint all open documents with fresh data.
+                    // Snapshot doc state and drop the lock before awaiting
+                    // publish calls, so did_change/did_open can proceed.
+                    let snapshot: Vec<_> = {
+                        let docs = documents.read().await;
+                        docs.iter()
+                            .map(|(uri, doc)| (uri.clone(), doc.clone()))
+                            .collect()
+                    };
+                    for (uri, doc) in snapshot {
                         let source_bytes = doc.source.as_bytes();
                         let lint_diags = svg_lint::lint_tree(source_bytes, &doc.tree);
-                        publish_lint_diagnostics(&client, uri.clone(), source_bytes, lint_diags)
-                            .await;
+                        publish_lint_diagnostics(&client, uri, source_bytes, lint_diags).await;
                     }
                 }
                 Ok(None) => {
@@ -847,7 +847,10 @@ pub async fn run_stdio_server() {
 
 #[cfg(test)]
 mod tests {
+    use tower_lsp_server::ls_types::CodeActionOrCommand;
+
     use super::*;
+    use crate::positions::position_for_byte_offset;
 
     type TestResult = std::result::Result<(), Box<dyn std::error::Error>>;
 

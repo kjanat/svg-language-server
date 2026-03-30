@@ -1,7 +1,11 @@
-use super::{
-    Client, Diagnostic, DiagnosticSeverity, DiagnosticTag, NumberOrString, Position, Range, Uri,
-    byte_col_to_utf16,
+use tower_lsp_server::{
+    Client,
+    ls_types::{
+        Diagnostic, DiagnosticSeverity, DiagnosticTag, NumberOrString, Position, Range, Uri,
+    },
 };
+
+use crate::positions::byte_col_to_utf16;
 
 fn lint_diagnostic_to_lsp(source: &[u8], diagnostic: svg_lint::SvgDiagnostic) -> Diagnostic {
     let start_char = byte_col_to_utf16(source, diagnostic.start_row, diagnostic.start_col);

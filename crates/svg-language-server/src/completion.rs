@@ -1,7 +1,13 @@
-use super::{
-    AttributeValues, CompletionItem, CompletionItemKind, CompletionItemTag, CompletionTextEdit,
-    ContentModel, HashSet, InsertTextFormat, Range, TextEdit, position_for_byte_offset,
+use std::collections::HashSet;
+
+use svg_data::{AttributeValues, ContentModel};
+use svg_tree::{find_ancestor_any, is_attribute_name_kind};
+use tower_lsp_server::ls_types::{
+    CompletionItem, CompletionItemKind, CompletionItemTag, CompletionTextEdit, InsertTextFormat,
+    Range, TextEdit,
 };
+
+use crate::positions::position_for_byte_offset;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum CssCompletionContext {
@@ -278,8 +284,6 @@ fn css_value_keyword(keyword: &str) -> CompletionItem {
 fn css_value_function(label: &str, snippet: &str, detail: &str) -> CompletionItem {
     detailed_snippet_completion_item(label, CompletionItemKind::FUNCTION, snippet, detail)
 }
-
-pub use svg_tree::{deepest_node_at, find_ancestor_any, is_attribute_name_kind};
 
 pub fn is_comment_like_context(node: tree_sitter::Node<'_>) -> bool {
     find_ancestor_any(

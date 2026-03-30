@@ -206,7 +206,7 @@ fn parse_modern_percent_or_number_100(s: &str) -> Option<f32> {
     Some((value / 100.0).clamp(0.0, 1.0))
 }
 
-pub(crate) fn clamp_channel(value: f64) -> f32 {
+pub fn clamp_channel(value: f64) -> f32 {
     let value = value.clamp(0.0, 1.0);
     if value.abs() < 1e-12 {
         0.0

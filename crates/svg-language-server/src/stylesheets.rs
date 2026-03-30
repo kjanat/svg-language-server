@@ -1,6 +1,12 @@
-use std::fs;
+use std::{
+    fs,
+    sync::{Arc, OnceLock},
+};
 
-use super::{Arc, GotoDefinitionResponse, Location, OnceLock, StylesheetCache, Uri, Url};
+use tower_lsp_server::ls_types::{GotoDefinitionResponse, Location, Uri};
+use url::Url;
+
+use crate::StylesheetCache;
 
 #[derive(Clone)]
 pub struct CachedStylesheet {

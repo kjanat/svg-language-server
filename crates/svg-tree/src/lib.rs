@@ -5,25 +5,34 @@
 //! `svg-language-server`).  Centralising them here eliminates duplicated
 //! implementations and keeps the helpers in sync.
 
-/// Recursive depth-first traversal of every node reachable from `cursor`.
+/// Iterative depth-first traversal of every node reachable from `cursor`.
 ///
 /// Calls `f` on each node visited.  Uses `TreeCursor` internally for
-/// efficiency (no per-node allocation).
+/// efficiency (no per-node allocation).  Iterative to avoid stack overflow
+/// on pathological deeply-nested SVGs.
 pub fn walk_tree(
     cursor: &mut tree_sitter::TreeCursor<'_>,
     f: &mut impl FnMut(tree_sitter::Node<'_>),
 ) {
+    let start_depth = cursor.depth();
     loop {
-        let node = cursor.node();
-        f(node);
+        f(cursor.node());
 
+        // Try descending into first child.
         if cursor.goto_first_child() {
-            walk_tree(cursor, f);
-            cursor.goto_parent();
+            continue;
         }
 
-        if !cursor.goto_next_sibling() {
-            break;
+        // No children — try next sibling, or walk up until we find one.
+        loop {
+            if cursor.goto_next_sibling() {
+                break;
+            }
+            // No more siblings — go up. Stop if we've returned to the
+            // starting depth (finished the subtree we were given).
+            if !cursor.goto_parent() || cursor.depth() < start_depth {
+                return;
+            }
         }
     }
 }

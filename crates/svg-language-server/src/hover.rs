@@ -1,9 +1,14 @@
-use std::fmt::Write as _;
+use std::{fmt::Write as _, sync::LazyLock};
 
-use super::{
-    BaselineStatus, BrowserSupport, ClassDefinitionHover, CompatOverride,
-    CustomPropertyDefinitionHover, LazyLock, RuntimeBrowserSupport, Uri, Url,
-    byte_offset_for_row_col, svg_data_uri,
+use svg_data::{BaselineStatus, BrowserSupport};
+use tower_lsp_server::ls_types::Uri;
+use url::Url;
+
+use crate::{
+    clipboard::svg_data_uri,
+    compat::{CompatOverride, RuntimeBrowserSupport},
+    positions::byte_offset_for_row_col,
+    stylesheets::{ClassDefinitionHover, CustomPropertyDefinitionHover},
 };
 
 struct HoverSourceLink {

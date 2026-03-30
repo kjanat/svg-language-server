@@ -1,4 +1,4 @@
-use super::{Location, Position, Range, Uri};
+use tower_lsp_server::ls_types::{Location, Position, Range, Uri};
 
 #[inline]
 pub fn u32_from_usize(value: usize) -> u32 {

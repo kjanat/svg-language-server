@@ -20,6 +20,23 @@ definition/reference navigation.
 | `svg-color`           | Color extraction and color presentation helpers                        |
 | `svg-data`            | Generated SVG catalog from MDN/browser compatibility data              |
 | `svg-references`      | Symbol extraction for `id`, CSS class, and custom property definitions |
+| `svg-tree`            | Shared tree-sitter helpers and tree utilities                          |
+
+### Dependency Graph
+
+```mermaid
+graph BT
+  svg-color --> svg-tree
+  svg-references --> svg-tree
+  svg-lint --> svg-tree
+  svg-lint --> svg-data
+  svg-language-server --> svg-color
+  svg-language-server --> svg-data
+  svg-language-server --> svg-format
+  svg-language-server --> svg-lint
+  svg-language-server --> svg-references
+  svg-language-server --> svg-tree
+```
 
 ## Language Server Features
 

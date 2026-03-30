@@ -1,8 +1,13 @@
-use super::{
-    COPY_DATA_URI_ACTION_TITLE, COPY_DATA_URI_COMMAND, CodeAction, CodeActionKind,
-    CodeActionOrCommand, Command, Diagnostic, HashMap, NumberOrString, Position, Range, TextEdit,
-    Uri, Value, WorkspaceEdit, byte_offset_for_position, position_for_byte_offset,
+use std::collections::HashMap;
+
+use serde_json::Value;
+use tower_lsp_server::ls_types::{
+    CodeAction, CodeActionKind, CodeActionOrCommand, Command, Diagnostic, NumberOrString, Position,
+    Range, TextEdit, Uri, WorkspaceEdit,
 };
+
+use super::{COPY_DATA_URI_ACTION_TITLE, COPY_DATA_URI_COMMAND};
+use crate::positions::{byte_offset_for_position, position_for_byte_offset, u32_from_usize};
 
 /// Compute the effective row for inserting a suppression comment.
 ///
@@ -27,7 +32,7 @@ pub fn effective_suppression_row(
     loop {
         let kind = current.kind();
         if kind == "start_tag" || kind == "self_closing_tag" {
-            let tag_row = current.start_position().row as u32;
+            let tag_row = u32_from_usize(current.start_position().row);
             // Only redirect if the diagnostic is on a later row than the tag start
             // (i.e. the tag is multiline and the diag is inside the attr list)
             if tag_row < diag_row {

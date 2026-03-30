@@ -226,7 +226,7 @@ struct Formatter<'a> {
 }
 
 impl<'a> Formatter<'a> {
-    fn new(source: &'a [u8], options: FormatOptions) -> Self {
+    const fn new(source: &'a [u8], options: FormatOptions) -> Self {
         Self {
             source,
             options,
@@ -251,14 +251,9 @@ impl<'a> Formatter<'a> {
         fmt: &mut dyn FnMut(EmbeddedContent<'_>) -> Option<String>,
     ) {
         match node.kind() {
-            "source_file" => self.format_children(node, depth, fmt),
             "svg_root_element" | "element" => self.format_element_like(node, depth, fmt),
             "start_tag" => self.write_tag_node(node, depth, false),
             "self_closing_tag" => self.write_tag_node(node, depth, true),
-            "end_tag" => {
-                let text = self.node_text(node).trim().to_string();
-                self.write_line(depth, &text);
-            }
             "style_text_double" | "style_text_single" | "script_text_double"
             | "script_text_single" => {
                 self.write_preserved_block_text(node, depth);
@@ -266,7 +261,8 @@ impl<'a> Formatter<'a> {
             "text" | "raw_text" => {
                 self.write_text_node(node, depth);
             }
-            "comment"
+            "end_tag"
+            | "comment"
             | "cdata_section"
             | "doctype"
             | "processing_instruction"
@@ -396,10 +392,7 @@ impl<'a> Formatter<'a> {
             }
 
             match child.kind() {
-                "start_tag" => {
-                    self.format_node(child, depth, fmt);
-                }
-                "end_tag" => {
+                "start_tag" | "end_tag" => {
                     self.format_node(child, depth, fmt);
                 }
                 "style_text_double" | "style_text_single" | "script_text_double"
@@ -447,7 +440,7 @@ impl<'a> Formatter<'a> {
     /// and end tags, normalizes whitespace into a single line, and inlines
     /// with the tags when it fits.
     ///
-    /// Called only when entity_reference nodes are present — the whitespace
+    /// Called only when `entity_reference` nodes are present — the whitespace
     /// around them is a formatting artifact, not meaningful content, so we
     /// always normalize regardless of [`TextContentMode`].
     fn format_text_content_element(&mut self, start: Node<'_>, end: Node<'_>, depth: usize) {
@@ -545,7 +538,7 @@ impl<'a> Formatter<'a> {
         }
     }
 
-    fn self_closing_suffix(&self) -> &'static str {
+    const fn self_closing_suffix(&self) -> &'static str {
         if self.options.space_before_self_close {
             " />"
         } else {
@@ -554,11 +547,10 @@ impl<'a> Formatter<'a> {
     }
 
     fn render_attribute(&self, attribute: &ParsedAttribute) -> String {
-        if let Some(value) = &attribute.value {
-            format!("{}={}", attribute.name, self.render_attribute_value(value))
-        } else {
-            attribute.name.clone()
-        }
+        attribute.value.as_ref().map_or_else(
+            || attribute.name.clone(),
+            |value| format!("{}={}", attribute.name, self.render_attribute_value(value)),
+        )
     }
 
     fn render_attribute_value(&self, value: &ParsedAttributeValue) -> String {
@@ -685,7 +677,7 @@ impl<'a> Formatter<'a> {
         }
     }
 
-    /// Try to format foreignObject inner content via the callback.
+    /// Try to format `foreignObject` inner content via the callback.
     /// On success, writes the full element (start tag, formatted content, end tag).
     fn try_format_foreign_object(
         &mut self,
@@ -824,8 +816,7 @@ impl<'a> Formatter<'a> {
     fn is_ignore_directive(&self, node: Node<'_>, suffix: &str) -> bool {
         let inner = node
             .child_by_field_name("text")
-            .map(|t| self.node_text(t).trim())
-            .unwrap_or("");
+            .map_or("", |t| self.node_text(t).trim());
         self.options
             .ignore_prefixes
             .iter()
@@ -862,13 +853,7 @@ impl<'a> Formatter<'a> {
             BlankLines::Remove => 0,
             BlankLines::Preserve => source_gaps,
             BlankLines::Truncate => source_gaps.min(1),
-            BlankLines::Insert => {
-                if prev_was_comment {
-                    0
-                } else {
-                    1
-                }
-            }
+            BlankLines::Insert => usize::from(!prev_was_comment),
         };
         for _ in 0..count {
             self.out.push('\n');

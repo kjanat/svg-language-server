@@ -5,7 +5,7 @@ const WEB_FEATURES_URL: &str = "https://unpkg.com/web-features@latest/data.json"
 
 /// Fetch BCD + web-features from unpkg, parse into a `RuntimeCompat` overlay.
 /// Runs synchronously (intended for `spawn_blocking`).
-pub(crate) fn fetch_runtime_compat() -> Option<RuntimeCompat> {
+pub fn fetch_runtime_compat() -> Option<RuntimeCompat> {
     let bcd_text = ureq::get(BCD_URL)
         .call()
         .ok()?

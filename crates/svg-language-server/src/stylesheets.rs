@@ -3,22 +3,22 @@ use std::fs;
 use super::{Arc, GotoDefinitionResponse, Location, OnceLock, StylesheetCache, Uri, Url};
 
 #[derive(Clone)]
-pub(crate) struct CachedStylesheet {
-    pub(crate) uri: Uri,
-    pub(crate) source: String,
-    pub(crate) class_definitions: Vec<svg_references::NamedSpan>,
-    pub(crate) custom_property_definitions: Vec<svg_references::NamedSpan>,
+pub struct CachedStylesheet {
+    pub uri: Uri,
+    pub source: String,
+    pub class_definitions: Vec<svg_references::NamedSpan>,
+    pub custom_property_definitions: Vec<svg_references::NamedSpan>,
 }
 
 #[derive(Clone)]
-pub(crate) struct ClassDefinitionHover {
-    pub(crate) uri: Uri,
-    pub(crate) source: String,
-    pub(crate) definition: svg_references::NamedSpan,
+pub struct ClassDefinitionHover {
+    pub uri: Uri,
+    pub source: String,
+    pub definition: svg_references::NamedSpan,
 }
 
 impl ClassDefinitionHover {
-    pub(crate) fn new(uri: Uri, source: String, definition: svg_references::NamedSpan) -> Self {
+    pub fn new(uri: Uri, source: String, definition: svg_references::NamedSpan) -> Self {
         Self {
             uri,
             source,
@@ -28,14 +28,14 @@ impl ClassDefinitionHover {
 }
 
 #[derive(Clone)]
-pub(crate) struct CustomPropertyDefinitionHover {
-    pub(crate) uri: Uri,
-    pub(crate) source: String,
-    pub(crate) definition: svg_references::NamedSpan,
+pub struct CustomPropertyDefinitionHover {
+    pub uri: Uri,
+    pub source: String,
+    pub definition: svg_references::NamedSpan,
 }
 
 impl CustomPropertyDefinitionHover {
-    pub(crate) fn new(uri: Uri, source: String, definition: svg_references::NamedSpan) -> Self {
+    pub fn new(uri: Uri, source: String, definition: svg_references::NamedSpan) -> Self {
         Self {
             uri,
             source,
@@ -44,7 +44,7 @@ impl CustomPropertyDefinitionHover {
     }
 }
 
-pub(crate) fn class_definition_hovers_from_stylesheet(
+pub fn class_definition_hovers_from_stylesheet(
     uri: Uri,
     source: &str,
     target_class: &str,
@@ -56,7 +56,7 @@ pub(crate) fn class_definition_hovers_from_stylesheet(
         .collect()
 }
 
-pub(crate) fn custom_property_definition_hovers_from_stylesheet(
+pub fn custom_property_definition_hovers_from_stylesheet(
     uri: Uri,
     source: &str,
     target_property: &str,
@@ -70,7 +70,7 @@ pub(crate) fn custom_property_definition_hovers_from_stylesheet(
         .collect()
 }
 
-pub(crate) fn definition_response_from_locations(
+pub fn definition_response_from_locations(
     mut locations: Vec<Location>,
 ) -> Option<GotoDefinitionResponse> {
     if locations.is_empty() {
@@ -95,7 +95,7 @@ fn parse_stylesheet(uri: Uri, source: String) -> CachedStylesheet {
     }
 }
 
-pub(crate) fn resolve_stylesheet_url(base_uri: &Uri, href: &str) -> Option<Url> {
+pub fn resolve_stylesheet_url(base_uri: &Uri, href: &str) -> Option<Url> {
     if let Ok(url) = Url::parse(href) {
         return Some(url);
     }
@@ -104,7 +104,7 @@ pub(crate) fn resolve_stylesheet_url(base_uri: &Uri, href: &str) -> Option<Url> 
     base.join(href).ok()
 }
 
-pub(crate) fn resolve_file_stylesheet(url: &Url) -> Option<CachedStylesheet> {
+pub fn resolve_file_stylesheet(url: &Url) -> Option<CachedStylesheet> {
     let path = url.to_file_path().ok()?;
     let source = fs::read_to_string(path).ok()?;
     let uri = url.as_str().parse().ok()?;
@@ -141,7 +141,7 @@ fn resolve_remote_stylesheet(cache: &StylesheetCache, url: &Url) -> Option<Cache
     .clone()
 }
 
-pub(crate) fn resolve_external_stylesheet(
+pub fn resolve_external_stylesheet(
     cache: &StylesheetCache,
     base_uri: &Uri,
     href: &str,

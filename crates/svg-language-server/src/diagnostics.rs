@@ -35,7 +35,7 @@ fn lint_diagnostic_to_lsp(source: &[u8], diagnostic: svg_lint::SvgDiagnostic) ->
     }
 }
 
-pub(crate) async fn publish_lint_diagnostics(
+pub async fn publish_lint_diagnostics(
     client: &Client,
     uri: Uri,
     source: &[u8],

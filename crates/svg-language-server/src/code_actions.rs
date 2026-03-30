@@ -4,7 +4,7 @@ use super::{
     Uri, Value, WorkspaceEdit, position_for_byte_offset,
 };
 
-pub(crate) fn suppression_code(diagnostic: &Diagnostic) -> Option<&str> {
+pub fn suppression_code(diagnostic: &Diagnostic) -> Option<&str> {
     if diagnostic.source.as_deref() != Some("svg-lint") {
         return None;
     }
@@ -100,7 +100,7 @@ fn command_code_action(
     })
 }
 
-pub(crate) fn suppression_code_actions_for_diagnostic(
+pub fn suppression_code_actions_for_diagnostic(
     uri: &Uri,
     source: &str,
     diagnostic: &Diagnostic,
@@ -133,7 +133,7 @@ pub(crate) fn suppression_code_actions_for_diagnostic(
     ]
 }
 
-pub(crate) fn copy_data_uri_code_action(uri: &Uri) -> CodeActionOrCommand {
+pub fn copy_data_uri_code_action(uri: &Uri) -> CodeActionOrCommand {
     command_code_action(
         COPY_DATA_URI_ACTION_TITLE,
         CodeActionKind::SOURCE,

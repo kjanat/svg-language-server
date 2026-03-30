@@ -24,9 +24,9 @@ enum AttributeSortArg {
 impl From<AttributeSortArg> for AttributeSort {
     fn from(value: AttributeSortArg) -> Self {
         match value {
-            AttributeSortArg::None => AttributeSort::None,
-            AttributeSortArg::Canonical => AttributeSort::Canonical,
-            AttributeSortArg::Alphabetical => AttributeSort::Alphabetical,
+            AttributeSortArg::None => Self::None,
+            AttributeSortArg::Canonical => Self::Canonical,
+            AttributeSortArg::Alphabetical => Self::Alphabetical,
         }
     }
 }
@@ -42,9 +42,9 @@ enum AttributeLayoutArg {
 impl From<AttributeLayoutArg> for AttributeLayout {
     fn from(value: AttributeLayoutArg) -> Self {
         match value {
-            AttributeLayoutArg::Auto => AttributeLayout::Auto,
-            AttributeLayoutArg::SingleLine => AttributeLayout::SingleLine,
-            AttributeLayoutArg::MultiLine => AttributeLayout::MultiLine,
+            AttributeLayoutArg::Auto => Self::Auto,
+            AttributeLayoutArg::SingleLine => Self::SingleLine,
+            AttributeLayoutArg::MultiLine => Self::MultiLine,
         }
     }
 }
@@ -60,9 +60,9 @@ enum QuoteStyleArg {
 impl From<QuoteStyleArg> for QuoteStyle {
     fn from(value: QuoteStyleArg) -> Self {
         match value {
-            QuoteStyleArg::Preserve => QuoteStyle::Preserve,
-            QuoteStyleArg::Double => QuoteStyle::Double,
-            QuoteStyleArg::Single => QuoteStyle::Single,
+            QuoteStyleArg::Preserve => Self::Preserve,
+            QuoteStyleArg::Double => Self::Double,
+            QuoteStyleArg::Single => Self::Single,
         }
     }
 }
@@ -77,8 +77,8 @@ enum WrappedAttributeIndentArg {
 impl From<WrappedAttributeIndentArg> for WrappedAttributeIndent {
     fn from(value: WrappedAttributeIndentArg) -> Self {
         match value {
-            WrappedAttributeIndentArg::OneLevel => WrappedAttributeIndent::OneLevel,
-            WrappedAttributeIndentArg::AlignToTagName => WrappedAttributeIndent::AlignToTagName,
+            WrappedAttributeIndentArg::OneLevel => Self::OneLevel,
+            WrappedAttributeIndentArg::AlignToTagName => Self::AlignToTagName,
         }
     }
 }
@@ -94,9 +94,9 @@ enum TextContentArg {
 impl From<TextContentArg> for TextContentMode {
     fn from(value: TextContentArg) -> Self {
         match value {
-            TextContentArg::Collapse => TextContentMode::Collapse,
-            TextContentArg::Maintain => TextContentMode::Maintain,
-            TextContentArg::Prettify => TextContentMode::Prettify,
+            TextContentArg::Collapse => Self::Collapse,
+            TextContentArg::Maintain => Self::Maintain,
+            TextContentArg::Prettify => Self::Prettify,
         }
     }
 }
@@ -113,10 +113,10 @@ enum BlankLinesArg {
 impl From<BlankLinesArg> for BlankLines {
     fn from(value: BlankLinesArg) -> Self {
         match value {
-            BlankLinesArg::Remove => BlankLines::Remove,
-            BlankLinesArg::Preserve => BlankLines::Preserve,
-            BlankLinesArg::Truncate => BlankLines::Truncate,
-            BlankLinesArg::Insert => BlankLines::Insert,
+            BlankLinesArg::Remove => Self::Remove,
+            BlankLinesArg::Preserve => Self::Preserve,
+            BlankLinesArg::Truncate => Self::Truncate,
+            BlankLinesArg::Insert => Self::Insert,
         }
     }
 }

@@ -103,7 +103,7 @@ enum BaselineValue {
 }
 
 impl BaselineValue {
-    fn rank(&self) -> u8 {
+    const fn rank(&self) -> u8 {
         match self {
             Self::Limited => 0,
             Self::Newly { .. } => 1,
@@ -268,22 +268,26 @@ fn main() -> Result<(), Box<dyn Error>> {
         };
 
         let (deprecated, experimental, spec_url_str, baseline_str, browser_support_str) =
-            match compat.elements.get(&el.name) {
-                Some(entry) => (
-                    entry.deprecated,
-                    entry.experimental,
-                    format_option_str(entry.spec_url.as_deref()),
-                    format_baseline(entry.baseline.as_ref()),
-                    format_browser_support(entry.browser_support.as_ref()),
-                ),
-                None => (
-                    el.deprecated,
-                    false,
-                    "None".to_string(),
-                    "None".to_string(),
-                    "None".to_string(),
-                ),
-            };
+            compat.elements.get(&el.name).map_or_else(
+                || {
+                    (
+                        el.deprecated,
+                        false,
+                        "None".to_string(),
+                        "None".to_string(),
+                        "None".to_string(),
+                    )
+                },
+                |entry| {
+                    (
+                        entry.deprecated,
+                        entry.experimental,
+                        format_option_str(entry.spec_url.as_deref()),
+                        format_baseline(entry.baseline.as_ref()),
+                        format_browser_support(entry.browser_support.as_ref()),
+                    )
+                },
+            );
 
         let name = escape(&el.name);
         let description = escape(spec_descriptions.get(&el.name).unwrap_or(&el.description));
@@ -406,22 +410,26 @@ fn main() -> Result<(), Box<dyn Error>> {
             ValuesJson::PathData => "AttributeValues::PathData".to_string(),
         };
         let (deprecated, experimental, spec_url_str, baseline_str, browser_support_str) =
-            match compat.attributes.get(&attr.name) {
-                Some(bcd) => (
-                    bcd.compat.deprecated,
-                    bcd.compat.experimental,
-                    format_option_str(bcd.compat.spec_url.as_deref()),
-                    format_baseline(bcd.compat.baseline.as_ref()),
-                    format_browser_support(bcd.compat.browser_support.as_ref()),
-                ),
-                None => (
-                    attr.deprecated,
-                    false,
-                    "None".to_string(),
-                    "None".to_string(),
-                    "None".to_string(),
-                ),
-            };
+            compat.attributes.get(&attr.name).map_or_else(
+                || {
+                    (
+                        attr.deprecated,
+                        false,
+                        "None".to_string(),
+                        "None".to_string(),
+                        "None".to_string(),
+                    )
+                },
+                |bcd| {
+                    (
+                        bcd.compat.deprecated,
+                        bcd.compat.experimental,
+                        format_option_str(bcd.compat.spec_url.as_deref()),
+                        format_baseline(bcd.compat.baseline.as_ref()),
+                        format_browser_support(bcd.compat.browser_support.as_ref()),
+                    )
+                },
+            );
         let name = escape(&attr.name);
         let description = escape(&attr.description);
         let mdn_url = escape(&attr.mdn_url);

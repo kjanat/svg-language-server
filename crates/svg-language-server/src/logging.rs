@@ -2,9 +2,9 @@ use std::{fs, fs::OpenOptions, path::PathBuf};
 
 use tracing_subscriber::{Layer, Registry, filter::LevelFilter, layer::SubscriberExt};
 
-pub(crate) struct LoggingGuards {
-    pub(crate) _file_guard: Option<tracing_appender::non_blocking::WorkerGuard>,
-    pub(crate) _stderr_guard: tracing_appender::non_blocking::WorkerGuard,
+pub struct LoggingGuards {
+    pub _file_guard: Option<tracing_appender::non_blocking::WorkerGuard>,
+    pub _stderr_guard: tracing_appender::non_blocking::WorkerGuard,
 }
 
 fn default_log_dir() -> PathBuf {
@@ -52,7 +52,7 @@ fn install_panic_hook() {
     }));
 }
 
-pub(crate) fn init_logging() -> LoggingGuards {
+pub fn init_logging() -> LoggingGuards {
     let log_dir = default_log_dir();
     let stderr_appender = tracing_appender::non_blocking(std::io::stderr());
     let stderr_layer = tracing_subscriber::fmt::layer()

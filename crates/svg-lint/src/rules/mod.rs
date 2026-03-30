@@ -1,10 +1,11 @@
 mod suppressions;
 
-use crate::types::{DiagnosticCode, Severity, SvgDiagnostic};
 use std::collections::{HashMap, HashSet};
-use tree_sitter::{Node, Tree};
 
 use suppressions::Suppressions;
+use tree_sitter::{Node, Tree};
+
+use crate::types::{DiagnosticCode, Severity, SvgDiagnostic};
 
 /// Run all lint checks on a parsed SVG tree.
 pub fn check_all(source: &[u8], tree: &Tree) -> Vec<SvgDiagnostic> {
@@ -35,9 +36,8 @@ fn walk_elements(
     in_foreign_content: bool,
 ) {
     let kind = node.kind();
-    let mut child_in_foreign_content = in_foreign_content;
-    if kind == "element" || kind == "svg_root_element" {
-        child_in_foreign_content = check_element(
+    let child_in_foreign_content = if kind == "element" || kind == "svg_root_element" {
+        check_element(
             source,
             node,
             diagnostics,
@@ -45,8 +45,10 @@ fn walk_elements(
             defined_ids,
             seen_ids,
             in_foreign_content,
-        );
-    }
+        )
+    } else {
+        in_foreign_content
+    };
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
         walk_elements(
@@ -442,8 +444,9 @@ fn make_diag(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use tree_sitter::{Parser, Tree};
+
+    use super::*;
 
     fn parse_svg(source: &str) -> Tree {
         let mut parser = Parser::new();

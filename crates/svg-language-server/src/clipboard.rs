@@ -1,5 +1,7 @@
-use std::io::Write as _;
-use std::process::{Command as ProcessCommand, Stdio};
+use std::{
+    io::Write as _,
+    process::{Command as ProcessCommand, Stdio},
+};
 
 struct ClipboardCommandSpec {
     program: &'static str,
@@ -40,7 +42,7 @@ const CLIPBOARD_COMMANDS: &[ClipboardCommandSpec] = &[
     },
 ];
 
-pub(crate) fn copy_text_to_system_clipboard(text: &str) -> std::result::Result<(), String> {
+pub fn copy_text_to_system_clipboard(text: &str) -> std::result::Result<(), String> {
     let mut attempts = Vec::new();
 
     for command in CLIPBOARD_COMMANDS {
@@ -102,7 +104,7 @@ fn run_clipboard_command(
     }
 }
 
-pub(crate) fn svg_data_uri(svg: &str) -> String {
+pub fn svg_data_uri(svg: &str) -> String {
     use base64::Engine;
     let encoded = base64::engine::general_purpose::STANDARD.encode(svg);
     format!("data:image/svg+xml;base64,{encoded}")

@@ -63,14 +63,14 @@ const CSS_PROPERTY_NAMES: &[&str] = &[
 
 const COMPLETION_TRIGGER_CHARACTERS: &[&str] = &["<", " ", "\"", "'", ":", "-"];
 
-pub(crate) fn completion_trigger_characters() -> Vec<String> {
+pub fn completion_trigger_characters() -> Vec<String> {
     COMPLETION_TRIGGER_CHARACTERS
         .iter()
         .map(|value| (*value).to_owned())
         .collect()
 }
 
-pub(crate) fn style_completion_items(
+pub fn style_completion_items(
     source: &[u8],
     tree: &tree_sitter::Tree,
     byte_offset: usize,
@@ -279,20 +279,17 @@ fn css_value_function(label: &str, snippet: &str, detail: &str) -> CompletionIte
     detailed_snippet_completion_item(label, CompletionItemKind::FUNCTION, snippet, detail)
 }
 
-pub(crate) fn is_attribute_name_kind(kind: &str) -> bool {
+pub fn is_attribute_name_kind(kind: &str) -> bool {
     kind == "attribute_name" || kind.ends_with("_attribute_name")
 }
 
-pub(crate) fn deepest_node_at(
-    tree: &tree_sitter::Tree,
-    byte_offset: usize,
-) -> tree_sitter::Node<'_> {
+pub fn deepest_node_at(tree: &tree_sitter::Tree, byte_offset: usize) -> tree_sitter::Node<'_> {
     tree.root_node()
         .descendant_for_byte_range(byte_offset, byte_offset)
         .unwrap_or_else(|| tree.root_node())
 }
 
-pub(crate) fn find_ancestor_any<'a>(
+pub fn find_ancestor_any<'a>(
     node: tree_sitter::Node<'a>,
     kinds: &[&str],
 ) -> Option<tree_sitter::Node<'a>> {
@@ -305,7 +302,7 @@ pub(crate) fn find_ancestor_any<'a>(
     }
 }
 
-pub(crate) fn is_comment_like_context(node: tree_sitter::Node<'_>) -> bool {
+pub fn is_comment_like_context(node: tree_sitter::Node<'_>) -> bool {
     find_ancestor_any(
         node,
         &[
@@ -319,7 +316,7 @@ pub(crate) fn is_comment_like_context(node: tree_sitter::Node<'_>) -> bool {
     .is_some()
 }
 
-pub(crate) fn is_embedded_non_svg_context(node: tree_sitter::Node<'_>, source: &[u8]) -> bool {
+pub fn is_embedded_non_svg_context(node: tree_sitter::Node<'_>, source: &[u8]) -> bool {
     let text_like = find_ancestor_any(
         node,
         &[
@@ -361,19 +358,13 @@ fn collect_existing_attribute_names(
     }
 }
 
-pub(crate) fn existing_attribute_names(
-    tag_node: tree_sitter::Node<'_>,
-    source: &[u8],
-) -> HashSet<String> {
+pub fn existing_attribute_names(tag_node: tree_sitter::Node<'_>, source: &[u8]) -> HashSet<String> {
     let mut names = HashSet::new();
     collect_existing_attribute_names(tag_node, source, &mut names);
     names
 }
 
-pub(crate) fn first_attribute_name_text(
-    node: tree_sitter::Node<'_>,
-    source: &[u8],
-) -> Option<String> {
+pub fn first_attribute_name_text(node: tree_sitter::Node<'_>, source: &[u8]) -> Option<String> {
     let kind = node.kind();
     if is_attribute_name_kind(kind) {
         return node.utf8_text(source).ok().map(str::to_string);
@@ -390,15 +381,12 @@ pub(crate) fn first_attribute_name_text(
     None
 }
 
-pub(crate) fn tag_element_name<'a>(
-    tag_node: tree_sitter::Node<'_>,
-    source: &'a [u8],
-) -> Option<&'a str> {
+pub fn tag_element_name<'a>(tag_node: tree_sitter::Node<'_>, source: &'a [u8]) -> Option<&'a str> {
     let name_node = tag_node.child_by_field_name("name")?;
     name_node.utf8_text(source).ok()
 }
 
-pub(crate) fn enclosing_element_name<'a>(
+pub fn enclosing_element_name<'a>(
     node: tree_sitter::Node<'_>,
     source: &'a [u8],
 ) -> Option<&'a str> {
@@ -416,7 +404,7 @@ pub(crate) fn enclosing_element_name<'a>(
 fn attribute_value_inner_range(source: &[u8], value_node: tree_sitter::Node<'_>) -> Range {
     let text = value_node.utf8_text(source).unwrap_or_default();
     let quoted = text.len() >= 2
-        && matches!(text.as_bytes().first().copied(), Some(b'"') | Some(b'\''))
+        && matches!(text.as_bytes().first().copied(), Some(b'"' | b'\''))
         && text.as_bytes().first() == text.as_bytes().last();
 
     let (start_byte, end_byte) = if quoted {
@@ -460,7 +448,7 @@ fn href_value_completions(
         .collect()
 }
 
-pub(crate) fn attribute_completion_items(
+pub fn attribute_completion_items(
     elem_name: &str,
     existing: &HashSet<String>,
 ) -> Vec<CompletionItem> {
@@ -472,7 +460,7 @@ pub(crate) fn attribute_completion_items(
         .collect()
 }
 
-pub(crate) fn child_element_completion_items(elem_name: &str) -> Vec<CompletionItem> {
+pub fn child_element_completion_items(elem_name: &str) -> Vec<CompletionItem> {
     svg_data::allowed_children(elem_name)
         .into_iter()
         .filter_map(svg_data::element)
@@ -481,14 +469,14 @@ pub(crate) fn child_element_completion_items(elem_name: &str) -> Vec<CompletionI
         .collect()
 }
 
-pub(crate) fn root_element_completion_items() -> Vec<CompletionItem> {
+pub fn root_element_completion_items() -> Vec<CompletionItem> {
     svg_data::element("svg")
         .into_iter()
         .map(element_completion_item)
         .collect()
 }
 
-pub(crate) fn value_completions(
+pub fn value_completions(
     attr_name: &str,
     source: &[u8],
     tree: &tree_sitter::Tree,
@@ -546,7 +534,7 @@ fn attribute_completion_item(attr: &svg_data::AttributeDef) -> CompletionItem {
     )
 }
 
-pub(crate) fn element_completion_item(el: &svg_data::ElementDef) -> CompletionItem {
+pub fn element_completion_item(el: &svg_data::ElementDef) -> CompletionItem {
     let insert_text = match el.content_model {
         ContentModel::Void => format!("{} />", el.name),
         _ => format!("{}>$0</{}>", el.name, el.name),

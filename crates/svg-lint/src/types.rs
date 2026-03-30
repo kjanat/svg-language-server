@@ -1,7 +1,7 @@
 use std::{ops::Range, str::FromStr};
 
 /// A single diagnostic produced by the SVG linter.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SvgDiagnostic {
     /// Byte range in the original source.
     pub byte_range: Range<usize>,
@@ -64,7 +64,7 @@ pub enum DiagnosticCode {
 impl DiagnosticCode {
     #[must_use]
     /// Return the stable string representation used in diagnostics and comments.
-    pub fn as_str(self) -> &'static str {
+    pub const fn as_str(self) -> &'static str {
         match self {
             Self::InvalidChild => "InvalidChild",
             Self::MissingRequiredAttr => "MissingRequiredAttr",

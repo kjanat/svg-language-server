@@ -4,7 +4,7 @@ use super::{Location, Position, Range, Uri};
 ///
 /// LSP positions use UTF-16 code units by default. Tree-sitter reports byte offsets,
 /// so we must re-encode the line prefix to count UTF-16 units.
-pub(crate) fn byte_col_to_utf16(source: &[u8], row: usize, byte_col: usize) -> u32 {
+pub fn byte_col_to_utf16(source: &[u8], row: usize, byte_col: usize) -> u32 {
     let line_start: usize = source
         .split(|&b| b == b'\n')
         .take(row)
@@ -20,7 +20,7 @@ pub(crate) fn byte_col_to_utf16(source: &[u8], row: usize, byte_col: usize) -> u
 ///
 /// Inverse of `byte_col_to_utf16`: LSP sends UTF-16 positions, but tree-sitter
 /// uses byte offsets.
-pub(crate) fn utf16_to_byte_col(source: &[u8], row: usize, utf16_col: u32) -> usize {
+pub fn utf16_to_byte_col(source: &[u8], row: usize, utf16_col: u32) -> usize {
     let line_start: usize = source
         .split(|&b| b == b'\n')
         .take(row)
@@ -43,12 +43,12 @@ pub(crate) fn utf16_to_byte_col(source: &[u8], row: usize, utf16_col: u32) -> us
     byte_offset
 }
 
-pub(crate) fn byte_offset_for_position(source: &[u8], position: Position) -> usize {
+pub fn byte_offset_for_position(source: &[u8], position: Position) -> usize {
     let byte_col = utf16_to_byte_col(source, position.line as usize, position.character);
     byte_offset_for_row_col(source, position.line as usize, byte_col)
 }
 
-pub(crate) fn byte_offset_for_row_col(source: &[u8], row: usize, byte_col: usize) -> usize {
+pub fn byte_offset_for_row_col(source: &[u8], row: usize, byte_col: usize) -> usize {
     let line_start: usize = source
         .split(|&b| b == b'\n')
         .take(row)
@@ -57,7 +57,7 @@ pub(crate) fn byte_offset_for_row_col(source: &[u8], row: usize, byte_col: usize
     line_start + byte_col
 }
 
-pub(crate) fn end_position_utf16(source: &str) -> Position {
+pub fn end_position_utf16(source: &str) -> Position {
     let mut line = 0u32;
     let mut character = 0u32;
     for ch in source.chars() {
@@ -71,7 +71,7 @@ pub(crate) fn end_position_utf16(source: &str) -> Position {
     Position::new(line, character)
 }
 
-pub(crate) fn span_range_utf16(source: &[u8], span: &svg_references::Span) -> Range {
+pub fn span_range_utf16(source: &[u8], span: &svg_references::Span) -> Range {
     Range::new(
         Position::new(
             span.start_row as u32,
@@ -84,15 +84,11 @@ pub(crate) fn span_range_utf16(source: &[u8], span: &svg_references::Span) -> Ra
     )
 }
 
-pub(crate) fn named_span_location(
-    uri: Uri,
-    source: &[u8],
-    named: &svg_references::NamedSpan,
-) -> Location {
+pub fn named_span_location(uri: Uri, source: &[u8], named: &svg_references::NamedSpan) -> Location {
     Location::new(uri, span_range_utf16(source, &named.span))
 }
 
-pub(crate) fn position_for_byte_offset(source: &[u8], byte_offset: usize) -> Position {
+pub fn position_for_byte_offset(source: &[u8], byte_offset: usize) -> Position {
     let clamped = byte_offset.min(source.len());
     let row = source[..clamped]
         .iter()

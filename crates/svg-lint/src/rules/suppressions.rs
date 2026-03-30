@@ -1,9 +1,11 @@
-use crate::types::{DiagnosticCode, Severity, SvgDiagnostic};
 use std::collections::HashSet;
+
 use tree_sitter::Tree;
 
+use crate::types::{DiagnosticCode, Severity, SvgDiagnostic};
+
 #[derive(Default)]
-pub(super) struct Suppressions {
+pub struct Suppressions {
     directives: Vec<SuppressionDirective>,
 }
 
@@ -24,7 +26,7 @@ enum SuppressionScope {
 }
 
 impl Suppressions {
-    pub(super) fn suppresses(&mut self, row: usize, code: DiagnosticCode) -> bool {
+    pub fn suppresses(&mut self, row: usize, code: DiagnosticCode) -> bool {
         let mut suppressed = false;
 
         for directive in &mut self.directives {
@@ -41,7 +43,7 @@ impl Suppressions {
         suppressed
     }
 
-    pub(super) fn unused_diagnostics(&mut self) -> Vec<SvgDiagnostic> {
+    pub fn unused_diagnostics(&mut self) -> Vec<SvgDiagnostic> {
         let mut diagnostics = Vec::new();
         let rows: Vec<_> = self
             .directives
@@ -101,7 +103,7 @@ impl Suppressions {
     }
 }
 
-pub(super) fn collect_suppressions(source: &[u8], tree: &Tree) -> Suppressions {
+pub fn collect_suppressions(source: &[u8], tree: &Tree) -> Suppressions {
     let mut suppressions = Suppressions::default();
     let mut cursor = tree.root_node().walk();
     super::walk_tree(&mut cursor, &mut |node| {

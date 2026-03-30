@@ -16,7 +16,7 @@ fn direct_hover_source_link(uri: &Uri, line: usize) -> HoverSourceLink {
     }
 }
 
-pub(crate) fn format_class_hover(class_name: &str, definitions: &[ClassDefinitionHover]) -> String {
+pub fn format_class_hover(class_name: &str, definitions: &[ClassDefinitionHover]) -> String {
     format_definition_hover(
         definitions.iter().map(|definition| {
             (
@@ -28,7 +28,7 @@ pub(crate) fn format_class_hover(class_name: &str, definitions: &[ClassDefinitio
     )
 }
 
-pub(crate) fn format_custom_property_hover(
+pub fn format_custom_property_hover(
     property_name: &str,
     definitions: &[CustomPropertyDefinitionHover],
 ) -> String {
@@ -187,10 +187,7 @@ fn line_text_at(source: &str, row: usize) -> String {
         .to_owned()
 }
 
-pub(crate) fn format_element_hover(
-    el: &svg_data::ElementDef,
-    rt: Option<&CompatOverride>,
-) -> String {
+pub fn format_element_hover(el: &svg_data::ElementDef, rt: Option<&CompatOverride>) -> String {
     let deprecated = rt.map_or(el.deprecated, |r| r.deprecated);
     let experimental = rt.map_or(el.experimental, |r| r.experimental);
     let baseline = rt
@@ -245,7 +242,7 @@ pub(crate) fn format_element_hover(
     parts.join("\n")
 }
 
-pub(crate) fn format_attribute_hover(
+pub fn format_attribute_hover(
     attr: &svg_data::AttributeDef,
     rt: Option<&CompatOverride>,
 ) -> String {
@@ -354,7 +351,7 @@ fn format_deprecated_external_attribute_hover(
     parts.join("\n")
 }
 
-pub(crate) fn external_attribute_hover(kind: &str, attr_name: &str) -> Option<String> {
+pub fn external_attribute_hover(kind: &str, attr_name: &str) -> Option<String> {
     const XML_NAMES_URL: &str = "https://www.w3.org/TR/REC-xml-names/";
     const XML_DECL_URL: &str = "https://www.w3.org/TR/xml/";
 

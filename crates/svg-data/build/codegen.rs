@@ -2,15 +2,11 @@ use std::fmt::Write as _;
 
 use super::{BaselineValue, BrowserSupportValue};
 
-pub(super) fn escape(s: &str) -> String {
+pub fn escape(s: &str) -> String {
     s.replace('\\', "\\\\").replace('"', "\\\"")
 }
 
-pub(super) fn write_static_str_slice(
-    out: &mut String,
-    name: &str,
-    items: &[String],
-) -> std::fmt::Result {
+pub fn write_static_str_slice(out: &mut String, name: &str, items: &[String]) -> std::fmt::Result {
     write!(out, "static {name}: &[&str] = &[")?;
     for (i, item) in items.iter().enumerate() {
         if i > 0 {
@@ -21,11 +17,11 @@ pub(super) fn write_static_str_slice(
     writeln!(out, "];")
 }
 
-pub(super) fn ident_from(name: &str) -> String {
+pub fn ident_from(name: &str) -> String {
     name.replace('-', "_").to_uppercase()
 }
 
-pub(super) fn format_baseline(baseline: Option<&BaselineValue>) -> String {
+pub fn format_baseline(baseline: Option<&BaselineValue>) -> String {
     match baseline {
         None => "None".to_string(),
         Some(BaselineValue::Widely { since }) => {
@@ -38,7 +34,7 @@ pub(super) fn format_baseline(baseline: Option<&BaselineValue>) -> String {
     }
 }
 
-pub(super) fn format_browser_support(bs: Option<&BrowserSupportValue>) -> String {
+pub fn format_browser_support(bs: Option<&BrowserSupportValue>) -> String {
     let Some(bs) = bs else {
         return "None".to_string();
     };
@@ -51,9 +47,9 @@ pub(super) fn format_browser_support(bs: Option<&BrowserSupportValue>) -> String
     )
 }
 
-pub(super) fn format_option_str(value: Option<&str>) -> String {
-    match value {
-        None => "None".to_string(),
-        Some(s) => format!("Some(\"{}\")", escape(s)),
-    }
+pub fn format_option_str(value: Option<&str>) -> String {
+    value.map_or_else(
+        || "None".to_string(),
+        |s| format!("Some(\"{}\")", escape(s)),
+    )
 }

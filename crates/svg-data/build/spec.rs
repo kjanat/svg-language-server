@@ -1,7 +1,6 @@
+use std::{collections::HashMap, fs, path::Path};
+
 use super::ensure_cached;
-use std::collections::HashMap;
-use std::fs;
-use std::path::Path;
 
 /// Base URL for raw svgwg spec HTML files on GitHub.
 const SVGWG_RAW: &str = "https://raw.githubusercontent.com/w3c/svgwg/main/master";
@@ -26,7 +25,7 @@ const SVGWG_ANIM_URL: &str =
 
 /// Fetch element descriptions from the W3C svgwg spec sources.
 /// Returns a map of element name → spec description (HTML stripped).
-pub(super) fn fetch_spec_descriptions(out_dir: &Path, offline: bool) -> HashMap<String, String> {
+pub fn fetch_spec_descriptions(out_dir: &Path, offline: bool) -> HashMap<String, String> {
     let mut descriptions = HashMap::new();
 
     // Fetch each spec file and extract descriptions
@@ -193,13 +192,12 @@ fn strip_html_tags(html: &str) -> String {
         .replace("\u{2019}", "'") // right single quote
 }
 
-/// Convert a PascalCase element ID to the actual element name.
-/// e.g. "Rect" → "rect", "LinearGradient" → "linearGradient",
-///      "FeGaussianBlur" → "feGaussianBlur"
+/// Convert a `PascalCase` element ID to the actual element name.
+/// e.g. `Rect` → `rect`, `LinearGradient` → `linearGradient`,
+///      `FeGaussianBlur` → `feGaussianBlur`
 fn uncapitalize_element_name(id: &str) -> String {
     let mut chars = id.chars();
-    match chars.next() {
-        None => String::new(),
-        Some(first) => format!("{}{}", first.to_lowercase(), chars.as_str()),
-    }
+    chars.next().map_or_else(String::new, |first| {
+        format!("{}{}", first.to_lowercase(), chars.as_str())
+    })
 }

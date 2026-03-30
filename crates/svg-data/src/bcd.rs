@@ -126,14 +126,14 @@ pub type Browsers = HashMap<BrowserName, BrowserStatement>;
 /// Metadata for a single browser.
 #[derive(Debug, Clone, Deserialize)]
 pub struct BrowserStatement {
-    /// The browser brand name (e.g. "Firefox", "Chrome Android").
+    /// The browser brand name (e.g. `Firefox`, `Chrome Android`).
     pub name: String,
     /// The platform the browser runs on.
     #[serde(rename = "type")]
     pub browser_type: BrowserType,
-    /// The upstream browser this one derives from (e.g. Edge → Chrome).
+    /// The upstream browser this one derives from (e.g. `Edge` → `Chrome`).
     pub upstream: Option<BrowserName>,
-    /// Name of the browser's preview channel (e.g. "Nightly", "TP").
+    /// Name of the browser's preview channel (e.g. `Nightly`, `TP`).
     pub preview_name: Option<String>,
     /// URL where feature flags can be changed (e.g. `about:config`).
     pub pref_url: Option<String>,

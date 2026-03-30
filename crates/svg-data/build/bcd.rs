@@ -6,24 +6,24 @@ const BCD_URL: &str = "https://unpkg.com/@mdn/browser-compat-data@latest/data.js
 const WEB_FEATURES_URL: &str = "https://unpkg.com/web-features@latest/data.json";
 
 /// Which elements a BCD-discovered attribute applies to.
-pub(super) struct BcdAttribute {
-    pub(super) compat: CompatEntry,
-    pub(super) elements: Vec<String>,
+pub struct BcdAttribute {
+    pub compat: CompatEntry,
+    pub elements: Vec<String>,
 }
 
-pub(super) fn bcd_attr_applies_globally(elements: &[String]) -> bool {
+pub fn bcd_attr_applies_globally(elements: &[String]) -> bool {
     elements.iter().any(|element| element == "*")
 }
 
-pub(super) struct CompatData {
-    pub(super) elements: HashMap<String, CompatEntry>,
+pub struct CompatData {
+    pub elements: HashMap<String, CompatEntry>,
     /// Attributes from BCD (global + element-specific, merged).
-    pub(super) attributes: HashMap<String, BcdAttribute>,
+    pub attributes: HashMap<String, BcdAttribute>,
 }
 
 /// Build lookup maps for elements + attributes.
 /// On any failure, prints a cargo warning and returns empty maps.
-pub(super) fn fetch_compat_data(out_dir: &Path) -> CompatData {
+pub fn fetch_compat_data(out_dir: &Path) -> CompatData {
     let offline = std::env::var("SVG_DATA_OFFLINE").is_ok();
 
     let bcd_path = out_dir.join("bcd-data.json");
@@ -72,12 +72,9 @@ pub(super) fn fetch_compat_data(out_dir: &Path) -> CompatData {
         }
     };
 
-    let svg_elements = match bcd_root.pointer("/svg/elements") {
-        Some(v) => v,
-        None => {
-            println!("cargo::warning=compat: BCD missing /svg/elements path");
-            return empty;
-        }
+    let Some(svg_elements) = bcd_root.pointer("/svg/elements") else {
+        println!("cargo::warning=compat: BCD missing /svg/elements path");
+        return empty;
     };
 
     // Parse web-features (optional — only needed for baseline mapping)
@@ -99,20 +96,16 @@ pub(super) fn fetch_compat_data(out_dir: &Path) -> CompatData {
         None
     };
 
-    let svg_elements_obj = match svg_elements.as_object() {
-        Some(o) => o,
-        None => {
-            println!("cargo::warning=compat: /svg/elements is not an object");
-            return empty;
-        }
+    let Some(svg_elements_obj) = svg_elements.as_object() else {
+        println!("cargo::warning=compat: /svg/elements is not an object");
+        return empty;
     };
 
     let mut map = HashMap::new();
 
     for (el_name, el_data) in svg_elements_obj {
-        let compat = match el_data.pointer("/__compat") {
-            Some(c) => c,
-            None => continue,
+        let Some(compat) = el_data.pointer("/__compat") else {
+            continue;
         };
 
         // Extract status flags
@@ -127,7 +120,7 @@ pub(super) fn fetch_compat_data(out_dir: &Path) -> CompatData {
         let spec_url = extract_spec_url(compat);
         let browser_support = extract_browser_support(compat);
         let compat_key = format!("svg.elements.{el_name}");
-        let baseline = extract_baseline(compat, &wf_features, &compat_key);
+        let baseline = extract_baseline(compat, wf_features.as_ref(), &compat_key);
 
         map.insert(
             el_name.clone(),
@@ -168,7 +161,7 @@ pub(super) fn fetch_compat_data(out_dir: &Path) -> CompatData {
             let spec_url = extract_spec_url(compat);
             let browser_support = extract_browser_support(compat);
             let compat_key = format!("svg.global_attributes.{attr_name}");
-            let baseline = extract_baseline(compat, &wf_features, &compat_key);
+            let baseline = extract_baseline(compat, wf_features.as_ref(), &compat_key);
             attr_map.insert(
                 attr_name.clone(),
                 BcdAttribute {
@@ -208,7 +201,7 @@ pub(super) fn fetch_compat_data(out_dir: &Path) -> CompatData {
             let spec_url = extract_spec_url(compat);
             let browser_support = extract_browser_support(compat);
             let compat_key = format!("svg.elements.{el_name}.{key}");
-            let baseline = extract_baseline(compat, &wf_features, &compat_key);
+            let baseline = extract_baseline(compat, wf_features.as_ref(), &compat_key);
 
             attr_map
                 .entry(key.clone())
@@ -223,7 +216,7 @@ pub(super) fn fetch_compat_data(out_dir: &Path) -> CompatData {
                     }
                     // Keep first spec URL
                     if existing.compat.spec_url.is_none() {
-                        existing.compat.spec_url = spec_url.clone();
+                        existing.compat.spec_url.clone_from(&spec_url);
                     }
                     // Add element association if not already global
                     if !bcd_attr_applies_globally(&existing.elements)
@@ -233,9 +226,9 @@ pub(super) fn fetch_compat_data(out_dir: &Path) -> CompatData {
                     }
                     // Conservative baseline merge: keep the worst (most limited)
                     match (&existing.compat.baseline, &baseline) {
-                        (None, _) => existing.compat.baseline = baseline.clone(),
+                        (None, _) => existing.compat.baseline.clone_from(&baseline),
                         (Some(current), Some(new)) if new.rank() < current.rank() => {
-                            existing.compat.baseline = baseline.clone();
+                            existing.compat.baseline.clone_from(&baseline);
                         }
                         _ => {}
                     }
@@ -244,7 +237,7 @@ pub(super) fn fetch_compat_data(out_dir: &Path) -> CompatData {
                         merge_browser_support(&mut existing.compat.browser_support, new_bs);
                     }
                 })
-                .or_insert(BcdAttribute {
+                .or_insert_with(|| BcdAttribute {
                     compat: CompatEntry {
                         deprecated,
                         experimental,
@@ -272,10 +265,10 @@ pub(super) fn fetch_compat_data(out_dir: &Path) -> CompatData {
 /// resolve baseline status.
 fn extract_baseline(
     compat: &serde_json::Value,
-    wf_features: &Option<serde_json::Value>,
+    wf_features: Option<&serde_json::Value>,
     compat_key: &str,
 ) -> Option<BaselineValue> {
-    let wf = wf_features.as_ref()?;
+    let wf = wf_features?;
 
     let tags = compat.get("tags")?.as_array()?;
     let feature_id = tags.iter().find_map(|tag| {

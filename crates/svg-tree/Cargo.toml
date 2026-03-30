@@ -4,6 +4,7 @@ version.workspace    = true
 authors.workspace    = true
 edition.workspace    = true
 description          = "Shared tree-sitter traversal helpers for SVG workspace crates"
+readme               = "README.md"
 homepage             = "https://github.com/kjanat/svg-language-server/tree/master/crates/svg-tree"
 repository.workspace = true
 license.workspace    = true

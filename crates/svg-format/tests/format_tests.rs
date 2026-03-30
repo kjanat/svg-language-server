@@ -208,6 +208,34 @@ fn format_with_host_delegates_script_content() {
 }
 
 #[test]
+fn format_with_host_decodes_entities_for_script() {
+    let input = r"<svg><script>for (let i = 0; i &lt; n; i++) {}</script></svg>";
+    let mut received = None;
+    let result = format_with_host(input, FormatOptions::default(), &mut |req| {
+        received = Some(req.content.to_string());
+        Some(req.content.to_string())
+    });
+    // Callback receives decoded JS with bare <
+    assert_eq!(received.as_deref(), Some("for (let i = 0; i < n; i++) {}"));
+    // Output re-encodes back to XML entities
+    assert!(result.contains("&lt;"), "output must re-encode < as &lt;");
+}
+
+#[test]
+fn format_with_host_round_trips_multiple_entities() {
+    let input = r"<svg><script>if (a &lt; b &amp;&amp; c &gt; d) {}</script></svg>";
+    let mut received = None;
+    let result = format_with_host(input, FormatOptions::default(), &mut |req| {
+        received = Some(req.content.to_string());
+        Some(req.content.to_string())
+    });
+    assert_eq!(received.as_deref(), Some("if (a < b && c > d) {}"));
+    assert!(result.contains("&lt;"), "< must be re-encoded");
+    assert!(result.contains("&gt;"), "> must be re-encoded");
+    assert!(result.contains("&amp;"), "& must be re-encoded");
+}
+
+#[test]
 fn format_with_host_delegates_foreign_object_content() {
     let input =
         r#"<svg><foreignObject width="200" height="200"><div>hello</div></foreignObject></svg>"#;

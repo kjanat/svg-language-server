@@ -5,8 +5,8 @@ mod text_content;
 
 use tag_parse::{ParsedAttribute, ParsedAttributeValue, parse_tag, reorder_attributes};
 use text_content::{
-    collapse_whitespace, dedent_block, is_text_content_element,
-    normalize_text_content_with_entities,
+    collapse_whitespace, decode_xml_entities, dedent_block, encode_xml_entities,
+    is_text_content_element, normalize_text_content_with_entities,
 };
 use tree_sitter::{Node, Parser};
 
@@ -662,7 +662,7 @@ impl<'a> Formatter<'a> {
         fmt: &mut dyn FnMut(EmbeddedContent<'_>) -> Option<String>,
     ) -> bool {
         let raw = self.node_text(node).to_string();
-        let content = dedent_block(&raw);
+        let content = decode_xml_entities(dedent_block(&raw));
         if content.is_empty() {
             return false;
         }
@@ -672,7 +672,8 @@ impl<'a> Formatter<'a> {
             indent_depth: depth,
         };
         fmt(req).is_some_and(|formatted| {
-            self.write_indented_block(&formatted, depth);
+            let encoded = encode_xml_entities(&formatted);
+            self.write_indented_block(&encoded, depth);
             true
         })
     }

@@ -204,3 +204,90 @@ fn is_close_angle_entity(entity: &str) -> bool {
         "&gt;" | "&#62;" | "&#x3e;"
     )
 }
+
+/// Decode XML character and entity references to literal characters.
+///
+/// Handles the five predefined XML entities (`&lt;`, `&gt;`, `&amp;`,
+/// `&quot;`, `&apos;`) and numeric character references (`&#60;`,
+/// `&#x3C;`). Unrecognized named entities are left verbatim.
+///
+/// Takes ownership to avoid allocation when the input contains no entities.
+pub fn decode_xml_entities(text: String) -> String {
+    if !text.contains('&') {
+        return text;
+    }
+
+    let mut result = String::with_capacity(text.len());
+    let mut offset = 0;
+
+    while offset < text.len() {
+        let rest = &text[offset..];
+
+        if rest.starts_with('&')
+            && let Some(len) = entity_reference_len(rest)
+        {
+            let entity = &rest[..len];
+            if let Some(decoded) = decode_entity_char(entity) {
+                result.push(decoded);
+            } else {
+                // Unknown named entity — keep verbatim
+                result.push_str(entity);
+            }
+            offset += len;
+            continue;
+        }
+
+        let Some(ch) = rest.chars().next() else {
+            break;
+        };
+        result.push(ch);
+        offset += ch.len_utf8();
+    }
+
+    result
+}
+
+/// Encode characters that are invalid in XML text content as entity
+/// references.
+///
+/// Encodes `&` → `&amp;`, `<` → `&lt;`, `>` → `&gt;`. Quotes are left
+/// unencoded since they are valid in XML text content positions.
+pub fn encode_xml_entities(text: &str) -> String {
+    if !text.contains(['&', '<', '>']) {
+        return text.to_string();
+    }
+
+    let mut result = String::with_capacity(text.len());
+    for ch in text.chars() {
+        match ch {
+            '&' => result.push_str("&amp;"),
+            '<' => result.push_str("&lt;"),
+            '>' => result.push_str("&gt;"),
+            _ => result.push(ch),
+        }
+    }
+    result
+}
+
+/// Resolve a single entity reference to its character value.
+fn decode_entity_char(entity: &str) -> Option<char> {
+    let body = &entity[1..entity.len() - 1];
+    match body {
+        "lt" => Some('<'),
+        "gt" => Some('>'),
+        "amp" => Some('&'),
+        "quot" => Some('"'),
+        "apos" => Some('\''),
+        _ => body
+            .strip_prefix("#x")
+            .or_else(|| body.strip_prefix("#X"))
+            .map_or_else(
+                || {
+                    body.strip_prefix('#')
+                        .and_then(|dec| dec.parse::<u32>().ok())
+                        .and_then(char::from_u32)
+                },
+                |hex| u32::from_str_radix(hex, 16).ok().and_then(char::from_u32),
+            ),
+    }
+}

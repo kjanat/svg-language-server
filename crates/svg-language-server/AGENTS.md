@@ -2,19 +2,20 @@
 
 ## OVERVIEW
 
-Binary crate that owns JSON-RPC/LSP protocol flow, document state, and fanout into lint/format/color/references/data crates.
+Library-first binary crate that owns JSON-RPC/LSP protocol flow, document state, and fanout into lint/format/color/references/data/tree crates.
 
 ## WHERE TO LOOK
 
-| Task                            | Location                                                    | Notes                                              |
-| ------------------------------- | ----------------------------------------------------------- | -------------------------------------------------- |
-| Document lifecycle              | `src/main.rs` (`did_open`, `did_change`, `update_document`) | Parse once; reuse tree across features             |
-| Hover/completion                | `src/main.rs` hover/completion handlers                     | Reads `svg-data` metadata + runtime compat overlay |
-| Diagnostics publish             | `src/main.rs` `publish_lint_diagnostics`                    | Bridges lint output to LSP diagnostics             |
-| Formatting endpoint             | `src/main.rs` formatting handler                            | Maps editor options into `svg-format` options      |
-| Colors endpoint                 | `src/main.rs` color handlers                                | Calls `svg-color` extract/presentation             |
-| Definitions/references endpoint | `src/main.rs` goto methods                                  | Calls `svg-references` target lookup               |
-| E2E protocol tests              | `tests/integration.rs`                                      | Spawns process, tests real protocol payloads       |
+| Task                            | Location                                    | Notes                                               |
+| ------------------------------- | ------------------------------------------- | --------------------------------------------------- |
+| Server entry + document state   | `src/lib.rs`                                | `run_stdio_server`, `DocumentState`, request wiring |
+| Hover/completion                | `src/hover.rs`, `src/completion.rs`         | Reads `svg-data` metadata + runtime compat overlay  |
+| Diagnostics publish             | `src/diagnostics.rs`, `src/code_actions.rs` | Bridges lint output to LSP diagnostics              |
+| Formatting endpoint             | `src/lib.rs` formatting request handler     | Maps editor options into `svg-format` options       |
+| Colors endpoint                 | `src/lib.rs` color handlers                 | Calls `svg-color` extract/presentation              |
+| Definitions/references endpoint | `src/definition.rs`, `src/stylesheets.rs`   | URI rebasing + `svg-references` target lookup       |
+| UTF-16 / byte mapping           | `src/positions.rs`                          | Never hand-roll offsets                             |
+| E2E protocol tests              | `tests/*.rs`, `tests/support/mod.rs`        | Spawns process, tests real protocol payloads        |
 
 ## CONVENTIONS
 
@@ -22,6 +23,7 @@ Binary crate that owns JSON-RPC/LSP protocol flow, document state, and fanout in
 - Use byte<->UTF-16 helpers for every range conversion; never hand-roll offsets.
 - Client-facing labels/messages are effectively API; integration tests assert them.
 - Runtime compat fetch is additive metadata; behavior must degrade cleanly when fetch fails.
+- `src/main.rs` is a thin wrapper; substantive behavior belongs in `src/lib.rs` and feature modules.
 
 ## ANTI-PATTERNS
 
@@ -32,5 +34,5 @@ Binary crate that owns JSON-RPC/LSP protocol flow, document state, and fanout in
 
 ## NOTES
 
-- Main file is intentionally large orchestrator; keep helpers cohesive and feature-local.
-- Test harness uses manual `Content-Length` framing; keep that when adding integration cases.
+- `src/lib.rs` is the orchestrator; keep helpers cohesive and feature-local rather than growing `main.rs`.
+- Test suite is feature-split; keep new cases near the protocol area they exercise.

@@ -1,12 +1,12 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-03-29\
-**Commit:** `b48a3af`\
-**Branch:** `feat/embedded-formatting`
+**Generated:** 2026-03-30\
+**Commit:** `346abb2`\
+**Branch:** `split`
 
 ## OVERVIEW
 
-Rust workspace for SVG tooling. Main product is `svg-language-server` (LSP) backed by split crates for catalog data, lint, formatting, color, and symbol resolution.
+Rust workspace for SVG tooling. Main product is `svg-language-server` (LSP), with split crates for spec data, lint, formatting, color, reference lookup, and shared tree-sitter helpers.
 
 ## STRUCTURE
 
@@ -18,11 +18,15 @@ Rust workspace for SVG tooling. Main product is `svg-language-server` (LSP) back
 │   ├── svg-lint/              # structural diagnostics + suppression handling
 │   ├── svg-format/            # structural formatter lib + CLI
 │   ├── svg-color/             # color parse/extract/presentation
-│   └── svg-references/        # id/class/custom-prop refs + definitions
+│   ├── svg-references/        # id/class/custom-prop refs + definitions
+│   └── svg-tree/              # shared tree-sitter traversal/query helpers
+├── .github/workflows/         # release + npm publish automation
 ├── docs/
 │   ├── plans/                 # dated implementation checklists
-│   └── specs/                 # dated design docs + non-goals
+│   ├── specs/                 # dated design docs + non-goals
+│   └── patches/               # archived downstream patch bundles
 ├── samples/                   # manual SVG fixtures and smoke-test files
+├── scripts/                   # Bun/TS release helper tooling
 ├── justfile                   # canonical task runner
 ├── .dprint.jsonc              # formatting policy and exec plugins
 ├── tombi.toml                 # TOML style + lint rules
@@ -33,26 +37,29 @@ Rust workspace for SVG tooling. Main product is `svg-language-server` (LSP) back
 
 | Task                                 | Location                                                             | Notes                                                |
 | ------------------------------------ | -------------------------------------------------------------------- | ---------------------------------------------------- |
-| Add or debug LSP method              | `crates/svg-language-server/src/main.rs`                             | Single orchestrator; most handlers live here         |
-| Change lint behavior                 | `crates/svg-lint/src/rules.rs`                                       | Rule engine + suppression handling                   |
+| Add or debug LSP method              | `crates/svg-language-server/src/lib.rs`                              | Main async server/orchestrator                       |
+| Change lint behavior                 | `crates/svg-lint/src/rules/mod.rs`                                   | Rule engine + suppression handling                   |
 | Add hover/completion metadata        | `crates/svg-data/build.rs`, `crates/svg-data/src/lib.rs`             | Build-time catalog generation + runtime API          |
 | Change formatter output              | `crates/svg-format/src/lib.rs`                                       | Attribute layout/sort, ignore directives, tag policy |
 | Change color extraction/presentation | `crates/svg-color/src/extract.rs`, `crates/svg-color/src/present.rs` | CSS + SVG extraction and output labels               |
 | Change definition/reference lookup   | `crates/svg-references/src/lib.rs`                                   | Shared symbol model for ids/classes/custom props     |
-| Validate E2E feature behavior        | `crates/svg-language-server/tests/integration.rs`                    | Spawns binary, speaks raw JSON-RPC                   |
+| Change shared tree traversal         | `crates/svg-tree/src/lib.rs`                                         | Shared node-walk, ancestor, and kind helpers         |
+| Validate E2E feature behavior        | `crates/svg-language-server/tests/*.rs`                              | Spawns binary, speaks raw JSON-RPC                   |
+| Change release automation            | `.github/workflows/*.yml`, `dist-workspace.toml`                     | `release.yml` generated; publish workflow custom     |
 | Check design intent / file maps      | `docs/plans/*.md`, `docs/specs/*.md`                                 | Dated plan/spec pairs with verification guidance     |
 | Repro behavior manually              | `samples/`                                                           | Manual fixtures; not wired into automated test runs  |
 
 ## CODE MAP
 
-| Symbol Area                                                     | Type          | Location                                 | Role                                                      |
-| --------------------------------------------------------------- | ------------- | ---------------------------------------- | --------------------------------------------------------- |
-| `SvgLanguageServer` and LSP handlers                            | struct + impl | `crates/svg-language-server/src/main.rs` | Wiring for hover/completion/diagnostics/format/color/defs |
-| `check_all`                                                     | function      | `crates/svg-lint/src/rules.rs`           | Lint walk + suppression application                       |
-| catalog lookup funcs (`element`, `attribute`, `attributes_for`) | functions     | `crates/svg-data/src/lib.rs`             | Spec truth API consumed by LSP + lint                     |
-| `format_with_options`, `format_with_host`                       | functions     | `crates/svg-format/src/lib.rs`           | Deterministic structural formatting + embedded delegation |
-| `extract_colors_from_tree`                                      | function      | `crates/svg-color/src/extract.rs`        | Color ranges from SVG + inline CSS                        |
-| `definition_target_at`                                          | function      | `crates/svg-references/src/lib.rs`       | Definition jump target resolution                         |
+| Symbol Area                                                     | Type        | Location                                | Role                                                      |
+| --------------------------------------------------------------- | ----------- | --------------------------------------- | --------------------------------------------------------- |
+| `run_stdio_server` and `SvgLanguageServer`                      | fn + struct | `crates/svg-language-server/src/lib.rs` | Wiring for hover/completion/diagnostics/format/color/defs |
+| `check_all`                                                     | function    | `crates/svg-lint/src/rules/mod.rs`      | Lint walk + suppression application                       |
+| catalog lookup funcs (`element`, `attribute`, `attributes_for`) | functions   | `crates/svg-data/src/lib.rs`            | Spec truth API consumed by LSP + lint                     |
+| `format_with_options`, `format_with_host`                       | functions   | `crates/svg-format/src/lib.rs`          | Deterministic structural formatting + embedded delegation |
+| `extract_colors_from_tree`                                      | function    | `crates/svg-color/src/extract.rs`       | Color ranges from SVG + inline CSS                        |
+| `definition_target_at`                                          | function    | `crates/svg-references/src/lib.rs`      | Definition jump target resolution                         |
+| `walk_tree`, `deepest_node_at`, `is_attribute_name_kind`        | functions   | `crates/svg-tree/src/lib.rs`            | Shared traversal + grammar-kind invariants                |
 
 ## CONVENTIONS
 
@@ -60,6 +67,7 @@ Rust workspace for SVG tooling. Main product is `svg-language-server` (LSP) back
 - Formatting is `dprint` first; Rust/TOML/justfile formatting is delegated through exec plugins.
 - Tree-sitter parse-once reuse pattern in LSP: document state stores source + tree; leaf crates consume shared trees where possible.
 - Workspace split is intentional: LSP crate integrates; leaf crates own domain logic and stay free of transport types.
+- Release automation is split: `dist-workspace.toml` drives generated `release.yml`, while `publish-npm-oidc.yml` is hand-maintained.
 - `docs/plans/*` and `docs/specs/*` are date-paired design history, not generated output.
 
 ## ANTI-PATTERNS (THIS PROJECT)
@@ -94,4 +102,5 @@ just run-lsp
 - No hosted CI config is checked in; `just ci` is the effective repo preflight.
 - `samples/` is excluded from dprint; treat it as fixtures/examples only.
 - Compat parsing logic exists both build-time (`svg-data`) and runtime (`svg-language-server`); keep behavior aligned when touched.
+- `scripts/` is small and release-focused; command truth still lives in `justfile` and `docs/releasing.md`.
 - Root `target/` can be large; ignore during repo exploration and docs generation.

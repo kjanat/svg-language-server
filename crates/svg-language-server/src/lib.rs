@@ -111,6 +111,21 @@ const fn markdown_hover(value: String) -> Hover {
     }
 }
 
+async fn resolve_external_stylesheet_off_thread(
+    stylesheet_cache: &StylesheetCache,
+    base_uri: &Uri,
+    href: String,
+) -> Option<(CachedStylesheet, bool)> {
+    let stylesheet_cache = stylesheet_cache.clone();
+    let base_uri = base_uri.clone();
+    tokio::task::spawn_blocking(move || {
+        resolve_external_stylesheet(&stylesheet_cache, &base_uri, &href)
+    })
+    .await
+    .ok()
+    .flatten()
+}
+
 fn completion_response(items: Vec<CompletionItem>) -> Option<CompletionResponse> {
     (!items.is_empty()).then_some(CompletionResponse::Array(items))
 }
@@ -560,7 +575,7 @@ impl LanguageServer for SvgLanguageServer {
 
             for href in stylesheet_hrefs {
                 let Some((stylesheet, is_remote)) =
-                    resolve_external_stylesheet(&self.stylesheet_cache, uri, &href)
+                    resolve_external_stylesheet_off_thread(&self.stylesheet_cache, uri, href).await
                 else {
                     continue;
                 };
@@ -600,7 +615,7 @@ impl LanguageServer for SvgLanguageServer {
 
             for href in stylesheet_hrefs {
                 let Some((stylesheet, is_remote)) =
-                    resolve_external_stylesheet(&self.stylesheet_cache, uri, &href)
+                    resolve_external_stylesheet_off_thread(&self.stylesheet_cache, uri, href).await
                 else {
                     continue;
                 };
@@ -657,10 +672,6 @@ impl LanguageServer for SvgLanguageServer {
                 diagnostic,
                 effective_row,
             ));
-        }
-
-        if actions.is_empty() {
-            return Ok(None);
         }
 
         Ok(Some(actions))
@@ -731,7 +742,7 @@ impl LanguageServer for SvgLanguageServer {
 
         for href in stylesheet_hrefs {
             let Some((stylesheet, is_remote)) =
-                resolve_external_stylesheet(&self.stylesheet_cache, uri, &href)
+                resolve_external_stylesheet_off_thread(&self.stylesheet_cache, uri, href).await
             else {
                 continue;
             };

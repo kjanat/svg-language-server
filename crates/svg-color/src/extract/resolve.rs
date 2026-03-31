@@ -51,21 +51,23 @@ fn resolve_var_color(
 ) -> Option<ResolvedColor> {
     let parts = split_top_level(args, ',');
     let name = parts.first()?.trim();
-    if !name.starts_with("--") || !seen.insert(name.to_owned()) {
+    if !name.starts_with("--") {
         return None;
     }
 
-    let resolved = custom_properties
-        .get(name)
-        .and_then(|value| resolve_css_color(value, custom_properties, seen))
-        .or_else(|| {
-            parts
-                .get(1)
-                .and_then(|fallback| resolve_css_color(fallback.trim(), custom_properties, seen))
-        });
+    if let Some(value) = custom_properties.get(name) {
+        if !seen.insert(name.to_owned()) {
+            return None;
+        }
 
-    seen.remove(name);
-    resolved
+        let resolved = resolve_css_color(value, custom_properties, seen);
+        seen.remove(name);
+        return resolved;
+    }
+
+    parts
+        .get(1)
+        .and_then(|fallback| resolve_css_color(fallback.trim(), custom_properties, seen))
 }
 
 fn resolve_color_mix(

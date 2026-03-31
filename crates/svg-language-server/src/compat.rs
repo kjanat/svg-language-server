@@ -120,13 +120,12 @@ fn apply_global_attribute_overrides(
         let Some(compat) = attribute_data.pointer("/__compat") else {
             continue;
         };
-        attributes.entry(attribute_name.clone()).or_insert_with(|| {
-            compat_override(
-                compat,
-                wf_features,
-                &format!("svg.global_attributes.{attribute_name}"),
-            )
-        });
+        let new_override = compat_override(
+            compat,
+            wf_features,
+            &format!("svg.global_attributes.{attribute_name}"),
+        );
+        merge_compat_override(attributes.entry(attribute_name.clone()), new_override);
     }
 }
 
@@ -168,18 +167,30 @@ fn merge_compat_override(
             if new_override.experimental {
                 existing.experimental = true;
             }
-            match (&existing.baseline, &new_override.baseline) {
-                (None, _) => existing.baseline = new_override.baseline,
-                (Some(current), Some(new)) if baseline_rank(*new) < baseline_rank(*current) => {
-                    existing.baseline = new_override.baseline;
-                }
-                _ => {}
-            }
+            merge_baseline(&mut existing.baseline, new_override.baseline);
             if let Some(new_browser_support) = &new_override.browser_support {
                 merge_runtime_browser_support(&mut existing.browser_support, new_browser_support);
             }
         })
         .or_insert(new_override);
+}
+
+const fn merge_baseline(existing: &mut Option<BaselineStatus>, new: Option<BaselineStatus>) {
+    let Some(current) = *existing else {
+        *existing = new;
+        return;
+    };
+    let Some(new) = new else {
+        return;
+    };
+
+    let current_rank = baseline_rank(current);
+    let new_rank = baseline_rank(new);
+    if new_rank < current_rank
+        || (new_rank == current_rank && baseline_since(new) > baseline_since(current))
+    {
+        *existing = Some(new);
+    }
 }
 
 fn merge_runtime_browser_support(
@@ -190,18 +201,61 @@ fn merge_runtime_browser_support(
         *existing = Some(new.clone());
         return;
     };
-    if new.chrome.is_none() {
-        existing.chrome = None;
+
+    merge_runtime_browser_version(&mut existing.chrome, new.chrome.as_deref());
+    merge_runtime_browser_version(&mut existing.edge, new.edge.as_deref());
+    merge_runtime_browser_version(&mut existing.firefox, new.firefox.as_deref());
+    merge_runtime_browser_version(&mut existing.safari, new.safari.as_deref());
+}
+
+fn merge_runtime_browser_version(existing: &mut Option<String>, new: Option<&str>) {
+    let Some(current) = existing.as_deref() else {
+        if let Some(new) = new {
+            *existing = Some(new.to_owned());
+        }
+        return;
+    };
+    let Some(new) = new else {
+        *existing = None;
+        return;
+    };
+
+    if compare_browser_versions(new, current).is_gt() {
+        *existing = Some(new.to_owned());
     }
-    if new.edge.is_none() {
-        existing.edge = None;
+}
+
+fn compare_browser_versions(left: &str, right: &str) -> std::cmp::Ordering {
+    let Some((left_upper_bound, left_parts)) = parse_browser_version(left) else {
+        return std::cmp::Ordering::Equal;
+    };
+    let Some((right_upper_bound, right_parts)) = parse_browser_version(right) else {
+        return std::cmp::Ordering::Equal;
+    };
+
+    let max_len = left_parts.len().max(right_parts.len());
+    for idx in 0..max_len {
+        let left_part = left_parts.get(idx).copied().unwrap_or(0);
+        let right_part = right_parts.get(idx).copied().unwrap_or(0);
+        match left_part.cmp(&right_part) {
+            std::cmp::Ordering::Equal => {}
+            non_eq => return non_eq,
+        }
     }
-    if new.firefox.is_none() {
-        existing.firefox = None;
-    }
-    if new.safari.is_none() {
-        existing.safari = None;
-    }
+
+    (!left_upper_bound).cmp(&!right_upper_bound)
+}
+
+fn parse_browser_version(version: &str) -> Option<(bool, Vec<u32>)> {
+    let (upper_bound, version) = version
+        .strip_prefix('≤')
+        .map_or((false, version), |version| (true, version));
+    let parts = version
+        .split('.')
+        .map(str::parse)
+        .collect::<Result<Vec<u32>, _>>()
+        .ok()?;
+    Some((upper_bound, parts))
 }
 
 const fn baseline_rank(baseline: BaselineStatus) -> u8 {
@@ -209,5 +263,101 @@ const fn baseline_rank(baseline: BaselineStatus) -> u8 {
         BaselineStatus::Limited => 0,
         BaselineStatus::Newly { .. } => 1,
         BaselineStatus::Widely { .. } => 2,
+    }
+}
+
+const fn baseline_since(baseline: BaselineStatus) -> u16 {
+    match baseline {
+        BaselineStatus::Widely { since } | BaselineStatus::Newly { since } => since,
+        BaselineStatus::Limited => 0,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        BaselineStatus, RuntimeBrowserSupport, merge_baseline, merge_runtime_browser_support,
+    };
+
+    #[test]
+    fn merge_baseline_prefers_worse_rank() {
+        let mut existing = Some(BaselineStatus::Widely { since: 2020 });
+        merge_baseline(&mut existing, Some(BaselineStatus::Limited));
+        assert_eq!(existing, Some(BaselineStatus::Limited));
+    }
+
+    #[test]
+    fn merge_baseline_tightens_equal_rank_year() {
+        let mut existing = Some(BaselineStatus::Newly { since: 2024 });
+        merge_baseline(&mut existing, Some(BaselineStatus::Newly { since: 2025 }));
+        assert_eq!(existing, Some(BaselineStatus::Newly { since: 2025 }));
+    }
+
+    #[test]
+    fn merge_browser_support_prefers_later_and_stricter_versions() {
+        let mut existing = Some(RuntimeBrowserSupport {
+            chrome: Some("120".to_owned()),
+            edge: Some("120".to_owned()),
+            firefox: Some("115".to_owned()),
+            safari: Some("≤17.2".to_owned()),
+        });
+        let new = RuntimeBrowserSupport {
+            chrome: Some("127".to_owned()),
+            edge: Some("118".to_owned()),
+            firefox: Some("115".to_owned()),
+            safari: Some("17.2".to_owned()),
+        };
+
+        merge_runtime_browser_support(&mut existing, &new);
+
+        assert_eq!(
+            existing
+                .as_ref()
+                .and_then(|support| support.chrome.as_deref()),
+            Some("127")
+        );
+        assert_eq!(
+            existing
+                .as_ref()
+                .and_then(|support| support.edge.as_deref()),
+            Some("120")
+        );
+        assert_eq!(
+            existing
+                .as_ref()
+                .and_then(|support| support.safari.as_deref()),
+            Some("17.2")
+        );
+    }
+
+    #[test]
+    fn merge_browser_support_keeps_none_as_worst_case() {
+        let mut existing = Some(RuntimeBrowserSupport {
+            chrome: Some("120".to_owned()),
+            edge: Some("120".to_owned()),
+            firefox: Some("115".to_owned()),
+            safari: Some("17.2".to_owned()),
+        });
+        let new = RuntimeBrowserSupport {
+            chrome: None,
+            edge: Some("118".to_owned()),
+            firefox: Some("114".to_owned()),
+            safari: Some("17.0".to_owned()),
+        };
+
+        merge_runtime_browser_support(&mut existing, &new);
+
+        assert_eq!(
+            existing
+                .as_ref()
+                .and_then(|support| support.chrome.as_deref()),
+            None
+        );
+        assert_eq!(
+            existing
+                .as_ref()
+                .and_then(|support| support.edge.as_deref()),
+            Some("120")
+        );
     }
 }

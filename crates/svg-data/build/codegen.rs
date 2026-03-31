@@ -3,7 +3,7 @@ use std::fmt::Write as _;
 use super::{BaselineValue, BrowserSupportValue};
 
 pub fn escape(s: &str) -> String {
-    s.replace('\\', "\\\\").replace('"', "\\\"")
+    s.chars().flat_map(char::escape_default).collect()
 }
 
 pub fn write_static_str_slice(out: &mut String, name: &str, items: &[String]) -> std::fmt::Result {

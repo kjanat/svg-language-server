@@ -85,11 +85,19 @@ pub(super) fn mix_oklch(
         return Some((0.0, 0.0, 0.0, 0.0));
     }
 
-    let lightness = right_lch[0].mul_add(right_weight, left_lch[0] * left_weight);
-    let chroma = right_lch[1].mul_add(right_weight, left_lch[1] * left_weight);
-    let hue = mix_hue_shorter(left_lch[2], right_lch[2], left_weight, right_weight);
-    let axis_a = chroma * hue.to_radians().cos();
-    let axis_b = chroma * hue.to_radians().sin();
+    let left_light = left_lch[0] * left_alpha;
+    let right_light = right_lch[0] * right_alpha;
+
+    let left_hue = left_lch[2].to_radians();
+    let right_hue = right_lch[2].to_radians();
+    let left_axis_a = left_lch[1] * left_hue.cos() * left_alpha;
+    let left_axis_b = left_lch[1] * left_hue.sin() * left_alpha;
+    let right_axis_a = right_lch[1] * right_hue.cos() * right_alpha;
+    let right_axis_b = right_lch[1] * right_hue.sin() * right_alpha;
+
+    let lightness = right_light.mul_add(right_weight, left_light * left_weight) / alpha;
+    let axis_a = right_axis_a.mul_add(right_weight, left_axis_a * left_weight) / alpha;
+    let axis_b = right_axis_b.mul_add(right_weight, left_axis_b * left_weight) / alpha;
     oklab_to_srgb(lightness, axis_a, axis_b, alpha)
 }
 
@@ -118,9 +126,4 @@ fn mix_premultiplied(
             / alpha,
     ];
     (coords, alpha)
-}
-
-fn mix_hue_shorter(left: f64, right: f64, left_weight: f64, right_weight: f64) -> f64 {
-    let delta = (right - left + 180.0).rem_euclid(360.0) - 180.0;
-    (left + delta * right_weight / (left_weight + right_weight)).rem_euclid(360.0)
 }

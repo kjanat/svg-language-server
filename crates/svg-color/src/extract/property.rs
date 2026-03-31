@@ -167,10 +167,12 @@ pub(super) fn declaration_property_name<'a>(
 }
 
 pub(super) fn is_color_like_property(name: &str) -> bool {
-    let name = name.to_ascii_lowercase();
-    name == "fill"
-        || name == "stroke"
-        || name == "color"
-        || name.ends_with("color")
+    let has_color_suffix = name.len() >= "color".len()
+        && name[name.len() - "color".len()..].eq_ignore_ascii_case("color");
+
+    name.eq_ignore_ascii_case("fill")
+        || name.eq_ignore_ascii_case("stroke")
+        || name.eq_ignore_ascii_case("color")
+        || has_color_suffix
         || name.starts_with("--")
 }

@@ -25,7 +25,8 @@ tree-sitter.workspace     = true
 tree-sitter-svg.workspace = true
 
 [features]
-cli = ["clap"]
+default = ["cli"]
+cli     = ["clap"]
 
 [lints]
 workspace = true

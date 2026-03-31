@@ -55,31 +55,39 @@ fn fmt_alpha(a: f32) -> String {
 }
 
 fn round_channel_to_u8(value: f32) -> u8 {
-    round_nonnegative_to_u8(value.clamp(0.0, 1.0).mul_add(255.0, 0.0).round())
+    round_nonnegative_to_u8((value.clamp(0.0, 1.0) * 255.0).round())
 }
 
 fn round_percent_to_u8(value: f32) -> u8 {
-    round_nonnegative_to_u8(value.clamp(0.0, 1.0).mul_add(100.0, 0.0).round())
+    round_nonnegative_to_u8((value.clamp(0.0, 1.0) * 100.0).round())
 }
 
 fn round_degrees_to_u16(value: f32) -> u16 {
     round_nonnegative_to_u16(value.rem_euclid(360.0).round())
 }
 
-fn round_nonnegative_to_u8(target: f32) -> u8 {
-    let mut candidate = 0u8;
-    while candidate < u8::MAX && f32::from(candidate) < target {
-        candidate += 1;
-    }
-    candidate
+#[expect(
+    clippy::cast_possible_truncation,
+    reason = "callers bound and round presentation values before narrowing to u8"
+)]
+#[expect(
+    clippy::cast_sign_loss,
+    reason = "callers only pass non-negative rounded presentation values"
+)]
+const fn round_nonnegative_to_u8(target: f32) -> u8 {
+    target as u8
 }
 
-fn round_nonnegative_to_u16(target: f32) -> u16 {
-    let mut candidate = 0u16;
-    while candidate < u16::MAX && f32::from(candidate) < target {
-        candidate += 1;
-    }
-    candidate
+#[expect(
+    clippy::cast_possible_truncation,
+    reason = "callers bound and round presentation values before narrowing to u16"
+)]
+#[expect(
+    clippy::cast_sign_loss,
+    reason = "callers only pass non-negative rounded presentation values"
+)]
+const fn round_nonnegative_to_u16(target: f32) -> u16 {
+    target as u16
 }
 
 /// Generate color presentation strings for a given RGBA color.

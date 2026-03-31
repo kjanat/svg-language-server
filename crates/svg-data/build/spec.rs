@@ -144,18 +144,39 @@ fn is_element_description(text: &str, elem_name: &str) -> bool {
     false
 }
 
-/// Truncate a description to its first two sentences for conciseness.
+/// Truncate scraped prose to the first two likely sentences for conciseness.
+///
+/// This uses a lightweight heuristic intended for build-time HTML scraping: it
+/// looks for a period followed by whitespace and then an uppercase character,
+/// including non-ASCII uppercase letters. The heuristic is intentionally
+/// imperfect and can still produce false positives around abbreviations such as
+/// `e.g.`, punctuation followed by quotes, or other editorial edge cases, but
+/// it keeps generated descriptions short without adding a heavy sentence parser.
 fn truncate_description(text: &str) -> String {
-    let bytes = text.as_bytes();
     let mut sentences = 0;
-    for i in 0..bytes.len().saturating_sub(2) {
-        if bytes[i] == b'.' && bytes[i + 1] == b' ' && bytes[i + 2].is_ascii_uppercase() {
-            sentences += 1;
-            if sentences >= 2 {
-                return text[..=i].to_string();
+
+    for (idx, ch) in text.char_indices() {
+        if ch != '.' {
+            continue;
+        }
+
+        let mut saw_whitespace = false;
+        for next in text[idx + ch.len_utf8()..].chars() {
+            if next.is_whitespace() {
+                saw_whitespace = true;
+                continue;
             }
+
+            if saw_whitespace && next.is_uppercase() {
+                sentences += 1;
+                if sentences >= 2 {
+                    return text[..=idx].to_string();
+                }
+            }
+            break;
         }
     }
+
     text.to_string()
 }
 

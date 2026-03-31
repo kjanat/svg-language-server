@@ -215,8 +215,12 @@ pub fn clamp_channel(value: f64) -> f32 {
     }
 }
 
-fn f64_to_f32(value: f64) -> f32 {
-    value.to_string().parse::<f32>().unwrap_or(0.0)
+#[expect(
+    clippy::cast_possible_truncation,
+    reason = "color channel helpers intentionally narrow clamped f64 values to f32"
+)]
+const fn f64_to_f32(value: f64) -> f32 {
+    value as f32
 }
 
 #[cfg(test)]

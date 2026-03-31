@@ -90,15 +90,24 @@ fn parse_modern_rgb_component(s: &str) -> Option<f32> {
     }
     if let Some(pct) = s.strip_suffix('%') {
         let v: f32 = pct.trim().parse().ok()?;
+        if !v.is_finite() {
+            return None;
+        }
         return Some((v / 100.0).clamp(0.0, 1.0));
     }
 
     let v: f32 = s.parse().ok()?;
+    if !v.is_finite() {
+        return None;
+    }
     Some((v / 255.0).clamp(0.0, 1.0))
 }
 
 fn parse_legacy_percent(s: &str) -> Option<f32> {
     let inner = s.strip_suffix('%')?;
     let v: f32 = inner.trim().parse().ok()?;
+    if !v.is_finite() {
+        return None;
+    }
     Some(v / 100.0)
 }

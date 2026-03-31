@@ -7,7 +7,7 @@ pub(super) fn hwb_to_rgb(h: f32, w: f32, b: f32, alpha: f64) -> (f32, f32, f32, 
     let b = b.clamp(0.0, 1.0);
 
     if w + b >= 1.0 {
-        let gray = if w + b == 0.0 { 0.0 } else { w / (w + b) };
+        let gray = w / (w + b);
         return (gray, gray, gray, clamp_channel(alpha));
     }
 

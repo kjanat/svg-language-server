@@ -57,7 +57,7 @@ pub fn copy_text_to_system_clipboard(text: &str) -> std::result::Result<(), Stri
         .map(|command| command.program)
         .collect::<Vec<_>>()
         .join(", ");
-    if attempts.is_empty() {
+    if CLIPBOARD_COMMANDS.is_empty() {
         Err(
             "Clipboard unavailable. No supported clipboard command configured for this platform."
                 .to_string(),

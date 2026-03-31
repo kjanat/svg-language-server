@@ -195,9 +195,36 @@ fn invalid_svg_publishes_diagnostics() -> TestResult {
     let diags = msg["params"]["diagnostics"]
         .as_array()
         .ok_or("diagnostics should be array")?;
+    let first_diag = diags
+        .first()
+        .ok_or("invalid SVG should produce diagnostics")?;
+    let circle_start = u64::try_from(invalid_svg.find("circle").ok_or("circle offset")?)?;
+
+    assert_eq!(
+        first_diag["code"].as_str(),
+        Some("InvalidChild"),
+        "invalid nesting should report InvalidChild: {msg}"
+    );
     assert!(
-        !diags.is_empty(),
-        "invalid SVG should produce diagnostics: {diags:?}"
+        first_diag["message"]
+            .as_str()
+            .is_some_and(|message| message.contains("<circle>") && message.contains("<rect>")),
+        "invalid nesting diagnostic should mention the child and parent elements: {msg}"
+    );
+    assert_eq!(
+        first_diag["severity"].as_u64(),
+        Some(1),
+        "invalid nesting should be reported as an error: {msg}"
+    );
+    assert_eq!(
+        first_diag["range"]["start"]["line"].as_u64(),
+        Some(0),
+        "invalid child should be reported on the first line: {msg}"
+    );
+    assert_eq!(
+        first_diag["range"]["start"]["character"].as_u64(),
+        Some(circle_start),
+        "invalid child range should point at the nested tag name: {msg}"
     );
 
     server.shutdown_and_exit()?;

@@ -54,18 +54,34 @@ fn server_binary() -> TestResult<&'static PathBuf> {
         .and_then(|p| p.parent())
         .ok_or("cannot resolve workspace root")?;
 
-    let status = Command::new("cargo")
-        .args(["build", "-p", "svg-language-server"])
+    let output = Command::new("cargo")
+        .args([
+            "build",
+            "-p",
+            "svg-language-server",
+            "--message-format=json-render-diagnostics",
+        ])
         .current_dir(project_root)
-        .status()?;
-    assert!(status.success(), "cargo build failed");
+        .output()?;
+    assert!(
+        output.status.success(),
+        "cargo build failed:\n{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
 
-    let exe_name = if std::env::consts::EXE_EXTENSION.is_empty() {
-        "svg-language-server".to_string()
-    } else {
-        format!("svg-language-server.{}", std::env::consts::EXE_EXTENSION)
-    };
-    let binary = project_root.join("target/debug").join(exe_name);
+    let binary = String::from_utf8(output.stdout)?
+        .lines()
+        .filter_map(|line| serde_json::from_str::<Value>(line).ok())
+        .find_map(|message| {
+            let is_bin_target = message["target"]["kind"]
+                .as_array()
+                .is_some_and(|kinds| kinds.iter().any(|kind| kind.as_str() == Some("bin")));
+            if message["reason"].as_str() == Some("compiler-artifact") && is_bin_target {
+                return message["executable"].as_str().map(PathBuf::from);
+            }
+            None
+        })
+        .ok_or("cargo build did not report an executable artifact")?;
     assert!(binary.exists(), "binary not found at {}", binary.display());
 
     // If another thread raced us, `set` returns Err but the value is

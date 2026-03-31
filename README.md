@@ -116,6 +116,7 @@ crates/
   svg-color/            color parsing, extraction, and presentation
   svg-data/             generated SVG catalog
   svg-references/       definition/reference analysis
+  svg-tree/             shared tree-sitter helpers and tree utilities
 docs/
   plans/
   specs/

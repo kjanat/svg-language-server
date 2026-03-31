@@ -44,8 +44,22 @@ lint fix="" allow-dirty="":
 
 # Filesizes
 filesize:
-    wc -l crates/**/*.* | sort -rn | head -20 | tail -n +2
-    cargo bloat --release --crates --filter svg-language-server
+    #!/usr/bin/env sh
+    set -e
+    cargo_bloat_missing=0
+    printf '%s\n' '== cargo-bloat =='
+    if ! command -v cargo-bloat >/dev/null 2>&1; then
+        cargo_bloat_missing=1
+        printf '%s\n' '(missing cargo-bloat; showing line counts below first)'
+    else
+        CARGO_TERM_QUIET=true cargo bloat --release --crates --filter svg-language-server
+    fi
+    printf '\n%s\n' '== Rust line counts =='
+    find crates -type f -name '*.rs' -exec wc -l {} \; | sort -rn | head -20
+    if [ "$cargo_bloat_missing" -ne 0 ]; then
+        printf '\n%s\n' "cargo-bloat is required for 'just filesize'. Install it with: cargo install cargo-bloat" >&2
+        exit 1
+    fi
 
 # Run all workspace tests
 test *ARGS:

@@ -4,18 +4,15 @@
 			fill: #a8c7fa; /* Light mode */
 		}
 
-
 		@media (prefers-color-scheme: dark) {
 			.blue-shape {
 				fill: #2d509e; /* Dark mode */
 			}
 		}
 
-
 		.darker-blue-shape {
 			fill: #1b6ef3;
 		}
-
 
 		@media (prefers-color-scheme: dark) {
 			.darker-blue-shape {

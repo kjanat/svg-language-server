@@ -368,7 +368,7 @@ fn write_curated_element(
             },
             |entry| {
                 (
-                    entry.deprecated,
+                    element.deprecated || entry.deprecated,
                     entry.experimental,
                     format_option_str(entry.spec_url.as_deref()),
                     format_baseline(entry.baseline.as_ref()),
@@ -509,7 +509,7 @@ fn write_curated_attribute(
             },
             |bcd_attribute| {
                 (
-                    bcd_attribute.compat.deprecated,
+                    attribute.deprecated || bcd_attribute.compat.deprecated,
                     bcd_attribute.compat.experimental,
                     format_option_str(bcd_attribute.compat.spec_url.as_deref()),
                     format_baseline(bcd_attribute.compat.baseline.as_ref()),

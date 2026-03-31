@@ -131,17 +131,16 @@ fn parse_hue_f64(s: &str) -> Option<f64> {
         return Some(0.0);
     }
 
-    let lower = s.to_ascii_lowercase();
-    let hue = if let Some(value) = lower.strip_suffix("deg") {
-        value.trim().parse::<f64>().ok()?
-    } else if let Some(value) = lower.strip_suffix("grad") {
-        value.trim().parse::<f64>().ok()? * 0.9
-    } else if let Some(value) = lower.strip_suffix("rad") {
-        value.trim().parse::<f64>().ok()?.to_degrees()
-    } else if let Some(value) = lower.strip_suffix("turn") {
-        value.trim().parse::<f64>().ok()? * 360.0
+    let hue = if let Some(v) = strip_suffix_ci(s, "deg") {
+        v.trim().parse::<f64>().ok()?
+    } else if let Some(v) = strip_suffix_ci(s, "grad") {
+        v.trim().parse::<f64>().ok()? * 0.9
+    } else if let Some(v) = strip_suffix_ci(s, "rad") {
+        v.trim().parse::<f64>().ok()?.to_degrees()
+    } else if let Some(v) = strip_suffix_ci(s, "turn") {
+        v.trim().parse::<f64>().ok()? * 360.0
     } else {
-        lower.parse::<f64>().ok()?
+        s.parse::<f64>().ok()?
     };
 
     Some(hue.rem_euclid(360.0))

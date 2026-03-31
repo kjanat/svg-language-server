@@ -63,7 +63,7 @@ fn round_percent_to_u8(value: f32) -> u8 {
 }
 
 fn round_degrees_to_u16(value: f32) -> u16 {
-    round_nonnegative_to_u16(value.rem_euclid(360.0).round())
+    round_nonnegative_to_u16(value.round().rem_euclid(360.0))
 }
 
 #[expect(

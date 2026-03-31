@@ -429,6 +429,10 @@ impl LanguageServer for SvgLanguageServer {
             .write()
             .await
             .remove(&params.text_document.uri);
+        self.color_kinds
+            .write()
+            .await
+            .retain(|(uri, _, _), _| *uri != params.text_document.uri);
         self.client
             .publish_diagnostics(params.text_document.uri, vec![], None)
             .await;

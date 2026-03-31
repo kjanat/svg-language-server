@@ -112,7 +112,7 @@ fn attribute_and_element_completion_filters_invalid_suggestions() -> TestResult 
         "already-specified attributes should not be suggested again: {attribute_completion_resp}"
     );
     assert!(
-        !attribute_labels.contains(&"xlink_href"),
+        !attribute_labels.contains(&"xlink:href"),
         "deprecated attributes should not be suggested: {attribute_completion_resp}"
     );
 

@@ -1,6 +1,6 @@
 use std::{collections::HashMap, fs, path::Path};
 
-use super::{BaselineValue, BrowserSupportValue, CompatEntry, ensure_cached};
+use super::{BaselineValue, BrowserSupportValue, CompatEntry, ensure_cached, xlink};
 
 const BCD_URL: &str = "https://unpkg.com/@mdn/browser-compat-data@latest/data.json";
 const WEB_FEATURES_URL: &str = "https://unpkg.com/web-features@latest/data.json";
@@ -179,8 +179,9 @@ fn collect_global_attributes(
         let Some(compat) = attribute_data.pointer("/__compat") else {
             continue;
         };
+        let canonical_name = xlink::canonical_svg_attribute_name(attribute_name);
         attributes.insert(
-            attribute_name.clone(),
+            canonical_name.into_owned(),
             BcdAttribute {
                 compat: compat_entry(
                     compat,
@@ -217,7 +218,13 @@ fn collect_element_specific_attributes(
                 wf_features,
                 &format!("svg.elements.{element_name}.{attribute_name}"),
             );
-            merge_attribute_entry(attributes, attribute_name, element_name, compat_entry);
+            let canonical_name = xlink::canonical_svg_attribute_name(attribute_name);
+            merge_attribute_entry(
+                attributes,
+                canonical_name.as_ref(),
+                element_name,
+                compat_entry,
+            );
         }
     }
 }

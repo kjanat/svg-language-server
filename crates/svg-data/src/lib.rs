@@ -13,6 +13,7 @@ pub mod categories;
 pub mod compat_parse;
 /// Public catalog type definitions.
 pub mod types;
+pub(crate) mod xlink;
 
 use std::{collections::HashMap, sync::LazyLock};
 
@@ -37,7 +38,12 @@ pub fn element(name: &str) -> Option<&'static ElementDef> {
 #[must_use]
 /// Look up a single SVG attribute definition by attribute name.
 pub fn attribute(name: &str) -> Option<&'static AttributeDef> {
-    ATTRIBUTE_MAP.get(name).copied()
+    ATTRIBUTE_MAP.get(name).copied().or_else(|| {
+        let canonical_name = xlink::canonical_svg_attribute_name(name);
+        (canonical_name.as_ref() != name)
+            .then(|| ATTRIBUTE_MAP.get(canonical_name.as_ref()).copied())
+            .flatten()
+    })
 }
 
 #[must_use]
@@ -97,6 +103,22 @@ mod tests {
     use std::error::Error;
 
     use super::*;
+
+    const XLINK_ATTRIBUTE_NAMES: &[(&str, &str)] = &[
+        ("xlink_actuate", "xlink:actuate"),
+        ("xlink_arcrole", "xlink:arcrole"),
+        ("xlink_href", "xlink:href"),
+        ("xlink_role", "xlink:role"),
+        ("xlink_show", "xlink:show"),
+        ("xlink_title", "xlink:title"),
+        ("xlink_type", "xlink:type"),
+    ];
+    const EMITTED_XLINK_ATTRIBUTE_NAMES: &[(&str, &str)] = &[
+        ("xlink_actuate", "xlink:actuate"),
+        ("xlink_href", "xlink:href"),
+        ("xlink_show", "xlink:show"),
+        ("xlink_title", "xlink:title"),
+    ];
 
     #[test]
     fn element_lookup() -> Result<(), Box<dyn Error>> {
@@ -165,6 +187,69 @@ mod tests {
         assert!(names.contains(&"fill"), "rect should accept fill");
         assert!(names.contains(&"x"), "rect should accept x");
         assert!(!names.contains(&"d"), "rect should not accept d");
+    }
+
+    #[test]
+    fn xlink_alias_helper_canonicalizes_known_legacy_names() {
+        for &(legacy_name, canonical_name) in XLINK_ATTRIBUTE_NAMES {
+            assert_eq!(
+                super::xlink::canonical_svg_attribute_name(legacy_name).as_ref(),
+                canonical_name
+            );
+            assert_eq!(
+                super::xlink::canonical_svg_attribute_name(canonical_name).as_ref(),
+                canonical_name
+            );
+        }
+    }
+
+    #[test]
+    fn xlink_attribute_lookup_is_canonical_and_backward_compatible() -> Result<(), Box<dyn Error>> {
+        for &(legacy_name, canonical_name) in EMITTED_XLINK_ATTRIBUTE_NAMES {
+            let canonical = attribute(canonical_name)
+                .ok_or_else(|| format!("{canonical_name} should exist"))?;
+            let legacy =
+                attribute(legacy_name).ok_or_else(|| format!("{legacy_name} should alias"))?;
+            assert!(std::ptr::eq(canonical, legacy));
+            assert_eq!(canonical.name, canonical_name);
+            assert!(
+                canonical.deprecated,
+                "{canonical_name} should be deprecated"
+            );
+        }
+
+        let href = attribute("xlink:href").ok_or("xlink:href should exist")?;
+        assert_eq!(
+            href.mdn_url,
+            "https://developer.mozilla.org/docs/Web/SVG/Attribute/xlink:href"
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn public_xlink_attribute_names_are_canonical() {
+        let xlink_names: Vec<&str> = attributes()
+            .iter()
+            .filter(|attribute| attribute.name.starts_with("xlink"))
+            .map(|attribute| attribute.name)
+            .collect();
+
+        assert!(
+            !xlink_names.is_empty(),
+            "catalog should include deprecated xlink attributes"
+        );
+        assert!(
+            xlink_names.iter().all(|name| name.contains(':')),
+            "public xlink names should use canonical colon syntax: {xlink_names:?}"
+        );
+    }
+
+    #[test]
+    fn attributes_for_use_only_exposes_canonical_xlink_names() {
+        let attrs = attributes_for("use");
+        let names: Vec<&str> = attrs.iter().map(|a| a.name).collect();
+        assert!(names.contains(&"xlink:href"));
+        assert!(!names.contains(&"xlink_href"));
     }
 
     #[test]

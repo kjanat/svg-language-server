@@ -18,7 +18,15 @@ pub fn write_static_str_slice(out: &mut String, name: &str, items: &[String]) ->
 }
 
 pub fn ident_from(name: &str) -> String {
-    name.replace('-', "_").to_uppercase()
+    name.chars()
+        .map(|ch| {
+            if ch.is_ascii_alphanumeric() {
+                ch.to_ascii_uppercase()
+            } else {
+                '_'
+            }
+        })
+        .collect()
 }
 
 pub fn format_baseline(baseline: Option<&BaselineValue>) -> String {

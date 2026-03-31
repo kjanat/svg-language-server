@@ -10,6 +10,8 @@ mod bcd;
 mod codegen;
 #[path = "build/spec.rs"]
 mod spec;
+#[path = "src/xlink.rs"]
+pub(crate) mod xlink;
 
 use std::{
     collections::{HashMap, HashSet},

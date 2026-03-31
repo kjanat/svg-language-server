@@ -71,6 +71,7 @@ typecheck:
 ci:
     just check
     just typecheck
+    just dist-check
     just lint
     just test
 
@@ -83,6 +84,10 @@ run-lsp *ARGS:
 [arg("variant", long="variant", short="v")]
 commit model="openai/gpt-5.4" variant="medium" *$MESSAGE:
     opencode run --command commit --model={{ model }} --variant={{ variant }} "$MESSAGE"
+
+# Validate generated dist CI matches checked-in workflow
+dist-check:
+    cargo dist plan --output-format=json > /tmp/plan-dist-manifest.json
 
 # Preview release artifacts and package layout
 dist-plan *ARGS:

@@ -110,19 +110,22 @@ fn parse_hue(s: &str) -> Option<f32> {
     }
 
     if let Some(v) = strip_suffix_ci(s, "deg") {
-        return v.trim().parse::<f32>().ok();
+        return v.trim().parse::<f32>().ok().filter(|v| v.is_finite());
     }
     if let Some(v) = strip_suffix_ci(s, "grad") {
-        return Some(v.trim().parse::<f32>().ok()? * 0.9);
+        return Some(v.trim().parse::<f32>().ok().filter(|v| v.is_finite())? * 0.9);
     }
     if let Some(v) = strip_suffix_ci(s, "rad") {
-        return Some(v.trim().parse::<f32>().ok()? * (180.0 / std::f32::consts::PI));
+        return Some(
+            v.trim().parse::<f32>().ok().filter(|v| v.is_finite())?
+                * (180.0 / std::f32::consts::PI),
+        );
     }
     if let Some(v) = strip_suffix_ci(s, "turn") {
-        return Some(v.trim().parse::<f32>().ok()? * 360.0);
+        return Some(v.trim().parse::<f32>().ok().filter(|v| v.is_finite())? * 360.0);
     }
 
-    s.parse::<f32>().ok()
+    s.parse::<f32>().ok().filter(|v| v.is_finite())
 }
 
 fn parse_hue_f64(s: &str) -> Option<f64> {
@@ -132,15 +135,19 @@ fn parse_hue_f64(s: &str) -> Option<f64> {
     }
 
     let hue = if let Some(v) = strip_suffix_ci(s, "deg") {
-        v.trim().parse::<f64>().ok()?
+        v.trim().parse::<f64>().ok().filter(|v| v.is_finite())?
     } else if let Some(v) = strip_suffix_ci(s, "grad") {
-        v.trim().parse::<f64>().ok()? * 0.9
+        v.trim().parse::<f64>().ok().filter(|v| v.is_finite())? * 0.9
     } else if let Some(v) = strip_suffix_ci(s, "rad") {
-        v.trim().parse::<f64>().ok()?.to_degrees()
+        v.trim()
+            .parse::<f64>()
+            .ok()
+            .filter(|v| v.is_finite())?
+            .to_degrees()
     } else if let Some(v) = strip_suffix_ci(s, "turn") {
-        v.trim().parse::<f64>().ok()? * 360.0
+        v.trim().parse::<f64>().ok().filter(|v| v.is_finite())? * 360.0
     } else {
-        s.parse::<f64>().ok()?
+        s.parse::<f64>().ok().filter(|v| v.is_finite())?
     };
 
     Some(hue.rem_euclid(360.0))
@@ -148,7 +155,7 @@ fn parse_hue_f64(s: &str) -> Option<f64> {
 
 fn strip_suffix_ci<'a>(text: &'a str, suffix: &str) -> Option<&'a str> {
     let prefix_len = text.len().checked_sub(suffix.len())?;
-    text[prefix_len..]
+    text.get(prefix_len..)?
         .eq_ignore_ascii_case(suffix)
         .then_some(&text[..prefix_len])
 }
@@ -182,11 +189,15 @@ fn parse_modern_alpha(alpha: Option<&str>) -> Option<f64> {
                 return Some(1.0);
             }
             if let Some(percent) = value.strip_suffix('%') {
-                let v = percent.trim().parse::<f64>().ok()?;
+                let v = percent
+                    .trim()
+                    .parse::<f64>()
+                    .ok()
+                    .filter(|v| v.is_finite())?;
                 return Some((v / 100.0).clamp(0.0, 1.0));
             }
 
-            let v = value.parse::<f64>().ok()?;
+            let v = value.parse::<f64>().ok().filter(|v| v.is_finite())?;
             Some(v.clamp(0.0, 1.0))
         }
         None => Some(1.0),
@@ -198,9 +209,13 @@ fn parse_modern_percent_or_number_100(s: &str) -> Option<f32> {
         return Some(0.0);
     }
     let value = if let Some(percent) = s.strip_suffix('%') {
-        percent.trim().parse::<f32>().ok()?
+        percent
+            .trim()
+            .parse::<f32>()
+            .ok()
+            .filter(|v| v.is_finite())?
     } else {
-        s.trim().parse::<f32>().ok()?
+        s.trim().parse::<f32>().ok().filter(|v| v.is_finite())?
     };
     Some((value / 100.0).clamp(0.0, 1.0))
 }

@@ -129,24 +129,25 @@ pub fn resolve_file_stylesheet(url: &Url) -> Option<CachedStylesheet> {
 
 fn resolve_remote_stylesheet(cache: &StylesheetCache, url: &Url) -> Option<CachedStylesheet> {
     let key = url.as_str().to_owned();
-    let cell = cache
-        .read()
-        .map_or_else(
-            |err| {
-                tracing::error!(error = %err, "stylesheet cache lock poisoned");
-                None
-            },
-            |guard| guard.get(&key).cloned(),
-        )
-        .or_else(|| {
+
+    let cell = match cache.read() {
+        Ok(guard) => guard.get(&key).cloned(),
+        Err(err) => {
+            tracing::error!(error = %err, "stylesheet cache lock poisoned");
+            return None;
+        }
+    };
+
+    let cell = match cell {
+        Some(existing) => existing,
+        None => {
             let mut guard = cache.write().ok()?;
-            Some(
-                guard
-                    .entry(key)
-                    .or_insert_with(|| Arc::new(OnceLock::new()))
-                    .clone(),
-            )
-        })?;
+            guard
+                .entry(key)
+                .or_insert_with(|| Arc::new(OnceLock::new()))
+                .clone()
+        }
+    };
 
     cell.get_or_init(|| {
         let stylesheet_url = url.as_str();
@@ -179,8 +180,6 @@ pub fn resolve_external_stylesheet(
 
 #[cfg(test)]
 mod tests {
-    use std::time::{SystemTime, UNIX_EPOCH};
-
     use super::*;
 
     type TestResult = std::result::Result<(), Box<dyn std::error::Error>>;
@@ -196,10 +195,8 @@ mod tests {
 
     #[test]
     fn resolve_file_stylesheet_collects_class_definitions() -> TestResult {
-        let unique = SystemTime::now().duration_since(UNIX_EPOCH)?.as_nanos();
-        let temp_dir = std::env::temp_dir().join(format!("svg-ls-style-{unique}"));
-        fs::create_dir_all(&temp_dir)?;
-        let css_path = temp_dir.join("style.css");
+        let temp_dir = tempfile::tempdir()?;
+        let css_path = temp_dir.path().join("style.css");
         fs::write(&css_path, ".uses-color { fill: red; }")?;
 
         let url = Url::from_file_path(&css_path).map_err(|()| "file url")?;
@@ -214,8 +211,6 @@ mod tests {
             vec!["uses-color"]
         );
 
-        fs::remove_file(&css_path)?;
-        fs::remove_dir(&temp_dir)?;
         Ok(())
     }
 }

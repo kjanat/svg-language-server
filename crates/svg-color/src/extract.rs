@@ -20,6 +20,10 @@ type ResolvedColor = (f32, f32, f32, f32, ColorKind);
 type ColorStop = (Rgba, Option<f64>);
 
 /// Extract all colors from SVG source text.
+///
+/// # Panics
+///
+/// Panics if the compiled tree-sitter SVG grammar cannot be loaded.
 #[must_use]
 pub fn colors(source: &[u8]) -> Vec<ColorInfo> {
     let mut parser = Parser::new();
@@ -36,6 +40,10 @@ pub fn colors(source: &[u8]) -> Vec<ColorInfo> {
 }
 
 /// Extract colors from an already-parsed tree.
+///
+/// # Panics
+///
+/// Panics if the compiled tree-sitter CSS grammar cannot be loaded.
 #[must_use]
 pub fn colors_from_tree(source: &[u8], tree: &Tree) -> Vec<ColorInfo> {
     let mut css_parser = Parser::new();

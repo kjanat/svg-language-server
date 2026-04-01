@@ -68,14 +68,24 @@ use stylesheets::{
 use svg_tree::{deepest_node_at, find_ancestor_any, is_attribute_name_kind};
 
 /// Parsed document state: source text + tree-sitter tree.
+///
+/// Invariant: `tree` is always the parse result of `source`. Construct only
+/// via [`SvgLanguageServer::update_document`].
 #[derive(Clone)]
 pub(crate) struct DocumentState {
     pub(crate) source: String,
     pub(crate) tree: tree_sitter::Tree,
 }
 
-/// Cache mapping (URI, `start_line`, `start_character`) to the original color kind.
-type ColorKindCache = Arc<RwLock<HashMap<(Uri, u32, u32), svg_color::ColorKind>>>;
+/// Position key for color kind cache lookups.
+#[derive(Clone, Hash, Eq, PartialEq)]
+struct ColorPositionKey {
+    uri: Uri,
+    line: u32,
+    character_utf16: u32,
+}
+
+type ColorKindCache = Arc<RwLock<HashMap<ColorPositionKey, svg_color::ColorKind>>>;
 pub(crate) type StylesheetCache =
     Arc<StdRwLock<HashMap<String, Arc<OnceLock<Option<CachedStylesheet>>>>>>;
 const COPY_DATA_URI_COMMAND: &str = "svg.copyDataUri";
@@ -122,8 +132,10 @@ async fn resolve_external_stylesheet_off_thread(
         resolve_external_stylesheet(&stylesheet_cache, &base_uri, &href)
     })
     .await
-    .ok()
-    .flatten()
+    .unwrap_or_else(|err| {
+        tracing::warn!(error = %err, "stylesheet resolution task failed");
+        None
+    })
 }
 
 fn completion_response(items: Vec<CompletionItem>) -> Option<CompletionResponse> {
@@ -318,6 +330,7 @@ impl SvgLanguageServer {
         };
 
         let Some(tree) = tree else {
+            tracing::warn!(uri = ?uri, "tree-sitter parse returned None; document state not updated");
             return;
         };
 
@@ -432,7 +445,7 @@ impl LanguageServer for SvgLanguageServer {
         self.color_kinds
             .write()
             .await
-            .retain(|(uri, _, _), _| *uri != params.text_document.uri);
+            .retain(|key, _| key.uri != params.text_document.uri);
         self.client
             .publish_diagnostics(params.text_document.uri, vec![], None)
             .await;
@@ -470,11 +483,11 @@ impl LanguageServer for SvgLanguageServer {
             .map(|color| {
                 let start_char = byte_col_to_utf16(source_bytes, color.start_row, color.start_col);
                 let end_char = byte_col_to_utf16(source_bytes, color.end_row, color.end_col);
-                let key = (
-                    params.text_document.uri.clone(),
-                    u32_from_usize(color.start_row),
-                    start_char,
-                );
+                let key = ColorPositionKey {
+                    uri: params.text_document.uri.clone(),
+                    line: u32_from_usize(color.start_row),
+                    character_utf16: start_char,
+                };
                 let info = ColorInformation {
                     range: Range::new(
                         Position::new(u32_from_usize(color.start_row), start_char),
@@ -497,7 +510,7 @@ impl LanguageServer for SvgLanguageServer {
         {
             let mut kinds = self.color_kinds.write().await;
             // Clear stale entries for this URI
-            kinds.retain(|(cached_uri, _, _), _| *cached_uri != uri);
+            kinds.retain(|key, _| key.uri != uri);
             for (_, key, kind) in entries {
                 kinds.insert(key, kind);
             }
@@ -510,11 +523,11 @@ impl LanguageServer for SvgLanguageServer {
         &self,
         params: ColorPresentationParams,
     ) -> Result<Vec<ColorPresentation>> {
-        let key = (
-            params.text_document.uri,
-            params.range.start.line,
-            params.range.start.character,
-        );
+        let key = ColorPositionKey {
+            uri: params.text_document.uri,
+            line: params.range.start.line,
+            character_utf16: params.range.start.character,
+        };
         let kind = self
             .color_kinds
             .read()

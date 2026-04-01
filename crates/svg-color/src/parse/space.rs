@@ -120,7 +120,7 @@ pub(super) fn oklab_to_srgb(l: f64, a: f64, b: f64, alpha: f64) -> Option<(f32, 
 }
 
 /// Convert HSL to RGB. All inputs/outputs are normalised to 0.0–1.0 except
-/// `h`, which is in degrees (0–360, wrapping).
+/// `hue`, which is in degrees (0–360, wrapping).
 pub(super) fn hsl_to_rgb(hue: f32, saturation: f32, lightness: f32) -> (f32, f32, f32) {
     let saturation = saturation.clamp(0.0, 1.0);
     let lightness = lightness.clamp(0.0, 1.0);

@@ -6,8 +6,10 @@ const BCD_URL: &str = "https://unpkg.com/@mdn/browser-compat-data@latest/data.js
 const WEB_FEATURES_URL: &str = "https://unpkg.com/web-features@latest/data.json";
 
 /// Which elements a BCD-discovered attribute applies to.
+/// BCD-discovered attribute with compat metadata and element applicability.
 pub struct BcdAttribute {
     pub compat: CompatEntry,
+    /// Element names this attribute applies to. Contains `"*"` if global.
     pub elements: Vec<String>,
 }
 

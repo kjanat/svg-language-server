@@ -79,13 +79,10 @@ fn canonical_geometry_order(name: &str) -> Option<u16> {
         "stroke-width",
         "style",
     ];
-    order.iter().position(|candidate| *candidate == name).map(
-        #[expect(
-            clippy::cast_possible_truncation,
-            reason = "the canonical attribute order table is statically bounded well below u16::MAX"
-        )]
-        |i| i as u16,
-    )
+    order
+        .iter()
+        .position(|candidate| *candidate == name)
+        .and_then(|i| u16::try_from(i).ok())
 }
 
 pub fn parse_tag(raw: &str, self_closing: bool) -> Option<ParsedTag> {

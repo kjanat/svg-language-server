@@ -68,11 +68,11 @@ fn round_degrees_to_u16(value: f32) -> u16 {
 
 #[expect(
     clippy::cast_possible_truncation,
-    reason = "callers bound and round presentation values before narrowing to u8"
+    reason = "target is in [0, 255] and rounded — no TryFrom<f32> for u8 exists in std"
 )]
 #[expect(
     clippy::cast_sign_loss,
-    reason = "callers only pass non-negative rounded presentation values"
+    reason = "target is non-negative — no TryFrom<f32> for u8 exists in std"
 )]
 const fn round_nonnegative_to_u8(target: f32) -> u8 {
     target as u8
@@ -80,11 +80,11 @@ const fn round_nonnegative_to_u8(target: f32) -> u8 {
 
 #[expect(
     clippy::cast_possible_truncation,
-    reason = "callers bound and round presentation values before narrowing to u16"
+    reason = "target is in [0, 359] and rounded — no TryFrom<f32> for u16 exists in std"
 )]
 #[expect(
     clippy::cast_sign_loss,
-    reason = "callers only pass non-negative rounded presentation values"
+    reason = "target is non-negative — no TryFrom<f32> for u16 exists in std"
 )]
 const fn round_nonnegative_to_u16(target: f32) -> u16 {
     target as u16

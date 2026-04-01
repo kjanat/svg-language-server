@@ -10,8 +10,8 @@ pub use hex::hex;
 const LCH_ACHROMATIC_CHROMA_THRESHOLD: f64 = 0.0015;
 const OKLCH_ACHROMATIC_CHROMA_THRESHOLD: f64 = 4e-6;
 
-/// Parse a CSS functional color string and return normalized sRGB + alpha.
 #[must_use]
+/// Parse a CSS functional color string and return normalized sRGB + alpha.
 pub fn functional(text: &str) -> Option<(f32, f32, f32, f32)> {
     let text = text.trim();
 
@@ -43,11 +43,11 @@ pub fn functional(text: &str) -> Option<(f32, f32, f32, f32)> {
     }
 }
 
-#[must_use]
 /// Mix two colors in the requested interpolation space.
 ///
 /// Returns normalized RGBA output in the same `[0.0, 1.0]` channel range used
 /// throughout this crate, or `None` when the space or weights are invalid.
+#[must_use]
 pub fn mix_colors(
     space: &str,
     left: (f32, f32, f32, f32),
@@ -70,8 +70,6 @@ pub fn mix_colors(
         _ => None,
     }
 }
-
-// ── Shared parsing helpers used by submodules ───────────────────
 
 fn split_legacy_args(rest: &str) -> Option<Vec<&str>> {
     let raw_args: Vec<&str> = rest.split(',').map(str::trim).collect();
@@ -103,6 +101,8 @@ fn split_modern_args(rest: &str) -> Option<([&str; 3], Option<&str>)> {
 }
 
 /// Parse a CSS hue angle, defaulting bare numbers to degrees.
+///
+/// The result is NOT normalized to `[0, 360)` — callers must handle wrapping.
 fn parse_hue(s: &str) -> Option<f32> {
     let s = s.trim();
     if s.eq_ignore_ascii_case("none") {
@@ -128,6 +128,9 @@ fn parse_hue(s: &str) -> Option<f32> {
     s.parse::<f32>().ok().filter(|v| v.is_finite())
 }
 
+/// Parse a CSS hue angle as f64, defaulting bare numbers to degrees.
+///
+/// The result is normalized to `[0, 360)` via `rem_euclid`.
 fn parse_hue_f64(s: &str) -> Option<f64> {
     let s = s.trim();
     if s.eq_ignore_ascii_case("none") {
@@ -220,6 +223,8 @@ fn parse_modern_percent_or_number_100(s: &str) -> Option<f32> {
     Some((value / 100.0).clamp(0.0, 1.0))
 }
 
+/// Clamp an f64 color channel to `[0.0, 1.0]`, snap near-zero to `0.0`, and
+/// narrow to f32.
 pub fn clamp_channel(value: f64) -> f32 {
     let value = value.clamp(0.0, 1.0);
     if value.abs() < 1e-12 {
@@ -231,7 +236,7 @@ pub fn clamp_channel(value: f64) -> f32 {
 
 #[expect(
     clippy::cast_possible_truncation,
-    reason = "color channel helpers intentionally narrow clamped f64 values to f32"
+    reason = "value is clamped to [0.0, 1.0]; truncation is limited to LSB mantissa bits — no From<f64> for f32 exists in std"
 )]
 const fn f64_to_f32(value: f64) -> f32 {
     value as f32

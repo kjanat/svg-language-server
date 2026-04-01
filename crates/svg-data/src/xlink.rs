@@ -1,5 +1,11 @@
 use std::borrow::Cow;
 
+/// Map legacy underscore-delimited xlink attribute names (as found in BCD
+/// data) to their canonical colon-delimited SVG namespace form.
+///
+/// Unrecognized names pass through unchanged.
+#[inline]
+#[must_use]
 pub fn canonical_svg_attribute_name(name: &str) -> Cow<'_, str> {
     match name {
         "xlink_actuate" => Cow::Borrowed("xlink:actuate"),

@@ -29,14 +29,14 @@ static ELEMENT_MAP: LazyLock<HashMap<&'static str, &'static ElementDef>> =
 static ATTRIBUTE_MAP: LazyLock<HashMap<&'static str, &'static AttributeDef>> =
     LazyLock::new(|| ATTRIBUTES.iter().map(|a| (a.name, a)).collect());
 
-#[must_use]
 /// Look up a single SVG element definition by tag name.
+#[must_use]
 pub fn element(name: &str) -> Option<&'static ElementDef> {
     ELEMENT_MAP.get(name).copied()
 }
 
-#[must_use]
 /// Look up a single SVG attribute definition by attribute name.
+#[must_use]
 pub fn attribute(name: &str) -> Option<&'static AttributeDef> {
     ATTRIBUTE_MAP.get(name).copied().or_else(|| {
         let canonical_name = xlink::canonical_svg_attribute_name(name);
@@ -46,39 +46,40 @@ pub fn attribute(name: &str) -> Option<&'static AttributeDef> {
     })
 }
 
-#[must_use]
 /// Return the full generated SVG element catalog.
+#[must_use]
 pub fn elements() -> &'static [ElementDef] {
     ELEMENTS
 }
 
-#[must_use]
 /// Return the full generated SVG attribute catalog.
+#[must_use]
 pub fn attributes() -> &'static [AttributeDef] {
     ATTRIBUTES
 }
 
-#[must_use]
 /// Return the concrete child element names allowed under `parent`.
+#[must_use]
 pub fn allowed_children(parent: &str) -> Vec<&'static str> {
     categories::allowed_children(parent)
 }
 
-#[must_use]
 /// Return whether `parent` accepts foreign-namespace children.
+#[must_use]
 pub fn allows_foreign_children(parent: &str) -> bool {
     element(parent).is_some_and(|el| matches!(el.content_model, ContentModel::Foreign))
 }
 
 fn attribute_applies_to(attr: &AttributeDef, element_name: &str) -> bool {
-    // Older generated catalogs used an empty applicability list as the global marker.
+    // Empty elements list means global — current codegen uses "*" but older
+    // build artifacts may still emit an empty list.
     attr.elements.is_empty()
         || attr.elements.contains(&"*")
         || attr.elements.contains(&element_name)
 }
 
-#[must_use]
 /// Return all attributes that apply to `element_name`, including global ones.
+#[must_use]
 pub fn attributes_for(element_name: &str) -> Vec<&'static AttributeDef> {
     let Some(el) = element(element_name) else {
         return Vec::new();
@@ -92,8 +93,8 @@ pub fn attributes_for(element_name: &str) -> Vec<&'static AttributeDef> {
     result
 }
 
-#[must_use]
 /// Return all element names belonging to the given catalog category.
+#[must_use]
 pub const fn elements_in_category(cat: ElementCategory) -> &'static [&'static str] {
     categories::elements_in_category(cat)
 }

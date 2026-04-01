@@ -82,12 +82,21 @@ pub fn extract_browser_versions(compat: &serde_json::Value) -> Option<BrowserVer
         stmt.get("version_added")?.as_str().map(String::from)
     };
 
-    Some(BrowserVersions {
+    let versions = BrowserVersions {
         chrome: version_added("chrome"),
         edge: version_added("edge"),
         firefox: version_added("firefox"),
         safari: version_added("safari"),
-    })
+    };
+    if versions.chrome.is_none()
+        && versions.edge.is_none()
+        && versions.firefox.is_none()
+        && versions.safari.is_none()
+    {
+        None
+    } else {
+        Some(versions)
+    }
 }
 
 /// Extract the first calendar year from a date string like `"2023-03-27"`.

@@ -373,8 +373,6 @@ impl LanguageServer for SvgLanguageServer {
 
         // Spawn background compat data refresh
         let compat = self.runtime_compat.clone();
-        let client = self.client.clone();
-        let documents = self.documents.clone();
         tokio::spawn(async move {
             let result = tokio::task::spawn_blocking(fetch_runtime_compat).await;
             match result {
@@ -387,20 +385,6 @@ impl LanguageServer for SvgLanguageServer {
                         attributes = attr_count,
                         "runtime compat data loaded"
                     );
-                    // Re-lint all open documents with fresh data.
-                    // Snapshot doc state and drop the lock before awaiting
-                    // publish calls, so did_change/did_open can proceed.
-                    let snapshot: Vec<_> = {
-                        let docs = documents.read().await;
-                        docs.iter()
-                            .map(|(uri, doc)| (uri.clone(), doc.clone()))
-                            .collect()
-                    };
-                    for (uri, doc) in snapshot {
-                        let source_bytes = doc.source.as_bytes();
-                        let lint_diags = svg_lint::lint_tree(source_bytes, &doc.tree);
-                        publish_lint_diagnostics(&client, uri, source_bytes, lint_diags).await;
-                    }
                 }
                 Ok(None) => {
                     tracing::info!("runtime compat fetch returned no data (offline?)");

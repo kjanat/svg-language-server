@@ -113,16 +113,17 @@ fn parse_hue(s: &str) -> Option<f32> {
         return v.trim().parse::<f32>().ok().filter(|v| v.is_finite());
     }
     if let Some(v) = strip_suffix_ci(s, "grad") {
-        return Some(v.trim().parse::<f32>().ok().filter(|v| v.is_finite())? * 0.9);
+        let scaled = v.trim().parse::<f32>().ok().filter(|v| v.is_finite())? * 0.9;
+        return scaled.is_finite().then_some(scaled);
     }
     if let Some(v) = strip_suffix_ci(s, "rad") {
-        return Some(
-            v.trim().parse::<f32>().ok().filter(|v| v.is_finite())?
-                * (180.0 / std::f32::consts::PI),
-        );
+        let scaled = v.trim().parse::<f32>().ok().filter(|v| v.is_finite())?
+            * (180.0 / std::f32::consts::PI);
+        return scaled.is_finite().then_some(scaled);
     }
     if let Some(v) = strip_suffix_ci(s, "turn") {
-        return Some(v.trim().parse::<f32>().ok().filter(|v| v.is_finite())? * 360.0);
+        let scaled = v.trim().parse::<f32>().ok().filter(|v| v.is_finite())? * 360.0;
+        return scaled.is_finite().then_some(scaled);
     }
 
     s.parse::<f32>().ok().filter(|v| v.is_finite())
@@ -153,7 +154,7 @@ fn parse_hue_f64(s: &str) -> Option<f64> {
         s.parse::<f64>().ok().filter(|v| v.is_finite())?
     };
 
-    Some(hue.rem_euclid(360.0))
+    hue.is_finite().then_some(hue.rem_euclid(360.0))
 }
 
 fn strip_suffix_ci<'a>(text: &'a str, suffix: &str) -> Option<&'a str> {

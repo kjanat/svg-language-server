@@ -179,26 +179,22 @@ pub fn parse_attribute(attribute: &str) -> ParsedAttribute {
         let raw_value = raw_value.trim();
         let value = raw_value
             .strip_prefix('"')
-            .and_then(|value| value.strip_suffix('"'))
+            .and_then(|v| v.strip_suffix('"'))
+            .map(|inner| (inner, '"'))
+            .or_else(|| {
+                raw_value
+                    .strip_prefix('\'')
+                    .and_then(|v| v.strip_suffix('\''))
+                    .map(|inner| (inner, '\''))
+            })
             .map_or_else(
-                || {
-                    raw_value
-                        .strip_prefix('\'')
-                        .and_then(|value| value.strip_suffix('\''))
-                        .map_or_else(
-                            || ParsedAttributeValue {
-                                raw: raw_value.to_string(),
-                                original_quote: None,
-                            },
-                            |inner| ParsedAttributeValue {
-                                raw: inner.to_string(),
-                                original_quote: Some('\''),
-                            },
-                        )
+                || ParsedAttributeValue {
+                    raw: raw_value.to_string(),
+                    original_quote: None,
                 },
-                |inner| ParsedAttributeValue {
+                |(inner, quote)| ParsedAttributeValue {
                     raw: inner.to_string(),
-                    original_quote: Some('"'),
+                    original_quote: Some(quote),
                 },
             );
 

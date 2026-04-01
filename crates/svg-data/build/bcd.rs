@@ -363,12 +363,21 @@ fn extract_browser_support(compat: &serde_json::Value) -> Option<BrowserSupportV
         stmt.get("version_added")?.as_str().map(String::from)
     };
 
-    Some(BrowserSupportValue {
+    let value = BrowserSupportValue {
         chrome: version_added("chrome"),
         edge: version_added("edge"),
         firefox: version_added("firefox"),
         safari: version_added("safari"),
-    })
+    };
+    if value.chrome.is_none()
+        && value.edge.is_none()
+        && value.firefox.is_none()
+        && value.safari.is_none()
+    {
+        None
+    } else {
+        Some(value)
+    }
 }
 
 fn extract_spec_url(compat: &serde_json::Value) -> Option<String> {

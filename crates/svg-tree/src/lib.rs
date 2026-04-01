@@ -8,8 +8,8 @@
 /// Iterative depth-first traversal of every node reachable from `cursor`.
 ///
 /// Calls `f` on each node visited.  Uses `TreeCursor` internally for
-/// efficiency (no per-node allocation).  Iterative to avoid stack overflow
-/// on pathological deeply-nested SVGs.
+/// efficiency (no per-node allocation).  Iterative traversal to avoid stack
+/// overflow from deeply-nested SVG trees.
 pub fn walk_tree(
     cursor: &mut tree_sitter::TreeCursor<'_>,
     f: &mut impl FnMut(tree_sitter::Node<'_>),
@@ -37,20 +37,20 @@ pub fn walk_tree(
     }
 }
 
-#[must_use]
 /// Return the deepest (most specific) node that spans `byte_offset`.
 ///
 /// Falls back to the tree root when no descendant covers the offset.
+#[must_use]
 pub fn deepest_node_at(tree: &tree_sitter::Tree, byte_offset: usize) -> tree_sitter::Node<'_> {
     tree.root_node()
         .descendant_for_byte_range(byte_offset, byte_offset)
         .unwrap_or_else(|| tree.root_node())
 }
 
-#[must_use]
 /// Walk up from `node` and return the first ancestor whose kind is in `kinds`.
 ///
 /// The search includes `node` itself.
+#[must_use]
 pub fn find_ancestor_any<'a>(
     node: tree_sitter::Node<'a>,
     kinds: &[&str],
@@ -64,8 +64,8 @@ pub fn find_ancestor_any<'a>(
     }
 }
 
-#[must_use]
 /// Return `true` if any ancestor of `node` (exclusive) has the given `kind`.
+#[must_use]
 pub fn has_ancestor(node: tree_sitter::Node<'_>, kind: &str) -> bool {
     let mut current = node;
     while let Some(parent) = current.parent() {
@@ -77,8 +77,8 @@ pub fn has_ancestor(node: tree_sitter::Node<'_>, kind: &str) -> bool {
     false
 }
 
-#[must_use]
 /// Return the first direct child of `node` whose kind matches `kind`.
+#[must_use]
 pub fn child_of_kind<'a>(node: tree_sitter::Node<'a>, kind: &str) -> Option<tree_sitter::Node<'a>> {
     let mut cursor = node.walk();
     if !cursor.goto_first_child() {
@@ -95,12 +95,12 @@ pub fn child_of_kind<'a>(node: tree_sitter::Node<'a>, kind: &str) -> Option<tree
     }
 }
 
-#[must_use]
 /// Check whether a tree-sitter node kind represents an attribute name.
 ///
 /// tree-sitter-svg emits `attribute_name` for plain attributes and
 /// `*_attribute_name` variants (e.g. `viewBox_attribute_name`) as value
 /// grammars expand.
+#[must_use]
 pub fn is_attribute_name_kind(kind: &str) -> bool {
     kind == "attribute_name" || kind.ends_with("_attribute_name")
 }

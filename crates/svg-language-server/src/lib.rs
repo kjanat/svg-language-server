@@ -78,7 +78,7 @@ pub(crate) struct DocumentState {
 }
 
 /// Position key for color kind cache lookups.
-#[derive(Clone, Hash, Eq, PartialEq)]
+#[derive(Clone, Debug, Hash, Eq, PartialEq)]
 struct ColorPositionKey {
     uri: Uri,
     line: u32,

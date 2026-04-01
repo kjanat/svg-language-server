@@ -1,7 +1,8 @@
 //! Structural SVG lint rules and suppression handling.
 //!
-//! This crate parses SVG source, validates it against the generated catalog,
-//! and returns transport-agnostic diagnostics.
+//! This crate validates SVG trees against the generated catalog and returns
+//! transport-agnostic diagnostics. A convenience `lint()` entry point handles
+//! parsing internally.
 
 mod rules;
 /// Public diagnostic data structures returned by the linter.

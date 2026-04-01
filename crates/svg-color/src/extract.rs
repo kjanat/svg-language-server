@@ -27,7 +27,7 @@ pub fn colors(source: &[u8]) -> Vec<ColorInfo> {
         .set_language(&tree_sitter_svg::LANGUAGE.into())
         .is_err()
     {
-        return Vec::new();
+        panic!("SVG grammar ABI mismatch: rebuild tree-sitter-svg");
     }
     let Some(tree) = parser.parse(source, None) else {
         return Vec::new();
@@ -43,7 +43,7 @@ pub fn colors_from_tree(source: &[u8], tree: &Tree) -> Vec<ColorInfo> {
         .set_language(&tree_sitter_css::LANGUAGE.into())
         .is_err()
     {
-        return Vec::new();
+        panic!("CSS grammar ABI mismatch: rebuild tree-sitter-css");
     }
 
     let mut colors = Vec::new();

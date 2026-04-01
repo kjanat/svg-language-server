@@ -49,11 +49,15 @@ pub fn fetch_runtime_compat() -> Option<RuntimeCompat> {
 fn fetch_json(url: &str) -> Option<serde_json::Value> {
     let text = ureq::get(url)
         .call()
+        .map_err(|err| tracing::warn!(url, error = %err, "HTTP request failed"))
         .ok()?
         .body_mut()
         .read_to_string()
+        .map_err(|err| tracing::warn!(url, error = %err, "failed to read response body"))
         .ok()?;
-    serde_json::from_str(&text).ok()
+    serde_json::from_str(&text)
+        .map_err(|err| tracing::warn!(url, error = %err, "failed to parse JSON"))
+        .ok()
 }
 
 fn collect_element_overrides(

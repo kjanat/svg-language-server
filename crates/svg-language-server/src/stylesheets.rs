@@ -106,13 +106,23 @@ pub fn resolve_stylesheet_url(base_uri: &Uri, href: &str) -> Option<Url> {
         return Some(url);
     }
 
-    let base = Url::parse(base_uri.as_str()).ok()?;
-    base.join(href).ok()
+    let base = Url::parse(base_uri.as_str())
+        .map_err(
+            |err| tracing::warn!(uri = base_uri.as_str(), error = %err, "malformed document URI"),
+        )
+        .ok()?;
+    base.join(href)
+        .map_err(|err| tracing::warn!(href, error = %err, "failed to resolve stylesheet URL"))
+        .ok()
 }
 
 pub fn resolve_file_stylesheet(url: &Url) -> Option<CachedStylesheet> {
     let path = url.to_file_path().ok()?;
-    let source = fs::read_to_string(path).ok()?;
+    let source = fs::read_to_string(&path)
+        .map_err(
+            |err| tracing::warn!(path = %path.display(), error = %err, "failed to read stylesheet"),
+        )
+        .ok()?;
     let uri = url.as_str().parse().ok()?;
     Some(parse_stylesheet(uri, source))
 }
@@ -121,7 +131,13 @@ fn resolve_remote_stylesheet(cache: &StylesheetCache, url: &Url) -> Option<Cache
     let key = url.as_str().to_owned();
     let cell = cache
         .read()
-        .map_or_else(|_| None, |guard| guard.get(&key).cloned())
+        .map_or_else(
+            |err| {
+                tracing::error!(error = %err, "stylesheet cache lock poisoned");
+                None
+            },
+            |guard| guard.get(&key).cloned(),
+        )
         .or_else(|| {
             let mut guard = cache.write().ok()?;
             Some(
@@ -133,13 +149,16 @@ fn resolve_remote_stylesheet(cache: &StylesheetCache, url: &Url) -> Option<Cache
         })?;
 
     cell.get_or_init(|| {
-        let source = ureq::get(url.as_str())
+        let stylesheet_url = url.as_str();
+        let source = ureq::get(stylesheet_url)
             .call()
+            .map_err(|err| tracing::warn!(url = stylesheet_url, error = %err, "stylesheet fetch failed"))
             .ok()?
             .body_mut()
             .read_to_string()
+            .map_err(|err| tracing::warn!(url = stylesheet_url, error = %err, "failed to read stylesheet body"))
             .ok()?;
-        let uri = url.as_str().parse().ok()?;
+        let uri = stylesheet_url.parse().ok()?;
         Some(parse_stylesheet(uri, source))
     })
     .clone()

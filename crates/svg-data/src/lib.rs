@@ -1,7 +1,7 @@
 //! Generated SVG catalog and browser-compat lookup APIs.
 //!
 //! This crate exposes the baked element and attribute metadata consumed by the
-//! language server, linter, formatter, and other workspace crates.
+//! language server, linter, and other workspace crates.
 
 /// Browser-compat-data model types used by the generated SVG compatibility
 /// catalog.

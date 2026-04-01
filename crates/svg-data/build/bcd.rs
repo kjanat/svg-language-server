@@ -122,19 +122,12 @@ fn read_web_features(path: &Path, wf_ok: bool) -> Option<serde_json::Value> {
         return None;
     }
 
-    match fs::read_to_string(path) {
-        Ok(source) => match serde_json::from_str::<serde_json::Value>(&source) {
-            Ok(json) => json.get("features").cloned(),
-            Err(error) => {
-                println!("cargo::warning=compat: failed to parse web-features JSON: {error}");
-                None
-            }
-        },
-        Err(error) => {
-            println!("cargo::warning=compat: failed to read web-features cache: {error}");
-            None
-        }
+    let json = read_cached_json(path, "web-features")?;
+    let features = json.get("features").cloned();
+    if features.is_none() {
+        println!("cargo::warning=compat: web-features JSON missing \"features\" key");
     }
+    features
 }
 
 fn collect_element_entries(
@@ -170,9 +163,11 @@ fn collect_global_attributes(
     wf_features: Option<&serde_json::Value>,
 ) {
     let Some(global_attributes) = bcd_root.pointer("/svg/global_attributes") else {
+        println!("cargo::warning=compat: BCD missing /svg/global_attributes path");
         return;
     };
     let Some(attribute_map) = global_attributes.as_object() else {
+        println!("cargo::warning=compat: /svg/global_attributes is not an object");
         return;
     };
 

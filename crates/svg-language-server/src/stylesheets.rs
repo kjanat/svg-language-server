@@ -1,6 +1,7 @@
 use std::{
     fs,
     sync::{Arc, OnceLock},
+    time::Duration,
 };
 
 use tower_lsp_server::ls_types::{GotoDefinitionResponse, Location, Uri};
@@ -138,20 +139,31 @@ fn resolve_remote_stylesheet(cache: &StylesheetCache, url: &Url) -> Option<Cache
         }
     };
 
-    let cell = match cell {
-        Some(existing) => existing,
-        None => {
-            let mut guard = cache.write().ok()?;
-            guard
-                .entry(key)
-                .or_insert_with(|| Arc::new(OnceLock::new()))
-                .clone()
-        }
+    let cell = if let Some(existing) = cell {
+        existing
+    } else {
+        let mut guard = match cache.write() {
+            Ok(guard) => guard,
+            Err(err) => {
+                tracing::error!(error = %err, "stylesheet cache lock poisoned");
+                return None;
+            }
+        };
+        guard
+            .entry(key)
+            .or_insert_with(|| Arc::new(OnceLock::new()))
+            .clone()
     };
 
     cell.get_or_init(|| {
         let stylesheet_url = url.as_str();
-        let source = ureq::get(stylesheet_url)
+        let agent = ureq::Agent::new_with_config(
+            ureq::config::Config::builder()
+                .timeout_global(Some(Duration::from_secs(10)))
+                .build(),
+        );
+        let source = agent
+            .get(stylesheet_url)
             .call()
             .map_err(|err| tracing::warn!(url = stylesheet_url, error = %err, "stylesheet fetch failed"))
             .ok()?

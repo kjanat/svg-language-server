@@ -12,6 +12,10 @@ use tree_sitter::Parser;
 pub use types::{DiagnosticCode, Severity, SvgDiagnostic};
 
 /// Parse source and lint.
+///
+/// # Panics
+///
+/// Panics if the compiled tree-sitter SVG grammar cannot be loaded.
 #[must_use]
 pub fn lint(source: &[u8]) -> Vec<SvgDiagnostic> {
     let mut parser = Parser::new();

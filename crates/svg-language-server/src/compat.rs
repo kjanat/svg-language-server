@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, time::Duration};
 
 use svg_data::BaselineStatus;
 
@@ -47,7 +47,13 @@ pub fn fetch_runtime_compat() -> Option<RuntimeCompat> {
 }
 
 fn fetch_json(url: &str) -> Option<serde_json::Value> {
-    let text = ureq::get(url)
+    let agent = ureq::Agent::new_with_config(
+        ureq::config::Config::builder()
+            .timeout_global(Some(Duration::from_secs(30)))
+            .build(),
+    );
+    let text = agent
+        .get(url)
         .call()
         .map_err(|err| tracing::warn!(url, error = %err, "HTTP request failed"))
         .ok()?

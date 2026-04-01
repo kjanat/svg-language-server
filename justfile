@@ -101,7 +101,8 @@ commit model="openai/gpt-5.4" variant="medium" *$MESSAGE:
 
 # Validate generated dist CI matches checked-in workflow
 dist-check:
-    cargo dist plan --output-format=json > /tmp/plan-dist-manifest.json
+    cargo dist plan --output-format=json > plan-dist-manifest.json
+    rm -f plan-dist-manifest.json
 
 # Preview release artifacts and package layout
 dist-plan *ARGS:

@@ -35,11 +35,13 @@ pub fn fetch_spec_descriptions(out_dir: &Path, offline: bool) -> HashMap<String,
         let cache_path = out_dir.join(&cache_name);
 
         match ensure_cached(&url, &cache_path, offline) {
-            Ok(true) => {
-                if let Ok(html) = fs::read_to_string(&cache_path) {
-                    extract_element_descriptions(&html, &mut descriptions);
-                }
-            }
+            Ok(true) => match fs::read_to_string(&cache_path) {
+                Ok(html) => extract_element_descriptions(&html, &mut descriptions),
+                Err(e) => println!(
+                    "cargo::warning=spec: failed to read cache {}: {e}",
+                    cache_path.display()
+                ),
+            },
             Ok(false) => {}
             Err(e) => {
                 println!("cargo::warning=spec: failed to fetch {file}: {e}");
@@ -50,11 +52,13 @@ pub fn fetch_spec_descriptions(out_dir: &Path, offline: bool) -> HashMap<String,
     // Fetch animations spec
     let anim_cache = out_dir.join("svgwg-animations.html");
     match ensure_cached(SVGWG_ANIM_URL, &anim_cache, offline) {
-        Ok(true) => {
-            if let Ok(html) = fs::read_to_string(&anim_cache) {
-                extract_element_descriptions(&html, &mut descriptions);
-            }
-        }
+        Ok(true) => match fs::read_to_string(&anim_cache) {
+            Ok(html) => extract_element_descriptions(&html, &mut descriptions),
+            Err(e) => println!(
+                "cargo::warning=spec: failed to read cache {}: {e}",
+                anim_cache.display()
+            ),
+        },
         Ok(false) => {}
         Err(e) => {
             println!("cargo::warning=spec: failed to fetch animations spec: {e}");

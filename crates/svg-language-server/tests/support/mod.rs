@@ -1,4 +1,5 @@
 use std::{
+    collections::VecDeque,
     io::{BufRead, BufReader, Write},
     path::PathBuf,
     process::{Child, ChildStdin, Command, Stdio},
@@ -97,6 +98,8 @@ pub struct TestServer {
     reader_thread: Option<std::thread::JoinHandle<()>>,
     next_id: u64,
     pub init_response: Value,
+    pub response_buf: VecDeque<Value>,
+    pub notification_buf: VecDeque<Value>,
 }
 
 impl TestServer {
@@ -127,6 +130,8 @@ impl TestServer {
             reader_thread: Some(reader_thread),
             next_id: 1,
             init_response: Value::Null,
+            response_buf: VecDeque::new(),
+            notification_buf: VecDeque::new(),
         };
 
         server.init_response = server.request(
@@ -202,7 +207,21 @@ impl TestServer {
         Ok(())
     }
 
-    fn recv_response(&self, expected_id: u64) -> TestResult<Value> {
+    /// Wait for a response with the given ID, buffering any notifications
+    /// that arrive in the meantime so they aren't lost.
+    fn recv_response(&mut self, expected_id: u64) -> TestResult<Value> {
+        // Check buffered responses first.
+        if let Some(idx) = self
+            .response_buf
+            .iter()
+            .position(|msg| msg.get("id").and_then(Value::as_u64) == Some(expected_id))
+        {
+            return Ok(self
+                .response_buf
+                .remove(idx)
+                .unwrap_or_else(|| unreachable!()));
+        }
+
         let deadline = Instant::now() + TIMEOUT;
         loop {
             let remaining = deadline.saturating_duration_since(Instant::now());
@@ -214,6 +233,12 @@ impl TestServer {
                 Ok(msg) => {
                     if msg.get("id").and_then(Value::as_u64) == Some(expected_id) {
                         return Ok(msg);
+                    }
+                    // Buffer the message in the appropriate queue.
+                    if msg.get("id").is_some() {
+                        self.response_buf.push_back(msg);
+                    } else {
+                        self.notification_buf.push_back(msg);
                     }
                 }
                 Err(std::sync::mpsc::RecvTimeoutError::Timeout) => {

@@ -146,12 +146,18 @@ pub fn parse_tag(raw: &str, self_closing: bool) -> Option<ParsedTag> {
             if j < bytes.len() && (bytes[j] == b'"' || bytes[j] == b'\'') {
                 let quote = bytes[j];
                 j += 1;
-                while j < bytes.len() {
+                let found = loop {
+                    if j >= bytes.len() {
+                        break false;
+                    }
                     if bytes[j] == quote {
                         j += 1;
-                        break;
+                        break true;
                     }
                     j += 1;
+                };
+                if !found {
+                    return None;
                 }
             } else {
                 while j < bytes.len() && !bytes[j].is_ascii_whitespace() {

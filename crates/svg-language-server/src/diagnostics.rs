@@ -1,13 +1,10 @@
-use tower_lsp_server::{
-    Client,
-    ls_types::{
-        Diagnostic, DiagnosticSeverity, DiagnosticTag, NumberOrString, Position, Range, Uri,
-    },
+use tower_lsp_server::ls_types::{
+    Diagnostic, DiagnosticSeverity, DiagnosticTag, NumberOrString, Position, Range,
 };
 
 use crate::positions::byte_col_to_utf16;
 
-fn lint_diagnostic_to_lsp(source: &[u8], diagnostic: svg_lint::SvgDiagnostic) -> Diagnostic {
+pub fn lint_diagnostic_to_lsp(source: &[u8], diagnostic: svg_lint::SvgDiagnostic) -> Diagnostic {
     let start_char = byte_col_to_utf16(source, diagnostic.start_row, diagnostic.start_col);
     let end_char = byte_col_to_utf16(source, diagnostic.end_row, diagnostic.end_col);
     let severity = match diagnostic.severity {
@@ -41,17 +38,4 @@ fn lint_diagnostic_to_lsp(source: &[u8], diagnostic: svg_lint::SvgDiagnostic) ->
         tags,
         ..Default::default()
     }
-}
-
-pub async fn publish_lint_diagnostics(
-    client: &Client,
-    uri: Uri,
-    source: &[u8],
-    diagnostics: Vec<svg_lint::SvgDiagnostic>,
-) {
-    let diagnostics = diagnostics
-        .into_iter()
-        .map(|diagnostic| lint_diagnostic_to_lsp(source, diagnostic))
-        .collect();
-    client.publish_diagnostics(uri, diagnostics, None).await;
 }

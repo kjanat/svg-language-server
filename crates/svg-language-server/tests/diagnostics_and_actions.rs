@@ -9,11 +9,24 @@ use support::TestServer;
 
 type TestResult = Result<(), Box<dyn std::error::Error>>;
 
-fn wait_for_notification<F>(server: &TestServer, method: &str, mut predicate: F) -> Value
+const TIMEOUT: Duration = Duration::from_secs(10);
+
+fn wait_for_notification<F>(server: &mut TestServer, method: &str, mut predicate: F) -> Value
 where
     F: FnMut(&Value) -> bool,
 {
-    let deadline = Instant::now() + Duration::from_secs(10);
+    if let Some(idx) = server
+        .notification_buf
+        .iter()
+        .position(|msg| msg.get("method").and_then(Value::as_str) == Some(method) && predicate(msg))
+    {
+        return server
+            .notification_buf
+            .remove(idx)
+            .unwrap_or_else(|| unreachable!());
+    }
+
+    let deadline = Instant::now() + TIMEOUT;
     loop {
         let remaining = deadline.saturating_duration_since(Instant::now());
         assert!(
@@ -24,6 +37,11 @@ where
             Ok(msg) => {
                 if msg.get("method").and_then(Value::as_str) == Some(method) && predicate(&msg) {
                     return msg;
+                }
+                if msg.get("id").is_some() {
+                    server.response_buf.push_back(msg);
+                } else {
+                    server.notification_buf.push_back(msg);
                 }
             }
             Err(std::sync::mpsc::RecvTimeoutError::Timeout) => {
@@ -36,6 +54,11 @@ where
     }
 }
 
+fn drain_notifications(server: &mut TestServer) {
+    server.notification_buf.clear();
+    while server.rx.try_recv().is_ok() {}
+}
+
 #[test]
 fn missing_reference_diagnostics_and_code_actions() -> TestResult {
     let mut server = TestServer::start()?;
@@ -44,7 +67,7 @@ fn missing_reference_diagnostics_and_code_actions() -> TestResult {
     server.open("file:///missing-ref.svg", missing_ref_svg)?;
 
     let missing_ref_diags =
-        wait_for_notification(&server, "textDocument/publishDiagnostics", |msg| {
+        wait_for_notification(&mut server, "textDocument/publishDiagnostics", |msg| {
             msg["params"]["uri"].as_str() == Some("file:///missing-ref.svg")
         });
     let missing_ref_list = missing_ref_diags["params"]["diagnostics"]
@@ -125,7 +148,7 @@ fn multiline_tag_suppression_inserts_before_opening_tag() -> TestResult {
         "<svg>\n<text x=\"10\" y=\"260\"\n\tclip=\"rect(0,100,100,0)\">deprecated</text>\n</svg>";
     server.open("file:///multiline.svg", svg)?;
 
-    let diag_msg = wait_for_notification(&server, "textDocument/publishDiagnostics", |msg| {
+    let diag_msg = wait_for_notification(&mut server, "textDocument/publishDiagnostics", |msg| {
         msg["params"]["uri"].as_str() == Some("file:///multiline.svg")
     });
     let diag_list = diag_msg["params"]["diagnostics"]
@@ -185,11 +208,11 @@ fn multiline_tag_suppression_inserts_before_opening_tag() -> TestResult {
 fn invalid_svg_publishes_diagnostics() -> TestResult {
     let mut server = TestServer::start()?;
 
-    while server.rx.try_recv().is_ok() {}
+    drain_notifications(&mut server);
     let invalid_svg = r"<svg><rect><circle/></rect></svg>";
     server.open("file:///invalid.svg", invalid_svg)?;
 
-    let msg = wait_for_notification(&server, "textDocument/publishDiagnostics", |msg| {
+    let msg = wait_for_notification(&mut server, "textDocument/publishDiagnostics", |msg| {
         msg["params"]["uri"].as_str() == Some("file:///invalid.svg")
     });
     let diags = msg["params"]["diagnostics"]

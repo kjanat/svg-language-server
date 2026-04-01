@@ -251,7 +251,7 @@ fn xyz_to_linear_srgb([x, y, z]: [f64; 3]) -> [f64; 3] {
 fn srgb_to_linear(value: f64) -> f64 {
     let sign = if value < 0.0 { -1.0 } else { 1.0 };
     let abs = value.abs();
-    if abs <= 0.040_45 {
+    if abs <= 0.04045 {
         value / 12.92
     } else {
         sign * ((abs + 0.055) / 1.055).powf(2.4)

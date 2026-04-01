@@ -6,7 +6,6 @@
 
 use std::{
     collections::HashMap,
-    fs,
     sync::{Arc, OnceLock, RwLock as StdRwLock},
 };
 
@@ -53,7 +52,7 @@ use completion::{
     style_completion_items, tag_element_name, value_completions,
 };
 use definition::{DefinitionContext, build_definition_context, stylesheet_definition_locations};
-use diagnostics::publish_lint_diagnostics;
+use diagnostics::lint_diagnostic_to_lsp;
 use hover::{
     external_attribute_hover, format_attribute_hover, format_class_hover,
     format_custom_property_hover, format_element_hover,
@@ -336,12 +335,17 @@ impl SvgLanguageServer {
 
         let source_bytes = source.as_bytes();
         let lint_diags = svg_lint::lint_tree(source_bytes, &tree);
-        publish_lint_diagnostics(&self.client, uri.clone(), source_bytes, lint_diags).await;
+        let lsp_diags = lint_diags
+            .into_iter()
+            .map(|d| lint_diagnostic_to_lsp(source_bytes, d))
+            .collect();
 
         self.documents
             .write()
             .await
-            .insert(uri, DocumentState { source, tree });
+            .insert(uri.clone(), DocumentState { source, tree });
+
+        self.client.publish_diagnostics(uri, lsp_diags, None).await;
     }
 
     async fn copy_svg_as_data_uri(&self, uri: &Uri) -> std::result::Result<(), String> {
@@ -355,7 +359,8 @@ impl SvgLanguageServer {
                 let path = url
                     .to_file_path()
                     .map_err(|()| format!("Cannot resolve file path for {}", uri.as_str()))?;
-                fs::read_to_string(&path)
+                tokio::fs::read_to_string(&path)
+                    .await
                     .map_err(|err| format!("Failed to read {}: {err}", path.display()))?
             }
         };

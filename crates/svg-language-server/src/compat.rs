@@ -231,9 +231,11 @@ fn merge_runtime_browser_version(existing: &mut Option<String>, new: Option<&str
 
 fn compare_browser_versions(left: &str, right: &str) -> std::cmp::Ordering {
     let Some((left_upper_bound, left_parts)) = parse_browser_version(left) else {
+        tracing::debug!(version = left, "failed to parse browser version");
         return std::cmp::Ordering::Equal;
     };
     let Some((right_upper_bound, right_parts)) = parse_browser_version(right) else {
+        tracing::debug!(version = right, "failed to parse browser version");
         return std::cmp::Ordering::Equal;
     };
 

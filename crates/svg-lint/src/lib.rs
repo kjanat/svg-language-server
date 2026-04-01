@@ -19,7 +19,7 @@ pub fn lint(source: &[u8]) -> Vec<SvgDiagnostic> {
         .set_language(&tree_sitter_svg::LANGUAGE.into())
         .is_err()
     {
-        return Vec::new();
+        panic!("SVG grammar ABI mismatch: rebuild tree-sitter-svg");
     }
     let Some(tree) = parser.parse(source, None) else {
         return Vec::new();

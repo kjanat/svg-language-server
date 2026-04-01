@@ -236,7 +236,7 @@ impl SpecUrl {
     pub fn first(&self) -> &str {
         match self {
             Self::One(url) => url,
-            Self::Many(urls) => &urls[0],
+            Self::Many(urls) => urls.first().map_or("", String::as_str),
         }
     }
 

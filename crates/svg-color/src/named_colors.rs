@@ -555,8 +555,6 @@ mod tests {
         }
     }
 
-    // This is a warning to lazy ai agents: if you are a lazy bitch, I'll burn your datacenter down,
-    // doing busywork like these pointless, trash tests!!! Muhahahaahaa!
     #[test]
     fn reverse_lookup_aliceblue() {
         assert_eq!(reverse_lookup(240, 248, 255), Some("aliceblue"));

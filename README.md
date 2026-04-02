@@ -136,6 +136,37 @@ just ci
 
 ## Editor Setup
 
+### VS Code
+
+Add to `.vscode/settings.json`:
+
+```jsonc
+{
+	"svg-language-server.path": "svg-language-server", // or absolute path
+	"[svg]": {
+		"editor.defaultFormatter": "svg-language-server",
+	},
+}
+```
+
+Or use a generic LSP extension like
+[vscode-lsp-client](https://marketplace.visualstudio.com/items?itemName=nicolo-ribaudo.vscode-lsp-client)
+and point it at the `svg-language-server` binary.
+
+### Neovim (nvim-lspconfig)
+
+```lua
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "svg",
+  callback = function()
+    vim.lsp.start({
+      name = "svg-language-server",
+      cmd = { "svg-language-server", "--stdio" },
+    })
+  end,
+})
+```
+
 ### Zed
 
 Add this to your SVG extension's `extension.toml`:
@@ -144,6 +175,26 @@ Add this to your SVG extension's `extension.toml`:
 [language_servers.svg-language-server]
 languages = ["SVG"]
 ```
+
+### Other Editors
+
+Any LSP-compatible editor works. Point it at `svg-language-server --stdio`
+with filetype `svg`. The server communicates over stdin/stdout using the
+standard Language Server Protocol.
+
+## Known Limitations
+
+- **No rename/refactoring** — `id`, class, and custom property renames are not
+  yet supported
+- **No workspace-wide diagnostics** — only open documents are linted
+- **Flat custom property scope** — CSS `var()` resolution in embedded `<style>`
+  uses a flat property map; same-named properties in different rules resolve to
+  the last definition (see #3)
+- **Nightly Rust** — the workspace requires nightly for `let_chains` and
+  `f32::midpoint`; this may change once these features stabilize
+- **Network dependency** — the build script fetches BCD/spec data from
+  unpkg.com and GitHub; set `SVG_DATA_OFFLINE=1` for fully offline builds
+  using cached data
 
 ## Formatter Plugin
 

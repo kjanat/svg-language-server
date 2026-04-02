@@ -1,4 +1,12 @@
 //! Deterministic structural formatting for SVG documents.
+//!
+//! # Examples
+//!
+//! ```
+//! let input = r#"<svg><rect x="0"  y="0" /></svg>"#;
+//! let formatted = svg_format::format(input);
+//! assert!(formatted.contains("<rect"));
+//! ```
 
 mod tag_parse;
 mod text_content;

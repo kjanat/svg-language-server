@@ -3,6 +3,13 @@
 //! This crate validates SVG trees against the generated catalog and returns
 //! transport-agnostic diagnostics. A convenience `lint()` entry point handles
 //! parsing internally.
+//!
+//! # Examples
+//!
+//! ```
+//! let diagnostics = svg_lint::lint(br"<svg><banana/></svg>");
+//! assert!(diagnostics.iter().any(|d| d.code == svg_lint::DiagnosticCode::UnknownElement));
+//! ```
 
 mod rules;
 /// Public diagnostic data structures returned by the linter.
@@ -419,8 +426,7 @@ mod tests {
                     experimental: false,
                 },
             )]
-            .into_iter()
-            .collect(),
+            .into(),
             attributes: std::collections::HashMap::new(),
         };
         let diags = lint_tree(src, &tree, Some(&overrides));
@@ -449,8 +455,7 @@ mod tests {
                     experimental: false,
                 },
             )]
-            .into_iter()
-            .collect(),
+            .into(),
             attributes: std::collections::HashMap::new(),
         };
         let diags = lint_tree(src, &tree, Some(&deprecate));
@@ -470,8 +475,7 @@ mod tests {
                     experimental: false,
                 },
             )]
-            .into_iter()
-            .collect(),
+            .into(),
             attributes: std::collections::HashMap::new(),
         };
         let diags = lint_tree(src, &tree, Some(&clear));

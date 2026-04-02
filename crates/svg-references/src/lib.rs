@@ -516,4 +516,43 @@ mod tests {
         let names: Vec<_> = defs.into_iter().map(|d| d.name).collect();
         assert_eq!(names, vec!["--panel-bg", "--base"]);
     }
+
+    #[test]
+    fn definition_target_resolves_id_from_href() -> Result<(), Box<dyn Error>> {
+        let source = r##"<svg><use href="#icon"/></svg>"##;
+        let tree = parse_svg(source)?;
+        let offset = offset_of(source, "#icon")?;
+        assert_eq!(
+            definition_target_at(source.as_bytes(), &tree, offset),
+            Some(DefinitionTarget::Id("icon".into()))
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn definition_target_resolves_id_from_url() -> Result<(), Box<dyn Error>> {
+        let source = r#"<svg><rect clip-path="url(#clip)"/></svg>"#;
+        let tree = parse_svg(source)?;
+        let offset = offset_of(source, "#clip")?;
+        assert_eq!(
+            definition_target_at(source.as_bytes(), &tree, offset),
+            Some(DefinitionTarget::Id("clip".into()))
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn definition_target_returns_none_outside_reference() -> Result<(), Box<dyn Error>> {
+        let source = r#"<svg><rect width="10"/></svg>"#;
+        let tree = parse_svg(source)?;
+        let offset = offset_of(source, "10")?;
+        assert_eq!(definition_target_at(source.as_bytes(), &tree, offset), None);
+        Ok(())
+    }
+
+    #[test]
+    fn collect_class_definitions_handles_empty_stylesheet() {
+        let defs = collect_class_definitions_from_stylesheet("", 0, 0);
+        assert!(defs.is_empty());
+    }
 }

@@ -1,4 +1,12 @@
 //! SVG and CSS color parsing, extraction, and presentation helpers.
+//!
+//! # Examples
+//!
+//! ```
+//! let svg = b"<svg><rect fill=\"red\"/></svg>";
+//! let colors = svg_color::extract_colors(svg);
+//! assert!(!colors.is_empty());
+//! ```
 
 /// Color extraction from SVG/XML trees and inline CSS.
 pub(crate) mod extract;

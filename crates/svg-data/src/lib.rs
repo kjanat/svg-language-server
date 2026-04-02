@@ -2,6 +2,16 @@
 //!
 //! This crate exposes the baked element and attribute metadata consumed by the
 //! language server, linter, and other workspace crates.
+//!
+//! # Examples
+//!
+//! ```
+//! let rect = svg_data::element("rect").expect("rect should exist");
+//! assert_eq!(rect.name, "rect");
+//!
+//! let attrs = svg_data::attributes_for("rect");
+//! assert!(attrs.iter().any(|a| a.name == "width"));
+//! ```
 
 /// Browser-compat-data model types used by the generated SVG compatibility
 /// catalog.

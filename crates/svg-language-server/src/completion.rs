@@ -432,20 +432,34 @@ fn href_value_completions(
 pub fn attribute_completion_items(
     elem_name: &str,
     existing: &HashSet<String>,
+    compat: Option<&crate::compat::RuntimeCompat>,
 ) -> Vec<CompletionItem> {
     svg_data::attributes_for(elem_name)
         .into_iter()
-        .filter(|attr| !attr.deprecated)
+        .filter(|attr| {
+            let deprecated = compat
+                .and_then(|c| c.attributes.get(attr.name))
+                .map_or(attr.deprecated, |co| co.deprecated);
+            !deprecated
+        })
         .filter(|attr| !existing.contains(attr.name))
         .map(attribute_completion_item)
         .collect()
 }
 
-pub fn child_element_completion_items(elem_name: &str) -> Vec<CompletionItem> {
+pub fn child_element_completion_items(
+    elem_name: &str,
+    compat: Option<&crate::compat::RuntimeCompat>,
+) -> Vec<CompletionItem> {
     svg_data::allowed_children(elem_name)
         .into_iter()
         .filter_map(svg_data::element)
-        .filter(|el| !el.deprecated)
+        .filter(|el| {
+            let deprecated = compat
+                .and_then(|c| c.elements.get(el.name))
+                .map_or(el.deprecated, |co| co.deprecated);
+            !deprecated
+        })
         .map(element_completion_item)
         .collect()
 }

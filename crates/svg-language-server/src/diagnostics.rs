@@ -4,6 +4,19 @@ use tower_lsp_server::ls_types::{
 
 use crate::positions::byte_col_to_utf16;
 
+pub async fn publish_lint_diagnostics(
+    client: &tower_lsp_server::Client,
+    uri: tower_lsp_server::ls_types::Uri,
+    source: &[u8],
+    diagnostics: Vec<svg_lint::SvgDiagnostic>,
+) {
+    let lsp_diags = diagnostics
+        .into_iter()
+        .map(|d| lint_diagnostic_to_lsp(source, d))
+        .collect();
+    client.publish_diagnostics(uri, lsp_diags, None).await;
+}
+
 pub fn lint_diagnostic_to_lsp(source: &[u8], diagnostic: svg_lint::SvgDiagnostic) -> Diagnostic {
     let start_char = byte_col_to_utf16(source, diagnostic.start_row, diagnostic.start_col);
     let end_char = byte_col_to_utf16(source, diagnostic.end_row, diagnostic.end_col);

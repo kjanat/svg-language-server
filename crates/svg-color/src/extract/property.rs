@@ -172,7 +172,6 @@ pub(super) fn is_color_like_property(name: &str) -> bool {
 
     name.eq_ignore_ascii_case("fill")
         || name.eq_ignore_ascii_case("stroke")
-        || name.eq_ignore_ascii_case("color")
         || has_color_suffix
         || name.starts_with("--")
 }

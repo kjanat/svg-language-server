@@ -6,73 +6,51 @@ use suppressions::Suppressions;
 use svg_tree::{is_attribute_name_kind, walk_tree};
 use tree_sitter::{Node, Tree};
 
-use crate::types::{DiagnosticCode, Severity, SvgDiagnostic};
+use crate::types::{DiagnosticCode, LintOverrides, Severity, SvgDiagnostic};
 
-/// Run all lint checks on a parsed SVG tree.
-pub fn check_all(source: &[u8], tree: &Tree) -> Vec<SvgDiagnostic> {
-    let mut suppressions = suppressions::collect_suppressions(source, tree);
-    let defined_ids = collect_defined_ids(source, tree);
-    let mut diagnostics = Vec::new();
-    let mut seen_ids: HashMap<String, usize> = HashMap::new();
-    walk_elements(
-        source,
-        tree.root_node(),
-        &mut diagnostics,
-        &mut suppressions,
-        &defined_ids,
-        &mut seen_ids,
-        false,
-    );
-    diagnostics.extend(suppressions.unused_diagnostics());
-    diagnostics
+struct LintContext<'a> {
+    source: &'a [u8],
+    diagnostics: Vec<SvgDiagnostic>,
+    suppressions: Suppressions,
+    defined_ids: HashSet<String>,
+    seen_ids: HashMap<String, usize>,
+    overrides: Option<&'a LintOverrides>,
 }
 
-fn walk_elements(
+/// Run all lint checks on a parsed SVG tree.
+pub fn check_all(
     source: &[u8],
-    node: Node,
-    diagnostics: &mut Vec<SvgDiagnostic>,
-    suppressions: &mut Suppressions,
-    defined_ids: &HashSet<String>,
-    seen_ids: &mut HashMap<String, usize>,
-    in_foreign_content: bool,
-) {
+    tree: &Tree,
+    overrides: Option<&LintOverrides>,
+) -> Vec<SvgDiagnostic> {
+    let mut ctx = LintContext {
+        source,
+        diagnostics: Vec::new(),
+        suppressions: suppressions::collect_suppressions(source, tree),
+        defined_ids: collect_defined_ids(source, tree),
+        seen_ids: HashMap::new(),
+        overrides,
+    };
+    walk_elements(&mut ctx, tree.root_node(), false);
+    ctx.diagnostics
+        .extend(ctx.suppressions.unused_diagnostics());
+    ctx.diagnostics
+}
+
+fn walk_elements(ctx: &mut LintContext<'_>, node: Node, in_foreign_content: bool) {
     let kind = node.kind();
     let child_in_foreign_content = if kind == "element" || kind == "svg_root_element" {
-        check_element(
-            source,
-            node,
-            diagnostics,
-            suppressions,
-            defined_ids,
-            seen_ids,
-            in_foreign_content,
-        )
+        check_element(ctx, node, in_foreign_content)
     } else {
         in_foreign_content
     };
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
-        walk_elements(
-            source,
-            child,
-            diagnostics,
-            suppressions,
-            defined_ids,
-            seen_ids,
-            child_in_foreign_content,
-        );
+        walk_elements(ctx, child, child_in_foreign_content);
     }
 }
 
-fn check_element(
-    source: &[u8],
-    node: Node,
-    diagnostics: &mut Vec<SvgDiagnostic>,
-    suppressions: &mut Suppressions,
-    defined_ids: &HashSet<String>,
-    seen_ids: &mut HashMap<String, usize>,
-    in_foreign_content: bool,
-) -> bool {
+fn check_element(ctx: &mut LintContext<'_>, node: Node, in_foreign_content: bool) -> bool {
     // Find the opening tag node (start_tag or self_closing_tag)
     let mut tag_cursor = node.walk();
     let tag_node = node
@@ -86,7 +64,7 @@ fn check_element(
     let Some(name_node) = tag.child_by_field_name("name") else {
         return in_foreign_content;
     };
-    let name_str = std::str::from_utf8(&source[name_node.byte_range()]).unwrap_or("");
+    let name_str = std::str::from_utf8(&ctx.source[name_node.byte_range()]).unwrap_or("");
 
     if in_foreign_content {
         return true;
@@ -95,8 +73,8 @@ fn check_element(
     // Check: Unknown element
     let Some(def) = svg_data::element(name_str) else {
         push_diag(
-            diagnostics,
-            suppressions,
+            &mut ctx.diagnostics,
+            &mut ctx.suppressions,
             name_node,
             Severity::Warning,
             DiagnosticCode::UnknownElement,
@@ -106,10 +84,12 @@ fn check_element(
     };
 
     // Check: Deprecated element
-    if def.deprecated {
+    let el_flags = ctx.overrides.and_then(|o| o.elements.get(name_str));
+    let deprecated = el_flags.map_or(def.deprecated, |f| f.deprecated);
+    if deprecated {
         push_diag(
-            diagnostics,
-            suppressions,
+            &mut ctx.diagnostics,
+            &mut ctx.suppressions,
             name_node,
             Severity::Warning,
             DiagnosticCode::DeprecatedElement,
@@ -118,10 +98,11 @@ fn check_element(
     }
 
     // Check: Experimental element
-    if def.experimental && !def.deprecated {
+    let experimental = el_flags.map_or(def.experimental, |f| f.experimental);
+    if experimental && !deprecated {
         push_diag(
-            diagnostics,
-            suppressions,
+            &mut ctx.diagnostics,
+            &mut ctx.suppressions,
             name_node,
             Severity::Hint,
             DiagnosticCode::ExperimentalElement,
@@ -130,16 +111,34 @@ fn check_element(
     }
 
     // Check: Unknown/deprecated/experimental attributes
-    check_attributes(source, tag, diagnostics, suppressions);
+    check_attributes(ctx, tag);
 
     // Check: Duplicate id
-    check_duplicate_id(source, tag, diagnostics, suppressions, seen_ids);
+    check_duplicate_id(
+        ctx.source,
+        tag,
+        &mut ctx.diagnostics,
+        &mut ctx.suppressions,
+        &mut ctx.seen_ids,
+    );
 
     // Check: Missing local fragment reference definitions
-    check_missing_reference_definitions(source, tag, diagnostics, suppressions, defined_ids);
+    check_missing_reference_definitions(
+        ctx.source,
+        tag,
+        &mut ctx.diagnostics,
+        &mut ctx.suppressions,
+        &ctx.defined_ids,
+    );
 
     // Check: Invalid children
-    check_children(source, node, name_str, diagnostics, suppressions);
+    check_children(
+        ctx.source,
+        node,
+        name_str,
+        &mut ctx.diagnostics,
+        &mut ctx.suppressions,
+    );
 
     matches!(def.content_model, svg_data::ContentModel::Foreign)
 }
@@ -149,12 +148,7 @@ fn is_xml_infrastructure(name: &str) -> bool {
     name == "xmlns" || name.starts_with("xmlns:") || name.starts_with("xml:")
 }
 
-fn check_attributes(
-    source: &[u8],
-    tag: Node,
-    diagnostics: &mut Vec<SvgDiagnostic>,
-    suppressions: &mut Suppressions,
-) {
+fn check_attributes(ctx: &mut LintContext<'_>, tag: Node) {
     let tag_start = tag.start_position().row;
     let mut cursor = tag.walk();
     for attr_node in tag.children(&mut cursor) {
@@ -166,7 +160,7 @@ fn check_attributes(
         let Some(name_node) = name_node else {
             continue;
         };
-        let attr_name = std::str::from_utf8(&source[name_node.byte_range()]).unwrap_or("");
+        let attr_name = std::str::from_utf8(&ctx.source[name_node.byte_range()]).unwrap_or("");
         if attr_name.is_empty() || is_xml_infrastructure(attr_name) {
             continue;
         }
@@ -179,8 +173,8 @@ fn check_attributes(
                 format!("{attr_name} is deprecated")
             };
             push_diag_in_tag(
-                diagnostics,
-                suppressions,
+                &mut ctx.diagnostics,
+                &mut ctx.suppressions,
                 name_node,
                 Some(tag_start),
                 Severity::Warning,
@@ -194,20 +188,23 @@ fn check_attributes(
         // unknown ones. Without a complete checked-in attribute catalog, treating a catalog
         // miss as "unknown" makes diagnostics depend on build-time BCD fetch state.
         if let Some(def) = svg_data::attribute(attr_name) {
-            if def.deprecated {
+            let attr_flags = ctx.overrides.and_then(|o| o.attributes.get(attr_name));
+            let deprecated = attr_flags.map_or(def.deprecated, |f| f.deprecated);
+            let experimental = attr_flags.map_or(def.experimental, |f| f.experimental);
+            if deprecated {
                 push_diag_in_tag(
-                    diagnostics,
-                    suppressions,
+                    &mut ctx.diagnostics,
+                    &mut ctx.suppressions,
                     name_node,
                     Some(tag_start),
                     Severity::Warning,
                     DiagnosticCode::DeprecatedAttribute,
                     format!("{attr_name} is deprecated"),
                 );
-            } else if def.experimental {
+            } else if experimental {
                 push_diag_in_tag(
-                    diagnostics,
-                    suppressions,
+                    &mut ctx.diagnostics,
+                    &mut ctx.suppressions,
                     name_node,
                     Some(tag_start),
                     Severity::Hint,

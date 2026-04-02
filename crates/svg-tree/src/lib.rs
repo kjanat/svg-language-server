@@ -104,3 +104,80 @@ pub fn child_of_kind<'a>(node: tree_sitter::Node<'a>, kind: &str) -> Option<tree
 pub fn is_attribute_name_kind(kind: &str) -> bool {
     kind == "attribute_name" || kind.ends_with("_attribute_name")
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    type TestResult = Result<(), Box<dyn std::error::Error>>;
+
+    fn parse_svg(src: &[u8]) -> Result<tree_sitter::Tree, &'static str> {
+        let mut parser = tree_sitter::Parser::new();
+        parser.set_language(&tree_sitter_svg::LANGUAGE.into()).ok();
+        parser.parse(src, None).ok_or("parse failed")
+    }
+
+    #[test]
+    fn walk_tree_visits_all_nodes() -> TestResult {
+        let tree = parse_svg(br"<svg><rect/></svg>")?;
+        let mut count = 0;
+        let mut cursor = tree.root_node().walk();
+        walk_tree(&mut cursor, &mut |_| {
+            count += 1;
+        });
+        assert!(count > 3, "should visit multiple nodes, got {count}");
+        Ok(())
+    }
+
+    #[test]
+    fn deepest_node_at_finds_element() -> TestResult {
+        let src = br#"<svg><rect x="1"/></svg>"#;
+        let tree = parse_svg(src)?;
+        let rect_pos = src.iter().position(|&b| b == b'r').ok_or("no r")?;
+        let node = deepest_node_at(&tree, rect_pos);
+        assert!(
+            node.kind().contains("name") || node.kind().contains("rect"),
+            "should find node near rect: {} at {}",
+            node.kind(),
+            rect_pos
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn deepest_node_at_falls_back_to_root() -> TestResult {
+        let tree = parse_svg(br"<svg/>")?;
+        let node = deepest_node_at(&tree, 9999);
+        assert_eq!(node.kind(), tree.root_node().kind());
+        Ok(())
+    }
+
+    #[test]
+    fn find_ancestor_any_finds_matching_kind() -> TestResult {
+        let src = br"<svg><g><rect/></g></svg>";
+        let tree = parse_svg(src)?;
+        let rect_pos = src.iter().position(|&b| b == b'r').ok_or("no r")?;
+        let node = deepest_node_at(&tree, rect_pos);
+        let ancestor = find_ancestor_any(node, &["element", "svg_root_element"]);
+        assert!(ancestor.is_some(), "should find element ancestor");
+        Ok(())
+    }
+
+    #[test]
+    fn has_ancestor_detects_parent() -> TestResult {
+        let src = br"<svg><g><rect/></g></svg>";
+        let tree = parse_svg(src)?;
+        let rect_pos = src.iter().position(|&b| b == b'r').ok_or("no r")?;
+        let node = deepest_node_at(&tree, rect_pos);
+        assert!(has_ancestor(node, "element") || has_ancestor(node, "svg_root_element"));
+        Ok(())
+    }
+
+    #[test]
+    fn is_attribute_name_kind_matches() {
+        assert!(is_attribute_name_kind("attribute_name"));
+        assert!(is_attribute_name_kind("viewBox_attribute_name"));
+        assert!(!is_attribute_name_kind("attribute_value"));
+        assert!(!is_attribute_name_kind("element"));
+    }
+}

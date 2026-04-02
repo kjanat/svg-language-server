@@ -9,7 +9,7 @@ mod rules;
 pub mod types;
 
 use tree_sitter::Parser;
-pub use types::{DiagnosticCode, Severity, SvgDiagnostic};
+pub use types::{CompatFlags, DiagnosticCode, LintOverrides, Severity, SvgDiagnostic};
 
 /// Parse source and lint.
 ///
@@ -28,13 +28,17 @@ pub fn lint(source: &[u8]) -> Vec<SvgDiagnostic> {
     let Some(tree) = parser.parse(source, None) else {
         return Vec::new();
     };
-    lint_tree(source, &tree)
+    lint_tree(source, &tree, None)
 }
 
-/// Lint an already-parsed tree.
+/// Lint an already-parsed tree with optional runtime compat overrides.
 #[must_use]
-pub fn lint_tree(source: &[u8], tree: &tree_sitter::Tree) -> Vec<SvgDiagnostic> {
-    rules::check_all(source, tree)
+pub fn lint_tree(
+    source: &[u8],
+    tree: &tree_sitter::Tree,
+    overrides: Option<&LintOverrides>,
+) -> Vec<SvgDiagnostic> {
+    rules::check_all(source, tree, overrides)
 }
 
 #[cfg(test)]
@@ -398,5 +402,107 @@ mod tests {
                 .any(|d| d.code == DiagnosticCode::DeprecatedAttribute),
             "all deprecated attrs in multiline tag should be suppressed: {diags:?}"
         );
+    }
+
+    #[test]
+    fn override_marks_element_deprecated() -> Result<(), Box<dyn std::error::Error>> {
+        let src = br"<svg><rect/></svg>";
+        let mut parser = tree_sitter::Parser::new();
+        parser.set_language(&tree_sitter_svg::LANGUAGE.into()).ok();
+        let tree = parser.parse(src, None).ok_or("parse")?;
+
+        let overrides = LintOverrides {
+            elements: [(
+                "rect".to_owned(),
+                CompatFlags {
+                    deprecated: true,
+                    experimental: false,
+                },
+            )]
+            .into_iter()
+            .collect(),
+            attributes: std::collections::HashMap::new(),
+        };
+        let diags = lint_tree(src, &tree, Some(&overrides));
+        assert!(
+            diags
+                .iter()
+                .any(|d| d.code == DiagnosticCode::DeprecatedElement),
+            "override should mark rect as deprecated: {diags:?}"
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn override_clears_element_deprecation() -> Result<(), Box<dyn std::error::Error>> {
+        let src = br"<svg><rect/></svg>";
+        let mut parser = tree_sitter::Parser::new();
+        parser.set_language(&tree_sitter_svg::LANGUAGE.into()).ok();
+        let tree = parser.parse(src, None).ok_or("parse")?;
+
+        // Mark rect as deprecated via override
+        let deprecate = LintOverrides {
+            elements: [(
+                "rect".to_owned(),
+                CompatFlags {
+                    deprecated: true,
+                    experimental: false,
+                },
+            )]
+            .into_iter()
+            .collect(),
+            attributes: std::collections::HashMap::new(),
+        };
+        let diags = lint_tree(src, &tree, Some(&deprecate));
+        assert!(
+            diags
+                .iter()
+                .any(|d| d.code == DiagnosticCode::DeprecatedElement),
+            "rect should be deprecated with override: {diags:?}"
+        );
+
+        // Clear the deprecation via override
+        let clear = LintOverrides {
+            elements: [(
+                "rect".to_owned(),
+                CompatFlags {
+                    deprecated: false,
+                    experimental: false,
+                },
+            )]
+            .into_iter()
+            .collect(),
+            attributes: std::collections::HashMap::new(),
+        };
+        let diags = lint_tree(src, &tree, Some(&clear));
+        assert!(
+            !diags
+                .iter()
+                .any(|d| d.code == DiagnosticCode::DeprecatedElement),
+            "override should clear rect deprecation: {diags:?}"
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn empty_overrides_preserve_catalog_behavior() -> Result<(), Box<dyn std::error::Error>> {
+        let src = br"<svg><rect/></svg>";
+        let without = lint(src);
+
+        let mut parser = tree_sitter::Parser::new();
+        parser.set_language(&tree_sitter_svg::LANGUAGE.into()).ok();
+        let tree = parser.parse(src, None).ok_or("parse")?;
+
+        let overrides = LintOverrides {
+            elements: std::collections::HashMap::new(),
+            attributes: std::collections::HashMap::new(),
+        };
+        let with = lint_tree(src, &tree, Some(&overrides));
+        assert_eq!(
+            without.len(),
+            with.len(),
+            "empty overrides should match catalog"
+        );
+        Ok(())
     }
 }

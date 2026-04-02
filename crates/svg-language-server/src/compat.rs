@@ -12,6 +12,7 @@ pub struct RuntimeBrowserSupport {
 }
 
 /// Runtime compat override for a single element or attribute.
+#[derive(Clone)]
 pub struct CompatOverride {
     pub deprecated: bool,
     pub experimental: bool,
@@ -20,9 +21,33 @@ pub struct CompatOverride {
 }
 
 /// Runtime-fetched compat data, overlays the baked-in catalog.
+#[derive(Clone)]
 pub struct RuntimeCompat {
     pub elements: HashMap<String, CompatOverride>,
     pub attributes: HashMap<String, CompatOverride>,
+}
+
+impl RuntimeCompat {
+    /// Convert to lint-crate override maps for compat-aware diagnostics.
+    pub fn to_lint_overrides(&self) -> svg_lint::LintOverrides {
+        let convert = |map: &HashMap<String, CompatOverride>| {
+            map.iter()
+                .map(|(name, co)| {
+                    (
+                        name.clone(),
+                        svg_lint::CompatFlags {
+                            deprecated: co.deprecated,
+                            experimental: co.experimental,
+                        },
+                    )
+                })
+                .collect()
+        };
+        svg_lint::LintOverrides {
+            elements: convert(&self.elements),
+            attributes: convert(&self.attributes),
+        }
+    }
 }
 
 const BCD_URL: &str = "https://unpkg.com/@mdn/browser-compat-data@latest/data.json";

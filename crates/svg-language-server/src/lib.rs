@@ -52,7 +52,7 @@ use completion::{
     style_completion_items, tag_element_name, value_completions,
 };
 use definition::{DefinitionContext, build_definition_context, stylesheet_definition_locations};
-use diagnostics::lint_diagnostic_to_lsp;
+use diagnostics::{lint_diagnostic_to_lsp, publish_lint_diagnostics};
 use hover::{
     external_attribute_hover, format_attribute_hover, format_class_hover,
     format_custom_property_hover, format_element_hover,
@@ -334,7 +334,11 @@ impl SvgLanguageServer {
         };
 
         let source_bytes = source.as_bytes();
-        let lint_diags = svg_lint::lint_tree(source_bytes, &tree);
+        let overrides = {
+            let compat = self.runtime_compat.read().await;
+            compat.as_ref().map(RuntimeCompat::to_lint_overrides)
+        };
+        let lint_diags = svg_lint::lint_tree(source_bytes, &tree, overrides.as_ref());
         let lsp_diags = lint_diags
             .into_iter()
             .map(|d| lint_diagnostic_to_lsp(source_bytes, d))
@@ -378,6 +382,8 @@ impl LanguageServer for SvgLanguageServer {
 
         // Spawn background compat data refresh
         let compat = self.runtime_compat.clone();
+        let client = self.client.clone();
+        let documents = self.documents.clone();
         tokio::spawn(async move {
             let result = tokio::task::spawn_blocking(fetch_runtime_compat).await;
             match result {
@@ -390,6 +396,23 @@ impl LanguageServer for SvgLanguageServer {
                         attributes = attr_count,
                         "runtime compat data loaded"
                     );
+                    // Re-lint open documents with fresh compat overrides.
+                    let snapshot: Vec<_> = {
+                        let docs = documents.read().await;
+                        docs.iter()
+                            .map(|(uri, doc)| (uri.clone(), doc.clone()))
+                            .collect()
+                    };
+                    let overrides = {
+                        let c = compat.read().await;
+                        c.as_ref().map(RuntimeCompat::to_lint_overrides)
+                    };
+                    for (uri, doc) in snapshot {
+                        let source_bytes = doc.source.as_bytes();
+                        let lint_diags =
+                            svg_lint::lint_tree(source_bytes, &doc.tree, overrides.as_ref());
+                        publish_lint_diagnostics(&client, uri, source_bytes, lint_diags).await;
+                    }
                 }
                 Ok(None) => {
                     tracing::info!("runtime compat fetch returned no data (offline?)");
@@ -771,6 +794,10 @@ impl LanguageServer for SvgLanguageServer {
     async fn completion(&self, params: CompletionParams) -> Result<Option<CompletionResponse>> {
         let uri = &params.text_document_position.text_document.uri;
         let pos = params.text_document_position.position;
+        let runtime_compat = {
+            let guard = self.runtime_compat.read().await;
+            guard.clone()
+        };
 
         let Some(doc) = self.document_state(uri).await else {
             return Ok(None);
@@ -819,7 +846,9 @@ impl LanguageServer for SvgLanguageServer {
                 let elem_name = tag_element_name(cursor, source).unwrap_or("");
                 let existing = existing_attribute_names(cursor, source);
                 return Ok(completion_response(attribute_completion_items(
-                    elem_name, &existing,
+                    elem_name,
+                    &existing,
+                    runtime_compat.as_ref(),
                 )));
             }
 
@@ -832,6 +861,7 @@ impl LanguageServer for SvgLanguageServer {
 
                 return Ok(completion_response(child_element_completion_items(
                     elem_name,
+                    runtime_compat.as_ref(),
                 )));
             }
 

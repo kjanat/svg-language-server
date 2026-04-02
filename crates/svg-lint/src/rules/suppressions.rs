@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 
+use svg_tree::walk_tree;
 use tree_sitter::Tree;
 
 use crate::types::{DiagnosticCode, Severity, SvgDiagnostic};
@@ -121,7 +122,7 @@ impl Suppressions {
 pub fn collect_suppressions(source: &[u8], tree: &Tree) -> Suppressions {
     let mut suppressions = Suppressions::default();
     let mut cursor = tree.root_node().walk();
-    super::walk_tree(&mut cursor, &mut |node| {
+    walk_tree(&mut cursor, &mut |node| {
         if node.kind() != "comment" {
             return;
         }

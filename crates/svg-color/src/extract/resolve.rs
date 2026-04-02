@@ -55,19 +55,20 @@ fn resolve_var_color(
         return None;
     }
 
-    if let Some(value) = custom_properties.get(name) {
-        if !seen.insert(name.to_owned()) {
-            return None;
-        }
-
-        let resolved = resolve_css_color(value, custom_properties, seen);
-        seen.remove(name);
-        return resolved;
+    if !seen.insert(name.to_owned()) {
+        return None;
     }
 
-    parts
-        .get(1)
-        .and_then(|fallback| resolve_css_color(fallback.trim(), custom_properties, seen))
+    let resolved = custom_properties
+        .get(name)
+        .and_then(|value| resolve_css_color(value, custom_properties, seen))
+        .or_else(|| {
+            parts
+                .get(1)
+                .and_then(|fallback| resolve_css_color(fallback.trim(), custom_properties, seen))
+        });
+    seen.remove(name);
+    resolved
 }
 
 fn resolve_color_mix(
@@ -168,7 +169,7 @@ fn parse_mix_percentage(text: &str) -> Option<f64> {
     if value.is_finite() { Some(value) } else { None }
 }
 
-pub(super) fn parse_css_function_call(text: &str) -> Option<(String, &str)> {
+fn parse_css_function_call(text: &str) -> Option<(String, &str)> {
     let open = text.find('(')?;
     let close = text.rfind(')')?;
     if close != text.len() - 1 {

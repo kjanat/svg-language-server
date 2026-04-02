@@ -14,5 +14,8 @@ categories           = ["development-tools"]
 [dependencies]
 tree-sitter.workspace = true
 
+[dev-dependencies]
+tree-sitter-svg.workspace = true
+
 [lints]
 workspace = true

@@ -1041,6 +1041,7 @@ name = "svg-tree"
 version = "0.1.0"
 dependencies = [
  "tree-sitter",
+ "tree-sitter-svg",
 ]
 
 [[package]]

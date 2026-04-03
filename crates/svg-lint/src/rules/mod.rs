@@ -72,13 +72,20 @@ fn check_element(ctx: &mut LintContext<'_>, node: Node, in_foreign_content: bool
 
     // Check: Unknown element
     let Some(def) = svg_data::element(name_str) else {
+        let mut msg = format!("Unknown SVG element: <{name_str}>");
+        if let Some(suggestion) =
+            closest_name(name_str, svg_data::elements().iter().map(|e| e.name))
+        {
+            use std::fmt::Write;
+            let _ = write!(msg, "\nDid you mean <{suggestion}>?");
+        }
         push_diag(
             &mut ctx.diagnostics,
             &mut ctx.suppressions,
             name_node,
             Severity::Warning,
             DiagnosticCode::UnknownElement,
-            format!("Unknown SVG element: <{name_str}>"),
+            msg,
         );
         return false;
     };
@@ -449,6 +456,33 @@ fn make_diag(
     }
 }
 
+/// Levenshtein edit distance between two strings.
+fn edit_distance(a: &str, b: &str) -> usize {
+    let b_len = b.len();
+    let mut prev: Vec<usize> = (0..=b_len).collect();
+    let mut curr = vec![0; b_len + 1];
+    for (i, ca) in a.chars().enumerate() {
+        curr[0] = i + 1;
+        for (j, cb) in b.chars().enumerate() {
+            let cost = usize::from(ca != cb);
+            curr[j + 1] = (prev[j] + cost).min(prev[j + 1] + 1).min(curr[j] + 1);
+        }
+        std::mem::swap(&mut prev, &mut curr);
+    }
+    prev[b_len]
+}
+
+/// Find the closest match from `candidates` for `name`, returning it only if
+/// the edit distance is at most `max(2, name.len() / 3)`.
+fn closest_name<'a>(name: &str, candidates: impl Iterator<Item = &'a str>) -> Option<&'a str> {
+    let threshold = (name.len() / 3).max(2);
+    candidates
+        .map(|c| (c, edit_distance(name, c)))
+        .filter(|(_, d)| *d > 0 && *d <= threshold)
+        .min_by_key(|(_, d)| *d)
+        .map(|(c, _)| c)
+}
+
 #[cfg(test)]
 mod tests {
     use std::error::Error;
@@ -456,6 +490,43 @@ mod tests {
     use tree_sitter::{Parser, Tree};
 
     use super::*;
+
+    #[test]
+    fn edit_distance_basic() {
+        assert_eq!(edit_distance("rect", "rect"), 0);
+        assert_eq!(edit_distance("rectt", "rect"), 1);
+        assert_eq!(edit_distance("rct", "rect"), 1);
+        assert_eq!(edit_distance("banana", "rect"), 6);
+    }
+
+    #[test]
+    fn closest_name_suggests_near_match() {
+        let candidates = ["rect", "circle", "line", "path", "text"];
+        assert_eq!(
+            closest_name("rectt", candidates.iter().copied()),
+            Some("rect")
+        );
+        assert_eq!(
+            closest_name("cirle", candidates.iter().copied()),
+            Some("circle")
+        );
+        assert_eq!(closest_name("banana", candidates.iter().copied()), None);
+    }
+
+    #[test]
+    fn unknown_element_suggests_correction() {
+        let src = br"<svg><rectt/></svg>";
+        let diags = crate::lint(src);
+        let unknown = diags
+            .iter()
+            .find(|d| d.code == DiagnosticCode::UnknownElement);
+        assert!(unknown.is_some(), "should flag unknown element: {diags:?}");
+        assert!(
+            unknown.is_some_and(|d| d.message.contains("Did you mean")),
+            "should suggest correction: {:?}",
+            unknown.map(|d| &d.message)
+        );
+    }
 
     fn parse_svg(source: &str) -> Result<Tree, Box<dyn Error>> {
         let mut parser = Parser::new();

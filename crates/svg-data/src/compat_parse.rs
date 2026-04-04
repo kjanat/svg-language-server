@@ -104,3 +104,91 @@ pub fn extract_browser_versions(compat: &serde_json::Value) -> Option<BrowserVer
 pub fn parse_year(status: &serde_json::Value, key: &str) -> Option<u16> {
     status.get(key)?.as_str()?.split('-').next()?.parse().ok()
 }
+
+#[cfg(test)]
+mod tests {
+    use serde_json::json;
+
+    use super::*;
+    use crate::BaselineStatus;
+
+    #[test]
+    fn parse_baseline_value_widely() {
+        let status = json!({
+            "baseline": "high",
+            "baseline_high_date": "2020-01-01"
+        });
+        let result = parse_baseline_value(&status);
+        assert_eq!(result, Some(BaselineStatus::Widely { since: 2020 }));
+    }
+
+    #[test]
+    fn parse_baseline_value_newly() {
+        let status = json!({
+            "baseline": "low",
+            "baseline_low_date": "2023-06-15"
+        });
+        let result = parse_baseline_value(&status);
+        assert_eq!(result, Some(BaselineStatus::Newly { since: 2023 }));
+    }
+
+    #[test]
+    fn parse_baseline_value_limited() {
+        let status = json!({ "baseline": false });
+        assert_eq!(parse_baseline_value(&status), Some(BaselineStatus::Limited));
+    }
+
+    #[test]
+    fn parse_baseline_value_missing() {
+        let status = json!({});
+        assert_eq!(parse_baseline_value(&status), None);
+    }
+
+    #[test]
+    fn extract_browser_versions_with_data() {
+        let compat = json!({
+            "support": {
+                "chrome": { "version_added": "45" },
+                "firefox": { "version_added": "52" }
+            }
+        });
+        let versions = extract_browser_versions(&compat);
+        assert!(versions.is_some());
+        let v = versions.as_ref();
+        assert_eq!(v.and_then(|v| v.chrome.as_deref()), Some("45"));
+        assert_eq!(v.and_then(|v| v.firefox.as_deref()), Some("52"));
+        assert_eq!(v.and_then(|v| v.edge.as_deref()), None);
+    }
+
+    #[test]
+    fn extract_browser_versions_all_none() {
+        let compat = json!({ "support": {} });
+        assert!(extract_browser_versions(&compat).is_none());
+    }
+
+    #[test]
+    fn extract_browser_versions_array_entry() {
+        let compat = json!({
+            "support": {
+                "chrome": [
+                    { "version_added": "80" },
+                    { "version_added": "45", "flags": [] }
+                ]
+            }
+        });
+        let versions = extract_browser_versions(&compat);
+        assert_eq!(versions.and_then(|v| v.chrome), Some("80".to_owned()));
+    }
+
+    #[test]
+    fn parse_year_valid() {
+        let status = json!({ "date": "2023-03-27" });
+        assert_eq!(parse_year(&status, "date"), Some(2023));
+    }
+
+    #[test]
+    fn parse_year_missing() {
+        let status = json!({});
+        assert_eq!(parse_year(&status, "date"), None);
+    }
+}

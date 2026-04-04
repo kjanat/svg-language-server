@@ -4,6 +4,14 @@
 //! multiple workspace crates (`svg-references`, `svg-lint`, `svg-color`,
 //! `svg-language-server`).  Centralising them here eliminates duplicated
 //! implementations and keeps the helpers in sync.
+//!
+//! # Examples
+//!
+//! ```rust
+//! assert!(svg_tree::is_attribute_name_kind("attribute_name"));
+//! assert!(svg_tree::is_attribute_name_kind("viewBox_attribute_name"));
+//! assert!(!svg_tree::is_attribute_name_kind("element"));
+//! ```
 
 /// Iterative depth-first traversal of every node reachable from `cursor`.
 ///

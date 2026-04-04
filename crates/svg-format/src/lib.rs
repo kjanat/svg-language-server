@@ -2,7 +2,7 @@
 //!
 //! # Examples
 //!
-//! ```
+//! ```rust
 //! let input = r#"<svg><rect x="0"  y="0" /></svg>"#;
 //! let formatted = svg_format::format(input);
 //! assert!(formatted.contains("<rect"));

@@ -5,7 +5,7 @@
 //!
 //! # Examples
 //!
-//! ```
+//! ```rust
 //! let rect = svg_data::element("rect").expect("rect should exist");
 //! assert_eq!(rect.name, "rect");
 //!

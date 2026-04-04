@@ -6,7 +6,7 @@
 //!
 //! # Examples
 //!
-//! ```
+//! ```rust
 //! let diagnostics = svg_lint::lint(br"<svg><banana/></svg>");
 //! assert!(diagnostics.iter().any(|d| d.code == svg_lint::DiagnosticCode::UnknownElement));
 //! ```

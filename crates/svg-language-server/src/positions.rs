@@ -106,3 +106,78 @@ pub fn position_for_byte_offset(source: &[u8], byte_offset: usize) -> Position {
     let col = byte_col_to_utf16(source, row, clamped.saturating_sub(line_start));
     Position::new(u32_from_usize(row), col)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn byte_col_to_utf16_ascii() {
+        let src = b"<svg>\n  <rect/>\n</svg>";
+        // row 0, col 5 -> character 5
+        assert_eq!(byte_col_to_utf16(src, 0, 5), 5);
+        // row 1, col 2 -> character 2 (the spaces)
+        assert_eq!(byte_col_to_utf16(src, 1, 2), 2);
+    }
+
+    #[test]
+    fn byte_col_to_utf16_multibyte() {
+        // "ab\u{00E9}cd" = 5 chars, "ab" = 2 bytes, \u{00E9} = 2 bytes, "cd" = 2 bytes
+        let src = "ab\u{00E9}cd".as_bytes();
+        // byte col 4 = after "ab\u{00E9}", which is 3 UTF-16 code units
+        assert_eq!(byte_col_to_utf16(src, 0, 4), 3);
+    }
+
+    #[test]
+    fn utf16_to_byte_col_ascii() {
+        let src = b"hello world";
+        assert_eq!(utf16_to_byte_col(src, 0, 5), 5);
+    }
+
+    #[test]
+    fn utf16_to_byte_col_multibyte() {
+        let src = "ab\u{00E9}cd".as_bytes();
+        // UTF-16 col 3 = after "ab\u{00E9}", which is byte offset 4
+        assert_eq!(utf16_to_byte_col(src, 0, 3), 4);
+    }
+
+    #[test]
+    fn byte_offset_for_row_col_multiline() {
+        let src = b"line0\nline1\nline2";
+        assert_eq!(byte_offset_for_row_col(src, 0, 0), 0);
+        assert_eq!(byte_offset_for_row_col(src, 1, 0), 6);
+        assert_eq!(byte_offset_for_row_col(src, 2, 3), 15);
+    }
+
+    #[test]
+    fn end_position_utf16_multiline() {
+        let src = "ab\ncd\nef";
+        let pos = end_position_utf16(src);
+        assert_eq!(pos.line, 2);
+        assert_eq!(pos.character, 2);
+    }
+
+    #[test]
+    fn position_for_byte_offset_at_start() {
+        let src = b"<svg/>";
+        let pos = position_for_byte_offset(src, 0);
+        assert_eq!(pos.line, 0);
+        assert_eq!(pos.character, 0);
+    }
+
+    #[test]
+    fn position_for_byte_offset_second_line() {
+        let src = b"<svg>\n  <rect/>";
+        let pos = position_for_byte_offset(src, 8); // byte 8 = 'r' in rect
+        assert_eq!(pos.line, 1);
+        assert_eq!(pos.character, 2);
+    }
+
+    #[test]
+    fn position_for_byte_offset_past_end() {
+        let src = b"<svg/>";
+        let pos = position_for_byte_offset(src, 9999);
+        assert_eq!(pos.line, 0);
+        assert_eq!(pos.character, 6);
+    }
+}

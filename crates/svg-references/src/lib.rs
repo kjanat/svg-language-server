@@ -1,5 +1,17 @@
 //! Reference and definition helpers for SVG ids, CSS classes, and custom
 //! properties.
+//!
+//! # Examples
+//!
+//! ```rust
+//! let defs = svg_references::collect_class_definitions_from_stylesheet(
+//!     ".icon { fill: red; }",
+//!     0,
+//!     0,
+//! );
+//! assert_eq!(defs.len(), 1);
+//! assert_eq!(defs[0].name, "icon");
+//! ```
 
 use svg_tree::{child_of_kind, deepest_node_at, find_ancestor_any, has_ancestor, walk_tree};
 use tree_sitter::{Parser, Tree};

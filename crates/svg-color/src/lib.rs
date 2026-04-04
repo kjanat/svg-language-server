@@ -2,7 +2,7 @@
 //!
 //! # Examples
 //!
-//! ```
+//! ```rust
 //! let svg = b"<svg><rect fill=\"red\"/></svg>";
 //! let colors = svg_color::extract_colors(svg);
 //! assert!(!colors.is_empty());

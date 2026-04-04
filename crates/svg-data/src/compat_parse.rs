@@ -46,7 +46,9 @@ pub fn resolve_baseline(
     if let Some(by_key) = status.get("by_compat_key")
         && let Some(override_status) = by_key.get(compat_key)
     {
-        return parse_baseline_value(override_status);
+        if let Some(parsed) = parse_baseline_value(override_status) {
+            return Some(parsed);
+        }
     }
 
     parse_baseline_value(status)
@@ -190,5 +192,80 @@ mod tests {
     fn parse_year_missing() {
         let status = json!({});
         assert_eq!(parse_year(&status, "date"), None);
+    }
+
+    /// Helper: build a BCD compat object tagged with a web-features ID.
+    fn compat_with_tag(feature_id: &str) -> serde_json::Value {
+        json!({ "tags": [format!("web-features:{feature_id}")] })
+    }
+
+    #[test]
+    fn resolve_baseline_uses_by_compat_key_override() {
+        let compat = compat_with_tag("svg");
+        let wf = json!({
+            "svg": {
+                "status": {
+                    "baseline": "low",
+                    "baseline_low_date": "2024-01-01",
+                    "by_compat_key": {
+                        "svg.elements.rect": {
+                            "baseline": "high",
+                            "baseline_high_date": "2020-06-01"
+                        }
+                    }
+                }
+            }
+        });
+        assert_eq!(
+            resolve_baseline(&compat, Some(&wf), "svg.elements.rect"),
+            Some(BaselineStatus::Widely { since: 2020 }),
+        );
+    }
+
+    #[test]
+    fn resolve_baseline_falls_back_without_override() {
+        let compat = compat_with_tag("svg");
+        let wf = json!({
+            "svg": {
+                "status": {
+                    "baseline": "low",
+                    "baseline_low_date": "2024-01-01"
+                }
+            }
+        });
+        assert_eq!(
+            resolve_baseline(&compat, Some(&wf), "svg.elements.rect"),
+            Some(BaselineStatus::Newly { since: 2024 }),
+        );
+    }
+
+    #[test]
+    fn resolve_baseline_malformed_override_returns_none() {
+        let compat = compat_with_tag("svg");
+        let wf = json!({
+            "svg": {
+                "status": {
+                    "baseline": "low",
+                    "baseline_low_date": "2024-01-01",
+                    "by_compat_key": {
+                        "svg.elements.rect": {
+                            "baseline": "high"
+                            // missing baseline_high_date → parse_baseline_value returns None
+                        }
+                    }
+                }
+            }
+        });
+        // Malformed override: present but unparseable → falls back to top-level status
+        assert_eq!(
+            resolve_baseline(&compat, Some(&wf), "svg.elements.rect"),
+            Some(BaselineStatus::Newly { since: 2024 }),
+        );
+    }
+
+    #[test]
+    fn resolve_baseline_none_without_wf_features() {
+        let compat = compat_with_tag("svg");
+        assert_eq!(resolve_baseline(&compat, None, "svg.elements.rect"), None);
     }
 }

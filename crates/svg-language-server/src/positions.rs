@@ -5,16 +5,26 @@ pub fn u32_from_usize(value: usize) -> u32 {
     u32::try_from(value).unwrap_or(u32::MAX)
 }
 
+/// Byte offset of the first character on the given `row` (0-indexed).
+///
+/// Computes the sum of lengths of the first `row` lines (including their `\n`
+/// terminators) and clamps the result to `source.len()` so callers can safely
+/// slice `source[offset..]`.
+fn line_start_offset(source: &[u8], row: usize) -> usize {
+    let raw: usize = source
+        .split(|&b| b == b'\n')
+        .take(row)
+        .map(|line| line.len() + 1)
+        .sum();
+    raw.min(source.len())
+}
+
 /// Convert a byte-offset column to UTF-16 code unit count within a given row.
 ///
 /// LSP positions use UTF-16 code units by default. Tree-sitter reports byte offsets,
 /// so we must re-encode the line prefix to count UTF-16 units.
 pub fn byte_col_to_utf16(source: &[u8], row: usize, byte_col: usize) -> u32 {
-    let line_start: usize = source
-        .split(|&b| b == b'\n')
-        .take(row)
-        .map(|line| line.len() + 1)
-        .sum();
+    let line_start = line_start_offset(source, row);
 
     let end = (line_start + byte_col).min(source.len());
     let line_bytes = &source[line_start..end];
@@ -26,11 +36,7 @@ pub fn byte_col_to_utf16(source: &[u8], row: usize, byte_col: usize) -> u32 {
 /// Inverse of `byte_col_to_utf16`: LSP sends UTF-16 positions, but tree-sitter
 /// uses byte offsets.
 pub fn utf16_to_byte_col(source: &[u8], row: usize, utf16_col: u32) -> usize {
-    let line_start: usize = source
-        .split(|&b| b == b'\n')
-        .take(row)
-        .map(|line| line.len() + 1)
-        .sum();
+    let line_start = line_start_offset(source, row);
     let line_end = source[line_start..]
         .iter()
         .position(|&b| b == b'\n')
@@ -54,12 +60,7 @@ pub fn byte_offset_for_position(source: &[u8], position: Position) -> usize {
 }
 
 pub fn byte_offset_for_row_col(source: &[u8], row: usize, byte_col: usize) -> usize {
-    let line_start: usize = source
-        .split(|&b| b == b'\n')
-        .take(row)
-        .map(|line| line.len() + 1)
-        .sum();
-    line_start + byte_col
+    line_start_offset(source, row) + byte_col
 }
 
 pub fn end_position_utf16(source: &str) -> Position {

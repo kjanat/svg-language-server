@@ -501,12 +501,11 @@ mod tests {
             elements: std::collections::HashMap::new(),
             attributes: std::collections::HashMap::new(),
         };
-        let with = lint_tree(src, &tree, Some(&overrides));
-        assert_eq!(
-            without.len(),
-            with.len(),
-            "empty overrides should match catalog"
-        );
+        let mut with = lint_tree(src, &tree, Some(&overrides));
+        let mut without = without;
+        without.sort_by_key(|d| (d.byte_range.start, d.byte_range.end));
+        with.sort_by_key(|d| (d.byte_range.start, d.byte_range.end));
+        assert_eq!(without, with, "empty overrides should match catalog");
         Ok(())
     }
 }

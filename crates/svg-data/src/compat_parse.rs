@@ -45,10 +45,9 @@ pub fn resolve_baseline(
 
     if let Some(by_key) = status.get("by_compat_key")
         && let Some(override_status) = by_key.get(compat_key)
+        && let Some(parsed) = parse_baseline_value(override_status)
     {
-        if let Some(parsed) = parse_baseline_value(override_status) {
-            return Some(parsed);
-        }
+        return Some(parsed);
     }
 
     parse_baseline_value(status)

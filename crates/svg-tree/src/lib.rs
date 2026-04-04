@@ -32,12 +32,12 @@ pub fn walk_tree(
         }
 
         // No children — try next sibling, or walk up until we find one.
+        // Never move to siblings at start_depth: that would leak into
+        // adjacent subtrees outside the node we were given.
         loop {
-            if cursor.goto_next_sibling() {
+            if cursor.depth() > start_depth && cursor.goto_next_sibling() {
                 break;
             }
-            // No more siblings — go up. Stop if we've returned to the
-            // starting depth (finished the subtree we were given).
             if !cursor.goto_parent() || cursor.depth() < start_depth {
                 return;
             }

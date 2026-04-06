@@ -345,27 +345,48 @@ fn merge_browser_support(existing: &mut Option<BrowserSupportValue>, new: &Brows
 fn extract_browser_support(compat: &serde_json::Value) -> Option<BrowserSupportValue> {
     let support = compat.get("support")?;
 
-    let version_added = |browser: &str| -> Option<super::BrowserVersionValue> {
+    let version_added = |browser: &str| -> Option<String> {
         let entry = support.get(browser)?;
-        let stmt = if entry.is_array() {
-            entry.get(0)?
-        } else {
-            entry
-        };
-        match stmt.get("version_added")? {
-            serde_json::Value::Bool(true) => Some(super::BrowserVersionValue::Unknown),
-            serde_json::Value::String(version) => {
-                Some(super::BrowserVersionValue::Version(version.clone()))
+        if entry.is_array() {
+            for stmt in entry.as_array()? {
+                if let Some(version) = stmt
+                    .get("version_added")
+                    .and_then(serde_json::Value::as_str)
+                {
+                    return Some(version.to_owned());
+                }
             }
-            _ => None,
+            None
+        } else {
+            let stmt = entry;
+            stmt.get("version_added")
+                .and_then(serde_json::Value::as_str)
+                .map(ToOwned::to_owned)
         }
     };
 
+    let browser_version = |browser: &str| -> Option<super::BrowserVersionValue> {
+        version_added(browser)
+            .map(super::BrowserVersionValue::Version)
+            .or_else(|| {
+                let entry = support.get(browser)?;
+                let stmt = if entry.is_array() {
+                    entry.get(0)?
+                } else {
+                    entry
+                };
+                match stmt.get("version_added")? {
+                    serde_json::Value::Bool(true) => Some(super::BrowserVersionValue::Unknown),
+                    _ => None,
+                }
+            })
+    };
+
     let value = BrowserSupportValue {
-        chrome: version_added("chrome"),
-        edge: version_added("edge"),
-        firefox: version_added("firefox"),
-        safari: version_added("safari"),
+        chrome: browser_version("chrome"),
+        edge: browser_version("edge"),
+        firefox: browser_version("firefox"),
+        safari: browser_version("safari"),
     };
     if value.chrome.is_none()
         && value.edge.is_none()

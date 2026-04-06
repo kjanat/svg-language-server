@@ -82,25 +82,48 @@ pub struct BrowserVersions {
 pub fn extract_browser_versions(compat: &serde_json::Value) -> Option<BrowserVersions> {
     let support = compat.get("support")?;
 
-    let version_added = |browser: &str| -> Option<BrowserVersion> {
+    let version_added = |browser: &str| -> Option<String> {
         let entry = support.get(browser)?;
-        let stmt = if entry.is_array() {
-            entry.get(0)?
+        if entry.is_array() {
+            for stmt in entry.as_array()? {
+                if let Some(version) = stmt
+                    .get("version_added")
+                    .and_then(serde_json::Value::as_str)
+                {
+                    return Some(version.to_owned());
+                }
+            }
+            None
         } else {
-            entry
-        };
-        match stmt.get("version_added")? {
-            serde_json::Value::Bool(true) => Some(BrowserVersion::Unknown),
-            serde_json::Value::String(version) => Some(BrowserVersion::Version(version.clone())),
-            _ => None,
+            let stmt = entry;
+            stmt.get("version_added")
+                .and_then(serde_json::Value::as_str)
+                .map(ToOwned::to_owned)
         }
     };
 
+    let browser_version = |browser: &str| -> Option<BrowserVersion> {
+        version_added(browser)
+            .map(BrowserVersion::Version)
+            .or_else(|| {
+                let entry = support.get(browser)?;
+                let stmt = if entry.is_array() {
+                    entry.get(0)?
+                } else {
+                    entry
+                };
+                match stmt.get("version_added")? {
+                    serde_json::Value::Bool(true) => Some(BrowserVersion::Unknown),
+                    _ => None,
+                }
+            })
+    };
+
     let versions = BrowserVersions {
-        chrome: version_added("chrome"),
-        edge: version_added("edge"),
-        firefox: version_added("firefox"),
-        safari: version_added("safari"),
+        chrome: browser_version("chrome"),
+        edge: browser_version("edge"),
+        firefox: browser_version("firefox"),
+        safari: browser_version("safari"),
     };
     if versions.chrome.is_none()
         && versions.edge.is_none()
@@ -200,6 +223,23 @@ mod tests {
         assert_eq!(
             versions.and_then(|v| v.chrome),
             Some(BrowserVersion::Version("80".to_owned()))
+        );
+    }
+
+    #[test]
+    fn extract_browser_versions_array_uses_first_non_null_string() {
+        let compat = json!({
+            "support": {
+                "chrome": [
+                    { "version_added": null },
+                    { "version_added": "45", "flags": [] }
+                ]
+            }
+        });
+        let versions = extract_browser_versions(&compat);
+        assert_eq!(
+            versions.and_then(|v| v.chrome),
+            Some(BrowserVersion::Version("45".to_owned()))
         );
     }
 

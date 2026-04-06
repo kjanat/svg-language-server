@@ -34,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
-- Split monolithic source files into focused crate modules (84 files changed)
+- Split monolithic source files into focused crate modules
 - Workspace-wide clippy lints: pedantic + nursery baseline, deny
   `unwrap`/`expect`, forbid `unsafe`
 - Eliminated all `unwrap()`/`expect()` from production and test code

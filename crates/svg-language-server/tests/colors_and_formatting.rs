@@ -7,10 +7,7 @@ use support::TestServer;
 
 type TestResult = Result<(), Box<dyn std::error::Error>>;
 
-#[test]
-fn initialize_document_color_and_color_presentation() -> TestResult {
-    let mut server = TestServer::start()?;
-
+fn assert_init_capabilities(server: &TestServer) -> TestResult {
     let caps = &server.init_response["result"]["capabilities"];
     assert!(
         caps.get("colorProvider").is_some(),
@@ -22,12 +19,24 @@ fn initialize_document_color_and_color_presentation() -> TestResult {
         "documentFormattingProvider capability missing from initialize response: {}",
         server.init_response
     );
-    assert_eq!(
-        caps["executeCommandProvider"]["commands"][0].as_str(),
-        Some("svg.copyDataUri"),
+    let commands = caps["executeCommandProvider"]["commands"]
+        .as_array()
+        .ok_or("executeCommandProvider.commands should be an array")?;
+    assert!(
+        commands
+            .iter()
+            .any(|command| command.as_str() == Some("svg.copyDataUri")),
         "executeCommandProvider should advertise the copy-data-uri command: {}",
         server.init_response
     );
+    Ok(())
+}
+
+#[test]
+fn initialize_document_color_and_color_presentation() -> TestResult {
+    let mut server = TestServer::start()?;
+
+    assert_init_capabilities(&server)?;
 
     let svg_text = r##"<svg><rect fill="#ff0000" stroke="blue"/></svg>"##;
     server.open("file:///test.svg", svg_text)?;

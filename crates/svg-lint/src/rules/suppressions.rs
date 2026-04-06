@@ -185,27 +185,11 @@ fn parse_suppression_codes(text: &str) -> Vec<DiagnosticCode> {
         .collect();
 
     if tokens.is_empty() || tokens.iter().any(|token| token.eq_ignore_ascii_case("all")) {
-        return all_diagnostic_codes().to_vec();
+        return DiagnosticCode::ALL.to_vec();
     }
 
     tokens
         .into_iter()
         .filter_map(|token| token.parse().ok())
         .collect()
-}
-
-const fn all_diagnostic_codes() -> &'static [DiagnosticCode] {
-    &[
-        DiagnosticCode::InvalidChild,
-        DiagnosticCode::MissingRequiredAttr,
-        DiagnosticCode::DeprecatedElement,
-        DiagnosticCode::DeprecatedAttribute,
-        DiagnosticCode::ExperimentalElement,
-        DiagnosticCode::ExperimentalAttribute,
-        DiagnosticCode::UnknownElement,
-        DiagnosticCode::UnknownAttribute,
-        DiagnosticCode::DuplicateId,
-        DiagnosticCode::MissingReferenceDefinition,
-        DiagnosticCode::UnusedSuppression,
-    ]
 }

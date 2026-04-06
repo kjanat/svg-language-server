@@ -167,6 +167,8 @@ pub(super) fn declaration_property_name<'a>(
 }
 
 pub(super) fn is_color_like_property(name: &str) -> bool {
+    // `wrapping_sub` makes short names produce an out-of-bounds range, so
+    // `get(..)` returns `None` instead of panicking on the suffix check.
     let has_color_suffix = name
         .get(name.len().wrapping_sub("color".len())..)
         .is_some_and(|s| s.eq_ignore_ascii_case("color"));

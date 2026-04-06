@@ -47,17 +47,17 @@ filesize:
     #!/usr/bin/env sh
     set -e
     cargo_bloat_missing=0
+    printf '%s\n' '== Rust line counts =='
+    find crates -type f -name '*.rs' -exec wc -l {} \; | sort -rn | head -20
     printf '%s\n' '== cargo-bloat =='
     if ! command -v cargo-bloat >/dev/null 2>&1; then
         cargo_bloat_missing=1
-        printf '%s\n' '(missing cargo-bloat; showing line counts below first)'
+        printf '%s\n' '(missing cargo-bloat)'
     else
-        CARGO_TERM_QUIET=true cargo bloat --release --crates --filter svg-language-server
+        CARGO_TERM_QUIET=true cargo bloat --release --crates --filter svg-language-server || cargo_bloat_missing=1
     fi
-    printf '\n%s\n' '== Rust line counts =='
-    find crates -type f -name '*.rs' -exec wc -l {} \; | sort -rn | head -20
     if [ "$cargo_bloat_missing" -ne 0 ]; then
-        printf '\n%s\n' "cargo-bloat is required for 'just filesize'. Install it with: cargo install cargo-bloat" >&2
+        printf '\n%s\n' "cargo-bloat is required for 'just filesize' and must run successfully. Install/update it with: cargo install cargo-bloat" >&2
         exit 1
     fi
 
@@ -101,8 +101,7 @@ commit model="openai/gpt-5.4" variant="medium" *$MESSAGE:
 
 # Validate generated dist CI matches checked-in workflow
 dist-check:
-    cargo dist plan --output-format=json > plan-dist-manifest.json
-    rm -f plan-dist-manifest.json
+    cargo dist plan --output-format=json > /dev/null
 
 # Preview release artifacts and package layout
 dist-plan *ARGS:

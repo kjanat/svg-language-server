@@ -3,6 +3,8 @@ use super::{
     space::{oklab_to_srgb, srgb_to_oklab, srgb_to_oklch},
 };
 
+const ALPHA_EPSILON: f64 = 1e-12;
+
 pub(super) fn mix_srgb(
     left: (f32, f32, f32, f32),
     left_weight: f64,
@@ -67,9 +69,9 @@ pub(super) fn mix_oklch(
     let left_alpha = f64::from(left.3);
     let right_alpha = f64::from(right.3);
 
-    if left_alpha <= 1e-12 && right_alpha > 1e-12 {
+    if left_alpha <= ALPHA_EPSILON && right_alpha > ALPHA_EPSILON {
         left_lch = right_lch;
-    } else if right_alpha <= 1e-12 && left_alpha > 1e-12 {
+    } else if right_alpha <= ALPHA_EPSILON && left_alpha > ALPHA_EPSILON {
         right_lch = left_lch;
     }
 
@@ -81,7 +83,7 @@ pub(super) fn mix_oklch(
     }
 
     let alpha = right_alpha.mul_add(right_weight, left_alpha * left_weight);
-    if alpha <= 1e-12 {
+    if alpha <= ALPHA_EPSILON {
         return Some((0.0, 0.0, 0.0, 0.0));
     }
 
@@ -110,7 +112,7 @@ fn mix_premultiplied(
     right_weight: f64,
 ) -> ([f64; 3], f64) {
     let alpha = right_alpha.mul_add(right_weight, left_alpha * left_weight);
-    if alpha <= 1e-12 {
+    if alpha <= ALPHA_EPSILON {
         return ([0.0, 0.0, 0.0], 0.0);
     }
 

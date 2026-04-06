@@ -166,6 +166,9 @@ fn css_declaration_snippet(source: &str, span: &svg_references::Span) -> String 
     source[declaration_start..declaration_end].trim().to_owned()
 }
 
+// `matching_brace_end` is a cheap brace counter for hover snippets. It does
+// not handle braces inside CSS strings/comments, so edge cases may truncate the
+// snippet, but that is preferable here to a full CSS reparse on hover.
 fn matching_brace_end(source: &[u8], open_index: usize) -> Option<usize> {
     let mut depth = 0usize;
 

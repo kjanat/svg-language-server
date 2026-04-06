@@ -147,15 +147,8 @@ fn ensure_cached(url: &str, dest: &Path, offline: bool) -> Result<bool, String> 
         && let Ok(age) = SystemTime::now().duration_since(modified)
         && age.as_secs() < CACHE_MAX_AGE_SECS
     {
-        println!(
-            "cargo::warning=compat: using cached {} (age {}s)",
-            dest.display(),
-            age.as_secs()
-        );
         return Ok(true);
     }
-
-    println!("cargo::warning=compat: downloading {url}");
 
     let mut response = ureq::get(url)
         .call()
@@ -329,10 +322,6 @@ fn write_elements_array(
         write_bcd_only_element(out, name, entry, spec_descriptions)?;
     }
 
-    println!(
-        "cargo::warning=compat: merged {} BCD-only elements into catalog",
-        bcd_only_elements.len()
-    );
     writeln!(out, "];")?;
     writeln!(out)
 }
@@ -461,10 +450,6 @@ fn write_bcd_only_attribute_statics(
         writeln!(out)?;
     }
 
-    println!(
-        "cargo::warning=compat: merged {} BCD-only attributes into catalog",
-        bcd_only.len()
-    );
     Ok(())
 }
 

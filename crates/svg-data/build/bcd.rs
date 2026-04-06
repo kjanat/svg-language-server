@@ -47,14 +47,14 @@ pub fn fetch_compat_data(out_dir: &Path) -> CompatData {
     let elements = collect_element_entries(svg_elements_obj, wf_features.as_ref());
 
     println!(
-        "cargo::warning=compat: loaded {} element entries from BCD",
+        "svg-data: loaded {} element entries from BCD",
         elements.len()
     );
 
     let attributes = collect_attribute_entries(&bcd_root, svg_elements_obj, wf_features.as_ref());
 
     println!(
-        "cargo::warning=compat: loaded {} attribute entries from BCD",
+        "svg-data: loaded {} attribute entries from BCD",
         attributes.len()
     );
 

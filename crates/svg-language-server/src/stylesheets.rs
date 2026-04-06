@@ -1,5 +1,6 @@
 use std::{
     fs,
+    io::Read as _,
     sync::{Arc, OnceLock},
     time::Duration,
 };
@@ -155,26 +156,45 @@ fn resolve_remote_stylesheet(cache: &StylesheetCache, url: &Url) -> Option<Cache
             .clone()
     };
 
-    cell.get_or_init(|| {
-        let stylesheet_url = url.as_str();
+    // Return cached value if already resolved.
+    if let Some(cached) = cell.get() {
+        return cached.clone();
+    }
+
+    // Fetch outside get_or_init so transient failures don't poison the cache.
+    let stylesheet_url = url.as_str();
+    let fetched = (|| {
+        const MAX_STYLESHEET_BYTES: u64 = 2 * 1024 * 1024;
         let agent = ureq::Agent::new_with_config(
             ureq::config::Config::builder()
                 .timeout_global(Some(Duration::from_secs(10)))
                 .build(),
         );
-        let source = agent
+        let mut response = agent
             .get(stylesheet_url)
             .call()
-            .map_err(|err| tracing::warn!(url = stylesheet_url, error = %err, "stylesheet fetch failed"))
-            .ok()?
+            .map_err(
+                |err| tracing::warn!(url = stylesheet_url, error = %err, "stylesheet fetch failed"),
+            )
+            .ok()?;
+        let mut source = String::new();
+        response
             .body_mut()
-            .read_to_string()
+            .as_reader()
+            .take(MAX_STYLESHEET_BYTES)
+            .read_to_string(&mut source)
             .map_err(|err| tracing::warn!(url = stylesheet_url, error = %err, "failed to read stylesheet body"))
             .ok()?;
         let uri = stylesheet_url.parse().ok()?;
         Some(parse_stylesheet(uri, source))
-    })
-    .clone()
+    })();
+
+    if let Some(stylesheet) = fetched {
+        let _ = cell.set(Some(stylesheet.clone()));
+        return Some(stylesheet);
+    }
+
+    None
 }
 
 pub fn resolve_external_stylesheet(

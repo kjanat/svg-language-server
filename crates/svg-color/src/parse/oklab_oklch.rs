@@ -23,8 +23,9 @@ pub(super) fn parse_oklch(rest: &str) -> Option<(f32, f32, f32, f32)> {
     } else {
         hue_angle
     };
-    let axis_a = chroma * hue.to_radians().cos();
-    let axis_b = chroma * hue.to_radians().sin();
+    let hue_rad = hue.to_radians();
+    let axis_a = chroma * hue_rad.cos();
+    let axis_b = chroma * hue_rad.sin();
     space::oklab_to_srgb(lightness, axis_a, axis_b, alpha)
 }
 

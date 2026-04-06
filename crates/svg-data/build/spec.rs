@@ -66,7 +66,7 @@ pub fn fetch_spec_descriptions(out_dir: &Path, offline: bool) -> HashMap<String,
     }
 
     println!(
-        "cargo::warning=spec: loaded {} element descriptions from svgwg",
+        "svg-data: loaded {} element descriptions from svgwg",
         descriptions.len()
     );
     descriptions
@@ -184,12 +184,15 @@ fn truncate_description(text: &str) -> String {
     text.to_string()
 }
 
+// If the first paragraph starts much later than this, we've likely wandered
+// into examples/notes rather than the short element description.
+const MAX_DESCRIPTION_SEARCH_OFFSET: usize = 2_000;
+
 /// Extract text content of the first `<p>...</p>` block in the given HTML slice.
 fn extract_first_paragraph(html: &str) -> Option<String> {
     // Skip whitespace, comments, edit: tags to find the first <p>
     let p_start = html.find("<p>")?;
-    // Don't look too far (skip if >2000 chars away — probably not the description)
-    if p_start > 2000 {
+    if p_start > MAX_DESCRIPTION_SEARCH_OFFSET {
         return None;
     }
     let content_start = p_start + 3;

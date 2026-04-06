@@ -119,10 +119,13 @@ mod tests {
 
     type TestResult = Result<(), Box<dyn std::error::Error>>;
 
-    fn parse_svg(src: &[u8]) -> Result<tree_sitter::Tree, &'static str> {
+    fn parse_svg(src: &[u8]) -> Result<tree_sitter::Tree, Box<dyn std::error::Error>> {
         let mut parser = tree_sitter::Parser::new();
-        parser.set_language(&tree_sitter_svg::LANGUAGE.into()).ok();
-        parser.parse(src, None).ok_or("parse failed")
+        parser.set_language(&tree_sitter_svg::LANGUAGE.into())?;
+        let tree = parser
+            .parse(src, None)
+            .ok_or_else(|| std::io::Error::other("parse failed"))?;
+        Ok(tree)
     }
 
     #[test]

@@ -59,7 +59,17 @@ pub fn fetch_runtime_compat() -> Option<RuntimeCompat> {
     let bcd_json = fetch_json(BCD_URL)?;
     let wf_json = fetch_json(WEB_FEATURES_URL).unwrap_or(serde_json::Value::Null);
     let wf_features = wf_json.get("features");
-    let svg_elements = bcd_json.pointer("/svg/elements")?.as_object()?;
+    if wf_features.is_none() {
+        tracing::warn!(
+            url = WEB_FEATURES_URL,
+            "missing /features key in web-features JSON"
+        );
+    }
+    let svg_elements = bcd_json.pointer("/svg/elements");
+    if svg_elements.is_none() {
+        tracing::warn!(url = BCD_URL, "missing /svg/elements path in BCD JSON");
+    }
+    let svg_elements = svg_elements?.as_object()?;
 
     let elements = collect_element_overrides(svg_elements, wf_features);
     let mut attributes = collect_element_attribute_overrides(svg_elements, wf_features);
@@ -145,6 +155,10 @@ fn apply_global_attribute_overrides(
     wf_features: Option<&serde_json::Value>,
 ) {
     let Some(global_attributes) = bcd_json.pointer("/svg/global_attributes") else {
+        tracing::warn!(
+            url = BCD_URL,
+            "missing /svg/global_attributes path in BCD JSON"
+        );
         return;
     };
     let Some(attribute_map) = global_attributes.as_object() else {
@@ -313,7 +327,8 @@ const fn baseline_since(baseline: BaselineStatus) -> u16 {
 #[cfg(test)]
 mod tests {
     use super::{
-        BaselineStatus, RuntimeBrowserSupport, merge_baseline, merge_runtime_browser_support,
+        BaselineStatus, RuntimeBrowserSupport, apply_global_attribute_overrides,
+        collect_element_attribute_overrides, merge_baseline, merge_runtime_browser_support,
     };
 
     #[test]
@@ -396,5 +411,56 @@ mod tests {
                 .and_then(|support| support.edge.as_deref()),
             Some("120")
         );
+    }
+
+    type TestResult = Result<(), Box<dyn std::error::Error>>;
+
+    #[test]
+    fn global_attribute_overlay_merges_with_element_local() -> TestResult {
+        let bcd_json = serde_json::json!({
+            "svg": {
+                "elements": {
+                    "rect": {
+                        "__compat": {
+                            "support": { "chrome": { "version_added": "1" } },
+                            "status": { "deprecated": false, "experimental": false }
+                        },
+                        "fill": {
+                            "__compat": {
+                                "support": { "chrome": { "version_added": "10" } },
+                                "status": { "deprecated": false, "experimental": false }
+                            }
+                        }
+                    }
+                },
+                "global_attributes": {
+                    "fill": {
+                        "__compat": {
+                            "support": { "chrome": { "version_added": "50" } },
+                            "status": { "deprecated": false, "experimental": false }
+                        }
+                    }
+                }
+            }
+        });
+
+        let svg_elements = bcd_json
+            .pointer("/svg/elements")
+            .ok_or("missing /svg/elements")?
+            .as_object()
+            .ok_or("not an object")?;
+        let mut attributes = collect_element_attribute_overrides(svg_elements, None);
+        apply_global_attribute_overrides(&mut attributes, &bcd_json, None);
+
+        let fill = attributes.get("fill").ok_or("fill should be merged")?;
+        // Global says chrome 50, element-local says chrome 10.
+        // merge_runtime_browser_support keeps the later (stricter) version.
+        assert_eq!(
+            fill.browser_support
+                .as_ref()
+                .and_then(|s| s.chrome.as_deref()),
+            Some("50"),
+        );
+        Ok(())
     }
 }

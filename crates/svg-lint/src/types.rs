@@ -16,6 +16,7 @@ pub struct CompatFlags {
 ///
 /// Maps element/attribute names to their override flags. Names absent from
 /// the maps use the baked-in catalog values.
+#[derive(Debug, Clone, Default)]
 pub struct LintOverrides {
     /// Element name → override flags.
     pub elements: HashMap<String, CompatFlags>,
@@ -85,8 +86,23 @@ pub enum DiagnosticCode {
 }
 
 impl DiagnosticCode {
-    #[must_use]
+    /// All known diagnostic codes in stable display order.
+    pub const ALL: &'static [Self] = &[
+        Self::InvalidChild,
+        Self::MissingRequiredAttr,
+        Self::DeprecatedElement,
+        Self::DeprecatedAttribute,
+        Self::ExperimentalElement,
+        Self::ExperimentalAttribute,
+        Self::UnknownElement,
+        Self::UnknownAttribute,
+        Self::DuplicateId,
+        Self::MissingReferenceDefinition,
+        Self::UnusedSuppression,
+    ];
+
     /// Return the stable string representation used in diagnostics and comments.
+    #[must_use]
     pub const fn as_str(self) -> &'static str {
         match self {
             Self::InvalidChild => "InvalidChild",

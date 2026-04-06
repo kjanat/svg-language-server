@@ -100,6 +100,11 @@ fn parse_color_mix_stop(
     Some(((r, g, b, a), percentage))
 }
 
+/// `resolve_mix_weights` follows CSS Color 4 `color-mix()` defaults: explicit
+/// percentages stay explicit, one percentage implies `100 - other`, omitted
+/// percentages default to `50/50`, and negative percentages are invalid.
+/// Returns `(left_fraction, right_fraction, alpha_scale)`, where the fractions
+/// sum to `1.0` and `alpha_scale` is `(total / 100.0).min(1.0)`.
 fn resolve_mix_weights(left_pct: Option<f64>, right_pct: Option<f64>) -> Option<(f64, f64, f64)> {
     let mut left = left_pct;
     let mut right = right_pct;

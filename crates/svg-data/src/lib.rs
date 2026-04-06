@@ -141,6 +141,33 @@ mod tests {
     }
 
     #[test]
+    fn linear_gradient_description_uses_lead_paragraph() -> Result<(), Box<dyn Error>> {
+        let linear = element("linearGradient").ok_or("linearGradient should exist")?;
+        assert!(
+            linear
+                .description
+                .starts_with("Linear gradients are defined by a 'linearGradient' element."),
+            "unexpected linearGradient description: {}",
+            linear.description
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn rect_description_is_not_interface_object_prose() -> Result<(), Box<dyn Error>> {
+        let rect = element("rect").ok_or("rect should exist")?;
+        assert!(
+            !rect
+                .description
+                .to_ascii_lowercase()
+                .contains("object represents"),
+            "rect description should not use interface-object prose: {}",
+            rect.description
+        );
+        Ok(())
+    }
+
+    #[test]
     fn element_not_found() {
         assert!(element("notanelement").is_none());
     }

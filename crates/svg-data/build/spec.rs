@@ -2,8 +2,16 @@ use std::{collections::HashMap, fs, path::Path};
 
 use super::ensure_cached;
 
+/// Pinned `w3c/svgwg` revision for reproducible spec scraping.
+///
+/// Update workflow:
+/// 1. `git ls-remote https://github.com/w3c/svgwg refs/heads/main`
+/// 2. Replace this SHA with the new commit hash.
+/// 3. Rebuild/test `svg-data` to refresh generated descriptions.
+const SVGWG_SHA: &str = "bd0b7819e8ce69d06e08b4710a18d46ac7252787";
+
 /// Base URL for raw svgwg spec HTML files on GitHub.
-const SVGWG_RAW: &str = "https://raw.githubusercontent.com/w3c/svgwg/main/master";
+const SVGWG_RAW: &str = "https://raw.githubusercontent.com/w3c/svgwg";
 
 /// Spec HTML files and the elements they document.
 const SVGWG_SPEC_FILES: &[&str] = &[
@@ -19,9 +27,8 @@ const SVGWG_SPEC_FILES: &[&str] = &[
     "masking.html",
 ];
 
-/// SVG Animations spec (separate module in the same repo).
-const SVGWG_ANIM_URL: &str =
-    "https://raw.githubusercontent.com/w3c/svgwg/main/specs/animations/master/Overview.html";
+/// SVG Animations spec path (separate module in the same repo).
+const SVGWG_ANIM_URL: &str = "specs/animations/master/Overview.html";
 
 /// Fetch element descriptions from the W3C svgwg spec sources.
 /// Returns a map of element name → spec description (HTML stripped).
@@ -30,7 +37,7 @@ pub fn fetch_spec_descriptions(out_dir: &Path, offline: bool) -> HashMap<String,
 
     // Fetch each spec file and extract descriptions
     for file in SVGWG_SPEC_FILES {
-        let url = format!("{SVGWG_RAW}/{file}");
+        let url = format!("{SVGWG_RAW}/{SVGWG_SHA}/master/{file}");
         let cache_name = format!("svgwg-{file}");
         let cache_path = out_dir.join(&cache_name);
 
@@ -50,8 +57,9 @@ pub fn fetch_spec_descriptions(out_dir: &Path, offline: bool) -> HashMap<String,
     }
 
     // Fetch animations spec
+    let anim_url = format!("{SVGWG_RAW}/{SVGWG_SHA}/{SVGWG_ANIM_URL}");
     let anim_cache = out_dir.join("svgwg-animations.html");
-    match ensure_cached(SVGWG_ANIM_URL, &anim_cache, offline) {
+    match ensure_cached(&anim_url, &anim_cache, offline) {
         Ok(true) => match fs::read_to_string(&anim_cache) {
             Ok(html) => extract_element_descriptions(&html, &mut descriptions),
             Err(e) => println!(
@@ -86,6 +94,10 @@ fn extract_element_descriptions(html: &str, out: &mut HashMap<String, String>) {
         if let Some(id_start) = prefix.rfind("id=\"") {
             let name_start = search_from + id_start + 4;
             let raw_id = &html[name_start..abs_pos + "Element".len()];
+            if is_interface_svg_identifier(raw_id) {
+                search_from = abs_pos + "Element\">".len();
+                continue;
+            }
             if let Some(elem_name) = raw_id.strip_suffix("Element") {
                 let elem_name = uncapitalize_element_name(elem_name);
                 if !elem_name.is_empty()
@@ -113,6 +125,10 @@ fn extract_element_descriptions(html: &str, out: &mut HashMap<String, String>) {
             continue;
         };
         let elem_name = &html[after_tag..after_tag + quote_end];
+        if is_interface_svg_identifier(elem_name) {
+            search_from = after_tag + quote_end;
+            continue;
+        }
 
         if !out.contains_key(elem_name)
             && let Some(desc) = extract_first_paragraph(&html[after_tag + quote_end..])
@@ -129,11 +145,14 @@ fn extract_element_descriptions(html: &str, out: &mut HashMap<String, String>) {
 /// Check if a description paragraph is actually about the element itself
 /// (not about an attribute that applies to it or some other context).
 fn is_element_description(text: &str, elem_name: &str) -> bool {
+    let lower = text.to_ascii_lowercase();
+
     // Reject clearly non-element descriptions
     if text.starts_with("The following")
         || text.starts_with("This attribute")
         || text.starts_with("The outline of")
         || text.starts_with("Except for")
+        || ((text.starts_with("A ") || text.starts_with("An ")) && lower.contains(" object"))
     {
         return false;
     }
@@ -190,14 +209,41 @@ const MAX_DESCRIPTION_SEARCH_OFFSET: usize = 2_000;
 
 /// Extract text content of the first `<p>...</p>` block in the given HTML slice.
 fn extract_first_paragraph(html: &str) -> Option<String> {
-    // Skip whitespace, comments, edit: tags to find the first <p>
-    let p_start = html.find("<p>")?;
-    if p_start > MAX_DESCRIPTION_SEARCH_OFFSET {
-        return None;
+    // Call sites sometimes slice right after `...Element">`, which means
+    // we are already inside the target paragraph content.
+    if let Some(p_end) = html.find("</p>") {
+        let first_open = html.find("<p");
+        if first_open.is_none_or(|open| p_end < open) {
+            if p_end <= MAX_DESCRIPTION_SEARCH_OFFSET {
+                return Some(html[..p_end].to_string());
+            }
+            return None;
+        }
     }
-    let content_start = p_start + 3;
-    let p_end = html[content_start..].find("</p>")?;
-    Some(html[content_start..content_start + p_end].to_string())
+
+    // Otherwise find the first explicit <p...> start tag in this slice.
+    // Accept both `<p>` and `<p ...>` while excluding tags like `<path>`.
+    let mut search_from = 0;
+    while let Some(rel_start) = html[search_from..].find("<p") {
+        let p_start = search_from + rel_start;
+        if p_start > MAX_DESCRIPTION_SEARCH_OFFSET {
+            return None;
+        }
+
+        let tag_tail_start = p_start + 2;
+        let next = *html.as_bytes().get(tag_tail_start)?;
+        if next != b'>' && !next.is_ascii_whitespace() {
+            search_from = tag_tail_start;
+            continue;
+        }
+
+        let open_end = html[tag_tail_start..].find('>')?;
+        let content_start = tag_tail_start + open_end + 1;
+        let p_end = html[content_start..].find("</p>")?;
+        return Some(html[content_start..content_start + p_end].to_string());
+    }
+
+    None
 }
 
 /// Strip HTML tags from a string, leaving only text content.
@@ -228,4 +274,8 @@ fn uncapitalize_element_name(id: &str) -> String {
     chars.next().map_or_else(String::new, |first| {
         format!("{}{}", first.to_lowercase(), chars.as_str())
     })
+}
+
+fn is_interface_svg_identifier(raw_id: &str) -> bool {
+    raw_id.contains("InterfaceSVG")
 }

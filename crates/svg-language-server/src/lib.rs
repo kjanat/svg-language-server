@@ -291,7 +291,7 @@ fn build_hover_context(
 
 struct SvgLanguageServer {
     client: Client,
-    documents: Arc<RwLock<HashMap<Uri, DocumentState>>>,
+    documents: Arc<RwLock<HashMap<Uri, Arc<DocumentState>>>>,
     parser: Arc<RwLock<tree_sitter::Parser>>,
     color_kinds: ColorKindCache,
     stylesheet_cache: StylesheetCache,
@@ -317,7 +317,7 @@ impl SvgLanguageServer {
         }
     }
 
-    async fn document_state(&self, uri: &Uri) -> Option<DocumentState> {
+    async fn document_state(&self, uri: &Uri) -> Option<Arc<DocumentState>> {
         let docs = self.documents.read().await;
         docs.get(uri).cloned()
     }
@@ -334,11 +334,11 @@ impl SvgLanguageServer {
             return;
         };
 
-        let state = DocumentState {
+        let state = Arc::new(DocumentState {
             version,
             source,
             tree,
-        };
+        });
         let source_bytes = state.source.as_bytes();
         let overrides = {
             let compat = self.runtime_compat.read().await;

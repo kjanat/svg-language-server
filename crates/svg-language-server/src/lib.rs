@@ -52,7 +52,7 @@ use completion::{
     style_completion_items, tag_element_name, value_completions,
 };
 use definition::{DefinitionContext, build_definition_context, stylesheet_definition_locations};
-use diagnostics::{lint_diagnostic_to_lsp, publish_lint_diagnostics};
+use diagnostics::publish_lint_diagnostics;
 use hover::{
     external_attribute_hover, format_attribute_hover, format_class_hover,
     format_custom_property_hover, format_element_hover,
@@ -72,6 +72,7 @@ use svg_tree::{deepest_node_at, find_ancestor_any, is_attribute_name_kind};
 /// via [`SvgLanguageServer::update_document`].
 #[derive(Clone)]
 pub(crate) struct DocumentState {
+    pub(crate) version: i32,
     pub(crate) source: String,
     pub(crate) tree: tree_sitter::Tree,
 }
@@ -322,7 +323,7 @@ impl SvgLanguageServer {
     }
 
     /// Parse source, run linter, publish diagnostics, store document state.
-    async fn update_document(&self, uri: Uri, source: String) {
+    async fn update_document(&self, uri: Uri, source: String, version: i32) {
         let tree = {
             let mut parser = self.parser.write().await;
             parser.parse(source.as_bytes(), None)
@@ -333,23 +334,23 @@ impl SvgLanguageServer {
             return;
         };
 
-        let source_bytes = source.as_bytes();
+        let state = DocumentState {
+            version,
+            source,
+            tree,
+        };
+        let source_bytes = state.source.as_bytes();
         let overrides = {
             let compat = self.runtime_compat.read().await;
             compat.as_ref().map(RuntimeCompat::to_lint_overrides)
         };
-        let lint_diags = svg_lint::lint_tree(source_bytes, &tree, overrides.as_ref());
-        let lsp_diags = lint_diags
-            .into_iter()
-            .map(|d| lint_diagnostic_to_lsp(source_bytes, d))
-            .collect();
-
+        let lint_diags = svg_lint::lint_tree(source_bytes, &state.tree, overrides.as_ref());
         self.documents
             .write()
             .await
-            .insert(uri.clone(), DocumentState { source, tree });
+            .insert(uri.clone(), state.clone());
 
-        self.client.publish_diagnostics(uri, lsp_diags, None).await;
+        publish_lint_diagnostics(&self.client, uri, source_bytes, lint_diags, Some(version)).await;
     }
 
     async fn copy_svg_as_data_uri(&self, uri: &Uri) -> std::result::Result<(), String> {
@@ -397,21 +398,36 @@ impl LanguageServer for SvgLanguageServer {
                         "runtime compat data loaded"
                     );
                     // Re-lint open documents with fresh compat overrides.
+                    let overrides = {
+                        let c = compat.read().await;
+                        c.as_ref().map(RuntimeCompat::to_lint_overrides)
+                    };
                     let snapshot: Vec<_> = {
                         let docs = documents.read().await;
                         docs.iter()
                             .map(|(uri, doc)| (uri.clone(), doc.clone()))
                             .collect()
                     };
-                    let overrides = {
-                        let c = compat.read().await;
-                        c.as_ref().map(RuntimeCompat::to_lint_overrides)
-                    };
                     for (uri, doc) in snapshot {
                         let source_bytes = doc.source.as_bytes();
                         let lint_diags =
                             svg_lint::lint_tree(source_bytes, &doc.tree, overrides.as_ref());
-                        publish_lint_diagnostics(&client, uri, source_bytes, lint_diags).await;
+                        let is_current = {
+                            let docs = documents.read().await;
+                            docs.get(&uri).is_some_and(|current| {
+                                current.version == doc.version && current.source == doc.source
+                            })
+                        };
+                        if is_current {
+                            publish_lint_diagnostics(
+                                &client,
+                                uri,
+                                source_bytes,
+                                lint_diags,
+                                Some(doc.version),
+                            )
+                            .await;
+                        }
                     }
                 }
                 Ok(None) => {
@@ -436,15 +452,23 @@ impl LanguageServer for SvgLanguageServer {
 
     async fn did_open(&self, params: DidOpenTextDocumentParams) {
         tracing::debug!(uri = ?params.text_document.uri, "did_open");
-        self.update_document(params.text_document.uri, params.text_document.text)
-            .await;
+        self.update_document(
+            params.text_document.uri,
+            params.text_document.text,
+            params.text_document.version,
+        )
+        .await;
     }
 
     async fn did_change(&self, params: DidChangeTextDocumentParams) {
         if let Some(change) = params.content_changes.into_iter().last() {
             tracing::debug!(uri = ?params.text_document.uri, "did_change");
-            self.update_document(params.text_document.uri, change.text)
-                .await;
+            self.update_document(
+                params.text_document.uri,
+                change.text,
+                params.text_document.version,
+            )
+            .await;
         }
     }
 

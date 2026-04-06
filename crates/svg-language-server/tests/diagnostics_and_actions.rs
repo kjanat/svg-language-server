@@ -70,6 +70,11 @@ fn missing_reference_diagnostics_and_code_actions() -> TestResult {
         wait_for_notification(&mut server, "textDocument/publishDiagnostics", |msg| {
             msg["params"]["uri"].as_str() == Some("file:///missing-ref.svg")
         });
+    assert_eq!(
+        missing_ref_diags["params"]["version"].as_i64(),
+        Some(1),
+        "publishDiagnostics should include document version 1: {missing_ref_diags}"
+    );
     let missing_ref_list = missing_ref_diags["params"]["diagnostics"]
         .as_array()
         .ok_or("publishDiagnostics should include an array")?;
@@ -215,6 +220,11 @@ fn invalid_svg_publishes_diagnostics() -> TestResult {
     let msg = wait_for_notification(&mut server, "textDocument/publishDiagnostics", |msg| {
         msg["params"]["uri"].as_str() == Some("file:///invalid.svg")
     });
+    assert_eq!(
+        msg["params"]["version"].as_i64(),
+        Some(1),
+        "publishDiagnostics should include document version 1: {msg}"
+    );
     let diags = msg["params"]["diagnostics"]
         .as_array()
         .ok_or("diagnostics should be array")?;
@@ -248,6 +258,52 @@ fn invalid_svg_publishes_diagnostics() -> TestResult {
         first_diag["range"]["start"]["character"].as_u64(),
         Some(circle_start),
         "invalid child range should point at the nested tag name: {msg}"
+    );
+
+    server.shutdown_and_exit()?;
+    Ok(())
+}
+
+#[test]
+fn diagnostics_version_tracks_document_changes() -> TestResult {
+    let mut server = TestServer::start()?;
+
+    let invalid_svg = r"<svg><rect><circle/></rect></svg>";
+    server.open("file:///versioned.svg", invalid_svg)?;
+
+    let first = wait_for_notification(&mut server, "textDocument/publishDiagnostics", |msg| {
+        msg["params"]["uri"].as_str() == Some("file:///versioned.svg")
+    });
+    assert_eq!(
+        first["params"]["version"].as_i64(),
+        Some(1),
+        "first publishDiagnostics should use version 1: {first}"
+    );
+
+    let valid_svg = r"<svg><rect /></svg>";
+    server.notify(
+        "textDocument/didChange",
+        &json!({
+            "textDocument": {
+                "uri": "file:///versioned.svg",
+                "version": 2
+            },
+            "contentChanges": [{
+                "text": valid_svg
+            }]
+        }),
+    )?;
+
+    let second = wait_for_notification(&mut server, "textDocument/publishDiagnostics", |msg| {
+        msg["params"]["uri"].as_str() == Some("file:///versioned.svg")
+            && msg["params"]["version"].as_i64() == Some(2)
+    });
+    let diags = second["params"]["diagnostics"]
+        .as_array()
+        .ok_or("diagnostics should be array")?;
+    assert!(
+        diags.is_empty(),
+        "updated valid document should clear diagnostics at version 2: {second}"
     );
 
     server.shutdown_and_exit()?;

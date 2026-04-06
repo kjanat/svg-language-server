@@ -5,6 +5,7 @@
 - Rust nightly (pinned in `rust-toolchain.toml`)
 - [just](https://github.com/casey/just)
 - [dprint](https://dprint.dev/)
+- [bun](https://bun.sh/)
 
 ## Quick start
 

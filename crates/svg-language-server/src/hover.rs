@@ -1,12 +1,12 @@
 use std::{fmt::Write as _, sync::LazyLock};
 
-use svg_data::{BaselineStatus, BrowserSupport};
+use svg_data::{BaselineStatus, BrowserSupport, BrowserVersion};
 use tower_lsp_server::ls_types::Uri;
 use url::Url;
 
 use crate::{
     clipboard::svg_data_uri,
-    compat::{CompatOverride, RuntimeBrowserSupport},
+    compat::{CompatOverride, RuntimeBrowserSupport, RuntimeBrowserVersion},
     positions::byte_offset_for_row_col,
     stylesheets::{ClassDefinitionHover, CustomPropertyDefinitionHover},
 };
@@ -518,31 +518,40 @@ fn format_unsupported_browsers_line(
     if baked.is_none() && runtime.is_none() {
         return None;
     }
-    let is_unsupported = |baked_ver: Option<&str>, rt_ver: Option<Option<&str>>| -> bool {
-        rt_ver.map_or_else(|| baked_ver.is_none(), |version| version.is_none())
-    };
     let mut unsupported = Vec::new();
-    if is_unsupported(
-        baked.and_then(|b| b.chrome),
-        runtime.map(|r| r.chrome.as_deref()),
+    if matches!(
+        effective_browser_version(
+            baked.and_then(|b| b.chrome),
+            runtime_browser_override(runtime, |support| support.chrome.as_ref()),
+        ),
+        BrowserVersionView::Unsupported
     ) {
         unsupported.push("Chrome");
     }
-    if is_unsupported(
-        baked.and_then(|b| b.edge),
-        runtime.map(|r| r.edge.as_deref()),
+    if matches!(
+        effective_browser_version(
+            baked.and_then(|b| b.edge),
+            runtime_browser_override(runtime, |support| support.edge.as_ref()),
+        ),
+        BrowserVersionView::Unsupported
     ) {
         unsupported.push("Edge");
     }
-    if is_unsupported(
-        baked.and_then(|b| b.firefox),
-        runtime.map(|r| r.firefox.as_deref()),
+    if matches!(
+        effective_browser_version(
+            baked.and_then(|b| b.firefox),
+            runtime_browser_override(runtime, |support| support.firefox.as_ref()),
+        ),
+        BrowserVersionView::Unsupported
     ) {
         unsupported.push("Firefox");
     }
-    if is_unsupported(
-        baked.and_then(|b| b.safari),
-        runtime.map(|r| r.safari.as_deref()),
+    if matches!(
+        effective_browser_version(
+            baked.and_then(|b| b.safari),
+            runtime_browser_override(runtime, |support| support.safari.as_ref()),
+        ),
+        BrowserVersionView::Unsupported
     ) {
         unsupported.push("Safari");
     }
@@ -557,33 +566,132 @@ fn format_browser_support_line(
     baked: Option<&BrowserSupport>,
     runtime: Option<&RuntimeBrowserSupport>,
 ) -> String {
-    let fmt = |name: &str, baked_ver: Option<&str>, rt_ver: Option<Option<&str>>| -> String {
-        rt_ver.map_or(baked_ver, |value| value).map_or_else(
-            || format!("{name} \u{2717}"),
-            |version| format!("{name} {version}"),
-        )
+    let fmt = |name: &str,
+               baked_ver: Option<BrowserVersion>,
+               rt_ver: RuntimeBrowserOverride<'_>|
+     -> String {
+        match effective_browser_version(baked_ver, rt_ver) {
+            BrowserVersionView::Unsupported => format!("{name} \u{2717}"),
+            BrowserVersionView::SupportedUnknown => format!("{name} supported"),
+            BrowserVersionView::Version(version) => format!("{name} {version}"),
+        }
     };
 
     let chrome = fmt(
         "Chrome",
         baked.and_then(|b| b.chrome),
-        runtime.map(|r| r.chrome.as_deref()),
+        runtime_browser_override(runtime, |support| support.chrome.as_ref()),
     );
     let edge = fmt(
         "Edge",
         baked.and_then(|b| b.edge),
-        runtime.map(|r| r.edge.as_deref()),
+        runtime_browser_override(runtime, |support| support.edge.as_ref()),
     );
     let firefox = fmt(
         "Firefox",
         baked.and_then(|b| b.firefox),
-        runtime.map(|r| r.firefox.as_deref()),
+        runtime_browser_override(runtime, |support| support.firefox.as_ref()),
     );
     let safari = fmt(
         "Safari",
         baked.and_then(|b| b.safari),
-        runtime.map(|r| r.safari.as_deref()),
+        runtime_browser_override(runtime, |support| support.safari.as_ref()),
     );
 
     format!("{chrome} | {edge} | {firefox} | {safari}")
+}
+
+#[derive(Clone, Copy)]
+enum BrowserVersionView<'a> {
+    Unsupported,
+    SupportedUnknown,
+    Version(&'a str),
+}
+
+#[derive(Clone, Copy)]
+enum RuntimeBrowserOverride<'a> {
+    Missing,
+    Unsupported,
+    Supported(&'a RuntimeBrowserVersion),
+}
+
+const fn baked_browser_version(version: Option<BrowserVersion>) -> BrowserVersionView<'static> {
+    match version {
+        None => BrowserVersionView::Unsupported,
+        Some(BrowserVersion::Unknown) => BrowserVersionView::SupportedUnknown,
+        Some(BrowserVersion::Version(version)) => BrowserVersionView::Version(version),
+    }
+}
+
+fn effective_browser_version(
+    baked: Option<BrowserVersion>,
+    runtime: RuntimeBrowserOverride<'_>,
+) -> BrowserVersionView<'_> {
+    match runtime {
+        RuntimeBrowserOverride::Missing => baked_browser_version(baked),
+        RuntimeBrowserOverride::Unsupported => BrowserVersionView::Unsupported,
+        RuntimeBrowserOverride::Supported(RuntimeBrowserVersion::Version(version)) => {
+            BrowserVersionView::Version(version)
+        }
+        RuntimeBrowserOverride::Supported(RuntimeBrowserVersion::Unknown) => match baked {
+            Some(BrowserVersion::Version(version)) => BrowserVersionView::Version(version),
+            _ => BrowserVersionView::SupportedUnknown,
+        },
+    }
+}
+
+fn runtime_browser_override<'a>(
+    runtime: Option<&'a RuntimeBrowserSupport>,
+    get: impl FnOnce(&'a RuntimeBrowserSupport) -> Option<&'a RuntimeBrowserVersion>,
+) -> RuntimeBrowserOverride<'a> {
+    runtime.map_or(RuntimeBrowserOverride::Missing, |runtime| {
+        get(runtime).map_or(RuntimeBrowserOverride::Unsupported, |version| {
+            RuntimeBrowserOverride::Supported(version)
+        })
+    })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn unknown_browser_version_is_shown_as_supported() {
+        let baked = BrowserSupport {
+            chrome: Some(BrowserVersion::Unknown),
+            edge: None,
+            firefox: None,
+            safari: None,
+        };
+
+        assert_eq!(
+            format_unsupported_browsers_line(Some(&baked), None),
+            Some("Not supported in: Edge, Firefox, Safari".to_owned())
+        );
+        assert_eq!(
+            format_browser_support_line(Some(&baked), None),
+            "Chrome supported | Edge ✗ | Firefox ✗ | Safari ✗"
+        );
+    }
+
+    #[test]
+    fn runtime_unknown_version_keeps_baked_known_version() {
+        let baked = BrowserSupport {
+            chrome: Some(BrowserVersion::Version("120")),
+            edge: None,
+            firefox: None,
+            safari: None,
+        };
+        let runtime = RuntimeBrowserSupport {
+            chrome: Some(RuntimeBrowserVersion::Unknown),
+            edge: None,
+            firefox: None,
+            safari: None,
+        };
+
+        assert_eq!(
+            format_browser_support_line(Some(&baked), Some(&runtime)),
+            "Chrome 120 | Edge ✗ | Firefox ✗ | Safari ✗"
+        );
+    }
 }

@@ -29,8 +29,8 @@ use std::{collections::HashMap, sync::LazyLock};
 
 use catalog::{ATTRIBUTES, ELEMENTS};
 pub use types::{
-    AttributeDef, AttributeValues, BaselineStatus, BrowserSupport, ContentModel, ElementCategory,
-    ElementDef,
+    AttributeDef, AttributeValues, BaselineStatus, BrowserSupport, BrowserVersion, ContentModel,
+    ElementCategory, ElementDef,
 };
 
 static ELEMENT_MAP: LazyLock<HashMap<&'static str, &'static ElementDef>> =

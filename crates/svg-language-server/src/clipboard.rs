@@ -1,7 +1,12 @@
 use std::{
-    io::Write as _,
+    io::{Read as _, Write as _},
     process::{Command as ProcessCommand, Stdio},
+    thread,
+    time::{Duration, Instant},
 };
+
+const CLIPBOARD_COMMAND_TIMEOUT: Duration = Duration::from_secs(5);
+const CLIPBOARD_POLL_INTERVAL: Duration = Duration::from_millis(25);
 
 struct ClipboardCommandSpec {
     program: &'static str,
@@ -91,7 +96,7 @@ fn run_clipboard_command(
         .map_err(|err| err.to_string())?;
     drop(stdin);
 
-    let output = child.wait_with_output().map_err(|err| err.to_string())?;
+    let output = wait_with_output_timeout(child)?;
     if output.status.success() {
         return Ok(());
     }
@@ -101,6 +106,47 @@ fn run_clipboard_command(
         Err(format!("exited with status {}", output.status))
     } else {
         Err(stderr)
+    }
+}
+
+fn wait_with_output_timeout(
+    mut child: std::process::Child,
+) -> std::result::Result<std::process::Output, String> {
+    let deadline = Instant::now() + CLIPBOARD_COMMAND_TIMEOUT;
+
+    loop {
+        match child.try_wait().map_err(|err| err.to_string())? {
+            Some(status) if status.success() => {
+                return Ok(std::process::Output {
+                    status,
+                    stdout: Vec::new(),
+                    stderr: Vec::new(),
+                });
+            }
+            Some(status) => {
+                let mut stderr = Vec::new();
+                if let Some(mut stderr_pipe) = child.stderr.take() {
+                    stderr_pipe
+                        .read_to_end(&mut stderr)
+                        .map_err(|err| err.to_string())?;
+                }
+                return Ok(std::process::Output {
+                    status,
+                    stdout: Vec::new(),
+                    stderr,
+                });
+            }
+            None if Instant::now() < deadline => thread::sleep(CLIPBOARD_POLL_INTERVAL),
+            None => {
+                let _ = child.kill();
+                let output = child.wait_with_output().map_err(|err| err.to_string())?;
+                let stderr = String::from_utf8_lossy(&output.stderr).trim().to_owned();
+                if stderr.is_empty() {
+                    return Err("clipboard command timed out".to_owned());
+                }
+                return Err(format!("clipboard command timed out: {stderr}"));
+            }
+        }
     }
 }
 

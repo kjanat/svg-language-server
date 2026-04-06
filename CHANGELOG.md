@@ -48,8 +48,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   359.6 from becoming 360
 - `SpecUrl::first()` uses `urls.first().map_or()` to avoid panic on
   empty `Vec`
-- Grammar load failures now panic with clear messages instead of silently
-  returning empty results
+- Grammar load failures are now surfaced or safely fall back instead of
+  silently returning empty results
 - `parse_attribute` in formatter uses sequential `if let` instead of
   nested `map_or_else` closures
 - `tag_parse` canonical ordering uses `u16::try_from(i).ok()` instead of

@@ -1,6 +1,6 @@
 use std::fmt::Write as _;
 
-use super::{BaselineValue, BrowserSupportValue};
+use super::{BaselineValue, BrowserSupportValue, BrowserVersionValue};
 
 pub fn escape(s: &str) -> String {
     s.chars().flat_map(char::escape_default).collect()
@@ -48,11 +48,21 @@ pub fn format_browser_support(bs: Option<&BrowserSupportValue>) -> String {
     };
     format!(
         "Some(BrowserSupport {{ chrome: {}, edge: {}, firefox: {}, safari: {} }})",
-        format_option_str(bs.chrome.as_deref()),
-        format_option_str(bs.edge.as_deref()),
-        format_option_str(bs.firefox.as_deref()),
-        format_option_str(bs.safari.as_deref()),
+        format_browser_version(bs.chrome.as_ref()),
+        format_browser_version(bs.edge.as_ref()),
+        format_browser_version(bs.firefox.as_ref()),
+        format_browser_version(bs.safari.as_ref()),
     )
+}
+
+fn format_browser_version(value: Option<&BrowserVersionValue>) -> String {
+    match value {
+        None => "None".to_string(),
+        Some(BrowserVersionValue::Unknown) => "Some(BrowserVersion::Unknown)".to_string(),
+        Some(BrowserVersionValue::Version(version)) => {
+            format!("Some(BrowserVersion::Version(\"{}\"))", escape(version))
+        }
+    }
 }
 
 pub fn format_option_str(value: Option<&str>) -> String {

@@ -58,6 +58,9 @@ struct Cli {
 
     #[arg(long, value_enum, default_value_t = BlankLines::Truncate)]
     blank_lines: BlankLines,
+
+    #[arg(long = "ignore-prefix", value_name = "PREFIX")]
+    ignore_prefixes: Vec<String>,
 }
 
 #[derive(Args, Debug)]
@@ -132,7 +135,7 @@ fn run() -> Result<ExitCode, String> {
         wrapped_attribute_indent: cli.wrapped_attribute_indent,
         text_content: cli.text_content,
         blank_lines: cli.blank_lines,
-        ignore_prefixes: defaults.ignore_prefixes,
+        ignore_prefixes: merge_ignore_prefixes(defaults.ignore_prefixes, cli.ignore_prefixes),
     };
 
     let input = match (read_stdin, cli.path.as_ref()) {
@@ -165,7 +168,7 @@ fn run() -> Result<ExitCode, String> {
     if cli.io.in_place {
         if changed {
             let Some(path) = cli.path.as_ref() else {
-                return Err("--in-place requires FILE input".to_string());
+                unreachable!("--in-place requires FILE input");
             };
             fs::write(path, formatted)
                 .map_err(|err| format!("failed writing '{}': {err}", path.display()))?;
@@ -178,6 +181,15 @@ fn run() -> Result<ExitCode, String> {
         .write_all(formatted.as_bytes())
         .map_err(|err| format!("failed writing stdout: {err}"))?;
     Ok(ExitCode::SUCCESS)
+}
+
+fn merge_ignore_prefixes(mut defaults: Vec<String>, extra: Vec<String>) -> Vec<String> {
+    for prefix in extra {
+        if !defaults.iter().any(|existing| existing == &prefix) {
+            defaults.push(prefix);
+        }
+    }
+    defaults
 }
 
 fn main() -> ExitCode {

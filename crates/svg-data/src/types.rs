@@ -114,20 +114,32 @@ pub enum BaselineStatus {
     Limited,
 }
 
-/// Per-browser `version_added` for the four major desktop browsers.
+/// Browser support status for a single browser.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BrowserVersion {
+    /// The feature is supported, but the first version is unknown.
+    Unknown,
+    /// The feature is supported starting with the given version.
+    Version(&'static str),
+}
+
+/// Per-browser support data for the four major desktop browsers.
 ///
 /// `None` means the browser does not support the feature.
-/// `Some("85")` means support was added in that version.
+/// `Some(BrowserVersion::Unknown)` means support is known but the first
+/// version is not.
+/// `Some(BrowserVersion::Version("85"))` means support was added in that
+/// version.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct BrowserSupport {
-    /// Chrome desktop `version_added`.
-    pub chrome: Option<&'static str>,
-    /// Edge desktop `version_added`.
-    pub edge: Option<&'static str>,
-    /// Firefox desktop `version_added`.
-    pub firefox: Option<&'static str>,
-    /// Safari desktop `version_added`.
-    pub safari: Option<&'static str>,
+    /// Chrome desktop support data.
+    pub chrome: Option<BrowserVersion>,
+    /// Edge desktop support data.
+    pub edge: Option<BrowserVersion>,
+    /// Firefox desktop support data.
+    pub firefox: Option<BrowserVersion>,
+    /// Safari desktop support data.
+    pub safari: Option<BrowserVersion>,
 }
 
 /// SVG element categories for content model grouping.

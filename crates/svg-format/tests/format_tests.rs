@@ -39,6 +39,17 @@ fn preserves_style_block_content_shape() {
 }
 
 #[test]
+fn text_content_collapse_applies_to_embedded_style_without_host() {
+    let input = "<svg><style>\n  .a   {   fill: red; }\n</style></svg>";
+    let options = FormatOptions {
+        text_content: TextContentMode::Collapse,
+        ..Default::default()
+    };
+    let expected = "<svg>\n\t<style>\n\t\t.a { fill: red; }\n\t</style>\n</svg>";
+    assert_eq!(format_with_options(input, options), expected);
+}
+
+#[test]
 fn attribute_sort_none_preserves_input_order() {
     let input = r#"<svg><rect y="2" width="4" class="hero" id="x" x="1" height="5"/></svg>"#;
     let options = FormatOptions {
@@ -134,6 +145,24 @@ fn text_content_maintain_preserves_relative_indentation() {
         ..Default::default()
     };
     let expected = "<svg>\n\t<text>\n\t\thello\n\t\t  world\n\t</text>\n</svg>";
+    assert_eq!(format_with_options(input, options), expected);
+}
+
+#[test]
+fn text_content_maintain_keeps_blank_lines_with_default_truncate() {
+    let input = "<svg><text>\nalpha\n\n\nbeta\n</text></svg>";
+    let expected = "<svg>\n\t<text>\n\t\talpha\n\t\t\n\t\t\n\t\tbeta\n\t</text>\n</svg>";
+    assert_eq!(format(input), expected);
+}
+
+#[test]
+fn text_content_maintain_ignores_blank_line_remove_mode() {
+    let input = "<svg><text>\nalpha\n\n\nbeta\n</text></svg>";
+    let options = FormatOptions {
+        blank_lines: BlankLines::Remove,
+        ..Default::default()
+    };
+    let expected = "<svg>\n\t<text>\n\t\talpha\n\t\t\n\t\t\n\t\tbeta\n\t</text>\n</svg>";
     assert_eq!(format_with_options(input, options), expected);
 }
 

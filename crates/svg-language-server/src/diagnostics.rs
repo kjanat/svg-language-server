@@ -9,12 +9,13 @@ pub async fn publish_lint_diagnostics(
     uri: tower_lsp_server::ls_types::Uri,
     source: &[u8],
     diagnostics: Vec<svg_lint::SvgDiagnostic>,
+    version: Option<i32>,
 ) {
     let lsp_diags = diagnostics
         .into_iter()
         .map(|d| lint_diagnostic_to_lsp(source, d))
         .collect();
-    client.publish_diagnostics(uri, lsp_diags, None).await;
+    client.publish_diagnostics(uri, lsp_diags, version).await;
 }
 
 pub fn lint_diagnostic_to_lsp(source: &[u8], diagnostic: svg_lint::SvgDiagnostic) -> Diagnostic {

@@ -336,31 +336,29 @@ fn merge_browser_support(existing: &mut Option<BrowserSupportValue>, new: &Brows
         return;
     };
 
-    if new.chrome.is_none() {
-        existing.chrome = None;
-    }
-    if new.edge.is_none() {
-        existing.edge = None;
-    }
-    if new.firefox.is_none() {
-        existing.firefox = None;
-    }
-    if new.safari.is_none() {
-        existing.safari = None;
-    }
+    merge_browser_version(&mut existing.chrome, new.chrome.as_ref());
+    merge_browser_version(&mut existing.edge, new.edge.as_ref());
+    merge_browser_version(&mut existing.firefox, new.firefox.as_ref());
+    merge_browser_version(&mut existing.safari, new.safari.as_ref());
 }
 
 fn extract_browser_support(compat: &serde_json::Value) -> Option<BrowserSupportValue> {
     let support = compat.get("support")?;
 
-    let version_added = |browser: &str| -> Option<String> {
+    let version_added = |browser: &str| -> Option<super::BrowserVersionValue> {
         let entry = support.get(browser)?;
         let stmt = if entry.is_array() {
             entry.get(0)?
         } else {
             entry
         };
-        stmt.get("version_added")?.as_str().map(String::from)
+        match stmt.get("version_added")? {
+            serde_json::Value::Bool(true) => Some(super::BrowserVersionValue::Unknown),
+            serde_json::Value::String(version) => {
+                Some(super::BrowserVersionValue::Version(version.clone()))
+            }
+            _ => None,
+        }
     };
 
     let value = BrowserSupportValue {
@@ -378,6 +376,67 @@ fn extract_browser_support(compat: &serde_json::Value) -> Option<BrowserSupportV
     } else {
         Some(value)
     }
+}
+
+fn merge_browser_version(
+    existing: &mut Option<super::BrowserVersionValue>,
+    new: Option<&super::BrowserVersionValue>,
+) {
+    let Some(new) = new else {
+        *existing = None;
+        return;
+    };
+
+    let Some(current) = existing.as_ref() else {
+        *existing = Some(new.clone());
+        return;
+    };
+
+    match (current, new) {
+        (super::BrowserVersionValue::Unknown, super::BrowserVersionValue::Version(version)) => {
+            *existing = Some(super::BrowserVersionValue::Version(version.clone()));
+        }
+        (
+            super::BrowserVersionValue::Version(current),
+            super::BrowserVersionValue::Version(new),
+        ) if compare_browser_versions(new, current).is_gt() => {
+            *existing = Some(super::BrowserVersionValue::Version(new.clone()));
+        }
+        _ => {}
+    }
+}
+
+fn compare_browser_versions(left: &str, right: &str) -> std::cmp::Ordering {
+    let Some((left_upper_bound, left_parts)) = parse_browser_version(left) else {
+        return std::cmp::Ordering::Equal;
+    };
+    let Some((right_upper_bound, right_parts)) = parse_browser_version(right) else {
+        return std::cmp::Ordering::Equal;
+    };
+
+    let max_len = left_parts.len().max(right_parts.len());
+    for idx in 0..max_len {
+        let left_part = left_parts.get(idx).copied().unwrap_or(0);
+        let right_part = right_parts.get(idx).copied().unwrap_or(0);
+        match left_part.cmp(&right_part) {
+            std::cmp::Ordering::Equal => {}
+            non_eq => return non_eq,
+        }
+    }
+
+    (!left_upper_bound).cmp(&!right_upper_bound)
+}
+
+fn parse_browser_version(version: &str) -> Option<(bool, Vec<u32>)> {
+    let (upper_bound, version) = version
+        .strip_prefix('≤')
+        .map_or((false, version), |version| (true, version));
+    let parts = version
+        .split('.')
+        .map(str::parse)
+        .collect::<Result<Vec<u32>, _>>()
+        .ok()?;
+    Some((upper_bound, parts))
 }
 
 fn extract_spec_url(compat: &serde_json::Value) -> Option<String> {

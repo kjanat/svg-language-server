@@ -2,13 +2,22 @@ use std::{collections::HashMap, time::Duration};
 
 use svg_data::BaselineStatus;
 
+/// Runtime support state for a single browser.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum RuntimeBrowserVersion {
+    /// The browser supports the feature, but the first version is unknown.
+    Unknown,
+    /// The browser supports the feature starting with the given version.
+    Version(String),
+}
+
 /// Runtime per-browser version data (owned strings, unlike `BrowserSupport`).
 #[derive(Clone)]
 pub struct RuntimeBrowserSupport {
-    pub chrome: Option<String>,
-    pub edge: Option<String>,
-    pub firefox: Option<String>,
-    pub safari: Option<String>,
+    pub chrome: Option<RuntimeBrowserVersion>,
+    pub edge: Option<RuntimeBrowserVersion>,
+    pub firefox: Option<RuntimeBrowserVersion>,
+    pub safari: Option<RuntimeBrowserVersion>,
 }
 
 /// Runtime compat override for a single element or attribute.
@@ -183,13 +192,24 @@ fn compat_override(
     wf_features: Option<&serde_json::Value>,
     compat_key: &str,
 ) -> CompatOverride {
-    let browser_support =
-        svg_data::compat_parse::extract_browser_versions(compat).map(|bv| RuntimeBrowserSupport {
-            chrome: bv.chrome,
-            edge: bv.edge,
-            firefox: bv.firefox,
-            safari: bv.safari,
-        });
+    let browser_support = svg_data::compat_parse::extract_browser_versions(compat).map(|bv| {
+        let map_browser_version = |version| match version {
+            Some(svg_data::compat_parse::BrowserVersion::Unknown) => {
+                Some(RuntimeBrowserVersion::Unknown)
+            }
+            Some(svg_data::compat_parse::BrowserVersion::Version(version)) => {
+                Some(RuntimeBrowserVersion::Version(version))
+            }
+            None => None,
+        };
+
+        RuntimeBrowserSupport {
+            chrome: map_browser_version(bv.chrome),
+            edge: map_browser_version(bv.edge),
+            firefox: map_browser_version(bv.firefox),
+            safari: map_browser_version(bv.safari),
+        }
+    });
     CompatOverride {
         deprecated: compat
             .pointer("/status/deprecated")
@@ -251,26 +271,36 @@ fn merge_runtime_browser_support(
         return;
     };
 
-    merge_runtime_browser_version(&mut existing.chrome, new.chrome.as_deref());
-    merge_runtime_browser_version(&mut existing.edge, new.edge.as_deref());
-    merge_runtime_browser_version(&mut existing.firefox, new.firefox.as_deref());
-    merge_runtime_browser_version(&mut existing.safari, new.safari.as_deref());
+    merge_runtime_browser_version(&mut existing.chrome, new.chrome.as_ref());
+    merge_runtime_browser_version(&mut existing.edge, new.edge.as_ref());
+    merge_runtime_browser_version(&mut existing.firefox, new.firefox.as_ref());
+    merge_runtime_browser_version(&mut existing.safari, new.safari.as_ref());
 }
 
-fn merge_runtime_browser_version(existing: &mut Option<String>, new: Option<&str>) {
-    let Some(current) = existing.as_deref() else {
-        if let Some(new) = new {
-            *existing = Some(new.to_owned());
-        }
-        return;
-    };
+fn merge_runtime_browser_version(
+    existing: &mut Option<RuntimeBrowserVersion>,
+    new: Option<&RuntimeBrowserVersion>,
+) {
     let Some(new) = new else {
         *existing = None;
         return;
     };
 
-    if compare_browser_versions(new, current).is_gt() {
-        *existing = Some(new.to_owned());
+    let Some(current) = existing.as_ref() else {
+        *existing = Some(new.clone());
+        return;
+    };
+
+    match (current, new) {
+        (RuntimeBrowserVersion::Unknown, RuntimeBrowserVersion::Version(version)) => {
+            *existing = Some(RuntimeBrowserVersion::Version(version.clone()));
+        }
+        (RuntimeBrowserVersion::Version(current), RuntimeBrowserVersion::Version(new))
+            if compare_browser_versions(new, current).is_gt() =>
+        {
+            *existing = Some(RuntimeBrowserVersion::Version(new.clone()));
+        }
+        _ => {}
     }
 }
 
@@ -327,9 +357,14 @@ const fn baseline_since(baseline: BaselineStatus) -> u16 {
 #[cfg(test)]
 mod tests {
     use super::{
-        BaselineStatus, RuntimeBrowserSupport, apply_global_attribute_overrides,
-        collect_element_attribute_overrides, merge_baseline, merge_runtime_browser_support,
+        BaselineStatus, RuntimeBrowserSupport, RuntimeBrowserVersion,
+        apply_global_attribute_overrides, collect_element_attribute_overrides, merge_baseline,
+        merge_runtime_browser_support,
     };
+
+    fn known(version: &str) -> RuntimeBrowserVersion {
+        RuntimeBrowserVersion::Version(version.to_owned())
+    }
 
     #[test]
     fn merge_baseline_prefers_worse_rank() {
@@ -348,16 +383,16 @@ mod tests {
     #[test]
     fn merge_browser_support_prefers_later_and_stricter_versions() {
         let mut existing = Some(RuntimeBrowserSupport {
-            chrome: Some("120".to_owned()),
-            edge: Some("120".to_owned()),
-            firefox: Some("115".to_owned()),
-            safari: Some("≤17.2".to_owned()),
+            chrome: Some(known("120")),
+            edge: Some(known("120")),
+            firefox: Some(known("115")),
+            safari: Some(known("≤17.2")),
         });
         let new = RuntimeBrowserSupport {
-            chrome: Some("127".to_owned()),
-            edge: Some("118".to_owned()),
-            firefox: Some("115".to_owned()),
-            safari: Some("17.2".to_owned()),
+            chrome: Some(known("127")),
+            edge: Some(known("118")),
+            firefox: Some(known("115")),
+            safari: Some(known("17.2")),
         };
 
         merge_runtime_browser_support(&mut existing, &new);
@@ -365,36 +400,34 @@ mod tests {
         assert_eq!(
             existing
                 .as_ref()
-                .and_then(|support| support.chrome.as_deref()),
-            Some("127")
+                .and_then(|support| support.chrome.as_ref()),
+            Some(&known("127"))
+        );
+        assert_eq!(
+            existing.as_ref().and_then(|support| support.edge.as_ref()),
+            Some(&known("120"))
         );
         assert_eq!(
             existing
                 .as_ref()
-                .and_then(|support| support.edge.as_deref()),
-            Some("120")
-        );
-        assert_eq!(
-            existing
-                .as_ref()
-                .and_then(|support| support.safari.as_deref()),
-            Some("17.2")
+                .and_then(|support| support.safari.as_ref()),
+            Some(&known("17.2"))
         );
     }
 
     #[test]
     fn merge_browser_support_keeps_none_as_worst_case() {
         let mut existing = Some(RuntimeBrowserSupport {
-            chrome: Some("120".to_owned()),
-            edge: Some("120".to_owned()),
-            firefox: Some("115".to_owned()),
-            safari: Some("17.2".to_owned()),
+            chrome: Some(known("120")),
+            edge: Some(known("120")),
+            firefox: Some(known("115")),
+            safari: Some(known("17.2")),
         });
         let new = RuntimeBrowserSupport {
             chrome: None,
-            edge: Some("118".to_owned()),
-            firefox: Some("114".to_owned()),
-            safari: Some("17.0".to_owned()),
+            edge: Some(known("118")),
+            firefox: Some(known("114")),
+            safari: Some(known("17.0")),
         };
 
         merge_runtime_browser_support(&mut existing, &new);
@@ -402,14 +435,37 @@ mod tests {
         assert_eq!(
             existing
                 .as_ref()
-                .and_then(|support| support.chrome.as_deref()),
+                .and_then(|support| support.chrome.as_ref()),
             None
         );
         assert_eq!(
+            existing.as_ref().and_then(|support| support.edge.as_ref()),
+            Some(&known("120"))
+        );
+    }
+
+    #[test]
+    fn merge_browser_support_keeps_known_version_over_unknown() {
+        let mut existing = Some(RuntimeBrowserSupport {
+            chrome: Some(known("120")),
+            edge: Some(known("120")),
+            firefox: Some(known("115")),
+            safari: Some(known("17.2")),
+        });
+        let new = RuntimeBrowserSupport {
+            chrome: Some(RuntimeBrowserVersion::Unknown),
+            edge: Some(RuntimeBrowserVersion::Unknown),
+            firefox: Some(RuntimeBrowserVersion::Unknown),
+            safari: Some(RuntimeBrowserVersion::Unknown),
+        };
+
+        merge_runtime_browser_support(&mut existing, &new);
+
+        assert_eq!(
             existing
                 .as_ref()
-                .and_then(|support| support.edge.as_deref()),
-            Some("120")
+                .and_then(|support| support.chrome.as_ref()),
+            Some(&known("120"))
         );
     }
 
@@ -458,8 +514,8 @@ mod tests {
         assert_eq!(
             fill.browser_support
                 .as_ref()
-                .and_then(|s| s.chrome.as_deref()),
-            Some("50"),
+                .and_then(|s| s.chrome.as_ref()),
+            Some(&known("50")),
         );
         Ok(())
     }

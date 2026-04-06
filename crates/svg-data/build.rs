@@ -88,12 +88,18 @@ enum ValuesJson {
 
 // ---- Compat data types ----
 
+#[derive(Clone)]
+enum BrowserVersionValue {
+    Unknown,
+    Version(String),
+}
+
 #[derive(Clone, Default)]
 struct BrowserSupportValue {
-    chrome: Option<String>,
-    edge: Option<String>,
-    firefox: Option<String>,
-    safari: Option<String>,
+    chrome: Option<BrowserVersionValue>,
+    edge: Option<BrowserVersionValue>,
+    firefox: Option<BrowserVersionValue>,
+    safari: Option<BrowserVersionValue>,
 }
 
 struct CompatEntry {

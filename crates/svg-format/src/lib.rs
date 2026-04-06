@@ -429,7 +429,16 @@ impl<'a> Formatter<'a> {
                         prev_end = Some(child.end_byte());
                         continue;
                     }
-                    self.write_text_node(child, depth + 1);
+                    if matches!(self.options.text_content, TextContentMode::Maintain)
+                        && matches!(
+                            embedded_lang,
+                            Some(EmbeddedLanguage::Css | EmbeddedLanguage::JavaScript)
+                        )
+                    {
+                        self.write_preserved_embedded_text(child, depth + 1);
+                    } else {
+                        self.write_text_node(child, depth + 1);
+                    }
                     prev_was_comment = false;
                     prev_end = Some(child.end_byte());
                 }
@@ -634,7 +643,38 @@ impl<'a> Formatter<'a> {
         self.write_preserved_str(&text, depth);
     }
 
+    fn write_preserved_embedded_text(&mut self, node: Node<'_>, depth: usize) {
+        let text = self.node_text(node).to_string();
+        self.write_embedded_preserved_str(&text, depth);
+    }
+
     fn write_preserved_str(&mut self, text: &str, depth: usize) {
+        if text.trim().is_empty() {
+            return;
+        }
+
+        let lines: Vec<&str> = text.lines().collect();
+        let first_non_empty = lines.iter().position(|line| !line.trim().is_empty());
+        let last_non_empty = lines.iter().rposition(|line| !line.trim().is_empty());
+        let (Some(start), Some(end)) = (first_non_empty, last_non_empty) else {
+            return;
+        };
+
+        let block = &lines[start..=end];
+        let min_leading = block
+            .iter()
+            .filter(|line| !line.trim().is_empty())
+            .map(|line| line.chars().take_while(|c| c.is_whitespace()).count())
+            .min()
+            .unwrap_or(0);
+
+        for line in block {
+            let without_common_indent = line.chars().skip(min_leading).collect::<String>();
+            self.write_line(depth, without_common_indent.trim_end());
+        }
+    }
+
+    fn write_embedded_preserved_str(&mut self, text: &str, depth: usize) {
         if text.trim().is_empty() {
             return;
         }

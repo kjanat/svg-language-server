@@ -53,34 +53,47 @@ pub fn resolve_baseline(
     parse_baseline_value(status)
 }
 
-/// Per-browser `version_added` strings extracted from BCD support data.
+/// Parsed `version_added` support state for a single browser.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum BrowserVersion {
+    /// The browser supports the feature, but the first version is unknown.
+    Unknown,
+    /// The browser supports the feature starting with the given version.
+    Version(String),
+}
+
+/// Per-browser support data extracted from BCD support data.
 pub struct BrowserVersions {
-    /// Chrome `version_added`.
-    pub chrome: Option<String>,
-    /// Edge `version_added`.
-    pub edge: Option<String>,
-    /// Firefox `version_added`.
-    pub firefox: Option<String>,
-    /// Safari `version_added`.
-    pub safari: Option<String>,
+    /// Chrome support state.
+    pub chrome: Option<BrowserVersion>,
+    /// Edge support state.
+    pub edge: Option<BrowserVersion>,
+    /// Firefox support state.
+    pub firefox: Option<BrowserVersion>,
+    /// Safari support state.
+    pub safari: Option<BrowserVersion>,
 }
 
 /// Extract `support/{browser}/version_added` for the four major browsers.
 ///
-/// Returns `None` for browsers without support data or where the version is
-/// not a string (e.g. `version_added: true` without a concrete version).
+/// Returns `None` for browsers without support data. `version_added: true`
+/// maps to [`BrowserVersion::Unknown`].
 #[must_use]
 pub fn extract_browser_versions(compat: &serde_json::Value) -> Option<BrowserVersions> {
     let support = compat.get("support")?;
 
-    let version_added = |browser: &str| -> Option<String> {
+    let version_added = |browser: &str| -> Option<BrowserVersion> {
         let entry = support.get(browser)?;
         let stmt = if entry.is_array() {
             entry.get(0)?
         } else {
             entry
         };
-        stmt.get("version_added")?.as_str().map(String::from)
+        match stmt.get("version_added")? {
+            serde_json::Value::Bool(true) => Some(BrowserVersion::Unknown),
+            serde_json::Value::String(version) => Some(BrowserVersion::Version(version.clone())),
+            _ => None,
+        }
     };
 
     let versions = BrowserVersions {
@@ -156,9 +169,15 @@ mod tests {
         let versions = extract_browser_versions(&compat);
         assert!(versions.is_some());
         let v = versions.as_ref();
-        assert_eq!(v.and_then(|v| v.chrome.as_deref()), Some("45"));
-        assert_eq!(v.and_then(|v| v.firefox.as_deref()), Some("52"));
-        assert_eq!(v.and_then(|v| v.edge.as_deref()), None);
+        assert_eq!(
+            v.and_then(|v| v.chrome.as_ref()),
+            Some(&BrowserVersion::Version("45".to_owned()))
+        );
+        assert_eq!(
+            v.and_then(|v| v.firefox.as_ref()),
+            Some(&BrowserVersion::Version("52".to_owned()))
+        );
+        assert_eq!(v.and_then(|v| v.edge.as_ref()), None);
     }
 
     #[test]
@@ -178,7 +197,24 @@ mod tests {
             }
         });
         let versions = extract_browser_versions(&compat);
-        assert_eq!(versions.and_then(|v| v.chrome), Some("80".to_owned()));
+        assert_eq!(
+            versions.and_then(|v| v.chrome),
+            Some(BrowserVersion::Version("80".to_owned()))
+        );
+    }
+
+    #[test]
+    fn extract_browser_versions_true_means_supported_unknown_version() {
+        let compat = json!({
+            "support": {
+                "chrome": { "version_added": true }
+            }
+        });
+        let versions = extract_browser_versions(&compat);
+        assert_eq!(
+            versions.and_then(|v| v.chrome),
+            Some(BrowserVersion::Unknown)
+        );
     }
 
     #[test]

@@ -34,13 +34,32 @@ install profile="release":
 
 # Install the svg-format bin to ~/.cargo/bin
 install-format profile="release":
-    cargo install --path crates/svg-format --bin svg-format --profile={{ profile }}
+    cargo install --path crates/svg-format --bin svg-format --features="cli" --profile={{ profile }}
 
 # Clippy all
 [arg("allow-dirty", long="allow-dirty", short="a", value=" --allow-dirty")]
 [arg("fix", long="fix", short="f", value=" --fix")]
 lint fix="" allow-dirty="":
     cargo clippy --workspace --all-targets --all-features{{ fix }}{{ allow-dirty }} -- -D clippy::all
+
+# Filesizes
+filesize:
+    #!/usr/bin/env sh
+    set -e
+    cargo_bloat_missing=0
+    printf '%s\n' '== Rust line counts =='
+    find crates -type f -name '*.rs' -exec wc -l {} \; | sort -rn | head -20
+    printf '%s\n' '== cargo-bloat =='
+    if ! command -v cargo-bloat >/dev/null 2>&1; then
+        cargo_bloat_missing=1
+        printf '%s\n' '(missing cargo-bloat)'
+    else
+        CARGO_TERM_QUIET=true cargo bloat --release --crates --filter svg-language-server || cargo_bloat_missing=1
+    fi
+    if [ "$cargo_bloat_missing" -ne 0 ]; then
+        printf '\n%s\n' "cargo-bloat is required for 'just filesize' and must run successfully. Install/update it with: cargo install cargo-bloat" >&2
+        exit 1
+    fi
 
 # Run all workspace tests
 test *ARGS:
@@ -66,6 +85,7 @@ typecheck:
 ci:
     just check
     just typecheck
+    just dist-check
     just lint
     just test
 
@@ -78,6 +98,10 @@ run-lsp *ARGS:
 [arg("variant", long="variant", short="v")]
 commit model="openai/gpt-5.4" variant="medium" *$MESSAGE:
     opencode run --command commit --model={{ model }} --variant={{ variant }} "$MESSAGE"
+
+# Validate generated dist CI matches checked-in workflow
+dist-check:
+    cargo dist plan --output-format=json > /dev/null
 
 # Preview release artifacts and package layout
 dist-plan *ARGS:

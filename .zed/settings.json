@@ -1,4 +1,15 @@
 {
 	"prettier": { "allowed": false },
-	"formatter": [{ "external": { "command": "dprint", "arguments": ["fmt", "--stdin", "{buffer_path}"] } }]
+	"formatter": [{ "external": { "command": "dprint", "arguments": ["fmt", "--stdin", "{buffer_path}"] } }],
+	"languages": { "Rust": { "wrap_guides": [100] } },
+	"lsp": {
+		"rust-analyzer": {
+			"initialization_options": {
+				"cargo": {
+					"allTargets": true,
+					"features": "all"
+				}
+			}
+		}
+	}
 }

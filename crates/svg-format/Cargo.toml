@@ -15,10 +15,18 @@ name = "svg_format"
 path = "src/lib.rs"
 
 [[bin]]
-name = "svg-format"
-path = "src/main.rs"
+name              = "svg-format"
+path              = "src/main.rs"
+required-features = ["cli"]
 
 [dependencies]
-clap                      = { workspace = true, features = ["derive"] }
+clap                      = { workspace = true, features = ["derive"], optional = true }
 tree-sitter.workspace     = true
 tree-sitter-svg.workspace = true
+
+[features]
+default = ["cli"]
+cli     = ["clap"]
+
+[lints]
+workspace = true

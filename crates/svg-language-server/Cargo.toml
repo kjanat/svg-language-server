@@ -11,6 +11,10 @@ license.workspace    = true
 keywords             = ["completions", "diagnostics", "language-server", "lsp", "svg"]
 categories           = ["development-tools", "text-editors"]
 
+[lib]
+name = "svg_language_server"
+path = "src/lib.rs"
+
 [[bin]]
 name = "svg-language-server"
 path = "src/main.rs"
@@ -23,6 +27,7 @@ svg-data.workspace           = true
 svg-format.workspace         = true
 svg-lint.workspace           = true
 svg-references.workspace     = true
+svg-tree.workspace           = true
 tokio.workspace              = true
 tower-lsp-server.workspace   = true
 tracing.workspace            = true
@@ -32,3 +37,9 @@ tree-sitter.workspace        = true
 tree-sitter-svg.workspace    = true
 ureq.workspace               = true
 url.workspace                = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[lints]
+workspace = true

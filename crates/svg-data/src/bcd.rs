@@ -7,8 +7,9 @@
 //! [`@mdn/browser-compat-data`]: https://github.com/mdn/browser-compat-data
 //! [BCD JSON-Schema]: https://github.com/mdn/browser-compat-data/tree/main/schemas
 
-use serde::Deserialize;
 use std::collections::HashMap;
+
+use serde::Deserialize;
 
 // ---------------------------------------------------------------------------
 // Browser identifiers & enums
@@ -18,22 +19,39 @@ use std::collections::HashMap;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum BrowserName {
+    /// Bun.
     Bun,
+    /// Google Chrome.
     Chrome,
+    /// Chrome on Android.
     ChromeAndroid,
+    /// Deno.
     Deno,
+    /// Microsoft Edge.
     Edge,
+    /// Mozilla Firefox.
     Firefox,
+    /// Firefox on Android.
     FirefoxAndroid,
+    /// Internet Explorer.
     Ie,
+    /// Node.js.
     Nodejs,
+    /// Oculus Browser.
     Oculus,
+    /// Opera.
     Opera,
+    /// Opera on Android.
     OperaAndroid,
+    /// Safari on macOS.
     Safari,
+    /// Safari on iOS.
     SafariIos,
+    /// Samsung Internet on Android.
     SamsunginternetAndroid,
+    /// Android `WebView`.
     WebviewAndroid,
+    /// iOS `WebView`.
     WebviewIos,
 }
 
@@ -51,21 +69,32 @@ pub enum VersionValue {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum BrowserType {
+    /// Desktop browser/runtime.
     Desktop,
+    /// Mobile browser/runtime.
     Mobile,
+    /// XR browser/runtime.
     Xr,
+    /// Server-side runtime.
     Server,
 }
 
 /// Name of a browser's rendering/JS engine.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize)]
 pub enum BrowserEngine {
+    /// `Blink`.
     Blink,
+    /// `EdgeHTML`.
     EdgeHTML,
+    /// `Gecko`.
     Gecko,
+    /// `Presto`.
     Presto,
+    /// `Trident`.
     Trident,
+    /// `WebKit`.
     WebKit,
+    /// `V8`.
     V8,
 }
 
@@ -73,11 +102,17 @@ pub enum BrowserEngine {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum BrowserReleaseStatus {
+    /// No longer supported.
     Retired,
+    /// Current stable release.
     Current,
+    /// Beta or preview release.
     Beta,
+    /// Nightly or canary-style release.
     Nightly,
+    /// Extended support release.
     Esr,
+    /// Planned but not yet released.
     Planned,
 }
 
@@ -91,14 +126,14 @@ pub type Browsers = HashMap<BrowserName, BrowserStatement>;
 /// Metadata for a single browser.
 #[derive(Debug, Clone, Deserialize)]
 pub struct BrowserStatement {
-    /// The browser brand name (e.g. "Firefox", "Chrome Android").
+    /// The browser brand name (e.g. `Firefox`, `Chrome Android`).
     pub name: String,
     /// The platform the browser runs on.
     #[serde(rename = "type")]
     pub browser_type: BrowserType,
-    /// The upstream browser this one derives from (e.g. Edge → Chrome).
+    /// The upstream browser this one derives from (e.g. `Edge` → `Chrome`).
     pub upstream: Option<BrowserName>,
-    /// Name of the browser's preview channel (e.g. "Nightly", "TP").
+    /// Name of the browser's preview channel (e.g. `Nightly`, `TP`).
     pub preview_name: Option<String>,
     /// URL where feature flags can be changed (e.g. `about:config`).
     pub pref_url: Option<String>,
@@ -154,13 +189,13 @@ pub struct Identifier {
 pub type SupportBlock = HashMap<BrowserName, SupportStatement>;
 
 /// Support information: either a single statement or an array of statements
-/// (e.g. when a feature was removed and re-added).
+/// (for example when a feature was removed and re-added).
 #[derive(Debug, Clone, Deserialize)]
 #[serde(untagged)]
 pub enum SupportStatement {
     /// A single support entry.
     Single(SimpleSupportStatement),
-    /// Multiple support entries (e.g. feature removed then re-added).
+    /// Multiple support entries, for example a feature removed then re-added.
     Multiple(Vec<SimpleSupportStatement>),
 }
 
@@ -173,7 +208,7 @@ pub struct CompatStatement {
     pub mdn_url: Option<String>,
     /// Specification URL(s), each containing a fragment identifier.
     pub spec_url: Option<SpecUrl>,
-    /// Tags assigned to this feature (e.g. `web-features:svg`).
+    /// Tags assigned to this feature, for example `web-features:svg`.
     pub tags: Option<Vec<String>>,
     /// Path to the source file in the BCD repository (auto-generated).
     pub source_file: Option<String>,
@@ -197,10 +232,11 @@ pub enum SpecUrl {
 
 impl SpecUrl {
     /// Returns the first spec URL.
+    #[must_use]
     pub fn first(&self) -> &str {
         match self {
             Self::One(url) => url,
-            Self::Many(urls) => &urls[0],
+            Self::Many(urls) => urls.first().map_or("", String::as_str),
         }
     }
 
@@ -277,7 +313,9 @@ pub struct FlagStatement {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum FlagType {
+    /// Preference-style toggle.
     Preference,
+    /// Runtime feature flag.
     RuntimeFlag,
 }
 
@@ -322,7 +360,8 @@ pub struct CompatData {
     /// [JavaScript](https://developer.mozilla.org/docs/Web/JavaScript) built-ins, statements, operators.
     pub javascript: Identifier,
 
-    /// Manifest data (e.g. [Web App Manifest](https://developer.mozilla.org/docs/Web/Progressive_web_apps/manifest)).
+    /// Manifest data, for example
+    /// [Web App Manifest](https://developer.mozilla.org/docs/Web/Progressive_web_apps/manifest).
     pub manifests: Identifier,
 
     /// [MathML](https://developer.mozilla.org/docs/Web/MathML) elements, attributes, globals.

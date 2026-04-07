@@ -1,121 +1,17 @@
-use std::fs;
-use std::io::{self, Read, Write};
-use std::path::PathBuf;
-use std::process::ExitCode;
+//! Command-line entrypoint for the `svg-format` formatter.
 
-use clap::{Parser, ValueEnum};
+use std::{
+    fs,
+    io::{self, Read, Write},
+    path::PathBuf,
+    process::ExitCode,
+};
+
+use clap::{Args, Parser};
 use svg_format::{
     AttributeLayout, AttributeSort, BlankLines, FormatOptions, QuoteStyle, TextContentMode,
     WrappedAttributeIndent, format_with_options,
 };
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
-#[value(rename_all = "kebab-case")]
-enum AttributeSortArg {
-    None,
-    Canonical,
-    Alphabetical,
-}
-
-impl From<AttributeSortArg> for AttributeSort {
-    fn from(value: AttributeSortArg) -> Self {
-        match value {
-            AttributeSortArg::None => AttributeSort::None,
-            AttributeSortArg::Canonical => AttributeSort::Canonical,
-            AttributeSortArg::Alphabetical => AttributeSort::Alphabetical,
-        }
-    }
-}
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
-#[value(rename_all = "kebab-case")]
-enum AttributeLayoutArg {
-    Auto,
-    SingleLine,
-    MultiLine,
-}
-
-impl From<AttributeLayoutArg> for AttributeLayout {
-    fn from(value: AttributeLayoutArg) -> Self {
-        match value {
-            AttributeLayoutArg::Auto => AttributeLayout::Auto,
-            AttributeLayoutArg::SingleLine => AttributeLayout::SingleLine,
-            AttributeLayoutArg::MultiLine => AttributeLayout::MultiLine,
-        }
-    }
-}
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
-#[value(rename_all = "kebab-case")]
-enum QuoteStyleArg {
-    Preserve,
-    Double,
-    Single,
-}
-
-impl From<QuoteStyleArg> for QuoteStyle {
-    fn from(value: QuoteStyleArg) -> Self {
-        match value {
-            QuoteStyleArg::Preserve => QuoteStyle::Preserve,
-            QuoteStyleArg::Double => QuoteStyle::Double,
-            QuoteStyleArg::Single => QuoteStyle::Single,
-        }
-    }
-}
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
-#[value(rename_all = "kebab-case")]
-enum WrappedAttributeIndentArg {
-    OneLevel,
-    AlignToTagName,
-}
-
-impl From<WrappedAttributeIndentArg> for WrappedAttributeIndent {
-    fn from(value: WrappedAttributeIndentArg) -> Self {
-        match value {
-            WrappedAttributeIndentArg::OneLevel => WrappedAttributeIndent::OneLevel,
-            WrappedAttributeIndentArg::AlignToTagName => WrappedAttributeIndent::AlignToTagName,
-        }
-    }
-}
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
-#[value(rename_all = "kebab-case")]
-enum TextContentArg {
-    Collapse,
-    Maintain,
-    Prettify,
-}
-
-impl From<TextContentArg> for TextContentMode {
-    fn from(value: TextContentArg) -> Self {
-        match value {
-            TextContentArg::Collapse => TextContentMode::Collapse,
-            TextContentArg::Maintain => TextContentMode::Maintain,
-            TextContentArg::Prettify => TextContentMode::Prettify,
-        }
-    }
-}
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
-#[value(rename_all = "kebab-case")]
-enum BlankLinesArg {
-    Remove,
-    Preserve,
-    Truncate,
-    Insert,
-}
-
-impl From<BlankLinesArg> for BlankLines {
-    fn from(value: BlankLinesArg) -> Self {
-        match value {
-            BlankLinesArg::Remove => BlankLines::Remove,
-            BlankLinesArg::Preserve => BlankLines::Preserve,
-            BlankLinesArg::Truncate => BlankLines::Truncate,
-            BlankLinesArg::Insert => BlankLines::Insert,
-        }
-    }
-}
 
 #[derive(Debug, Parser)]
 #[command(
@@ -127,6 +23,48 @@ struct Cli {
     #[arg(value_name = "FILE", conflicts_with = "stdin")]
     path: Option<PathBuf>,
 
+    #[command(flatten)]
+    io: IoArgs,
+
+    #[arg(long, default_value_t = 2)]
+    indent_width: usize,
+
+    #[command(flatten)]
+    indent_style: IndentStyleArgs,
+
+    #[arg(long, default_value_t = 100)]
+    max_inline_tag_width: usize,
+
+    #[arg(long, value_enum, default_value_t = AttributeSort::Canonical)]
+    attribute_sort: AttributeSort,
+
+    #[arg(long, value_enum, default_value_t = AttributeLayout::Auto)]
+    attribute_layout: AttributeLayout,
+
+    #[arg(long, default_value_t = 1)]
+    attributes_per_line: usize,
+
+    #[command(flatten)]
+    self_close: SelfCloseArgs,
+
+    #[arg(long, value_enum, default_value_t = QuoteStyle::Preserve)]
+    quote_style: QuoteStyle,
+
+    #[arg(long, value_enum, default_value_t = WrappedAttributeIndent::OneLevel)]
+    wrapped_attribute_indent: WrappedAttributeIndent,
+
+    #[arg(long, value_enum, default_value_t = TextContentMode::Maintain)]
+    text_content: TextContentMode,
+
+    #[arg(long, value_enum, default_value_t = BlankLines::Truncate)]
+    blank_lines: BlankLines,
+
+    #[arg(long = "ignore-prefix", value_name = "PREFIX")]
+    ignore_prefixes: Vec<String>,
+}
+
+#[derive(Args, Debug)]
+struct IoArgs {
     #[arg(short = 'i', long, requires = "path")]
     in_place: bool,
 
@@ -135,53 +73,32 @@ struct Cli {
 
     #[arg(long, conflicts_with = "path")]
     stdin: bool,
+}
 
-    #[arg(long, default_value_t = 2)]
-    indent_width: usize,
-
+#[derive(Args, Debug)]
+struct IndentStyleArgs {
     #[arg(long, conflicts_with = "use_spaces")]
     use_tabs: bool,
 
     #[arg(long, conflicts_with = "use_tabs")]
     use_spaces: bool,
+}
 
-    #[arg(long, default_value_t = 100)]
-    max_inline_tag_width: usize,
-
-    #[arg(long, value_enum, default_value_t = AttributeSortArg::Canonical)]
-    attribute_sort: AttributeSortArg,
-
-    #[arg(long, value_enum, default_value_t = AttributeLayoutArg::Auto)]
-    attribute_layout: AttributeLayoutArg,
-
-    #[arg(long, default_value_t = 1)]
-    attributes_per_line: usize,
-
+#[derive(Args, Debug)]
+struct SelfCloseArgs {
     #[arg(long, conflicts_with = "no_space_before_self_close")]
     space_before_self_close: bool,
 
     #[arg(long, conflicts_with = "space_before_self_close")]
     no_space_before_self_close: bool,
-
-    #[arg(long, value_enum, default_value_t = QuoteStyleArg::Preserve)]
-    quote_style: QuoteStyleArg,
-
-    #[arg(long, value_enum, default_value_t = WrappedAttributeIndentArg::OneLevel)]
-    wrapped_attribute_indent: WrappedAttributeIndentArg,
-
-    #[arg(long, value_enum, default_value_t = TextContentArg::Maintain)]
-    text_content: TextContentArg,
-
-    #[arg(long, value_enum, default_value_t = BlankLinesArg::Truncate)]
-    blank_lines: BlankLinesArg,
 }
 
 fn run() -> Result<ExitCode, String> {
     let cli = Cli::parse();
     let defaults = FormatOptions::default();
-    let read_stdin = cli.stdin || cli.path.is_none();
+    let read_stdin = cli.io.stdin || cli.path.is_none();
 
-    if cli.in_place && read_stdin {
+    if cli.io.in_place && read_stdin {
         return Err("--in-place requires FILE input".to_string());
     }
     if cli.indent_width == 0 {
@@ -196,29 +113,29 @@ fn run() -> Result<ExitCode, String> {
 
     let options = FormatOptions {
         indent_width: cli.indent_width,
-        insert_spaces: if cli.use_spaces {
+        insert_spaces: if cli.indent_style.use_spaces {
             true
-        } else if cli.use_tabs {
+        } else if cli.indent_style.use_tabs {
             false
         } else {
             defaults.insert_spaces
         },
         max_inline_tag_width: cli.max_inline_tag_width,
-        attribute_sort: cli.attribute_sort.into(),
-        attribute_layout: cli.attribute_layout.into(),
+        attribute_sort: cli.attribute_sort,
+        attribute_layout: cli.attribute_layout,
         attributes_per_line: cli.attributes_per_line,
-        space_before_self_close: if cli.no_space_before_self_close {
+        space_before_self_close: if cli.self_close.no_space_before_self_close {
             false
-        } else if cli.space_before_self_close {
+        } else if cli.self_close.space_before_self_close {
             true
         } else {
             defaults.space_before_self_close
         },
-        quote_style: cli.quote_style.into(),
-        wrapped_attribute_indent: cli.wrapped_attribute_indent.into(),
-        text_content: cli.text_content.into(),
-        blank_lines: cli.blank_lines.into(),
-        ignore_prefixes: defaults.ignore_prefixes,
+        quote_style: cli.quote_style,
+        wrapped_attribute_indent: cli.wrapped_attribute_indent,
+        text_content: cli.text_content,
+        blank_lines: cli.blank_lines,
+        ignore_prefixes: merge_ignore_prefixes(defaults.ignore_prefixes, cli.ignore_prefixes),
     };
 
     let input = match (read_stdin, cli.path.as_ref()) {
@@ -236,7 +153,7 @@ fn run() -> Result<ExitCode, String> {
     let formatted = format_with_options(&input, options);
     let changed = formatted != input;
 
-    if cli.check {
+    if cli.io.check {
         if changed {
             if let Some(path) = &cli.path {
                 eprintln!("would reformat {}", path.display());
@@ -248,9 +165,11 @@ fn run() -> Result<ExitCode, String> {
         return Ok(ExitCode::SUCCESS);
     }
 
-    if cli.in_place {
+    if cli.io.in_place {
         if changed {
-            let path = cli.path.as_ref().expect("path checked above");
+            let Some(path) = cli.path.as_ref() else {
+                unreachable!("--in-place requires FILE input");
+            };
             fs::write(path, formatted)
                 .map_err(|err| format!("failed writing '{}': {err}", path.display()))?;
         }
@@ -262,6 +181,15 @@ fn run() -> Result<ExitCode, String> {
         .write_all(formatted.as_bytes())
         .map_err(|err| format!("failed writing stdout: {err}"))?;
     Ok(ExitCode::SUCCESS)
+}
+
+fn merge_ignore_prefixes(mut defaults: Vec<String>, extra: Vec<String>) -> Vec<String> {
+    for prefix in extra {
+        if !defaults.iter().any(|existing| existing == &prefix) {
+            defaults.push(prefix);
+        }
+    }
+    defaults
 }
 
 fn main() -> ExitCode {

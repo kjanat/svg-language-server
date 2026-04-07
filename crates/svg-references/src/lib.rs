@@ -1,44 +1,87 @@
-use tree_sitter::{Parser, Tree, TreeCursor};
+//! Reference and definition helpers for SVG ids, CSS classes, and custom
+//! properties.
+//!
+//! # Examples
+//!
+//! ```rust
+//! let defs = svg_references::collect_class_definitions_from_stylesheet(
+//!     ".icon { fill: red; }",
+//!     0,
+//!     0,
+//! );
+//! assert_eq!(defs.len(), 1);
+//! assert_eq!(defs[0].name, "icon");
+//! ```
 
+use svg_tree::{child_of_kind, deepest_node_at, find_ancestor_any, has_ancestor, walk_tree};
+use tree_sitter::{Parser, Tree};
+
+/// A reference target that can be resolved to one or more definitions.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DefinitionTarget {
+    /// An `id` reference such as `url(#clip)` or `href="#id"`.
     Id(String),
+    /// A CSS class selector reference.
     Class(String),
+    /// A CSS custom-property reference such as `var(--accent)`.
     CustomProperty(String),
 }
 
+/// A zero-based source span.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Span {
+    /// Start line.
     pub start_row: usize,
+    /// Start column in bytes.
     pub start_col: usize,
+    /// End line.
     pub end_row: usize,
+    /// End column in bytes.
     pub end_col: usize,
 }
 
+/// A named symbol paired with its source span.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NamedSpan {
+    /// Symbol name.
     pub name: String,
+    /// Definition span.
     pub span: Span,
 }
 
+/// Inline stylesheet content extracted from an SVG document.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct InlineStylesheet {
+    /// Raw CSS source.
     pub css: String,
+    /// Byte offset where the stylesheet starts in the SVG source.
     pub start_byte: usize,
+    /// Start line in the SVG source.
     pub start_row: usize,
+    /// Start column in bytes within `start_row`.
     pub start_col: usize,
 }
 
+fn css_tree(css: &str) -> Option<Tree> {
+    let mut parser = Parser::new();
+    parser
+        .set_language(&tree_sitter_css::LANGUAGE.into())
+        .ok()?;
+    parser.parse(css.as_bytes(), None)
+}
+
+#[must_use]
+/// Resolve the definition target under the given SVG byte offset.
 pub fn definition_target_at(
     source: &[u8],
     tree: &Tree,
     byte_offset: usize,
 ) -> Option<DefinitionTarget> {
     let raw_node = deepest_node_at(tree, byte_offset);
-    let node = if !raw_node.is_named() {
-        raw_node.parent().unwrap_or(raw_node)
-    } else {
+    let node = if raw_node.is_named() {
         raw_node
+    } else {
+        raw_node.parent().unwrap_or(raw_node)
     };
 
     if let Some(class_name) = find_ancestor_any(node, &["class_name"])
@@ -75,16 +118,12 @@ fn custom_property_name_at_svg_node(node: tree_sitter::Node<'_>, source: &[u8]) 
 }
 
 fn definition_target_in_stylesheet(css: &str, byte_offset: usize) -> Option<DefinitionTarget> {
-    let mut parser = Parser::new();
-    parser
-        .set_language(&tree_sitter_css::LANGUAGE.into())
-        .expect("CSS grammar");
-    let tree = parser.parse(css.as_bytes(), None)?;
+    let tree = css_tree(css)?;
     let raw_node = deepest_node_at(&tree, byte_offset);
-    let node = if !raw_node.is_named() {
-        raw_node.parent().unwrap_or(raw_node)
-    } else {
+    let node = if raw_node.is_named() {
         raw_node
+    } else {
+        raw_node.parent().unwrap_or(raw_node)
     };
 
     if let Some(name) = css_custom_property_reference_name(node, css.as_bytes()) {
@@ -115,6 +154,8 @@ fn css_custom_property_reference_name(
         .then(|| name.to_owned())
 }
 
+#[must_use]
+/// Collect all `id` definitions from an SVG tree.
 pub fn collect_id_definitions(source: &[u8], tree: &Tree) -> Vec<NamedSpan> {
     let mut results = Vec::new();
     let mut cursor = tree.root_node().walk();
@@ -133,6 +174,8 @@ pub fn collect_id_definitions(source: &[u8], tree: &Tree) -> Vec<NamedSpan> {
     results
 }
 
+#[must_use]
+/// Collect inline `<style>` blocks from an SVG tree.
 pub fn collect_inline_stylesheets(source: &[u8], tree: &Tree) -> Vec<InlineStylesheet> {
     let mut stylesheets = Vec::new();
     let mut cursor = tree.root_node().walk();
@@ -169,16 +212,14 @@ pub fn collect_inline_stylesheets(source: &[u8], tree: &Tree) -> Vec<InlineStyle
     stylesheets
 }
 
+#[must_use]
+/// Collect CSS class definitions from a stylesheet, offset into SVG coordinates.
 pub fn collect_class_definitions_from_stylesheet(
     css: &str,
     start_row: usize,
     start_col: usize,
 ) -> Vec<NamedSpan> {
-    let mut parser = Parser::new();
-    parser
-        .set_language(&tree_sitter_css::LANGUAGE.into())
-        .expect("CSS grammar");
-    let Some(tree) = parser.parse(css.as_bytes(), None) else {
+    let Some(tree) = css_tree(css) else {
         return Vec::new();
     };
 
@@ -221,16 +262,15 @@ pub fn collect_class_definitions_from_stylesheet(
     results
 }
 
+#[must_use]
+/// Collect CSS custom-property definitions from a stylesheet, offset into SVG
+/// coordinates.
 pub fn collect_custom_property_definitions_from_stylesheet(
     css: &str,
     start_row: usize,
     start_col: usize,
 ) -> Vec<NamedSpan> {
-    let mut parser = Parser::new();
-    parser
-        .set_language(&tree_sitter_css::LANGUAGE.into())
-        .expect("CSS grammar");
-    let Some(tree) = parser.parse(css.as_bytes(), None) else {
+    let Some(tree) = css_tree(css) else {
         return Vec::new();
     };
 
@@ -265,6 +305,8 @@ pub fn collect_custom_property_definitions_from_stylesheet(
     results
 }
 
+#[must_use]
+/// Extract `href` values from `<?xml-stylesheet ...?>` processing instructions.
 pub fn extract_xml_stylesheet_hrefs(source: &[u8]) -> Vec<String> {
     let mut hrefs = Vec::new();
     let Ok(text) = std::str::from_utf8(source) else {
@@ -293,22 +335,6 @@ pub fn extract_xml_stylesheet_hrefs(source: &[u8]) -> Vec<String> {
     hrefs
 }
 
-fn walk_tree(cursor: &mut TreeCursor<'_>, f: &mut impl FnMut(tree_sitter::Node<'_>)) {
-    loop {
-        let node = cursor.node();
-        f(node);
-
-        if cursor.goto_first_child() {
-            walk_tree(cursor, f);
-            cursor.goto_parent();
-        }
-
-        if !cursor.goto_next_sibling() {
-            break;
-        }
-    }
-}
-
 fn inline_stylesheet_containing_offset(
     source: &[u8],
     tree: &Tree,
@@ -320,52 +346,6 @@ fn inline_stylesheet_containing_offset(
             let end = stylesheet.start_byte + stylesheet.css.len();
             (stylesheet.start_byte..end).contains(&byte_offset)
         })
-}
-
-fn deepest_node_at(tree: &Tree, byte_offset: usize) -> tree_sitter::Node<'_> {
-    tree.root_node()
-        .descendant_for_byte_range(byte_offset, byte_offset)
-        .unwrap_or_else(|| tree.root_node())
-}
-
-fn find_ancestor_any<'a>(
-    node: tree_sitter::Node<'a>,
-    kinds: &[&str],
-) -> Option<tree_sitter::Node<'a>> {
-    let mut current = node;
-    loop {
-        if kinds.contains(&current.kind()) {
-            return Some(current);
-        }
-        current = current.parent()?;
-    }
-}
-
-fn has_ancestor(node: tree_sitter::Node<'_>, kind: &str) -> bool {
-    let mut current = node;
-    while let Some(parent) = current.parent() {
-        if parent.kind() == kind {
-            return true;
-        }
-        current = parent;
-    }
-    false
-}
-
-fn child_of_kind<'a>(node: tree_sitter::Node<'a>, kind: &str) -> Option<tree_sitter::Node<'a>> {
-    let mut cursor = node.walk();
-    if !cursor.goto_first_child() {
-        return None;
-    }
-    loop {
-        let child = cursor.node();
-        if child.kind() == kind {
-            return Some(child);
-        }
-        if !cursor.goto_next_sibling() {
-            return None;
-        }
-    }
 }
 
 fn is_style_name(name: &str) -> bool {
@@ -451,40 +431,50 @@ fn parse_pi_attributes(content: &str) -> std::collections::HashMap<String, Strin
 
 #[cfg(test)]
 mod tests {
+    use std::error::Error;
+
     use super::*;
 
-    fn parse_svg(source: &str) -> Tree {
+    fn parse_svg(source: &str) -> Result<Tree, Box<dyn Error>> {
         let mut parser = Parser::new();
         parser
             .set_language(&tree_sitter_svg::LANGUAGE.into())
-            .expect("SVG grammar");
-        parser.parse(source, None).expect("tree")
+            .map_err(|e| format!("SVG grammar: {e}"))?;
+        parser
+            .parse(source, None)
+            .ok_or_else(|| "parse returned None".into())
     }
 
-    fn offset_of(source: &str, needle: &str) -> usize {
-        source.find(needle).expect("needle present")
+    fn offset_of(source: &str, needle: &str) -> Result<usize, Box<dyn Error>> {
+        source
+            .find(needle)
+            .ok_or_else(|| format!("needle {needle:?} not found").into())
     }
 
     #[test]
-    fn definition_target_uses_clicked_class_only() {
+    fn definition_target_uses_clicked_class_only() -> Result<(), Box<dyn Error>> {
         let source = r#"<svg><rect class="a b c"/></svg>"#;
-        let tree = parse_svg(source);
-        let target = definition_target_at(source.as_bytes(), &tree, offset_of(source, "b c"));
+        let tree = parse_svg(source)?;
+        let target = definition_target_at(source.as_bytes(), &tree, offset_of(source, "b c")?);
         assert_eq!(target, Some(DefinitionTarget::Class("b".into())));
+        Ok(())
     }
 
     #[test]
-    fn definition_target_ignores_class_whitespace() {
+    fn definition_target_ignores_class_whitespace() -> Result<(), Box<dyn Error>> {
         let source = r#"<svg><rect class="a b c"/></svg>"#;
-        let tree = parse_svg(source);
-        let offset = offset_of(source, "a b c") + 1;
+        let tree = parse_svg(source)?;
+        let offset = offset_of(source, "a b c")? + 1;
         assert_eq!(definition_target_at(source.as_bytes(), &tree, offset), None);
+        Ok(())
     }
 
     #[test]
-    fn collects_inline_styles_and_css_classes() {
-        let source = r#"<svg><style>.a,.b:hover,.c.d{fill:red}</style></svg>"#;
-        let tree = parse_svg(source);
+    fn collects_inline_styles_and_css_classes() -> Result<(), Box<dyn Error>> {
+        let css_body = "{fill:red}";
+        let source = format!("<svg><style>.a,.b:hover,.c.d{css_body}</style></svg>");
+        let source = source.as_str();
+        let tree = parse_svg(source)?;
         let styles = collect_inline_stylesheets(source.as_bytes(), &tree);
         assert_eq!(styles.len(), 1);
         let defs = collect_class_definitions_from_stylesheet(
@@ -494,6 +484,7 @@ mod tests {
         );
         let names: Vec<_> = defs.into_iter().map(|d| d.name).collect();
         assert_eq!(names, vec!["a", "b", "c", "d"]);
+        Ok(())
     }
 
     #[test]
@@ -514,15 +505,17 @@ mod tests {
     }
 
     #[test]
-    fn definition_target_resolves_custom_property_reference_in_style() {
-        let source = r#"<svg><style>:root { --panel-bg: red; } .var-alpha { fill: var(--panel-bg); }</style></svg>"#;
-        let tree = parse_svg(source);
-        let offset = offset_of(source, "--panel-bg);") + 2;
+    fn definition_target_resolves_custom_property_reference_in_style() -> Result<(), Box<dyn Error>>
+    {
+        let source = r"<svg><style>:root { --panel-bg: red; } .var-alpha { fill: var(--panel-bg); }</style></svg>";
+        let tree = parse_svg(source)?;
+        let offset = offset_of(source, "--panel-bg);")? + 2;
 
         assert_eq!(
             definition_target_at(source.as_bytes(), &tree, offset),
             Some(DefinitionTarget::CustomProperty("--panel-bg".into()))
         );
+        Ok(())
     }
 
     #[test]
@@ -534,5 +527,44 @@ mod tests {
         );
         let names: Vec<_> = defs.into_iter().map(|d| d.name).collect();
         assert_eq!(names, vec!["--panel-bg", "--base"]);
+    }
+
+    #[test]
+    fn definition_target_resolves_id_from_href() -> Result<(), Box<dyn Error>> {
+        let source = r##"<svg><use href="#icon"/></svg>"##;
+        let tree = parse_svg(source)?;
+        let offset = offset_of(source, "#icon")?;
+        assert_eq!(
+            definition_target_at(source.as_bytes(), &tree, offset),
+            Some(DefinitionTarget::Id("icon".into()))
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn definition_target_resolves_id_from_url() -> Result<(), Box<dyn Error>> {
+        let source = r#"<svg><rect clip-path="url(#clip)"/></svg>"#;
+        let tree = parse_svg(source)?;
+        let offset = offset_of(source, "#clip")?;
+        assert_eq!(
+            definition_target_at(source.as_bytes(), &tree, offset),
+            Some(DefinitionTarget::Id("clip".into()))
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn definition_target_returns_none_outside_reference() -> Result<(), Box<dyn Error>> {
+        let source = r#"<svg><rect width="10"/></svg>"#;
+        let tree = parse_svg(source)?;
+        let offset = offset_of(source, "10")?;
+        assert_eq!(definition_target_at(source.as_bytes(), &tree, offset), None);
+        Ok(())
+    }
+
+    #[test]
+    fn collect_class_definitions_handles_empty_stylesheet() {
+        let defs = collect_class_definitions_from_stylesheet("", 0, 0);
+        assert!(defs.is_empty());
     }
 }

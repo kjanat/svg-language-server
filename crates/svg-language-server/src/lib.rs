@@ -195,21 +195,15 @@ fn build_hover_context(
     let node_text = node.utf8_text(source).unwrap_or("").to_owned();
 
     let element_markdown = if kind == "name" {
-        node.parent().and_then(|parent| {
-            let parent_kind = parent.kind();
-            if parent_kind == "start_tag"
-                || parent_kind == "self_closing_tag"
-                || parent_kind == "end_tag"
-            {
+        node.parent()
+            .filter(|parent| matches!(parent.kind(), "start_tag" | "self_closing_tag" | "end_tag"))
+            .and_then(|_| {
                 svg_data::element(&node_text).map(|element| {
                     let runtime_override =
                         runtime_compat.and_then(|runtime| runtime.elements.get(&node_text));
                     format_element_hover(element, runtime_override)
                 })
-            } else {
-                None
-            }
-        })
+            })
     } else {
         None
     };
@@ -234,30 +228,30 @@ fn build_hover_context(
     let stylesheet_hrefs = svg_references::extract_xml_stylesheet_hrefs(source);
     let inline_stylesheets = svg_references::collect_inline_stylesheets(source, &doc.tree);
 
-    let class_hover = match &definition_target {
-        Some(svg_references::DefinitionTarget::Class(target_class)) => ClassHoverContext {
-            target: target_class.clone(),
-            definitions: inline_stylesheets
-                .iter()
-                .flat_map(|stylesheet| {
-                    svg_references::collect_class_definitions_from_stylesheet(
-                        &stylesheet.css,
-                        stylesheet.start_row,
-                        stylesheet.start_col,
-                    )
-                })
-                .filter(|definition| definition.name == *target_class)
-                .map(|definition| {
-                    ClassDefinitionHover::new(uri.clone(), doc.source.clone(), definition)
-                })
-                .collect(),
-            stylesheet_hrefs: stylesheet_hrefs.clone(),
-        },
-        _ => empty_class_hover_context(),
-    };
-
-    let property_hover = match &definition_target {
-        Some(svg_references::DefinitionTarget::CustomProperty(target_property)) => {
+    let (class_hover, property_hover) = match &definition_target {
+        Some(svg_references::DefinitionTarget::Class(target_class)) => (
+            ClassHoverContext {
+                target: target_class.clone(),
+                definitions: inline_stylesheets
+                    .iter()
+                    .flat_map(|stylesheet| {
+                        svg_references::collect_class_definitions_from_stylesheet(
+                            &stylesheet.css,
+                            stylesheet.start_row,
+                            stylesheet.start_col,
+                        )
+                    })
+                    .filter(|definition| definition.name == *target_class)
+                    .map(|definition| {
+                        ClassDefinitionHover::new(uri.clone(), doc.source.clone(), definition)
+                    })
+                    .collect(),
+                stylesheet_hrefs: stylesheet_hrefs.clone(),
+            },
+            empty_property_hover_context(),
+        ),
+        Some(svg_references::DefinitionTarget::CustomProperty(target_property)) => (
+            empty_class_hover_context(),
             PropertyHoverContext {
                 target: target_property.clone(),
                 definitions: inline_stylesheets
@@ -279,9 +273,9 @@ fn build_hover_context(
                     })
                     .collect(),
                 stylesheet_hrefs,
-            }
-        }
-        _ => empty_property_hover_context(),
+            },
+        ),
+        _ => (empty_class_hover_context(), empty_property_hover_context()),
     };
 
     HoverContext {
@@ -357,20 +351,21 @@ impl SvgLanguageServer {
     }
 
     async fn copy_svg_as_data_uri(&self, uri: &Uri) -> std::result::Result<(), String> {
-        let source = {
+        let cached = {
             let docs = self.documents.read().await;
-            if let Some(doc) = docs.get(uri) {
-                doc.source.clone()
-            } else {
-                let url = Url::parse(uri.as_str())
-                    .map_err(|err| format!("Invalid URI {}: {err}", uri.as_str()))?;
-                let path = url
-                    .to_file_path()
-                    .map_err(|()| format!("Cannot resolve file path for {}", uri.as_str()))?;
-                tokio::fs::read_to_string(&path)
-                    .await
-                    .map_err(|err| format!("Failed to read {}: {err}", path.display()))?
-            }
+            docs.get(uri).map(|doc| doc.source.clone())
+        };
+        let source = if let Some(s) = cached {
+            s
+        } else {
+            let url = Url::parse(uri.as_str())
+                .map_err(|err| format!("Invalid URI {}: {err}", uri.as_str()))?;
+            let path = url
+                .to_file_path()
+                .map_err(|()| format!("Cannot resolve file path for {}", uri.as_str()))?;
+            tokio::fs::read_to_string(&path)
+                .await
+                .map_err(|err| format!("Failed to read {}: {err}", path.display()))?
         };
 
         let data_uri = svg_data_uri(&source);

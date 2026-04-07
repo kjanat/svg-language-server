@@ -22,7 +22,7 @@ fn default_log_dir() -> PathBuf {
                 .join("Caches")
                 .join("svg-language-server");
         }
-        #[cfg(not(target_os = "macos"))]
+        #[cfg(all(unix, not(target_os = "macos")))]
         {
             return PathBuf::from(path)
                 .join(".cache")

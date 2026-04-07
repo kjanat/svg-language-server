@@ -146,12 +146,13 @@ fn collect_element_attribute_overrides(
                 continue;
             };
 
+            let canonical_name = svg_data::xlink::canonical_svg_attribute_name(attribute_name);
             let new_override = compat_override(
                 compat,
                 wf_features,
                 &format!("svg.elements.{element_name}.{attribute_name}"),
             );
-            merge_compat_override(attributes.entry(attribute_name.clone()), new_override);
+            merge_compat_override(attributes.entry(canonical_name.into_owned()), new_override);
         }
     }
 
@@ -178,12 +179,13 @@ fn apply_global_attribute_overrides(
         let Some(compat) = attribute_data.pointer("/__compat") else {
             continue;
         };
+        let canonical_name = svg_data::xlink::canonical_svg_attribute_name(attribute_name);
         let new_override = compat_override(
             compat,
             wf_features,
             &format!("svg.global_attributes.{attribute_name}"),
         );
-        merge_compat_override(attributes.entry(attribute_name.clone()), new_override);
+        merge_compat_override(attributes.entry(canonical_name.into_owned()), new_override);
     }
 }
 

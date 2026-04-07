@@ -91,9 +91,12 @@ fn run_clipboard_command(
         .stdin
         .take()
         .ok_or_else(|| "stdin unavailable".to_owned())?;
-    stdin
-        .write_all(text.as_bytes())
-        .map_err(|err| err.to_string())?;
+    if let Err(err) = stdin.write_all(text.as_bytes()) {
+        drop(stdin);
+        let _ = child.kill();
+        let _ = child.wait();
+        return Err(err.to_string());
+    }
     drop(stdin);
 
     let output = wait_with_output_timeout(child)?;

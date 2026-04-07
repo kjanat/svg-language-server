@@ -18,10 +18,12 @@ pub(super) fn resolve_css_color(
     }
 
     let (function, args) = parse_css_function_call(text)?;
-    match function.as_str() {
-        "var" => resolve_var_color(args, custom_properties, seen),
-        "color-mix" => resolve_color_mix(args, custom_properties, seen),
-        _ => None,
+    if function.eq_ignore_ascii_case("var") {
+        resolve_var_color(args, custom_properties, seen)
+    } else if function.eq_ignore_ascii_case("color-mix") {
+        resolve_color_mix(args, custom_properties, seen)
+    } else {
+        None
     }
 }
 
@@ -149,13 +151,19 @@ fn resolve_mix_weights(left_pct: Option<f64>, right_pct: Option<f64>) -> Option<
 
 fn split_color_stop_percentage(stop: &str) -> (&str, Option<f64>) {
     let mut depth = 0usize;
+    let mut first_space = None;
     let mut last_space = None;
 
     for (idx, ch) in stop.char_indices() {
         match ch {
             '(' => depth += 1,
             ')' => depth = depth.saturating_sub(1),
-            c if c.is_whitespace() && depth == 0 => last_space = Some(idx),
+            c if c.is_whitespace() && depth == 0 => {
+                if first_space.is_none() {
+                    first_space = Some(idx);
+                }
+                last_space = Some(idx);
+            }
             _ => {}
         }
     }
@@ -163,13 +171,24 @@ fn split_color_stop_percentage(stop: &str) -> (&str, Option<f64>) {
     let Some(space_idx) = last_space else {
         return (stop, None);
     };
+
+    // Try "color percentage" order (trailing percentage).
     let color = stop[..space_idx].trim();
     let candidate = stop[space_idx..].trim();
-    if color.is_empty() {
-        return (stop, None);
+    if let Some(percentage) = parse_mix_percentage(candidate).filter(|_| !color.is_empty()) {
+        return (color, Some(percentage));
     }
 
-    parse_mix_percentage(candidate).map_or((stop, None), |percentage| (color, Some(percentage)))
+    // Try "percentage color" order (leading percentage, per CSS `&&` combinator).
+    if let Some(first) = first_space {
+        let leading = stop[..first].trim();
+        let trailing = stop[first..].trim();
+        if let Some(percentage) = parse_mix_percentage(leading).filter(|_| !trailing.is_empty()) {
+            return (trailing, Some(percentage));
+        }
+    }
+
+    (stop, None)
 }
 
 fn parse_mix_percentage(text: &str) -> Option<f64> {
@@ -178,13 +197,13 @@ fn parse_mix_percentage(text: &str) -> Option<f64> {
     if value.is_finite() { Some(value) } else { None }
 }
 
-fn parse_css_function_call(text: &str) -> Option<(String, &str)> {
+fn parse_css_function_call(text: &str) -> Option<(&str, &str)> {
     let open = text.find('(')?;
     let close = text.rfind(')')?;
     if close != text.len() - 1 {
         return None;
     }
-    let function = text[..open].trim().to_ascii_lowercase();
+    let function = text[..open].trim();
     if function.is_empty() {
         return None;
     }

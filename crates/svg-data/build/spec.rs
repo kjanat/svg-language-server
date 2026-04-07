@@ -38,7 +38,7 @@ pub fn fetch_spec_descriptions(out_dir: &Path, offline: bool) -> HashMap<String,
     // Fetch each spec file and extract descriptions
     for file in SVGWG_SPEC_FILES {
         let url = format!("{SVGWG_RAW}/{SVGWG_SHA}/master/{file}");
-        let cache_name = format!("svgwg-{file}");
+        let cache_name = format!("svgwg-{SVGWG_SHA}-{file}");
         let cache_path = out_dir.join(&cache_name);
 
         match ensure_cached(&url, &cache_path, offline) {
@@ -58,7 +58,7 @@ pub fn fetch_spec_descriptions(out_dir: &Path, offline: bool) -> HashMap<String,
 
     // Fetch animations spec
     let anim_url = format!("{SVGWG_RAW}/{SVGWG_SHA}/{SVGWG_ANIM_URL}");
-    let anim_cache = out_dir.join("svgwg-animations.html");
+    let anim_cache = out_dir.join(format!("svgwg-{SVGWG_SHA}-animations.html"));
     match ensure_cached(&anim_url, &anim_cache, offline) {
         Ok(true) => match fs::read_to_string(&anim_cache) {
             Ok(html) => extract_element_descriptions(&html, &mut descriptions),

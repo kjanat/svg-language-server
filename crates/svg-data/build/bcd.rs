@@ -256,10 +256,9 @@ fn merge_attribute_entry(
                 (Some(current), Some(new))
                     if new.rank() < current.rank()
                         || (new.rank() == current.rank()
-                            && new
-                                .since()
-                                .zip(current.since())
-                                .is_some_and(|(new_since, current_since)| new_since > current_since)) =>
+                            && new.since().zip(current.since()).is_some_and(
+                                |(new_since, current_since)| new_since > current_since,
+                            )) =>
                 {
                     existing.compat.baseline.clone_from(&compat.baseline);
                 }

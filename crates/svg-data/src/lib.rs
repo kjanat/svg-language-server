@@ -23,7 +23,8 @@ pub mod categories;
 pub mod compat_parse;
 /// Public catalog type definitions.
 pub mod types;
-pub(crate) mod xlink;
+/// `XLink` attribute name canonicalization (BCD underscore form to colon form).
+pub mod xlink;
 
 use std::{collections::HashMap, sync::LazyLock};
 

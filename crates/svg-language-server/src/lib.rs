@@ -218,6 +218,9 @@ fn build_hover_context(
         svg_data::attribute(&node_text).map_or_else(
             || external_attribute_hover(&kind, &node_text),
             |attribute| {
+                if attribute.name.starts_with("xlink:") {
+                    return external_attribute_hover(&kind, attribute.name);
+                }
                 let runtime_override =
                     runtime_compat.and_then(|runtime| runtime.attributes.get(&node_text));
                 Some(format_attribute_hover(attribute, runtime_override))

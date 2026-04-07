@@ -55,20 +55,18 @@ fn resolve_var_color(
         return None;
     }
 
-    if !seen.insert(name.to_owned()) {
-        return None;
+    if let Some(value) = custom_properties.get(name) {
+        if !seen.insert(name.to_owned()) {
+            return None;
+        }
+        let resolved = resolve_css_color(value, custom_properties, seen);
+        seen.remove(name);
+        return resolved;
     }
 
-    let resolved = custom_properties
-        .get(name)
-        .and_then(|value| resolve_css_color(value, custom_properties, seen))
-        .or_else(|| {
-            parts
-                .get(1)
-                .and_then(|fallback| resolve_css_color(fallback.trim(), custom_properties, seen))
-        });
-    seen.remove(name);
-    resolved
+    parts
+        .get(1)
+        .and_then(|fallback| resolve_css_color(fallback.trim(), custom_properties, seen))
 }
 
 fn resolve_color_mix(
@@ -78,14 +76,20 @@ fn resolve_color_mix(
 ) -> Option<ResolvedColor> {
     let parts = split_top_level(args, ',');
     let [space_part, left_stop, right_stop]: [&str; 3] = parts.try_into().ok()?;
-    let space = space_part.trim().strip_prefix("in ")?.trim();
-    let space = space.split_whitespace().next()?;
+    let mut pieces = space_part.split_whitespace();
+    if !pieces.next()?.eq_ignore_ascii_case("in") {
+        return None;
+    }
+    let space = pieces.collect::<Vec<_>>().join(" ");
+    if space.is_empty() {
+        return None;
+    }
 
     let (left, left_pct) = parse_color_mix_stop(left_stop, custom_properties, seen)?;
     let (right, right_pct) = parse_color_mix_stop(right_stop, custom_properties, seen)?;
     let (left_weight, right_weight, alpha_scale) = resolve_mix_weights(left_pct, right_pct)?;
 
-    let mut mixed = parse::mix_colors(space, left, left_weight, right, right_weight)?;
+    let mut mixed = parse::mix_colors(&space, left, left_weight, right, right_weight)?;
     mixed.3 = parse::clamp_channel(f64::from(mixed.3) * alpha_scale);
     Some((mixed.0, mixed.1, mixed.2, mixed.3, ColorKind::Functional))
 }

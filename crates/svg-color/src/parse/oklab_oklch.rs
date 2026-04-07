@@ -38,6 +38,9 @@ fn parse_oklab_lightness(s: &str) -> Option<f64> {
     } else {
         s.trim().parse::<f64>().ok()?
     };
+    if !value.is_finite() {
+        return None;
+    }
     Some(value.clamp(0.0, 1.0))
 }
 
@@ -46,9 +49,17 @@ fn parse_oklab_axis(s: &str) -> Option<f64> {
         return Some(0.0);
     }
     if let Some(percent) = s.strip_suffix('%') {
-        return Some(percent.trim().parse::<f64>().ok()? * 0.4 / 100.0);
+        let value = percent.trim().parse::<f64>().ok()?;
+        if !value.is_finite() {
+            return None;
+        }
+        return Some(value * 0.4 / 100.0);
     }
-    s.trim().parse::<f64>().ok()
+    let value = s.trim().parse::<f64>().ok()?;
+    if !value.is_finite() {
+        return None;
+    }
+    Some(value)
 }
 
 fn parse_oklch_chroma(s: &str) -> Option<f64> {
@@ -60,6 +71,9 @@ fn parse_oklch_chroma(s: &str) -> Option<f64> {
     } else {
         s.trim().parse::<f64>().ok()?
     };
+    if !value.is_finite() {
+        return None;
+    }
     Some(value.max(0.0))
 }
 

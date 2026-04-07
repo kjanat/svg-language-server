@@ -125,6 +125,13 @@ impl BaselineValue {
             Self::Widely { .. } => 2,
         }
     }
+
+    const fn since(&self) -> Option<u16> {
+        match self {
+            Self::Widely { since } | Self::Newly { since } => Some(*since),
+            Self::Limited => None,
+        }
+    }
 }
 
 // ---- Caching ----
@@ -594,6 +601,16 @@ fn write_category_mapping(out: &mut String, elements: &[JsonElement]) -> std::fm
                 .push(&element.name);
         }
     }
+    let mut unknown_categories: Vec<&str> = category_map
+        .keys()
+        .copied()
+        .filter(|category| !ALL_ELEMENT_CATEGORIES.contains(category))
+        .collect();
+    unknown_categories.sort_unstable();
+    assert!(
+        unknown_categories.is_empty(),
+        "unknown element categories in data/elements.json: {unknown_categories:?}"
+    );
 
     writeln!(
         out,

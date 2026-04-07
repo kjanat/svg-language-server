@@ -837,3 +837,17 @@ fn tspan_entity_refs_stay_inline() {
         "tspan content was split:\n{result}"
     );
 }
+
+#[test]
+fn text_content_maintain_with_entities_still_normalizes() {
+    let input = "<svg>\n<text>\n\tEmbedded\n\t&lt;\n\tstyle\n\t&gt;\n\tcolors\n</text>\n</svg>";
+    let options = FormatOptions {
+        text_content: TextContentMode::Maintain,
+        ..Default::default()
+    };
+    let result = format_with_options(input, options);
+    assert_eq!(
+        result,
+        "<svg>\n\t<text>Embedded &lt;style&gt; colors</text>\n</svg>"
+    );
+}

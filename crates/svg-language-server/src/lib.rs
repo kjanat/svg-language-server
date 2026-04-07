@@ -142,6 +142,53 @@ fn completion_response(items: Vec<CompletionItem>) -> Option<CompletionResponse>
     (!items.is_empty()).then_some(CompletionResponse::Array(items))
 }
 
+fn completion_from_context(
+    source: &[u8],
+    tree: &tree_sitter::Tree,
+    node: tree_sitter::Node<'_>,
+    runtime_compat: Option<&RuntimeCompat>,
+) -> Option<CompletionResponse> {
+    let mut cursor = node;
+    loop {
+        let kind = cursor.kind();
+
+        if kind.ends_with("_attribute_value") || kind == "quoted_attribute_value" {
+            if let Some(attr_wrapper) =
+                find_ancestor_any(cursor, &["generic_attribute", "attribute"])
+                && let Some(attr_name) = first_attribute_name_text(attr_wrapper, source)
+            {
+                let items = value_completions(&attr_name, source, tree, cursor);
+                if let Some(response) = completion_response(items) {
+                    return Some(response);
+                }
+            }
+            return None;
+        }
+
+        if kind == "start_tag" || kind == "self_closing_tag" {
+            let elem_name = tag_element_name(cursor, source).unwrap_or("");
+            let existing = existing_attribute_names(cursor, source);
+            return completion_response(attribute_completion_items(
+                elem_name,
+                &existing,
+                runtime_compat,
+            ));
+        }
+
+        if kind == "element" || kind == "svg_root_element" {
+            let elem_name = enclosing_element_name(cursor, source).unwrap_or("");
+            svg_data::element(elem_name)?;
+            return completion_response(child_element_completion_items(elem_name, runtime_compat));
+        }
+
+        if kind == "document" {
+            return completion_response(root_element_completion_items());
+        }
+
+        cursor = cursor.parent()?;
+    }
+}
+
 struct ClassHoverContext {
     target: String,
     definitions: Vec<ClassDefinitionHover>,
@@ -246,7 +293,7 @@ fn build_hover_context(
                         ClassDefinitionHover::new(uri.clone(), doc.source.clone(), definition)
                     })
                     .collect(),
-                stylesheet_hrefs: stylesheet_hrefs.clone(),
+                stylesheet_hrefs,
             },
             empty_property_hover_context(),
         ),
@@ -816,10 +863,6 @@ impl LanguageServer for SvgLanguageServer {
     async fn completion(&self, params: CompletionParams) -> Result<Option<CompletionResponse>> {
         let uri = &params.text_document_position.text_document.uri;
         let pos = params.text_document_position.position;
-        let runtime_compat = {
-            let guard = self.runtime_compat.read().await;
-            guard.clone()
-        };
 
         let Some(doc) = self.document_state(uri).await else {
             return Ok(None);
@@ -843,62 +886,11 @@ impl LanguageServer for SvgLanguageServer {
             return Ok(None);
         }
 
-        // Detect completion context by walking ancestors
-        let mut cursor = node;
-        loop {
-            let kind = cursor.kind();
-
-            // Inside attribute value → value completions
-            if kind.ends_with("_attribute_value") || kind == "quoted_attribute_value" {
-                // Walk up to find the attribute name
-                if let Some(attr_wrapper) =
-                    find_ancestor_any(cursor, &["generic_attribute", "attribute"])
-                    && let Some(attr_name) = first_attribute_name_text(attr_wrapper, source)
-                {
-                    let items = value_completions(&attr_name, source, &doc.tree, cursor);
-                    if let Some(response) = completion_response(items) {
-                        return Ok(Some(response));
-                    }
-                }
-                return Ok(None);
-            }
-
-            // Inside a tag → attribute name completions
-            if kind == "start_tag" || kind == "self_closing_tag" {
-                let elem_name = tag_element_name(cursor, source).unwrap_or("");
-                let existing = existing_attribute_names(cursor, source);
-                return Ok(completion_response(attribute_completion_items(
-                    elem_name,
-                    &existing,
-                    runtime_compat.as_ref(),
-                )));
-            }
-
-            // Inside an element → child element completions
-            if kind == "element" || kind == "svg_root_element" {
-                let elem_name = enclosing_element_name(cursor, source).unwrap_or("");
-                let Some(_) = svg_data::element(elem_name) else {
-                    return Ok(None);
-                };
-
-                return Ok(completion_response(child_element_completion_items(
-                    elem_name,
-                    runtime_compat.as_ref(),
-                )));
-            }
-
-            // Reached root document without matching → suggest root svg element
-            if kind == "document" {
-                return Ok(completion_response(root_element_completion_items()));
-            }
-
-            match cursor.parent() {
-                Some(parent) => cursor = parent,
-                None => break,
-            }
-        }
-
-        Ok(None)
+        let response = {
+            let runtime_compat = self.runtime_compat.read().await;
+            completion_from_context(source, &doc.tree, node, runtime_compat.as_ref())
+        };
+        Ok(response)
     }
 }
 

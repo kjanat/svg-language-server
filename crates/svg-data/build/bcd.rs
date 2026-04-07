@@ -123,9 +123,12 @@ fn read_web_features(path: &Path, wf_ok: bool) -> Option<serde_json::Value> {
     }
 
     let json = read_cached_json(path, "web-features")?;
-    let features = json.get("features").cloned();
+    let features = json
+        .get("features")
+        .filter(|v| v.is_object())
+        .cloned();
     if features.is_none() {
-        println!("cargo::warning=compat: web-features JSON missing \"features\" key");
+        println!("cargo::warning=compat: web-features JSON missing or invalid \"features\" key");
     }
     features
 }

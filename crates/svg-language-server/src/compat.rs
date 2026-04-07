@@ -74,11 +74,14 @@ pub fn fetch_runtime_compat() -> Option<RuntimeCompat> {
             "missing /features key in web-features JSON"
         );
     }
-    let svg_elements = bcd_json.pointer("/svg/elements");
-    if svg_elements.is_none() {
+    let Some(svg_elements_value) = bcd_json.pointer("/svg/elements") else {
         tracing::warn!(url = BCD_URL, "missing /svg/elements path in BCD JSON");
-    }
-    let svg_elements = svg_elements?.as_object()?;
+        return None;
+    };
+    let Some(svg_elements) = svg_elements_value.as_object() else {
+        tracing::warn!(url = BCD_URL, "/svg/elements is not a JSON object");
+        return None;
+    };
 
     let elements = collect_element_overrides(svg_elements, wf_features);
     let mut attributes = collect_element_attribute_overrides(svg_elements, wf_features);
@@ -172,6 +175,7 @@ fn apply_global_attribute_overrides(
         return;
     };
     let Some(attribute_map) = global_attributes.as_object() else {
+        tracing::warn!(url = BCD_URL, "/svg/global_attributes is not a JSON object");
         return;
     };
 

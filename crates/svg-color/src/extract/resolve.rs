@@ -82,8 +82,8 @@ fn resolve_color_mix(
     if !pieces.next()?.eq_ignore_ascii_case("in") {
         return None;
     }
-    let space = pieces.collect::<Vec<_>>().join(" ");
-    if space.is_empty() {
+    let space = pieces.next()?;
+    if pieces.next().is_some() {
         return None;
     }
 
@@ -91,7 +91,7 @@ fn resolve_color_mix(
     let (right, right_pct) = parse_color_mix_stop(right_stop, custom_properties, seen)?;
     let (left_weight, right_weight, alpha_scale) = resolve_mix_weights(left_pct, right_pct)?;
 
-    let mut mixed = parse::mix_colors(&space, left, left_weight, right, right_weight)?;
+    let mut mixed = parse::mix_colors(space, left, left_weight, right, right_weight)?;
     mixed.3 = parse::clamp_channel(f64::from(mixed.3) * alpha_scale);
     Some((mixed.0, mixed.1, mixed.2, mixed.3, ColorKind::Functional))
 }

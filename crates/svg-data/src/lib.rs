@@ -49,12 +49,15 @@ pub fn element(name: &str) -> Option<&'static ElementDef> {
 /// Look up a single SVG attribute definition by attribute name.
 #[must_use]
 pub fn attribute(name: &str) -> Option<&'static AttributeDef> {
-    ATTRIBUTE_MAP.get(name).copied().or_else(|| {
-        let canonical_name = xlink::canonical_svg_attribute_name(name);
-        (canonical_name.as_ref() != name)
-            .then(|| ATTRIBUTE_MAP.get(canonical_name.as_ref()).copied())
-            .flatten()
-    })
+    ATTRIBUTE_MAP
+        .get(name)
+        .or_else(|| {
+            let canonical_name = xlink::canonical_svg_attribute_name(name);
+            (canonical_name.as_ref() != name)
+                .then(|| ATTRIBUTE_MAP.get(canonical_name.as_ref()))
+                .flatten()
+        })
+        .copied()
 }
 
 /// Return the full generated SVG element catalog.
@@ -275,7 +278,7 @@ mod tests {
 
         assert!(
             !xlink_names.is_empty(),
-            "catalog should include deprecated xlink attributes"
+            "catalog must include deprecated xlink attributes for backwards compatibility"
         );
         assert!(
             xlink_names.iter().all(|name| name.contains(':')),

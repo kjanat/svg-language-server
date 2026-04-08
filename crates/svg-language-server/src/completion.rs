@@ -584,8 +584,13 @@ fn typed_value_completions(value_kind: &str) -> Option<Vec<CompletionItem>> {
             snippet_completion_item("new", CompletionItemKind::KEYWORD, "new $1 $2 $3 $4"),
         ],
 
+        // Complex structured data — no simple value completions
+        "d_attribute_value"
+        | "points_attribute_value"
+        | "key_splines_attribute_value"
+        | "key_times_attribute_value"
         // Identity / class / style / events — no simple value completions
-        "id_attribute_value"
+        | "id_attribute_value"
         | "class_attribute_value"
         | "style_attribute_value"
         | "event_attribute_value"
@@ -652,10 +657,11 @@ fn number_or_percentage_completions() -> Vec<CompletionItem> {
 }
 
 fn viewbox_completions() -> Vec<CompletionItem> {
-    vec![snippet_completion_item(
-        "viewBox",
+    vec![detailed_snippet_completion_item(
+        "0 0 width height",
         CompletionItemKind::VALUE,
         "$1 $2 $3 $4",
+        "min-x min-y width height",
     )]
 }
 

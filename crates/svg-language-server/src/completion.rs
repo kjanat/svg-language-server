@@ -477,12 +477,31 @@ pub fn value_completions(
     tree: &tree_sitter::Tree,
     value_node: tree_sitter::Node<'_>,
 ) -> Vec<CompletionItem> {
-    if matches!(attr_name, "href" | "xlink_href" | "xlink:href") {
-        return href_value_completions(source, tree, value_node);
+    // Grammar-typed attribute values: dispatch on the tree node kind produced by
+    // tree-sitter-svg rather than re-deriving the type from the catalog.
+    match value_node.kind() {
+        "href_attribute_value" => return href_value_completions(source, tree, value_node),
+        "functional_iri_attribute_value" => {
+            let mut items = href_value_completions(source, tree, value_node);
+            items.push(completion_item("none", CompletionItemKind::KEYWORD));
+            return items;
+        }
+        "paint_attribute_value" => {
+            let mut items = href_value_completions(source, tree, value_node);
+            items.extend(paint_value_completions());
+            return items;
+        }
+        kind if kind.ends_with("_attribute_value") && kind != "quoted_attribute_value" => {
+            if let Some(typed) = typed_value_completions(kind) {
+                return typed;
+            }
+        }
+        _ => {}
     }
 
-    if let Some(typed) = typed_value_completions(value_node.kind()) {
-        return typed;
+    // Untyped fallback: href by name, then catalog-based completions.
+    if matches!(attr_name, "href" | "xlink_href" | "xlink:href") {
+        return href_value_completions(source, tree, value_node);
     }
 
     let Some(attr_def) = svg_data::attribute(attr_name) else {
@@ -520,19 +539,62 @@ pub fn value_completions(
             );
             items
         }
-        AttributeValues::Length => length_value_completions(),
-        AttributeValues::NumberOrPercentage => number_or_percentage_completions(),
-        AttributeValues::Url => href_value_completions(source, tree, value_node),
         _ => Vec::new(),
     }
 }
 
+/// Dispatch completions for grammar-typed attribute value nodes.
 fn typed_value_completions(value_kind: &str) -> Option<Vec<CompletionItem>> {
-    match value_kind {
-        "duration_attribute_value" => Some(duration_value_completions()),
-        "offset_attribute_value" => Some(number_or_percentage_completions()),
-        _ => None,
-    }
+    Some(match value_kind {
+        // Time / animation
+        "duration_attribute_value" => duration_value_completions(),
+        "repeat_count_attribute_value" => repeat_count_completions(),
+        // Geometry
+        "length_attribute_value" => length_value_completions(),
+        "length_list_attribute_value" | "stroke_dasharray_attribute_value" => {
+            let mut items = length_value_completions();
+            items.push(completion_item("none", CompletionItemKind::KEYWORD));
+            items.push(completion_item("inherit", CompletionItemKind::KEYWORD));
+            items
+        }
+        "number_attribute_value" | "number_list_attribute_value" => number_completions(),
+        "offset_attribute_value" | "opacity_attribute_value" => number_or_percentage_completions(),
+        "viewbox_attribute_value" => viewbox_completions(),
+
+        // Clipping
+        "clip_attribute_value" => vec![
+            completion_item("auto", CompletionItemKind::KEYWORD),
+            completion_item("inherit", CompletionItemKind::KEYWORD),
+            snippet_completion_item(
+                "rect()",
+                CompletionItemKind::FUNCTION,
+                "rect($1, $2, $3, $4)",
+            ),
+        ],
+
+        // Transform
+        "transform_attribute_value" => transform_completions(),
+
+        // Preserve aspect ratio
+        "preserve_aspect_ratio_attribute_value" => preserve_aspect_ratio_completions(),
+
+        // Enable-background (deprecated but grammar-typed)
+        "enable_background_attribute_value" => vec![
+            completion_item("accumulate", CompletionItemKind::KEYWORD),
+            snippet_completion_item("new", CompletionItemKind::KEYWORD, "new $1 $2 $3 $4"),
+        ],
+
+        // Identity / class / style / events — no simple value completions
+        "id_attribute_value"
+        | "class_attribute_value"
+        | "style_attribute_value"
+        | "event_attribute_value"
+        | "xml_standalone_attribute_value" => {
+            return None;
+        }
+
+        _ => return None,
+    })
 }
 
 fn duration_value_completions() -> Vec<CompletionItem> {
@@ -542,11 +604,26 @@ fn duration_value_completions() -> Vec<CompletionItem> {
         detailed_completion_item("1s", CompletionItemKind::VALUE, "One second"),
         detailed_completion_item("2s", CompletionItemKind::VALUE, "Two seconds"),
         detailed_completion_item("200ms", CompletionItemKind::VALUE, "200 milliseconds"),
-        detailed_completion_item(
-            "indefinite",
-            CompletionItemKind::KEYWORD,
-            "Run indefinitely",
-        ),
+        completion_item("indefinite", CompletionItemKind::KEYWORD),
+        completion_item("media", CompletionItemKind::KEYWORD),
+    ]
+}
+
+fn repeat_count_completions() -> Vec<CompletionItem> {
+    vec![
+        detailed_completion_item("1", CompletionItemKind::VALUE, "Play once"),
+        detailed_completion_item("2", CompletionItemKind::VALUE, "Play twice"),
+        completion_item("indefinite", CompletionItemKind::KEYWORD),
+    ]
+}
+
+fn paint_value_completions() -> Vec<CompletionItem> {
+    vec![
+        completion_item("none", CompletionItemKind::KEYWORD),
+        completion_item("currentColor", CompletionItemKind::KEYWORD),
+        completion_item("inherit", CompletionItemKind::KEYWORD),
+        completion_item("context-fill", CompletionItemKind::KEYWORD),
+        completion_item("context-stroke", CompletionItemKind::KEYWORD),
     ]
 }
 
@@ -557,6 +634,13 @@ fn length_value_completions() -> Vec<CompletionItem> {
         .collect()
 }
 
+fn number_completions() -> Vec<CompletionItem> {
+    vec![
+        detailed_completion_item("0", CompletionItemKind::VALUE, "Zero"),
+        detailed_completion_item("1", CompletionItemKind::VALUE, "One"),
+    ]
+}
+
 fn number_or_percentage_completions() -> Vec<CompletionItem> {
     vec![
         detailed_completion_item("0", CompletionItemKind::VALUE, "Minimum"),
@@ -565,6 +649,41 @@ fn number_or_percentage_completions() -> Vec<CompletionItem> {
         detailed_completion_item("50%", CompletionItemKind::VALUE, "Percentage midpoint"),
         detailed_completion_item("100%", CompletionItemKind::VALUE, "Full"),
     ]
+}
+
+fn viewbox_completions() -> Vec<CompletionItem> {
+    vec![snippet_completion_item(
+        "viewBox",
+        CompletionItemKind::VALUE,
+        "$1 $2 $3 $4",
+    )]
+}
+
+fn transform_completions() -> Vec<CompletionItem> {
+    [
+        ("translate()", "translate($1, $2)"),
+        ("scale()", "scale($1, $2)"),
+        ("rotate()", "rotate($1)"),
+        ("skewX()", "skewX($1)"),
+        ("skewY()", "skewY($1)"),
+        ("matrix()", "matrix($1, $2, $3, $4, $5, $6)"),
+    ]
+    .into_iter()
+    .map(|(label, snippet)| snippet_completion_item(label, CompletionItemKind::FUNCTION, snippet))
+    .collect()
+}
+
+fn preserve_aspect_ratio_completions() -> Vec<CompletionItem> {
+    let mut items: Vec<CompletionItem> = [
+        "none", "xMinYMin", "xMidYMin", "xMaxYMin", "xMinYMid", "xMidYMid", "xMaxYMid", "xMinYMax",
+        "xMidYMax", "xMaxYMax",
+    ]
+    .into_iter()
+    .map(|alignment| completion_item(alignment, CompletionItemKind::ENUM_MEMBER))
+    .collect();
+    items.push(completion_item("meet", CompletionItemKind::ENUM_MEMBER));
+    items.push(completion_item("slice", CompletionItemKind::ENUM_MEMBER));
+    items
 }
 
 fn attribute_completion_item(attr: &svg_data::AttributeDef) -> CompletionItem {

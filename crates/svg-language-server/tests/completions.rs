@@ -199,3 +199,38 @@ fn script_and_href_completion_respect_svg_boundaries() -> TestResult {
     server.shutdown_and_exit()?;
     Ok(())
 }
+
+#[test]
+fn typed_attribute_values_offer_context_aware_completions() -> TestResult {
+    let mut server = TestServer::start()?;
+
+    let dur_svg = r#"<svg><animate dur="" /></svg>"#;
+    server.open("file:///dur-completion.svg", dur_svg)?;
+
+    let dur_offset = dur_svg.find(r#"dur=""#).ok_or("dur attr")? + 5;
+    let dur_resp = server.request(
+        "textDocument/completion",
+        &json!({
+            "textDocument": { "uri": "file:///dur-completion.svg" },
+            "position": { "line": 0, "character": dur_offset }
+        }),
+    )?;
+    let dur_items = dur_resp["result"]
+        .as_array()
+        .ok_or("duration completion result should be an array")?;
+    let dur_labels: Vec<&str> = dur_items
+        .iter()
+        .filter_map(|item| item["label"].as_str())
+        .collect();
+    assert!(
+        dur_labels.contains(&"1s"),
+        "duration value completions should include time values: {dur_labels:?}"
+    );
+    assert!(
+        dur_labels.contains(&"indefinite"),
+        "duration value completions should include indefinite: {dur_labels:?}"
+    );
+
+    server.shutdown_and_exit()?;
+    Ok(())
+}

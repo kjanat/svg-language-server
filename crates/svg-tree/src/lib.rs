@@ -191,4 +191,47 @@ mod tests {
         assert!(!is_attribute_name_kind("attribute_value"));
         assert!(!is_attribute_name_kind("element"));
     }
+
+    #[test]
+    fn iri_reference_node_exists_in_url_attributes() -> TestResult {
+        let src = br#"<svg><rect fill="url(#grad)"/></svg>"#;
+        let tree = parse_svg(src)?;
+        let mut found_iri = false;
+        let mut cursor = tree.root_node().walk();
+        walk_tree(&mut cursor, &mut |node| {
+            if node.kind() == "iri_reference" {
+                found_iri = true;
+            }
+        });
+        assert!(
+            found_iri,
+            "grammar should produce iri_reference for url(#...)"
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn typed_attribute_value_kinds_are_produced() -> TestResult {
+        let src = br#"<svg><animate dur="2s"/><line stroke-dasharray="10 5"/></svg>"#;
+        let tree = parse_svg(src)?;
+        let mut kinds = Vec::new();
+        let mut cursor = tree.root_node().walk();
+        walk_tree(&mut cursor, &mut |node| {
+            let kind = node.kind();
+            if kind.ends_with("_attribute_value") && kind != "quoted_attribute_value" {
+                kinds.push(kind.to_owned());
+            }
+        });
+        assert!(
+            kinds.iter().any(|k| k == "duration_attribute_value"),
+            "dur should produce duration_attribute_value: {kinds:?}"
+        );
+        assert!(
+            kinds
+                .iter()
+                .any(|k| k == "stroke_dasharray_attribute_value"),
+            "stroke-dasharray should produce stroke_dasharray_attribute_value: {kinds:?}"
+        );
+        Ok(())
+    }
 }

@@ -481,6 +481,10 @@ pub fn value_completions(
         return href_value_completions(source, tree, value_node);
     }
 
+    if let Some(typed) = typed_value_completions(value_node.kind()) {
+        return typed;
+    }
+
     let Some(attr_def) = svg_data::attribute(attr_name) else {
         return Vec::new();
     };
@@ -516,8 +520,51 @@ pub fn value_completions(
             );
             items
         }
+        AttributeValues::Length => length_value_completions(),
+        AttributeValues::NumberOrPercentage => number_or_percentage_completions(),
+        AttributeValues::Url => href_value_completions(source, tree, value_node),
         _ => Vec::new(),
     }
+}
+
+fn typed_value_completions(value_kind: &str) -> Option<Vec<CompletionItem>> {
+    match value_kind {
+        "duration_attribute_value" => Some(duration_value_completions()),
+        "offset_attribute_value" => Some(number_or_percentage_completions()),
+        _ => None,
+    }
+}
+
+fn duration_value_completions() -> Vec<CompletionItem> {
+    vec![
+        detailed_completion_item("0s", CompletionItemKind::VALUE, "No duration"),
+        detailed_completion_item("0.5s", CompletionItemKind::VALUE, "Half second"),
+        detailed_completion_item("1s", CompletionItemKind::VALUE, "One second"),
+        detailed_completion_item("2s", CompletionItemKind::VALUE, "Two seconds"),
+        detailed_completion_item("200ms", CompletionItemKind::VALUE, "200 milliseconds"),
+        detailed_completion_item(
+            "indefinite",
+            CompletionItemKind::KEYWORD,
+            "Run indefinitely",
+        ),
+    ]
+}
+
+fn length_value_completions() -> Vec<CompletionItem> {
+    ["px", "em", "rem", "%", "pt", "cm", "mm", "in"]
+        .into_iter()
+        .map(|unit| detailed_completion_item(unit, CompletionItemKind::UNIT, "SVG/CSS length unit"))
+        .collect()
+}
+
+fn number_or_percentage_completions() -> Vec<CompletionItem> {
+    vec![
+        detailed_completion_item("0", CompletionItemKind::VALUE, "Minimum"),
+        detailed_completion_item("0.5", CompletionItemKind::VALUE, "Midpoint"),
+        detailed_completion_item("1", CompletionItemKind::VALUE, "Maximum"),
+        detailed_completion_item("50%", CompletionItemKind::VALUE, "Percentage midpoint"),
+        detailed_completion_item("100%", CompletionItemKind::VALUE, "Full"),
+    ]
 }
 
 fn attribute_completion_item(attr: &svg_data::AttributeDef) -> CompletionItem {

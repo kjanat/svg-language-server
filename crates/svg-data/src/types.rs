@@ -238,3 +238,40 @@ pub struct SpecSnapshotMetadata {
     /// Whether published errata are folded into this snapshot.
     pub errata_folded: bool,
 }
+
+/// Result of resolving a known SVG feature against a specific profile.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ProfileLookup<T> {
+    /// The feature exists in the selected profile.
+    Present {
+        /// Canonical union definition for the feature.
+        value: T,
+        /// Spec lifecycle in the selected profile.
+        lifecycle: SpecLifecycle,
+    },
+    /// The feature is known in SVG, but not in the selected profile.
+    UnsupportedInProfile {
+        /// Snapshots where the feature is known to exist.
+        known_in: &'static [SpecSnapshotId],
+    },
+    /// The feature is not known in any tracked SVG snapshot.
+    Unknown,
+}
+
+/// Element definition paired with lifecycle in a selected profile.
+#[derive(Debug, Clone, Copy)]
+pub struct ProfiledElement {
+    /// Canonical union definition for the element.
+    pub element: &'static ElementDef,
+    /// Spec lifecycle in the selected profile.
+    pub lifecycle: SpecLifecycle,
+}
+
+/// Attribute definition paired with lifecycle in a selected profile.
+#[derive(Debug, Clone, Copy)]
+pub struct ProfiledAttribute {
+    /// Canonical union definition for the attribute.
+    pub attribute: &'static AttributeDef,
+    /// Spec lifecycle in the selected profile.
+    pub lifecycle: SpecLifecycle,
+}

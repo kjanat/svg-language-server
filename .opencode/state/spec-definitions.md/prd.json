@@ -28,7 +28,7 @@
 			"description": "Done when svg-data can resolve elements, attributes, and child policies against a selected snapshot/profile.",
 			"depends": ["spec-lifecycle"],
 			"priority": "integration",
-			"passes": false
+			"passes": true
 		},
 		{
 			"id": "namespace-lint-core",

@@ -663,6 +663,18 @@ mod tests {
     }
 
     #[test]
+    fn friendly_aliases_resolve_to_pinned_snapshots() {
+        assert_eq!(
+            resolve_profile_id("Svg1"),
+            Some(SpecSnapshotId::Svg11Rec20110816)
+        );
+        assert_eq!(
+            resolve_profile_id("Svg2Draft"),
+            Some(SpecSnapshotId::Svg2EditorsDraft20250914)
+        );
+    }
+
+    #[test]
     fn snapshot_metadata_tracks_stable_base_and_errata() {
         let svg11 = snapshot_metadata(SpecSnapshotId::Svg11Rec20110816);
         assert!(svg11.errata_folded);
@@ -671,6 +683,18 @@ mod tests {
         let draft = snapshot_metadata(SpecSnapshotId::Svg2EditorsDraft20250914);
         assert_eq!(draft.stable_base, Some(SpecSnapshotId::Svg2Cr20181004));
         assert!(!draft.errata_folded);
+    }
+
+    #[test]
+    fn draft_only_membership_derives_experimental_lifecycle() {
+        assert_eq!(
+            lifecycle_for_profile(
+                SpecSnapshotId::Svg2EditorsDraft20250914,
+                &[SpecSnapshotId::Svg2EditorsDraft20250914],
+                SpecLifecycle::Stable,
+            ),
+            SpecLifecycle::Experimental
+        );
     }
 
     #[test]

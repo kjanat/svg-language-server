@@ -73,7 +73,7 @@
 			"description": "Done when svg-data, svg-lint, and svg-language-server each cover the profile-aware cases described in the spec.",
 			"depends": ["completion-lifecycle", "hover-lifecycle"],
 			"priority": "polish",
-			"passes": false
+			"passes": true
 		}
 	]
 }

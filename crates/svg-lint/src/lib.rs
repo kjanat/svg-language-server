@@ -226,6 +226,22 @@ mod tests {
     }
 
     #[test]
+    fn prefixed_svg_elements_still_use_svg_validation_rules() {
+        let src = br#"
+            <svg xmlns:svg="http://www.w3.org/2000/svg">
+                <svg:rect/>
+                <svg:animate attributeName="width" dur="1s"/>
+            </svg>
+        "#;
+        let diags = lint(src);
+
+        assert!(
+            diags.is_empty(),
+            "prefixed svg:rect/svg:animate should lint like SVG elements: {diags:?}"
+        );
+    }
+
+    #[test]
     fn unsupported_attribute_is_distinct_from_unknown() {
         let src = br##"<svg><use href="#icon" banana="1"/></svg>"##;
         let diags = lint_with_options(

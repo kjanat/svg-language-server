@@ -239,7 +239,7 @@ fn typed_attribute_values_offer_context_aware_completions() -> TestResult {
 fn completions_follow_selected_profile() -> TestResult {
     let mut svg11_server = TestServer::start_with_initialize_options(&json!({
         "svg": {
-            "profile": "Svg11"
+            "profile": "svg11"
         }
     }))?;
 

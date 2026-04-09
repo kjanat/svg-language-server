@@ -212,7 +212,7 @@ fn multiline_tag_suppression_inserts_before_opening_tag() -> TestResult {
 fn profile_config_applies_on_init_and_relints_open_documents() -> TestResult {
     let mut server = TestServer::start_with_initialize_options(&json!({
         "svg": {
-            "profile": "svg11rec20110816"
+            "profile": "svg11"
         }
     }))?;
 
@@ -236,7 +236,7 @@ fn profile_config_applies_on_init_and_relints_open_documents() -> TestResult {
     drain_notifications(&mut server);
     server.change_configuration(&json!({
         "svg": {
-            "profile": "Svg2Draft"
+            "profile": "svg2draft"
         }
     }))?;
 

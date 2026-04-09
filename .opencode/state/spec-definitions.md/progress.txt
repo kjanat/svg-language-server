@@ -14,6 +14,7 @@ Started: 2026-04-09
 - Namespace-aware SVG lint needs XML rules, not string prefix guesses: element names inherit default namespaces, but unprefixed attributes stay in no namespace and should only map back to SVG/XLink when their resolved namespace allows it.
 - In the LSP, keep profile selection as a tiny shared state object and funnel every diagnostics refresh through one `relint_open_documents` helper, so init/config/runtime-compat changes cannot drift.
 - For profile-aware hover, resolve `ProfileLookup` once in `lib.rs`, keep rendering in `hover.rs`, and show spec lifecycle as a separate line from runtime/browser compat so obsolete historical attrs like `xlink:href` still explain why they fail in newer profiles.
+- For profile E2E coverage, use lowercase aliases like `svg11` and `svg2draft`; one test then covers alias handling, case folding, and the real relint/completion path at once.
 
 ---
 
@@ -76,3 +77,11 @@ Started: 2026-04-09
 - Added unit coverage for lifecycle line formatting and an end-to-end hover test that checks SVG 1.1 vs SVG 2 profile behavior for `xlink:href`.
 - Files changed: `crates/svg-language-server/src/lib.rs`, `crates/svg-language-server/src/hover.rs`, `crates/svg-language-server/tests/definitions_and_hover.rs`, `.opencode/state/spec-definitions.md/prd.json`, `.opencode/state/spec-definitions.md/progress.txt`
 - **Learnings:** hover can keep rendering from the union catalog even when a feature is unsupported in the selected profile, as long as the profile lookup result drives the lifecycle line and the browser compat section stays independent.
+
+## Task - profile-regression-tests
+
+- Added `svg-data` regression coverage for exact friendly alias mappings and diff-derived draft lifecycle promotion via `lifecycle_for_profile`.
+- Added `svg-lint` regression coverage proving prefixed `svg:` elements still flow through SVG namespace validation.
+- Tightened LSP integration coverage so lowercase profile aliases are accepted during initialize and config change, and open documents still re-lint against the resolved profile.
+- Files changed: `crates/svg-data/src/lib.rs`, `crates/svg-lint/src/lib.rs`, `crates/svg-language-server/tests/completions.rs`, `crates/svg-language-server/tests/diagnostics_and_actions.rs`, `.opencode/state/spec-definitions.md/prd.json`, `.opencode/state/spec-definitions.md/progress.txt`
+- **Learnings:** regression tests that hit lowercase aliases are cheap but high-signal because they exercise the full config parsing path instead of only the pure resolver helper.

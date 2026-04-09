@@ -1,0 +1,21 @@
+# Progress Log
+
+PRD: spec-definitions.md
+Spec: spec-definitions.md
+Started: 2026-04-09
+
+## Codebase Patterns
+
+- Keep `svg-data` public profile metadata in `src/lib.rs` + `src/types.rs` first when it is small and static; save build-script churn for later profile-specific catalog overlays.
+- Normalize user-facing identifiers by stripping punctuation and folding ASCII case when config should accept canonical ids, aliases, and human-written long-form names.
+
+---
+
+## Task - snapshot-metadata
+
+- Added `SpecSnapshotId` and `SpecSnapshotMetadata` to `crates/svg-data/src/types.rs`
+- Added `svg_data::spec_snapshots()`, `snapshot_metadata()`, and `resolve_profile_id()` in `crates/svg-data/src/lib.rs`
+- Pinned metadata now covers source URL, snapshot date, stable base, errata folding, plus friendly aliases and long-form synonyms for all four target snapshots
+- Added regression tests for alias resolution, case-insensitive parsing, long-form synonym parsing, and metadata invariants
+- Files changed: `crates/svg-data/src/lib.rs`, `crates/svg-data/src/types.rs`, `.opencode/state/spec-definitions.md/prd.json`, `.opencode/state/spec-definitions.md/progress.txt`
+- **Learnings:** this repo has no existing `.opencode/state` entry for `spec-definitions.md`, so the workflow state had to be bootstrapped from the checked-in spec before the task could be tracked

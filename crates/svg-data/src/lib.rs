@@ -31,7 +31,88 @@ use std::{collections::HashMap, sync::LazyLock};
 use catalog::{ATTRIBUTES, ELEMENTS};
 pub use types::{
     AttributeDef, AttributeValues, BaselineStatus, BrowserSupport, BrowserVersion, ContentModel,
-    ElementCategory, ElementDef,
+    ElementCategory, ElementDef, SpecSnapshotId, SpecSnapshotMetadata,
+};
+
+const SVG11_REC_20030114_ALIASES: &[&str] = &[
+    "Svg11Rec20030114",
+    "Svg11FirstEdition",
+    "SVG 1.1 First Edition",
+    "SVG 1.1 Recommendation 2003-01-14",
+];
+
+const SVG11_REC_20110816_ALIASES: &[&str] = &[
+    "Svg1",
+    "Svg11",
+    "Svg11Rec20110816",
+    "Svg11SecondEdition",
+    "SVG 1",
+    "SVG 1.1",
+    "SVG 1.1 Second Edition",
+    "SVG 1.1 Recommendation 2011-08-16",
+];
+
+const SVG2_CR_20181004_ALIASES: &[&str] = &[
+    "Svg2",
+    "Svg2Cr20181004",
+    "Svg2CandidateRecommendation",
+    "SVG 2",
+    "SVG 2 CR",
+    "SVG 2 Candidate Recommendation",
+    "SVG 2 Candidate Recommendation 2018-10-04",
+];
+
+const SVG2_EDITORS_DRAFT_20250914_ALIASES: &[&str] = &[
+    "Svg2Draft",
+    "Svg2EditorsDraft20250914",
+    "Svg2EditorsDraft",
+    "SVG 2 Draft",
+    "SVG 2 Editor's Draft",
+    "SVG 2 Editors Draft",
+    "SVG 2 Editor's Draft 2025-09-14",
+];
+
+const ALL_SPEC_SNAPSHOTS: &[SpecSnapshotId] = &[
+    SpecSnapshotId::Svg11Rec20030114,
+    SpecSnapshotId::Svg11Rec20110816,
+    SpecSnapshotId::Svg2Cr20181004,
+    SpecSnapshotId::Svg2EditorsDraft20250914,
+];
+
+const SVG11_REC_20030114_METADATA: SpecSnapshotMetadata = SpecSnapshotMetadata {
+    canonical_id: SpecSnapshotId::Svg11Rec20030114,
+    aliases: SVG11_REC_20030114_ALIASES,
+    source_url: "https://www.w3.org/TR/2003/REC-SVG11-20030114/",
+    snapshot_date: "2003-01-14",
+    stable_base: None,
+    errata_folded: false,
+};
+
+const SVG11_REC_20110816_METADATA: SpecSnapshotMetadata = SpecSnapshotMetadata {
+    canonical_id: SpecSnapshotId::Svg11Rec20110816,
+    aliases: SVG11_REC_20110816_ALIASES,
+    source_url: "https://www.w3.org/TR/2011/REC-SVG11-20110816/",
+    snapshot_date: "2011-08-16",
+    stable_base: None,
+    errata_folded: true,
+};
+
+const SVG2_CR_20181004_METADATA: SpecSnapshotMetadata = SpecSnapshotMetadata {
+    canonical_id: SpecSnapshotId::Svg2Cr20181004,
+    aliases: SVG2_CR_20181004_ALIASES,
+    source_url: "https://www.w3.org/TR/2018/CR-SVG2-20181004/",
+    snapshot_date: "2018-10-04",
+    stable_base: None,
+    errata_folded: false,
+};
+
+const SVG2_EDITORS_DRAFT_20250914_METADATA: SpecSnapshotMetadata = SpecSnapshotMetadata {
+    canonical_id: SpecSnapshotId::Svg2EditorsDraft20250914,
+    aliases: SVG2_EDITORS_DRAFT_20250914_ALIASES,
+    source_url: "https://svgwg.org/svg2-draft/",
+    snapshot_date: "2025-09-14",
+    stable_base: Some(SpecSnapshotId::Svg2Cr20181004),
+    errata_folded: false,
 };
 
 static ELEMENT_MAP: LazyLock<HashMap<&'static str, &'static ElementDef>> =
@@ -58,6 +139,37 @@ pub fn attribute(name: &str) -> Option<&'static AttributeDef> {
                 .flatten()
         })
         .copied()
+}
+
+/// Return the supported SVG spec snapshots in canonical order.
+#[must_use]
+pub const fn spec_snapshots() -> &'static [SpecSnapshotId] {
+    ALL_SPEC_SNAPSHOTS
+}
+
+/// Return pinned metadata for a canonical SVG spec snapshot id.
+#[must_use]
+pub const fn snapshot_metadata(snapshot: SpecSnapshotId) -> &'static SpecSnapshotMetadata {
+    match snapshot {
+        SpecSnapshotId::Svg11Rec20030114 => &SVG11_REC_20030114_METADATA,
+        SpecSnapshotId::Svg11Rec20110816 => &SVG11_REC_20110816_METADATA,
+        SpecSnapshotId::Svg2Cr20181004 => &SVG2_CR_20181004_METADATA,
+        SpecSnapshotId::Svg2EditorsDraft20250914 => &SVG2_EDITORS_DRAFT_20250914_METADATA,
+    }
+}
+
+/// Resolve a user-facing profile id, alias, or long-form synonym.
+#[must_use]
+pub fn resolve_profile_id(input: &str) -> Option<SpecSnapshotId> {
+    let normalized_input = normalize_profile_key(input);
+    if normalized_input.is_empty() {
+        return None;
+    }
+
+    spec_snapshots()
+        .iter()
+        .copied()
+        .find(|snapshot| profile_key_matches(*snapshot, &normalized_input))
 }
 
 /// Return the full generated SVG element catalog.
@@ -111,6 +223,24 @@ pub fn attributes_for(element_name: &str) -> Vec<&'static AttributeDef> {
 #[must_use]
 pub const fn elements_in_category(cat: ElementCategory) -> &'static [&'static str] {
     categories::elements_in_category(cat)
+}
+
+fn profile_key_matches(snapshot: SpecSnapshotId, normalized_input: &str) -> bool {
+    let metadata = snapshot_metadata(snapshot);
+    normalize_profile_key(metadata.canonical_id.as_str()) == normalized_input
+        || metadata
+            .aliases
+            .iter()
+            .copied()
+            .any(|alias| normalize_profile_key(alias) == normalized_input)
+}
+
+fn normalize_profile_key(input: &str) -> String {
+    input
+        .chars()
+        .filter(char::is_ascii_alphanumeric)
+        .map(|ch| ch.to_ascii_lowercase())
+        .collect()
 }
 
 #[cfg(test)]
@@ -331,5 +461,44 @@ mod tests {
                 el.name
             );
         }
+    }
+
+    #[test]
+    fn profile_resolution_accepts_aliases_case_insensitively() {
+        assert_eq!(
+            resolve_profile_id("Svg2Draft"),
+            Some(SpecSnapshotId::Svg2EditorsDraft20250914)
+        );
+        assert_eq!(
+            resolve_profile_id("svg1"),
+            Some(SpecSnapshotId::Svg11Rec20110816)
+        );
+        assert_eq!(
+            resolve_profile_id("svg11rec20110816"),
+            Some(SpecSnapshotId::Svg11Rec20110816)
+        );
+    }
+
+    #[test]
+    fn profile_resolution_accepts_long_form_synonyms() {
+        assert_eq!(
+            resolve_profile_id("SVG 1.1 Second Edition"),
+            Some(SpecSnapshotId::Svg11Rec20110816)
+        );
+        assert_eq!(
+            resolve_profile_id("SVG 2 Editor's Draft"),
+            Some(SpecSnapshotId::Svg2EditorsDraft20250914)
+        );
+    }
+
+    #[test]
+    fn snapshot_metadata_tracks_stable_base_and_errata() {
+        let svg11 = snapshot_metadata(SpecSnapshotId::Svg11Rec20110816);
+        assert!(svg11.errata_folded);
+        assert_eq!(svg11.stable_base, None);
+
+        let draft = snapshot_metadata(SpecSnapshotId::Svg2EditorsDraft20250914);
+        assert_eq!(draft.stable_base, Some(SpecSnapshotId::Svg2Cr20181004));
+        assert!(!draft.errata_folded);
     }
 }

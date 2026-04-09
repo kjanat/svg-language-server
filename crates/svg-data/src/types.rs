@@ -178,3 +178,46 @@ pub enum ElementCategory {
     /// Elements that never render directly.
     NeverRendered,
 }
+
+/// Canonical SVG spec snapshot identifiers supported by profile-aware lookups.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum SpecSnapshotId {
+    /// SVG 1.1 Recommendation (2003-01-14).
+    Svg11Rec20030114,
+    /// SVG 1.1 Second Edition Recommendation (2011-08-16).
+    Svg11Rec20110816,
+    /// SVG 2 Candidate Recommendation (2018-10-04).
+    Svg2Cr20181004,
+    /// Pinned SVG 2 Editor's Draft snapshot (2025-09-14).
+    Svg2EditorsDraft20250914,
+}
+
+impl SpecSnapshotId {
+    /// Return the canonical stable string id used in config and diagnostics.
+    #[must_use]
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Svg11Rec20030114 => "Svg11Rec20030114",
+            Self::Svg11Rec20110816 => "Svg11Rec20110816",
+            Self::Svg2Cr20181004 => "Svg2Cr20181004",
+            Self::Svg2EditorsDraft20250914 => "Svg2EditorsDraft20250914",
+        }
+    }
+}
+
+/// Static metadata describing a supported SVG spec snapshot.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SpecSnapshotMetadata {
+    /// Canonical snapshot id.
+    pub canonical_id: SpecSnapshotId,
+    /// Accepted aliases and long-form synonyms.
+    pub aliases: &'static [&'static str],
+    /// Upstream source URL for the snapshot.
+    pub source_url: &'static str,
+    /// Snapshot date in `YYYY-MM-DD` form.
+    pub snapshot_date: &'static str,
+    /// Stable baseline snapshot used to derive draft-only additions.
+    pub stable_base: Option<SpecSnapshotId>,
+    /// Whether published errata are folded into this snapshot.
+    pub errata_folded: bool,
+}

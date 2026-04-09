@@ -1,0 +1,79 @@
+{
+	"prdName": "spec-definitions.md",
+	"spec": "spec-definitions.md",
+	"description": "Implement profile-aware SVG spec definitions, linting, and LSP behavior",
+	"tasks": [
+		{
+			"id": "snapshot-metadata",
+			"phase": 1,
+			"title": "Add snapshot ids, alias resolution, and pinned metadata in svg-data",
+			"description": "Done when svg-data exposes canonical snapshot ids, resolves aliases case-insensitively, accepts long-form synonyms, and publishes pinned metadata including source URL, snapshot date, stable_base, and errata_folded.",
+			"depends": [],
+			"priority": "architecture",
+			"passes": true
+		},
+		{
+			"id": "spec-lifecycle",
+			"phase": 1,
+			"title": "Split spec lifecycle from browser compat status",
+			"description": "Done when svg-data exposes a separate spec lifecycle model that does not reuse browser compat experimental or deprecated flags.",
+			"depends": ["snapshot-metadata"],
+			"priority": "architecture",
+			"passes": false
+		},
+		{
+			"id": "profile-lookups",
+			"phase": 1,
+			"title": "Add profile-aware lookup APIs in svg-data",
+			"description": "Done when svg-data can resolve elements, attributes, and child policies against a selected snapshot/profile.",
+			"depends": ["spec-lifecycle"],
+			"priority": "integration",
+			"passes": false
+		},
+		{
+			"id": "namespace-lint-core",
+			"phase": 2,
+			"title": "Add namespace-aware lint core and UnsupportedInProfile",
+			"description": "Done when svg-lint validates only SVG namespace nodes, emits UnsupportedInProfile, and keeps unknown separate from unsupported.",
+			"depends": ["profile-lookups"],
+			"priority": "integration",
+			"passes": false
+		},
+		{
+			"id": "lsp-profile-config",
+			"phase": 2,
+			"title": "Wire profile config into LSP",
+			"description": "Done when initializationOptions and didChangeConfiguration can select a profile and open docs are re-linted on change.",
+			"depends": ["namespace-lint-core"],
+			"priority": "integration",
+			"passes": false
+		},
+		{
+			"id": "completion-lifecycle",
+			"phase": 2,
+			"title": "Make completions lifecycle-aware",
+			"description": "Done when completions hide unsupported items and annotate experimental and deprecated entries with lifecycle detail.",
+			"depends": ["lsp-profile-config"],
+			"priority": "standard",
+			"passes": false
+		},
+		{
+			"id": "hover-lifecycle",
+			"phase": 2,
+			"title": "Make hover lifecycle-aware",
+			"description": "Done when hover shows spec lifecycle separately from browser support for the selected profile.",
+			"depends": ["lsp-profile-config"],
+			"priority": "standard",
+			"passes": false
+		},
+		{
+			"id": "profile-regression-tests",
+			"phase": 3,
+			"title": "Add snapshot and profile regression tests",
+			"description": "Done when svg-data, svg-lint, and svg-language-server each cover the profile-aware cases described in the spec.",
+			"depends": ["completion-lifecycle", "hover-lifecycle"],
+			"priority": "polish",
+			"passes": false
+		}
+	]
+}

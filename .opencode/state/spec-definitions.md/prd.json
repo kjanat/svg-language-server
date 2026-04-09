@@ -46,7 +46,7 @@
 			"description": "Done when initializationOptions and didChangeConfiguration can select a profile and open docs are re-linted on change.",
 			"depends": ["namespace-lint-core"],
 			"priority": "integration",
-			"passes": false
+			"passes": true
 		},
 		{
 			"id": "completion-lifecycle",

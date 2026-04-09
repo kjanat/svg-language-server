@@ -18,12 +18,12 @@ use tower_lsp_server::{
         CodeActionParams, CodeActionProviderCapability, CodeActionResponse, Color,
         ColorInformation, ColorPresentation, ColorPresentationParams, ColorProviderCapability,
         CompletionItem, CompletionOptions, CompletionParams, CompletionResponse,
-        DidChangeTextDocumentParams, DidCloseTextDocumentParams, DidOpenTextDocumentParams,
-        DocumentColorParams, DocumentFormattingParams, ExecuteCommandOptions, ExecuteCommandParams,
-        GotoDefinitionParams, GotoDefinitionResponse, Hover, HoverContents, HoverParams,
-        HoverProviderCapability, InitializeParams, InitializeResult, MarkupContent, MarkupKind,
-        MessageType, OneOf, Position, Range, ServerCapabilities, TextDocumentSyncCapability,
-        TextDocumentSyncKind, TextEdit, Uri,
+        DidChangeConfigurationParams, DidChangeTextDocumentParams, DidCloseTextDocumentParams,
+        DidOpenTextDocumentParams, DocumentColorParams, DocumentFormattingParams,
+        ExecuteCommandOptions, ExecuteCommandParams, GotoDefinitionParams, GotoDefinitionResponse,
+        Hover, HoverContents, HoverParams, HoverProviderCapability, InitializeParams,
+        InitializeResult, MarkupContent, MarkupKind, MessageType, OneOf, Position, Range,
+        ServerCapabilities, TextDocumentSyncCapability, TextDocumentSyncKind, TextEdit, Uri,
     },
 };
 use url::Url;
@@ -90,6 +90,61 @@ pub(crate) type StylesheetCache =
     Arc<StdRwLock<HashMap<String, Arc<OnceLock<Option<CachedStylesheet>>>>>>;
 const COPY_DATA_URI_COMMAND: &str = "svg.copyDataUri";
 const COPY_DATA_URI_ACTION_TITLE: &str = "Copy SVG as data URI";
+
+#[derive(Clone, Copy)]
+struct ProfileConfig {
+    requested: Option<&'static str>,
+    resolved: svg_data::SpecSnapshotId,
+}
+
+impl Default for ProfileConfig {
+    fn default() -> Self {
+        Self {
+            requested: None,
+            resolved: svg_lint::LintOptions::default().profile,
+        }
+    }
+}
+
+impl ProfileConfig {
+    const fn lint_options(self) -> svg_lint::LintOptions {
+        svg_lint::LintOptions {
+            profile: self.resolved,
+        }
+    }
+}
+
+fn configured_profile(config: &Value) -> Option<&str> {
+    config
+        .get("svg")
+        .and_then(Value::as_object)
+        .and_then(|svg| svg.get("profile"))
+        .and_then(Value::as_str)
+}
+
+fn resolve_profile_config(config: &Value) -> (ProfileConfig, Option<String>) {
+    let Some(requested) = configured_profile(config) else {
+        return (ProfileConfig::default(), None);
+    };
+
+    if let Some(resolved) = svg_data::resolve_profile_id(requested) {
+        return (
+            ProfileConfig {
+                requested: Some(resolved.as_str()),
+                resolved,
+            },
+            None,
+        );
+    }
+
+    (
+        ProfileConfig::default(),
+        Some(format!(
+            "Unknown SVG profile `{requested}`; falling back to {}.",
+            svg_lint::LintOptions::default().profile.as_str()
+        )),
+    )
+}
 
 fn server_capabilities() -> ServerCapabilities {
     ServerCapabilities {
@@ -333,6 +388,7 @@ fn build_hover_context(
     }
 }
 
+#[derive(Clone)]
 struct SvgLanguageServer {
     client: Client,
     documents: Arc<RwLock<HashMap<Uri, Arc<DocumentState>>>>,
@@ -340,6 +396,7 @@ struct SvgLanguageServer {
     color_kinds: ColorKindCache,
     stylesheet_cache: StylesheetCache,
     runtime_compat: Arc<RwLock<Option<RuntimeCompat>>>,
+    profile_config: Arc<RwLock<ProfileConfig>>,
 }
 
 impl SvgLanguageServer {
@@ -358,12 +415,76 @@ impl SvgLanguageServer {
             color_kinds: Arc::new(RwLock::new(HashMap::new())),
             stylesheet_cache: Arc::new(StdRwLock::new(HashMap::new())),
             runtime_compat: Arc::new(RwLock::new(None)),
+            profile_config: Arc::new(RwLock::new(ProfileConfig::default())),
         }
     }
 
     async fn document_state(&self, uri: &Uri) -> Option<Arc<DocumentState>> {
         let docs = self.documents.read().await;
         docs.get(uri).cloned()
+    }
+
+    async fn current_lint_inputs(
+        &self,
+    ) -> (svg_lint::LintOptions, Option<svg_lint::LintOverrides>) {
+        let profile = *self.profile_config.read().await;
+        let overrides = self
+            .runtime_compat
+            .read()
+            .await
+            .as_ref()
+            .map(RuntimeCompat::to_lint_overrides);
+        (profile.lint_options(), overrides)
+    }
+
+    async fn relint_open_documents(&self) {
+        let (lint_options, overrides) = self.current_lint_inputs().await;
+        let snapshot: Vec<_> = {
+            let docs = self.documents.read().await;
+            docs.iter()
+                .map(|(uri, doc)| (uri.clone(), doc.clone()))
+                .collect()
+        };
+
+        for (uri, doc) in snapshot {
+            let source_bytes = doc.source.as_bytes();
+            let lint_diags = svg_lint::lint_tree_with_options(
+                source_bytes,
+                &doc.tree,
+                lint_options,
+                overrides.as_ref(),
+            );
+            let is_current = {
+                let docs = self.documents.read().await;
+                docs.get(&uri).is_some_and(|current| {
+                    current.version == doc.version && current.source == doc.source
+                })
+            };
+            if is_current {
+                publish_lint_diagnostics(
+                    &self.client,
+                    uri,
+                    source_bytes,
+                    lint_diags,
+                    Some(doc.version),
+                )
+                .await;
+            }
+        }
+    }
+
+    async fn apply_profile_config(&self, config: &Value) {
+        let (resolved, warning) = resolve_profile_config(config);
+        tracing::debug!(
+            requested_profile = resolved.requested.unwrap_or(resolved.resolved.as_str()),
+            resolved_profile = resolved.resolved.as_str(),
+            "applied SVG profile config"
+        );
+        *self.profile_config.write().await = resolved;
+
+        if let Some(message) = warning {
+            self.client.log_message(MessageType::WARNING, message).await;
+        }
     }
 
     /// Parse source, run linter, publish diagnostics, store document state.
@@ -384,11 +505,13 @@ impl SvgLanguageServer {
             tree,
         });
         let source_bytes = state.source.as_bytes();
-        let overrides = {
-            let compat = self.runtime_compat.read().await;
-            compat.as_ref().map(RuntimeCompat::to_lint_overrides)
-        };
-        let lint_diags = svg_lint::lint_tree(source_bytes, &state.tree, overrides.as_ref());
+        let (lint_options, overrides) = self.current_lint_inputs().await;
+        let lint_diags = svg_lint::lint_tree_with_options(
+            source_bytes,
+            &state.tree,
+            lint_options,
+            overrides.as_ref(),
+        );
         self.documents
             .write()
             .await
@@ -423,13 +546,16 @@ impl SvgLanguageServer {
 }
 
 impl LanguageServer for SvgLanguageServer {
-    async fn initialize(&self, _params: InitializeParams) -> Result<InitializeResult> {
+    async fn initialize(&self, params: InitializeParams) -> Result<InitializeResult> {
         tracing::info!("initialize");
+
+        if let Some(config) = params.initialization_options.as_ref() {
+            self.apply_profile_config(config).await;
+        }
 
         // Spawn background compat data refresh
         let compat = self.runtime_compat.clone();
-        let client = self.client.clone();
-        let documents = self.documents.clone();
+        let server = self.clone();
         tokio::spawn(async move {
             let result = tokio::task::spawn_blocking(fetch_runtime_compat).await;
             match result {
@@ -442,38 +568,7 @@ impl LanguageServer for SvgLanguageServer {
                         attributes = attr_count,
                         "runtime compat data loaded"
                     );
-                    // Re-lint open documents with fresh compat overrides.
-                    let overrides = {
-                        let c = compat.read().await;
-                        c.as_ref().map(RuntimeCompat::to_lint_overrides)
-                    };
-                    let snapshot: Vec<_> = {
-                        let docs = documents.read().await;
-                        docs.iter()
-                            .map(|(uri, doc)| (uri.clone(), doc.clone()))
-                            .collect()
-                    };
-                    for (uri, doc) in snapshot {
-                        let source_bytes = doc.source.as_bytes();
-                        let lint_diags =
-                            svg_lint::lint_tree(source_bytes, &doc.tree, overrides.as_ref());
-                        let is_current = {
-                            let docs = documents.read().await;
-                            docs.get(&uri).is_some_and(|current| {
-                                current.version == doc.version && current.source == doc.source
-                            })
-                        };
-                        if is_current {
-                            publish_lint_diagnostics(
-                                &client,
-                                uri,
-                                source_bytes,
-                                lint_diags,
-                                Some(doc.version),
-                            )
-                            .await;
-                        }
-                    }
+                    server.relint_open_documents().await;
                 }
                 Ok(None) => {
                     tracing::info!("runtime compat fetch returned no data (offline?)");
@@ -515,6 +610,12 @@ impl LanguageServer for SvgLanguageServer {
             )
             .await;
         }
+    }
+
+    async fn did_change_configuration(&self, params: DidChangeConfigurationParams) {
+        tracing::debug!("did_change_configuration");
+        self.apply_profile_config(&params.settings).await;
+        self.relint_open_documents().await;
     }
 
     async fn did_close(&self, params: DidCloseTextDocumentParams) {

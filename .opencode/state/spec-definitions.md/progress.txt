@@ -11,6 +11,7 @@ Started: 2026-04-09
 - Keep spec lifecycle as its own field on `svg-data` defs; compat booleans stay a separate axis so later lint/LSP code can switch without re-plumbing catalog generation again.
 - When profile deltas are sparse, keep the catalog as a union and layer snapshot membership tables in `svg-data::lib`; that gives lint/LSP profile-aware lookups without forcing generated catalog churn yet.
 - Namespace-aware SVG lint needs XML rules, not string prefix guesses: element names inherit default namespaces, but unprefixed attributes stay in no namespace and should only map back to SVG/XLink when their resolved namespace allows it.
+- In the LSP, keep profile selection as a tiny shared state object and funnel every diagnostics refresh through one `relint_open_documents` helper, so init/config/runtime-compat changes cannot drift.
 
 ---
 
@@ -49,3 +50,11 @@ Started: 2026-04-09
 - Updated downstream LSP diagnostics/code-action coverage to assert multiline suppression insertion for `UnsupportedInProfile`.
 - Files changed: `crates/svg-lint/src/lib.rs`, `crates/svg-lint/src/namespaces.rs`, `crates/svg-lint/src/rules/mod.rs`, `crates/svg-lint/src/types.rs`, `crates/svg-language-server/tests/diagnostics_and_actions.rs`, `.opencode/state/spec-definitions.md/prd.json`, `.opencode/state/spec-definitions.md/progress.txt`
 - **Learnings:** the parser already exposes enough structure to resolve namespace declarations locally from tag attributes; the sharp edge is XML semantics, where default namespaces apply to elements but never to unprefixed attributes.
+
+## Task - lsp-profile-config
+
+- Added `ProfileConfig` state in `crates/svg-language-server/src/lib.rs` and wired `initialize` plus `didChangeConfiguration` to parse `svg.profile`, resolve aliases case-insensitively, warn on invalid ids, and fall back to the default draft snapshot.
+- Reworked LSP diagnostics refresh to use a shared `relint_open_documents` helper, so document opens, runtime compat refresh, and config changes all lint with the currently selected profile.
+- Extended the integration test harness with custom initialize options and config-change helpers, then added an end-to-end test proving SVG 1.1 init config accepts `xlink:href` and a later config change to `Svg2Draft` re-lints the open doc with `UnsupportedInProfile`.
+- Files changed: `crates/svg-language-server/src/lib.rs`, `crates/svg-language-server/tests/diagnostics_and_actions.rs`, `crates/svg-language-server/tests/support/mod.rs`, `.opencode/state/spec-definitions.md/prd.json`, `.opencode/state/spec-definitions.md/progress.txt`
+- **Learnings:** using the exact same config shape for initialize and `workspace/didChangeConfiguration` keeps the parser trivial; the only real edge is storing a resolved canonical snapshot once and reusing it everywhere lint needs to run.

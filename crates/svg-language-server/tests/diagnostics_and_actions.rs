@@ -209,6 +209,55 @@ fn multiline_tag_suppression_inserts_before_opening_tag() -> TestResult {
 }
 
 #[test]
+fn profile_config_applies_on_init_and_relints_open_documents() -> TestResult {
+    let mut server = TestServer::start_with_initialize_options(&json!({
+        "svg": {
+            "profile": "svg11rec20110816"
+        }
+    }))?;
+
+    let svg =
+        r##"<svg xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="#icon"/></svg>"##;
+    server.open("file:///profile-config.svg", svg)?;
+
+    let initial = wait_for_notification(&mut server, "textDocument/publishDiagnostics", |msg| {
+        msg["params"]["uri"].as_str() == Some("file:///profile-config.svg")
+    });
+    let initial_diags = initial["params"]["diagnostics"]
+        .as_array()
+        .ok_or("diagnostics should be array")?;
+    assert!(
+        initial_diags
+            .iter()
+            .all(|diag| diag["code"].as_str() != Some("UnsupportedInProfile")),
+        "svg11 init config should accept xlink:href: {initial}"
+    );
+
+    drain_notifications(&mut server);
+    server.change_configuration(&json!({
+        "svg": {
+            "profile": "Svg2Draft"
+        }
+    }))?;
+
+    let relinted = wait_for_notification(&mut server, "textDocument/publishDiagnostics", |msg| {
+        msg["params"]["uri"].as_str() == Some("file:///profile-config.svg")
+    });
+    let relinted_diags = relinted["params"]["diagnostics"]
+        .as_array()
+        .ok_or("diagnostics should be array")?;
+    assert!(
+        relinted_diags
+            .iter()
+            .any(|diag| diag["code"].as_str() == Some("UnsupportedInProfile")),
+        "config change should re-lint open docs with the new profile: {relinted}"
+    );
+
+    server.shutdown_and_exit()?;
+    Ok(())
+}
+
+#[test]
 fn invalid_svg_publishes_diagnostics() -> TestResult {
     let mut server = TestServer::start()?;
 

@@ -10,13 +10,14 @@ use svg_data::{
     ProfileLookup, attribute_for_profile, attributes, attributes_for_with_profile,
     elements_in_category, elements_with_profile,
     extraction::{SnapshotDataset, SnapshotDatasetWriter, SourceManifest},
+    review::{ReviewInput, build_review},
     snapshot_schema::{
         AnimationBehavior, AttributeCategoryMembership, AttributeDefaultValue,
         AttributeRequirement, CategoriesFile, ElementAttributeEdge, ElementAttributeMatrixFile,
         ElementCategoryMembership, ElementContentModel, ExceptionsFile, ExtractionConfidence,
         FactProvenance, GrammarDefinition, GrammarFile, GrammarNode, ProvenanceSourceKind,
-        ReviewCounts, ReviewFile, SNAPSHOT_SCHEMA_VERSION, SnapshotAttributeRecord,
-        SnapshotElementRecord, SnapshotMetadataFile, SourceLocator, ValueSyntax,
+        SNAPSHOT_SCHEMA_VERSION, SnapshotAttributeRecord, SnapshotElementRecord,
+        SnapshotMetadataFile, SourceLocator, ValueSyntax,
     },
     types::{AttributeValues, ContentModel, ElementCategory, SpecSnapshotId},
 };
@@ -73,8 +74,6 @@ fn build_seed_dataset(
     let element_categories = build_seed_categories(manifest, &bindings, &elements_with_profile)?;
     let edges = build_seed_edges(snapshot, manifest, &bindings, &elements_with_profile)?;
 
-    let edge_count = edges.len();
-    let grammar_count = grammars.grammars.len();
     let mut manual_notes = vec![
         format!(
             "Seeded from the current profile-aware catalog to establish checked-in snapshot truth for {}.",
@@ -91,36 +90,38 @@ fn build_seed_dataset(
     }
     manual_notes.push(bindings.review_note.to_string());
 
+    let exceptions = ExceptionsFile {
+        schema_version: SNAPSHOT_SCHEMA_VERSION,
+        exceptions: Vec::new(),
+    };
+    let categories = CategoriesFile {
+        schema_version: SNAPSHOT_SCHEMA_VERSION,
+        element_categories,
+        attribute_categories: Vec::<AttributeCategoryMembership>::new(),
+    };
+    let element_attribute_matrix = ElementAttributeMatrixFile {
+        schema_version: SNAPSHOT_SCHEMA_VERSION,
+        edges,
+    };
+    let review = build_review(ReviewInput {
+        elements: &elements,
+        attributes: &attributes,
+        grammars: &grammars,
+        categories: &categories,
+        element_attribute_matrix: &element_attribute_matrix,
+        exceptions: &exceptions,
+        manual_notes: &manual_notes,
+    });
+
     Ok(SnapshotDataset {
         metadata: build_seed_metadata(manifest, foreign_manifest.as_ref())?,
         elements,
         attributes,
         grammars,
-        categories: CategoriesFile {
-            schema_version: SNAPSHOT_SCHEMA_VERSION,
-            element_categories,
-            attribute_categories: Vec::<AttributeCategoryMembership>::new(),
-        },
-        element_attribute_matrix: ElementAttributeMatrixFile {
-            schema_version: SNAPSHOT_SCHEMA_VERSION,
-            edges,
-        },
-        exceptions: ExceptionsFile {
-            schema_version: SNAPSHOT_SCHEMA_VERSION,
-            exceptions: Vec::new(),
-        },
-        review: ReviewFile {
-            schema_version: SNAPSHOT_SCHEMA_VERSION,
-            counts: ReviewCounts {
-                elements: elements_with_profile.len(),
-                attributes: attributes_with_profile.len(),
-                grammars: grammar_count,
-                applicability_edges: edge_count,
-                exceptions: 0,
-            },
-            unresolved: Vec::new(),
-            manual_notes,
-        },
+        categories,
+        element_attribute_matrix,
+        exceptions,
+        review,
     })
 }
 

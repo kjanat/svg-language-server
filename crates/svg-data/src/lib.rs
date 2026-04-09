@@ -23,6 +23,8 @@ pub mod categories;
 pub mod compat_parse;
 /// Shared manifest, cache, provenance, and dataset emission helpers.
 pub mod extraction;
+/// Deterministic audit helpers for checked-in snapshot reviews.
+pub mod review;
 /// Typed schema for normalized per-snapshot checked-in SVG data.
 pub mod snapshot_schema;
 /// Public catalog type definitions.

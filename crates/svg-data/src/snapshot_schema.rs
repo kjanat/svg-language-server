@@ -456,10 +456,27 @@ pub struct ReviewFile {
     pub schema_version: u32,
     /// Aggregate counts for the normalized dataset.
     pub counts: ReviewCounts,
+    /// Applicability-matrix coverage summary.
+    pub applicability: ApplicabilityCoverage,
+    /// Provenance coverage across checked-in fact files.
+    pub provenance: ProvenanceCoverage,
+    /// Manual exception inventory summary.
+    pub exception_inventory: ExceptionInventory,
     /// Remaining unresolved items.
     pub unresolved: Vec<ReviewIssue>,
     /// Free-form review notes for humans.
     pub manual_notes: Vec<String>,
+}
+
+/// Applicability-matrix coverage derived from checked-in facts.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ApplicabilityCoverage {
+    /// Elements with one or more declared attributes.
+    pub elements_requiring_matrix_entries: usize,
+    /// Elements with one or more matrix entries.
+    pub elements_with_matrix_entries: usize,
+    /// Elements whose declared attribute list has no matrix coverage.
+    pub elements_missing_matrix_entries: Vec<String>,
 }
 
 /// Aggregate snapshot counts used during review.
@@ -475,6 +492,59 @@ pub struct ReviewCounts {
     pub applicability_edges: usize,
     /// Number of exceptions.
     pub exceptions: usize,
+}
+
+/// Provenance coverage counts for one fact collection.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ProvenanceCoverageCount {
+    /// Total records in the collection.
+    pub total: usize,
+    /// Records with at least one provenance entry.
+    pub covered: usize,
+    /// Records still missing provenance.
+    pub missing: usize,
+}
+
+/// Provenance coverage across the normalized snapshot payloads.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ProvenanceCoverage {
+    /// Element fact coverage.
+    pub elements: ProvenanceCoverageCount,
+    /// Attribute fact coverage.
+    pub attributes: ProvenanceCoverageCount,
+    /// Grammar fact coverage.
+    pub grammars: ProvenanceCoverageCount,
+    /// Element-category fact coverage.
+    pub element_categories: ProvenanceCoverageCount,
+    /// Attribute-category fact coverage.
+    pub attribute_categories: ProvenanceCoverageCount,
+    /// Applicability-edge fact coverage.
+    pub applicability_edges: ProvenanceCoverageCount,
+    /// Exception fact coverage.
+    pub exceptions: ProvenanceCoverageCount,
+}
+
+/// Manual exception inventory derived from `exceptions.json`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ExceptionInventory {
+    /// Total exception count.
+    pub total: usize,
+    /// Corrected exceptions.
+    pub corrected: usize,
+    /// Deferred exceptions.
+    pub deferred: usize,
+    /// Snapshot-scoped exceptions.
+    pub snapshot_scoped: usize,
+    /// Element-scoped exceptions.
+    pub element_scoped: usize,
+    /// Attribute-scoped exceptions.
+    pub attribute_scoped: usize,
+    /// Element-attribute-scoped exceptions.
+    pub element_attribute_scoped: usize,
+    /// Grammar-scoped exceptions.
+    pub grammar_scoped: usize,
+    /// Stable ids for human review.
+    pub ids: Vec<String>,
 }
 
 /// Review finding that still needs action.

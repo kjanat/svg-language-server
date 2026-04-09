@@ -743,7 +743,8 @@ mod tests {
 
     use super::*;
     use crate::snapshot_schema::{
-        AnimationBehavior, AttributeDefaultValue, AttributeRequirement, ElementContentModel,
+        AnimationBehavior, ApplicabilityCoverage, AttributeDefaultValue, AttributeRequirement,
+        ElementContentModel, ExceptionInventory, ProvenanceCoverage, ProvenanceCoverageCount,
         ReviewCounts, ValueSyntax,
     };
 
@@ -865,6 +866,59 @@ mod tests {
                     grammars: 0,
                     applicability_edges: 1,
                     exceptions: 0,
+                },
+                applicability: ApplicabilityCoverage {
+                    elements_requiring_matrix_entries: 1,
+                    elements_with_matrix_entries: 1,
+                    elements_missing_matrix_entries: Vec::new(),
+                },
+                provenance: ProvenanceCoverage {
+                    elements: ProvenanceCoverageCount {
+                        total: 1,
+                        covered: 1,
+                        missing: 0,
+                    },
+                    attributes: ProvenanceCoverageCount {
+                        total: 1,
+                        covered: 1,
+                        missing: 0,
+                    },
+                    grammars: ProvenanceCoverageCount {
+                        total: 0,
+                        covered: 0,
+                        missing: 0,
+                    },
+                    element_categories: ProvenanceCoverageCount {
+                        total: 0,
+                        covered: 0,
+                        missing: 0,
+                    },
+                    attribute_categories: ProvenanceCoverageCount {
+                        total: 0,
+                        covered: 0,
+                        missing: 0,
+                    },
+                    applicability_edges: ProvenanceCoverageCount {
+                        total: 1,
+                        covered: 0,
+                        missing: 1,
+                    },
+                    exceptions: ProvenanceCoverageCount {
+                        total: 0,
+                        covered: 0,
+                        missing: 0,
+                    },
+                },
+                exception_inventory: ExceptionInventory {
+                    total: 0,
+                    corrected: 0,
+                    deferred: 0,
+                    snapshot_scoped: 0,
+                    element_scoped: 0,
+                    attribute_scoped: 0,
+                    element_attribute_scoped: 0,
+                    grammar_scoped: 0,
+                    ids: Vec::new(),
                 },
                 unresolved: Vec::new(),
                 manual_notes: Vec::new(),

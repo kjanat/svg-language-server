@@ -22,6 +22,7 @@ Started: 2026-04-09
 - Snapshot seed provenance cannot assume shared `element-index` or `attribute-index` inputs; bind those ids and locator styles per snapshot manifest.
 - Seed grammar normalization can stay deterministic by deriving shared grammar ids from `AttributeValues` variants and per-attribute enum grammar ids from attribute names, while leaving only `FreeText` as the explicit opaque escape hatch.
 - SVG 2 foreign refs should add only the actually used external pins to `snapshot.json` and append manual-review provenance instead of replacing the snapshot-local source trail.
+- `review.json` should be derived from checked-in snapshot facts plus preserved human notes, so audit fields stay reproducible and manual context stays append-only.
 
 ---
 
@@ -89,3 +90,10 @@ Started: 2026-04-09
 - Regenerated `crates/svg-data/data/specs/Svg2Cr20181004/` and `crates/svg-data/data/specs/Svg2EditorsDraft20250914/` so their snapshot metadata, attribute syntax, and review notes reflect the pinned foreign references.
 - Extended `crates/svg-data/tests/svg11_first_snapshot.rs` to assert the exact SVG 2 foreign pins, foreign value targets, and retained non-SVG2 behavior.
 - **Learnings:** record-level attribute provenance is enough for seeded foreign refs as long as the snapshot keeps its native provenance entries and appends one explicit foreign manual-review provenance record per remapped value syntax.
+
+## Task - [snapshot-reviews]
+
+- Added a deterministic `svg_data::review` audit path that derives `review.json` from checked-in snapshot facts, including applicability coverage, provenance coverage, exception inventory, and unresolved issue checks.
+- Added `crates/svg-data/examples/generate_snapshot_review.rs`, `crates/svg-data/tests/snapshot_reviews.rs`, and regenerated all checked-in `review.json` files under `crates/svg-data/data/specs/`.
+- Ran `cargo fmt --all`, `cargo check --workspace`, `cargo clippy --workspace --all-targets --all-features -- -D clippy::all`, and `cargo test --workspace`.
+- **Learnings:** keep review notes human-owned but derive every audit field from the normalized snapshot files; that keeps review drift testable and regeneration cheap.

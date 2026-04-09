@@ -234,3 +234,71 @@ fn typed_attribute_values_offer_context_aware_completions() -> TestResult {
     server.shutdown_and_exit()?;
     Ok(())
 }
+
+#[test]
+fn completions_follow_selected_profile() -> TestResult {
+    let mut svg11_server = TestServer::start_with_initialize_options(&json!({
+        "svg": {
+            "profile": "Svg11"
+        }
+    }))?;
+
+    let attribute_completion_svg = r#"<svg><use height="32" /></svg>"#;
+    svg11_server.open(
+        "file:///profile-attribute-completion.svg",
+        attribute_completion_svg,
+    )?;
+
+    let svg11_resp = svg11_server.request(
+        "textDocument/completion",
+        &json!({
+            "textDocument": { "uri": "file:///profile-attribute-completion.svg" },
+            "position": { "line": 0, "character": 22 }
+        }),
+    )?;
+    let svg11_items = svg11_resp["result"]
+        .as_array()
+        .ok_or("SVG 1.1 completion result should be an array")?;
+    assert!(
+        svg11_items
+            .iter()
+            .any(|item| item["label"].as_str() == Some("xlink:href")),
+        "SVG 1.1 profile should include xlink:href completions: {svg11_resp}"
+    );
+    svg11_server.shutdown_and_exit()?;
+
+    let mut svg2_server = TestServer::start_with_initialize_options(&json!({
+        "svg": {
+            "profile": "Svg2Draft"
+        }
+    }))?;
+    svg2_server.open(
+        "file:///profile-attribute-completion.svg",
+        attribute_completion_svg,
+    )?;
+
+    let svg2_resp = svg2_server.request(
+        "textDocument/completion",
+        &json!({
+            "textDocument": { "uri": "file:///profile-attribute-completion.svg" },
+            "position": { "line": 0, "character": 22 }
+        }),
+    )?;
+    let svg2_items = svg2_resp["result"]
+        .as_array()
+        .ok_or("SVG 2 completion result should be an array")?;
+    assert!(
+        svg2_items
+            .iter()
+            .any(|item| item["label"].as_str() == Some("href")),
+        "SVG 2 profile should include href completions: {svg2_resp}"
+    );
+    assert!(
+        svg2_items
+            .iter()
+            .all(|item| item["label"].as_str() != Some("xlink:href")),
+        "SVG 2 profile should hide unsupported xlink:href completions: {svg2_resp}"
+    );
+    svg2_server.shutdown_and_exit()?;
+    Ok(())
+}

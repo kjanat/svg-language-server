@@ -201,7 +201,7 @@ fn completion_from_context(
     source: &[u8],
     tree: &tree_sitter::Tree,
     node: tree_sitter::Node<'_>,
-    runtime_compat: Option<&RuntimeCompat>,
+    profile: svg_data::SpecSnapshotId,
 ) -> Option<CompletionResponse> {
     let mut cursor = node;
     loop {
@@ -223,21 +223,17 @@ fn completion_from_context(
         if kind == "start_tag" || kind == "self_closing_tag" {
             let elem_name = tag_element_name(cursor, source).unwrap_or("");
             let existing = existing_attribute_names(cursor, source);
-            return completion_response(attribute_completion_items(
-                elem_name,
-                &existing,
-                runtime_compat,
-            ));
+            return completion_response(attribute_completion_items(elem_name, &existing, profile));
         }
 
         if kind == "element" || kind == "svg_root_element" {
             let elem_name = enclosing_element_name(cursor, source).unwrap_or("");
             svg_data::element(elem_name)?;
-            return completion_response(child_element_completion_items(elem_name, runtime_compat));
+            return completion_response(child_element_completion_items(elem_name, profile));
         }
 
         if kind == "document" {
-            return completion_response(root_element_completion_items());
+            return completion_response(root_element_completion_items(profile));
         }
 
         cursor = cursor.parent()?;
@@ -988,8 +984,8 @@ impl LanguageServer for SvgLanguageServer {
         }
 
         let response = {
-            let runtime_compat = self.runtime_compat.read().await;
-            completion_from_context(source, &doc.tree, node, runtime_compat.as_ref())
+            let profile = self.profile_config.read().await.resolved;
+            completion_from_context(source, &doc.tree, node, profile)
         };
         Ok(response)
     }

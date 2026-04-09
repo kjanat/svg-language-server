@@ -6,6 +6,7 @@ Started: 2026-04-09
 
 ## Codebase Patterns
 
+- For profile-aware LSP suggestions, use `svg-data` profiled lookup APIs as the source of truth and carry the returned lifecycle through to user-facing labels instead of inferring from compat booleans.
 - Keep `svg-data` public profile metadata in `src/lib.rs` + `src/types.rs` first when it is small and static; save build-script churn for later profile-specific catalog overlays.
 - Normalize user-facing identifiers by stripping punctuation and folding ASCII case when config should accept canonical ids, aliases, and human-written long-form names.
 - Keep spec lifecycle as its own field on `svg-data` defs; compat booleans stay a separate axis so later lint/LSP code can switch without re-plumbing catalog generation again.
@@ -58,3 +59,11 @@ Started: 2026-04-09
 - Extended the integration test harness with custom initialize options and config-change helpers, then added an end-to-end test proving SVG 1.1 init config accepts `xlink:href` and a later config change to `Svg2Draft` re-lints the open doc with `UnsupportedInProfile`.
 - Files changed: `crates/svg-language-server/src/lib.rs`, `crates/svg-language-server/tests/diagnostics_and_actions.rs`, `crates/svg-language-server/tests/support/mod.rs`, `.opencode/state/spec-definitions.md/prd.json`, `.opencode/state/spec-definitions.md/progress.txt`
 - **Learnings:** using the exact same config shape for initialize and `workspace/didChangeConfiguration` keeps the parser trivial; the only real edge is storing a resolved canonical snapshot once and reusing it everywhere lint needs to run.
+
+## Task - completion-lifecycle
+
+- Switched completion element and attribute candidate lookup to the selected SVG profile, so unsupported items are filtered out before the LSP response is built.
+- Added lifecycle-aware completion detail strings plus deprecated tags for deprecated and obsolete element suggestions.
+- Added protocol coverage proving `xlink:href` appears for SVG 1.1 but is hidden for `Svg2Draft`, plus unit coverage for experimental and deprecated lifecycle annotations on completion items.
+- Files changed: `crates/svg-language-server/src/completion.rs`, `crates/svg-language-server/src/lib.rs`, `crates/svg-language-server/tests/completions.rs`, `.opencode/state/spec-definitions.md/prd.json`, `.opencode/state/spec-definitions.md/progress.txt`
+- **Learnings:** completion filtering belongs at the profile lookup boundary; once candidates arrive as profiled defs, the LSP layer only needs to preserve lifecycle metadata when building `CompletionItem`s.

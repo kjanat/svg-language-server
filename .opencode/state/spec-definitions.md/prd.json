@@ -55,7 +55,7 @@
 			"description": "Done when completions hide unsupported items and annotate experimental and deprecated entries with lifecycle detail.",
 			"depends": ["lsp-profile-config"],
 			"priority": "standard",
-			"passes": false
+			"passes": true
 		},
 		{
 			"id": "hover-lifecycle",

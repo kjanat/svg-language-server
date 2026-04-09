@@ -16,6 +16,7 @@ Started: 2026-04-09
 - Source acquisition is staged as checked-in TOML manifests under `crates/svg-data/data/sources/`, one file per snapshot or external spec set.
 - Snapshot schemas should use serde-tagged enums plus canonical `SpecSnapshotId` values so checked-in JSON stays explicit and stable.
 - Shared snapshot ingestion should flow through four reusable steps: typed manifest load, cache-backed fetch, manifest-derived provenance, and stable per-snapshot JSON emission.
+- Seed new checked-in snapshot datasets from the current profile-aware catalog first, then freeze parity with a dataset-specific regression test before replacing the seed with source-native parsing.
 
 ---
 
@@ -38,3 +39,11 @@ Started: 2026-04-09
 - Updated `crates/svg-data/src/lib.rs` and `crates/svg-data/Cargo.toml` to expose the extractor helpers and support TOML parsing, real SHA-256 cache sidecars, and tempdir-backed tests.
 - Ran `cargo fmt --all`, `cargo clippy --workspace --all-targets --all-features -- -D clippy::all`, `cargo test -p svg-data`, `cargo test -p svg-lint`, and `cargo test -p svg-language-server`.
 - **Learnings:** keeping fetch logic generic over caller-provided network loaders lets the shared framework own cache/provenance/write behavior without forcing live HTTP into the runtime crate API.
+
+## Task - [svg11-2003-ingest]
+
+- Added `crates/svg-data/examples/generate_snapshot_seed.rs` to deterministically seed SVG 1.1 snapshot datasets from the current profile-aware catalog and manifest-backed provenance.
+- Generated and checked in `crates/svg-data/data/specs/Svg11Rec20030114/` with snapshot metadata, elements, attributes, categories, applicability edges, empty grammar/exception placeholders, and a review report.
+- Added `crates/svg-data/tests/svg11_first_snapshot.rs` to lock the checked-in first-edition dataset to current profile-aware element, attribute, and applicability behavior.
+- Ran `cargo fmt --all`, `cargo check --workspace`, `cargo clippy --workspace --all-targets --all-features -- -D clippy::all`, `cargo test -p svg-data`, `cargo test -p svg-lint`, and `cargo test -p svg-language-server`.
+- **Learnings:** seeding from the existing profile-aware catalog is a fast way to establish checked-in snapshot truth, but keeping the generator explicit and the parity test strict makes it safe to replace with source-native extraction later.

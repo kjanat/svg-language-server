@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "counts": {
+    "elements": 62,
+    "attributes": 208,
+    "grammars": 0,
+    "applicability_edges": 4651,
+    "exceptions": 0
+  },
+  "unresolved": [],
+  "manual_notes": [
+    "Seeded from the current profile-aware catalog to establish checked-in snapshot truth for Svg11Rec20030114.",
+    "Value grammar stays opaque in this snapshot seed; phase 4 normalizes structured grammar coverage."
+  ]
+}

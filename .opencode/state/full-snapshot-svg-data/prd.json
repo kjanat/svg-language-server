@@ -40,7 +40,7 @@
 				"extractor-framework"
 			],
 			"priority": "standard",
-			"passes": false
+			"passes": true
 		},
 		{
 			"id": "svg11-2011-ingest",

@@ -21,6 +21,8 @@ mod catalog;
 pub mod categories;
 /// Shared BCD JSON parsing helpers for runtime compat overlays.
 pub mod compat_parse;
+/// Derived union membership and adjacent snapshot overlay artifacts.
+pub mod derived;
 /// Shared manifest, cache, provenance, and dataset emission helpers.
 pub mod extraction;
 /// Deterministic audit helpers for checked-in snapshot reviews.

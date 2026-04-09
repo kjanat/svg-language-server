@@ -1,0 +1,1882 @@
+{
+  "schema_version": 1,
+  "snapshots": [
+    "Svg11Rec20030114",
+    "Svg11Rec20110816",
+    "Svg2Cr20181004",
+    "Svg2EditorsDraft20250914"
+  ],
+  "attributes": [
+    {
+      "name": "accumulate",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "additive",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "alignment-baseline",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "amplitude",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "async",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "attributeName",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "attributeType",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "autofocus",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "azimuth",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "baseFrequency",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "baseProfile",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "baseline-shift",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "begin",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "bias",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "by",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "calcMode",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "class",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "clip",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "clip-path",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "clip-rule",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "clipPathUnits",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "color",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "color-interpolation",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "color-interpolation-filters",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "crossorigin",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "cursor",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "cx",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "cy",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "d",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "data_attributes",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "data_uri",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "decoding",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "defer",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "diffuseConstant",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "direction",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "display",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "divisor",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "dominant-baseline",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "download",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "dur",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "dx",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "dy",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "edgeMode",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "elevation",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "end",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "exponent",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "external_uri",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "fetchpriority",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "fill",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "fill-opacity",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "fill-rule",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "filter",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "filterUnits",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "flood-color",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "flood-opacity",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "font-family",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "font-size",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "font-size-adjust",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "font-stretch",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "font-style",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "font-variant",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "font-weight",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "font-width",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "fr",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "from",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "fx",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "fy",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "glyph-orientation-horizontal",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "glyph-orientation-vertical",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "gradientTransform",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "gradientUnits",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "height",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "href",
+      "present_in": [
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "hreflang",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "id",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "image-rendering",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "in",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "in2",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "intercept",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "interestfor",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "k1",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "k2",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "k3",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "k4",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "kernelMatrix",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "kernelUnitLength",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "keyPoints",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "keySplines",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "keyTimes",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "lang",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "lengthAdjust",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "letter-spacing",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "lighting-color",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "limitingConeAngle",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "marker-end",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "marker-mid",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "marker-start",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "markerHeight",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "markerUnits",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "markerWidth",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "mask",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "maskContentUnits",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "maskUnits",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "media",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "mode",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "numOctaves",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "offset",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "omit_external_fragment",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "opacity",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "operator",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "order",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "orient",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "origin",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "overflow",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "paint-order",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "path",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "patternContentUnits",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "patternTransform",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "patternUnits",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "ping",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "pointer-events",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "points",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "pointsAtX",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "pointsAtY",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "pointsAtZ",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "preserveAlpha",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "preserveAspectRatio",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "primitiveUnits",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "r",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "radius",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "refX",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "refY",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "referrerpolicy",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "rel",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "repeatCount",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "repeatDur",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "requiredExtensions",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "restart",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "result",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "rotate",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "rx",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "ry",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "scale",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "seed",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "shape-rendering",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "side",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "slope",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "spacing",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "specularConstant",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "specularExponent",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "spreadMethod",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "startOffset",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "stdDeviation",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "stitchTiles",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "stop-color",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "stop-opacity",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "stroke",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "stroke-dasharray",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "stroke-dashoffset",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "stroke-linecap",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "stroke-linejoin",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "stroke-miterlimit",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "stroke-opacity",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "stroke-width",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "style",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "surfaceScale",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "systemLanguage",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "tabindex",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "tableValues",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "target",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "targetX",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "targetY",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "text-anchor",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "text-decoration",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "text-overflow",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "text-rendering",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "textLength",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "title",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "to",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "tooltip_display",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "transform",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "transform-origin",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "type",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "unicode-bidi",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "values",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "vector-effect",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "version",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "viewBox",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "visibility",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "white-space",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "width",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "word-spacing",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "writing-mode",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "x",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "x1",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "x2",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "xChannelSelector",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "xlink:actuate",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816"
+      ]
+    },
+    {
+      "name": "xlink:href",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816"
+      ]
+    },
+    {
+      "name": "xlink:show",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816"
+      ]
+    },
+    {
+      "name": "xlink:title",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816"
+      ]
+    },
+    {
+      "name": "xml_lang",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "xml_space",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "y",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "y1",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "y2",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "yChannelSelector",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "z",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "zoomAndPan",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    }
+  ]
+}

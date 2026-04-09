@@ -23,6 +23,7 @@ Started: 2026-04-09
 - Seed grammar normalization can stay deterministic by deriving shared grammar ids from `AttributeValues` variants and per-attribute enum grammar ids from attribute names, while leaving only `FreeText` as the explicit opaque escape hatch.
 - SVG 2 foreign refs should add only the actually used external pins to `snapshot.json` and append manual-review provenance instead of replacing the snapshot-local source trail.
 - `review.json` should be derived from checked-in snapshot facts plus preserved human notes, so audit fields stay reproducible and manual context stays append-only.
+- Derived union membership should be gated by clean `review.json` files and stay intentionally narrow: checked-in presence sets plus adjacent diffs now, merged runtime field reconciliation later.
 
 ---
 
@@ -97,3 +98,10 @@ Started: 2026-04-09
 - Added `crates/svg-data/examples/generate_snapshot_review.rs`, `crates/svg-data/tests/snapshot_reviews.rs`, and regenerated all checked-in `review.json` files under `crates/svg-data/data/specs/`.
 - Ran `cargo fmt --all`, `cargo check --workspace`, `cargo clippy --workspace --all-targets --all-features -- -D clippy::all`, and `cargo test --workspace`.
 - **Learnings:** keep review notes human-owned but derive every audit field from the normalized snapshot files; that keeps review drift testable and regeneration cheap.
+
+## Task - [derive-union-overlays]
+
+- Added `crates/svg-data/src/derived.rs` plus `crates/svg-data/examples/generate_derived_membership.rs` to derive checked-in union membership files and adjacent snapshot overlays strictly from reviewed snapshot datasets.
+- Generated `crates/svg-data/data/derived/union/*.json` and `crates/svg-data/data/derived/overlays/*.json`, then added `crates/svg-data/tests/derived_membership.rs` to lock reproducibility, lossless snapshot reconstruction, and the known SVG 1.1 to SVG 2 membership deltas.
+- Ran `cargo fmt --all`, `cargo check --workspace`, `cargo clippy --workspace --all-targets --all-features -- -D clippy::all`, and `cargo test --workspace`.
+- **Learnings:** keep this phase boring; deriving canonical presence sets and adjacent diffs from clean reviews removes guesswork now without smuggling runtime merge policy into the wrong task.

@@ -130,7 +130,7 @@
 				"snapshot-reviews"
 			],
 			"priority": "architecture",
-			"passes": false
+			"passes": true
 		},
 		{
 			"id": "runtime-codegen",

@@ -1,0 +1,576 @@
+{
+  "schema_version": 1,
+  "snapshots": [
+    "Svg11Rec20030114",
+    "Svg11Rec20110816",
+    "Svg2Cr20181004",
+    "Svg2EditorsDraft20250914"
+  ],
+  "elements": [
+    {
+      "name": "a",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "animate",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "animateMotion",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "animateTransform",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "circle",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "clipPath",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "defs",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "desc",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "ellipse",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "feBlend",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "feColorMatrix",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "feComponentTransfer",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "feComposite",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "feConvolveMatrix",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "feDiffuseLighting",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "feDisplacementMap",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "feDistantLight",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "feDropShadow",
+      "present_in": [
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "feFlood",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "feFuncA",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "feFuncB",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "feFuncG",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "feFuncR",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "feGaussianBlur",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "feImage",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "feMerge",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "feMergeNode",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "feMorphology",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "feOffset",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "fePointLight",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "feSpecularLighting",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "feSpotLight",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "feTile",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "feTurbulence",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "filter",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "foreignObject",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "g",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "image",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "line",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "linearGradient",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "marker",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "mask",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "metadata",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "mpath",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "path",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "pattern",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "polygon",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "polyline",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "radialGradient",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "rect",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "script",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "set",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "stop",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "style",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "svg",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "switch",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "symbol",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "text",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "textPath",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "title",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "tspan",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "use",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    },
+    {
+      "name": "view",
+      "present_in": [
+        "Svg11Rec20030114",
+        "Svg11Rec20110816",
+        "Svg2Cr20181004",
+        "Svg2EditorsDraft20250914"
+      ]
+    }
+  ]
+}

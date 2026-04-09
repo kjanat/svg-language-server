@@ -6,6 +6,7 @@ pub fn escape(s: &str) -> String {
     s.chars().flat_map(char::escape_default).collect()
 }
 
+#[allow(dead_code)]
 pub fn write_static_str_slice(out: &mut String, name: &str, items: &[String]) -> std::fmt::Result {
     write!(out, "static {name}: &[&str] = &[")?;
     for (i, item) in items.iter().enumerate() {

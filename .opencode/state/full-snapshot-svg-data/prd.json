@@ -141,7 +141,7 @@
 				"derive-union-overlays"
 			],
 			"priority": "integration",
-			"passes": false
+			"passes": true
 		},
 		{
 			"id": "consumer-rewire",

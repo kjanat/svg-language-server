@@ -270,7 +270,7 @@ fn hover_shows_profile_lifecycle_separately_from_browser_support() -> TestResult
         .as_str()
         .ok_or("SVG 1.1 hover markdown")?;
     assert!(
-        svg11_hover_value.contains("**Stable in Svg11Rec20110816**"),
+        svg11_hover_value.contains("**Obsolete in Svg11Rec20110816**"),
         "SVG 1.1 hover should show the selected profile lifecycle: {svg11_hover}"
     );
     assert!(

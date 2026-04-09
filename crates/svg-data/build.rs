@@ -1,5 +1,7 @@
-//! Build script that generates the baked SVG catalog from JSON fixtures,
-//! browser-compat data, and spec-derived descriptions.
+#![allow(dead_code)]
+
+//! Build script that generates the baked SVG catalog from reviewed snapshot
+//! datasets and browser-compat overlays.
 //!
 //! The generated Rust source is written into `OUT_DIR` and then included by
 //! the `svg-data` crate at compile time.
@@ -8,13 +10,13 @@
 mod bcd;
 #[path = "build/codegen.rs"]
 mod codegen;
-#[path = "build/spec.rs"]
-mod spec;
+#[path = "src/types.rs"]
+mod types;
 #[path = "src/xlink.rs"]
 pub(crate) mod xlink;
 
 use std::{
-    collections::{HashMap, HashSet},
+    collections::{BTreeMap, BTreeSet, HashMap, HashSet},
     error::Error,
     fmt::Write as _,
     fs,
@@ -22,71 +24,29 @@ use std::{
     time::SystemTime,
 };
 
-use bcd::BcdAttribute;
-use codegen::{
-    escape, format_baseline, format_browser_support, format_option_str, ident_from,
-    write_static_str_slice,
-};
+use codegen::{escape, format_baseline, format_browser_support, format_option_str, ident_from};
 use serde::Deserialize;
+use types::SpecSnapshotId;
 
-// ---- JSON schema types ----
-
-#[derive(Deserialize)]
-struct JsonElement {
-    name: String,
-    description: String,
-    mdn_url: String,
-    deprecated: bool,
-    content_model: ContentModelJson,
-    required_attrs: Vec<String>,
-    attrs: Vec<String>,
-    global_attrs: bool,
-    #[serde(default)]
-    category: Option<String>,
-}
-
-#[derive(Deserialize)]
-#[serde(untagged)]
-enum ContentModelJson {
-    Simple(String),
-    Children { children: Vec<String> },
-}
-
-#[derive(Deserialize)]
-struct JsonAttribute {
-    name: String,
-    description: String,
-    mdn_url: String,
-    deprecated: bool,
-    values: ValuesJson,
-    elements: Vec<String>,
-}
-
-#[derive(Deserialize)]
-#[serde(tag = "type")]
-#[serde(rename_all = "snake_case")]
-enum ValuesJson {
-    Enum {
-        values: Vec<String>,
-    },
-    FreeText,
-    Color,
-    Length,
-    Url,
-    NumberOrPercentage,
-    Transform {
-        functions: Vec<String>,
-    },
-    Viewbox,
-    PreserveAspectRatio {
-        alignments: Vec<String>,
-        meet_or_slice: Vec<String>,
-    },
-    Points,
-    PathData,
-}
-
-// ---- Compat data types ----
+const CACHE_MAX_AGE_SECS: u64 = 24 * 60 * 60;
+const ALL_ELEMENT_CATEGORIES: &[&str] = &[
+    "Container",
+    "Shape",
+    "Text",
+    "Gradient",
+    "Filter",
+    "Descriptive",
+    "Structural",
+    "Animation",
+    "PaintServer",
+    "ClipMask",
+    "LightSource",
+    "FilterPrimitive",
+    "TransferFunction",
+    "MergeNode",
+    "MotionPath",
+    "NeverRendered",
+];
 
 #[derive(Clone)]
 enum BrowserVersionValue {
@@ -134,9 +94,207 @@ impl BaselineValue {
     }
 }
 
-// ---- Caching ----
+#[derive(Debug, Clone, Deserialize)]
+struct SnapshotElementRecord {
+    name: String,
+    title: String,
+    categories: Vec<String>,
+    content_model: ElementContentModelJson,
+}
 
-const CACHE_MAX_AGE_SECS: u64 = 24 * 60 * 60;
+#[derive(Debug, Clone, Deserialize)]
+#[serde(tag = "kind", rename_all = "snake_case")]
+enum ElementContentModelJson {
+    Empty,
+    TextOnly,
+    AnySvg,
+    CategorySet { categories: Vec<String> },
+    ElementSet { elements: Vec<String> },
+    ForeignNamespace,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct SnapshotAttributeRecord {
+    name: String,
+    title: String,
+    value_syntax: ValueSyntaxJson,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(tag = "kind", rename_all = "snake_case")]
+enum ValueSyntaxJson {
+    GrammarRef { grammar_id: String },
+    ForeignRef { spec: String, target: String },
+    Opaque { display: String, reason: String },
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct GrammarFile {
+    grammars: Vec<GrammarDefinition>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct GrammarDefinition {
+    id: String,
+    root: GrammarNode,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(tag = "kind", rename_all = "snake_case")]
+enum GrammarNode {
+    Keyword {
+        value: String,
+    },
+    DatatypeRef {
+        name: String,
+    },
+    GrammarRef {
+        name: String,
+    },
+    Sequence {
+        items: Vec<Self>,
+    },
+    Choice {
+        options: Vec<Self>,
+    },
+    Optional {
+        item: Box<Self>,
+    },
+    ZeroOrMore {
+        item: Box<Self>,
+    },
+    OneOrMore {
+        item: Box<Self>,
+    },
+    CommaSeparated {
+        item: Box<Self>,
+    },
+    SpaceSeparated {
+        item: Box<Self>,
+    },
+    Repeat {
+        item: Box<Self>,
+        min: u16,
+        max: Option<u16>,
+    },
+    Literal {
+        value: String,
+    },
+    Opaque {
+        display: String,
+        reason: String,
+    },
+    ForeignRef {
+        spec: String,
+        target: String,
+    },
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct ElementAttributeMatrixFile {
+    edges: Vec<ElementAttributeEdge>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct ElementAttributeEdge {
+    element: String,
+    attribute: String,
+    requirement: AttributeRequirementJson,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "snake_case")]
+enum AttributeRequirementJson {
+    Required,
+    Optional,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct ElementMembershipFile {
+    elements: Vec<FeatureMembershipRecord>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct AttributeMembershipFile {
+    attributes: Vec<FeatureMembershipRecord>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct FeatureMembershipRecord {
+    name: String,
+    present_in: Vec<SpecSnapshotId>,
+}
+
+#[derive(Debug, Clone)]
+struct SnapshotBuildData {
+    elements: HashMap<String, SnapshotElementRecord>,
+    attributes: HashMap<String, SnapshotAttributeRecord>,
+    grammars: HashMap<String, GrammarDefinition>,
+    element_attributes: BTreeMap<String, Vec<AttributeEdgeRecord>>,
+    attribute_elements: BTreeMap<String, Vec<String>>,
+    global_attributes: BTreeSet<String>,
+}
+
+#[derive(Debug, Clone)]
+struct AttributeEdgeRecord {
+    name: String,
+    required: bool,
+}
+
+#[derive(Debug, Clone)]
+struct UnionElement {
+    name: String,
+    description: String,
+    mdn_url: String,
+    spec_lifecycle: &'static str,
+    content_model: ElementContentModelJson,
+    required_attrs: Vec<String>,
+    attrs: Vec<String>,
+    global_attrs: bool,
+    category: Option<String>,
+    known_in: Vec<SpecSnapshotId>,
+}
+
+#[derive(Debug, Clone)]
+struct UnionAttribute {
+    name: String,
+    description: String,
+    mdn_url: String,
+    spec_lifecycle: &'static str,
+    values: UnionValues,
+    elements: Vec<String>,
+    known_in: Vec<SpecSnapshotId>,
+}
+
+#[derive(Debug, Clone)]
+enum UnionValues {
+    Enum {
+        values: Vec<String>,
+    },
+    FreeText,
+    Color,
+    Length,
+    Url,
+    NumberOrPercentage,
+    Transform {
+        functions: Vec<String>,
+    },
+    ViewBox,
+    PreserveAspectRatio {
+        alignments: Vec<String>,
+        meet_or_slice: Vec<String>,
+    },
+    Points,
+    PathData,
+}
+
+struct BuildInputs {
+    out_path: PathBuf,
+    elements: Vec<UnionElement>,
+    attributes: Vec<UnionAttribute>,
+    profile_attributes: Vec<(SpecSnapshotId, BTreeMap<String, Vec<String>>)>,
+    compat: bcd::CompatData,
+}
 
 fn ensure_cached(url: &str, dest: &Path, offline: bool) -> Result<bool, String> {
     if offline {
@@ -177,16 +335,13 @@ fn ensure_cached(url: &str, dest: &Path, offline: bool) -> Result<bool, String> 
     Ok(true)
 }
 
-// ---- Code generation ----
-
 fn main() -> Result<(), Box<dyn Error>> {
-    println!("cargo::rerun-if-changed=data/elements.json");
-    println!("cargo::rerun-if-changed=data/attributes.json");
-    println!("cargo::rerun-if-changed=data/sources");
+    println!("cargo::rerun-if-changed=data/specs");
+    println!("cargo::rerun-if-changed=data/derived");
     println!("cargo::rerun-if-env-changed=SVG_DATA_OFFLINE");
 
     let inputs = load_build_inputs()?;
-    let mut out = String::with_capacity(16384);
+    let mut out = String::with_capacity(64 * 1024);
     let element_idents = element_idents(&inputs.elements);
     let attribute_idents = attribute_idents(&inputs.attributes);
 
@@ -195,14 +350,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     write_element_statics(&mut out, &inputs.elements, &element_idents)?;
     write_attribute_statics(&mut out, &inputs.attributes, &attribute_idents)?;
-    write_elements_array(
-        &mut out,
-        &inputs.elements,
-        &element_idents,
-        &inputs.compat,
-        &inputs.spec_descriptions,
-    )?;
-    write_bcd_only_attribute_statics(&mut out, &inputs.attributes, &inputs.compat)?;
+    write_elements_array(&mut out, &inputs.elements, &element_idents, &inputs.compat)?;
     write_attributes_array(
         &mut out,
         &inputs.attributes,
@@ -210,58 +358,458 @@ fn main() -> Result<(), Box<dyn Error>> {
         &inputs.compat,
     )?;
     write_category_mapping(&mut out, &inputs.elements)?;
+    write_membership_lookup(
+        &mut out,
+        &inputs.elements,
+        &inputs.attributes,
+        &element_idents,
+        &attribute_idents,
+    )?;
+    write_profile_attribute_lookup(&mut out, &inputs.profile_attributes)?;
 
     fs::write(&inputs.out_path, out)?;
     Ok(())
 }
 
-struct BuildInputs {
-    out_path: PathBuf,
-    elements: Vec<JsonElement>,
-    attributes: Vec<JsonAttribute>,
-    compat: bcd::CompatData,
-    spec_descriptions: HashMap<String, String>,
-}
-
 fn load_build_inputs() -> Result<BuildInputs, Box<dyn Error>> {
     let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let out_dir = std::env::var("OUT_DIR")?;
-    let out_dir = PathBuf::from(out_dir);
+    let out_dir = PathBuf::from(std::env::var("OUT_DIR")?);
     let out_path = out_dir.join("catalog.rs");
+    let compat = bcd::fetch_compat_data(&out_dir);
 
-    let elements_json = fs::read_to_string(manifest_dir.join("data/elements.json"))?;
-    let attributes_json = fs::read_to_string(manifest_dir.join("data/attributes.json"))?;
+    let snapshots = canonical_snapshots();
+    let snapshot_data: HashMap<SpecSnapshotId, SnapshotBuildData> = snapshots
+        .iter()
+        .copied()
+        .map(|snapshot| {
+            load_snapshot_build_data(manifest_dir, snapshot).map(|data| (snapshot, data))
+        })
+        .collect::<Result<_, _>>()?;
 
-    let elements: Vec<JsonElement> = serde_json::from_str(&elements_json)?;
-    let attributes: Vec<JsonAttribute> = serde_json::from_str(&attributes_json)?;
+    let element_membership: ElementMembershipFile =
+        read_json(&manifest_dir.join("data/derived/union/elements.json"))?;
+    let attribute_membership: AttributeMembershipFile =
+        read_json(&manifest_dir.join("data/derived/union/attributes.json"))?;
 
-    let offline = std::env::var("SVG_DATA_OFFLINE").is_ok();
+    let elements = build_union_elements(&snapshot_data, &element_membership)?;
+    let attributes = build_union_attributes(&snapshot_data, &attribute_membership)?;
+    let profile_attributes = build_profile_attributes(&snapshots, &snapshot_data);
+
     Ok(BuildInputs {
         out_path,
         elements,
         attributes,
-        compat: bcd::fetch_compat_data(&out_dir),
-        spec_descriptions: spec::fetch_spec_descriptions(&out_dir, offline),
+        profile_attributes,
+        compat,
     })
 }
 
-fn element_idents(elements: &[JsonElement]) -> HashMap<&str, String> {
+fn canonical_snapshots() -> Vec<SpecSnapshotId> {
+    vec![
+        SpecSnapshotId::Svg11Rec20030114,
+        SpecSnapshotId::Svg11Rec20110816,
+        SpecSnapshotId::Svg2Cr20181004,
+        SpecSnapshotId::Svg2EditorsDraft20250914,
+    ]
+}
+
+fn load_snapshot_build_data(
+    manifest_dir: &Path,
+    snapshot: SpecSnapshotId,
+) -> Result<SnapshotBuildData, Box<dyn Error>> {
+    let root = manifest_dir.join("data/specs").join(snapshot.as_str());
+    let elements: Vec<SnapshotElementRecord> = read_json(&root.join("elements.json"))?;
+    let attributes: Vec<SnapshotAttributeRecord> = read_json(&root.join("attributes.json"))?;
+    let grammars: GrammarFile = read_json(&root.join("grammars.json"))?;
+    let matrix: ElementAttributeMatrixFile =
+        read_json(&root.join("element_attribute_matrix.json"))?;
+
+    let element_names: HashSet<String> = elements
+        .iter()
+        .map(|element| element.name.clone())
+        .collect();
+    let mut element_attributes: BTreeMap<String, Vec<AttributeEdgeRecord>> = BTreeMap::new();
+    let mut attribute_elements: BTreeMap<String, Vec<String>> = BTreeMap::new();
+    let mut attribute_counts: HashMap<String, usize> = HashMap::new();
+
+    for edge in matrix.edges {
+        element_attributes
+            .entry(edge.element.clone())
+            .or_default()
+            .push(AttributeEdgeRecord {
+                name: edge.attribute.clone(),
+                required: edge.requirement == AttributeRequirementJson::Required,
+            });
+        attribute_elements
+            .entry(edge.attribute.clone())
+            .or_default()
+            .push(edge.element);
+        *attribute_counts.entry(edge.attribute).or_default() += 1;
+    }
+
+    for edges in element_attributes.values_mut() {
+        edges.sort_by(|left, right| left.name.cmp(&right.name));
+    }
+    for elements in attribute_elements.values_mut() {
+        elements.sort();
+    }
+
+    let global_attributes = attribute_counts
+        .into_iter()
+        .filter(|(_, count)| *count == element_names.len())
+        .map(|(name, _)| name)
+        .collect();
+
+    Ok(SnapshotBuildData {
+        elements: elements
+            .into_iter()
+            .map(|element| (element.name.clone(), element))
+            .collect(),
+        attributes: attributes
+            .into_iter()
+            .map(|attribute| (attribute.name.clone(), attribute))
+            .collect(),
+        grammars: grammars
+            .grammars
+            .into_iter()
+            .map(|grammar| (grammar.id.clone(), grammar))
+            .collect(),
+        element_attributes,
+        attribute_elements,
+        global_attributes,
+    })
+}
+
+fn build_union_elements(
+    snapshot_data: &HashMap<SpecSnapshotId, SnapshotBuildData>,
+    membership: &ElementMembershipFile,
+) -> Result<Vec<UnionElement>, Box<dyn Error>> {
+    let mut elements = Vec::with_capacity(membership.elements.len());
+
+    for feature in &membership.elements {
+        let snapshot = latest_present_snapshot(&feature.present_in)
+            .ok_or_else(|| format!("element {} has no present snapshots", feature.name))?;
+        let data = snapshot_data
+            .get(&snapshot)
+            .ok_or_else(|| format!("missing snapshot data for {}", snapshot.as_str()))?;
+        let element = data
+            .elements
+            .get(&feature.name)
+            .ok_or_else(|| format!("missing element {} in {}", feature.name, snapshot.as_str()))?;
+        let edges = data
+            .element_attributes
+            .get(&feature.name)
+            .cloned()
+            .unwrap_or_default();
+        let attrs: Vec<String> = edges.iter().map(|edge| edge.name.clone()).collect();
+        let required_attrs: Vec<String> = edges
+            .iter()
+            .filter(|edge| edge.required)
+            .map(|edge| edge.name.clone())
+            .collect();
+        let attr_set: BTreeSet<String> = attrs.iter().cloned().collect();
+        let global_attrs = !data.global_attributes.is_empty()
+            && data
+                .global_attributes
+                .iter()
+                .all(|attribute| attr_set.contains(attribute));
+
+        elements.push(UnionElement {
+            name: element.name.clone(),
+            description: element.title.clone(),
+            mdn_url: format!(
+                "https://developer.mozilla.org/docs/Web/SVG/Element/{}",
+                element.name
+            ),
+            spec_lifecycle: union_lifecycle_expr(&feature.present_in),
+            content_model: element.content_model.clone(),
+            required_attrs,
+            attrs,
+            global_attrs,
+            category: element
+                .categories
+                .first()
+                .map(|category| map_category_name(category))
+                .transpose()?,
+            known_in: feature.present_in.clone(),
+        });
+    }
+
+    elements.sort_by(|left, right| left.name.cmp(&right.name));
+    Ok(elements)
+}
+
+fn build_union_attributes(
+    snapshot_data: &HashMap<SpecSnapshotId, SnapshotBuildData>,
+    membership: &AttributeMembershipFile,
+) -> Result<Vec<UnionAttribute>, Box<dyn Error>> {
+    let mut attributes = Vec::with_capacity(membership.attributes.len());
+
+    for feature in &membership.attributes {
+        let snapshot = latest_present_snapshot(&feature.present_in)
+            .ok_or_else(|| format!("attribute {} has no present snapshots", feature.name))?;
+        let data = snapshot_data
+            .get(&snapshot)
+            .ok_or_else(|| format!("missing snapshot data for {}", snapshot.as_str()))?;
+        let attribute = data.attributes.get(&feature.name).ok_or_else(|| {
+            format!(
+                "missing attribute {} in {}",
+                feature.name,
+                snapshot.as_str()
+            )
+        })?;
+        let elements = data
+            .attribute_elements
+            .get(&feature.name)
+            .cloned()
+            .unwrap_or_default();
+
+        attributes.push(UnionAttribute {
+            name: attribute.name.clone(),
+            description: attribute.title.clone(),
+            mdn_url: format!(
+                "https://developer.mozilla.org/docs/Web/SVG/Attribute/{}",
+                attribute.name
+            ),
+            spec_lifecycle: union_lifecycle_expr(&feature.present_in),
+            values: union_values_from_syntax(&attribute.value_syntax, &data.grammars),
+            elements,
+            known_in: feature.present_in.clone(),
+        });
+    }
+
+    attributes.sort_by(|left, right| left.name.cmp(&right.name));
+    Ok(attributes)
+}
+
+fn build_profile_attributes(
+    snapshots: &[SpecSnapshotId],
+    snapshot_data: &HashMap<SpecSnapshotId, SnapshotBuildData>,
+) -> Vec<(SpecSnapshotId, BTreeMap<String, Vec<String>>)> {
+    snapshots
+        .iter()
+        .copied()
+        .map(|snapshot| {
+            let mapping = snapshot_data
+                .get(&snapshot)
+                .map(|data| {
+                    data.element_attributes
+                        .iter()
+                        .map(|(element, edges)| {
+                            (
+                                element.clone(),
+                                edges.iter().map(|edge| edge.name.clone()).collect(),
+                            )
+                        })
+                        .collect()
+                })
+                .unwrap_or_default();
+            (snapshot, mapping)
+        })
+        .collect::<Vec<_>>()
+}
+
+fn read_json<T>(path: &Path) -> Result<T, Box<dyn Error>>
+where
+    T: serde::de::DeserializeOwned,
+{
+    let text = fs::read_to_string(path)?;
+    Ok(serde_json::from_str(&text)?)
+}
+
+fn latest_present_snapshot(present_in: &[SpecSnapshotId]) -> Option<SpecSnapshotId> {
+    canonical_snapshots()
+        .into_iter()
+        .rev()
+        .find(|snapshot| present_in.contains(snapshot))
+}
+
+fn union_lifecycle_expr(present_in: &[SpecSnapshotId]) -> &'static str {
+    if !present_in.contains(&SpecSnapshotId::Svg2EditorsDraft20250914) {
+        "SpecLifecycle::Obsolete"
+    } else if present_in == [SpecSnapshotId::Svg2EditorsDraft20250914] {
+        "SpecLifecycle::Experimental"
+    } else {
+        "SpecLifecycle::Stable"
+    }
+}
+
+fn map_category_name(value: &str) -> Result<String, Box<dyn Error>> {
+    let category = match value {
+        "container" => "Container",
+        "shape" => "Shape",
+        "text" => "Text",
+        "gradient" => "Gradient",
+        "filter" => "Filter",
+        "descriptive" => "Descriptive",
+        "structural" => "Structural",
+        "animation" => "Animation",
+        "paint_server" => "PaintServer",
+        "clip_mask" => "ClipMask",
+        "light_source" => "LightSource",
+        "filter_primitive" => "FilterPrimitive",
+        "transfer_function" => "TransferFunction",
+        "merge_node" => "MergeNode",
+        "motion_path" => "MotionPath",
+        "never_rendered" => "NeverRendered",
+        _ => return Err(format!("unknown element category {value}").into()),
+    };
+    Ok(category.to_string())
+}
+
+fn union_values_from_syntax(
+    syntax: &ValueSyntaxJson,
+    grammars: &HashMap<String, GrammarDefinition>,
+) -> UnionValues {
+    match syntax {
+        ValueSyntaxJson::GrammarRef { grammar_id } => grammar_values(grammar_id, grammars),
+        ValueSyntaxJson::ForeignRef { spec, target } => match (spec.as_str(), target.as_str()) {
+            ("css-color-4", "<color>") => UnionValues::Color,
+            ("css-values-3", "<length>") => UnionValues::Length,
+            ("css-values-3", "<number-or-percentage>") => UnionValues::NumberOrPercentage,
+            _ => UnionValues::FreeText,
+        },
+        ValueSyntaxJson::Opaque { .. } => UnionValues::FreeText,
+    }
+}
+
+fn grammar_values(grammar_id: &str, grammars: &HashMap<String, GrammarDefinition>) -> UnionValues {
+    if grammar_id == "path-data" {
+        return UnionValues::PathData;
+    }
+    if grammar_id == "color" {
+        return UnionValues::Color;
+    }
+    if grammar_id == "length" {
+        return UnionValues::Length;
+    }
+    if grammar_id == "number-or-percentage" {
+        return UnionValues::NumberOrPercentage;
+    }
+    if grammar_id == "points" {
+        return UnionValues::Points;
+    }
+    if grammar_id == "url-reference" {
+        return UnionValues::Url;
+    }
+    if grammar_id == "view-box" {
+        return UnionValues::ViewBox;
+    }
+
+    let Some(grammar) = grammars.get(grammar_id) else {
+        return UnionValues::FreeText;
+    };
+
+    if let Some(values) = enum_values(&grammar.root) {
+        return UnionValues::Enum { values };
+    }
+    if grammar_id == "preserve-aspect-ratio"
+        && let Some((alignments, meet_or_slice)) = preserve_aspect_ratio_values(&grammar.root)
+    {
+        return UnionValues::PreserveAspectRatio {
+            alignments,
+            meet_or_slice,
+        };
+    }
+    if grammar_id.starts_with("transform-list-")
+        && let Some(functions) = transform_functions(&grammar.root)
+    {
+        return UnionValues::Transform { functions };
+    }
+
+    UnionValues::FreeText
+}
+
+fn enum_values(root: &GrammarNode) -> Option<Vec<String>> {
+    let GrammarNode::Choice { options } = root else {
+        return None;
+    };
+    options
+        .iter()
+        .map(|option| match option {
+            GrammarNode::Keyword { value } => Some(value.clone()),
+            _ => None,
+        })
+        .collect()
+}
+
+fn preserve_aspect_ratio_values(root: &GrammarNode) -> Option<(Vec<String>, Vec<String>)> {
+    let GrammarNode::Sequence { items } = root else {
+        return None;
+    };
+    let [alignments, meet_or_slice] = items.as_slice() else {
+        return None;
+    };
+    let alignments = enum_values(alignments)?;
+    let meet_or_slice = match meet_or_slice {
+        GrammarNode::Optional { item } => enum_values(item)?,
+        _ => return None,
+    };
+    Some((alignments, meet_or_slice))
+}
+
+fn transform_functions(root: &GrammarNode) -> Option<Vec<String>> {
+    let GrammarNode::SpaceSeparated { item } = root else {
+        return None;
+    };
+    let GrammarNode::Choice { options } = item.as_ref() else {
+        return None;
+    };
+
+    options
+        .iter()
+        .map(|option| match option {
+            GrammarNode::DatatypeRef { name } => {
+                name.strip_suffix("-transform-function").map(str::to_string)
+            }
+            _ => None,
+        })
+        .collect()
+}
+
+fn element_idents(elements: &[UnionElement]) -> HashMap<&str, String> {
     elements
         .iter()
         .map(|element| (element.name.as_str(), ident_from(&element.name)))
         .collect()
 }
 
-fn attribute_idents(attributes: &[JsonAttribute]) -> HashMap<&str, String> {
+fn attribute_idents(attributes: &[UnionAttribute]) -> HashMap<&str, String> {
     attributes
         .iter()
         .map(|attribute| (attribute.name.as_str(), ident_from(&attribute.name)))
         .collect()
 }
 
+fn write_static_str_slice(out: &mut String, name: &str, values: &[String]) -> std::fmt::Result {
+    write!(out, "static {name}: &[&str] = &[")?;
+    for (index, value) in values.iter().enumerate() {
+        if index > 0 {
+            out.push_str(", ");
+        }
+        write!(out, "\"{}\"", escape(value))?;
+    }
+    writeln!(out, "];")
+}
+
+fn write_snapshot_slice(
+    out: &mut String,
+    name: &str,
+    values: &[SpecSnapshotId],
+) -> std::fmt::Result {
+    write!(out, "static {name}: &[SpecSnapshotId] = &[")?;
+    for (index, value) in values.iter().enumerate() {
+        if index > 0 {
+            out.push_str(", ");
+        }
+        write!(out, "SpecSnapshotId::{}", value.as_str())?;
+    }
+    writeln!(out, "];")
+}
+
 fn write_element_statics(
     out: &mut String,
-    elements: &[JsonElement],
+    elements: &[UnionElement],
     element_idents: &HashMap<&str, String>,
 ) -> std::fmt::Result {
     for element in elements {
@@ -272,15 +820,29 @@ fn write_element_statics(
             &element.required_attrs,
         )?;
         write_static_str_slice(out, &format!("EL_{id}_ATTRS"), &element.attrs)?;
-        if let ContentModelJson::Children { children } = &element.content_model {
-            write!(out, "static EL_{id}_CHILDREN: &[ElementCategory] = &[")?;
-            for (index, category) in children.iter().enumerate() {
-                if index > 0 {
-                    out.push_str(", ");
+        write_snapshot_slice(out, &format!("EL_{id}_SNAPSHOTS"), &element.known_in)?;
+        match &element.content_model {
+            ElementContentModelJson::CategorySet { categories } => {
+                write!(out, "static EL_{id}_CHILDREN: &[ElementCategory] = &[")?;
+                for (index, category) in categories.iter().enumerate() {
+                    if index > 0 {
+                        out.push_str(", ");
+                    }
+                    write!(
+                        out,
+                        "ElementCategory::{}",
+                        map_category_name(category).map_err(|_| std::fmt::Error)?
+                    )?;
                 }
-                write!(out, "ElementCategory::{category}")?;
+                writeln!(out, "];")?;
             }
-            writeln!(out, "];")?;
+            ElementContentModelJson::ElementSet { elements } => {
+                write_static_str_slice(out, &format!("EL_{id}_CHILDREN_SET"), elements)?;
+            }
+            ElementContentModelJson::Empty
+            | ElementContentModelJson::TextOnly
+            | ElementContentModelJson::AnySvg
+            | ElementContentModelJson::ForeignNamespace => {}
         }
         writeln!(out)?;
     }
@@ -290,27 +852,35 @@ fn write_element_statics(
 
 fn write_attribute_statics(
     out: &mut String,
-    attributes: &[JsonAttribute],
+    attributes: &[UnionAttribute],
     attribute_idents: &HashMap<&str, String>,
 ) -> std::fmt::Result {
     for attribute in attributes {
         let id = &attribute_idents[attribute.name.as_str()];
         write_static_str_slice(out, &format!("ATTR_{id}_ELEMENTS"), &attribute.elements)?;
+        write_snapshot_slice(out, &format!("ATTR_{id}_SNAPSHOTS"), &attribute.known_in)?;
         match &attribute.values {
-            ValuesJson::Enum { values } => {
+            UnionValues::Enum { values } => {
                 write_static_str_slice(out, &format!("ATTR_{id}_VALUES"), values)?;
             }
-            ValuesJson::Transform { functions } => {
+            UnionValues::Transform { functions } => {
                 write_static_str_slice(out, &format!("ATTR_{id}_FUNCTIONS"), functions)?;
             }
-            ValuesJson::PreserveAspectRatio {
+            UnionValues::PreserveAspectRatio {
                 alignments,
                 meet_or_slice,
             } => {
                 write_static_str_slice(out, &format!("ATTR_{id}_ALIGNMENTS"), alignments)?;
                 write_static_str_slice(out, &format!("ATTR_{id}_MEET_OR_SLICE"), meet_or_slice)?;
             }
-            _ => {}
+            UnionValues::FreeText
+            | UnionValues::Color
+            | UnionValues::Length
+            | UnionValues::Url
+            | UnionValues::NumberOrPercentage
+            | UnionValues::ViewBox
+            | UnionValues::Points
+            | UnionValues::PathData => {}
         }
         writeln!(out)?;
     }
@@ -320,83 +890,56 @@ fn write_attribute_statics(
 
 fn write_elements_array(
     out: &mut String,
-    elements: &[JsonElement],
+    elements: &[UnionElement],
     element_idents: &HashMap<&str, String>,
     compat: &bcd::CompatData,
-    spec_descriptions: &HashMap<String, String>,
 ) -> std::fmt::Result {
     writeln!(out, "pub static ELEMENTS: &[ElementDef] = &[")?;
 
     for element in elements {
-        write_curated_element(out, element, element_idents, compat, spec_descriptions)?;
-    }
+        let id = &element_idents[element.name.as_str()];
+        let content_model = match &element.content_model {
+            ElementContentModelJson::Empty => "ContentModel::Void".to_string(),
+            ElementContentModelJson::TextOnly => "ContentModel::Text".to_string(),
+            ElementContentModelJson::AnySvg
+            | ElementContentModelJson::CategorySet { .. }
+            | ElementContentModelJson::ElementSet { .. } => {
+                format!("ContentModel::Children(EL_{id}_CHILDREN)")
+            }
+            ElementContentModelJson::ForeignNamespace => "ContentModel::Foreign".to_string(),
+        };
+        let (deprecated, experimental, spec_url_str, baseline_str, browser_support_str) =
+            compat.elements.get(&element.name).map_or_else(
+                || {
+                    (
+                        false,
+                        false,
+                        "None".to_string(),
+                        "None".to_string(),
+                        "None".to_string(),
+                    )
+                },
+                |entry| {
+                    (
+                        entry.deprecated,
+                        entry.experimental,
+                        format_option_str(entry.spec_url.as_deref()),
+                        format_baseline(entry.baseline.as_ref()),
+                        format_browser_support(entry.browser_support.as_ref()),
+                    )
+                },
+            );
+        let name = escape(&element.name);
+        let description = escape(&element.description);
+        let mdn_url = escape(&element.mdn_url);
 
-    let bcd_only_elements = bcd_only_elements(elements, compat);
-    for &(name, entry) in &bcd_only_elements {
-        write_bcd_only_element(out, name, entry, spec_descriptions)?;
-    }
-
-    writeln!(out, "];")?;
-    writeln!(out)
-}
-
-fn write_curated_element(
-    out: &mut String,
-    element: &JsonElement,
-    element_idents: &HashMap<&str, String>,
-    compat: &bcd::CompatData,
-    spec_descriptions: &HashMap<String, String>,
-) -> std::fmt::Result {
-    let id = &element_idents[element.name.as_str()];
-    let content_model = match &element.content_model {
-        ContentModelJson::Simple(simple_model) => match simple_model.as_str() {
-            "foreign" => "ContentModel::Foreign".to_string(),
-            "void" => "ContentModel::Void".to_string(),
-            "text" => "ContentModel::Text".to_string(),
-            other => panic!("unknown simple content_model: {other}"),
-        },
-        ContentModelJson::Children { .. } => format!("ContentModel::Children(EL_{id}_CHILDREN)"),
-    };
-
-    let spec_lifecycle = spec_lifecycle_expr(element.deprecated);
-    let (deprecated, experimental, spec_url_str, baseline_str, browser_support_str) =
-        compat.elements.get(&element.name).map_or_else(
-            || {
-                (
-                    element.deprecated,
-                    false,
-                    "None".to_string(),
-                    "None".to_string(),
-                    "None".to_string(),
-                )
-            },
-            |entry| {
-                (
-                    element.deprecated || entry.deprecated,
-                    entry.experimental,
-                    format_option_str(entry.spec_url.as_deref()),
-                    format_baseline(entry.baseline.as_ref()),
-                    format_browser_support(entry.browser_support.as_ref()),
-                )
-            },
-        );
-
-    let name = escape(&element.name);
-    let description = escape(
-        spec_descriptions
-            .get(&element.name)
-            .unwrap_or(&element.description),
-    );
-    let mdn_url = escape(&element.mdn_url);
-    let global_attrs = element.global_attrs;
-
-    write!(
-        out,
-        r#"    ElementDef {{
+        write!(
+            out,
+            r#"    ElementDef {{
         name: "{name}",
         description: "{description}",
         mdn_url: "{mdn_url}",
-        spec_lifecycle: {spec_lifecycle},
+        spec_lifecycle: {},
         deprecated: {deprecated},
         experimental: {experimental},
         spec_url: {spec_url_str},
@@ -405,133 +948,60 @@ fn write_curated_element(
         content_model: {content_model},
         required_attrs: EL_{id}_REQUIRED_ATTRS,
         attrs: EL_{id}_ATTRS,
-        global_attrs: {global_attrs},
+        global_attrs: {},
     }},
-"#
-    )
-}
-
-fn write_bcd_only_element(
-    out: &mut String,
-    name: &str,
-    entry: &CompatEntry,
-    spec_descriptions: &HashMap<String, String>,
-) -> std::fmt::Result {
-    let mdn_url = format!("https://developer.mozilla.org/docs/Web/SVG/Element/{name}");
-    let fallback_description = format!("The {name} SVG element.");
-    let raw_name = name;
-    let name = escape(raw_name);
-    let description = escape(
-        spec_descriptions
-            .get(raw_name)
-            .unwrap_or(&fallback_description),
-    );
-    let mdn_url = escape(&mdn_url);
-    let spec_lifecycle = "SpecLifecycle::Stable";
-    let deprecated = entry.deprecated;
-    let experimental = entry.experimental;
-    let spec_url_str = format_option_str(entry.spec_url.as_deref());
-    let baseline_str = format_baseline(entry.baseline.as_ref());
-    let browser_support_str = format_browser_support(entry.browser_support.as_ref());
-
-    write!(
-        out,
-        r#"    ElementDef {{
-        name: "{name}",
-        description: "{description}",
-        mdn_url: "{mdn_url}",
-        spec_lifecycle: {spec_lifecycle},
-        deprecated: {deprecated},
-        experimental: {experimental},
-        spec_url: {spec_url_str},
-        baseline: {baseline_str},
-        browser_support: {browser_support_str},
-        content_model: ContentModel::Void,
-        required_attrs: &[],
-        attrs: &[],
-        global_attrs: true,
-    }},
-"#
-    )
-}
-
-fn write_bcd_only_attribute_statics(
-    out: &mut String,
-    attributes: &[JsonAttribute],
-    compat: &bcd::CompatData,
-) -> std::fmt::Result {
-    let bcd_only = bcd_only_attributes(attributes, compat);
-
-    for (name, attribute) in &bcd_only {
-        let id = ident_from(name);
-        write_static_str_slice(out, &format!("ATTR_{id}_ELEMENTS"), &attribute.elements)?;
-        writeln!(out)?;
-    }
-
-    Ok(())
-}
-
-fn write_attributes_array(
-    out: &mut String,
-    attributes: &[JsonAttribute],
-    attribute_idents: &HashMap<&str, String>,
-    compat: &bcd::CompatData,
-) -> std::fmt::Result {
-    writeln!(out, "pub static ATTRIBUTES: &[AttributeDef] = &[")?;
-
-    for attribute in attributes {
-        write_curated_attribute(out, attribute, attribute_idents, compat)?;
-    }
-
-    for (name, attribute) in bcd_only_attributes(attributes, compat) {
-        write_bcd_only_attribute(out, name, attribute)?;
+"#,
+            element.spec_lifecycle, element.global_attrs
+        )?;
     }
 
     writeln!(out, "];")?;
     writeln!(out)
 }
 
-fn write_curated_attribute(
+fn write_attributes_array(
     out: &mut String,
-    attribute: &JsonAttribute,
+    attributes: &[UnionAttribute],
     attribute_idents: &HashMap<&str, String>,
     compat: &bcd::CompatData,
 ) -> std::fmt::Result {
-    let id = &attribute_idents[attribute.name.as_str()];
-    let values = attribute_values_expr(id, &attribute.values);
-    let spec_lifecycle = spec_lifecycle_expr(attribute.deprecated);
-    let (deprecated, experimental, spec_url_str, baseline_str, browser_support_str) =
-        compat.attributes.get(&attribute.name).map_or_else(
-            || {
-                (
-                    attribute.deprecated,
-                    false,
-                    "None".to_string(),
-                    "None".to_string(),
-                    "None".to_string(),
-                )
-            },
-            |bcd_attribute| {
-                (
-                    attribute.deprecated || bcd_attribute.compat.deprecated,
-                    bcd_attribute.compat.experimental,
-                    format_option_str(bcd_attribute.compat.spec_url.as_deref()),
-                    format_baseline(bcd_attribute.compat.baseline.as_ref()),
-                    format_browser_support(bcd_attribute.compat.browser_support.as_ref()),
-                )
-            },
-        );
-    let name = escape(&attribute.name);
-    let description = escape(&attribute.description);
-    let mdn_url = escape(&attribute.mdn_url);
+    writeln!(out, "pub static ATTRIBUTES: &[AttributeDef] = &[")?;
 
-    write!(
-        out,
-        r#"    AttributeDef {{
+    for attribute in attributes {
+        let id = &attribute_idents[attribute.name.as_str()];
+        let values = attribute_values_expr(id, &attribute.values);
+        let (deprecated, experimental, spec_url_str, baseline_str, browser_support_str) =
+            compat.attributes.get(&attribute.name).map_or_else(
+                || {
+                    (
+                        false,
+                        false,
+                        "None".to_string(),
+                        "None".to_string(),
+                        "None".to_string(),
+                    )
+                },
+                |bcd_attribute| {
+                    (
+                        bcd_attribute.compat.deprecated,
+                        bcd_attribute.compat.experimental,
+                        format_option_str(bcd_attribute.compat.spec_url.as_deref()),
+                        format_baseline(bcd_attribute.compat.baseline.as_ref()),
+                        format_browser_support(bcd_attribute.compat.browser_support.as_ref()),
+                    )
+                },
+            );
+        let name = escape(&attribute.name);
+        let description = escape(&attribute.description);
+        let mdn_url = escape(&attribute.mdn_url);
+
+        write!(
+            out,
+            r#"    AttributeDef {{
         name: "{name}",
         description: "{description}",
         mdn_url: "{mdn_url}",
-        spec_lifecycle: {spec_lifecycle},
+        spec_lifecycle: {},
         deprecated: {deprecated},
         experimental: {experimental},
         spec_url: {spec_url_str},
@@ -540,76 +1010,26 @@ fn write_curated_attribute(
         values: {values},
         elements: ATTR_{id}_ELEMENTS,
     }},
-"#
-    )
+"#,
+            attribute.spec_lifecycle
+        )?;
+    }
+
+    writeln!(out, "];")?;
+    writeln!(out)
 }
 
-fn write_bcd_only_attribute(
-    out: &mut String,
-    name: &str,
-    attribute: &BcdAttribute,
-) -> std::fmt::Result {
-    let id = ident_from(name);
-    let mdn_url = format!("https://developer.mozilla.org/docs/Web/SVG/Attribute/{name}");
-    let description = format!("The {name} SVG attribute.");
-    let name = escape(name);
-    let description = escape(&description);
-    let mdn_url = escape(&mdn_url);
-    let spec_lifecycle = "SpecLifecycle::Stable";
-    let deprecated = attribute.compat.deprecated;
-    let experimental = attribute.compat.experimental;
-    let spec_url_str = format_option_str(attribute.compat.spec_url.as_deref());
-    let baseline_str = format_baseline(attribute.compat.baseline.as_ref());
-    let browser_support_str = format_browser_support(attribute.compat.browser_support.as_ref());
-
-    write!(
-        out,
-        r#"    AttributeDef {{
-        name: "{name}",
-        description: "{description}",
-        mdn_url: "{mdn_url}",
-        spec_lifecycle: {spec_lifecycle},
-        deprecated: {deprecated},
-        experimental: {experimental},
-        spec_url: {spec_url_str},
-        baseline: {baseline_str},
-        browser_support: {browser_support_str},
-        values: AttributeValues::FreeText,
-        elements: ATTR_{id}_ELEMENTS,
-    }},
-"#
-    )
-}
-
-fn write_category_mapping(out: &mut String, elements: &[JsonElement]) -> std::fmt::Result {
-    const ALL_ELEMENT_CATEGORIES: &[&str] = &[
-        "Container",
-        "Shape",
-        "Text",
-        "Gradient",
-        "Filter",
-        "Descriptive",
-        "Structural",
-        "Animation",
-        "PaintServer",
-        "ClipMask",
-        "LightSource",
-        "FilterPrimitive",
-        "TransferFunction",
-        "MergeNode",
-        "MotionPath",
-        "NeverRendered",
-    ];
-
+fn write_category_mapping(out: &mut String, elements: &[UnionElement]) -> std::fmt::Result {
     let mut category_map: HashMap<&str, Vec<&str>> = HashMap::new();
     for element in elements {
         if let Some(category) = &element.category {
             category_map
                 .entry(category.as_str())
                 .or_default()
-                .push(&element.name);
+                .push(element.name.as_str());
         }
     }
+
     let mut unknown_categories: Vec<&str> = category_map
         .keys()
         .copied()
@@ -618,7 +1038,7 @@ fn write_category_mapping(out: &mut String, elements: &[JsonElement]) -> std::fm
     unknown_categories.sort_unstable();
     assert!(
         unknown_categories.is_empty(),
-        "unknown element categories in data/elements.json: {unknown_categories:?}"
+        "unknown element categories in reviewed snapshot data: {unknown_categories:?}"
     );
 
     writeln!(
@@ -648,64 +1068,109 @@ fn write_category_mapping(out: &mut String, elements: &[JsonElement]) -> std::fm
     writeln!(out, "}}")
 }
 
-const fn spec_lifecycle_expr(is_deprecated: bool) -> &'static str {
-    if is_deprecated {
-        "SpecLifecycle::Deprecated"
-    } else {
-        "SpecLifecycle::Stable"
+fn write_membership_lookup(
+    out: &mut String,
+    elements: &[UnionElement],
+    attributes: &[UnionAttribute],
+    element_idents: &HashMap<&str, String>,
+    attribute_idents: &HashMap<&str, String>,
+) -> std::fmt::Result {
+    writeln!(
+        out,
+        "pub fn generated_known_element_snapshots(name: &str) -> Option<&'static [SpecSnapshotId]> {{"
+    )?;
+    writeln!(out, "    match name {{")?;
+    for element in elements {
+        let id = &element_idents[element.name.as_str()];
+        writeln!(
+            out,
+            "        \"{}\" => Some(EL_{id}_SNAPSHOTS),",
+            escape(&element.name)
+        )?;
     }
+    writeln!(out, "        _ => None,")?;
+    writeln!(out, "    }}")?;
+    writeln!(out, "}}")?;
+    writeln!(out)?;
+
+    writeln!(
+        out,
+        "pub fn generated_known_attribute_snapshots(name: &str) -> Option<&'static [SpecSnapshotId]> {{"
+    )?;
+    writeln!(out, "    match name {{")?;
+    for attribute in attributes {
+        let id = &attribute_idents[attribute.name.as_str()];
+        writeln!(
+            out,
+            "        \"{}\" => Some(ATTR_{id}_SNAPSHOTS),",
+            escape(&attribute.name)
+        )?;
+    }
+    writeln!(out, "        _ => None,")?;
+    writeln!(out, "    }}")?;
+    writeln!(out, "}}")?;
+    writeln!(out)
 }
 
-fn attribute_values_expr(id: &str, values: &ValuesJson) -> String {
+fn write_profile_attribute_lookup(
+    out: &mut String,
+    profile_attributes: &[(SpecSnapshotId, BTreeMap<String, Vec<String>>)],
+) -> std::fmt::Result {
+    for (snapshot, elements) in profile_attributes {
+        let snapshot_id = ident_from(snapshot.as_str());
+        for (element, attributes) in elements {
+            let element_id = ident_from(element);
+            write_static_str_slice(
+                out,
+                &format!("PROFILE_{snapshot_id}_EL_{element_id}_ATTRS"),
+                attributes,
+            )?;
+        }
+    }
+    writeln!(out)?;
+
+    writeln!(
+        out,
+        "pub fn generated_attribute_names_for_profile(snapshot: SpecSnapshotId, element_name: &str) -> &'static [&'static str] {{"
+    )?;
+    writeln!(out, "    match snapshot {{")?;
+    for (snapshot, elements) in profile_attributes {
+        let snapshot_id = ident_from(snapshot.as_str());
+        writeln!(
+            out,
+            "        SpecSnapshotId::{} => match element_name {{",
+            snapshot.as_str()
+        )?;
+        for element in elements.keys() {
+            let element_id = ident_from(element);
+            writeln!(
+                out,
+                "            \"{}\" => PROFILE_{}_EL_{element_id}_ATTRS,",
+                escape(element),
+                snapshot_id
+            )?;
+        }
+        writeln!(out, "            _ => &[],")?;
+        writeln!(out, "        }},")?;
+    }
+    writeln!(out, "    }}")?;
+    writeln!(out, "}}")
+}
+
+fn attribute_values_expr(id: &str, values: &UnionValues) -> String {
     match values {
-        ValuesJson::Enum { .. } => format!("AttributeValues::Enum(ATTR_{id}_VALUES)"),
-        ValuesJson::FreeText => "AttributeValues::FreeText".to_string(),
-        ValuesJson::Color => "AttributeValues::Color".to_string(),
-        ValuesJson::Length => "AttributeValues::Length".to_string(),
-        ValuesJson::Url => "AttributeValues::Url".to_string(),
-        ValuesJson::NumberOrPercentage => "AttributeValues::NumberOrPercentage".to_string(),
-        ValuesJson::Transform { .. } => format!("AttributeValues::Transform(ATTR_{id}_FUNCTIONS)"),
-        ValuesJson::Viewbox => "AttributeValues::ViewBox".to_string(),
-        ValuesJson::PreserveAspectRatio { .. } => format!(
+        UnionValues::Enum { .. } => format!("AttributeValues::Enum(ATTR_{id}_VALUES)"),
+        UnionValues::FreeText => "AttributeValues::FreeText".to_string(),
+        UnionValues::Color => "AttributeValues::Color".to_string(),
+        UnionValues::Length => "AttributeValues::Length".to_string(),
+        UnionValues::Url => "AttributeValues::Url".to_string(),
+        UnionValues::NumberOrPercentage => "AttributeValues::NumberOrPercentage".to_string(),
+        UnionValues::Transform { .. } => format!("AttributeValues::Transform(ATTR_{id}_FUNCTIONS)"),
+        UnionValues::ViewBox => "AttributeValues::ViewBox".to_string(),
+        UnionValues::PreserveAspectRatio { .. } => format!(
             "AttributeValues::PreserveAspectRatio {{ alignments: ATTR_{id}_ALIGNMENTS, meet_or_slice: ATTR_{id}_MEET_OR_SLICE }}"
         ),
-        ValuesJson::Points => "AttributeValues::Points".to_string(),
-        ValuesJson::PathData => "AttributeValues::PathData".to_string(),
+        UnionValues::Points => "AttributeValues::Points".to_string(),
+        UnionValues::PathData => "AttributeValues::PathData".to_string(),
     }
-}
-
-fn bcd_only_elements<'a>(
-    elements: &[JsonElement],
-    compat: &'a bcd::CompatData,
-) -> Vec<(&'a str, &'a CompatEntry)> {
-    let curated_element_names: HashSet<&str> = elements
-        .iter()
-        .map(|element| element.name.as_str())
-        .collect();
-    let mut bcd_only_elements: Vec<(&str, &CompatEntry)> = compat
-        .elements
-        .iter()
-        .filter(|(name, _)| !curated_element_names.contains(name.as_str()))
-        .map(|(name, entry)| (name.as_str(), entry))
-        .collect();
-    bcd_only_elements.sort_by_key(|(name, _)| *name);
-    bcd_only_elements
-}
-
-fn bcd_only_attributes<'a>(
-    attributes: &[JsonAttribute],
-    compat: &'a bcd::CompatData,
-) -> Vec<(&'a str, &'a BcdAttribute)> {
-    let curated_attribute_names: HashSet<&str> = attributes
-        .iter()
-        .map(|attribute| attribute.name.as_str())
-        .collect();
-    let mut bcd_only_attributes: Vec<(&str, &BcdAttribute)> = compat
-        .attributes
-        .iter()
-        .filter(|(name, _)| !curated_attribute_names.contains(name.as_str()))
-        .map(|(name, bcd_attribute)| (name.as_str(), bcd_attribute))
-        .collect();
-    bcd_only_attributes.sort_by_key(|(name, _)| *name);
-    bcd_only_attributes
 }

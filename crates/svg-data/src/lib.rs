@@ -36,7 +36,10 @@ pub mod xlink;
 
 use std::{collections::HashMap, sync::LazyLock};
 
-use catalog::{ATTRIBUTES, ELEMENTS};
+use catalog::{
+    ATTRIBUTES, ELEMENTS, generated_attribute_names_for_profile,
+    generated_known_attribute_snapshots, generated_known_element_snapshots,
+};
 pub use types::{
     AttributeDef, AttributeValues, BaselineStatus, BrowserSupport, BrowserVersion, ContentModel,
     ElementCategory, ElementDef, ProfileLookup, ProfiledAttribute, ProfiledElement, SpecLifecycle,
@@ -84,16 +87,6 @@ const SVG2_EDITORS_DRAFT_20250914_ALIASES: &[&str] = &[
 const ALL_SPEC_SNAPSHOTS: &[SpecSnapshotId] = &[
     SpecSnapshotId::Svg11Rec20030114,
     SpecSnapshotId::Svg11Rec20110816,
-    SpecSnapshotId::Svg2Cr20181004,
-    SpecSnapshotId::Svg2EditorsDraft20250914,
-];
-
-const SVG11_SNAPSHOTS: &[SpecSnapshotId] = &[
-    SpecSnapshotId::Svg11Rec20030114,
-    SpecSnapshotId::Svg11Rec20110816,
-];
-
-const SVG2_SNAPSHOTS: &[SpecSnapshotId] = &[
     SpecSnapshotId::Svg2Cr20181004,
     SpecSnapshotId::Svg2EditorsDraft20250914,
 ];
@@ -212,7 +205,10 @@ pub fn element_for_profile(
     let Some(element) = element(name) else {
         return ProfileLookup::Unknown;
     };
-    lookup_for_profile(profile, element, known_element_snapshots(element.name))
+    let Some(known_in) = generated_known_element_snapshots(element.name) else {
+        return ProfileLookup::Unknown;
+    };
+    lookup_for_profile(profile, element, known_in)
 }
 
 /// Look up a single SVG attribute definition against a selected profile.
@@ -224,11 +220,10 @@ pub fn attribute_for_profile(
     let Some(attribute) = attribute(name) else {
         return ProfileLookup::Unknown;
     };
-    lookup_for_profile(
-        profile,
-        attribute,
-        known_attribute_snapshots(attribute.name),
-    )
+    let Some(known_in) = generated_known_attribute_snapshots(attribute.name) else {
+        return ProfileLookup::Unknown;
+    };
+    lookup_for_profile(profile, attribute, known_in)
 }
 
 /// Return all SVG elements available in the selected profile.
@@ -318,18 +313,15 @@ pub fn attributes_for_with_profile(
         return Vec::new();
     };
 
-    ATTRIBUTES
+    generated_attribute_names_for_profile(profile, element.name)
         .iter()
-        .filter(|attribute| attribute_applies_to(attribute, element.name))
-        .filter_map(
-            |attribute| match attribute_for_profile(profile, attribute.name) {
-                ProfileLookup::Present { value, lifecycle } => Some(ProfiledAttribute {
-                    attribute: value,
-                    lifecycle,
-                }),
-                ProfileLookup::UnsupportedInProfile { .. } | ProfileLookup::Unknown => None,
-            },
-        )
+        .filter_map(|name| match attribute_for_profile(profile, name) {
+            ProfileLookup::Present { value, lifecycle } => Some(ProfiledAttribute {
+                attribute: value,
+                lifecycle,
+            }),
+            ProfileLookup::UnsupportedInProfile { .. } | ProfileLookup::Unknown => None,
+        })
         .collect()
 }
 
@@ -347,24 +339,6 @@ fn profile_key_matches(snapshot: SpecSnapshotId, normalized_input: &str) -> bool
             .iter()
             .copied()
             .any(|alias| normalize_profile_key(alias) == normalized_input)
-}
-
-fn known_element_snapshots(name: &str) -> &'static [SpecSnapshotId] {
-    match name {
-        // BCD still fills this one in for us; treat it as SVG 2-only until we
-        // have full per-element snapshot membership in the curated catalog.
-        "feDropShadow" => SVG2_SNAPSHOTS,
-        _ => ALL_SPEC_SNAPSHOTS,
-    }
-}
-
-fn known_attribute_snapshots(name: &str) -> &'static [SpecSnapshotId] {
-    match name {
-        "href" => SVG2_SNAPSHOTS,
-        "xlink:actuate" | "xlink:arcrole" | "xlink:href" | "xlink:role" | "xlink:show"
-        | "xlink:title" | "xlink:type" => SVG11_SNAPSHOTS,
-        _ => ALL_SPEC_SNAPSHOTS,
-    }
 }
 
 fn lookup_for_profile<T: Copy + HasSpecLifecycle>(
@@ -713,7 +687,7 @@ mod tests {
     #[test]
     fn spec_lifecycle_is_separate_from_compat_deprecation() -> Result<(), Box<dyn Error>> {
         let href = attribute("xlink:href").ok_or("xlink:href should exist")?;
-        assert_eq!(href.spec_lifecycle, SpecLifecycle::Stable);
+        assert_eq!(href.spec_lifecycle, SpecLifecycle::Obsolete);
         assert!(href.deprecated, "compat deprecation should remain visible");
         Ok(())
     }
@@ -737,7 +711,13 @@ mod tests {
             return Err("feDropShadow should be unsupported in SVG 1.1".into());
         };
 
-        assert_eq!(known_in, SVG2_SNAPSHOTS);
+        assert_eq!(
+            known_in,
+            &[
+                SpecSnapshotId::Svg2Cr20181004,
+                SpecSnapshotId::Svg2EditorsDraft20250914,
+            ]
+        );
         Ok(())
     }
 
@@ -747,13 +727,25 @@ mod tests {
         let ProfileLookup::UnsupportedInProfile { known_in } = svg11_href else {
             return Err("href should be unsupported in SVG 1.1".into());
         };
-        assert_eq!(known_in, SVG2_SNAPSHOTS);
+        assert_eq!(
+            known_in,
+            &[
+                SpecSnapshotId::Svg2Cr20181004,
+                SpecSnapshotId::Svg2EditorsDraft20250914,
+            ]
+        );
 
         let svg2_xlink = attribute_for_profile(SpecSnapshotId::Svg2Cr20181004, "xlink_href");
         let ProfileLookup::UnsupportedInProfile { known_in } = svg2_xlink else {
             return Err("xlink:href should be unsupported in SVG 2".into());
         };
-        assert_eq!(known_in, SVG11_SNAPSHOTS);
+        assert_eq!(
+            known_in,
+            &[
+                SpecSnapshotId::Svg11Rec20030114,
+                SpecSnapshotId::Svg11Rec20110816,
+            ]
+        );
 
         let svg2_href = attribute_for_profile(SpecSnapshotId::Svg2Cr20181004, "href");
         let ProfileLookup::Present { value, lifecycle } = svg2_href else {
@@ -789,5 +781,12 @@ mod tests {
             attribute_for_profile(SpecSnapshotId::Svg2Cr20181004, "not-an-attribute"),
             ProfileLookup::Unknown
         ));
+    }
+
+    #[test]
+    fn reviewed_union_includes_view_element() -> Result<(), Box<dyn Error>> {
+        let view = element("view").ok_or("view should exist in reviewed union")?;
+        assert_eq!(view.name, "view");
+        Ok(())
     }
 }

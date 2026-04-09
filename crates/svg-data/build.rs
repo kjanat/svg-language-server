@@ -182,6 +182,7 @@ fn ensure_cached(url: &str, dest: &Path, offline: bool) -> Result<bool, String> 
 fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo::rerun-if-changed=data/elements.json");
     println!("cargo::rerun-if-changed=data/attributes.json");
+    println!("cargo::rerun-if-changed=data/sources");
     println!("cargo::rerun-if-env-changed=SVG_DATA_OFFLINE");
 
     let inputs = load_build_inputs()?;

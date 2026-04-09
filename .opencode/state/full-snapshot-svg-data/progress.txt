@@ -13,5 +13,13 @@ Started: 2026-04-09
 - Raw fetched source bundles stay out of git; pinned manifests and normalized data stay in git.
 - Value grammar is first-class data, not only display text.
 - External specs start as pinned typed foreign references, not full ingest.
+- Source acquisition is staged as checked-in TOML manifests under `crates/svg-data/data/sources/`, one file per snapshot or external spec set.
 
 ---
+
+## Task - [source-manifests]
+
+- Added pinned source manifests for all four tracked snapshots plus a foreign-reference manifest under `crates/svg-data/data/sources/`.
+- Added `crates/svg-data/tests/source_manifests.rs` to verify manifest coverage for snapshot ids and required manifest fields.
+- Updated `crates/svg-data/build.rs` to watch `data/sources/` for future pipeline work.
+- **Learnings:** `dprint` aligns TOML keys, so manifest validation should check keys semantically instead of exact spacing; the 2025-09-14 editor's draft pin maps cleanly to `w3c/svgwg` commit `19482daf4094e72becde92b38c6a1c0d384b56a9`.

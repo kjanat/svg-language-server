@@ -1,0 +1,61 @@
+schema_version   = 1
+manifest_id      = "svg2-ed-20250914"
+snapshot         = "Svg2EditorsDraft20250914"
+title            = "SVG 2 Editor's Draft"
+status           = "ED"
+authority_policy = "git-first"
+
+[authority]
+kind  = "github-repo"
+title = "w3c/svgwg"
+url   = "https://github.com/w3c/svgwg"
+
+[pin]
+kind  = "git-commit"
+value = "19482daf4094e72becde92b38c6a1c0d384b56a9"
+date  = "2025-09-14"
+
+[checksum]
+strategy = "sha256-per-input"
+note     = "Hash raw file bytes fetched from the pinned commit."
+
+[fetch]
+policy             = "cache-network-with-offline-fallback"
+cache_subdir       = "spec-sources/svg2-ed-20250914"
+allow_live_refresh = false
+
+[[inputs]]
+id      = "publish-conf"
+kind    = "xml"
+locator = "https://raw.githubusercontent.com/w3c/svgwg/19482daf4094e72becde92b38c6a1c0d384b56a9/master/publish.xml"
+role    = "chapter map and definitions graph"
+
+[[inputs]]
+id      = "definitions"
+kind    = "xml"
+locator = "https://raw.githubusercontent.com/w3c/svgwg/19482daf4094e72becde92b38c6a1c0d384b56a9/master/definitions.xml"
+role    = "primary structured element and attribute data"
+
+[[inputs]]
+id      = "definitions-filters"
+kind    = "xml"
+locator = "https://raw.githubusercontent.com/w3c/svgwg/19482daf4094e72becde92b38c6a1c0d384b56a9/master/definitions-filters.xml"
+role    = "typed foreign filter effects references"
+
+[[inputs]]
+id      = "definitions-masking"
+kind    = "xml"
+locator = "https://raw.githubusercontent.com/w3c/svgwg/19482daf4094e72becde92b38c6a1c0d384b56a9/master/definitions-masking.xml"
+role    = "typed foreign masking references"
+
+[[inputs]]
+id      = "definitions-compositing"
+kind    = "xml"
+locator = "https://raw.githubusercontent.com/w3c/svgwg/19482daf4094e72becde92b38c6a1c0d384b56a9/master/definitions-compositing.xml"
+role    = "typed foreign compositing references"
+
+[[inputs]]
+id      = "chapter-html"
+kind    = "html-set"
+locator = "all chapter and appendix HTML files referenced by publish.xml at the pinned commit"
+role    = "prose extraction and locator validation"

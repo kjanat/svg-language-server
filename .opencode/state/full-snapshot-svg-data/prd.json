@@ -9,7 +9,7 @@
 			"title": "Define pinned source manifests",
 			"description": "Create pinned source manifests for all four snapshots plus foreign references. Done when: each manifest records authority source, pinned ref or TR URL, checksum strategy, expected inputs, and fetch policy.",
 			"priority": "architecture",
-			"passes": false
+			"passes": true
 		},
 		{
 			"id": "snapshot-schema",

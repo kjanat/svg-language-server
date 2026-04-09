@@ -1,0 +1,70 @@
+schema_version   = 1
+manifest_id      = "foreign-references"
+title            = "SVG external specification pins"
+status           = "mixed"
+authority_policy = "typed-foreign-refs"
+
+[checksum]
+strategy = "sha256-per-input"
+note     = "Hash fetched response bodies after HTTP normalization."
+
+[fetch]
+policy             = "cache-network-with-offline-fallback"
+cache_subdir       = "spec-sources/foreign-references"
+allow_live_refresh = true
+
+[[inputs]]
+id        = "svg-animations"
+authority = "svgwg editors draft"
+kind      = "editors-draft"
+scope     = "animation elements, timing model, animation attributes"
+pin       = "https://svgwg.org/specs/animations/"
+role      = "typed foreign ref target"
+
+[[inputs]]
+id        = "filter-effects-1"
+authority = "fxtf editors draft"
+kind      = "editors-draft"
+scope     = "filter primitives and filter-specific grammar"
+pin       = "https://drafts.fxtf.org/filter-effects/"
+role      = "typed foreign ref target"
+
+[[inputs]]
+id        = "css-masking-1"
+authority = "fxtf editors draft"
+kind      = "editors-draft"
+scope     = "masking and clipping definitions"
+pin       = "https://drafts.fxtf.org/css-masking-1/"
+role      = "typed foreign ref target"
+
+[[inputs]]
+id        = "compositing-1"
+authority = "w3c tr"
+kind      = "candidate-recommendation"
+scope     = "compositing and blending terms used by SVG"
+pin       = "https://www.w3.org/TR/2015/CR-compositing-1-20150113/"
+role      = "typed foreign ref target"
+
+[[inputs]]
+id        = "wai-aria-1.1"
+authority = "w3c tr"
+kind      = "recommendation"
+scope     = "ARIA attributes and role semantics"
+pin       = "https://www.w3.org/TR/wai-aria-1.1/"
+role      = "typed foreign ref target"
+
+[[inputs]]
+id        = "css-values-3"
+authority = "w3c tr"
+kind      = "candidate-recommendation"
+scope     = "shared CSS-backed data types such as lengths and percentages"
+pin       = "https://www.w3.org/TR/css-values-3/"
+role      = "typed foreign ref target"
+
+[[inputs]]
+id        = "css-color-4"
+authority = "csswg editors draft"
+kind      = "editors-draft"
+scope     = "modern color grammar and paint-adjacent value types"
+pin       = "https://drafts.csswg.org/css-color-4/"
+role      = "typed foreign ref target"

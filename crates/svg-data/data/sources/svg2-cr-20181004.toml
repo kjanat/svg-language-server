@@ -1,0 +1,61 @@
+schema_version   = 1
+manifest_id      = "svg2-cr-20181004"
+snapshot         = "Svg2Cr20181004"
+title            = "SVG 2 Candidate Recommendation"
+status           = "CR"
+authority_policy = "tr-first"
+
+[authority]
+kind  = "w3c-tr"
+title = "Scalable Vector Graphics (SVG) 2"
+url   = "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+
+[pin]
+kind  = "dated-url"
+value = "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+date  = "2018-10-04"
+
+[checksum]
+strategy = "sha256-per-input"
+note     = "Hash fetched response bodies after HTTP normalization."
+
+[fetch]
+policy             = "cache-network-with-offline-fallback"
+cache_subdir       = "spec-sources/svg2-cr-20181004"
+allow_live_refresh = true
+
+[[inputs]]
+id      = "tr-root"
+kind    = "html"
+locator = "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+role    = "normative-root"
+
+[[inputs]]
+id      = "single-page"
+kind    = "html"
+locator = "https://www.w3.org/TR/2018/CR-SVG2-20181004/single-page.html"
+role    = "cross-chapter extraction fallback"
+
+[[inputs]]
+id      = "element-index"
+kind    = "html"
+locator = "https://www.w3.org/TR/2018/CR-SVG2-20181004/eltindex.html"
+role    = "element inventory"
+
+[[inputs]]
+id      = "attribute-index"
+kind    = "html"
+locator = "https://www.w3.org/TR/2018/CR-SVG2-20181004/attindex.html"
+role    = "attribute inventory"
+
+[[inputs]]
+id      = "property-index"
+kind    = "html"
+locator = "https://www.w3.org/TR/2018/CR-SVG2-20181004/propidx.html"
+role    = "property inventory"
+
+[[inputs]]
+id      = "editors-draft-reference"
+kind    = "reference-only"
+locator = "https://github.com/w3c/svgwg/"
+role    = "non-authoritative extraction aid only"

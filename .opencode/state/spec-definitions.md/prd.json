@@ -19,7 +19,7 @@
 			"description": "Done when svg-data exposes a separate spec lifecycle model that does not reuse browser compat experimental or deprecated flags.",
 			"depends": ["snapshot-metadata"],
 			"priority": "architecture",
-			"passes": false
+			"passes": true
 		},
 		{
 			"id": "profile-lookups",

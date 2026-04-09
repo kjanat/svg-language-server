@@ -7,9 +7,11 @@ pub struct ElementDef {
     pub description: &'static str,
     /// MDN reference URL for the element.
     pub mdn_url: &'static str,
-    /// Whether the element is deprecated.
+    /// Spec lifecycle derived from pinned SVG snapshot metadata.
+    pub spec_lifecycle: SpecLifecycle,
+    /// Whether browser/runtime compatibility data marks the element deprecated.
     pub deprecated: bool,
-    /// Whether the element is experimental.
+    /// Whether browser/runtime compatibility data marks the element experimental.
     pub experimental: bool,
     /// Primary specification URL when known.
     pub spec_url: Option<&'static str>,
@@ -49,9 +51,11 @@ pub struct AttributeDef {
     pub description: &'static str,
     /// MDN reference URL for the attribute.
     pub mdn_url: &'static str,
-    /// Whether the attribute is deprecated.
+    /// Spec lifecycle derived from pinned SVG snapshot metadata.
+    pub spec_lifecycle: SpecLifecycle,
+    /// Whether browser/runtime compatibility data marks the attribute deprecated.
     pub deprecated: bool,
-    /// Whether the attribute is experimental.
+    /// Whether browser/runtime compatibility data marks the attribute experimental.
     pub experimental: bool,
     /// Primary specification URL when known.
     pub spec_url: Option<&'static str>,
@@ -140,6 +144,19 @@ pub struct BrowserSupport {
     pub firefox: Option<BrowserVersion>,
     /// Safari desktop support data.
     pub safari: Option<BrowserVersion>,
+}
+
+/// Spec lifecycle for a known SVG element or attribute.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SpecLifecycle {
+    /// Stable in the selected or union spec metadata.
+    Stable,
+    /// Present only in a draft or non-stable snapshot.
+    Experimental,
+    /// Explicitly deprecated by spec metadata.
+    Deprecated,
+    /// Removed from later snapshots but still known historically.
+    Obsolete,
 }
 
 /// SVG element categories for content model grouping.

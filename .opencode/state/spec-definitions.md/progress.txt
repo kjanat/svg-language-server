@@ -8,6 +8,7 @@ Started: 2026-04-09
 
 - Keep `svg-data` public profile metadata in `src/lib.rs` + `src/types.rs` first when it is small and static; save build-script churn for later profile-specific catalog overlays.
 - Normalize user-facing identifiers by stripping punctuation and folding ASCII case when config should accept canonical ids, aliases, and human-written long-form names.
+- Keep spec lifecycle as its own field on `svg-data` defs; compat booleans stay a separate axis so later lint/LSP code can switch without re-plumbing catalog generation again.
 
 ---
 
@@ -19,3 +20,11 @@ Started: 2026-04-09
 - Added regression tests for alias resolution, case-insensitive parsing, long-form synonym parsing, and metadata invariants
 - Files changed: `crates/svg-data/src/lib.rs`, `crates/svg-data/src/types.rs`, `.opencode/state/spec-definitions.md/prd.json`, `.opencode/state/spec-definitions.md/progress.txt`
 - **Learnings:** this repo has no existing `.opencode/state` entry for `spec-definitions.md`, so the workflow state had to be bootstrapped from the checked-in spec before the task could be tracked
+
+## Task - spec-lifecycle
+
+- Added a dedicated `SpecLifecycle` enum and `spec_lifecycle` field on `ElementDef` and `AttributeDef`
+- Updated `svg-data` codegen so spec lifecycle comes only from pinned spec metadata while existing `deprecated` and `experimental` flags remain browser/runtime compat signals
+- Added a regression test proving `xlink:href` stays `SpecLifecycle::Stable` even though compat marks it deprecated
+- Files changed: `crates/svg-data/build.rs`, `crates/svg-data/src/catalog.rs`, `crates/svg-data/src/lib.rs`, `crates/svg-data/src/types.rs`, `.opencode/state/spec-definitions.md/prd.json`, `.opencode/state/spec-definitions.md/progress.txt`
+- **Learnings:** `svg-data` catalog codegen already centralizes field wiring, so separating lifecycle semantics was a one-pass change once the shared type lived in `src/types.rs`

@@ -31,7 +31,7 @@ use std::{collections::HashMap, sync::LazyLock};
 use catalog::{ATTRIBUTES, ELEMENTS};
 pub use types::{
     AttributeDef, AttributeValues, BaselineStatus, BrowserSupport, BrowserVersion, ContentModel,
-    ElementCategory, ElementDef, SpecSnapshotId, SpecSnapshotMetadata,
+    ElementCategory, ElementDef, SpecLifecycle, SpecSnapshotId, SpecSnapshotMetadata,
 };
 
 const SVG11_REC_20030114_ALIASES: &[&str] = &[
@@ -430,6 +430,7 @@ mod tests {
             name: "legacy-global",
             description: "",
             mdn_url: "",
+            spec_lifecycle: SpecLifecycle::Stable,
             deprecated: false,
             experimental: false,
             spec_url: None,
@@ -500,5 +501,13 @@ mod tests {
         let draft = snapshot_metadata(SpecSnapshotId::Svg2EditorsDraft20250914);
         assert_eq!(draft.stable_base, Some(SpecSnapshotId::Svg2Cr20181004));
         assert!(!draft.errata_folded);
+    }
+
+    #[test]
+    fn spec_lifecycle_is_separate_from_compat_deprecation() -> Result<(), Box<dyn Error>> {
+        let href = attribute("xlink:href").ok_or("xlink:href should exist")?;
+        assert_eq!(href.spec_lifecycle, SpecLifecycle::Stable);
+        assert!(href.deprecated, "compat deprecation should remain visible");
+        Ok(())
     }
 }

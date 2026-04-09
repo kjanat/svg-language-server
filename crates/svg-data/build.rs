@@ -357,6 +357,7 @@ fn write_curated_element(
         ContentModelJson::Children { .. } => format!("ContentModel::Children(EL_{id}_CHILDREN)"),
     };
 
+    let spec_lifecycle = spec_lifecycle_expr(element.deprecated);
     let (deprecated, experimental, spec_url_str, baseline_str, browser_support_str) =
         compat.elements.get(&element.name).map_or_else(
             || {
@@ -394,6 +395,7 @@ fn write_curated_element(
         name: "{name}",
         description: "{description}",
         mdn_url: "{mdn_url}",
+        spec_lifecycle: {spec_lifecycle},
         deprecated: {deprecated},
         experimental: {experimental},
         spec_url: {spec_url_str},
@@ -424,6 +426,7 @@ fn write_bcd_only_element(
             .unwrap_or(&fallback_description),
     );
     let mdn_url = escape(&mdn_url);
+    let spec_lifecycle = "SpecLifecycle::Stable";
     let deprecated = entry.deprecated;
     let experimental = entry.experimental;
     let spec_url_str = format_option_str(entry.spec_url.as_deref());
@@ -436,6 +439,7 @@ fn write_bcd_only_element(
         name: "{name}",
         description: "{description}",
         mdn_url: "{mdn_url}",
+        spec_lifecycle: {spec_lifecycle},
         deprecated: {deprecated},
         experimental: {experimental},
         spec_url: {spec_url_str},
@@ -494,6 +498,7 @@ fn write_curated_attribute(
 ) -> std::fmt::Result {
     let id = &attribute_idents[attribute.name.as_str()];
     let values = attribute_values_expr(id, &attribute.values);
+    let spec_lifecycle = spec_lifecycle_expr(attribute.deprecated);
     let (deprecated, experimental, spec_url_str, baseline_str, browser_support_str) =
         compat.attributes.get(&attribute.name).map_or_else(
             || {
@@ -525,6 +530,7 @@ fn write_curated_attribute(
         name: "{name}",
         description: "{description}",
         mdn_url: "{mdn_url}",
+        spec_lifecycle: {spec_lifecycle},
         deprecated: {deprecated},
         experimental: {experimental},
         spec_url: {spec_url_str},
@@ -548,6 +554,7 @@ fn write_bcd_only_attribute(
     let name = escape(name);
     let description = escape(&description);
     let mdn_url = escape(&mdn_url);
+    let spec_lifecycle = "SpecLifecycle::Stable";
     let deprecated = attribute.compat.deprecated;
     let experimental = attribute.compat.experimental;
     let spec_url_str = format_option_str(attribute.compat.spec_url.as_deref());
@@ -560,6 +567,7 @@ fn write_bcd_only_attribute(
         name: "{name}",
         description: "{description}",
         mdn_url: "{mdn_url}",
+        spec_lifecycle: {spec_lifecycle},
         deprecated: {deprecated},
         experimental: {experimental},
         spec_url: {spec_url_str},
@@ -637,6 +645,14 @@ fn write_category_mapping(out: &mut String, elements: &[JsonElement]) -> std::fm
     }
     writeln!(out, "    }}")?;
     writeln!(out, "}}")
+}
+
+const fn spec_lifecycle_expr(is_deprecated: bool) -> &'static str {
+    if is_deprecated {
+        "SpecLifecycle::Deprecated"
+    } else {
+        "SpecLifecycle::Stable"
+    }
 }
 
 fn attribute_values_expr(id: &str, values: &ValuesJson) -> String {

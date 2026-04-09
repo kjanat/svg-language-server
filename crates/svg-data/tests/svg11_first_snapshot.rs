@@ -1,4 +1,4 @@
-//! Regression coverage for the checked-in SVG 1.1 first-edition snapshot seed.
+//! Regression coverage for the checked-in SVG 1.1 snapshot seeds.
 
 use std::{collections::BTreeSet, fs, path::Path};
 
@@ -14,7 +14,21 @@ use svg_data::{
 
 #[test]
 fn svg11_first_snapshot_matches_profile_seed() {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("data/specs/Svg11Rec20030114");
+    assert_svg11_snapshot_matches_profile_seed(SpecSnapshotId::Svg11Rec20030114, "2003-01-14", 4);
+}
+
+#[test]
+fn svg11_second_snapshot_matches_profile_seed() {
+    assert_svg11_snapshot_matches_profile_seed(SpecSnapshotId::Svg11Rec20110816, "2011-08-16", 5);
+}
+
+fn assert_svg11_snapshot_matches_profile_seed(
+    snapshot: SpecSnapshotId,
+    expected_date: &str,
+    expected_pinned_sources: usize,
+) {
+    let root =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join(format!("data/specs/{}", snapshot.as_str()));
 
     let metadata: SnapshotMetadataFile = read_json(&root.join("snapshot.json"));
     let elements: Vec<SnapshotElementRecord> = read_json(&root.join("elements.json"));
@@ -24,11 +38,11 @@ fn svg11_first_snapshot_matches_profile_seed() {
     let matrix: ElementAttributeMatrixFile = read_json(&root.join("element_attribute_matrix.json"));
     let review: ReviewFile = read_json(&root.join("review.json"));
 
-    assert_eq!(metadata.snapshot, SpecSnapshotId::Svg11Rec20030114);
-    assert_eq!(metadata.date, "2003-01-14");
-    assert_eq!(metadata.pinned_sources.len(), 4);
+    assert_eq!(metadata.snapshot, snapshot);
+    assert_eq!(metadata.date, expected_date);
+    assert_eq!(metadata.pinned_sources.len(), expected_pinned_sources);
 
-    let expected_elements: BTreeSet<&str> = elements_with_profile(SpecSnapshotId::Svg11Rec20030114)
+    let expected_elements: BTreeSet<&str> = elements_with_profile(snapshot)
         .iter()
         .map(|profiled| profiled.element.name)
         .collect();
@@ -40,12 +54,12 @@ fn svg11_first_snapshot_matches_profile_seed() {
 
     let expected_attributes: BTreeSet<&str> = catalog_attributes()
         .iter()
-        .filter_map(|attribute| {
-            match attribute_for_profile(SpecSnapshotId::Svg11Rec20030114, attribute.name) {
+        .filter_map(
+            |attribute| match attribute_for_profile(snapshot, attribute.name) {
                 ProfileLookup::Present { value, .. } => Some(value.name),
                 ProfileLookup::UnsupportedInProfile { .. } | ProfileLookup::Unknown => None,
-            }
-        })
+            },
+        )
         .collect();
     let actual_attributes: BTreeSet<&str> = snapshot_attributes
         .iter()
@@ -53,20 +67,19 @@ fn svg11_first_snapshot_matches_profile_seed() {
         .collect();
     assert_eq!(actual_attributes, expected_attributes);
 
-    let expected_edges: BTreeSet<(String, String)> =
-        elements_with_profile(SpecSnapshotId::Svg11Rec20030114)
-            .iter()
-            .flat_map(|profiled| {
-                attributes_for_with_profile(SpecSnapshotId::Svg11Rec20030114, profiled.element.name)
-                    .into_iter()
-                    .map(move |attribute| {
-                        (
-                            profiled.element.name.to_string(),
-                            attribute.attribute.name.to_string(),
-                        )
-                    })
-            })
-            .collect();
+    let expected_edges: BTreeSet<(String, String)> = elements_with_profile(snapshot)
+        .iter()
+        .flat_map(|profiled| {
+            attributes_for_with_profile(snapshot, profiled.element.name)
+                .into_iter()
+                .map(move |attribute| {
+                    (
+                        profiled.element.name.to_string(),
+                        attribute.attribute.name.to_string(),
+                    )
+                })
+        })
+        .collect();
     let actual_edges: BTreeSet<(String, String)> = matrix
         .edges
         .iter()
@@ -79,6 +92,12 @@ fn svg11_first_snapshot_matches_profile_seed() {
     assert_eq!(review.counts.applicability_edges, matrix.edges.len());
     assert_eq!(review.counts.exceptions, 0);
     assert!(review.unresolved.is_empty());
+    assert!(
+        review
+            .manual_notes
+            .iter()
+            .any(|note| note.contains(snapshot.as_str()))
+    );
 
     assert!(categories.attribute_categories.is_empty());
     assert!(

@@ -91,8 +91,9 @@ fn build_seed_dataset(
             },
             unresolved: Vec::new(),
             manual_notes: vec![
-                String::from(
-                    "Seeded from the current profile-aware catalog to establish checked-in snapshot truth for Svg11Rec20030114.",
+                format!(
+                    "Seeded from the current profile-aware catalog to establish checked-in snapshot truth for {}.",
+                    snapshot.as_str()
                 ),
                 String::from(
                     "Value grammar stays opaque in this snapshot seed; phase 4 normalizes structured grammar coverage.",

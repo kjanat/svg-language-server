@@ -51,7 +51,7 @@
 				"extractor-framework"
 			],
 			"priority": "standard",
-			"passes": false
+			"passes": true
 		},
 		{
 			"id": "svg2-2018-ingest",

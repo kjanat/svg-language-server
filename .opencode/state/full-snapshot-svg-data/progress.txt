@@ -19,6 +19,7 @@ Started: 2026-04-09
 - Seed new checked-in snapshot datasets from the current profile-aware catalog first, then freeze parity with a dataset-specific regression test before replacing the seed with source-native parsing.
 - Shared seed generators should derive review text and pinned-source coverage from the selected snapshot/manifest so one path can safely emit multiple snapshot variants.
 - Shared snapshot seeds should bind provenance inputs per snapshot so one generator can swap DTD-backed SVG 1.1 facts for TR-backed SVG 2 facts without forking the write path.
+- Snapshot seed provenance cannot assume shared `element-index` or `attribute-index` inputs; bind those ids and locator styles per snapshot manifest.
 
 ---
 
@@ -64,3 +65,11 @@ Started: 2026-04-09
 - Extended `crates/svg-data/tests/svg11_first_snapshot.rs` with SVG 2 CR regression coverage for profile parity, pinned-source count, and the `href` versus `xlink:href` split.
 - Ran `cargo fmt --all`, `cargo check --workspace`, `cargo clippy --workspace --all-targets --all-features -- -D clippy::all`, and `cargo test --workspace`.
 - **Learnings:** the current catalog is good enough to seed SVG 2 CR snapshot truth, but the seed must record HTML-backed provenance and explicit review notes so later source-native extraction can replace it without blurring SVG-owned facts versus foreign follow-up work.
+
+## Task - [svg2-2025-ingest]
+
+- Extended `crates/svg-data/examples/generate_snapshot_seed.rs` to seed `Svg2EditorsDraft20250914` from the pinned draft manifest, including snapshot-specific provenance bindings for definitions-backed facts.
+- Generated and checked in `crates/svg-data/data/specs/Svg2EditorsDraft20250914/` with snapshot metadata, elements, attributes, categories, applicability edges, empty grammar/exception placeholders, and a draft-specific review report.
+- Extended `crates/svg-data/tests/svg11_first_snapshot.rs` with regression coverage for the editor's draft seed so pinned source count, profile parity, and draft review notes stay locked.
+- Ran `cargo fmt --all`, `cargo check --workspace`, `cargo clippy --workspace --all-targets --all-features -- -D clippy::all`, and `cargo test --workspace`.
+- **Learnings:** the draft manifest does not expose TR-style index inputs, so the shared seed path needs per-snapshot provenance bindings for element and attribute coverage instead of assuming every source bundle looks like a REC or TR snapshot.

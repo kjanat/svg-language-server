@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "counts": {
+    "elements": 63,
+    "attributes": 205,
+    "grammars": 0,
+    "applicability_edges": 4717,
+    "exceptions": 0
+  },
+  "unresolved": [],
+  "manual_notes": [
+    "Seeded from the current profile-aware catalog to establish checked-in snapshot truth for Svg2EditorsDraft20250914.",
+    "Value grammar stays opaque in this snapshot seed; phase 4 normalizes structured grammar coverage.",
+    "SVG 2 ED seed facts are anchored to the pinned svgwg commit and `definitions.xml`; chapter HTML and companion definitions files remain follow-up validation inputs until source-native ingestion replaces the seed."
+  ]
+}

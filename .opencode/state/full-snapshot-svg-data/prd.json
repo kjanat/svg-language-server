@@ -74,7 +74,7 @@
 				"extractor-framework"
 			],
 			"priority": "integration",
-			"passes": false
+			"passes": true
 		},
 		{
 			"id": "grammar-normalization",

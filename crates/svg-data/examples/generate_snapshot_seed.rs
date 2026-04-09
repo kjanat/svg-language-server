@@ -128,12 +128,10 @@ fn build_seed_elements(
                 attributes,
                 provenance: vec![
                     manifest.fact_provenance(
-                        "element-index",
-                        ProvenanceSourceKind::Index,
-                        SourceLocator::Fragment {
-                            anchor: element.name.to_string(),
-                        },
-                        ExtractionConfidence::Derived,
+                        bindings.element_index_input,
+                        bindings.element_index_source_kind,
+                        bindings.element_index_locator(element.name),
+                        bindings.element_index_confidence,
                     )?,
                     manifest.fact_provenance(
                         bindings.detail_input,
@@ -163,12 +161,10 @@ fn build_seed_attributes(
                 animatable: AnimationBehavior::Unspecified,
                 provenance: vec![
                     manifest.fact_provenance(
-                        "attribute-index",
-                        ProvenanceSourceKind::Index,
-                        SourceLocator::Fragment {
-                            anchor: attribute.name.to_string(),
-                        },
-                        ExtractionConfidence::Derived,
+                        bindings.attribute_index_input,
+                        bindings.attribute_index_source_kind,
+                        bindings.attribute_index_locator(attribute.name),
+                        bindings.attribute_index_confidence,
                     )?,
                     manifest.fact_provenance(
                         bindings.detail_input,
@@ -244,6 +240,7 @@ fn parse_snapshot_id(value: &str) -> Result<SpecSnapshotId, Box<dyn Error>> {
         "Svg11Rec20030114" => Ok(SpecSnapshotId::Svg11Rec20030114),
         "Svg11Rec20110816" => Ok(SpecSnapshotId::Svg11Rec20110816),
         "Svg2Cr20181004" => Ok(SpecSnapshotId::Svg2Cr20181004),
+        "Svg2EditorsDraft20250914" => Ok(SpecSnapshotId::Svg2EditorsDraft20250914),
         _ => Err(format!("snapshot seed generator does not support {value}").into()),
     }
 }
@@ -253,7 +250,7 @@ fn manifest_path(snapshot: SpecSnapshotId) -> std::path::PathBuf {
         SpecSnapshotId::Svg11Rec20030114 => "svg11-rec-20030114.toml",
         SpecSnapshotId::Svg11Rec20110816 => "svg11-rec-20110816.toml",
         SpecSnapshotId::Svg2Cr20181004 => "svg2-cr-20181004.toml",
-        SpecSnapshotId::Svg2EditorsDraft20250914 => unreachable!("unsupported snapshot seed"),
+        SpecSnapshotId::Svg2EditorsDraft20250914 => "svg2-ed-20250914.toml",
     };
 
     Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -315,6 +312,14 @@ fn category_ids_for_element(element_name: &str) -> Vec<String> {
 }
 
 struct SeedSourceBindings {
+    element_index_input: &'static str,
+    element_index_source_kind: ProvenanceSourceKind,
+    element_index_confidence: ExtractionConfidence,
+    element_index_file: Option<&'static str>,
+    attribute_index_input: &'static str,
+    attribute_index_source_kind: ProvenanceSourceKind,
+    attribute_index_confidence: ExtractionConfidence,
+    attribute_index_file: Option<&'static str>,
     detail_input: &'static str,
     detail_source_kind: ProvenanceSourceKind,
     detail_confidence: ExtractionConfidence,
@@ -323,6 +328,14 @@ struct SeedSourceBindings {
 }
 
 impl SeedSourceBindings {
+    fn element_index_locator(&self, element_name: &str) -> SourceLocator {
+        Self::index_locator(self.element_index_file, element_name)
+    }
+
+    fn attribute_index_locator(&self, attribute_name: &str) -> SourceLocator {
+        Self::index_locator(self.attribute_index_file, attribute_name)
+    }
+
     fn element_locator(&self, element_name: &str) -> SourceLocator {
         self.detail_locator(element_name)
     }
@@ -335,8 +348,8 @@ impl SeedSourceBindings {
         self.detail_locator(&format!("{element_name}@{attribute_name}"))
     }
 
-    fn detail_locator(&self, id: &str) -> SourceLocator {
-        self.detail_file.map_or_else(
+    fn index_locator(file: Option<&str>, id: &str) -> SourceLocator {
+        file.map_or_else(
             || SourceLocator::Fragment {
                 anchor: id.to_string(),
             },
@@ -346,11 +359,23 @@ impl SeedSourceBindings {
             },
         )
     }
+
+    fn detail_locator(&self, id: &str) -> SourceLocator {
+        Self::index_locator(self.detail_file, id)
+    }
 }
 
-fn seed_source_bindings(snapshot: SpecSnapshotId) -> SeedSourceBindings {
+const fn seed_source_bindings(snapshot: SpecSnapshotId) -> SeedSourceBindings {
     match snapshot {
         SpecSnapshotId::Svg11Rec20030114 | SpecSnapshotId::Svg11Rec20110816 => SeedSourceBindings {
+            element_index_input: "element-index",
+            element_index_source_kind: ProvenanceSourceKind::Index,
+            element_index_confidence: ExtractionConfidence::Derived,
+            element_index_file: None,
+            attribute_index_input: "attribute-index",
+            attribute_index_source_kind: ProvenanceSourceKind::Index,
+            attribute_index_confidence: ExtractionConfidence::Derived,
+            attribute_index_file: None,
             detail_input: "flattened-dtd",
             detail_source_kind: ProvenanceSourceKind::Dtd,
             detail_confidence: ExtractionConfidence::Derived,
@@ -358,13 +383,35 @@ fn seed_source_bindings(snapshot: SpecSnapshotId) -> SeedSourceBindings {
             review_note: "SVG 1.1 seed facts are backed by the flattened DTD plus TR indices until source-native ingestion replaces the seed.",
         },
         SpecSnapshotId::Svg2Cr20181004 => SeedSourceBindings {
+            element_index_input: "element-index",
+            element_index_source_kind: ProvenanceSourceKind::Index,
+            element_index_confidence: ExtractionConfidence::Derived,
+            element_index_file: None,
+            attribute_index_input: "attribute-index",
+            attribute_index_source_kind: ProvenanceSourceKind::Index,
+            attribute_index_confidence: ExtractionConfidence::Derived,
+            attribute_index_file: None,
             detail_input: "tr-root",
             detail_source_kind: ProvenanceSourceKind::Html,
             detail_confidence: ExtractionConfidence::Derived,
             detail_file: None,
             review_note: "SVG 2 CR seed facts stay SVG-owned only; foreign grammar and module references remain explicit follow-up work for later ingestion phases.",
         },
-        SpecSnapshotId::Svg2EditorsDraft20250914 => unreachable!("unsupported snapshot seed"),
+        SpecSnapshotId::Svg2EditorsDraft20250914 => SeedSourceBindings {
+            element_index_input: "definitions",
+            element_index_source_kind: ProvenanceSourceKind::DefinitionsXml,
+            element_index_confidence: ExtractionConfidence::Derived,
+            element_index_file: Some("definitions.xml"),
+            attribute_index_input: "definitions",
+            attribute_index_source_kind: ProvenanceSourceKind::DefinitionsXml,
+            attribute_index_confidence: ExtractionConfidence::Derived,
+            attribute_index_file: Some("definitions.xml"),
+            detail_input: "definitions",
+            detail_source_kind: ProvenanceSourceKind::DefinitionsXml,
+            detail_confidence: ExtractionConfidence::Derived,
+            detail_file: Some("definitions.xml"),
+            review_note: "SVG 2 ED seed facts are anchored to the pinned svgwg commit and `definitions.xml`; chapter HTML and companion definitions files remain follow-up validation inputs until source-native ingestion replaces the seed.",
+        },
     }
 }
 

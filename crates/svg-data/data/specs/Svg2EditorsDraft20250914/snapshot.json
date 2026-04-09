@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "snapshot": "Svg2EditorsDraft20250914",
+  "title": "SVG 2 Editor's Draft",
+  "date": "2025-09-14",
+  "status": "editors_draft",
+  "pinned_sources": [
+    {
+      "manifest_id": "svg2-ed-20250914",
+      "input_id": "publish-conf",
+      "authority": "supporting",
+      "pin": {
+        "kind": "git_commit",
+        "repository": "https://github.com/w3c/svgwg",
+        "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+        "path": null
+      }
+    },
+    {
+      "manifest_id": "svg2-ed-20250914",
+      "input_id": "definitions",
+      "authority": "supporting",
+      "pin": {
+        "kind": "git_commit",
+        "repository": "https://github.com/w3c/svgwg",
+        "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+        "path": null
+      }
+    },
+    {
+      "manifest_id": "svg2-ed-20250914",
+      "input_id": "definitions-filters",
+      "authority": "supporting",
+      "pin": {
+        "kind": "git_commit",
+        "repository": "https://github.com/w3c/svgwg",
+        "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+        "path": null
+      }
+    },
+    {
+      "manifest_id": "svg2-ed-20250914",
+      "input_id": "definitions-masking",
+      "authority": "supporting",
+      "pin": {
+        "kind": "git_commit",
+        "repository": "https://github.com/w3c/svgwg",
+        "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+        "path": null
+      }
+    },
+    {
+      "manifest_id": "svg2-ed-20250914",
+      "input_id": "definitions-compositing",
+      "authority": "supporting",
+      "pin": {
+        "kind": "git_commit",
+        "repository": "https://github.com/w3c/svgwg",
+        "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+        "path": null
+      }
+    },
+    {
+      "manifest_id": "svg2-ed-20250914",
+      "input_id": "chapter-html",
+      "authority": "supporting",
+      "pin": {
+        "kind": "git_commit",
+        "repository": "https://github.com/w3c/svgwg",
+        "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+        "path": null
+      }
+    }
+  ],
+  "ingestion": {
+    "extractor_version": "snapshot-seed-v1",
+    "normalized_at": "2026-04-09"
+  }
+}

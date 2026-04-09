@@ -63,7 +63,7 @@
 				"svg11-2011-ingest"
 			],
 			"priority": "integration",
-			"passes": false
+			"passes": true
 		},
 		{
 			"id": "svg2-2025-ingest",

@@ -1,4 +1,4 @@
-//! Generate checked-in seeded snapshot data for SVG 1.1 profiles.
+//! Generate checked-in seeded snapshot data from the current profile-aware catalog.
 
 use std::{collections::BTreeSet, error::Error, path::Path};
 
@@ -41,6 +41,7 @@ fn build_seed_dataset(
     snapshot: SpecSnapshotId,
     manifest: &SourceManifest,
 ) -> svg_data::extraction::Result<SnapshotDataset> {
+    let bindings = seed_source_bindings(snapshot);
     let elements_with_profile = elements_with_profile(snapshot);
     let attributes_with_profile: Vec<_> = attributes()
         .iter()
@@ -52,10 +53,10 @@ fn build_seed_dataset(
         )
         .collect();
 
-    let elements = build_seed_elements(snapshot, manifest, &elements_with_profile)?;
-    let attributes = build_seed_attributes(manifest, &attributes_with_profile)?;
-    let element_categories = build_seed_categories(manifest, &elements_with_profile)?;
-    let edges = build_seed_edges(snapshot, manifest, &elements_with_profile)?;
+    let elements = build_seed_elements(snapshot, manifest, &bindings, &elements_with_profile)?;
+    let attributes = build_seed_attributes(manifest, &bindings, &attributes_with_profile)?;
+    let element_categories = build_seed_categories(manifest, &bindings, &elements_with_profile)?;
+    let edges = build_seed_edges(snapshot, manifest, &bindings, &elements_with_profile)?;
 
     let edge_count = edges.len();
 
@@ -98,6 +99,7 @@ fn build_seed_dataset(
                 String::from(
                     "Value grammar stays opaque in this snapshot seed; phase 4 normalizes structured grammar coverage.",
                 ),
+                bindings.review_note.to_string(),
             ],
         },
     })
@@ -106,6 +108,7 @@ fn build_seed_dataset(
 fn build_seed_elements(
     snapshot: SpecSnapshotId,
     manifest: &SourceManifest,
+    bindings: &SeedSourceBindings,
     elements_with_profile: &[svg_data::ProfiledElement],
 ) -> svg_data::extraction::Result<Vec<SnapshotElementRecord>> {
     elements_with_profile
@@ -133,13 +136,10 @@ fn build_seed_elements(
                         ExtractionConfidence::Derived,
                     )?,
                     manifest.fact_provenance(
-                        "flattened-dtd",
-                        ProvenanceSourceKind::Dtd,
-                        SourceLocator::Definition {
-                            file: String::from("DTD/svg11-flat.dtd"),
-                            id: element.name.to_string(),
-                        },
-                        ExtractionConfidence::Derived,
+                        bindings.detail_input,
+                        bindings.detail_source_kind,
+                        bindings.element_locator(element.name),
+                        bindings.detail_confidence,
                     )?,
                 ],
             })
@@ -149,6 +149,7 @@ fn build_seed_elements(
 
 fn build_seed_attributes(
     manifest: &SourceManifest,
+    bindings: &SeedSourceBindings,
     attributes_with_profile: &[&svg_data::AttributeDef],
 ) -> svg_data::extraction::Result<Vec<SnapshotAttributeRecord>> {
     attributes_with_profile
@@ -170,13 +171,10 @@ fn build_seed_attributes(
                         ExtractionConfidence::Derived,
                     )?,
                     manifest.fact_provenance(
-                        "flattened-dtd",
-                        ProvenanceSourceKind::Dtd,
-                        SourceLocator::Definition {
-                            file: String::from("DTD/svg11-flat.dtd"),
-                            id: attribute.name.to_string(),
-                        },
-                        ExtractionConfidence::Derived,
+                        bindings.detail_input,
+                        bindings.detail_source_kind,
+                        bindings.attribute_locator(attribute.name),
+                        bindings.detail_confidence,
                     )?,
                 ],
             })
@@ -186,6 +184,7 @@ fn build_seed_attributes(
 
 fn build_seed_categories(
     manifest: &SourceManifest,
+    bindings: &SeedSourceBindings,
     elements_with_profile: &[svg_data::ProfiledElement],
 ) -> svg_data::extraction::Result<Vec<ElementCategoryMembership>> {
     let mut element_categories = Vec::new();
@@ -195,13 +194,10 @@ fn build_seed_categories(
                 element: profiled.element.name.to_string(),
                 category,
                 provenance: vec![manifest.fact_provenance(
-                    "flattened-dtd",
-                    ProvenanceSourceKind::Dtd,
-                    SourceLocator::Definition {
-                        file: String::from("DTD/svg11-flat.dtd"),
-                        id: profiled.element.name.to_string(),
-                    },
-                    ExtractionConfidence::Derived,
+                    bindings.detail_input,
+                    bindings.detail_source_kind,
+                    bindings.element_locator(profiled.element.name),
+                    bindings.detail_confidence,
                 )?],
             });
         }
@@ -213,6 +209,7 @@ fn build_seed_categories(
 fn build_seed_edges(
     snapshot: SpecSnapshotId,
     manifest: &SourceManifest,
+    bindings: &SeedSourceBindings,
     elements_with_profile: &[svg_data::ProfiledElement],
 ) -> svg_data::extraction::Result<Vec<ElementAttributeEdge>> {
     let mut edges = Vec::new();
@@ -230,13 +227,10 @@ fn build_seed_edges(
                     AttributeRequirement::Optional
                 },
                 provenance: vec![manifest.fact_provenance(
-                    "flattened-dtd",
-                    ProvenanceSourceKind::Dtd,
-                    SourceLocator::Definition {
-                        file: String::from("DTD/svg11-flat.dtd"),
-                        id: format!("{}@{}", element.name, attribute.name),
-                    },
-                    ExtractionConfidence::Derived,
+                    bindings.detail_input,
+                    bindings.detail_source_kind,
+                    bindings.edge_locator(element.name, attribute.name),
+                    bindings.detail_confidence,
                 )?],
             });
         }
@@ -249,6 +243,7 @@ fn parse_snapshot_id(value: &str) -> Result<SpecSnapshotId, Box<dyn Error>> {
     match value {
         "Svg11Rec20030114" => Ok(SpecSnapshotId::Svg11Rec20030114),
         "Svg11Rec20110816" => Ok(SpecSnapshotId::Svg11Rec20110816),
+        "Svg2Cr20181004" => Ok(SpecSnapshotId::Svg2Cr20181004),
         _ => Err(format!("snapshot seed generator does not support {value}").into()),
     }
 }
@@ -257,9 +252,8 @@ fn manifest_path(snapshot: SpecSnapshotId) -> std::path::PathBuf {
     let file_name = match snapshot {
         SpecSnapshotId::Svg11Rec20030114 => "svg11-rec-20030114.toml",
         SpecSnapshotId::Svg11Rec20110816 => "svg11-rec-20110816.toml",
-        SpecSnapshotId::Svg2Cr20181004 | SpecSnapshotId::Svg2EditorsDraft20250914 => {
-            unreachable!("unsupported snapshot seed")
-        }
+        SpecSnapshotId::Svg2Cr20181004 => "svg2-cr-20181004.toml",
+        SpecSnapshotId::Svg2EditorsDraft20250914 => unreachable!("unsupported snapshot seed"),
     };
 
     Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -318,6 +312,60 @@ fn category_ids_for_element(element_name: &str) -> Vec<String> {
         .filter(|category| elements_in_category(*category).contains(&element_name))
         .map(|category| category_id(category).to_string())
         .collect()
+}
+
+struct SeedSourceBindings {
+    detail_input: &'static str,
+    detail_source_kind: ProvenanceSourceKind,
+    detail_confidence: ExtractionConfidence,
+    detail_file: Option<&'static str>,
+    review_note: &'static str,
+}
+
+impl SeedSourceBindings {
+    fn element_locator(&self, element_name: &str) -> SourceLocator {
+        self.detail_locator(element_name)
+    }
+
+    fn attribute_locator(&self, attribute_name: &str) -> SourceLocator {
+        self.detail_locator(attribute_name)
+    }
+
+    fn edge_locator(&self, element_name: &str, attribute_name: &str) -> SourceLocator {
+        self.detail_locator(&format!("{element_name}@{attribute_name}"))
+    }
+
+    fn detail_locator(&self, id: &str) -> SourceLocator {
+        self.detail_file.map_or_else(
+            || SourceLocator::Fragment {
+                anchor: id.to_string(),
+            },
+            |file| SourceLocator::Definition {
+                file: file.to_string(),
+                id: id.to_string(),
+            },
+        )
+    }
+}
+
+fn seed_source_bindings(snapshot: SpecSnapshotId) -> SeedSourceBindings {
+    match snapshot {
+        SpecSnapshotId::Svg11Rec20030114 | SpecSnapshotId::Svg11Rec20110816 => SeedSourceBindings {
+            detail_input: "flattened-dtd",
+            detail_source_kind: ProvenanceSourceKind::Dtd,
+            detail_confidence: ExtractionConfidence::Derived,
+            detail_file: Some("DTD/svg11-flat.dtd"),
+            review_note: "SVG 1.1 seed facts are backed by the flattened DTD plus TR indices until source-native ingestion replaces the seed.",
+        },
+        SpecSnapshotId::Svg2Cr20181004 => SeedSourceBindings {
+            detail_input: "tr-root",
+            detail_source_kind: ProvenanceSourceKind::Html,
+            detail_confidence: ExtractionConfidence::Derived,
+            detail_file: None,
+            review_note: "SVG 2 CR seed facts stay SVG-owned only; foreign grammar and module references remain explicit follow-up work for later ingestion phases.",
+        },
+        SpecSnapshotId::Svg2EditorsDraft20250914 => unreachable!("unsupported snapshot seed"),
+    }
 }
 
 const fn all_categories() -> &'static [ElementCategory] {

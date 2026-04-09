@@ -18,6 +18,7 @@ Started: 2026-04-09
 - Shared snapshot ingestion should flow through four reusable steps: typed manifest load, cache-backed fetch, manifest-derived provenance, and stable per-snapshot JSON emission.
 - Seed new checked-in snapshot datasets from the current profile-aware catalog first, then freeze parity with a dataset-specific regression test before replacing the seed with source-native parsing.
 - Shared seed generators should derive review text and pinned-source coverage from the selected snapshot/manifest so one path can safely emit multiple snapshot variants.
+- Shared snapshot seeds should bind provenance inputs per snapshot so one generator can swap DTD-backed SVG 1.1 facts for TR-backed SVG 2 facts without forking the write path.
 
 ---
 
@@ -55,3 +56,11 @@ Started: 2026-04-09
 - Fixed `crates/svg-data/examples/generate_snapshot_seed.rs` so review notes derive from the selected snapshot instead of hard-coding the 2003 id, then extended `crates/svg-data/tests/svg11_first_snapshot.rs` to lock both SVG 1.1 seeds to current profile-aware behavior.
 - Ran `cargo fmt --all`, `cargo check --workspace`, `cargo clippy --workspace --all-targets --all-features -- -D clippy::all`, and `cargo test --workspace`.
 - **Learnings:** the 2011 seed uses the same profile-backed catalog shape as 2003, but its manifest contributes an extra pinned source for the TR-linked HTML archive cross-check, so parity tests should assert manifest-derived source counts per snapshot.
+
+## Task - [svg2-2018-ingest]
+
+- Extended `crates/svg-data/examples/generate_snapshot_seed.rs` to support `Svg2Cr20181004` by binding snapshot-specific provenance inputs and review notes while keeping the shared seed path intact.
+- Generated and checked in `crates/svg-data/data/specs/Svg2Cr20181004/` with snapshot metadata, elements, attributes, categories, applicability edges, empty grammar/exception placeholders, and a CR-specific review report.
+- Extended `crates/svg-data/tests/svg11_first_snapshot.rs` with SVG 2 CR regression coverage for profile parity, pinned-source count, and the `href` versus `xlink:href` split.
+- Ran `cargo fmt --all`, `cargo check --workspace`, `cargo clippy --workspace --all-targets --all-features -- -D clippy::all`, and `cargo test --workspace`.
+- **Learnings:** the current catalog is good enough to seed SVG 2 CR snapshot truth, but the seed must record HTML-backed provenance and explicit review notes so later source-native extraction can replace it without blurring SVG-owned facts versus foreign follow-up work.

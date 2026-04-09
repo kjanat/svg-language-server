@@ -3,9 +3,8 @@
     "name": "fill",
     "title": "Defines the color used to paint the interior of the element.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "color",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "color"
     },
     "default_value": {
       "kind": "none"
@@ -45,9 +44,8 @@
     "name": "stroke",
     "title": "Defines the color used to paint the outline of the element.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "color",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "color"
     },
     "default_value": {
       "kind": "none"
@@ -87,9 +85,8 @@
     "name": "stroke-width",
     "title": "Defines the width of the stroke.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "length",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "length"
     },
     "default_value": {
       "kind": "none"
@@ -129,9 +126,8 @@
     "name": "stroke-linecap",
     "title": "Defines the shape at the end of open subpaths.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "butt | round | square",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "enum-stroke-linecap"
     },
     "default_value": {
       "kind": "none"
@@ -171,9 +167,8 @@
     "name": "stroke-linejoin",
     "title": "Defines the shape at the corners of stroked paths.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "miter | round | bevel",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "enum-stroke-linejoin"
     },
     "default_value": {
       "kind": "none"
@@ -215,7 +210,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -255,9 +250,8 @@
     "name": "stroke-opacity",
     "title": "Defines the opacity of the stroke.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "number-or-percentage",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "number-or-percentage"
     },
     "default_value": {
       "kind": "none"
@@ -297,9 +291,8 @@
     "name": "fill-opacity",
     "title": "Defines the opacity of the fill.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "number-or-percentage",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "number-or-percentage"
     },
     "default_value": {
       "kind": "none"
@@ -339,9 +332,8 @@
     "name": "opacity",
     "title": "Defines the transparency of the element.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "number-or-percentage",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "number-or-percentage"
     },
     "default_value": {
       "kind": "none"
@@ -381,9 +373,8 @@
     "name": "fill-rule",
     "title": "Defines the algorithm for determining the interior of a shape.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "nonzero | evenodd",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "enum-fill-rule"
     },
     "default_value": {
       "kind": "none"
@@ -423,9 +414,8 @@
     "name": "clip-rule",
     "title": "Defines the clipping algorithm.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "nonzero | evenodd",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "enum-clip-rule"
     },
     "default_value": {
       "kind": "none"
@@ -465,9 +455,8 @@
     "name": "color",
     "title": "Defines the value for the currentColor keyword.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "color",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "color"
     },
     "default_value": {
       "kind": "none"
@@ -507,9 +496,8 @@
     "name": "display",
     "title": "Controls whether an element is rendered.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "inline | block | none",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "enum-display"
     },
     "default_value": {
       "kind": "none"
@@ -549,9 +537,8 @@
     "name": "visibility",
     "title": "Controls the visibility of an element.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "visible | hidden | collapse",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "enum-visibility"
     },
     "default_value": {
       "kind": "none"
@@ -593,7 +580,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -633,9 +620,8 @@
     "name": "font-size",
     "title": "Specifies the size of the font.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "length",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "length"
     },
     "default_value": {
       "kind": "none"
@@ -675,9 +661,8 @@
     "name": "font-weight",
     "title": "Specifies the weight of the font.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "normal | bold | bolder | lighter | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "enum-font-weight"
     },
     "default_value": {
       "kind": "none"
@@ -717,9 +702,8 @@
     "name": "font-style",
     "title": "Specifies the style of the font.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "normal | italic | oblique",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "enum-font-style"
     },
     "default_value": {
       "kind": "none"
@@ -759,9 +743,8 @@
     "name": "text-anchor",
     "title": "Defines the alignment of text.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "start | middle | end",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "enum-text-anchor"
     },
     "default_value": {
       "kind": "none"
@@ -801,9 +784,8 @@
     "name": "dominant-baseline",
     "title": "Defines the dominant baseline.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "auto | text-bottom | alphabetic | ideographic | middle | central | mathematical | hanging | text-top",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "enum-dominant-baseline"
     },
     "default_value": {
       "kind": "none"
@@ -843,9 +825,8 @@
     "name": "text-decoration",
     "title": "Specifies text decoration.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "none | underline | overline | line-through",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "enum-text-decoration"
     },
     "default_value": {
       "kind": "none"
@@ -885,9 +866,8 @@
     "name": "clip-path",
     "title": "Defines a clipping path.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "url",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "url-reference"
     },
     "default_value": {
       "kind": "none"
@@ -927,9 +907,8 @@
     "name": "mask",
     "title": "Defines a mask.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "url",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "url-reference"
     },
     "default_value": {
       "kind": "none"
@@ -969,9 +948,8 @@
     "name": "filter",
     "title": "Defines a filter effect.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "url",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "url-reference"
     },
     "default_value": {
       "kind": "none"
@@ -1011,9 +989,8 @@
     "name": "transform",
     "title": "Defines a transformation.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "transform-list(translate, rotate, scale, skewX, skewY, matrix)",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "transform-list-translate-rotate-scale-skewx-skewy-matrix"
     },
     "default_value": {
       "kind": "none"
@@ -1053,9 +1030,8 @@
     "name": "overflow",
     "title": "Controls overflow behavior.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "visible | hidden | scroll | auto",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "enum-overflow"
     },
     "default_value": {
       "kind": "none"
@@ -1095,9 +1071,8 @@
     "name": "pointer-events",
     "title": "Controls when the element responds to pointer events.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "auto | none | visiblePainted | visibleFill | visibleStroke | visible | painted | fill | stroke | all",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "enum-pointer-events"
     },
     "default_value": {
       "kind": "none"
@@ -1139,7 +1114,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -1181,7 +1156,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -1223,7 +1198,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -1263,9 +1238,8 @@
     "name": "d",
     "title": "Defines a path to be drawn.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "path-data",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "path-data"
     },
     "default_value": {
       "kind": "none"
@@ -1305,9 +1279,8 @@
     "name": "viewBox",
     "title": "Defines the SVG viewport coordinates.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "viewBox",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "view-box"
     },
     "default_value": {
       "kind": "none"
@@ -1347,9 +1320,8 @@
     "name": "preserveAspectRatio",
     "title": "Defines how the viewBox scales to fit the viewport.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "preserveAspectRatio",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "preserve-aspect-ratio"
     },
     "default_value": {
       "kind": "none"
@@ -1389,9 +1361,8 @@
     "name": "x",
     "title": "Defines the x coordinate.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "length",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "length"
     },
     "default_value": {
       "kind": "none"
@@ -1431,9 +1402,8 @@
     "name": "y",
     "title": "Defines the y coordinate.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "length",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "length"
     },
     "default_value": {
       "kind": "none"
@@ -1473,9 +1443,8 @@
     "name": "width",
     "title": "Defines the width.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "length",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "length"
     },
     "default_value": {
       "kind": "none"
@@ -1515,9 +1484,8 @@
     "name": "height",
     "title": "Defines the height.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "length",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "length"
     },
     "default_value": {
       "kind": "none"
@@ -1557,9 +1525,8 @@
     "name": "cx",
     "title": "Defines the x coordinate of the center.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "length",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "length"
     },
     "default_value": {
       "kind": "none"
@@ -1599,9 +1566,8 @@
     "name": "cy",
     "title": "Defines the y coordinate of the center.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "length",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "length"
     },
     "default_value": {
       "kind": "none"
@@ -1641,9 +1607,8 @@
     "name": "r",
     "title": "Defines the radius.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "length",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "length"
     },
     "default_value": {
       "kind": "none"
@@ -1683,9 +1648,8 @@
     "name": "rx",
     "title": "Defines the horizontal radius.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "length",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "length"
     },
     "default_value": {
       "kind": "none"
@@ -1725,9 +1689,8 @@
     "name": "ry",
     "title": "Defines the vertical radius.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "length",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "length"
     },
     "default_value": {
       "kind": "none"
@@ -1767,9 +1730,8 @@
     "name": "x1",
     "title": "Defines the first x coordinate.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "length",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "length"
     },
     "default_value": {
       "kind": "none"
@@ -1809,9 +1771,8 @@
     "name": "y1",
     "title": "Defines the first y coordinate.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "length",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "length"
     },
     "default_value": {
       "kind": "none"
@@ -1851,9 +1812,8 @@
     "name": "x2",
     "title": "Defines the second x coordinate.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "length",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "length"
     },
     "default_value": {
       "kind": "none"
@@ -1893,9 +1853,8 @@
     "name": "y2",
     "title": "Defines the second y coordinate.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "length",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "length"
     },
     "default_value": {
       "kind": "none"
@@ -1935,9 +1894,8 @@
     "name": "points",
     "title": "Defines the list of points.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "points",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "points"
     },
     "default_value": {
       "kind": "none"
@@ -1977,9 +1935,8 @@
     "name": "stop-color",
     "title": "Defines the color of a gradient stop.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "color",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "color"
     },
     "default_value": {
       "kind": "none"
@@ -2019,9 +1976,8 @@
     "name": "stop-opacity",
     "title": "Defines the opacity of a gradient stop.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "number-or-percentage",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "number-or-percentage"
     },
     "default_value": {
       "kind": "none"
@@ -2061,9 +2017,8 @@
     "name": "offset",
     "title": "Defines the position of a gradient stop.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "number-or-percentage",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "number-or-percentage"
     },
     "default_value": {
       "kind": "none"
@@ -2103,9 +2058,8 @@
     "name": "gradientUnits",
     "title": "Defines the coordinate system for gradient attributes.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "userSpaceOnUse | objectBoundingBox",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "enum-gradientunits"
     },
     "default_value": {
       "kind": "none"
@@ -2145,9 +2099,8 @@
     "name": "gradientTransform",
     "title": "Defines a transformation for the gradient.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "transform-list(translate, rotate, scale, skewX, skewY, matrix)",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "transform-list-translate-rotate-scale-skewx-skewy-matrix"
     },
     "default_value": {
       "kind": "none"
@@ -2187,9 +2140,8 @@
     "name": "spreadMethod",
     "title": "Defines how the gradient spreads beyond its bounds.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "pad | reflect | repeat",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "enum-spreadmethod"
     },
     "default_value": {
       "kind": "none"
@@ -2229,9 +2181,8 @@
     "name": "in",
     "title": "Identifies the input for the filter primitive.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "SourceGraphic | SourceAlpha | BackgroundImage | BackgroundAlpha | FillPaint | StrokePaint",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "enum-in"
     },
     "default_value": {
       "kind": "none"
@@ -2273,7 +2224,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -2315,7 +2266,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -2357,7 +2308,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -2399,7 +2350,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -2441,7 +2392,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -2483,7 +2434,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -2523,9 +2474,8 @@
     "name": "additive",
     "title": "Controls whether an animation is additive.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "replace | sum",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "enum-additive"
     },
     "default_value": {
       "kind": "none"
@@ -2565,9 +2515,8 @@
     "name": "accumulate",
     "title": "Controls whether an animation is cumulative.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "none | sum",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "enum-accumulate"
     },
     "default_value": {
       "kind": "none"
@@ -2607,9 +2556,8 @@
     "name": "restart",
     "title": "Controls the circumstances under which an animation can be restarted.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "always | whenNotActive | never",
-      "reason": "seeded from current catalog before grammar normalization"
+      "kind": "grammar_ref",
+      "grammar_id": "enum-restart"
     },
     "default_value": {
       "kind": "none"
@@ -2651,7 +2599,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -2693,7 +2641,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -2735,7 +2683,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -2777,7 +2725,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -2819,7 +2767,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -2861,7 +2809,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -2903,7 +2851,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -2945,7 +2893,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -2987,7 +2935,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -3029,7 +2977,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -3071,7 +3019,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -3113,7 +3061,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -3155,7 +3103,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -3197,7 +3145,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -3239,7 +3187,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -3281,7 +3229,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -3323,7 +3271,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -3365,7 +3313,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -3407,7 +3355,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -3449,7 +3397,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -3491,7 +3439,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -3533,7 +3481,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -3575,7 +3523,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -3617,7 +3565,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -3659,7 +3607,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -3701,7 +3649,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -3743,7 +3691,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -3785,7 +3733,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -3827,7 +3775,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -3869,7 +3817,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -3911,7 +3859,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -3953,7 +3901,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -3995,7 +3943,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -4037,7 +3985,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -4079,7 +4027,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -4121,7 +4069,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -4163,7 +4111,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -4205,7 +4153,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -4247,7 +4195,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -4289,7 +4237,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -4331,7 +4279,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -4373,7 +4321,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -4415,7 +4363,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -4457,7 +4405,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -4499,7 +4447,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -4541,7 +4489,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -4583,7 +4531,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -4625,7 +4573,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -4667,7 +4615,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -4709,7 +4657,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -4751,7 +4699,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -4793,7 +4741,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -4835,7 +4783,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -4877,7 +4825,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -4919,7 +4867,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -4961,7 +4909,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -5003,7 +4951,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -5045,7 +4993,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -5087,7 +5035,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -5129,7 +5077,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -5171,7 +5119,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -5213,7 +5161,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -5255,7 +5203,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -5297,7 +5245,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -5339,7 +5287,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -5381,7 +5329,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -5423,7 +5371,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -5465,7 +5413,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -5507,7 +5455,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -5549,7 +5497,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -5591,7 +5539,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -5633,7 +5581,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -5675,7 +5623,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -5717,7 +5665,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -5759,7 +5707,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -5801,7 +5749,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -5843,7 +5791,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -5885,7 +5833,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -5927,7 +5875,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -5969,7 +5917,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -6011,7 +5959,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -6053,7 +6001,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -6095,7 +6043,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -6137,7 +6085,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -6179,7 +6127,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -6221,7 +6169,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -6263,7 +6211,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -6305,7 +6253,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -6347,7 +6295,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -6389,7 +6337,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -6431,7 +6379,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -6473,7 +6421,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -6515,7 +6463,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -6557,7 +6505,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -6599,7 +6547,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -6641,7 +6589,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -6683,7 +6631,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -6725,7 +6673,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -6767,7 +6715,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -6809,7 +6757,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -6851,7 +6799,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -6893,7 +6841,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -6935,7 +6883,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -6977,7 +6925,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -7019,7 +6967,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -7061,7 +7009,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -7103,7 +7051,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -7145,7 +7093,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -7187,7 +7135,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -7229,7 +7177,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -7271,7 +7219,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -7313,7 +7261,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -7355,7 +7303,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -7397,7 +7345,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -7439,7 +7387,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -7481,7 +7429,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -7523,7 +7471,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -7565,7 +7513,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -7607,7 +7555,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -7649,7 +7597,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -7691,7 +7639,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -7733,7 +7681,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -7775,7 +7723,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -7817,7 +7765,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -7859,7 +7807,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -7901,7 +7849,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -7943,7 +7891,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -7985,7 +7933,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -8027,7 +7975,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -8069,7 +8017,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -8111,7 +8059,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -8153,7 +8101,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -8195,7 +8143,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -8237,7 +8185,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -8279,7 +8227,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -8321,7 +8269,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -8363,7 +8311,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -8405,7 +8353,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -8447,7 +8395,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -8489,7 +8437,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -8531,7 +8479,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -8573,7 +8521,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -8615,7 +8563,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -8657,7 +8605,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"
@@ -8699,7 +8647,7 @@
     "value_syntax": {
       "kind": "opaque",
       "display": "text",
-      "reason": "seeded from current catalog before grammar normalization"
+      "reason": "free-form text stays explicit until a typed text model exists"
     },
     "default_value": {
       "kind": "none"

@@ -6,10 +6,10 @@ use svg_data::{
     ProfileLookup, attribute_for_profile, attributes as catalog_attributes,
     attributes_for_with_profile, elements_with_profile,
     snapshot_schema::{
-        CategoriesFile, ElementAttributeMatrixFile, ReviewFile, SnapshotAttributeRecord,
-        SnapshotElementRecord, SnapshotMetadataFile,
+        CategoriesFile, ElementAttributeMatrixFile, GrammarFile, ReviewFile,
+        SnapshotAttributeRecord, SnapshotElementRecord, SnapshotMetadataFile, ValueSyntax,
     },
-    types::SpecSnapshotId,
+    types::{AttributeValues, SpecSnapshotId},
 };
 
 #[test]
@@ -54,6 +54,7 @@ fn assert_svg11_snapshot_matches_profile_seed(
     let elements: Vec<SnapshotElementRecord> = read_json(&root.join("elements.json"));
     let snapshot_attributes: Vec<SnapshotAttributeRecord> =
         read_json(&root.join("attributes.json"));
+    let grammars: GrammarFile = read_json(&root.join("grammars.json"));
     let categories: CategoriesFile = read_json(&root.join("categories.json"));
     let matrix: ElementAttributeMatrixFile = read_json(&root.join("element_attribute_matrix.json"));
     let review: ReviewFile = read_json(&root.join("review.json"));
@@ -109,6 +110,7 @@ fn assert_svg11_snapshot_matches_profile_seed(
 
     assert_eq!(review.counts.elements, elements.len());
     assert_eq!(review.counts.attributes, snapshot_attributes.len());
+    assert_eq!(review.counts.grammars, grammars.grammars.len());
     assert_eq!(review.counts.applicability_edges, matrix.edges.len());
     assert_eq!(review.counts.exceptions, 0);
     assert!(review.unresolved.is_empty());
@@ -131,6 +133,9 @@ fn assert_svg11_snapshot_matches_profile_seed(
             .all(|attribute| !attribute.provenance.is_empty())
     );
     assert!(matrix.edges.iter().all(|edge| !edge.provenance.is_empty()));
+    assert!(!grammars.grammars.is_empty());
+
+    assert_snapshot_value_syntax_matches_catalog(&snapshot_attributes, &grammars, snapshot);
 
     assert!(elements.iter().any(|element| element.name == "svg"));
     assert!(
@@ -158,6 +163,7 @@ fn assert_svg2_snapshot_matches_profile_seed(
     let elements: Vec<SnapshotElementRecord> = read_json(&root.join("elements.json"));
     let snapshot_attributes: Vec<SnapshotAttributeRecord> =
         read_json(&root.join("attributes.json"));
+    let grammars: GrammarFile = read_json(&root.join("grammars.json"));
     let categories: CategoriesFile = read_json(&root.join("categories.json"));
     let matrix: ElementAttributeMatrixFile = read_json(&root.join("element_attribute_matrix.json"));
     let review: ReviewFile = read_json(&root.join("review.json"));
@@ -213,6 +219,7 @@ fn assert_svg2_snapshot_matches_profile_seed(
 
     assert_eq!(review.counts.elements, elements.len());
     assert_eq!(review.counts.attributes, snapshot_attributes.len());
+    assert_eq!(review.counts.grammars, grammars.grammars.len());
     assert_eq!(review.counts.applicability_edges, matrix.edges.len());
     assert_eq!(review.counts.exceptions, 0);
     assert!(review.unresolved.is_empty());
@@ -235,6 +242,9 @@ fn assert_svg2_snapshot_matches_profile_seed(
             .all(|attribute| !attribute.provenance.is_empty())
     );
     assert!(matrix.edges.iter().all(|edge| !edge.provenance.is_empty()));
+    assert!(!grammars.grammars.is_empty());
+
+    assert_snapshot_value_syntax_matches_catalog(&snapshot_attributes, &grammars, snapshot);
 
     assert!(
         elements
@@ -251,6 +261,67 @@ fn assert_svg2_snapshot_matches_profile_seed(
             .iter()
             .any(|attribute| attribute.name == "xlink:href")
     );
+}
+
+fn assert_snapshot_value_syntax_matches_catalog(
+    snapshot_attributes: &[SnapshotAttributeRecord],
+    grammars: &GrammarFile,
+    snapshot: SpecSnapshotId,
+) {
+    let grammar_ids: BTreeSet<&str> = grammars
+        .grammars
+        .iter()
+        .map(|grammar| grammar.id.as_str())
+        .collect();
+
+    assert!(grammar_ids.contains("color"));
+    assert!(grammar_ids.contains("length"));
+    assert!(grammar_ids.contains("number-or-percentage"));
+    assert!(
+        grammar_ids
+            .iter()
+            .any(|grammar_id| grammar_id.starts_with("transform-list"))
+    );
+    assert!(grammar_ids.contains("view-box"));
+    assert!(grammar_ids.contains("preserve-aspect-ratio"));
+    assert!(grammar_ids.contains("points"));
+    assert!(grammar_ids.contains("path-data"));
+    assert!(grammar_ids.contains("url-reference"));
+
+    for catalog_attribute in catalog_attributes() {
+        let Some(snapshot_attribute) = snapshot_attributes
+            .iter()
+            .find(|attribute| attribute.name == catalog_attribute.name)
+        else {
+            match attribute_for_profile(snapshot, catalog_attribute.name) {
+                ProfileLookup::UnsupportedInProfile { .. } | ProfileLookup::Unknown => continue,
+                ProfileLookup::Present { .. } => {
+                    panic!("snapshot attribute missing for {}", catalog_attribute.name);
+                }
+            }
+        };
+
+        match &catalog_attribute.values {
+            AttributeValues::FreeText => {
+                assert!(matches!(
+                    snapshot_attribute.value_syntax,
+                    ValueSyntax::Opaque { .. }
+                ));
+            }
+            _ => match &snapshot_attribute.value_syntax {
+                ValueSyntax::GrammarRef { grammar_id } => {
+                    assert!(grammar_ids.contains(grammar_id.as_str()));
+                }
+                ValueSyntax::ForeignRef { .. } | ValueSyntax::Opaque { .. } => {
+                    panic!(
+                        "expected normalized grammar ref for {} in {}",
+                        catalog_attribute.name,
+                        snapshot.as_str()
+                    );
+                }
+            },
+        }
+    }
 }
 
 fn read_json<T>(path: &Path) -> T

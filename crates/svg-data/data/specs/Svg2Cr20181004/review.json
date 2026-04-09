@@ -3,14 +3,14 @@
   "counts": {
     "elements": 63,
     "attributes": 205,
-    "grammars": 0,
+    "grammars": 29,
     "applicability_edges": 4717,
     "exceptions": 0
   },
   "unresolved": [],
   "manual_notes": [
     "Seeded from the current profile-aware catalog to establish checked-in snapshot truth for Svg2Cr20181004.",
-    "Value grammar stays opaque in this snapshot seed; phase 4 normalizes structured grammar coverage.",
+    "SVG-owned value grammar is normalized into `grammars.json`; only free-form text stays opaque in this seed.",
     "SVG 2 CR seed facts stay SVG-owned only; foreign grammar and module references remain explicit follow-up work for later ingestion phases."
   ]
 }

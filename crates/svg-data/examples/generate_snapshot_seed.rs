@@ -1,6 +1,10 @@
 //! Generate checked-in seeded snapshot data from the current profile-aware catalog.
 
-use std::{collections::BTreeSet, error::Error, path::Path};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    error::Error,
+    path::Path,
+};
 
 use svg_data::{
     ProfileLookup, attribute_for_profile, attributes, attributes_for_with_profile,
@@ -10,8 +14,9 @@ use svg_data::{
         AnimationBehavior, AttributeCategoryMembership, AttributeDefaultValue,
         AttributeRequirement, CategoriesFile, ElementAttributeEdge, ElementAttributeMatrixFile,
         ElementCategoryMembership, ElementContentModel, ExceptionsFile, ExtractionConfidence,
-        GrammarFile, ProvenanceSourceKind, ReviewCounts, ReviewFile, SNAPSHOT_SCHEMA_VERSION,
-        SnapshotAttributeRecord, SnapshotElementRecord, SourceLocator, ValueSyntax,
+        FactProvenance, GrammarDefinition, GrammarFile, GrammarNode, ProvenanceSourceKind,
+        ReviewCounts, ReviewFile, SNAPSHOT_SCHEMA_VERSION, SnapshotAttributeRecord,
+        SnapshotElementRecord, SourceLocator, ValueSyntax,
     },
     types::{AttributeValues, ContentModel, ElementCategory, SpecSnapshotId},
 };
@@ -54,20 +59,21 @@ fn build_seed_dataset(
         .collect();
 
     let elements = build_seed_elements(snapshot, manifest, &bindings, &elements_with_profile)?;
-    let attributes = build_seed_attributes(manifest, &bindings, &attributes_with_profile)?;
+    let SeedAttributeData {
+        attributes,
+        grammars,
+    } = build_seed_attributes(manifest, &bindings, &attributes_with_profile)?;
     let element_categories = build_seed_categories(manifest, &bindings, &elements_with_profile)?;
     let edges = build_seed_edges(snapshot, manifest, &bindings, &elements_with_profile)?;
 
     let edge_count = edges.len();
+    let grammar_count = grammars.grammars.len();
 
     Ok(SnapshotDataset {
         metadata: manifest.snapshot_metadata("snapshot-seed-v1", "2026-04-09")?,
         elements,
         attributes,
-        grammars: GrammarFile {
-            schema_version: SNAPSHOT_SCHEMA_VERSION,
-            grammars: Vec::new(),
-        },
+        grammars,
         categories: CategoriesFile {
             schema_version: SNAPSHOT_SCHEMA_VERSION,
             element_categories,
@@ -86,7 +92,7 @@ fn build_seed_dataset(
             counts: ReviewCounts {
                 elements: elements_with_profile.len(),
                 attributes: attributes_with_profile.len(),
-                grammars: 0,
+                grammars: grammar_count,
                 applicability_edges: edge_count,
                 exceptions: 0,
             },
@@ -97,7 +103,7 @@ fn build_seed_dataset(
                     snapshot.as_str()
                 ),
                 String::from(
-                    "Value grammar stays opaque in this snapshot seed; phase 4 normalizes structured grammar coverage.",
+                    "SVG-owned value grammar is normalized into `grammars.json`; only free-form text stays opaque in this seed.",
                 ),
                 bindings.review_note.to_string(),
             ],
@@ -145,37 +151,55 @@ fn build_seed_elements(
         .collect()
 }
 
+struct SeedAttributeData {
+    attributes: Vec<SnapshotAttributeRecord>,
+    grammars: GrammarFile,
+}
+
 fn build_seed_attributes(
     manifest: &SourceManifest,
     bindings: &SeedSourceBindings,
     attributes_with_profile: &[&svg_data::AttributeDef],
-) -> svg_data::extraction::Result<Vec<SnapshotAttributeRecord>> {
-    attributes_with_profile
+) -> svg_data::extraction::Result<SeedAttributeData> {
+    let mut registry = SeedGrammarRegistry::default();
+    let attributes = attributes_with_profile
         .iter()
         .map(|attribute| {
+            let provenance = vec![
+                manifest.fact_provenance(
+                    bindings.attribute_index_input,
+                    bindings.attribute_index_source_kind,
+                    bindings.attribute_index_locator(attribute.name),
+                    bindings.attribute_index_confidence,
+                )?,
+                manifest.fact_provenance(
+                    bindings.detail_input,
+                    bindings.detail_source_kind,
+                    bindings.attribute_locator(attribute.name),
+                    bindings.detail_confidence,
+                )?,
+            ];
+
             Ok(SnapshotAttributeRecord {
                 name: attribute.name.to_string(),
                 title: attribute.description.to_string(),
-                value_syntax: normalize_value_syntax(&attribute.values),
+                value_syntax: normalize_value_syntax(
+                    attribute.name,
+                    &attribute.values,
+                    &provenance,
+                    &mut registry,
+                ),
                 default_value: AttributeDefaultValue::None,
                 animatable: AnimationBehavior::Unspecified,
-                provenance: vec![
-                    manifest.fact_provenance(
-                        bindings.attribute_index_input,
-                        bindings.attribute_index_source_kind,
-                        bindings.attribute_index_locator(attribute.name),
-                        bindings.attribute_index_confidence,
-                    )?,
-                    manifest.fact_provenance(
-                        bindings.detail_input,
-                        bindings.detail_source_kind,
-                        bindings.attribute_locator(attribute.name),
-                        bindings.detail_confidence,
-                    )?,
-                ],
+                provenance,
             })
         })
-        .collect()
+        .collect::<svg_data::extraction::Result<Vec<_>>>()?;
+
+    Ok(SeedAttributeData {
+        attributes,
+        grammars: registry.finish(),
+    })
 }
 
 fn build_seed_categories(
@@ -276,11 +300,283 @@ fn normalize_content_model(content_model: &ContentModel) -> ElementContentModel 
     }
 }
 
-fn normalize_value_syntax(values: &AttributeValues) -> ValueSyntax {
-    ValueSyntax::Opaque {
-        display: attribute_value_display(values),
-        reason: String::from("seeded from current catalog before grammar normalization"),
+fn normalize_value_syntax(
+    attribute_name: &str,
+    values: &AttributeValues,
+    provenance: &[FactProvenance],
+    registry: &mut SeedGrammarRegistry,
+) -> ValueSyntax {
+    match values {
+        AttributeValues::Enum(values) => value_syntax_from_grammar_id(registry.attribute_enum(
+            attribute_name,
+            values,
+            provenance,
+        )),
+        AttributeValues::FreeText => ValueSyntax::Opaque {
+            display: attribute_value_display(values),
+            reason: String::from("free-form text stays explicit until a typed text model exists"),
+        },
+        AttributeValues::Color => value_syntax_from_shared_grammar(
+            registry,
+            "color",
+            "Color value",
+            GrammarNode::DatatypeRef {
+                name: String::from("color"),
+            },
+            provenance,
+        ),
+        AttributeValues::Length => value_syntax_from_shared_grammar(
+            registry,
+            "length",
+            "Length value",
+            GrammarNode::DatatypeRef {
+                name: String::from("length"),
+            },
+            provenance,
+        ),
+        AttributeValues::Url => value_syntax_from_shared_grammar(
+            registry,
+            "url-reference",
+            "URL reference",
+            GrammarNode::DatatypeRef {
+                name: String::from("url"),
+            },
+            provenance,
+        ),
+        AttributeValues::NumberOrPercentage => value_syntax_from_shared_grammar(
+            registry,
+            "number-or-percentage",
+            "Number or percentage",
+            GrammarNode::Choice {
+                options: vec![
+                    GrammarNode::DatatypeRef {
+                        name: String::from("number"),
+                    },
+                    GrammarNode::DatatypeRef {
+                        name: String::from("percentage"),
+                    },
+                ],
+            },
+            provenance,
+        ),
+        AttributeValues::Transform(functions) => {
+            value_syntax_from_grammar_id(registry.transform_list(functions, provenance))
+        }
+        AttributeValues::ViewBox => value_syntax_from_shared_grammar(
+            registry,
+            "view-box",
+            "viewBox tuple",
+            GrammarNode::Sequence {
+                items: vec![number_node(), number_node(), number_node(), number_node()],
+            },
+            provenance,
+        ),
+        AttributeValues::PreserveAspectRatio {
+            alignments,
+            meet_or_slice,
+        } => preserve_aspect_ratio_value_syntax(registry, alignments, meet_or_slice, provenance),
+        AttributeValues::Points => points_value_syntax(registry, provenance),
+        AttributeValues::PathData => value_syntax_from_shared_grammar(
+            registry,
+            "path-data",
+            "Path data",
+            GrammarNode::DatatypeRef {
+                name: String::from("svg-path-data"),
+            },
+            provenance,
+        ),
     }
+}
+
+fn value_syntax_from_shared_grammar(
+    registry: &mut SeedGrammarRegistry,
+    id: &str,
+    title: &str,
+    root: GrammarNode,
+    provenance: &[FactProvenance],
+) -> ValueSyntax {
+    value_syntax_from_grammar_id(registry.shared(id, title, root, provenance))
+}
+
+const fn value_syntax_from_grammar_id(grammar_id: String) -> ValueSyntax {
+    ValueSyntax::GrammarRef { grammar_id }
+}
+
+fn preserve_aspect_ratio_value_syntax(
+    registry: &mut SeedGrammarRegistry,
+    alignments: &[&str],
+    meet_or_slice: &[&str],
+    provenance: &[FactProvenance],
+) -> ValueSyntax {
+    value_syntax_from_shared_grammar(
+        registry,
+        "preserve-aspect-ratio",
+        "preserveAspectRatio value",
+        GrammarNode::Sequence {
+            items: vec![
+                grammar_choice_from_keywords(alignments),
+                GrammarNode::Optional {
+                    item: Box::new(grammar_choice_from_keywords(meet_or_slice)),
+                },
+            ],
+        },
+        provenance,
+    )
+}
+
+fn points_value_syntax(
+    registry: &mut SeedGrammarRegistry,
+    provenance: &[FactProvenance],
+) -> ValueSyntax {
+    let coordinate_pair = registry.shared(
+        "coordinate-pair",
+        "Coordinate pair",
+        GrammarNode::Sequence {
+            items: vec![
+                number_node(),
+                GrammarNode::Optional {
+                    item: Box::new(GrammarNode::Literal {
+                        value: String::from(","),
+                    }),
+                },
+                number_node(),
+            ],
+        },
+        provenance,
+    );
+
+    value_syntax_from_shared_grammar(
+        registry,
+        "points",
+        "Point list",
+        GrammarNode::SpaceSeparated {
+            item: Box::new(GrammarNode::GrammarRef {
+                name: coordinate_pair,
+            }),
+        },
+        provenance,
+    )
+}
+
+fn number_node() -> GrammarNode {
+    GrammarNode::DatatypeRef {
+        name: String::from("number"),
+    }
+}
+
+fn grammar_choice_from_keywords(values: &[&str]) -> GrammarNode {
+    GrammarNode::Choice {
+        options: values
+            .iter()
+            .map(|value| GrammarNode::Keyword {
+                value: (*value).to_string(),
+            })
+            .collect(),
+    }
+}
+
+#[derive(Default)]
+struct SeedGrammarRegistry {
+    definitions: BTreeMap<String, GrammarDefinition>,
+}
+
+impl SeedGrammarRegistry {
+    fn finish(self) -> GrammarFile {
+        GrammarFile {
+            schema_version: SNAPSHOT_SCHEMA_VERSION,
+            grammars: self.definitions.into_values().collect(),
+        }
+    }
+
+    fn shared(
+        &mut self,
+        id: &str,
+        title: &str,
+        root: GrammarNode,
+        provenance: &[FactProvenance],
+    ) -> String {
+        let grammar_id = id.to_string();
+        self.definitions
+            .entry(grammar_id.clone())
+            .or_insert_with(|| GrammarDefinition {
+                id: grammar_id.clone(),
+                title: title.to_string(),
+                root,
+                provenance: provenance.to_vec(),
+            });
+        grammar_id
+    }
+
+    fn attribute_enum(
+        &mut self,
+        attribute_name: &str,
+        values: &[&str],
+        provenance: &[FactProvenance],
+    ) -> String {
+        let grammar_id = format!("enum-{}", stable_id_fragment(attribute_name));
+        let title = format!("{attribute_name} keywords");
+        self.shared(
+            &grammar_id,
+            &title,
+            grammar_choice_from_keywords(values),
+            provenance,
+        )
+    }
+
+    fn transform_list(&mut self, functions: &[&str], provenance: &[FactProvenance]) -> String {
+        if functions.is_empty() {
+            return self.shared(
+                "transform-list",
+                "Transform list",
+                GrammarNode::SpaceSeparated {
+                    item: Box::new(GrammarNode::DatatypeRef {
+                        name: String::from("transform-function"),
+                    }),
+                },
+                provenance,
+            );
+        }
+
+        let suffix = functions
+            .iter()
+            .map(|name| stable_id_fragment(name))
+            .collect::<Vec<_>>()
+            .join("-");
+        let grammar_id = format!("transform-list-{suffix}");
+        let title = format!("Transform list ({})", functions.join(", "));
+        self.shared(
+            &grammar_id,
+            &title,
+            GrammarNode::SpaceSeparated {
+                item: Box::new(GrammarNode::Choice {
+                    options: functions
+                        .iter()
+                        .map(|name| GrammarNode::DatatypeRef {
+                            name: format!("{name}-transform-function"),
+                        })
+                        .collect(),
+                }),
+            },
+            provenance,
+        )
+    }
+}
+
+fn stable_id_fragment(value: &str) -> String {
+    let mut fragment = String::new();
+    let mut last_was_separator = false;
+
+    for ch in value.chars() {
+        if ch.is_ascii_alphanumeric() {
+            fragment.push(ch.to_ascii_lowercase());
+            last_was_separator = false;
+        } else if !last_was_separator {
+            fragment.push('-');
+            last_was_separator = true;
+        }
+    }
+
+    fragment.trim_matches('-').to_string()
 }
 
 fn attribute_value_display(values: &AttributeValues) -> String {

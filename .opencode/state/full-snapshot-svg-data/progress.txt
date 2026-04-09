@@ -20,6 +20,7 @@ Started: 2026-04-09
 - Shared seed generators should derive review text and pinned-source coverage from the selected snapshot/manifest so one path can safely emit multiple snapshot variants.
 - Shared snapshot seeds should bind provenance inputs per snapshot so one generator can swap DTD-backed SVG 1.1 facts for TR-backed SVG 2 facts without forking the write path.
 - Snapshot seed provenance cannot assume shared `element-index` or `attribute-index` inputs; bind those ids and locator styles per snapshot manifest.
+- Seed grammar normalization can stay deterministic by deriving shared grammar ids from `AttributeValues` variants and per-attribute enum grammar ids from attribute names, while leaving only `FreeText` as the explicit opaque escape hatch.
 
 ---
 
@@ -73,3 +74,10 @@ Started: 2026-04-09
 - Extended `crates/svg-data/tests/svg11_first_snapshot.rs` with regression coverage for the editor's draft seed so pinned source count, profile parity, and draft review notes stay locked.
 - Ran `cargo fmt --all`, `cargo check --workspace`, `cargo clippy --workspace --all-targets --all-features -- -D clippy::all`, and `cargo test --workspace`.
 - **Learnings:** the draft manifest does not expose TR-style index inputs, so the shared seed path needs per-snapshot provenance bindings for element and attribute coverage instead of assuming every source bundle looks like a REC or TR snapshot.
+
+## Task - [grammar-normalization]
+
+- Extended `crates/svg-data/examples/generate_snapshot_seed.rs` to emit deterministic `grammars.json` payloads and attach `grammar_ref` value syntax for shared SVG datatypes, transform lists, path data, points, viewBox, preserveAspectRatio, URL references, and per-attribute enums.
+- Regenerated all four checked-in snapshot datasets under `crates/svg-data/data/specs/` so review counts and attribute syntax now reflect normalized grammar coverage instead of opaque placeholders.
+- Extended `crates/svg-data/tests/svg11_first_snapshot.rs` to assert grammar counts, shared grammar presence, and that every non-`FreeText` catalog attribute present in a snapshot resolves to a checked-in grammar id.
+- **Learnings:** driving grammar seeding from `AttributeValues` gives broad structured coverage with minimal new extraction code; the remaining opaque cases are the intentional free-form text boundary, not a silent fallback for SVG-owned syntax.

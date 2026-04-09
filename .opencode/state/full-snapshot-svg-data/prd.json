@@ -89,7 +89,7 @@
 				"svg2-2025-ingest"
 			],
 			"priority": "architecture",
-			"passes": false
+			"passes": true
 		},
 		{
 			"id": "foreign-typed-refs",

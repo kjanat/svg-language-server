@@ -1,4 +1,1697 @@
 {
   "schema_version": 1,
-  "grammars": []
+  "grammars": [
+    {
+      "id": "color",
+      "title": "Color value",
+      "root": {
+        "kind": "datatype_ref",
+        "name": "color"
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "fill"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "fill"
+          },
+          "confidence": "derived"
+        }
+      ]
+    },
+    {
+      "id": "coordinate-pair",
+      "title": "Coordinate pair",
+      "root": {
+        "kind": "sequence",
+        "items": [
+          {
+            "kind": "datatype_ref",
+            "name": "number"
+          },
+          {
+            "kind": "optional",
+            "item": {
+              "kind": "literal",
+              "value": ","
+            }
+          },
+          {
+            "kind": "datatype_ref",
+            "name": "number"
+          }
+        ]
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "points"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "points"
+          },
+          "confidence": "derived"
+        }
+      ]
+    },
+    {
+      "id": "enum-accumulate",
+      "title": "accumulate keywords",
+      "root": {
+        "kind": "choice",
+        "options": [
+          {
+            "kind": "keyword",
+            "value": "none"
+          },
+          {
+            "kind": "keyword",
+            "value": "sum"
+          }
+        ]
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "accumulate"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "accumulate"
+          },
+          "confidence": "derived"
+        }
+      ]
+    },
+    {
+      "id": "enum-additive",
+      "title": "additive keywords",
+      "root": {
+        "kind": "choice",
+        "options": [
+          {
+            "kind": "keyword",
+            "value": "replace"
+          },
+          {
+            "kind": "keyword",
+            "value": "sum"
+          }
+        ]
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "additive"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "additive"
+          },
+          "confidence": "derived"
+        }
+      ]
+    },
+    {
+      "id": "enum-clip-rule",
+      "title": "clip-rule keywords",
+      "root": {
+        "kind": "choice",
+        "options": [
+          {
+            "kind": "keyword",
+            "value": "nonzero"
+          },
+          {
+            "kind": "keyword",
+            "value": "evenodd"
+          }
+        ]
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "clip-rule"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "clip-rule"
+          },
+          "confidence": "derived"
+        }
+      ]
+    },
+    {
+      "id": "enum-display",
+      "title": "display keywords",
+      "root": {
+        "kind": "choice",
+        "options": [
+          {
+            "kind": "keyword",
+            "value": "inline"
+          },
+          {
+            "kind": "keyword",
+            "value": "block"
+          },
+          {
+            "kind": "keyword",
+            "value": "none"
+          }
+        ]
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "display"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "display"
+          },
+          "confidence": "derived"
+        }
+      ]
+    },
+    {
+      "id": "enum-dominant-baseline",
+      "title": "dominant-baseline keywords",
+      "root": {
+        "kind": "choice",
+        "options": [
+          {
+            "kind": "keyword",
+            "value": "auto"
+          },
+          {
+            "kind": "keyword",
+            "value": "text-bottom"
+          },
+          {
+            "kind": "keyword",
+            "value": "alphabetic"
+          },
+          {
+            "kind": "keyword",
+            "value": "ideographic"
+          },
+          {
+            "kind": "keyword",
+            "value": "middle"
+          },
+          {
+            "kind": "keyword",
+            "value": "central"
+          },
+          {
+            "kind": "keyword",
+            "value": "mathematical"
+          },
+          {
+            "kind": "keyword",
+            "value": "hanging"
+          },
+          {
+            "kind": "keyword",
+            "value": "text-top"
+          }
+        ]
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "dominant-baseline"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "dominant-baseline"
+          },
+          "confidence": "derived"
+        }
+      ]
+    },
+    {
+      "id": "enum-fill-rule",
+      "title": "fill-rule keywords",
+      "root": {
+        "kind": "choice",
+        "options": [
+          {
+            "kind": "keyword",
+            "value": "nonzero"
+          },
+          {
+            "kind": "keyword",
+            "value": "evenodd"
+          }
+        ]
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "fill-rule"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "fill-rule"
+          },
+          "confidence": "derived"
+        }
+      ]
+    },
+    {
+      "id": "enum-font-style",
+      "title": "font-style keywords",
+      "root": {
+        "kind": "choice",
+        "options": [
+          {
+            "kind": "keyword",
+            "value": "normal"
+          },
+          {
+            "kind": "keyword",
+            "value": "italic"
+          },
+          {
+            "kind": "keyword",
+            "value": "oblique"
+          }
+        ]
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "font-style"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "font-style"
+          },
+          "confidence": "derived"
+        }
+      ]
+    },
+    {
+      "id": "enum-font-weight",
+      "title": "font-weight keywords",
+      "root": {
+        "kind": "choice",
+        "options": [
+          {
+            "kind": "keyword",
+            "value": "normal"
+          },
+          {
+            "kind": "keyword",
+            "value": "bold"
+          },
+          {
+            "kind": "keyword",
+            "value": "bolder"
+          },
+          {
+            "kind": "keyword",
+            "value": "lighter"
+          },
+          {
+            "kind": "keyword",
+            "value": "100"
+          },
+          {
+            "kind": "keyword",
+            "value": "200"
+          },
+          {
+            "kind": "keyword",
+            "value": "300"
+          },
+          {
+            "kind": "keyword",
+            "value": "400"
+          },
+          {
+            "kind": "keyword",
+            "value": "500"
+          },
+          {
+            "kind": "keyword",
+            "value": "600"
+          },
+          {
+            "kind": "keyword",
+            "value": "700"
+          },
+          {
+            "kind": "keyword",
+            "value": "800"
+          },
+          {
+            "kind": "keyword",
+            "value": "900"
+          }
+        ]
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "font-weight"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "font-weight"
+          },
+          "confidence": "derived"
+        }
+      ]
+    },
+    {
+      "id": "enum-gradientunits",
+      "title": "gradientUnits keywords",
+      "root": {
+        "kind": "choice",
+        "options": [
+          {
+            "kind": "keyword",
+            "value": "userSpaceOnUse"
+          },
+          {
+            "kind": "keyword",
+            "value": "objectBoundingBox"
+          }
+        ]
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "gradientUnits"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "gradientUnits"
+          },
+          "confidence": "derived"
+        }
+      ]
+    },
+    {
+      "id": "enum-in",
+      "title": "in keywords",
+      "root": {
+        "kind": "choice",
+        "options": [
+          {
+            "kind": "keyword",
+            "value": "SourceGraphic"
+          },
+          {
+            "kind": "keyword",
+            "value": "SourceAlpha"
+          },
+          {
+            "kind": "keyword",
+            "value": "BackgroundImage"
+          },
+          {
+            "kind": "keyword",
+            "value": "BackgroundAlpha"
+          },
+          {
+            "kind": "keyword",
+            "value": "FillPaint"
+          },
+          {
+            "kind": "keyword",
+            "value": "StrokePaint"
+          }
+        ]
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "in"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "in"
+          },
+          "confidence": "derived"
+        }
+      ]
+    },
+    {
+      "id": "enum-overflow",
+      "title": "overflow keywords",
+      "root": {
+        "kind": "choice",
+        "options": [
+          {
+            "kind": "keyword",
+            "value": "visible"
+          },
+          {
+            "kind": "keyword",
+            "value": "hidden"
+          },
+          {
+            "kind": "keyword",
+            "value": "scroll"
+          },
+          {
+            "kind": "keyword",
+            "value": "auto"
+          }
+        ]
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "overflow"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "overflow"
+          },
+          "confidence": "derived"
+        }
+      ]
+    },
+    {
+      "id": "enum-pointer-events",
+      "title": "pointer-events keywords",
+      "root": {
+        "kind": "choice",
+        "options": [
+          {
+            "kind": "keyword",
+            "value": "auto"
+          },
+          {
+            "kind": "keyword",
+            "value": "none"
+          },
+          {
+            "kind": "keyword",
+            "value": "visiblePainted"
+          },
+          {
+            "kind": "keyword",
+            "value": "visibleFill"
+          },
+          {
+            "kind": "keyword",
+            "value": "visibleStroke"
+          },
+          {
+            "kind": "keyword",
+            "value": "visible"
+          },
+          {
+            "kind": "keyword",
+            "value": "painted"
+          },
+          {
+            "kind": "keyword",
+            "value": "fill"
+          },
+          {
+            "kind": "keyword",
+            "value": "stroke"
+          },
+          {
+            "kind": "keyword",
+            "value": "all"
+          }
+        ]
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "pointer-events"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "pointer-events"
+          },
+          "confidence": "derived"
+        }
+      ]
+    },
+    {
+      "id": "enum-restart",
+      "title": "restart keywords",
+      "root": {
+        "kind": "choice",
+        "options": [
+          {
+            "kind": "keyword",
+            "value": "always"
+          },
+          {
+            "kind": "keyword",
+            "value": "whenNotActive"
+          },
+          {
+            "kind": "keyword",
+            "value": "never"
+          }
+        ]
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "restart"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "restart"
+          },
+          "confidence": "derived"
+        }
+      ]
+    },
+    {
+      "id": "enum-spreadmethod",
+      "title": "spreadMethod keywords",
+      "root": {
+        "kind": "choice",
+        "options": [
+          {
+            "kind": "keyword",
+            "value": "pad"
+          },
+          {
+            "kind": "keyword",
+            "value": "reflect"
+          },
+          {
+            "kind": "keyword",
+            "value": "repeat"
+          }
+        ]
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "spreadMethod"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "spreadMethod"
+          },
+          "confidence": "derived"
+        }
+      ]
+    },
+    {
+      "id": "enum-stroke-linecap",
+      "title": "stroke-linecap keywords",
+      "root": {
+        "kind": "choice",
+        "options": [
+          {
+            "kind": "keyword",
+            "value": "butt"
+          },
+          {
+            "kind": "keyword",
+            "value": "round"
+          },
+          {
+            "kind": "keyword",
+            "value": "square"
+          }
+        ]
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "stroke-linecap"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "stroke-linecap"
+          },
+          "confidence": "derived"
+        }
+      ]
+    },
+    {
+      "id": "enum-stroke-linejoin",
+      "title": "stroke-linejoin keywords",
+      "root": {
+        "kind": "choice",
+        "options": [
+          {
+            "kind": "keyword",
+            "value": "miter"
+          },
+          {
+            "kind": "keyword",
+            "value": "round"
+          },
+          {
+            "kind": "keyword",
+            "value": "bevel"
+          }
+        ]
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "stroke-linejoin"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "stroke-linejoin"
+          },
+          "confidence": "derived"
+        }
+      ]
+    },
+    {
+      "id": "enum-text-anchor",
+      "title": "text-anchor keywords",
+      "root": {
+        "kind": "choice",
+        "options": [
+          {
+            "kind": "keyword",
+            "value": "start"
+          },
+          {
+            "kind": "keyword",
+            "value": "middle"
+          },
+          {
+            "kind": "keyword",
+            "value": "end"
+          }
+        ]
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "text-anchor"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "text-anchor"
+          },
+          "confidence": "derived"
+        }
+      ]
+    },
+    {
+      "id": "enum-text-decoration",
+      "title": "text-decoration keywords",
+      "root": {
+        "kind": "choice",
+        "options": [
+          {
+            "kind": "keyword",
+            "value": "none"
+          },
+          {
+            "kind": "keyword",
+            "value": "underline"
+          },
+          {
+            "kind": "keyword",
+            "value": "overline"
+          },
+          {
+            "kind": "keyword",
+            "value": "line-through"
+          }
+        ]
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "text-decoration"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "text-decoration"
+          },
+          "confidence": "derived"
+        }
+      ]
+    },
+    {
+      "id": "enum-visibility",
+      "title": "visibility keywords",
+      "root": {
+        "kind": "choice",
+        "options": [
+          {
+            "kind": "keyword",
+            "value": "visible"
+          },
+          {
+            "kind": "keyword",
+            "value": "hidden"
+          },
+          {
+            "kind": "keyword",
+            "value": "collapse"
+          }
+        ]
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "visibility"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "visibility"
+          },
+          "confidence": "derived"
+        }
+      ]
+    },
+    {
+      "id": "length",
+      "title": "Length value",
+      "root": {
+        "kind": "datatype_ref",
+        "name": "length"
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "stroke-width"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "stroke-width"
+          },
+          "confidence": "derived"
+        }
+      ]
+    },
+    {
+      "id": "number-or-percentage",
+      "title": "Number or percentage",
+      "root": {
+        "kind": "choice",
+        "options": [
+          {
+            "kind": "datatype_ref",
+            "name": "number"
+          },
+          {
+            "kind": "datatype_ref",
+            "name": "percentage"
+          }
+        ]
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "stroke-opacity"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "stroke-opacity"
+          },
+          "confidence": "derived"
+        }
+      ]
+    },
+    {
+      "id": "path-data",
+      "title": "Path data",
+      "root": {
+        "kind": "datatype_ref",
+        "name": "svg-path-data"
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "d"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "d"
+          },
+          "confidence": "derived"
+        }
+      ]
+    },
+    {
+      "id": "points",
+      "title": "Point list",
+      "root": {
+        "kind": "space_separated",
+        "item": {
+          "kind": "grammar_ref",
+          "name": "coordinate-pair"
+        }
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "points"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "points"
+          },
+          "confidence": "derived"
+        }
+      ]
+    },
+    {
+      "id": "preserve-aspect-ratio",
+      "title": "preserveAspectRatio value",
+      "root": {
+        "kind": "sequence",
+        "items": [
+          {
+            "kind": "choice",
+            "options": [
+              {
+                "kind": "keyword",
+                "value": "none"
+              },
+              {
+                "kind": "keyword",
+                "value": "xMinYMin"
+              },
+              {
+                "kind": "keyword",
+                "value": "xMidYMin"
+              },
+              {
+                "kind": "keyword",
+                "value": "xMaxYMin"
+              },
+              {
+                "kind": "keyword",
+                "value": "xMinYMid"
+              },
+              {
+                "kind": "keyword",
+                "value": "xMidYMid"
+              },
+              {
+                "kind": "keyword",
+                "value": "xMaxYMid"
+              },
+              {
+                "kind": "keyword",
+                "value": "xMinYMax"
+              },
+              {
+                "kind": "keyword",
+                "value": "xMidYMax"
+              },
+              {
+                "kind": "keyword",
+                "value": "xMaxYMax"
+              }
+            ]
+          },
+          {
+            "kind": "optional",
+            "item": {
+              "kind": "choice",
+              "options": [
+                {
+                  "kind": "keyword",
+                  "value": "meet"
+                },
+                {
+                  "kind": "keyword",
+                  "value": "slice"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "preserveAspectRatio"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "preserveAspectRatio"
+          },
+          "confidence": "derived"
+        }
+      ]
+    },
+    {
+      "id": "transform-list-translate-rotate-scale-skewx-skewy-matrix",
+      "title": "Transform list (translate, rotate, scale, skewX, skewY, matrix)",
+      "root": {
+        "kind": "space_separated",
+        "item": {
+          "kind": "choice",
+          "options": [
+            {
+              "kind": "datatype_ref",
+              "name": "translate-transform-function"
+            },
+            {
+              "kind": "datatype_ref",
+              "name": "rotate-transform-function"
+            },
+            {
+              "kind": "datatype_ref",
+              "name": "scale-transform-function"
+            },
+            {
+              "kind": "datatype_ref",
+              "name": "skewX-transform-function"
+            },
+            {
+              "kind": "datatype_ref",
+              "name": "skewY-transform-function"
+            },
+            {
+              "kind": "datatype_ref",
+              "name": "matrix-transform-function"
+            }
+          ]
+        }
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "transform"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "transform"
+          },
+          "confidence": "derived"
+        }
+      ]
+    },
+    {
+      "id": "url-reference",
+      "title": "URL reference",
+      "root": {
+        "kind": "datatype_ref",
+        "name": "url"
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "clip-path"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "clip-path"
+          },
+          "confidence": "derived"
+        }
+      ]
+    },
+    {
+      "id": "view-box",
+      "title": "viewBox tuple",
+      "root": {
+        "kind": "sequence",
+        "items": [
+          {
+            "kind": "datatype_ref",
+            "name": "number"
+          },
+          {
+            "kind": "datatype_ref",
+            "name": "number"
+          },
+          {
+            "kind": "datatype_ref",
+            "name": "number"
+          },
+          {
+            "kind": "datatype_ref",
+            "name": "number"
+          }
+        ]
+      },
+      "provenance": [
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "viewBox"
+          },
+          "confidence": "derived"
+        },
+        {
+          "source_id": "definitions",
+          "source_kind": "definitions_xml",
+          "pin": {
+            "kind": "git_commit",
+            "repository": "https://github.com/w3c/svgwg",
+            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+            "path": null
+          },
+          "locator": {
+            "kind": "definition",
+            "file": "definitions.xml",
+            "id": "viewBox"
+          },
+          "confidence": "derived"
+        }
+      ]
+    }
+  ]
 }

@@ -17,7 +17,7 @@
 			"title": "Define normalized snapshot schema",
 			"description": "Design the canonical checked-in data model for snapshot metadata, elements, attributes, grammars, categories, applicability edges, exceptions, and review reports. Done when: file layout, provenance shape, and grammar AST are encoded in repo-facing schemas or types with no ambiguous fields.",
 			"priority": "architecture",
-			"passes": false
+			"passes": true
 		},
 		{
 			"id": "extractor-framework",

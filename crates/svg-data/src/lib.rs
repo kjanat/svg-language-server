@@ -21,6 +21,8 @@ mod catalog;
 pub mod categories;
 /// Shared BCD JSON parsing helpers for runtime compat overlays.
 pub mod compat_parse;
+/// Typed schema for normalized per-snapshot checked-in SVG data.
+pub mod snapshot_schema;
 /// Public catalog type definitions.
 pub mod types;
 /// `XLink` attribute name canonicalization (BCD underscore form to colon form).

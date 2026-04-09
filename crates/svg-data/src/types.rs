@@ -1,3 +1,5 @@
+use serde::{Deserialize, Serialize};
+
 /// Definition of an SVG element.
 #[derive(Debug, Clone)]
 pub struct ElementDef {
@@ -197,7 +199,7 @@ pub enum ElementCategory {
 }
 
 /// Canonical SVG spec snapshot identifiers supported by profile-aware lookups.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum SpecSnapshotId {
     /// SVG 1.1 Recommendation (2003-01-14).
     Svg11Rec20030114,

@@ -14,6 +14,7 @@ Started: 2026-04-09
 - Value grammar is first-class data, not only display text.
 - External specs start as pinned typed foreign references, not full ingest.
 - Source acquisition is staged as checked-in TOML manifests under `crates/svg-data/data/sources/`, one file per snapshot or external spec set.
+- Snapshot schemas should use serde-tagged enums plus canonical `SpecSnapshotId` values so checked-in JSON stays explicit and stable.
 
 ---
 
@@ -23,3 +24,9 @@ Started: 2026-04-09
 - Added `crates/svg-data/tests/source_manifests.rs` to verify manifest coverage for snapshot ids and required manifest fields.
 - Updated `crates/svg-data/build.rs` to watch `data/sources/` for future pipeline work.
 - **Learnings:** `dprint` aligns TOML keys, so manifest validation should check keys semantically instead of exact spacing; the 2025-09-14 editor's draft pin maps cleanly to `w3c/svgwg` commit `19482daf4094e72becde92b38c6a1c0d384b56a9`.
+
+## Task - [snapshot-schema]
+
+- Added `crates/svg-data/src/snapshot_schema.rs` with typed serde-backed schemas for `snapshot.json`, per-snapshot fact files, provenance, exceptions, reviews, and the normalized grammar AST.
+- Reused canonical `SpecSnapshotId` values in checked-in snapshot metadata by deriving serde support in `crates/svg-data/src/types.rs`, and exported the new module from `crates/svg-data/src/lib.rs`.
+- **Learnings:** keep schema shapes tagged and typed up front; it prevents ambiguous JSON now and gives the extractor pipeline a stable contract later.

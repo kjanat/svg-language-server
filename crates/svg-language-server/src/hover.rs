@@ -345,11 +345,11 @@ pub fn format_attribute_hover_with_profile(
 
 pub fn profile_lifecycle_hover_line<T>(
     profile: SpecSnapshotId,
-    lookup: ProfileLookup<T>,
+    lookup: &ProfileLookup<T>,
 ) -> Option<String> {
     match lookup {
         ProfileLookup::Present { lifecycle, .. } => {
-            Some(format_profile_lifecycle_line(profile, lifecycle))
+            Some(format_profile_lifecycle_line(profile, *lifecycle))
         }
         ProfileLookup::UnsupportedInProfile { known_in } => {
             Some(format_unsupported_profile_lifecycle_line(profile, known_in))
@@ -775,7 +775,7 @@ mod tests {
         assert_eq!(
             profile_lifecycle_hover_line(
                 SpecSnapshotId::Svg2EditorsDraft20250914,
-                ProfileLookup::<()>::UnsupportedInProfile {
+                &ProfileLookup::<()>::UnsupportedInProfile {
                     known_in: &[
                         SpecSnapshotId::Svg11Rec20030114,
                         SpecSnapshotId::Svg11Rec20110816,
@@ -791,7 +791,7 @@ mod tests {
         assert_eq!(
             profile_lifecycle_hover_line(
                 SpecSnapshotId::Svg2EditorsDraft20250914,
-                ProfileLookup::Present {
+                &ProfileLookup::Present {
                     value: (),
                     lifecycle: SpecLifecycle::Experimental,
                 },

@@ -110,6 +110,9 @@ pub fn expand_attribute_name<'a>(
     let (prefix, local_name) = split_qualified_name(raw_name);
     ExpandedName {
         namespace_uri: match prefix {
+            // Real SVGs often omit xmlns:xlink while still using xlink:href.
+            // Keep linting lenient instead of treating that as an unknown
+            // foreign namespace.
             Some("xlink") => scope.resolve_prefix("xlink").or(Some(XLINK_NAMESPACE_URI)),
             Some(other_prefix) => scope.resolve_prefix(other_prefix),
             None => None,
@@ -143,11 +146,69 @@ fn find_attr_name(attr_node: Node) -> Option<Node> {
 }
 
 fn attr_value<'a>(attr_node: Node, source: &'a [u8]) -> Option<&'a str> {
+    if let Some(value_node) = find_attr_value(attr_node) {
+        let raw_value = value_node.utf8_text(source).ok()?;
+        return Some(trim_attr_value(raw_value));
+    }
+
     let raw_attr = attr_node.utf8_text(source).ok()?;
     let (_, raw_value) = raw_attr.split_once('=')?;
-    Some(raw_value.trim_matches(|ch: char| ch == '"' || ch == '\'' || ch.is_ascii_whitespace()))
+    Some(trim_attr_value(raw_value))
+}
+
+fn find_attr_value(attr_node: Node) -> Option<Node> {
+    attr_node.child_by_field_name("value").or_else(|| {
+        let mut cursor = attr_node.walk();
+        attr_node
+            .children(&mut cursor)
+            .find_map(|child| child.child_by_field_name("value"))
+    })
+}
+
+fn trim_attr_value(raw_value: &str) -> &str {
+    raw_value.trim_matches(|ch: char| ch == '"' || ch == '\'' || ch.is_ascii_whitespace())
 }
 
 fn non_empty_namespace(namespace_uri: &str) -> Option<&str> {
     (!namespace_uri.is_empty()).then_some(namespace_uri)
+}
+
+#[cfg(test)]
+mod tests {
+    use std::error::Error;
+
+    use tree_sitter::{Node, Parser, Tree};
+
+    use super::*;
+
+    fn parse_svg(source: &str) -> Result<Tree, Box<dyn Error>> {
+        let mut parser = Parser::new();
+        parser
+            .set_language(&tree_sitter_svg::LANGUAGE.into())
+            .map_err(|err| format!("SVG grammar: {err}"))?;
+        parser
+            .parse(source, None)
+            .ok_or_else(|| "parse returned None".into())
+    }
+
+    fn first_tag(node: Node<'_>) -> Option<Node<'_>> {
+        if node.kind() == "start_tag" || node.kind() == "self_closing_tag" {
+            return Some(node);
+        }
+
+        let mut cursor = node.walk();
+        node.children(&mut cursor).find_map(first_tag)
+    }
+
+    #[test]
+    fn scope_for_tag_reads_namespace_values() -> Result<(), Box<dyn Error>> {
+        let source = r#"<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"/>"#;
+        let tree = parse_svg(source)?;
+        let tag = first_tag(tree.root_node()).ok_or("missing tag")?;
+        let scope = scope_for_tag(source.as_bytes(), tag, &NamespaceScope::default());
+
+        assert_eq!(scope.default_namespace(), Some(SVG_NAMESPACE_URI));
+        assert_eq!(scope.resolve_prefix("xlink"), Some(XLINK_NAMESPACE_URI));
+        Ok(())
+    }
 }

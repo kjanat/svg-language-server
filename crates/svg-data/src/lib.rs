@@ -341,8 +341,13 @@ fn profile_key_matches(snapshot: SpecSnapshotId, normalized_input: &str) -> bool
             .any(|alias| normalize_profile_key(alias) == normalized_input)
 }
 
-const fn known_element_snapshots(_name: &str) -> &'static [SpecSnapshotId] {
-    ALL_SPEC_SNAPSHOTS
+fn known_element_snapshots(name: &str) -> &'static [SpecSnapshotId] {
+    match name {
+        // BCD still fills this one in for us; treat it as SVG 2-only until we
+        // have full per-element snapshot membership in the curated catalog.
+        "feDropShadow" => SVG2_SNAPSHOTS,
+        _ => ALL_SPEC_SNAPSHOTS,
+    }
 }
 
 fn known_attribute_snapshots(name: &str) -> &'static [SpecSnapshotId] {
@@ -714,6 +719,17 @@ mod tests {
         };
         assert_eq!(value.name, "rect");
         assert_eq!(lifecycle, SpecLifecycle::Stable);
+        Ok(())
+    }
+
+    #[test]
+    fn bcd_only_fedropshadow_is_svg2_only() -> Result<(), Box<dyn Error>> {
+        let lookup = element_for_profile(SpecSnapshotId::Svg11Rec20110816, "feDropShadow");
+        let ProfileLookup::UnsupportedInProfile { known_in } = lookup else {
+            return Err("feDropShadow should be unsupported in SVG 1.1".into());
+        };
+
+        assert_eq!(known_in, SVG2_SNAPSHOTS);
         Ok(())
     }
 

@@ -16,11 +16,10 @@ pub struct CompatFlags {
 
 /// Runtime compat overrides for lint checks.
 ///
-/// Maps element/attribute names to their override flags. Names absent from
-/// the maps use the baked-in catalog values.
-///
-/// Retained for API compatibility while lint diagnostics move to pinned spec
-/// lifecycle data.
+/// Maps element/attribute names to runtime compat flags that replace the
+/// baked-in compat deprecation/experimental values used for diagnostics.
+/// Names absent from the maps use the baked-in catalog flags. These overrides
+/// do not change profile membership or spec lifecycle.
 #[derive(Debug, Clone, Default)]
 pub struct LintOverrides {
     /// Element name → override flags.

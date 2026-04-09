@@ -67,8 +67,7 @@ pub fn lint_tree_with_options(
     options: LintOptions,
     overrides: Option<&LintOverrides>,
 ) -> Vec<SvgDiagnostic> {
-    let _ = overrides;
-    rules::check_all(source, tree, options)
+    rules::check_all(source, tree, options, overrides)
 }
 
 #[cfg(test)]
@@ -568,6 +567,81 @@ mod tests {
         };
         let with = lint_tree(src, &tree, Some(&overrides));
         assert_eq!(without, with, "empty overrides should match catalog");
+        Ok(())
+    }
+
+    #[test]
+    fn compat_deprecated_attribute_emits_diagnostic() {
+        let src = br#"<svg><text clip="rect(0,100,100,0)">deprecated</text></svg>"#;
+        let diags = lint(src);
+
+        assert!(
+            diags
+                .iter()
+                .any(|d| d.code == DiagnosticCode::DeprecatedAttribute),
+            "compat deprecated attrs should warn: {diags:?}"
+        );
+    }
+
+    #[test]
+    fn overrides_can_clear_compat_deprecation() -> Result<(), Box<dyn std::error::Error>> {
+        let src = br#"<svg><text clip="rect(0,100,100,0)">deprecated</text></svg>"#;
+
+        let mut parser = tree_sitter::Parser::new();
+        parser.set_language(&tree_sitter_svg::LANGUAGE.into()).ok();
+        let tree = parser.parse(src, None).ok_or("parse")?;
+
+        let mut attributes = std::collections::HashMap::new();
+        attributes.insert(
+            "clip".to_string(),
+            CompatFlags {
+                deprecated: false,
+                experimental: false,
+            },
+        );
+        let overrides = LintOverrides {
+            elements: std::collections::HashMap::new(),
+            attributes,
+        };
+
+        let diags = lint_tree(src, &tree, Some(&overrides));
+        assert!(
+            !diags
+                .iter()
+                .any(|d| d.code == DiagnosticCode::DeprecatedAttribute),
+            "runtime overrides should replace compat deprecation flags: {diags:?}"
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn overrides_can_mark_stable_elements_experimental() -> Result<(), Box<dyn std::error::Error>> {
+        let src = br"<svg><rect/></svg>";
+
+        let mut parser = tree_sitter::Parser::new();
+        parser.set_language(&tree_sitter_svg::LANGUAGE.into()).ok();
+        let tree = parser.parse(src, None).ok_or("parse")?;
+
+        let mut elements = std::collections::HashMap::new();
+        elements.insert(
+            "rect".to_string(),
+            CompatFlags {
+                deprecated: false,
+                experimental: true,
+            },
+        );
+        let overrides = LintOverrides {
+            elements,
+            attributes: std::collections::HashMap::new(),
+        };
+
+        let diags = lint_tree(src, &tree, Some(&overrides));
+        assert!(
+            diags
+                .iter()
+                .any(|d| d.code == DiagnosticCode::ExperimentalElement),
+            "runtime overrides should add experimental element diagnostics: {diags:?}"
+        );
         Ok(())
     }
 }

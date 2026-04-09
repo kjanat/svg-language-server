@@ -293,62 +293,9 @@ fn build_hover_context(
     let kind = node.kind().to_owned();
     let node_text = node.utf8_text(source).unwrap_or("").to_owned();
 
-    let element_markdown = if kind == "name" {
-        node.parent()
-            .filter(|parent| matches!(parent.kind(), "start_tag" | "self_closing_tag" | "end_tag"))
-            .and_then(|_| {
-                let lookup = svg_data::element_for_profile(profile, &node_text);
-                let profile_lifecycle = profile_lifecycle_hover_line(profile, lookup);
-                let runtime_override =
-                    runtime_compat.and_then(|runtime| runtime.elements.get(&node_text));
-
-                match lookup {
-                    svg_data::ProfileLookup::Present { value, .. } => {
-                        Some(format_element_hover_with_profile(
-                            value,
-                            profile_lifecycle,
-                            runtime_override,
-                        ))
-                    }
-                    svg_data::ProfileLookup::UnsupportedInProfile { .. } => {
-                        svg_data::element(&node_text).map(|element| {
-                            format_element_hover_with_profile(
-                                element,
-                                profile_lifecycle,
-                                runtime_override,
-                            )
-                        })
-                    }
-                    svg_data::ProfileLookup::Unknown => None,
-                }
-            })
-    } else {
-        None
-    };
-
-    let attribute_markdown = if is_attribute_name_kind(&kind) {
-        let lookup = svg_data::attribute_for_profile(profile, &node_text);
-        let profile_lifecycle = profile_lifecycle_hover_line(profile, lookup);
-        let runtime_override =
-            runtime_compat.and_then(|runtime| runtime.attributes.get(&node_text));
-
-        match lookup {
-            svg_data::ProfileLookup::Present { value, .. } => Some(
-                format_attribute_hover_with_profile(value, profile_lifecycle, runtime_override),
-            ),
-            svg_data::ProfileLookup::UnsupportedInProfile { .. } => svg_data::attribute(&node_text)
-                .map(|attribute| {
-                    format_attribute_hover_with_profile(
-                        attribute,
-                        profile_lifecycle,
-                        runtime_override,
-                    )
-                }),
-            svg_data::ProfileLookup::Unknown => external_attribute_hover(&kind, &node_text),
-        }
-    } else {
-        None
-    };
+    let element_markdown = build_element_hover_markdown(node, &node_text, profile, runtime_compat);
+    let attribute_markdown =
+        build_attribute_hover_markdown(&kind, &node_text, profile, runtime_compat);
 
     let definition_target = svg_references::definition_target_at(source, &doc.tree, byte_offset);
     let stylesheet_hrefs = svg_references::extract_xml_stylesheet_hrefs(source);
@@ -409,6 +356,69 @@ fn build_hover_context(
         attribute_markdown,
         class_hover,
         property_hover,
+    }
+}
+
+fn build_element_hover_markdown(
+    node: tree_sitter::Node<'_>,
+    node_text: &str,
+    profile: svg_data::SpecSnapshotId,
+    runtime_compat: Option<&RuntimeCompat>,
+) -> Option<String> {
+    if node.kind() != "name" {
+        return None;
+    }
+
+    node.parent()
+        .filter(|parent| matches!(parent.kind(), "start_tag" | "self_closing_tag" | "end_tag"))
+        .and_then(|_| {
+            let lookup = svg_data::element_for_profile(profile, node_text);
+            let profile_lifecycle = profile_lifecycle_hover_line(profile, &lookup);
+            let runtime_override =
+                runtime_compat.and_then(|runtime| runtime.elements.get(node_text));
+
+            match lookup {
+                svg_data::ProfileLookup::Present { value, .. } => Some(
+                    format_element_hover_with_profile(value, profile_lifecycle, runtime_override),
+                ),
+                svg_data::ProfileLookup::UnsupportedInProfile { .. } => {
+                    svg_data::element(node_text).map(|element| {
+                        format_element_hover_with_profile(
+                            element,
+                            profile_lifecycle,
+                            runtime_override,
+                        )
+                    })
+                }
+                svg_data::ProfileLookup::Unknown => None,
+            }
+        })
+}
+
+fn build_attribute_hover_markdown(
+    kind: &str,
+    node_text: &str,
+    profile: svg_data::SpecSnapshotId,
+    runtime_compat: Option<&RuntimeCompat>,
+) -> Option<String> {
+    if !is_attribute_name_kind(kind) {
+        return None;
+    }
+
+    let lookup = svg_data::attribute_for_profile(profile, node_text);
+    let profile_lifecycle = profile_lifecycle_hover_line(profile, &lookup);
+    let runtime_override = runtime_compat.and_then(|runtime| runtime.attributes.get(node_text));
+
+    match lookup {
+        svg_data::ProfileLookup::Present { value, .. } => Some(
+            format_attribute_hover_with_profile(value, profile_lifecycle, runtime_override),
+        ),
+        svg_data::ProfileLookup::UnsupportedInProfile { .. } => {
+            svg_data::attribute(node_text).map(|attribute| {
+                format_attribute_hover_with_profile(attribute, profile_lifecycle, runtime_override)
+            })
+        }
+        svg_data::ProfileLookup::Unknown => external_attribute_hover(kind, node_text),
     }
 }
 
@@ -478,6 +488,9 @@ impl SvgLanguageServer {
                 lint_options,
                 overrides.as_ref(),
             );
+            // A document can change after this check and before publish. That
+            // brief stale-diagnostics window is acceptable here; holding the
+            // read lock through publish would be worse than eventual consistency.
             let is_current = {
                 let docs = self.documents.read().await;
                 docs.get(&uri).is_some_and(|current| {

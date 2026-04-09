@@ -12,7 +12,7 @@ use tree_sitter::{Node, Tree};
 
 use crate::{
     namespaces::{self, NamespaceScope, SVG_NAMESPACE_URI, XLINK_NAMESPACE_URI},
-    types::{DiagnosticCode, LintOptions, Severity, SvgDiagnostic},
+    types::{CompatFlags, DiagnosticCode, LintOptions, LintOverrides, Severity, SvgDiagnostic},
 };
 
 #[derive(Clone, Copy)]
@@ -27,18 +27,25 @@ struct LintContext<'a> {
     suppressions: Suppressions,
     defined_ids: HashSet<String>,
     seen_ids: HashMap<String, usize>,
-    options: &'a LintOptions,
+    options: LintOptions,
+    overrides: Option<&'a LintOverrides>,
 }
 
 /// Run all lint checks on a parsed SVG tree.
-pub fn check_all(source: &[u8], tree: &Tree, options: LintOptions) -> Vec<SvgDiagnostic> {
+pub fn check_all(
+    source: &[u8],
+    tree: &Tree,
+    options: LintOptions,
+    overrides: Option<&LintOverrides>,
+) -> Vec<SvgDiagnostic> {
     let mut ctx = LintContext {
         source,
         diagnostics: Vec::new(),
         suppressions: suppressions::collect_suppressions(source, tree),
         defined_ids: collect_defined_ids(source, tree),
         seen_ids: HashMap::new(),
-        options: &options,
+        options,
+        overrides,
     };
     walk_elements(&mut ctx, tree.root_node(), &NamespaceScope::default());
     ctx.diagnostics
@@ -65,11 +72,7 @@ fn check_element<'a>(
     parent_scope: &NamespaceScope<'a>,
 ) -> NamespaceScope<'a> {
     // Find the opening tag node (start_tag or self_closing_tag)
-    let mut tag_cursor = node.walk();
-    let tag_node = node
-        .children(&mut tag_cursor)
-        .find(|c| c.kind() == "start_tag" || c.kind() == "self_closing_tag");
-    let Some(tag) = tag_node else {
+    let Some(tag) = opening_tag(node) else {
         return parent_scope.clone();
     };
 
@@ -97,6 +100,8 @@ fn check_element<'a>(
     let lookup = svg_data::element_for_profile(ctx.options.profile, expanded_name.local_name);
     let def = match lookup {
         ProfileLookup::Present { value, lifecycle } => {
+            let lifecycle =
+                element_diagnostic_lifecycle(ctx, expanded_name.local_name, value, lifecycle);
             emit_lifecycle_diag(
                 &mut ctx.diagnostics,
                 &mut ctx.suppressions,
@@ -106,7 +111,7 @@ fn check_element<'a>(
                     deprecated: DiagnosticCode::DeprecatedElement,
                     experimental: DiagnosticCode::ExperimentalElement,
                 },
-                format!("<{}>", value.name),
+                &format!("<{}>", value.name),
             );
             value
         }
@@ -126,21 +131,13 @@ fn check_element<'a>(
             return scope;
         }
         ProfileLookup::Unknown => {
-            let mut msg = format!("Unknown SVG element: <{}>", expanded_name.local_name);
-            if let Some(suggestion) = closest_name(
-                expanded_name.local_name,
-                svg_data::elements().iter().map(|e| e.name),
-            ) {
-                use std::fmt::Write;
-                let _ = write!(msg, "\nDid you mean <{suggestion}>?");
-            }
             push_diag(
                 &mut ctx.diagnostics,
                 &mut ctx.suppressions,
                 name_node,
                 Severity::Error,
                 DiagnosticCode::UnknownElement,
-                msg,
+                unknown_element_message(expanded_name.local_name),
             );
             return scope;
         }
@@ -174,7 +171,7 @@ fn check_element<'a>(
         node,
         def.name,
         &scope,
-        *ctx.options,
+        ctx.options,
         &mut ctx.diagnostics,
         &mut ctx.suppressions,
     );
@@ -214,6 +211,8 @@ fn check_attributes(ctx: &mut LintContext<'_>, tag: Node, scope: &NamespaceScope
         // miss as "unknown" makes diagnostics depend on build-time BCD fetch state.
         match svg_data::attribute_for_profile(ctx.options.profile, lookup_name.as_ref()) {
             ProfileLookup::Present { value, lifecycle } => {
+                let lifecycle =
+                    attribute_diagnostic_lifecycle(ctx, lookup_name.as_ref(), value, lifecycle);
                 emit_lifecycle_diag_in_tag(
                     &mut ctx.diagnostics,
                     &mut ctx.suppressions,
@@ -452,13 +451,19 @@ fn canonical_svg_attribute_name<'a>(
     }
 }
 
+fn opening_tag(node: Node<'_>) -> Option<Node<'_>> {
+    let mut cursor = node.walk();
+    node.children(&mut cursor)
+        .find(|child| child.kind() == "start_tag" || child.kind() == "self_closing_tag")
+}
+
 fn emit_lifecycle_diag(
     diagnostics: &mut Vec<SvgDiagnostic>,
     suppressions: &mut Suppressions,
     node: Node,
     lifecycle: SpecLifecycle,
     codes: LifecycleCodes,
-    subject: String,
+    subject: &str,
 ) {
     emit_lifecycle_diag_in_tag(
         diagnostics,
@@ -467,8 +472,51 @@ fn emit_lifecycle_diag(
         None,
         lifecycle,
         codes,
-        &subject,
+        subject,
     );
+}
+
+fn element_diagnostic_lifecycle(
+    ctx: &LintContext<'_>,
+    element_name: &str,
+    value: &svg_data::ElementDef,
+    lifecycle: SpecLifecycle,
+) -> SpecLifecycle {
+    diagnostic_lifecycle(
+        lifecycle,
+        CompatFlags {
+            deprecated: value.deprecated,
+            experimental: value.experimental,
+        },
+        ctx.overrides
+            .and_then(|overrides| overrides.elements.get(element_name)),
+    )
+}
+
+fn attribute_diagnostic_lifecycle(
+    ctx: &LintContext<'_>,
+    attribute_name: &str,
+    value: &svg_data::AttributeDef,
+    lifecycle: SpecLifecycle,
+) -> SpecLifecycle {
+    diagnostic_lifecycle(
+        lifecycle,
+        CompatFlags {
+            deprecated: value.deprecated,
+            experimental: value.experimental,
+        },
+        ctx.overrides
+            .and_then(|overrides| overrides.attributes.get(attribute_name)),
+    )
+}
+
+fn unknown_element_message(name: &str) -> String {
+    let mut msg = format!("Unknown SVG element: <{name}>");
+    if let Some(suggestion) = closest_name(name, svg_data::elements().iter().map(|e| e.name)) {
+        use std::fmt::Write;
+        let _ = write!(msg, "\nDid you mean <{suggestion}>?");
+    }
+    msg
 }
 
 fn emit_lifecycle_diag_in_tag(
@@ -500,6 +548,35 @@ fn emit_lifecycle_diag_in_tag(
             format!("{subject} is experimental"),
         ),
         SpecLifecycle::Stable | SpecLifecycle::Obsolete => {}
+    }
+}
+
+fn diagnostic_lifecycle(
+    spec_lifecycle: SpecLifecycle,
+    compat_flags: CompatFlags,
+    override_flags: Option<&CompatFlags>,
+) -> SpecLifecycle {
+    if matches!(
+        spec_lifecycle,
+        SpecLifecycle::Deprecated | SpecLifecycle::Obsolete
+    ) {
+        return spec_lifecycle;
+    }
+
+    let deprecated = override_flags.map_or(compat_flags.deprecated, |flags| flags.deprecated);
+    if deprecated {
+        return SpecLifecycle::Deprecated;
+    }
+
+    if spec_lifecycle == SpecLifecycle::Experimental {
+        return spec_lifecycle;
+    }
+
+    let experimental = override_flags.map_or(compat_flags.experimental, |flags| flags.experimental);
+    if experimental {
+        SpecLifecycle::Experimental
+    } else {
+        SpecLifecycle::Stable
     }
 }
 
@@ -717,7 +794,7 @@ mod tests {
                 deprecated: DiagnosticCode::DeprecatedElement,
                 experimental: DiagnosticCode::ExperimentalElement,
             },
-            "<svg>".to_string(),
+            "<svg>",
         );
 
         assert_eq!(diagnostics.len(), 1, "expected one lifecycle diagnostic");

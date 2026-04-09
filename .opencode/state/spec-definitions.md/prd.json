@@ -64,7 +64,7 @@
 			"description": "Done when hover shows spec lifecycle separately from browser support for the selected profile.",
 			"depends": ["lsp-profile-config"],
 			"priority": "standard",
-			"passes": false
+			"passes": true
 		},
 		{
 			"id": "profile-regression-tests",

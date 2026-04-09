@@ -245,3 +245,65 @@ fn typed_attribute_hover_resolves_catalog() -> TestResult {
     server.shutdown_and_exit()?;
     Ok(())
 }
+
+#[test]
+fn hover_shows_profile_lifecycle_separately_from_browser_support() -> TestResult {
+    let hover_svg =
+        r##"<svg xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="#icon"/></svg>"##;
+    let xlink_href_character =
+        u32::try_from(hover_svg.find("xlink:href").ok_or("xlink:href present")?)? + 1;
+
+    let mut svg11_server = TestServer::start_with_initialize_options(&json!({
+        "svg": {
+            "profile": "Svg11"
+        }
+    }))?;
+    svg11_server.open("file:///profile-hover.svg", hover_svg)?;
+    let svg11_hover = svg11_server.request(
+        "textDocument/hover",
+        &json!({
+            "textDocument": { "uri": "file:///profile-hover.svg" },
+            "position": { "line": 0, "character": xlink_href_character }
+        }),
+    )?;
+    let svg11_hover_value = svg11_hover["result"]["contents"]["value"]
+        .as_str()
+        .ok_or("SVG 1.1 hover markdown")?;
+    assert!(
+        svg11_hover_value.contains("**Stable in Svg11Rec20110816**"),
+        "SVG 1.1 hover should show the selected profile lifecycle: {svg11_hover}"
+    );
+    assert!(
+        svg11_hover_value.contains("Chrome"),
+        "hover should keep the browser support section: {svg11_hover}"
+    );
+    svg11_server.shutdown_and_exit()?;
+
+    let mut svg2_server = TestServer::start_with_initialize_options(&json!({
+        "svg": {
+            "profile": "Svg2Draft"
+        }
+    }))?;
+    svg2_server.open("file:///profile-hover.svg", hover_svg)?;
+    let svg2_hover = svg2_server.request(
+        "textDocument/hover",
+        &json!({
+            "textDocument": { "uri": "file:///profile-hover.svg" },
+            "position": { "line": 0, "character": xlink_href_character }
+        }),
+    )?;
+    let svg2_hover_value = svg2_hover["result"]["contents"]["value"]
+        .as_str()
+        .ok_or("SVG 2 hover markdown")?;
+    assert!(
+        svg2_hover_value.contains("**Obsolete after Svg11Rec20110816**"),
+        "SVG 2 hover should show obsolete lifecycle separately from compat: {svg2_hover}"
+    );
+    assert!(
+        svg2_hover_value.contains("Chrome"),
+        "hover should still include browser support after lifecycle text: {svg2_hover}"
+    );
+    svg2_server.shutdown_and_exit()?;
+
+    Ok(())
+}

@@ -13,6 +13,7 @@ Started: 2026-04-09
 - When profile deltas are sparse, keep the catalog as a union and layer snapshot membership tables in `svg-data::lib`; that gives lint/LSP profile-aware lookups without forcing generated catalog churn yet.
 - Namespace-aware SVG lint needs XML rules, not string prefix guesses: element names inherit default namespaces, but unprefixed attributes stay in no namespace and should only map back to SVG/XLink when their resolved namespace allows it.
 - In the LSP, keep profile selection as a tiny shared state object and funnel every diagnostics refresh through one `relint_open_documents` helper, so init/config/runtime-compat changes cannot drift.
+- For profile-aware hover, resolve `ProfileLookup` once in `lib.rs`, keep rendering in `hover.rs`, and show spec lifecycle as a separate line from runtime/browser compat so obsolete historical attrs like `xlink:href` still explain why they fail in newer profiles.
 
 ---
 
@@ -67,3 +68,11 @@ Started: 2026-04-09
 - Added protocol coverage proving `xlink:href` appears for SVG 1.1 but is hidden for `Svg2Draft`, plus unit coverage for experimental and deprecated lifecycle annotations on completion items.
 - Files changed: `crates/svg-language-server/src/completion.rs`, `crates/svg-language-server/src/lib.rs`, `crates/svg-language-server/tests/completions.rs`, `.opencode/state/spec-definitions.md/prd.json`, `.opencode/state/spec-definitions.md/progress.txt`
 - **Learnings:** completion filtering belongs at the profile lookup boundary; once candidates arrive as profiled defs, the LSP layer only needs to preserve lifecycle metadata when building `CompletionItem`s.
+
+## Task - hover-lifecycle
+
+- Switched hover lookup in `crates/svg-language-server/src/lib.rs` to use profile-aware `svg-data` lookups for both elements and attributes, including known-but-unsupported features.
+- Added lifecycle line helpers in `crates/svg-language-server/src/hover.rs`, so hover now renders spec lifecycle separately from browser support and reports obsolete historical attrs like `xlink:href` as `Obsolete after Svg11Rec20110816` in SVG 2 profiles.
+- Added unit coverage for lifecycle line formatting and an end-to-end hover test that checks SVG 1.1 vs SVG 2 profile behavior for `xlink:href`.
+- Files changed: `crates/svg-language-server/src/lib.rs`, `crates/svg-language-server/src/hover.rs`, `crates/svg-language-server/tests/definitions_and_hover.rs`, `.opencode/state/spec-definitions.md/prd.json`, `.opencode/state/spec-definitions.md/progress.txt`
+- **Learnings:** hover can keep rendering from the union catalog even when a feature is unsupported in the selected profile, as long as the profile lookup result drives the lifecycle line and the browser compat section stays independent.

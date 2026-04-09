@@ -54,8 +54,8 @@ use completion::{
 use definition::{DefinitionContext, build_definition_context, stylesheet_definition_locations};
 use diagnostics::publish_lint_diagnostics;
 use hover::{
-    external_attribute_hover, format_attribute_hover, format_class_hover,
-    format_custom_property_hover, format_element_hover,
+    external_attribute_hover, format_attribute_hover_with_profile, format_class_hover,
+    format_custom_property_hover, format_element_hover_with_profile, profile_lifecycle_hover_line,
 };
 use logging::init_logging;
 use positions::{byte_col_to_utf16, byte_offset_for_position, end_position_utf16, u32_from_usize};
@@ -279,6 +279,7 @@ fn build_hover_context(
     uri: &Uri,
     pos: Position,
     doc: &DocumentState,
+    profile: svg_data::SpecSnapshotId,
     runtime_compat: Option<&RuntimeCompat>,
 ) -> HoverContext {
     let source = doc.source.as_bytes();
@@ -296,28 +297,55 @@ fn build_hover_context(
         node.parent()
             .filter(|parent| matches!(parent.kind(), "start_tag" | "self_closing_tag" | "end_tag"))
             .and_then(|_| {
-                svg_data::element(&node_text).map(|element| {
-                    let runtime_override =
-                        runtime_compat.and_then(|runtime| runtime.elements.get(&node_text));
-                    format_element_hover(element, runtime_override)
-                })
+                let lookup = svg_data::element_for_profile(profile, &node_text);
+                let profile_lifecycle = profile_lifecycle_hover_line(profile, lookup);
+                let runtime_override =
+                    runtime_compat.and_then(|runtime| runtime.elements.get(&node_text));
+
+                match lookup {
+                    svg_data::ProfileLookup::Present { value, .. } => {
+                        Some(format_element_hover_with_profile(
+                            value,
+                            profile_lifecycle,
+                            runtime_override,
+                        ))
+                    }
+                    svg_data::ProfileLookup::UnsupportedInProfile { .. } => {
+                        svg_data::element(&node_text).map(|element| {
+                            format_element_hover_with_profile(
+                                element,
+                                profile_lifecycle,
+                                runtime_override,
+                            )
+                        })
+                    }
+                    svg_data::ProfileLookup::Unknown => None,
+                }
             })
     } else {
         None
     };
 
     let attribute_markdown = if is_attribute_name_kind(&kind) {
-        svg_data::attribute(&node_text).map_or_else(
-            || external_attribute_hover(&kind, &node_text),
-            |attribute| {
-                if attribute.name.starts_with("xlink:") {
-                    return external_attribute_hover(&kind, attribute.name);
-                }
-                let runtime_override =
-                    runtime_compat.and_then(|runtime| runtime.attributes.get(&node_text));
-                Some(format_attribute_hover(attribute, runtime_override))
-            },
-        )
+        let lookup = svg_data::attribute_for_profile(profile, &node_text);
+        let profile_lifecycle = profile_lifecycle_hover_line(profile, lookup);
+        let runtime_override =
+            runtime_compat.and_then(|runtime| runtime.attributes.get(&node_text));
+
+        match lookup {
+            svg_data::ProfileLookup::Present { value, .. } => Some(
+                format_attribute_hover_with_profile(value, profile_lifecycle, runtime_override),
+            ),
+            svg_data::ProfileLookup::UnsupportedInProfile { .. } => svg_data::attribute(&node_text)
+                .map(|attribute| {
+                    format_attribute_hover_with_profile(
+                        attribute,
+                        profile_lifecycle,
+                        runtime_override,
+                    )
+                }),
+            svg_data::ProfileLookup::Unknown => external_attribute_hover(&kind, &node_text),
+        }
     } else {
         None
     };
@@ -747,8 +775,9 @@ impl LanguageServer for SvgLanguageServer {
             class_hover,
             property_hover,
         } = {
+            let profile = self.profile_config.read().await.resolved;
             let runtime_compat = self.runtime_compat.read().await;
-            build_hover_context(uri, pos, &doc, runtime_compat.as_ref())
+            build_hover_context(uri, pos, &doc, profile, runtime_compat.as_ref())
         };
 
         if let Some(markdown) = element_markdown {

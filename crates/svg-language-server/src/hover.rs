@@ -1,6 +1,8 @@
 use std::{fmt::Write as _, sync::LazyLock};
 
-use svg_data::{BaselineStatus, BrowserSupport, BrowserVersion};
+use svg_data::{
+    BaselineStatus, BrowserSupport, BrowserVersion, ProfileLookup, SpecLifecycle, SpecSnapshotId,
+};
 use tower_lsp_server::ls_types::Uri;
 use url::Url;
 
@@ -197,7 +199,11 @@ fn line_text_at(source: &str, row: usize) -> String {
         .to_owned()
 }
 
-pub fn format_element_hover(el: &svg_data::ElementDef, rt: Option<&CompatOverride>) -> String {
+pub fn format_element_hover_with_profile(
+    el: &svg_data::ElementDef,
+    profile_lifecycle: Option<String>,
+    rt: Option<&CompatOverride>,
+) -> String {
     let deprecated = rt.map_or(el.deprecated, |r| r.deprecated);
     let experimental = rt.map_or(el.experimental, |r| r.experimental);
     let baseline = rt
@@ -217,6 +223,11 @@ pub fn format_element_hover(el: &svg_data::ElementDef, rt: Option<&CompatOverrid
         parts.push("**Experimental**".to_owned());
     } else {
         parts.push(el.description.to_owned());
+    }
+
+    if let Some(profile_lifecycle) = profile_lifecycle {
+        parts.push(String::new());
+        parts.push(profile_lifecycle);
     }
 
     if show_unsupported
@@ -250,8 +261,9 @@ pub fn format_element_hover(el: &svg_data::ElementDef, rt: Option<&CompatOverrid
     parts.join("\n")
 }
 
-pub fn format_attribute_hover(
+pub fn format_attribute_hover_with_profile(
     attr: &svg_data::AttributeDef,
+    profile_lifecycle: Option<String>,
     rt: Option<&CompatOverride>,
 ) -> String {
     let deprecated = rt.map_or(attr.deprecated, |r| r.deprecated);
@@ -273,6 +285,11 @@ pub fn format_attribute_hover(
         parts.push("**Experimental**".to_owned());
     } else {
         parts.push(attr.description.to_owned());
+    }
+
+    if let Some(profile_lifecycle) = profile_lifecycle {
+        parts.push(String::new());
+        parts.push(profile_lifecycle);
     }
 
     if show_unsupported
@@ -324,6 +341,62 @@ pub fn format_attribute_hover(
     parts.push(links.join(" | "));
 
     parts.join("\n")
+}
+
+pub fn profile_lifecycle_hover_line<T>(
+    profile: SpecSnapshotId,
+    lookup: ProfileLookup<T>,
+) -> Option<String> {
+    match lookup {
+        ProfileLookup::Present { lifecycle, .. } => {
+            Some(format_profile_lifecycle_line(profile, lifecycle))
+        }
+        ProfileLookup::UnsupportedInProfile { known_in } => {
+            Some(format_unsupported_profile_lifecycle_line(profile, known_in))
+        }
+        ProfileLookup::Unknown => None,
+    }
+}
+
+fn format_profile_lifecycle_line(profile: SpecSnapshotId, lifecycle: SpecLifecycle) -> String {
+    let label = match lifecycle {
+        SpecLifecycle::Stable => "Stable",
+        SpecLifecycle::Experimental => "Experimental",
+        SpecLifecycle::Deprecated => "Deprecated",
+        SpecLifecycle::Obsolete => "Obsolete",
+    };
+    format!("**{label} in {}**", profile.as_str())
+}
+
+fn format_unsupported_profile_lifecycle_line(
+    profile: SpecSnapshotId,
+    known_in: &'static [SpecSnapshotId],
+) -> String {
+    let Some(selected_index) = snapshot_index(profile) else {
+        return format!("**Not in {}**", profile.as_str());
+    };
+    let first_known = known_in.first().copied();
+    let last_known = known_in.last().copied();
+
+    if let Some(last_known) = last_known
+        && snapshot_index(last_known).is_some_and(|known_index| known_index < selected_index)
+    {
+        return format!("**Obsolete after {}**", last_known.as_str());
+    }
+
+    if let Some(first_known) = first_known
+        && snapshot_index(first_known).is_some_and(|known_index| known_index > selected_index)
+    {
+        return format!("**Experimental in {}**", first_known.as_str());
+    }
+
+    format!("**Not in {}**", profile.as_str())
+}
+
+fn snapshot_index(snapshot: SpecSnapshotId) -> Option<usize> {
+    svg_data::spec_snapshots()
+        .iter()
+        .position(|candidate| *candidate == snapshot)
 }
 
 fn format_external_attribute_hover(
@@ -653,6 +726,8 @@ fn runtime_browser_override<'a>(
 
 #[cfg(test)]
 mod tests {
+    use svg_data::ProfileLookup;
+
     use super::*;
 
     #[test]
@@ -692,6 +767,36 @@ mod tests {
         assert_eq!(
             format_browser_support_line(Some(&baked), Some(&runtime)),
             "Chrome 120 | Edge ✗ | Firefox ✗ | Safari ✗"
+        );
+    }
+
+    #[test]
+    fn unsupported_profile_hover_line_marks_obsolete_after_last_known_snapshot() {
+        assert_eq!(
+            profile_lifecycle_hover_line(
+                SpecSnapshotId::Svg2EditorsDraft20250914,
+                ProfileLookup::<()>::UnsupportedInProfile {
+                    known_in: &[
+                        SpecSnapshotId::Svg11Rec20030114,
+                        SpecSnapshotId::Svg11Rec20110816,
+                    ],
+                },
+            ),
+            Some("**Obsolete after Svg11Rec20110816**".to_owned())
+        );
+    }
+
+    #[test]
+    fn present_profile_hover_line_uses_selected_profile_lifecycle() {
+        assert_eq!(
+            profile_lifecycle_hover_line(
+                SpecSnapshotId::Svg2EditorsDraft20250914,
+                ProfileLookup::Present {
+                    value: (),
+                    lifecycle: SpecLifecycle::Experimental,
+                },
+            ),
+            Some("**Experimental in Svg2EditorsDraft20250914**".to_owned())
         );
     }
 }

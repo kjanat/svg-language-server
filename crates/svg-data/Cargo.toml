@@ -13,13 +13,18 @@ categories           = ["development-tools::build-utils", "web-programming"]
 build                = "build.rs"
 
 [dependencies]
+sha2                 = "0.10"
 serde.workspace      = true
 serde_json.workspace = true
+toml                 = "0.8"
 
 [build-dependencies]
 serde.workspace      = true
 serde_json.workspace = true
 ureq.workspace       = true
+
+[dev-dependencies]
+tempfile.workspace = true
 
 [lints]
 workspace = true

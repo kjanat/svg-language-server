@@ -15,6 +15,7 @@ Started: 2026-04-09
 - External specs start as pinned typed foreign references, not full ingest.
 - Source acquisition is staged as checked-in TOML manifests under `crates/svg-data/data/sources/`, one file per snapshot or external spec set.
 - Snapshot schemas should use serde-tagged enums plus canonical `SpecSnapshotId` values so checked-in JSON stays explicit and stable.
+- Shared snapshot ingestion should flow through four reusable steps: typed manifest load, cache-backed fetch, manifest-derived provenance, and stable per-snapshot JSON emission.
 
 ---
 
@@ -30,3 +31,10 @@ Started: 2026-04-09
 - Added `crates/svg-data/src/snapshot_schema.rs` with typed serde-backed schemas for `snapshot.json`, per-snapshot fact files, provenance, exceptions, reviews, and the normalized grammar AST.
 - Reused canonical `SpecSnapshotId` values in checked-in snapshot metadata by deriving serde support in `crates/svg-data/src/types.rs`, and exported the new module from `crates/svg-data/src/lib.rs`.
 - **Learnings:** keep schema shapes tagged and typed up front; it prevents ambiguous JSON now and gives the extractor pipeline a stable contract later.
+
+## Task - [extractor-framework]
+
+- Added `crates/svg-data/src/extraction.rs` with typed source-manifest loading, cache-backed fetch helpers, manifest-derived snapshot metadata/provenance builders, and stable per-snapshot JSON dataset writing.
+- Updated `crates/svg-data/src/lib.rs` and `crates/svg-data/Cargo.toml` to expose the extractor helpers and support TOML parsing, real SHA-256 cache sidecars, and tempdir-backed tests.
+- Ran `cargo fmt --all`, `cargo clippy --workspace --all-targets --all-features -- -D clippy::all`, `cargo test -p svg-data`, `cargo test -p svg-lint`, and `cargo test -p svg-language-server`.
+- **Learnings:** keeping fetch logic generic over caller-provided network loaders lets the shared framework own cache/provenance/write behavior without forcing live HTTP into the runtime crate API.

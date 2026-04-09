@@ -21,6 +21,8 @@ mod catalog;
 pub mod categories;
 /// Shared BCD JSON parsing helpers for runtime compat overlays.
 pub mod compat_parse;
+/// Shared manifest, cache, provenance, and dataset emission helpers.
+pub mod extraction;
 /// Typed schema for normalized per-snapshot checked-in SVG data.
 pub mod snapshot_schema;
 /// Public catalog type definitions.

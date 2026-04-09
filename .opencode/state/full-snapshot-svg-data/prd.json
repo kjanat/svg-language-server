@@ -29,7 +29,7 @@
 				"snapshot-schema"
 			],
 			"priority": "architecture",
-			"passes": false
+			"passes": true
 		},
 		{
 			"id": "svg11-2003-ingest",

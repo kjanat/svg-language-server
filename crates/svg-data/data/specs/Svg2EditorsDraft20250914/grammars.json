@@ -2,48 +2,6 @@
   "schema_version": 1,
   "grammars": [
     {
-      "id": "color",
-      "title": "Color value",
-      "root": {
-        "kind": "datatype_ref",
-        "name": "color"
-      },
-      "provenance": [
-        {
-          "source_id": "definitions",
-          "source_kind": "definitions_xml",
-          "pin": {
-            "kind": "git_commit",
-            "repository": "https://github.com/w3c/svgwg",
-            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-            "path": null
-          },
-          "locator": {
-            "kind": "definition",
-            "file": "definitions.xml",
-            "id": "fill"
-          },
-          "confidence": "derived"
-        },
-        {
-          "source_id": "definitions",
-          "source_kind": "definitions_xml",
-          "pin": {
-            "kind": "git_commit",
-            "repository": "https://github.com/w3c/svgwg",
-            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-            "path": null
-          },
-          "locator": {
-            "kind": "definition",
-            "file": "definitions.xml",
-            "id": "fill"
-          },
-          "confidence": "derived"
-        }
-      ]
-    },
-    {
       "id": "coordinate-pair",
       "title": "Coordinate pair",
       "root": {
@@ -850,61 +808,6 @@
       ]
     },
     {
-      "id": "enum-restart",
-      "title": "restart keywords",
-      "root": {
-        "kind": "choice",
-        "options": [
-          {
-            "kind": "keyword",
-            "value": "always"
-          },
-          {
-            "kind": "keyword",
-            "value": "whenNotActive"
-          },
-          {
-            "kind": "keyword",
-            "value": "never"
-          }
-        ]
-      },
-      "provenance": [
-        {
-          "source_id": "definitions",
-          "source_kind": "definitions_xml",
-          "pin": {
-            "kind": "git_commit",
-            "repository": "https://github.com/w3c/svgwg",
-            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-            "path": null
-          },
-          "locator": {
-            "kind": "definition",
-            "file": "definitions.xml",
-            "id": "restart"
-          },
-          "confidence": "derived"
-        },
-        {
-          "source_id": "definitions",
-          "source_kind": "definitions_xml",
-          "pin": {
-            "kind": "git_commit",
-            "repository": "https://github.com/w3c/svgwg",
-            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-            "path": null
-          },
-          "locator": {
-            "kind": "definition",
-            "file": "definitions.xml",
-            "id": "restart"
-          },
-          "confidence": "derived"
-        }
-      ]
-    },
-    {
       "id": "enum-spreadmethod",
       "title": "spreadMethod keywords",
       "root": {
@@ -1239,99 +1142,6 @@
       ]
     },
     {
-      "id": "length",
-      "title": "Length value",
-      "root": {
-        "kind": "datatype_ref",
-        "name": "length"
-      },
-      "provenance": [
-        {
-          "source_id": "definitions",
-          "source_kind": "definitions_xml",
-          "pin": {
-            "kind": "git_commit",
-            "repository": "https://github.com/w3c/svgwg",
-            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-            "path": null
-          },
-          "locator": {
-            "kind": "definition",
-            "file": "definitions.xml",
-            "id": "stroke-width"
-          },
-          "confidence": "derived"
-        },
-        {
-          "source_id": "definitions",
-          "source_kind": "definitions_xml",
-          "pin": {
-            "kind": "git_commit",
-            "repository": "https://github.com/w3c/svgwg",
-            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-            "path": null
-          },
-          "locator": {
-            "kind": "definition",
-            "file": "definitions.xml",
-            "id": "stroke-width"
-          },
-          "confidence": "derived"
-        }
-      ]
-    },
-    {
-      "id": "number-or-percentage",
-      "title": "Number or percentage",
-      "root": {
-        "kind": "choice",
-        "options": [
-          {
-            "kind": "datatype_ref",
-            "name": "number"
-          },
-          {
-            "kind": "datatype_ref",
-            "name": "percentage"
-          }
-        ]
-      },
-      "provenance": [
-        {
-          "source_id": "definitions",
-          "source_kind": "definitions_xml",
-          "pin": {
-            "kind": "git_commit",
-            "repository": "https://github.com/w3c/svgwg",
-            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-            "path": null
-          },
-          "locator": {
-            "kind": "definition",
-            "file": "definitions.xml",
-            "id": "stroke-opacity"
-          },
-          "confidence": "derived"
-        },
-        {
-          "source_id": "definitions",
-          "source_kind": "definitions_xml",
-          "pin": {
-            "kind": "git_commit",
-            "repository": "https://github.com/w3c/svgwg",
-            "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-            "path": null
-          },
-          "locator": {
-            "kind": "definition",
-            "file": "definitions.xml",
-            "id": "stroke-opacity"
-          },
-          "confidence": "derived"
-        }
-      ]
-    },
-    {
       "id": "path-data",
       "title": "Path data",
       "root": {
@@ -1612,7 +1422,7 @@
           "locator": {
             "kind": "definition",
             "file": "definitions.xml",
-            "id": "clip-path"
+            "id": "href"
           },
           "confidence": "derived"
         },
@@ -1628,7 +1438,7 @@
           "locator": {
             "kind": "definition",
             "file": "definitions.xml",
-            "id": "clip-path"
+            "id": "href"
           },
           "confidence": "derived"
         }

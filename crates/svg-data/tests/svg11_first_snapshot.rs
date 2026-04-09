@@ -27,7 +27,7 @@ fn svg2_cr_snapshot_matches_profile_seed() {
     assert_svg2_snapshot_matches_profile_seed(
         SpecSnapshotId::Svg2Cr20181004,
         "2018-10-04",
-        6,
+        12,
         "foreign grammar and module references",
     );
 }
@@ -37,7 +37,7 @@ fn svg2_editors_draft_snapshot_matches_profile_seed() {
     assert_svg2_snapshot_matches_profile_seed(
         SpecSnapshotId::Svg2EditorsDraft20250914,
         "2025-09-14",
-        6,
+        12,
         "pinned svgwg commit and `definitions.xml`",
     );
 }
@@ -62,6 +62,12 @@ fn assert_svg11_snapshot_matches_profile_seed(
     assert_eq!(metadata.snapshot, snapshot);
     assert_eq!(metadata.date, expected_date);
     assert_eq!(metadata.pinned_sources.len(), expected_pinned_sources);
+    assert!(
+        metadata
+            .pinned_sources
+            .iter()
+            .all(|source| !expected_foreign_ref_source_ids().contains(&source.input_id.as_str()))
+    );
 
     let expected_elements: BTreeSet<&str> = elements_with_profile(snapshot)
         .iter()
@@ -171,6 +177,7 @@ fn assert_svg2_snapshot_matches_profile_seed(
     assert_eq!(metadata.snapshot, snapshot);
     assert_eq!(metadata.date, expected_date);
     assert_eq!(metadata.pinned_sources.len(), expected_pinned_sources);
+    assert_foreign_pinned_sources(&metadata);
 
     let expected_elements: BTreeSet<&str> = elements_with_profile(snapshot)
         .iter()
@@ -245,6 +252,7 @@ fn assert_svg2_snapshot_matches_profile_seed(
     assert!(!grammars.grammars.is_empty());
 
     assert_snapshot_value_syntax_matches_catalog(&snapshot_attributes, &grammars, snapshot);
+    assert_svg2_foreign_refs(&snapshot_attributes);
 
     assert!(
         elements
@@ -274,9 +282,11 @@ fn assert_snapshot_value_syntax_matches_catalog(
         .map(|grammar| grammar.id.as_str())
         .collect();
 
-    assert!(grammar_ids.contains("color"));
-    assert!(grammar_ids.contains("length"));
-    assert!(grammar_ids.contains("number-or-percentage"));
+    if !uses_foreign_css_refs(snapshot) {
+        assert!(grammar_ids.contains("color"));
+        assert!(grammar_ids.contains("length"));
+        assert!(grammar_ids.contains("number-or-percentage"));
+    }
     assert!(
         grammar_ids
             .iter()
@@ -301,6 +311,19 @@ fn assert_snapshot_value_syntax_matches_catalog(
             }
         };
 
+        if let Some((spec, target)) =
+            expected_foreign_ref(snapshot, catalog_attribute.name, &catalog_attribute.values)
+        {
+            assert!(matches!(
+                &snapshot_attribute.value_syntax,
+                ValueSyntax::ForeignRef {
+                    spec: actual_spec,
+                    target: actual_target,
+                } if actual_spec == spec && actual_target == target
+            ));
+            continue;
+        }
+
         match &catalog_attribute.values {
             AttributeValues::FreeText => {
                 assert!(matches!(
@@ -321,6 +344,109 @@ fn assert_snapshot_value_syntax_matches_catalog(
                 }
             },
         }
+    }
+}
+
+const fn uses_foreign_css_refs(snapshot: SpecSnapshotId) -> bool {
+    matches!(
+        snapshot,
+        SpecSnapshotId::Svg2Cr20181004 | SpecSnapshotId::Svg2EditorsDraft20250914
+    )
+}
+
+fn expected_foreign_ref(
+    snapshot: SpecSnapshotId,
+    attribute_name: &str,
+    values: &AttributeValues,
+) -> Option<(&'static str, &'static str)> {
+    if !uses_foreign_css_refs(snapshot) {
+        return None;
+    }
+
+    match attribute_name {
+        "begin" => Some(("svg-animations", "begin")),
+        "dur" => Some(("svg-animations", "dur")),
+        "end" => Some(("svg-animations", "end")),
+        "repeatDur" => Some(("svg-animations", "repeatDur")),
+        "keyTimes" => Some(("svg-animations", "keyTimes")),
+        "keySplines" => Some(("svg-animations", "keySplines")),
+        "restart" => Some(("svg-animations", "restart")),
+        "keyPoints" => Some(("svg-animations", "keyPoints")),
+        "repeatCount" => Some(("svg-animations", "repeatCount")),
+        "clip-path" => Some(("css-masking-1", "clip-path")),
+        "mask" => Some(("css-masking-1", "mask")),
+        "clipPathUnits" => Some(("css-masking-1", "clipPathUnits")),
+        "maskContentUnits" => Some(("css-masking-1", "maskContentUnits")),
+        "maskUnits" => Some(("css-masking-1", "maskUnits")),
+        "filter" => Some(("filter-effects-1", "filter")),
+        "operator" => Some(("compositing-1", "operator")),
+        _ => match values {
+            AttributeValues::Color => Some(("css-color-4", "<color>")),
+            AttributeValues::Length => Some(("css-values-3", "<length>")),
+            AttributeValues::NumberOrPercentage => Some(("css-values-3", "<number-or-percentage>")),
+            _ => None,
+        },
+    }
+}
+
+const fn expected_foreign_ref_source_ids() -> &'static [&'static str] {
+    &[
+        "svg-animations",
+        "filter-effects-1",
+        "css-masking-1",
+        "compositing-1",
+        "css-values-3",
+        "css-color-4",
+    ]
+}
+
+fn assert_foreign_pinned_sources(metadata: &SnapshotMetadataFile) {
+    let input_ids: BTreeSet<&str> = metadata
+        .pinned_sources
+        .iter()
+        .map(|source| source.input_id.as_str())
+        .collect();
+
+    for input_id in expected_foreign_ref_source_ids() {
+        assert!(
+            input_ids.contains(input_id),
+            "missing foreign pin {input_id}"
+        );
+    }
+}
+
+fn assert_svg2_foreign_refs(snapshot_attributes: &[SnapshotAttributeRecord]) {
+    for (name, spec, target) in [
+        ("fill", "css-color-4", "<color>"),
+        ("stroke-width", "css-values-3", "<length>"),
+        ("opacity", "css-values-3", "<number-or-percentage>"),
+        ("clip-path", "css-masking-1", "clip-path"),
+        ("mask", "css-masking-1", "mask"),
+        ("filter", "filter-effects-1", "filter"),
+        ("begin", "svg-animations", "begin"),
+        ("dur", "svg-animations", "dur"),
+        ("repeatCount", "svg-animations", "repeatCount"),
+        ("keySplines", "svg-animations", "keySplines"),
+        ("operator", "compositing-1", "operator"),
+    ] {
+        let attribute = snapshot_attributes
+            .iter()
+            .find(|attribute| attribute.name == name)
+            .unwrap_or_else(|| panic!("missing attribute {name}"));
+        assert!(matches!(
+            &attribute.value_syntax,
+            ValueSyntax::ForeignRef {
+                spec: actual_spec,
+                target: actual_target,
+            } if actual_spec == spec && actual_target == target
+        ));
+        assert!(
+            attribute
+                .provenance
+                .iter()
+                .any(|provenance| provenance.source_id == spec),
+            "missing foreign provenance for {name}"
+        );
     }
 }
 

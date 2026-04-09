@@ -21,6 +21,7 @@ Started: 2026-04-09
 - Shared snapshot seeds should bind provenance inputs per snapshot so one generator can swap DTD-backed SVG 1.1 facts for TR-backed SVG 2 facts without forking the write path.
 - Snapshot seed provenance cannot assume shared `element-index` or `attribute-index` inputs; bind those ids and locator styles per snapshot manifest.
 - Seed grammar normalization can stay deterministic by deriving shared grammar ids from `AttributeValues` variants and per-attribute enum grammar ids from attribute names, while leaving only `FreeText` as the explicit opaque escape hatch.
+- SVG 2 foreign refs should add only the actually used external pins to `snapshot.json` and append manual-review provenance instead of replacing the snapshot-local source trail.
 
 ---
 
@@ -81,3 +82,10 @@ Started: 2026-04-09
 - Regenerated all four checked-in snapshot datasets under `crates/svg-data/data/specs/` so review counts and attribute syntax now reflect normalized grammar coverage instead of opaque placeholders.
 - Extended `crates/svg-data/tests/svg11_first_snapshot.rs` to assert grammar counts, shared grammar presence, and that every non-`FreeText` catalog attribute present in a snapshot resolves to a checked-in grammar id.
 - **Learnings:** driving grammar seeding from `AttributeValues` gives broad structured coverage with minimal new extraction code; the remaining opaque cases are the intentional free-form text boundary, not a silent fallback for SVG-owned syntax.
+
+## Task - [foreign-typed-refs]
+
+- Extended `crates/svg-data/examples/generate_snapshot_seed.rs` so SVG 2 seeds attach only the used foreign spec pins and remap CSS-backed, masking, filter/compositing, and animation value syntax to typed `foreign_ref` entries with appended manual-review provenance.
+- Regenerated `crates/svg-data/data/specs/Svg2Cr20181004/` and `crates/svg-data/data/specs/Svg2EditorsDraft20250914/` so their snapshot metadata, attribute syntax, and review notes reflect the pinned foreign references.
+- Extended `crates/svg-data/tests/svg11_first_snapshot.rs` to assert the exact SVG 2 foreign pins, foreign value targets, and retained non-SVG2 behavior.
+- **Learnings:** record-level attribute provenance is enough for seeded foreign refs as long as the snapshot keeps its native provenance entries and appends one explicit foreign manual-review provenance record per remapped value syntax.

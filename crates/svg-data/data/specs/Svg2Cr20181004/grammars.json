@@ -2,42 +2,6 @@
   "schema_version": 1,
   "grammars": [
     {
-      "id": "color",
-      "title": "Color value",
-      "root": {
-        "kind": "datatype_ref",
-        "name": "color"
-      },
-      "provenance": [
-        {
-          "source_id": "attribute-index",
-          "source_kind": "index",
-          "pin": {
-            "kind": "url",
-            "url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-          },
-          "locator": {
-            "kind": "fragment",
-            "anchor": "fill"
-          },
-          "confidence": "derived"
-        },
-        {
-          "source_id": "tr-root",
-          "source_kind": "html",
-          "pin": {
-            "kind": "url",
-            "url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-          },
-          "locator": {
-            "kind": "fragment",
-            "anchor": "fill"
-          },
-          "confidence": "derived"
-        }
-      ]
-    },
-    {
       "id": "coordinate-pair",
       "title": "Coordinate pair",
       "root": {
@@ -766,55 +730,6 @@
       ]
     },
     {
-      "id": "enum-restart",
-      "title": "restart keywords",
-      "root": {
-        "kind": "choice",
-        "options": [
-          {
-            "kind": "keyword",
-            "value": "always"
-          },
-          {
-            "kind": "keyword",
-            "value": "whenNotActive"
-          },
-          {
-            "kind": "keyword",
-            "value": "never"
-          }
-        ]
-      },
-      "provenance": [
-        {
-          "source_id": "attribute-index",
-          "source_kind": "index",
-          "pin": {
-            "kind": "url",
-            "url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-          },
-          "locator": {
-            "kind": "fragment",
-            "anchor": "restart"
-          },
-          "confidence": "derived"
-        },
-        {
-          "source_id": "tr-root",
-          "source_kind": "html",
-          "pin": {
-            "kind": "url",
-            "url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-          },
-          "locator": {
-            "kind": "fragment",
-            "anchor": "restart"
-          },
-          "confidence": "derived"
-        }
-      ]
-    },
-    {
       "id": "enum-spreadmethod",
       "title": "spreadMethod keywords",
       "root": {
@@ -1113,87 +1028,6 @@
       ]
     },
     {
-      "id": "length",
-      "title": "Length value",
-      "root": {
-        "kind": "datatype_ref",
-        "name": "length"
-      },
-      "provenance": [
-        {
-          "source_id": "attribute-index",
-          "source_kind": "index",
-          "pin": {
-            "kind": "url",
-            "url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-          },
-          "locator": {
-            "kind": "fragment",
-            "anchor": "stroke-width"
-          },
-          "confidence": "derived"
-        },
-        {
-          "source_id": "tr-root",
-          "source_kind": "html",
-          "pin": {
-            "kind": "url",
-            "url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-          },
-          "locator": {
-            "kind": "fragment",
-            "anchor": "stroke-width"
-          },
-          "confidence": "derived"
-        }
-      ]
-    },
-    {
-      "id": "number-or-percentage",
-      "title": "Number or percentage",
-      "root": {
-        "kind": "choice",
-        "options": [
-          {
-            "kind": "datatype_ref",
-            "name": "number"
-          },
-          {
-            "kind": "datatype_ref",
-            "name": "percentage"
-          }
-        ]
-      },
-      "provenance": [
-        {
-          "source_id": "attribute-index",
-          "source_kind": "index",
-          "pin": {
-            "kind": "url",
-            "url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-          },
-          "locator": {
-            "kind": "fragment",
-            "anchor": "stroke-opacity"
-          },
-          "confidence": "derived"
-        },
-        {
-          "source_id": "tr-root",
-          "source_kind": "html",
-          "pin": {
-            "kind": "url",
-            "url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-          },
-          "locator": {
-            "kind": "fragment",
-            "anchor": "stroke-opacity"
-          },
-          "confidence": "derived"
-        }
-      ]
-    },
-    {
       "id": "path-data",
       "title": "Path data",
       "root": {
@@ -1447,7 +1281,7 @@
           },
           "locator": {
             "kind": "fragment",
-            "anchor": "clip-path"
+            "anchor": "href"
           },
           "confidence": "derived"
         },
@@ -1460,7 +1294,7 @@
           },
           "locator": {
             "kind": "fragment",
-            "anchor": "clip-path"
+            "anchor": "href"
           },
           "confidence": "derived"
         }

@@ -70,6 +70,60 @@
         "commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
         "path": null
       }
+    },
+    {
+      "manifest_id": "foreign-references",
+      "input_id": "svg-animations",
+      "authority": "foreign_reference",
+      "pin": {
+        "kind": "url",
+        "url": "https://svgwg.org/specs/animations/"
+      }
+    },
+    {
+      "manifest_id": "foreign-references",
+      "input_id": "filter-effects-1",
+      "authority": "foreign_reference",
+      "pin": {
+        "kind": "url",
+        "url": "https://drafts.fxtf.org/filter-effects/"
+      }
+    },
+    {
+      "manifest_id": "foreign-references",
+      "input_id": "css-masking-1",
+      "authority": "foreign_reference",
+      "pin": {
+        "kind": "url",
+        "url": "https://drafts.fxtf.org/css-masking-1/"
+      }
+    },
+    {
+      "manifest_id": "foreign-references",
+      "input_id": "compositing-1",
+      "authority": "foreign_reference",
+      "pin": {
+        "kind": "url",
+        "url": "https://www.w3.org/TR/2015/CR-compositing-1-20150113/"
+      }
+    },
+    {
+      "manifest_id": "foreign-references",
+      "input_id": "css-values-3",
+      "authority": "foreign_reference",
+      "pin": {
+        "kind": "url",
+        "url": "https://www.w3.org/TR/css-values-3/"
+      }
+    },
+    {
+      "manifest_id": "foreign-references",
+      "input_id": "css-color-4",
+      "authority": "foreign_reference",
+      "pin": {
+        "kind": "url",
+        "url": "https://drafts.csswg.org/css-color-4/"
+      }
     }
   ],
   "ingestion": {

@@ -3,8 +3,9 @@
     "name": "fill",
     "title": "Defines the color used to paint the interior of the element.",
     "value_syntax": {
-      "kind": "grammar_ref",
-      "grammar_id": "color"
+      "kind": "foreign_ref",
+      "spec": "css-color-4",
+      "target": "<color>"
     },
     "default_value": {
       "kind": "none"
@@ -36,6 +37,19 @@
           "anchor": "fill"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-color-4",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://drafts.csswg.org/css-color-4/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "<color>"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -43,8 +57,9 @@
     "name": "stroke",
     "title": "Defines the color used to paint the outline of the element.",
     "value_syntax": {
-      "kind": "grammar_ref",
-      "grammar_id": "color"
+      "kind": "foreign_ref",
+      "spec": "css-color-4",
+      "target": "<color>"
     },
     "default_value": {
       "kind": "none"
@@ -76,6 +91,19 @@
           "anchor": "stroke"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-color-4",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://drafts.csswg.org/css-color-4/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "<color>"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -83,8 +111,9 @@
     "name": "stroke-width",
     "title": "Defines the width of the stroke.",
     "value_syntax": {
-      "kind": "grammar_ref",
-      "grammar_id": "length"
+      "kind": "foreign_ref",
+      "spec": "css-values-3",
+      "target": "<length>"
     },
     "default_value": {
       "kind": "none"
@@ -116,6 +145,19 @@
           "anchor": "stroke-width"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-values-3",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://www.w3.org/TR/css-values-3/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "<length>"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -244,8 +286,9 @@
     "name": "stroke-opacity",
     "title": "Defines the opacity of the stroke.",
     "value_syntax": {
-      "kind": "grammar_ref",
-      "grammar_id": "number-or-percentage"
+      "kind": "foreign_ref",
+      "spec": "css-values-3",
+      "target": "<number-or-percentage>"
     },
     "default_value": {
       "kind": "none"
@@ -277,6 +320,19 @@
           "anchor": "stroke-opacity"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-values-3",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://www.w3.org/TR/css-values-3/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "<number-or-percentage>"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -284,8 +340,9 @@
     "name": "fill-opacity",
     "title": "Defines the opacity of the fill.",
     "value_syntax": {
-      "kind": "grammar_ref",
-      "grammar_id": "number-or-percentage"
+      "kind": "foreign_ref",
+      "spec": "css-values-3",
+      "target": "<number-or-percentage>"
     },
     "default_value": {
       "kind": "none"
@@ -317,6 +374,19 @@
           "anchor": "fill-opacity"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-values-3",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://www.w3.org/TR/css-values-3/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "<number-or-percentage>"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -324,8 +394,9 @@
     "name": "opacity",
     "title": "Defines the transparency of the element.",
     "value_syntax": {
-      "kind": "grammar_ref",
-      "grammar_id": "number-or-percentage"
+      "kind": "foreign_ref",
+      "spec": "css-values-3",
+      "target": "<number-or-percentage>"
     },
     "default_value": {
       "kind": "none"
@@ -357,6 +428,19 @@
           "anchor": "opacity"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-values-3",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://www.w3.org/TR/css-values-3/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "<number-or-percentage>"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -444,8 +528,9 @@
     "name": "color",
     "title": "Defines the value for the currentColor keyword.",
     "value_syntax": {
-      "kind": "grammar_ref",
-      "grammar_id": "color"
+      "kind": "foreign_ref",
+      "spec": "css-color-4",
+      "target": "<color>"
     },
     "default_value": {
       "kind": "none"
@@ -477,6 +562,19 @@
           "anchor": "color"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-color-4",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://drafts.csswg.org/css-color-4/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "<color>"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -605,8 +703,9 @@
     "name": "font-size",
     "title": "Specifies the size of the font.",
     "value_syntax": {
-      "kind": "grammar_ref",
-      "grammar_id": "length"
+      "kind": "foreign_ref",
+      "spec": "css-values-3",
+      "target": "<length>"
     },
     "default_value": {
       "kind": "none"
@@ -638,6 +737,19 @@
           "anchor": "font-size"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-values-3",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://www.w3.org/TR/css-values-3/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "<length>"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -845,8 +957,9 @@
     "name": "clip-path",
     "title": "Defines a clipping path.",
     "value_syntax": {
-      "kind": "grammar_ref",
-      "grammar_id": "url-reference"
+      "kind": "foreign_ref",
+      "spec": "css-masking-1",
+      "target": "clip-path"
     },
     "default_value": {
       "kind": "none"
@@ -878,6 +991,19 @@
           "anchor": "clip-path"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-masking-1",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://drafts.fxtf.org/css-masking-1/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "clip-path"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -885,8 +1011,9 @@
     "name": "mask",
     "title": "Defines a mask.",
     "value_syntax": {
-      "kind": "grammar_ref",
-      "grammar_id": "url-reference"
+      "kind": "foreign_ref",
+      "spec": "css-masking-1",
+      "target": "mask"
     },
     "default_value": {
       "kind": "none"
@@ -918,6 +1045,19 @@
           "anchor": "mask"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-masking-1",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://drafts.fxtf.org/css-masking-1/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "mask"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -925,8 +1065,9 @@
     "name": "filter",
     "title": "Defines a filter effect.",
     "value_syntax": {
-      "kind": "grammar_ref",
-      "grammar_id": "url-reference"
+      "kind": "foreign_ref",
+      "spec": "filter-effects-1",
+      "target": "filter"
     },
     "default_value": {
       "kind": "none"
@@ -958,6 +1099,19 @@
           "anchor": "filter"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "filter-effects-1",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://drafts.fxtf.org/filter-effects/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "filter"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -1328,8 +1482,9 @@
     "name": "x",
     "title": "Defines the x coordinate.",
     "value_syntax": {
-      "kind": "grammar_ref",
-      "grammar_id": "length"
+      "kind": "foreign_ref",
+      "spec": "css-values-3",
+      "target": "<length>"
     },
     "default_value": {
       "kind": "none"
@@ -1361,6 +1516,19 @@
           "anchor": "x"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-values-3",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://www.w3.org/TR/css-values-3/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "<length>"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -1368,8 +1536,9 @@
     "name": "y",
     "title": "Defines the y coordinate.",
     "value_syntax": {
-      "kind": "grammar_ref",
-      "grammar_id": "length"
+      "kind": "foreign_ref",
+      "spec": "css-values-3",
+      "target": "<length>"
     },
     "default_value": {
       "kind": "none"
@@ -1401,6 +1570,19 @@
           "anchor": "y"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-values-3",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://www.w3.org/TR/css-values-3/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "<length>"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -1408,8 +1590,9 @@
     "name": "width",
     "title": "Defines the width.",
     "value_syntax": {
-      "kind": "grammar_ref",
-      "grammar_id": "length"
+      "kind": "foreign_ref",
+      "spec": "css-values-3",
+      "target": "<length>"
     },
     "default_value": {
       "kind": "none"
@@ -1441,6 +1624,19 @@
           "anchor": "width"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-values-3",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://www.w3.org/TR/css-values-3/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "<length>"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -1448,8 +1644,9 @@
     "name": "height",
     "title": "Defines the height.",
     "value_syntax": {
-      "kind": "grammar_ref",
-      "grammar_id": "length"
+      "kind": "foreign_ref",
+      "spec": "css-values-3",
+      "target": "<length>"
     },
     "default_value": {
       "kind": "none"
@@ -1481,6 +1678,19 @@
           "anchor": "height"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-values-3",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://www.w3.org/TR/css-values-3/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "<length>"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -1488,8 +1698,9 @@
     "name": "cx",
     "title": "Defines the x coordinate of the center.",
     "value_syntax": {
-      "kind": "grammar_ref",
-      "grammar_id": "length"
+      "kind": "foreign_ref",
+      "spec": "css-values-3",
+      "target": "<length>"
     },
     "default_value": {
       "kind": "none"
@@ -1521,6 +1732,19 @@
           "anchor": "cx"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-values-3",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://www.w3.org/TR/css-values-3/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "<length>"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -1528,8 +1752,9 @@
     "name": "cy",
     "title": "Defines the y coordinate of the center.",
     "value_syntax": {
-      "kind": "grammar_ref",
-      "grammar_id": "length"
+      "kind": "foreign_ref",
+      "spec": "css-values-3",
+      "target": "<length>"
     },
     "default_value": {
       "kind": "none"
@@ -1561,6 +1786,19 @@
           "anchor": "cy"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-values-3",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://www.w3.org/TR/css-values-3/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "<length>"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -1568,8 +1806,9 @@
     "name": "r",
     "title": "Defines the radius.",
     "value_syntax": {
-      "kind": "grammar_ref",
-      "grammar_id": "length"
+      "kind": "foreign_ref",
+      "spec": "css-values-3",
+      "target": "<length>"
     },
     "default_value": {
       "kind": "none"
@@ -1601,6 +1840,19 @@
           "anchor": "r"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-values-3",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://www.w3.org/TR/css-values-3/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "<length>"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -1608,8 +1860,9 @@
     "name": "rx",
     "title": "Defines the horizontal radius.",
     "value_syntax": {
-      "kind": "grammar_ref",
-      "grammar_id": "length"
+      "kind": "foreign_ref",
+      "spec": "css-values-3",
+      "target": "<length>"
     },
     "default_value": {
       "kind": "none"
@@ -1641,6 +1894,19 @@
           "anchor": "rx"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-values-3",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://www.w3.org/TR/css-values-3/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "<length>"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -1648,8 +1914,9 @@
     "name": "ry",
     "title": "Defines the vertical radius.",
     "value_syntax": {
-      "kind": "grammar_ref",
-      "grammar_id": "length"
+      "kind": "foreign_ref",
+      "spec": "css-values-3",
+      "target": "<length>"
     },
     "default_value": {
       "kind": "none"
@@ -1681,6 +1948,19 @@
           "anchor": "ry"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-values-3",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://www.w3.org/TR/css-values-3/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "<length>"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -1688,8 +1968,9 @@
     "name": "x1",
     "title": "Defines the first x coordinate.",
     "value_syntax": {
-      "kind": "grammar_ref",
-      "grammar_id": "length"
+      "kind": "foreign_ref",
+      "spec": "css-values-3",
+      "target": "<length>"
     },
     "default_value": {
       "kind": "none"
@@ -1721,6 +2002,19 @@
           "anchor": "x1"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-values-3",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://www.w3.org/TR/css-values-3/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "<length>"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -1728,8 +2022,9 @@
     "name": "y1",
     "title": "Defines the first y coordinate.",
     "value_syntax": {
-      "kind": "grammar_ref",
-      "grammar_id": "length"
+      "kind": "foreign_ref",
+      "spec": "css-values-3",
+      "target": "<length>"
     },
     "default_value": {
       "kind": "none"
@@ -1761,6 +2056,19 @@
           "anchor": "y1"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-values-3",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://www.w3.org/TR/css-values-3/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "<length>"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -1768,8 +2076,9 @@
     "name": "x2",
     "title": "Defines the second x coordinate.",
     "value_syntax": {
-      "kind": "grammar_ref",
-      "grammar_id": "length"
+      "kind": "foreign_ref",
+      "spec": "css-values-3",
+      "target": "<length>"
     },
     "default_value": {
       "kind": "none"
@@ -1801,6 +2110,19 @@
           "anchor": "x2"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-values-3",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://www.w3.org/TR/css-values-3/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "<length>"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -1808,8 +2130,9 @@
     "name": "y2",
     "title": "Defines the second y coordinate.",
     "value_syntax": {
-      "kind": "grammar_ref",
-      "grammar_id": "length"
+      "kind": "foreign_ref",
+      "spec": "css-values-3",
+      "target": "<length>"
     },
     "default_value": {
       "kind": "none"
@@ -1841,6 +2164,19 @@
           "anchor": "y2"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-values-3",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://www.w3.org/TR/css-values-3/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "<length>"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -1928,8 +2264,9 @@
     "name": "stop-color",
     "title": "Defines the color of a gradient stop.",
     "value_syntax": {
-      "kind": "grammar_ref",
-      "grammar_id": "color"
+      "kind": "foreign_ref",
+      "spec": "css-color-4",
+      "target": "<color>"
     },
     "default_value": {
       "kind": "none"
@@ -1961,6 +2298,19 @@
           "anchor": "stop-color"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-color-4",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://drafts.csswg.org/css-color-4/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "<color>"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -1968,8 +2318,9 @@
     "name": "stop-opacity",
     "title": "Defines the opacity of a gradient stop.",
     "value_syntax": {
-      "kind": "grammar_ref",
-      "grammar_id": "number-or-percentage"
+      "kind": "foreign_ref",
+      "spec": "css-values-3",
+      "target": "<number-or-percentage>"
     },
     "default_value": {
       "kind": "none"
@@ -2001,6 +2352,19 @@
           "anchor": "stop-opacity"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-values-3",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://www.w3.org/TR/css-values-3/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "<number-or-percentage>"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -2008,8 +2372,9 @@
     "name": "offset",
     "title": "Defines the position of a gradient stop.",
     "value_syntax": {
-      "kind": "grammar_ref",
-      "grammar_id": "number-or-percentage"
+      "kind": "foreign_ref",
+      "spec": "css-values-3",
+      "target": "<number-or-percentage>"
     },
     "default_value": {
       "kind": "none"
@@ -2041,6 +2406,19 @@
           "anchor": "offset"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-values-3",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://www.w3.org/TR/css-values-3/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "<number-or-percentage>"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -2249,9 +2627,9 @@
     "name": "begin",
     "title": "Defines when an animation element should begin.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "text",
-      "reason": "free-form text stays explicit until a typed text model exists"
+      "kind": "foreign_ref",
+      "spec": "svg-animations",
+      "target": "begin"
     },
     "default_value": {
       "kind": "none"
@@ -2283,6 +2661,19 @@
           "anchor": "begin"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "svg-animations",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://svgwg.org/specs/animations/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "begin"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -2290,9 +2681,9 @@
     "name": "end",
     "title": "Defines an end value for an animation element.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "text",
-      "reason": "free-form text stays explicit until a typed text model exists"
+      "kind": "foreign_ref",
+      "spec": "svg-animations",
+      "target": "end"
     },
     "default_value": {
       "kind": "none"
@@ -2324,6 +2715,19 @@
           "anchor": "end"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "svg-animations",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://svgwg.org/specs/animations/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "end"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -2331,9 +2735,9 @@
     "name": "repeatDur",
     "title": "Specifies the total duration for repeating an animation.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "text",
-      "reason": "free-form text stays explicit until a typed text model exists"
+      "kind": "foreign_ref",
+      "spec": "svg-animations",
+      "target": "repeatDur"
     },
     "default_value": {
       "kind": "none"
@@ -2365,6 +2769,19 @@
           "anchor": "repeatDur"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "svg-animations",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://svgwg.org/specs/animations/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "repeatDur"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -2372,9 +2789,9 @@
     "name": "keyTimes",
     "title": "Specifies a semicolon-separated list of time values used to control the pacing of the animation.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "text",
-      "reason": "free-form text stays explicit until a typed text model exists"
+      "kind": "foreign_ref",
+      "spec": "svg-animations",
+      "target": "keyTimes"
     },
     "default_value": {
       "kind": "none"
@@ -2406,6 +2823,19 @@
           "anchor": "keyTimes"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "svg-animations",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://svgwg.org/specs/animations/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "keyTimes"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -2413,9 +2843,9 @@
     "name": "keySplines",
     "title": "Defines a set of Bezier control points associated with the keyTimes list.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "text",
-      "reason": "free-form text stays explicit until a typed text model exists"
+      "kind": "foreign_ref",
+      "spec": "svg-animations",
+      "target": "keySplines"
     },
     "default_value": {
       "kind": "none"
@@ -2447,6 +2877,19 @@
           "anchor": "keySplines"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "svg-animations",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://svgwg.org/specs/animations/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "keySplines"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -2534,8 +2977,9 @@
     "name": "restart",
     "title": "Controls the circumstances under which an animation can be restarted.",
     "value_syntax": {
-      "kind": "grammar_ref",
-      "grammar_id": "enum-restart"
+      "kind": "foreign_ref",
+      "spec": "svg-animations",
+      "target": "restart"
     },
     "default_value": {
       "kind": "none"
@@ -2567,6 +3011,19 @@
           "anchor": "restart"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "svg-animations",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://svgwg.org/specs/animations/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "restart"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -3353,9 +3810,9 @@
     "name": "clipPathUnits",
     "title": "The clipPathUnits SVG attribute.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "text",
-      "reason": "free-form text stays explicit until a typed text model exists"
+      "kind": "foreign_ref",
+      "spec": "css-masking-1",
+      "target": "clipPathUnits"
     },
     "default_value": {
       "kind": "none"
@@ -3387,6 +3844,19 @@
           "anchor": "clipPathUnits"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-masking-1",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://drafts.fxtf.org/css-masking-1/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "clipPathUnits"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -3886,9 +4356,9 @@
     "name": "dur",
     "title": "The dur SVG attribute.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "text",
-      "reason": "free-form text stays explicit until a typed text model exists"
+      "kind": "foreign_ref",
+      "spec": "svg-animations",
+      "target": "dur"
     },
     "default_value": {
       "kind": "none"
@@ -3920,6 +4390,19 @@
           "anchor": "dur"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "svg-animations",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://svgwg.org/specs/animations/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "dur"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -5116,9 +5599,9 @@
     "name": "keyPoints",
     "title": "The keyPoints SVG attribute.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "text",
-      "reason": "free-form text stays explicit until a typed text model exists"
+      "kind": "foreign_ref",
+      "spec": "svg-animations",
+      "target": "keyPoints"
     },
     "default_value": {
       "kind": "none"
@@ -5150,6 +5633,19 @@
           "anchor": "keyPoints"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "svg-animations",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://svgwg.org/specs/animations/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "keyPoints"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -5608,9 +6104,9 @@
     "name": "maskContentUnits",
     "title": "The maskContentUnits SVG attribute.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "text",
-      "reason": "free-form text stays explicit until a typed text model exists"
+      "kind": "foreign_ref",
+      "spec": "css-masking-1",
+      "target": "maskContentUnits"
     },
     "default_value": {
       "kind": "none"
@@ -5642,6 +6138,19 @@
           "anchor": "maskContentUnits"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-masking-1",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://drafts.fxtf.org/css-masking-1/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "maskContentUnits"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -5649,9 +6158,9 @@
     "name": "maskUnits",
     "title": "The maskUnits SVG attribute.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "text",
-      "reason": "free-form text stays explicit until a typed text model exists"
+      "kind": "foreign_ref",
+      "spec": "css-masking-1",
+      "target": "maskUnits"
     },
     "default_value": {
       "kind": "none"
@@ -5683,6 +6192,19 @@
           "anchor": "maskUnits"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "css-masking-1",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://drafts.fxtf.org/css-masking-1/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "maskUnits"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -5854,9 +6376,9 @@
     "name": "operator",
     "title": "The operator SVG attribute.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "text",
-      "reason": "free-form text stays explicit until a typed text model exists"
+      "kind": "foreign_ref",
+      "spec": "compositing-1",
+      "target": "operator"
     },
     "default_value": {
       "kind": "none"
@@ -5888,6 +6410,19 @@
           "anchor": "operator"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "compositing-1",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://www.w3.org/TR/2015/CR-compositing-1-20150113/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "operator"
+        },
+        "confidence": "manual"
       }
     ]
   },
@@ -6674,9 +7209,9 @@
     "name": "repeatCount",
     "title": "The repeatCount SVG attribute.",
     "value_syntax": {
-      "kind": "opaque",
-      "display": "text",
-      "reason": "free-form text stays explicit until a typed text model exists"
+      "kind": "foreign_ref",
+      "spec": "svg-animations",
+      "target": "repeatCount"
     },
     "default_value": {
       "kind": "none"
@@ -6708,6 +7243,19 @@
           "anchor": "repeatCount"
         },
         "confidence": "derived"
+      },
+      {
+        "source_id": "svg-animations",
+        "source_kind": "manual_review",
+        "pin": {
+          "kind": "url",
+          "url": "https://svgwg.org/specs/animations/"
+        },
+        "locator": {
+          "kind": "fragment",
+          "anchor": "repeatCount"
+        },
+        "confidence": "manual"
       }
     ]
   },

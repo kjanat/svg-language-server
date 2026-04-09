@@ -103,7 +103,7 @@
 				"svg2-2025-ingest"
 			],
 			"priority": "integration",
-			"passes": false
+			"passes": true
 		},
 		{
 			"id": "snapshot-reviews",

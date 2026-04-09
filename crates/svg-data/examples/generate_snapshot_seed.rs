@@ -16,7 +16,7 @@ use svg_data::{
         ElementCategoryMembership, ElementContentModel, ExceptionsFile, ExtractionConfidence,
         FactProvenance, GrammarDefinition, GrammarFile, GrammarNode, ProvenanceSourceKind,
         ReviewCounts, ReviewFile, SNAPSHOT_SCHEMA_VERSION, SnapshotAttributeRecord,
-        SnapshotElementRecord, SourceLocator, ValueSyntax,
+        SnapshotElementRecord, SnapshotMetadataFile, SourceLocator, ValueSyntax,
     },
     types::{AttributeValues, ContentModel, ElementCategory, SpecSnapshotId},
 };
@@ -47,6 +47,7 @@ fn build_seed_dataset(
     manifest: &SourceManifest,
 ) -> svg_data::extraction::Result<SnapshotDataset> {
     let bindings = seed_source_bindings(snapshot);
+    let foreign_manifest = foreign_manifest(snapshot)?;
     let elements_with_profile = elements_with_profile(snapshot);
     let attributes_with_profile: Vec<_> = attributes()
         .iter()
@@ -62,15 +63,36 @@ fn build_seed_dataset(
     let SeedAttributeData {
         attributes,
         grammars,
-    } = build_seed_attributes(manifest, &bindings, &attributes_with_profile)?;
+    } = build_seed_attributes(
+        snapshot,
+        manifest,
+        foreign_manifest.as_ref(),
+        &bindings,
+        &attributes_with_profile,
+    )?;
     let element_categories = build_seed_categories(manifest, &bindings, &elements_with_profile)?;
     let edges = build_seed_edges(snapshot, manifest, &bindings, &elements_with_profile)?;
 
     let edge_count = edges.len();
     let grammar_count = grammars.grammars.len();
+    let mut manual_notes = vec![
+        format!(
+            "Seeded from the current profile-aware catalog to establish checked-in snapshot truth for {}.",
+            snapshot.as_str()
+        ),
+        String::from(
+            "SVG-owned value grammar is normalized into `grammars.json`; only free-form text stays opaque in this seed.",
+        ),
+    ];
+    if foreign_manifest.is_some() {
+        manual_notes.push(String::from(
+            "SVG 2 foreign grammars and external modules stay as pinned typed references instead of ad hoc local strings.",
+        ));
+    }
+    manual_notes.push(bindings.review_note.to_string());
 
     Ok(SnapshotDataset {
-        metadata: manifest.snapshot_metadata("snapshot-seed-v1", "2026-04-09")?,
+        metadata: build_seed_metadata(manifest, foreign_manifest.as_ref())?,
         elements,
         attributes,
         grammars,
@@ -97,18 +119,27 @@ fn build_seed_dataset(
                 exceptions: 0,
             },
             unresolved: Vec::new(),
-            manual_notes: vec![
-                format!(
-                    "Seeded from the current profile-aware catalog to establish checked-in snapshot truth for {}.",
-                    snapshot.as_str()
-                ),
-                String::from(
-                    "SVG-owned value grammar is normalized into `grammars.json`; only free-form text stays opaque in this seed.",
-                ),
-                bindings.review_note.to_string(),
-            ],
+            manual_notes,
         },
     })
+}
+
+fn build_seed_metadata(
+    manifest: &SourceManifest,
+    foreign_manifest: Option<&SourceManifest>,
+) -> svg_data::extraction::Result<SnapshotMetadataFile> {
+    let mut metadata = manifest.snapshot_metadata("snapshot-seed-v1", "2026-04-09")?;
+
+    if let Some(foreign_manifest) = foreign_manifest {
+        metadata.pinned_sources.extend(
+            foreign_reference_source_ids()
+                .iter()
+                .map(|input_id| foreign_manifest.source_ref(input_id))
+                .collect::<svg_data::extraction::Result<Vec<_>>>()?,
+        );
+    }
+
+    Ok(metadata)
 }
 
 fn build_seed_elements(
@@ -157,7 +188,9 @@ struct SeedAttributeData {
 }
 
 fn build_seed_attributes(
+    snapshot: SpecSnapshotId,
     manifest: &SourceManifest,
+    foreign_manifest: Option<&SourceManifest>,
     bindings: &SeedSourceBindings,
     attributes_with_profile: &[&svg_data::AttributeDef],
 ) -> svg_data::extraction::Result<SeedAttributeData> {
@@ -165,7 +198,7 @@ fn build_seed_attributes(
     let attributes = attributes_with_profile
         .iter()
         .map(|attribute| {
-            let provenance = vec![
+            let mut provenance = vec![
                 manifest.fact_provenance(
                     bindings.attribute_index_input,
                     bindings.attribute_index_source_kind,
@@ -184,11 +217,13 @@ fn build_seed_attributes(
                 name: attribute.name.to_string(),
                 title: attribute.description.to_string(),
                 value_syntax: normalize_value_syntax(
+                    snapshot,
                     attribute.name,
                     &attribute.values,
-                    &provenance,
+                    &mut provenance,
+                    foreign_manifest,
                     &mut registry,
-                ),
+                )?,
                 default_value: AttributeDefaultValue::None,
                 animatable: AnimationBehavior::Unspecified,
                 provenance,
@@ -282,6 +317,36 @@ fn manifest_path(snapshot: SpecSnapshotId) -> std::path::PathBuf {
         .join(file_name)
 }
 
+fn foreign_manifest(
+    snapshot: SpecSnapshotId,
+) -> svg_data::extraction::Result<Option<SourceManifest>> {
+    if !matches!(
+        snapshot,
+        SpecSnapshotId::Svg2Cr20181004 | SpecSnapshotId::Svg2EditorsDraft20250914
+    ) {
+        return Ok(None);
+    }
+
+    Ok(Some(SourceManifest::read(&foreign_manifest_path())?))
+}
+
+fn foreign_manifest_path() -> std::path::PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("data/sources")
+        .join("foreign-references.toml")
+}
+
+const fn foreign_reference_source_ids() -> &'static [&'static str] {
+    &[
+        "svg-animations",
+        "filter-effects-1",
+        "css-masking-1",
+        "compositing-1",
+        "css-values-3",
+        "css-color-4",
+    ]
+}
+
 fn specs_root() -> std::path::PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("data/specs")
 }
@@ -301,22 +366,34 @@ fn normalize_content_model(content_model: &ContentModel) -> ElementContentModel 
 }
 
 fn normalize_value_syntax(
+    snapshot: SpecSnapshotId,
     attribute_name: &str,
     values: &AttributeValues,
-    provenance: &[FactProvenance],
+    provenance: &mut Vec<FactProvenance>,
+    foreign_manifest: Option<&SourceManifest>,
     registry: &mut SeedGrammarRegistry,
-) -> ValueSyntax {
+) -> svg_data::extraction::Result<ValueSyntax> {
+    if let Some(value_syntax) = foreign_value_syntax(
+        snapshot,
+        attribute_name,
+        values,
+        provenance,
+        foreign_manifest,
+    )? {
+        return Ok(value_syntax);
+    }
+
     match values {
-        AttributeValues::Enum(values) => value_syntax_from_grammar_id(registry.attribute_enum(
+        AttributeValues::Enum(values) => Ok(value_syntax_from_grammar_id(registry.attribute_enum(
             attribute_name,
             values,
             provenance,
-        )),
-        AttributeValues::FreeText => ValueSyntax::Opaque {
+        ))),
+        AttributeValues::FreeText => Ok(ValueSyntax::Opaque {
             display: attribute_value_display(values),
             reason: String::from("free-form text stays explicit until a typed text model exists"),
-        },
-        AttributeValues::Color => value_syntax_from_shared_grammar(
+        }),
+        AttributeValues::Color => Ok(value_syntax_from_shared_grammar(
             registry,
             "color",
             "Color value",
@@ -324,8 +401,8 @@ fn normalize_value_syntax(
                 name: String::from("color"),
             },
             provenance,
-        ),
-        AttributeValues::Length => value_syntax_from_shared_grammar(
+        )),
+        AttributeValues::Length => Ok(value_syntax_from_shared_grammar(
             registry,
             "length",
             "Length value",
@@ -333,8 +410,8 @@ fn normalize_value_syntax(
                 name: String::from("length"),
             },
             provenance,
-        ),
-        AttributeValues::Url => value_syntax_from_shared_grammar(
+        )),
+        AttributeValues::Url => Ok(value_syntax_from_shared_grammar(
             registry,
             "url-reference",
             "URL reference",
@@ -342,8 +419,8 @@ fn normalize_value_syntax(
                 name: String::from("url"),
             },
             provenance,
-        ),
-        AttributeValues::NumberOrPercentage => value_syntax_from_shared_grammar(
+        )),
+        AttributeValues::NumberOrPercentage => Ok(value_syntax_from_shared_grammar(
             registry,
             "number-or-percentage",
             "Number or percentage",
@@ -358,11 +435,11 @@ fn normalize_value_syntax(
                 ],
             },
             provenance,
-        ),
-        AttributeValues::Transform(functions) => {
-            value_syntax_from_grammar_id(registry.transform_list(functions, provenance))
-        }
-        AttributeValues::ViewBox => value_syntax_from_shared_grammar(
+        )),
+        AttributeValues::Transform(functions) => Ok(value_syntax_from_grammar_id(
+            registry.transform_list(functions, provenance),
+        )),
+        AttributeValues::ViewBox => Ok(value_syntax_from_shared_grammar(
             registry,
             "view-box",
             "viewBox tuple",
@@ -370,13 +447,18 @@ fn normalize_value_syntax(
                 items: vec![number_node(), number_node(), number_node(), number_node()],
             },
             provenance,
-        ),
+        )),
         AttributeValues::PreserveAspectRatio {
             alignments,
             meet_or_slice,
-        } => preserve_aspect_ratio_value_syntax(registry, alignments, meet_or_slice, provenance),
-        AttributeValues::Points => points_value_syntax(registry, provenance),
-        AttributeValues::PathData => value_syntax_from_shared_grammar(
+        } => Ok(preserve_aspect_ratio_value_syntax(
+            registry,
+            alignments,
+            meet_or_slice,
+            provenance,
+        )),
+        AttributeValues::Points => Ok(points_value_syntax(registry, provenance)),
+        AttributeValues::PathData => Ok(value_syntax_from_shared_grammar(
             registry,
             "path-data",
             "Path data",
@@ -384,7 +466,98 @@ fn normalize_value_syntax(
                 name: String::from("svg-path-data"),
             },
             provenance,
-        ),
+        )),
+    }
+}
+
+fn foreign_value_syntax(
+    snapshot: SpecSnapshotId,
+    attribute_name: &str,
+    values: &AttributeValues,
+    provenance: &mut Vec<FactProvenance>,
+    foreign_manifest: Option<&SourceManifest>,
+) -> svg_data::extraction::Result<Option<ValueSyntax>> {
+    let Some(binding) = foreign_reference_binding(snapshot, attribute_name, values) else {
+        return Ok(None);
+    };
+
+    if let Some(foreign_manifest) = foreign_manifest {
+        provenance.push(foreign_manifest.fact_provenance(
+            binding.spec,
+            ProvenanceSourceKind::ManualReview,
+            SourceLocator::Fragment {
+                anchor: binding.target.clone(),
+            },
+            ExtractionConfidence::Manual,
+        )?);
+    }
+
+    Ok(Some(ValueSyntax::ForeignRef {
+        spec: binding.spec.to_string(),
+        target: binding.target,
+    }))
+}
+
+struct ForeignReferenceBinding {
+    spec: &'static str,
+    target: String,
+}
+
+fn foreign_reference_binding(
+    snapshot: SpecSnapshotId,
+    attribute_name: &str,
+    values: &AttributeValues,
+) -> Option<ForeignReferenceBinding> {
+    if !matches!(
+        snapshot,
+        SpecSnapshotId::Svg2Cr20181004 | SpecSnapshotId::Svg2EditorsDraft20250914
+    ) {
+        return None;
+    }
+
+    match attribute_name {
+        "begin" | "dur" | "end" | "repeatDur" | "keyTimes" | "keySplines" | "restart"
+        | "keyPoints" | "repeatCount" => Some(ForeignReferenceBinding {
+            spec: "svg-animations",
+            target: attribute_name.to_string(),
+        }),
+        "clip-path" | "mask" | "clipPathUnits" | "maskContentUnits" | "maskUnits" => {
+            Some(ForeignReferenceBinding {
+                spec: "css-masking-1",
+                target: attribute_name.to_string(),
+            })
+        }
+        "filter" => Some(ForeignReferenceBinding {
+            spec: "filter-effects-1",
+            target: attribute_name.to_string(),
+        }),
+        "operator" => Some(ForeignReferenceBinding {
+            spec: "compositing-1",
+            target: attribute_name.to_string(),
+        }),
+        "role" => Some(ForeignReferenceBinding {
+            spec: "wai-aria-1.1",
+            target: attribute_name.to_string(),
+        }),
+        _ if attribute_name.starts_with("aria-") => Some(ForeignReferenceBinding {
+            spec: "wai-aria-1.1",
+            target: attribute_name.to_string(),
+        }),
+        _ => match values {
+            AttributeValues::Color => Some(ForeignReferenceBinding {
+                spec: "css-color-4",
+                target: String::from("<color>"),
+            }),
+            AttributeValues::Length => Some(ForeignReferenceBinding {
+                spec: "css-values-3",
+                target: String::from("<length>"),
+            }),
+            AttributeValues::NumberOrPercentage => Some(ForeignReferenceBinding {
+                spec: "css-values-3",
+                target: String::from("<number-or-percentage>"),
+            }),
+            _ => None,
+        },
     }
 }
 

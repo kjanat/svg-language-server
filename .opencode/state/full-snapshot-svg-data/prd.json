@@ -1,0 +1,169 @@
+{
+	"prdName": "full-snapshot-svg-data",
+	"spec": "docs/plans/2026-04-09-full-snapshot-svg-data.md",
+	"description": "Build complete per-snapshot SVG spec data with provenance, structured value grammar, and derived version overlays.",
+	"tasks": [
+		{
+			"id": "source-manifests",
+			"phase": 1,
+			"title": "Define pinned source manifests",
+			"description": "Create pinned source manifests for all four snapshots plus foreign references. Done when: each manifest records authority source, pinned ref or TR URL, checksum strategy, expected inputs, and fetch policy.",
+			"priority": "architecture",
+			"passes": false
+		},
+		{
+			"id": "snapshot-schema",
+			"phase": 1,
+			"title": "Define normalized snapshot schema",
+			"description": "Design the canonical checked-in data model for snapshot metadata, elements, attributes, grammars, categories, applicability edges, exceptions, and review reports. Done when: file layout, provenance shape, and grammar AST are encoded in repo-facing schemas or types with no ambiguous fields.",
+			"priority": "architecture",
+			"passes": false
+		},
+		{
+			"id": "extractor-framework",
+			"phase": 1,
+			"title": "Build shared extraction framework",
+			"description": "Implement deterministic fetch/cache plumbing and reusable extraction helpers for provenance, authority precedence, and normalized output emission. Done when: snapshot-specific parsers can share fetch, parse, provenance, and write paths without bespoke one-off scripts.",
+			"depends": [
+				"source-manifests",
+				"snapshot-schema"
+			],
+			"priority": "architecture",
+			"passes": false
+		},
+		{
+			"id": "svg11-2003-ingest",
+			"phase": 2,
+			"title": "Ingest SVG 1.1 First Edition",
+			"description": "Normalize `Svg11Rec20030114` from TR, indices, and flattened DTD into checked-in snapshot data. Done when: element set, attribute set, applicability edges, content rules, grammars, exceptions, and review report exist with provenance.",
+			"depends": [
+				"extractor-framework"
+			],
+			"priority": "standard",
+			"passes": false
+		},
+		{
+			"id": "svg11-2011-ingest",
+			"phase": 2,
+			"title": "Ingest SVG 1.1 Second Edition",
+			"description": "Normalize `Svg11Rec20110816` from TR, indices, zip bundle, and flattened DTD into checked-in snapshot data. Done when: the 2011 snapshot is fully represented with provenance and review output, ready to serve as a stable comparison spine.",
+			"depends": [
+				"extractor-framework"
+			],
+			"priority": "standard",
+			"passes": false
+		},
+		{
+			"id": "svg2-2018-ingest",
+			"phase": 3,
+			"title": "Ingest SVG 2 Candidate Recommendation",
+			"description": "Normalize `Svg2Cr20181004` with W3C TR authority and explicit foreign references for externally defined pieces. Done when: SVG-owned facts are checked in with provenance, foreign dependencies are typed, and the review report reconciles snapshot counts against authoritative indices.",
+			"depends": [
+				"extractor-framework",
+				"svg11-2011-ingest"
+			],
+			"priority": "integration",
+			"passes": false
+		},
+		{
+			"id": "svg2-2025-ingest",
+			"phase": 3,
+			"title": "Ingest SVG 2 Editor's Draft",
+			"description": "Normalize `Svg2EditorsDraft20250914` from the pinned `w3c/svgwg` commit using `publish.xml`, `definitions.xml`, companion definitions files, and chapter HTML. Done when: all draft-native facts are checked in with provenance and a full review report.",
+			"depends": [
+				"extractor-framework"
+			],
+			"priority": "integration",
+			"passes": false
+		},
+		{
+			"id": "grammar-normalization",
+			"phase": 4,
+			"title": "Normalize value grammar data",
+			"description": "Convert SVG-owned value syntax into the shared grammar AST and attach grammar refs to snapshot facts. Done when: path data, points, transform lists, paint, viewBox, preserveAspectRatio, number-or-percentage, and other SVG-owned grammars are no longer left as opaque strings.",
+			"depends": [
+				"snapshot-schema",
+				"svg11-2003-ingest",
+				"svg11-2011-ingest",
+				"svg2-2018-ingest",
+				"svg2-2025-ingest"
+			],
+			"priority": "architecture",
+			"passes": false
+		},
+		{
+			"id": "foreign-typed-refs",
+			"phase": 4,
+			"title": "Add typed foreign references",
+			"description": "Represent external grammars and modules as pinned typed references instead of ad hoc strings. Done when: animations, filter effects, masking, compositing, ARIA, and CSS-backed value references are encoded with spec, pin, target, and provenance.",
+			"depends": [
+				"source-manifests",
+				"snapshot-schema",
+				"svg2-2018-ingest",
+				"svg2-2025-ingest"
+			],
+			"priority": "integration",
+			"passes": false
+		},
+		{
+			"id": "snapshot-reviews",
+			"phase": 5,
+			"title": "Build per-snapshot review pipeline",
+			"description": "Add audit generation and review checks for completeness and accuracy. Done when: each snapshot emits a checked-in review report covering counts, unresolved items, applicability coverage, provenance coverage, and manual exception inventory.",
+			"depends": [
+				"svg11-2003-ingest",
+				"svg11-2011-ingest",
+				"svg2-2018-ingest",
+				"svg2-2025-ingest",
+				"grammar-normalization",
+				"foreign-typed-refs"
+			],
+			"priority": "integration",
+			"passes": false
+		},
+		{
+			"id": "derive-union-overlays",
+			"phase": 5,
+			"title": "Derive union data and version overlays",
+			"description": "Generate canonical union artifacts and version-to-version diffs strictly from reviewed snapshot truth. Done when: derived union and overlay files are reproducible, lossless against the snapshot datasets, and no hand-authored profile exceptions remain.",
+			"depends": [
+				"snapshot-reviews"
+			],
+			"priority": "architecture",
+			"passes": false
+		},
+		{
+			"id": "runtime-codegen",
+			"phase": 6,
+			"title": "Switch svg-data codegen to reviewed data",
+			"description": "Update build-time generation and runtime APIs to read the reviewed snapshot pipeline and derived artifacts. Done when: `svg-data` no longer relies on sparse hard-coded profile membership and generated Rust tables come only from normalized snapshot truth.",
+			"depends": [
+				"derive-union-overlays"
+			],
+			"priority": "integration",
+			"passes": false
+		},
+		{
+			"id": "consumer-rewire",
+			"phase": 6,
+			"title": "Rewire lint and LSP consumers",
+			"description": "Move lint, completion, hover, and profile-aware diagnostics onto the generated snapshot truth. Done when: unsupported, deprecated, obsolete, and draft-only behavior comes from reviewed data instead of heuristics or ad hoc overrides.",
+			"depends": [
+				"runtime-codegen"
+			],
+			"priority": "integration",
+			"passes": false
+		},
+		{
+			"id": "matrix-tests",
+			"phase": 6,
+			"title": "Add completeness and behavior matrix tests",
+			"description": "Add regression tests proving completeness and consumer parity across snapshots. Done when: svg-data, svg-lint, and LSP tests cover snapshot-specific existence, applicability, grammar, hover, completion, and diagnostics behavior with no unsourced fallback paths.",
+			"depends": [
+				"consumer-rewire"
+			],
+			"priority": "polish",
+			"passes": false
+		}
+	]
+}

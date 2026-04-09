@@ -1,0 +1,17 @@
+# Progress Log
+
+PRD: full-snapshot-svg-data
+Started: 2026-04-09
+
+## Codebase Patterns
+
+- Canonical truth must be stored per snapshot, not as union-plus-exceptions.
+- Union data and version overlays are derived artifacts only.
+- SVG 1.1 snapshots rely on TR indices plus flattened DTDs for structure.
+- SVG 2 CR uses W3C TR as authority even when GitHub assists extraction.
+- SVG 2 ED should parse the pinned `w3c/svgwg` commit and `definitions*.xml` files directly.
+- Raw fetched source bundles stay out of git; pinned manifests and normalized data stay in git.
+- Value grammar is first-class data, not only display text.
+- External specs start as pinned typed foreign references, not full ingest.
+
+---

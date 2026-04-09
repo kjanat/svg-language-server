@@ -11,12 +11,13 @@
 //! assert!(diagnostics.iter().any(|d| d.code == svg_lint::DiagnosticCode::UnknownElement));
 //! ```
 
+mod namespaces;
 mod rules;
 /// Public diagnostic data structures returned by the linter.
 pub mod types;
 
 use tree_sitter::Parser;
-pub use types::{CompatFlags, DiagnosticCode, LintOverrides, Severity, SvgDiagnostic};
+pub use types::{CompatFlags, DiagnosticCode, LintOptions, LintOverrides, Severity, SvgDiagnostic};
 
 /// Parse source and lint.
 ///
@@ -25,6 +26,16 @@ pub use types::{CompatFlags, DiagnosticCode, LintOverrides, Severity, SvgDiagnos
 /// Panics if the compiled tree-sitter SVG grammar cannot be loaded.
 #[must_use]
 pub fn lint(source: &[u8]) -> Vec<SvgDiagnostic> {
+    lint_with_options(source, LintOptions::default())
+}
+
+/// Parse source and lint with an explicit profile.
+///
+/// # Panics
+///
+/// Panics if the compiled tree-sitter SVG grammar cannot be loaded.
+#[must_use]
+pub fn lint_with_options(source: &[u8], options: LintOptions) -> Vec<SvgDiagnostic> {
     let mut parser = Parser::new();
     if parser
         .set_language(&tree_sitter_svg::LANGUAGE.into())
@@ -35,7 +46,7 @@ pub fn lint(source: &[u8]) -> Vec<SvgDiagnostic> {
     let Some(tree) = parser.parse(source, None) else {
         return Vec::new();
     };
-    lint_tree(source, &tree, None)
+    lint_tree_with_options(source, &tree, options, None)
 }
 
 /// Lint an already-parsed tree with optional runtime compat overrides.
@@ -45,7 +56,19 @@ pub fn lint_tree(
     tree: &tree_sitter::Tree,
     overrides: Option<&LintOverrides>,
 ) -> Vec<SvgDiagnostic> {
-    rules::check_all(source, tree, overrides)
+    lint_tree_with_options(source, tree, LintOptions::default(), overrides)
+}
+
+/// Lint an already-parsed tree with explicit profile options.
+#[must_use]
+pub fn lint_tree_with_options(
+    source: &[u8],
+    tree: &tree_sitter::Tree,
+    options: LintOptions,
+    overrides: Option<&LintOverrides>,
+) -> Vec<SvgDiagnostic> {
+    let _ = overrides;
+    rules::check_all(source, tree, options)
 }
 
 #[cfg(test)]
@@ -156,6 +179,98 @@ mod tests {
         assert!(
             diags.is_empty(),
             "foreignObject should allow foreign-namespace subtrees without SVG diagnostics: {diags:?}"
+        );
+    }
+
+    #[test]
+    fn prefixed_svg_elements_are_linted() {
+        let src = br#"<svg:svg xmlns:svg="http://www.w3.org/2000/svg"><svg:banana/></svg:svg>"#;
+        let diags = lint(src);
+
+        assert!(
+            diags
+                .iter()
+                .any(|d| d.code == DiagnosticCode::UnknownElement),
+            "prefixed svg elements should still be linted: {diags:?}"
+        );
+    }
+
+    #[test]
+    fn namespace_reset_stops_svg_linting() {
+        let src = br#"<svg xmlns="http://www.w3.org/2000/svg"><g xmlns=""><rect><banana/></rect></g></svg>"#;
+        let diags = lint(src);
+
+        assert!(
+            diags.is_empty(),
+            "elements outside the svg namespace should be skipped: {diags:?}"
+        );
+    }
+
+    #[test]
+    fn nested_svg_reenters_linting_inside_foreign_content() {
+        let src = br#"
+            <svg>
+                <foreignObject>
+                    <svg xmlns="http://www.w3.org/2000/svg"><banana/></svg>
+                </foreignObject>
+            </svg>
+        "#;
+        let diags = lint(src);
+
+        assert!(
+            diags
+                .iter()
+                .any(|d| d.code == DiagnosticCode::UnknownElement),
+            "nested svg should re-enter linting: {diags:?}"
+        );
+    }
+
+    #[test]
+    fn unsupported_attribute_is_distinct_from_unknown() {
+        let src = br##"<svg><use href="#icon" banana="1"/></svg>"##;
+        let diags = lint_with_options(
+            src,
+            LintOptions {
+                profile: svg_data::SpecSnapshotId::Svg11Rec20110816,
+            },
+        );
+
+        assert!(
+            diags
+                .iter()
+                .any(|d| d.code == DiagnosticCode::UnsupportedInProfile
+                    && d.message.contains("href")),
+            "href should be flagged as unsupported in svg 1.1: {diags:?}"
+        );
+        assert!(
+            !diags
+                .iter()
+                .any(|d| d.code == DiagnosticCode::UnknownAttribute),
+            "unknown generic attrs should stay separate from unsupported: {diags:?}"
+        );
+    }
+
+    #[test]
+    fn unsupported_attribute_does_not_also_emit_deprecated() {
+        let src = br##"<svg><use xlink:href="#icon"/></svg>"##;
+        let diags = lint_with_options(
+            src,
+            LintOptions {
+                profile: svg_data::SpecSnapshotId::Svg2Cr20181004,
+            },
+        );
+
+        assert!(
+            diags
+                .iter()
+                .any(|d| d.code == DiagnosticCode::UnsupportedInProfile),
+            "xlink:href should be unsupported in svg 2: {diags:?}"
+        );
+        assert!(
+            !diags
+                .iter()
+                .any(|d| d.code == DiagnosticCode::DeprecatedAttribute),
+            "unsupported attrs should not also report deprecated: {diags:?}"
         );
     }
 
@@ -337,18 +452,23 @@ mod tests {
 
     #[test]
     fn multiline_tag_suppression_covers_attr_on_later_line() {
-        let src = br#"<svg>
-<!-- svg-lint-disable-next-line DeprecatedAttribute -->
-<text x="10" y="260"
-	clip="rect(0,100,100,0)"
-	font-stretch="condensed">deprecated</text>
-</svg>"#;
-        let diags = lint(src);
+        let src = br##"<svg>
+<defs><g id="icon"/></defs>
+<!-- svg-lint-disable-next-line UnsupportedInProfile -->
+<use
+	href="#icon"/>
+</svg>"##;
+        let diags = lint_with_options(
+            src,
+            LintOptions {
+                profile: svg_data::SpecSnapshotId::Svg11Rec20110816,
+            },
+        );
 
         assert!(
             !diags
                 .iter()
-                .any(|d| d.code == DiagnosticCode::DeprecatedAttribute),
+                .any(|d| d.code == DiagnosticCode::UnsupportedInProfile),
             "directive before multiline tag should suppress attribute diagnostics on later rows: {diags:?}"
         );
         assert!(
@@ -361,17 +481,23 @@ mod tests {
 
     #[test]
     fn multiline_tag_suppression_does_not_reach_next_element() {
-        let src = br#"<svg>
-<!-- svg-lint-disable-next-line DeprecatedAttribute -->
+        let src = br##"<svg>
+<defs><g id="icon"/></defs>
+<!-- svg-lint-disable-next-line UnsupportedInProfile -->
 <rect x="0" y="0" width="10" height="10"/>
-<text clip="rect(0,100,100,0)">next element</text>
-</svg>"#;
-        let diags = lint(src);
+<use href="#icon"/>
+</svg>"##;
+        let diags = lint_with_options(
+            src,
+            LintOptions {
+                profile: svg_data::SpecSnapshotId::Svg11Rec20110816,
+            },
+        );
 
         assert!(
-            diags.iter().any(
-                |d| d.code == DiagnosticCode::DeprecatedAttribute && d.message.contains("clip")
-            ),
+            diags.iter().any(|d| {
+                d.code == DiagnosticCode::UnsupportedInProfile && d.message.contains("href")
+            }),
             "directive should not suppress diagnostics on a different element: {diags:?}"
         );
     }
@@ -409,83 +535,6 @@ mod tests {
                 .any(|d| d.code == DiagnosticCode::DeprecatedAttribute),
             "all deprecated attrs in multiline tag should be suppressed: {diags:?}"
         );
-    }
-
-    #[test]
-    fn override_marks_element_deprecated() -> Result<(), Box<dyn std::error::Error>> {
-        let src = br"<svg><rect/></svg>";
-        let mut parser = tree_sitter::Parser::new();
-        parser.set_language(&tree_sitter_svg::LANGUAGE.into()).ok();
-        let tree = parser.parse(src, None).ok_or("parse")?;
-
-        let overrides = LintOverrides {
-            elements: [(
-                "rect".to_owned(),
-                CompatFlags {
-                    deprecated: true,
-                    experimental: false,
-                },
-            )]
-            .into(),
-            attributes: std::collections::HashMap::new(),
-        };
-        let diags = lint_tree(src, &tree, Some(&overrides));
-        assert!(
-            diags
-                .iter()
-                .any(|d| d.code == DiagnosticCode::DeprecatedElement),
-            "override should mark rect as deprecated: {diags:?}"
-        );
-        Ok(())
-    }
-
-    #[test]
-    fn override_clears_element_deprecation() -> Result<(), Box<dyn std::error::Error>> {
-        let src = br"<svg><rect/></svg>";
-        let mut parser = tree_sitter::Parser::new();
-        parser.set_language(&tree_sitter_svg::LANGUAGE.into()).ok();
-        let tree = parser.parse(src, None).ok_or("parse")?;
-
-        // Mark rect as deprecated via override
-        let deprecate = LintOverrides {
-            elements: [(
-                "rect".to_owned(),
-                CompatFlags {
-                    deprecated: true,
-                    experimental: false,
-                },
-            )]
-            .into(),
-            attributes: std::collections::HashMap::new(),
-        };
-        let diags = lint_tree(src, &tree, Some(&deprecate));
-        assert!(
-            diags
-                .iter()
-                .any(|d| d.code == DiagnosticCode::DeprecatedElement),
-            "rect should be deprecated with override: {diags:?}"
-        );
-
-        // Clear the deprecation via override
-        let clear = LintOverrides {
-            elements: [(
-                "rect".to_owned(),
-                CompatFlags {
-                    deprecated: false,
-                    experimental: false,
-                },
-            )]
-            .into(),
-            attributes: std::collections::HashMap::new(),
-        };
-        let diags = lint_tree(src, &tree, Some(&clear));
-        assert!(
-            !diags
-                .iter()
-                .any(|d| d.code == DiagnosticCode::DeprecatedElement),
-            "override should clear rect deprecation: {diags:?}"
-        );
-        Ok(())
     }
 
     #[test]

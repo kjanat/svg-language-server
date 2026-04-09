@@ -37,7 +37,7 @@
 			"description": "Done when svg-lint validates only SVG namespace nodes, emits UnsupportedInProfile, and keeps unknown separate from unsupported.",
 			"depends": ["profile-lookups"],
 			"priority": "integration",
-			"passes": false
+			"passes": true
 		},
 		{
 			"id": "lsp-profile-config",

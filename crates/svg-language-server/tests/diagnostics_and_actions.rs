@@ -148,9 +148,8 @@ fn missing_reference_diagnostics_and_code_actions() -> TestResult {
 fn multiline_tag_suppression_inserts_before_opening_tag() -> TestResult {
     let mut server = TestServer::start()?;
 
-    // Multiline tag with deprecated attribute on a later line
-    let svg =
-        "<svg>\n<text x=\"10\" y=\"260\"\n\tclip=\"rect(0,100,100,0)\">deprecated</text>\n</svg>";
+    // Multiline tag with profile-unsupported attribute on a later line
+    let svg = "<svg>\n<use\n\txlink:href=\"#icon\"/>\n</svg>";
     server.open("file:///multiline.svg", svg)?;
 
     let diag_msg = wait_for_notification(&mut server, "textDocument/publishDiagnostics", |msg| {
@@ -160,11 +159,11 @@ fn multiline_tag_suppression_inserts_before_opening_tag() -> TestResult {
         .as_array()
         .ok_or("diagnostics should be array")?;
 
-    // Verify there's a DeprecatedAttribute diagnostic on row 2 (the `clip` line)
+    // Verify there's an UnsupportedInProfile diagnostic on row 2 (the `xlink:href` line)
     let deprecated_diag = diag_list
         .iter()
-        .find(|d| d["code"].as_str() == Some("DeprecatedAttribute"))
-        .ok_or("expected DeprecatedAttribute diagnostic")?;
+        .find(|d| d["code"].as_str() == Some("UnsupportedInProfile"))
+        .ok_or("expected UnsupportedInProfile diagnostic")?;
     assert_eq!(
         deprecated_diag["range"]["start"]["line"].as_u64(),
         Some(2),

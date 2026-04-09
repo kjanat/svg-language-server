@@ -1,5 +1,7 @@
 use std::{collections::HashMap, ops::Range, str::FromStr};
 
+use svg_data::SpecSnapshotId;
+
 /// Runtime override flags for deprecated/experimental status.
 ///
 /// When present in a [`LintOverrides`] map, these override the baked-in
@@ -16,6 +18,9 @@ pub struct CompatFlags {
 ///
 /// Maps element/attribute names to their override flags. Names absent from
 /// the maps use the baked-in catalog values.
+///
+/// Retained for API compatibility while lint diagnostics move to pinned spec
+/// lifecycle data.
 #[derive(Debug, Clone, Default)]
 pub struct LintOverrides {
     /// Element name → override flags.
@@ -43,6 +48,21 @@ pub struct SvgDiagnostic {
     pub code: DiagnosticCode,
     /// Human-readable diagnostic message.
     pub message: String,
+}
+
+/// Options controlling profile-aware lint behavior.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct LintOptions {
+    /// Selected pinned SVG snapshot.
+    pub profile: SpecSnapshotId,
+}
+
+impl Default for LintOptions {
+    fn default() -> Self {
+        Self {
+            profile: SpecSnapshotId::Svg2EditorsDraft20250914,
+        }
+    }
 }
 
 /// Diagnostic severity levels (mirrors LSP).
@@ -75,6 +95,8 @@ pub enum DiagnosticCode {
     ExperimentalAttribute,
     /// Unknown element name.
     UnknownElement,
+    /// Known SVG feature absent from the selected profile.
+    UnsupportedInProfile,
     /// Unknown attribute name.
     UnknownAttribute,
     /// Duplicate `id` value.
@@ -95,6 +117,7 @@ impl DiagnosticCode {
         Self::ExperimentalElement,
         Self::ExperimentalAttribute,
         Self::UnknownElement,
+        Self::UnsupportedInProfile,
         Self::UnknownAttribute,
         Self::DuplicateId,
         Self::MissingReferenceDefinition,
@@ -112,6 +135,7 @@ impl DiagnosticCode {
             Self::ExperimentalElement => "ExperimentalElement",
             Self::ExperimentalAttribute => "ExperimentalAttribute",
             Self::UnknownElement => "UnknownElement",
+            Self::UnsupportedInProfile => "UnsupportedInProfile",
             Self::UnknownAttribute => "UnknownAttribute",
             Self::DuplicateId => "DuplicateId",
             Self::MissingReferenceDefinition => "MissingReferenceDefinition",
@@ -132,6 +156,7 @@ impl FromStr for DiagnosticCode {
             "ExperimentalElement" => Ok(Self::ExperimentalElement),
             "ExperimentalAttribute" => Ok(Self::ExperimentalAttribute),
             "UnknownElement" => Ok(Self::UnknownElement),
+            "UnsupportedInProfile" => Ok(Self::UnsupportedInProfile),
             "UnknownAttribute" => Ok(Self::UnknownAttribute),
             "DuplicateId" => Ok(Self::DuplicateId),
             "MissingReferenceDefinition" => Ok(Self::MissingReferenceDefinition),

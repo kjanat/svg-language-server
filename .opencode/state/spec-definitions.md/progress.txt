@@ -10,6 +10,7 @@ Started: 2026-04-09
 - Normalize user-facing identifiers by stripping punctuation and folding ASCII case when config should accept canonical ids, aliases, and human-written long-form names.
 - Keep spec lifecycle as its own field on `svg-data` defs; compat booleans stay a separate axis so later lint/LSP code can switch without re-plumbing catalog generation again.
 - When profile deltas are sparse, keep the catalog as a union and layer snapshot membership tables in `svg-data::lib`; that gives lint/LSP profile-aware lookups without forcing generated catalog churn yet.
+- Namespace-aware SVG lint needs XML rules, not string prefix guesses: element names inherit default namespaces, but unprefixed attributes stay in no namespace and should only map back to SVG/XLink when their resolved namespace allows it.
 
 ---
 
@@ -38,3 +39,13 @@ Started: 2026-04-09
 - Added regression tests for present vs unsupported vs unknown lookups and for `use` switching between `xlink:href` and `href` by profile
 - Files changed: `crates/svg-data/src/lib.rs`, `crates/svg-data/src/types.rs`, `.opencode/state/spec-definitions.md/prd.json`, `.opencode/state/spec-definitions.md/progress.txt`
 - **Learnings:** filtering profile-aware attribute lists at lookup time is enough for the current dataset because child policies and most union entries are unchanged across snapshots; only the sparse membership deltas need explicit overlays
+
+## Task - namespace-lint-core
+
+- Added `LintOptions`, `lint_with_options`, `lint_tree_with_options`, and the new `UnsupportedInProfile` diagnostic so lint can run against a selected spec snapshot without breaking the old entrypoints.
+- Added `crates/svg-lint/src/namespaces.rs` and rewired lint traversal to resolve XML namespaces per element, implicitly treat bare root `<svg>` fixtures as SVG, skip non-SVG subtrees, and re-enter SVG validation for nested SVG islands.
+- Switched lint lifecycle diagnostics to `svg-data` profile lookups, so deprecated and experimental warnings come from pinned spec lifecycle rather than runtime compat booleans; unknown stays distinct from unsupported.
+- Made child and attribute checks profile-aware, including `href` vs `xlink:href` unsupported diagnostics, namespace-aware attribute filtering, and multiline suppression coverage for the new diagnostic path.
+- Updated downstream LSP diagnostics/code-action coverage to assert multiline suppression insertion for `UnsupportedInProfile`.
+- Files changed: `crates/svg-lint/src/lib.rs`, `crates/svg-lint/src/namespaces.rs`, `crates/svg-lint/src/rules/mod.rs`, `crates/svg-lint/src/types.rs`, `crates/svg-language-server/tests/diagnostics_and_actions.rs`, `.opencode/state/spec-definitions.md/prd.json`, `.opencode/state/spec-definitions.md/progress.txt`
+- **Learnings:** the parser already exposes enough structure to resolve namespace declarations locally from tag attributes; the sharp edge is XML semantics, where default namespaces apply to elements but never to unprefixed attributes.

@@ -1,12 +1,29 @@
 {
+	"$schema": "https://raw.githubusercontent.com/denoland/deno/refs/heads/main/cli/schemas/config-file.v1.json",
 	"tasks": {
-		"dev": "deno serve --watch -R main.ts"
+		"dev": {
+			"command": "deno serve --watch -A src/main.ts",
+			"description": "Start the development server for SVG compatibility data."
+		},
+		"test": {
+			"command": "deno test -P",
+			"description": "Run the tests for SVG compatibility data with preset permissions."
+		}
 	},
 	"imports": {
-		"@mdn/browser-compat-data": "npm:@mdn/browser-compat-data@^7.3.11",
+		"@mdn/browser-compat-data": "npm:@mdn/browser-compat-data@7.3.11",
 		"@std/assert": "jsr:@std/assert@1",
-		"@std/http": "jsr:@std/http@1",
-		"web-features": "npm:web-features@^3.23.0"
+		"web-features": "npm:web-features@3.23.0"
 	},
-	"fmt": { "exclude": ["*"] }
+	"exports": "./src/main.ts",
+	"deploy": {
+		"org": "kjanat",
+		"app": "svg-compat"
+	},
+	"test": {
+		"permissions": {
+			"read": true,
+			"net": true
+		}
+	}
 }

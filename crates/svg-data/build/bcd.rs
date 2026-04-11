@@ -410,7 +410,6 @@ fn merge_browser_version(
     new: Option<&super::BrowserVersionValue>,
 ) {
     let Some(new) = new else {
-        *existing = None;
         return;
     };
 
@@ -478,4 +477,40 @@ fn extract_year(status: &serde_json::Value, key: &str) -> Option<u16> {
     let date_str = status.get(key)?.as_str()?;
     let year_str = date_str.split('-').next()?;
     year_str.parse::<u16>().ok()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        super::{BrowserSupportValue, BrowserVersionValue},
+        merge_browser_support,
+    };
+
+    #[test]
+    fn merge_browser_support_keeps_existing_versions_when_incoming_missing() {
+        let mut existing = Some(BrowserSupportValue {
+            chrome: Some(BrowserVersionValue::Version("80".to_string())),
+            edge: None,
+            firefox: None,
+            safari: None,
+        });
+        let incoming = BrowserSupportValue {
+            chrome: None,
+            edge: None,
+            firefox: Some(BrowserVersionValue::Version("90".to_string())),
+            safari: None,
+        };
+
+        merge_browser_support(&mut existing, &incoming);
+
+        let merged = existing.expect("merged browser support");
+        assert!(matches!(
+            merged.chrome,
+            Some(BrowserVersionValue::Version(ref version)) if version == "80"
+        ));
+        assert!(matches!(
+            merged.firefox,
+            Some(BrowserVersionValue::Version(ref version)) if version == "90"
+        ));
+    }
 }

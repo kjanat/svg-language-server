@@ -1,0 +1,18 @@
+{
+	"workspace": {
+		"members": ["./workers/*"]
+	},
+	"imports": {
+		"@mdn/browser-compat-data": "npm:@mdn/browser-compat-data@^7.3.11",
+		"@std/assert": "jsr:@std/assert@1",
+		"@std/http": "jsr:@std/http@1",
+		"web-features": "npm:web-features@^3.23.0"
+	},
+	"fmt": { "exclude": ["**"] },
+	"tasks": {
+		"dev:all": "deno task --recursive dev"
+	},
+	"deploy": {
+		"org": "kjanat"
+	}
+}

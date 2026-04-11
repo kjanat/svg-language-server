@@ -5,6 +5,9 @@
  * @module
  */
 
+import { escape } from "@std/html";
+import { serveDir } from "@std/http";
+import { contentType } from "@std/media-types";
 import {
 	InvalidSourceRequestError,
 	isRecord,
@@ -40,6 +43,9 @@ const snapshotCache = new Map<string, CachedSnapshot>();
 const snapshotInflight = new Map<string, Promise<SvgCompatSnapshot>>();
 const RESPONSE_CACHE_CONTROL = "public, max-age=300, s-maxage=300, stale-while-revalidate=3600";
 const SCHEMA_CACHE_CONTROL = "public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400";
+const CONTENT_TYPE_JSON = contentType(".json");
+const CONTENT_TYPE_HTML = contentType(".html");
+const CONTENT_TYPE_TEXT = contentType(".txt");
 
 function canonicalAttributeName(name: string): string {
 	return XLINK_MAP[name] ?? name;
@@ -658,14 +664,6 @@ function cachedResponse(
 	return new Response(body, { status, headers });
 }
 
-function escapeHtml(value: string): string {
-	return value
-		.replaceAll("&", "&amp;")
-		.replaceAll("<", "&lt;")
-		.replaceAll(">", "&gt;")
-		.replaceAll("\"", "&quot;");
-}
-
 function formatBaseline(baseline: Baseline | undefined): string {
 	if (!baseline) return "-";
 	if (baseline.status === "limited") return "limited";
@@ -713,11 +711,11 @@ function renderCompatRows(entries: NamedCompatEntry[]): string {
 	return entries
 		.map((entry) => {
 			const mdnCell = entry.mdn_url
-				? `<a href="${escapeHtml(entry.mdn_url)}">MDN</a>`
+				? `<a href="${escape(entry.mdn_url)}">MDN</a>`
 				: "-";
-			return `<tr><th scope="row"><code>${escapeHtml(entry.name)}</code></th><td>${
-				escapeHtml(formatBaseline(entry.baseline))
-			}</td><td>${escapeHtml(formatBrowserSupport(entry.browser_support))}</td><td>${mdnCell}</td></tr>`;
+			return `<tr><th scope="row"><code>${escape(entry.name)}</code></th><td>${
+				escape(formatBaseline(entry.baseline))
+			}</td><td>${escape(formatBrowserSupport(entry.browser_support))}</td><td>${mdnCell}</td></tr>`;
 		})
 		.join("");
 }
@@ -726,13 +724,13 @@ function renderAttributeRows(entries: NamedAttributeEntry[]): string {
 	return entries
 		.map((entry) => {
 			const mdnCell = entry.mdn_url
-				? `<a href="${escapeHtml(entry.mdn_url)}">MDN</a>`
+				? `<a href="${escape(entry.mdn_url)}">MDN</a>`
 				: "-";
 			const elements = entry.elements.length === 1 && entry.elements[0] === "*"
 				? "global"
 				: entry.elements.join(", ");
-			return `<tr><th scope="row"><code>${escapeHtml(entry.name)}</code></th><td>${escapeHtml(elements)}</td><td>${
-				escapeHtml(formatBaseline(entry.baseline))
+			return `<tr><th scope="row"><code>${escape(entry.name)}</code></th><td>${escape(elements)}</td><td>${
+				escape(formatBaseline(entry.baseline))
 			}</td><td>${mdnCell}</td></tr>`;
 		})
 		.join("");
@@ -741,11 +739,9 @@ function renderAttributeRows(entries: NamedAttributeEntry[]): string {
 function renderSourceRows(output: SvgCompatOutput): string {
 	return Object.values(output.sources)
 		.map((source) => {
-			return `<tr><th scope="row"><code>${escapeHtml(source.package)}</code></th><td>${
-				escapeHtml(source.requested)
-			}</td><td>${escapeHtml(source.resolved)}</td><td>${escapeHtml(source.mode)}</td><td><a href="${
-				escapeHtml(source.source_url)
-			}">source</a></td></tr>`;
+			return `<tr><th scope="row"><code>${escape(source.package)}</code></th><td>${escape(source.requested)}</td><td>${
+				escape(source.resolved)
+			}</td><td>${escape(source.mode)}</td><td><a href="${escape(source.source_url)}">source</a></td></tr>`;
 		})
 		.join("");
 }
@@ -773,91 +769,7 @@ export function renderHtml(output: SvgCompatOutput, requestUrl: URL): string {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SVG Compat</title>
-  <style>
-    :root { color-scheme: dark; }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-      background: #0b1020;
-      color: #e8ecf3;
-      line-height: 1.5;
-    }
-    main {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 32px 20px 48px;
-    }
-    h1, h2, h3, p { margin-top: 0; }
-    a { color: #8dd0ff; }
-    .hero {
-      padding: 24px;
-      border: 1px solid #25304f;
-      border-radius: 20px;
-      background: linear-gradient(135deg, #131c34, #0e1427 60%, #1a2442);
-      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
-    }
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
-      margin: 24px 0;
-    }
-    .stat, section {
-      border: 1px solid #25304f;
-      border-radius: 16px;
-      background: #10182d;
-    }
-    .stat {
-      padding: 16px;
-    }
-    .stat strong {
-      display: block;
-      font-size: 1.8rem;
-      margin-bottom: 4px;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      gap: 16px;
-    }
-    section {
-      padding: 20px;
-      overflow-x: auto;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.92rem;
-    }
-    th, td {
-      text-align: left;
-      padding: 10px 0;
-      border-top: 1px solid #25304f;
-      vertical-align: top;
-    }
-    tr:first-child th, tr:first-child td {
-      border-top: none;
-    }
-    code {
-      font-family: "SFMono-Regular", Consolas, monospace;
-      font-size: 0.9em;
-      color: #b9f27c;
-    }
-    .muted {
-      color: #99a6c3;
-    }
-    .pill {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 999px;
-      border: 1px solid #31406b;
-      color: #b9c8ea;
-      text-decoration: none;
-      margin-right: 8px;
-      margin-bottom: 8px;
-    }
-  </style>
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
   <main>
@@ -865,13 +777,13 @@ export function renderHtml(output: SvgCompatOutput, requestUrl: URL): string {
       <p class="muted">SVG compatibility catalog</p>
       <h1>Browser face. Dynamic source knobs.</h1>
       <p class="muted">Generated ${
-		escapeHtml(output.generated_at)
+		escape(output.generated_at)
 	}. Ask for <code>/data.json</code>, <code>?format=json</code>, or <code>Accept: application/json</code>. Override upstream packages with <code>?source=latest</code> or explicit <code>?bcd=&lt;version&gt;&amp;wf=&lt;version&gt;</code>.</p>
       <p>
-        <a class="pill" href="${escapeHtml(jsonUrl)}">Open JSON endpoint</a>
-        <a class="pill" href="${escapeHtml(schemaUrl)}">Open schema</a>
-        <a class="pill" href="${escapeHtml(latestHtmlUrl)}">Try latest in browser</a>
-        <a class="pill" href="${escapeHtml(latestJsonUrl)}">Try latest JSON</a>
+        <a class="pill" href="${escape(jsonUrl)}">Open JSON endpoint</a>
+        <a class="pill" href="${escape(schemaUrl)}">Open schema</a>
+        <a class="pill" href="${escape(latestHtmlUrl)}">Try latest in browser</a>
+        <a class="pill" href="${escape(latestJsonUrl)}">Try latest JSON</a>
       </p>
       <div class="stats">
         <div class="stat"><strong>${elementCount}</strong><span class="muted">elements</span></div>
@@ -944,19 +856,14 @@ function renderErrorHtml(status: number, message: string): string {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SVG Compat Error</title>
-  <style>
-    body { margin: 0; font-family: Inter, ui-sans-serif, system-ui, sans-serif; background: #0b1020; color: #e8ecf3; }
-    main { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
-    article { max-width: 720px; padding: 24px; border: 1px solid #25304f; border-radius: 16px; background: #10182d; }
-    code { color: #b9f27c; }
-  </style>
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <main>
+  <main class="error-page">
     <article>
       <p><strong>${status}</strong></p>
       <h1>Request failed</h1>
-      <p>${escapeHtml(message)}</p>
+      <p>${escape(message)}</p>
       <p>Ask for <code>application/json</code>, <code>/data.json</code>, or <code>text/html</code>.</p>
     </article>
   </main>
@@ -1010,6 +917,13 @@ const server: Server = {
 			});
 		}
 
+		if (url.pathname.startsWith("/static/")) {
+			return serveDir(request, {
+				fsRoot: new URL("../static", import.meta.url).pathname,
+				urlRoot: "static",
+			});
+		}
+
 		if (wantsJson(request, url) && url.pathname === "/schema.json") {
 			return cachedResponse(
 				request,
@@ -1026,7 +940,7 @@ const server: Server = {
 				"Not acceptable. Ask for application/json, /data.json, ?format=json, or text/html.",
 				{
 					status: 406,
-					headers: { "content-type": "text/plain; charset=utf-8" },
+					headers: { "content-type": CONTENT_TYPE_TEXT },
 				},
 			);
 		}
@@ -1040,7 +954,7 @@ const server: Server = {
 				return cachedResponse(
 					request,
 					JSON.stringify(output, null, "  "),
-					"application/json; charset=utf-8",
+					CONTENT_TYPE_JSON,
 					RESPONSE_CACHE_CONTROL,
 					etag,
 					lastModified,
@@ -1050,7 +964,7 @@ const server: Server = {
 			return cachedResponse(
 				request,
 				renderHtml(output, url),
-				"text/html; charset=utf-8",
+				CONTENT_TYPE_HTML,
 				RESPONSE_CACHE_CONTROL,
 				etag,
 				lastModified,
@@ -1060,20 +974,20 @@ const server: Server = {
 			if (wantsJson(request, url)) {
 				return new Response(JSON.stringify({ error: { status, message } }, null, "  "), {
 					status,
-					headers: { "content-type": "application/json; charset=utf-8" },
+					headers: { "content-type": CONTENT_TYPE_JSON },
 				});
 			}
 
 			if (wantsHtml(request)) {
 				return new Response(renderErrorHtml(status, message), {
 					status,
-					headers: { "content-type": "text/html; charset=utf-8" },
+					headers: { "content-type": CONTENT_TYPE_HTML },
 				});
 			}
 
 			return new Response(message, {
 				status,
-				headers: { "content-type": "text/plain; charset=utf-8" },
+				headers: { "content-type": CONTENT_TYPE_TEXT },
 			});
 		}
 	},

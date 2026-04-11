@@ -5,7 +5,7 @@
  * @module
  */
 
-import bcd from "@mdn/browser-compat-data/data.json" with { type: "json" };
+import bcd from "@mdn/browser-compat-data" with { type: "json" };
 import { features } from "web-features";
 
 /** Loose JSON object type used to traverse BCD and web-features payloads without npm type imports. */

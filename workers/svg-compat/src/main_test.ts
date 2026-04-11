@@ -12,7 +12,7 @@ async function fetchJson(path = "/"): Promise<Response> {
 
 Deno.test("responds with JSON", async () => {
 	const res = await fetchJson();
-	assertEquals(res.headers.get("content-type"), "application/json; charset=utf-8");
+	assertEquals(res.headers.get("content-type"), "application/json; charset=UTF-8");
 	assertEquals(res.headers.get("cache-control")?.includes("max-age=300"), true);
 	assertEquals(typeof res.headers.get("etag"), "string");
 	assertEquals(typeof res.headers.get("last-modified"), "string");
@@ -90,7 +90,7 @@ Deno.test("browser gets HTML explorer", async () => {
 			headers: { accept: "text/html" },
 		}),
 	);
-	assertEquals(res.headers.get("content-type"), "text/html; charset=utf-8");
+	assertEquals(res.headers.get("content-type"), "text/html; charset=UTF-8");
 	const body = await res.text();
 	assertEquals(body.includes("<title>SVG Compat</title>"), true);
 	assertEquals(body.includes("Open JSON endpoint"), true);
@@ -109,7 +109,7 @@ Deno.test("non-browser requests without JSON accept get rejected", async () => {
 
 Deno.test("data.json route returns JSON", async () => {
 	const res = await server.fetch(new Request("http://localhost/data.json"));
-	assertEquals(res.headers.get("content-type"), "application/json; charset=utf-8");
+	assertEquals(res.headers.get("content-type"), "application/json; charset=UTF-8");
 	const data: SvgCompatOutput = await res.json();
 	assertEquals(typeof data.generated_at, "string");
 });

@@ -6,9 +6,11 @@
     "jsr:@std/encoding@^1.0.10": "1.0.10",
     "jsr:@std/fmt@^1.0.9": "1.0.9",
     "jsr:@std/fs@^1.0.23": "1.0.23",
+    "jsr:@std/html@1": "1.0.5",
     "jsr:@std/html@^1.0.5": "1.0.5",
     "jsr:@std/http@1": "1.0.25",
     "jsr:@std/internal@^1.0.12": "1.0.12",
+    "jsr:@std/media-types@1": "1.1.0",
     "jsr:@std/media-types@^1.1.0": "1.1.0",
     "jsr:@std/net@^1.0.6": "1.0.6",
     "jsr:@std/path@^1.1.4": "1.1.4",
@@ -46,8 +48,8 @@
         "jsr:@std/encoding",
         "jsr:@std/fmt",
         "jsr:@std/fs",
-        "jsr:@std/html",
-        "jsr:@std/media-types",
+        "jsr:@std/html@^1.0.5",
+        "jsr:@std/media-types@^1.1.0",
         "jsr:@std/net",
         "jsr:@std/path",
         "jsr:@std/streams"
@@ -93,7 +95,10 @@
   "workspace": {
     "dependencies": [
       "jsr:@std/assert@1",
+      "jsr:@std/html@1",
       "jsr:@std/http@1",
+      "jsr:@std/media-types@1",
+      "jsr:@std/path@1",
       "npm:@mdn/browser-compat-data@7.3.11",
       "npm:web-features@3.23.0"
     ]

@@ -6,6 +6,7 @@
  */
 
 import bcd from "@mdn/browser-compat-data" with { type: "json" };
+import { fromFileUrl } from "@std/path";
 import { features } from "web-features";
 
 /** Loose JSON object type used to traverse BCD and web-features payloads without npm type imports. */
@@ -97,13 +98,12 @@ function getString(value: unknown): string | undefined {
 }
 
 function resolvedVersion(specifier: string): string {
-	const resolved = import.meta.resolve(specifier);
-	const atMatch = resolved.match(/@(\d[^/]*)\//);
+	const path = fromFileUrl(import.meta.resolve(specifier));
+	const atMatch = path.match(/@(\d[^/]*)\//);
 	if (atMatch?.[1]) return atMatch[1];
-	const segments = new URL(resolved).pathname.split("/");
-	const versionSegment = segments.find((s) => /^\d/.test(s));
+	const versionSegment = path.split("/").find((s) => /^\d/.test(s));
 	if (versionSegment) return versionSegment;
-	throw new Error(`Cannot extract version from ${resolved}`);
+	throw new Error(`Cannot extract version from ${path}`);
 }
 
 function packageDataUrl(packageName: string, version: string): string {
@@ -123,36 +123,19 @@ export function versionFromLocation(
 	packageName: string,
 ): string | undefined {
 	const url = new URL(location);
-	const decodedPath = decodeURIComponent(url.pathname);
-	const escapedPackageName = packageName.replaceAll("/", "\\/");
-	const packageAtPattern = new RegExp(`/${escapedPackageName}@([^/]+)(?:/|$)`);
-	const packageAtMatch = decodedPath.match(packageAtPattern);
-	if (packageAtMatch?.[1]) return packageAtMatch[1];
-
-	if (url.protocol === "https:") {
-		const prefix = `/${packageName}@`;
-		if (!url.pathname.startsWith(prefix)) return undefined;
-		const version = url.pathname.slice(prefix.length).split("/")[0];
-		return version.length > 0 ? version : undefined;
+	const path = url.protocol === "file:" ? fromFileUrl(url) : url.pathname;
+	const decoded = decodeURIComponent(path);
+	const escaped = packageName.replaceAll("/", "\\/");
+	const match = decoded.match(new RegExp(`/${escaped}@([^/]+)(?:/|$)`));
+	if (match?.[1]) return match[1];
+	const segments = decoded.split("/").filter((s) => s.length > 0);
+	const pkgParts = packageName.split("/");
+	for (let i = 0; i <= segments.length - pkgParts.length - 1; i++) {
+		if (pkgParts.every((p, j) => segments[i + j] === p)) {
+			const version = segments[i + pkgParts.length];
+			if (version) return version;
+		}
 	}
-
-	const segments = url.pathname
-		.split("/")
-		.filter((segment) => segment.length > 0);
-	const packageSegments = packageName.split("/");
-	for (
-		let index = 0;
-		index <= segments.length - packageSegments.length - 1;
-		index++
-	) {
-		const matchesPackage = packageSegments.every(
-			(segment, offset) => segments[index + offset] === segment,
-		);
-		if (!matchesPackage) continue;
-		const version = segments[index + packageSegments.length];
-		if (version) return version;
-	}
-
 	return undefined;
 }
 

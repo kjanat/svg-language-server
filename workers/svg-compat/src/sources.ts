@@ -1,38 +1,65 @@
+/**
+ * Upstream data loading — resolves BCD and web-features packages from
+ * bundled defaults or dynamically fetched versions via unpkg.
+ *
+ * @module
+ */
+
 import bcd from "@mdn/browser-compat-data" with { type: "json" };
 import { features } from "web-features";
 import denoConfig from "../deno.json" with { type: "json" };
 
+/** Loose JSON object type used to traverse BCD and web-features payloads without npm type imports. */
 export interface JsonRecord {
 	[key: string]: unknown;
 }
 
+/** Metadata about one upstream npm package used to build the response. */
 export interface SourceInfo {
+	/** npm package name (e.g. `@mdn/browser-compat-data`). */
 	package: string;
+	/** Version that was requested (from deno.json or query param). */
 	requested: string;
+	/** Version that was actually resolved after fetching. */
 	resolved: string;
+	/** Whether this used the bundled default or a dynamically fetched override. */
 	mode: "default" | "override";
+	/** URL the data was fetched from (or would be fetched from for defaults). */
 	source_url: string;
 }
 
+/** The two upstream sources (BCD + web-features) with their resolved version info. */
 export interface SvgCompatSources {
+	/** MDN browser-compat-data source info. */
 	bcd: SourceInfo;
+	/** Web-features source info. */
 	web_features: SourceInfo;
 }
 
+/** Requested package versions parsed from query params (`?bcd=...&wf=...` or `?source=latest`). */
 export interface SourceSelection {
+	/** Requested BCD version or dist-tag. */
 	bcd: string;
+	/** Requested web-features version or dist-tag. */
 	wf: string;
 }
 
+/** Fully loaded and validated source payloads ready for processing. */
 export interface LoadedSourceData {
+	/** Full BCD root object. */
 	bcdRoot: JsonRecord;
+	/** The `bcd.svg` subtree. */
 	svgRoot: JsonRecord;
+	/** The `features` map from web-features. */
 	featureMap: JsonRecord;
+	/** Resolved source metadata for both packages. */
 	sources: SvgCompatSources;
 }
 
+/** Thrown when query params contain invalid version tokens or source modes. Maps to HTTP 400. */
 export class InvalidSourceRequestError extends Error {}
 
+/** Thrown when an upstream fetch fails or returns unexpected data. Maps to HTTP 502. */
 export class UpstreamSourceError extends Error {}
 
 const VERSION_TOKEN = /^(latest|[A-Za-z0-9][A-Za-z0-9._-]*)$/;
@@ -53,6 +80,12 @@ interface CachedJsonRecord {
 const upstreamJsonCache = new Map<string, CachedJsonRecord>();
 const upstreamJsonInflight = new Map<string, Promise<{ body: JsonRecord; resolvedUrl: string }>>();
 
+/**
+ * Type guard for plain JSON objects.
+ *
+ * @param value Any value to check
+ * @returns `true` if `value` is a non-null, non-array object
+ */
 export function isRecord(value: unknown): value is JsonRecord {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -92,6 +125,14 @@ function packageDataUrl(packageName: string, version: string): string {
 	return `https://unpkg.com/${packageName}@${version}/data.json`;
 }
 
+/**
+ * Extracts the resolved version from a URL like
+ * `https://unpkg.com/@mdn/browser-compat-data@7.3.11/data.json`.
+ *
+ * @param location The full URL to extract from
+ * @param packageName The npm package name (e.g. `@mdn/browser-compat-data`)
+ * @returns The version string, or `undefined` if not found
+ */
 export function versionFromLocation(location: string, packageName: string): string | undefined {
 	const url = new URL(location);
 	const decodedPath = decodeURIComponent(url.pathname);
@@ -176,6 +217,13 @@ const DEFAULT_SOURCE_DATA: LoadedSourceData = {
 	sources: DEFAULT_SOURCES,
 };
 
+/**
+ * Parses `?source=`, `?bcd=`, `?wf=` query params into a version selection.
+ *
+ * @param url The request URL to extract params from
+ * @returns Resolved version selection
+ * @throws {InvalidSourceRequestError} On invalid source mode or version token
+ */
 export function parseSourceSelection(url: URL): SourceSelection {
 	const source = url.searchParams.get("source");
 	if (source !== null && source !== "default" && source !== "latest") {
@@ -197,6 +245,11 @@ export function parseSourceSelection(url: URL): SourceSelection {
 	};
 }
 
+/**
+ * Returns the pinned default versions from `deno.json` imports.
+ *
+ * @returns Selection using the bundled package versions
+ */
 export function defaultSourceSelection(): SourceSelection {
 	return {
 		bcd: BCD_IMPORT.requestedVersion,
@@ -316,6 +369,14 @@ async function loadWebFeatures(requested: string): Promise<{
 	};
 }
 
+/**
+ * Loads BCD + web-features data for the given selection.
+ * Uses bundled defaults when versions match, otherwise fetches from unpkg.
+ *
+ * @param selection Requested package versions
+ * @returns Loaded and validated source payloads
+ * @throws {UpstreamSourceError} If upstream fetch or validation fails
+ */
 export async function loadSourceDataForSelection(selection: SourceSelection): Promise<LoadedSourceData> {
 	if (isDefaultSelection(selection)) return DEFAULT_SOURCE_DATA;
 
@@ -335,6 +396,12 @@ export async function loadSourceDataForSelection(selection: SourceSelection): Pr
 	};
 }
 
+/**
+ * Convenience: parses source selection from URL and loads data.
+ *
+ * @param url The request URL with optional `?source=`, `?bcd=`, `?wf=` params
+ * @returns Loaded and validated source payloads
+ */
 export async function loadSourceData(url: URL): Promise<LoadedSourceData> {
 	return await loadSourceDataForSelection(parseSourceSelection(url));
 }

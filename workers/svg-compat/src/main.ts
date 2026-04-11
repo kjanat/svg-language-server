@@ -1,3 +1,10 @@
+/**
+ * SVG compat data server — extracts and merges SVG element/attribute
+ * compatibility data from BCD and web-features into a single JSON endpoint.
+ *
+ * @module
+ */
+
 import {
 	InvalidSourceRequestError,
 	isRecord,
@@ -9,6 +16,9 @@ import {
 	UpstreamSourceError,
 } from "./sources.ts";
 
+export type { SourceInfo, SvgCompatSources } from "./sources.ts";
+
+/** BCD uses underscore-delimited xlink names; SVG uses colon-delimited. */
 const XLINK_MAP: Record<string, string> = {
 	xlink_actuate: "xlink:actuate",
 	xlink_arcrole: "xlink:arcrole",
@@ -35,48 +45,79 @@ function canonicalAttributeName(name: string): string {
 	return XLINK_MAP[name] ?? name;
 }
 
+/** Web-platform baseline status resolved from the `web-features` dataset. */
 export interface Baseline {
+	/** Baseline tier: widely available, newly available, or limited support. */
 	status: "widely" | "newly" | "limited";
+	/** Year the feature reached this baseline tier. */
 	since?: number;
+	/** ISO date when the feature first reached baseline (low tier). */
 	low_date?: string;
+	/** ISO date when the feature reached baseline high tier. */
 	high_date?: string;
 }
 
+/** Minimum browser versions that support a feature, from BCD `support` block. */
 export interface BrowserSupport {
+	/** Minimum Chrome desktop version. */
 	chrome?: string;
+	/** Minimum Edge version. */
 	edge?: string;
+	/** Minimum Firefox desktop version. */
 	firefox?: string;
+	/** Minimum Safari desktop version. */
 	safari?: string;
 }
 
+/** Processed compatibility entry for an SVG element or attribute. */
 export interface CompatEntry {
+	/** Human-readable feature description from BCD. */
 	description?: string;
+	/** MDN documentation URL. */
 	mdn_url?: string;
+	/** Whether the feature is deprecated. */
 	deprecated: boolean;
+	/** Whether the feature is experimental (single-implementer). */
 	experimental: boolean;
+	/** Whether the feature is on a standards track. */
 	standard_track: boolean;
+	/** Specification URLs from BCD. */
 	spec_url: string[];
+	/** Baseline status from web-features. */
 	baseline?: Baseline;
+	/** Minimum browser versions from BCD. */
 	browser_support?: BrowserSupport;
 }
 
+/** Compat entry for an attribute, with the list of elements it applies to (`["*"]` = global). */
 export interface AttributeEntry extends CompatEntry {
+	/** Element names this attribute applies to. `["*"]` means global. */
 	elements: string[];
 }
 
+/** Top-level JSON response shape served at `/data.json`. */
 export interface SvgCompatOutput {
+	/** ISO timestamp of when this output was generated. */
 	generated_at: string;
+	/** Upstream package versions used to build this response. */
 	sources: SvgCompatSources;
+	/** SVG elements keyed by tag name. */
 	elements: Record<string, CompatEntry>;
+	/** SVG attributes keyed by attribute name (xlink uses colon notation). */
 	attributes: Record<string, AttributeEntry>;
 }
 
-interface SvgCompatSnapshot {
+/** Internal snapshot before timestamp is added. Used as the cache value. */
+export interface SvgCompatSnapshot {
+	/** Resolved upstream package versions. */
 	sources: SvgCompatSources;
+	/** Processed SVG elements. */
 	elements: Record<string, CompatEntry>;
+	/** Processed SVG attributes. */
 	attributes: Record<string, AttributeEntry>;
 }
 
+/** JSON Schema (2020-12) describing the `/data.json` response shape. Served at `/schema.json`. */
 export const SVG_COMPAT_SCHEMA = {
 	$schema: "https://json-schema.org/draft/2020-12/schema",
 	title: "SVG Compat Output",
@@ -208,6 +249,7 @@ function getCompat(node: JsonRecord): JsonRecord | undefined {
 	return getRecordProperty(node, "__compat");
 }
 
+/** Resolves baseline from web-features using `web-features:` tags in BCD `__compat.tags`. */
 function extractBaseline(
 	compat: JsonRecord,
 	featureMap: JsonRecord,
@@ -310,6 +352,7 @@ function extractSpecUrls(compat: JsonRecord): string[] {
 	return url.filter((entry): entry is string => typeof entry === "string");
 }
 
+/** Builds a {@linkcode CompatEntry} from a BCD `__compat` node and web-features lookup. */
 function makeCompatEntry(
 	compat: JsonRecord,
 	featureMap: JsonRecord,
@@ -344,6 +387,7 @@ function parseBrowserVersion(
 	return { upperBound: isUpperBound, parts };
 }
 
+/** Compares semver-ish browser versions. Handles `≤` upper-bound markers. */
 function compareBrowserVersions(left: string, right: string): number {
 	const parsedLeft = parseBrowserVersion(left);
 	const parsedRight = parseBrowserVersion(right);
@@ -382,6 +426,10 @@ function mergeBrowserSupport(
 	};
 }
 
+/**
+ * Merges an attribute compat entry from one element into the global attribute map.
+ * Pessimistic: deprecated/experimental use OR, baseline picks worst, browser versions take latest.
+ */
 function mergeAttributeEntry(
 	attributes: Map<string, AttributeEntry>,
 	attributeName: string,
@@ -428,6 +476,7 @@ function mergeAttributeEntry(
 	}
 }
 
+/** Walks `bcd.svg.elements`, extracts `__compat` for each, returns sorted record. */
 function collectElements(
 	svgElements: JsonRecord,
 	featureMap: JsonRecord,
@@ -444,6 +493,7 @@ function collectElements(
 	return result;
 }
 
+/** Collects global + element-specific attributes from BCD, merges across elements, returns sorted. */
 function collectAttributes(
 	svgRoot: JsonRecord,
 	featureMap: JsonRecord,
@@ -489,6 +539,7 @@ function collectAttributes(
 	);
 }
 
+/** Processes raw loaded source data into a processed snapshot of elements and attributes. */
 function buildSnapshot(data: LoadedSourceData): SvgCompatSnapshot {
 	const elements = getRecordProperty(data.svgRoot, "elements");
 	if (!elements) {
@@ -502,6 +553,13 @@ function buildSnapshot(data: LoadedSourceData): SvgCompatSnapshot {
 	};
 }
 
+/**
+ * Wraps a snapshot with a generation timestamp into the final output shape.
+ *
+ * @param snapshot Processed element/attribute data
+ * @param generatedAt ISO timestamp, defaults to now
+ * @returns The complete JSON response object
+ */
 export function buildOutput(
 	snapshot: SvgCompatSnapshot,
 	generatedAt: string = new Date().toISOString(),
@@ -514,6 +572,7 @@ export function buildOutput(
 	};
 }
 
+/** Returns cached or freshly-built output for the given request URL's source selection. */
 async function getOutput(url: URL): Promise<SvgCompatOutput> {
 	const selection = parseSourceSelection(url);
 	const key = `${selection.bcd}|${selection.wf}`;
@@ -691,6 +750,13 @@ function renderSourceRows(output: SvgCompatOutput): string {
 		.join("");
 }
 
+/**
+ * Renders the HTML dashboard page with stats, element/attribute tables, and source info.
+ *
+ * @param output The processed compat data
+ * @param requestUrl Used to build links to JSON/schema endpoints
+ * @returns Complete HTML string
+ */
 export function renderHtml(output: SvgCompatOutput, requestUrl: URL): string {
 	const elementCount = Object.keys(output.elements).length;
 	const attributeCount = Object.keys(output.attributes).length;
@@ -927,10 +993,13 @@ const schemaBody = JSON.stringify(SVG_COMPAT_SCHEMA, null, "  ");
 const schemaLastModified = new Date("2026-04-11T00:00:00.000Z").toUTCString();
 const schemaTag = schemaEtag();
 
-interface Server {
+/** Deno serve-compatible handler. */
+export interface Server {
+	/** Handles an incoming HTTP request. */
 	fetch(request: Request): Promise<Response>;
 }
 
+/** The default export for `deno serve`. */
 const server: Server = {
 	async fetch(request: Request): Promise<Response> {
 		const url = new URL(request.url);

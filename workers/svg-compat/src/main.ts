@@ -502,7 +502,10 @@ function buildSnapshot(data: LoadedSourceData): SvgCompatSnapshot {
 	};
 }
 
-export function buildOutput(snapshot: SvgCompatSnapshot, generatedAt = new Date().toISOString()): SvgCompatOutput {
+export function buildOutput(
+	snapshot: SvgCompatSnapshot,
+	generatedAt: string = new Date().toISOString(),
+): SvgCompatOutput {
 	return {
 		generated_at: generatedAt,
 		sources: snapshot.sources,
@@ -924,7 +927,11 @@ const schemaBody = JSON.stringify(SVG_COMPAT_SCHEMA, null, "  ");
 const schemaLastModified = new Date("2026-04-11T00:00:00.000Z").toUTCString();
 const schemaTag = schemaEtag();
 
-export default {
+interface Server {
+	fetch(request: Request): Promise<Response>;
+}
+
+const server: Server = {
 	async fetch(request: Request): Promise<Response> {
 		const url = new URL(request.url);
 		if (request.method !== "GET" && request.method !== "HEAD") {
@@ -1002,3 +1009,5 @@ export default {
 		}
 	},
 } satisfies Deno.ServeDefaultExport;
+
+export default server;

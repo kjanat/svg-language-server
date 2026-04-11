@@ -1,5 +1,7 @@
 {
 	"$schema": "https://raw.githubusercontent.com/denoland/deno/refs/heads/main/cli/schemas/config-file.v1.json",
+	"name": "svg-compat",
+	"version": "1.0.0",
 	"tasks": {
 		"dev": {
 			"command": "deno serve --watch -A src/main.ts",
@@ -8,17 +10,24 @@
 		"test": {
 			"command": "deno test -P",
 			"description": "Run the tests for SVG compatibility data with preset permissions."
+		},
+		"fmt": {
+			"command": "dprint fmt",
+			"description": "Format the codebase using dprint."
 		}
 	},
 	"imports": {
 		"@mdn/browser-compat-data": "npm:@mdn/browser-compat-data@7.3.11",
 		"@std/assert": "jsr:@std/assert@1",
+		"@std/http": "jsr:@std/http@1",
 		"web-features": "npm:web-features@3.23.0"
 	},
 	"exports": "./src/main.ts",
 	"deploy": {
 		"org": "kjanat",
-		"app": "svg-compat"
+		"app": "svg-compat",
+		"include": ["deno.json*", "src/**", "static/**"],
+		"exclude": ["src/**/*.test.ts"]
 	},
 	"test": {
 		"permissions": {

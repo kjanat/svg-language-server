@@ -1,121 +1,121 @@
 {
-  "schema_version": 1,
-  "snapshot": "Svg2Cr20181004",
-  "title": "SVG 2 Candidate Recommendation",
-  "date": "2018-10-04",
-  "status": "candidate_recommendation",
-  "pinned_sources": [
-    {
-      "manifest_id": "svg2-cr-20181004",
-      "input_id": "tr-root",
-      "authority": "primary",
-      "pin": {
-        "kind": "url",
-        "url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-      }
-    },
-    {
-      "manifest_id": "svg2-cr-20181004",
-      "input_id": "single-page",
-      "authority": "supporting",
-      "pin": {
-        "kind": "url",
-        "url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-      }
-    },
-    {
-      "manifest_id": "svg2-cr-20181004",
-      "input_id": "element-index",
-      "authority": "supporting",
-      "pin": {
-        "kind": "url",
-        "url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-      }
-    },
-    {
-      "manifest_id": "svg2-cr-20181004",
-      "input_id": "attribute-index",
-      "authority": "supporting",
-      "pin": {
-        "kind": "url",
-        "url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-      }
-    },
-    {
-      "manifest_id": "svg2-cr-20181004",
-      "input_id": "property-index",
-      "authority": "supporting",
-      "pin": {
-        "kind": "url",
-        "url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-      }
-    },
-    {
-      "manifest_id": "svg2-cr-20181004",
-      "input_id": "editors-draft-reference",
-      "authority": "supporting",
-      "pin": {
-        "kind": "url",
-        "url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-      }
-    },
-    {
-      "manifest_id": "foreign-references",
-      "input_id": "svg-animations",
-      "authority": "foreign_reference",
-      "pin": {
-        "kind": "url",
-        "url": "https://svgwg.org/specs/animations/"
-      }
-    },
-    {
-      "manifest_id": "foreign-references",
-      "input_id": "filter-effects-1",
-      "authority": "foreign_reference",
-      "pin": {
-        "kind": "url",
-        "url": "https://drafts.fxtf.org/filter-effects/"
-      }
-    },
-    {
-      "manifest_id": "foreign-references",
-      "input_id": "css-masking-1",
-      "authority": "foreign_reference",
-      "pin": {
-        "kind": "url",
-        "url": "https://drafts.fxtf.org/css-masking-1/"
-      }
-    },
-    {
-      "manifest_id": "foreign-references",
-      "input_id": "compositing-1",
-      "authority": "foreign_reference",
-      "pin": {
-        "kind": "url",
-        "url": "https://www.w3.org/TR/2015/CR-compositing-1-20150113/"
-      }
-    },
-    {
-      "manifest_id": "foreign-references",
-      "input_id": "css-values-3",
-      "authority": "foreign_reference",
-      "pin": {
-        "kind": "url",
-        "url": "https://www.w3.org/TR/css-values-3/"
-      }
-    },
-    {
-      "manifest_id": "foreign-references",
-      "input_id": "css-color-4",
-      "authority": "foreign_reference",
-      "pin": {
-        "kind": "url",
-        "url": "https://drafts.csswg.org/css-color-4/"
-      }
-    }
-  ],
-  "ingestion": {
-    "extractor_version": "snapshot-seed-v1",
-    "normalized_at": "2026-04-09"
-  }
+	"schema_version": 1,
+	"snapshot": "Svg2Cr20181004",
+	"title": "SVG 2 Candidate Recommendation",
+	"date": "2018-10-04",
+	"status": "candidate_recommendation",
+	"pinned_sources": [
+		{
+			"manifest_id": "svg2-cr-20181004",
+			"input_id": "tr-root",
+			"authority": "primary",
+			"pin": {
+				"kind": "url",
+				"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+			}
+		},
+		{
+			"manifest_id": "svg2-cr-20181004",
+			"input_id": "single-page",
+			"authority": "supporting",
+			"pin": {
+				"kind": "url",
+				"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+			}
+		},
+		{
+			"manifest_id": "svg2-cr-20181004",
+			"input_id": "element-index",
+			"authority": "supporting",
+			"pin": {
+				"kind": "url",
+				"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+			}
+		},
+		{
+			"manifest_id": "svg2-cr-20181004",
+			"input_id": "attribute-index",
+			"authority": "supporting",
+			"pin": {
+				"kind": "url",
+				"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+			}
+		},
+		{
+			"manifest_id": "svg2-cr-20181004",
+			"input_id": "property-index",
+			"authority": "supporting",
+			"pin": {
+				"kind": "url",
+				"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+			}
+		},
+		{
+			"manifest_id": "svg2-cr-20181004",
+			"input_id": "editors-draft-reference",
+			"authority": "supporting",
+			"pin": {
+				"kind": "url",
+				"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+			}
+		},
+		{
+			"manifest_id": "foreign-references",
+			"input_id": "svg-animations",
+			"authority": "foreign_reference",
+			"pin": {
+				"kind": "url",
+				"url": "https://svgwg.org/specs/animations/"
+			}
+		},
+		{
+			"manifest_id": "foreign-references",
+			"input_id": "filter-effects-1",
+			"authority": "foreign_reference",
+			"pin": {
+				"kind": "url",
+				"url": "https://drafts.fxtf.org/filter-effects/"
+			}
+		},
+		{
+			"manifest_id": "foreign-references",
+			"input_id": "css-masking-1",
+			"authority": "foreign_reference",
+			"pin": {
+				"kind": "url",
+				"url": "https://drafts.fxtf.org/css-masking-1/"
+			}
+		},
+		{
+			"manifest_id": "foreign-references",
+			"input_id": "compositing-1",
+			"authority": "foreign_reference",
+			"pin": {
+				"kind": "url",
+				"url": "https://www.w3.org/TR/2015/CR-compositing-1-20150113/"
+			}
+		},
+		{
+			"manifest_id": "foreign-references",
+			"input_id": "css-values-3",
+			"authority": "foreign_reference",
+			"pin": {
+				"kind": "url",
+				"url": "https://www.w3.org/TR/css-values-3/"
+			}
+		},
+		{
+			"manifest_id": "foreign-references",
+			"input_id": "css-color-4",
+			"authority": "foreign_reference",
+			"pin": {
+				"kind": "url",
+				"url": "https://drafts.csswg.org/css-color-4/"
+			}
+		}
+	],
+	"ingestion": {
+		"extractor_version": "snapshot-seed-v1",
+		"normalized_at": "2026-04-09"
+	}
 }

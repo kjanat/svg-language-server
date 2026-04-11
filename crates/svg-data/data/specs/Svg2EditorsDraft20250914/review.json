@@ -1,70 +1,70 @@
 {
-  "schema_version": 1,
-  "counts": {
-    "elements": 63,
-    "attributes": 205,
-    "grammars": 25,
-    "applicability_edges": 4717,
-    "exceptions": 0
-  },
-  "applicability": {
-    "elements_requiring_matrix_entries": 63,
-    "elements_with_matrix_entries": 63,
-    "elements_missing_matrix_entries": []
-  },
-  "provenance": {
-    "elements": {
-      "total": 63,
-      "covered": 63,
-      "missing": 0
-    },
-    "attributes": {
-      "total": 205,
-      "covered": 205,
-      "missing": 0
-    },
-    "grammars": {
-      "total": 25,
-      "covered": 25,
-      "missing": 0
-    },
-    "element_categories": {
-      "total": 61,
-      "covered": 61,
-      "missing": 0
-    },
-    "attribute_categories": {
-      "total": 0,
-      "covered": 0,
-      "missing": 0
-    },
-    "applicability_edges": {
-      "total": 4717,
-      "covered": 4717,
-      "missing": 0
-    },
-    "exceptions": {
-      "total": 0,
-      "covered": 0,
-      "missing": 0
-    }
-  },
-  "exception_inventory": {
-    "total": 0,
-    "corrected": 0,
-    "deferred": 0,
-    "snapshot_scoped": 0,
-    "element_scoped": 0,
-    "attribute_scoped": 0,
-    "element_attribute_scoped": 0,
-    "grammar_scoped": 0,
-    "ids": []
-  },
-  "unresolved": [],
-  "manual_notes": [
-    "Seeded from the current profile-aware catalog to establish checked-in snapshot truth for Svg2EditorsDraft20250914.",
-    "SVG-owned value grammar is normalized into `grammars.json`; only free-form text stays opaque in this seed.",
-    "SVG 2 foreign grammars and external modules stay as pinned typed references instead of ad hoc local strings.",
-    "SVG 2 ED seed facts are anchored to the pinned svgwg commit and `definitions.xml`; chapter HTML and companion definitions files remain follow-up validation inputs until source-native ingestion replaces the seed."
-  ]
+	"schema_version": 1,
+	"counts": {
+		"elements": 63,
+		"attributes": 205,
+		"grammars": 25,
+		"applicability_edges": 4717,
+		"exceptions": 0
+	},
+	"applicability": {
+		"elements_requiring_matrix_entries": 63,
+		"elements_with_matrix_entries": 63,
+		"elements_missing_matrix_entries": []
+	},
+	"provenance": {
+		"elements": {
+			"total": 63,
+			"covered": 63,
+			"missing": 0
+		},
+		"attributes": {
+			"total": 205,
+			"covered": 205,
+			"missing": 0
+		},
+		"grammars": {
+			"total": 25,
+			"covered": 25,
+			"missing": 0
+		},
+		"element_categories": {
+			"total": 61,
+			"covered": 61,
+			"missing": 0
+		},
+		"attribute_categories": {
+			"total": 0,
+			"covered": 0,
+			"missing": 0
+		},
+		"applicability_edges": {
+			"total": 4717,
+			"covered": 4717,
+			"missing": 0
+		},
+		"exceptions": {
+			"total": 0,
+			"covered": 0,
+			"missing": 0
+		}
+	},
+	"exception_inventory": {
+		"total": 0,
+		"corrected": 0,
+		"deferred": 0,
+		"snapshot_scoped": 0,
+		"element_scoped": 0,
+		"attribute_scoped": 0,
+		"element_attribute_scoped": 0,
+		"grammar_scoped": 0,
+		"ids": []
+	},
+	"unresolved": [],
+	"manual_notes": [
+		"Seeded from the current profile-aware catalog to establish checked-in snapshot truth for Svg2EditorsDraft20250914.",
+		"SVG-owned value grammar is normalized into `grammars.json`; only free-form text stays opaque in this seed.",
+		"SVG 2 foreign grammars and external modules stay as pinned typed references instead of ad hoc local strings.",
+		"SVG 2 ED seed facts are anchored to the pinned svgwg commit and `definitions.xml`; chapter HTML and companion definitions files remain follow-up validation inputs until source-native ingestion replaces the seed."
+	]
 }

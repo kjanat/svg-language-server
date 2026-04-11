@@ -1,69 +1,69 @@
 {
-  "schema_version": 1,
-  "counts": {
-    "elements": 62,
-    "attributes": 208,
-    "grammars": 29,
-    "applicability_edges": 4651,
-    "exceptions": 0
-  },
-  "applicability": {
-    "elements_requiring_matrix_entries": 62,
-    "elements_with_matrix_entries": 62,
-    "elements_missing_matrix_entries": []
-  },
-  "provenance": {
-    "elements": {
-      "total": 62,
-      "covered": 62,
-      "missing": 0
-    },
-    "attributes": {
-      "total": 208,
-      "covered": 208,
-      "missing": 0
-    },
-    "grammars": {
-      "total": 29,
-      "covered": 29,
-      "missing": 0
-    },
-    "element_categories": {
-      "total": 61,
-      "covered": 61,
-      "missing": 0
-    },
-    "attribute_categories": {
-      "total": 0,
-      "covered": 0,
-      "missing": 0
-    },
-    "applicability_edges": {
-      "total": 4651,
-      "covered": 4651,
-      "missing": 0
-    },
-    "exceptions": {
-      "total": 0,
-      "covered": 0,
-      "missing": 0
-    }
-  },
-  "exception_inventory": {
-    "total": 0,
-    "corrected": 0,
-    "deferred": 0,
-    "snapshot_scoped": 0,
-    "element_scoped": 0,
-    "attribute_scoped": 0,
-    "element_attribute_scoped": 0,
-    "grammar_scoped": 0,
-    "ids": []
-  },
-  "unresolved": [],
-  "manual_notes": [
-    "Seeded from the current profile-aware catalog to establish checked-in snapshot truth for Svg11Rec20110816.",
-    "SVG-owned value grammar is normalized into `grammars.json`; only free-form text stays opaque in this seed.",
-    "SVG 1.1 seed facts are backed by the flattened DTD plus TR indices until source-native ingestion replaces the seed."
-  ]
+	"schema_version": 1,
+	"counts": {
+		"elements": 62,
+		"attributes": 208,
+		"grammars": 29,
+		"applicability_edges": 4651,
+		"exceptions": 0
+	},
+	"applicability": {
+		"elements_requiring_matrix_entries": 62,
+		"elements_with_matrix_entries": 62,
+		"elements_missing_matrix_entries": []
+	},
+	"provenance": {
+		"elements": {
+			"total": 62,
+			"covered": 62,
+			"missing": 0
+		},
+		"attributes": {
+			"total": 208,
+			"covered": 208,
+			"missing": 0
+		},
+		"grammars": {
+			"total": 29,
+			"covered": 29,
+			"missing": 0
+		},
+		"element_categories": {
+			"total": 61,
+			"covered": 61,
+			"missing": 0
+		},
+		"attribute_categories": {
+			"total": 0,
+			"covered": 0,
+			"missing": 0
+		},
+		"applicability_edges": {
+			"total": 4651,
+			"covered": 4651,
+			"missing": 0
+		},
+		"exceptions": {
+			"total": 0,
+			"covered": 0,
+			"missing": 0
+		}
+	},
+	"exception_inventory": {
+		"total": 0,
+		"corrected": 0,
+		"deferred": 0,
+		"snapshot_scoped": 0,
+		"element_scoped": 0,
+		"attribute_scoped": 0,
+		"element_attribute_scoped": 0,
+		"grammar_scoped": 0,
+		"ids": []
+	},
+	"unresolved": [],
+	"manual_notes": [
+		"Seeded from the current profile-aware catalog to establish checked-in snapshot truth for Svg11Rec20110816.",
+		"SVG-owned value grammar is normalized into `grammars.json`; only free-form text stays opaque in this seed.",
+		"SVG 1.1 seed facts are backed by the flattened DTD plus TR indices until source-native ingestion replaces the seed."
+	]
 }

@@ -1,49 +1,49 @@
 {
-  "schema_version": 1,
-  "snapshot": "Svg11Rec20030114",
-  "title": "SVG 1.1 First Edition",
-  "date": "2003-01-14",
-  "status": "recommendation",
-  "pinned_sources": [
-    {
-      "manifest_id": "svg11-rec-20030114",
-      "input_id": "tr-root",
-      "authority": "primary",
-      "pin": {
-        "kind": "url",
-        "url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-      }
-    },
-    {
-      "manifest_id": "svg11-rec-20030114",
-      "input_id": "element-index",
-      "authority": "supporting",
-      "pin": {
-        "kind": "url",
-        "url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-      }
-    },
-    {
-      "manifest_id": "svg11-rec-20030114",
-      "input_id": "attribute-index",
-      "authority": "supporting",
-      "pin": {
-        "kind": "url",
-        "url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-      }
-    },
-    {
-      "manifest_id": "svg11-rec-20030114",
-      "input_id": "flattened-dtd",
-      "authority": "supporting",
-      "pin": {
-        "kind": "url",
-        "url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-      }
-    }
-  ],
-  "ingestion": {
-    "extractor_version": "snapshot-seed-v1",
-    "normalized_at": "2026-04-09"
-  }
+	"schema_version": 1,
+	"snapshot": "Svg11Rec20030114",
+	"title": "SVG 1.1 First Edition",
+	"date": "2003-01-14",
+	"status": "recommendation",
+	"pinned_sources": [
+		{
+			"manifest_id": "svg11-rec-20030114",
+			"input_id": "tr-root",
+			"authority": "primary",
+			"pin": {
+				"kind": "url",
+				"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+			}
+		},
+		{
+			"manifest_id": "svg11-rec-20030114",
+			"input_id": "element-index",
+			"authority": "supporting",
+			"pin": {
+				"kind": "url",
+				"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+			}
+		},
+		{
+			"manifest_id": "svg11-rec-20030114",
+			"input_id": "attribute-index",
+			"authority": "supporting",
+			"pin": {
+				"kind": "url",
+				"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+			}
+		},
+		{
+			"manifest_id": "svg11-rec-20030114",
+			"input_id": "flattened-dtd",
+			"authority": "supporting",
+			"pin": {
+				"kind": "url",
+				"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+			}
+		}
+	],
+	"ingestion": {
+		"extractor_version": "snapshot-seed-v1",
+		"normalized_at": "2026-04-09"
+	}
 }

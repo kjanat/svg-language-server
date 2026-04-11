@@ -5,12 +5,12 @@
  * @module
  */
 
-import bcd from "@mdn/browser-compat-data" with { type: "json" };
+import bcd from "@mdn/browser-compat-data/data.json" with { type: "json" };
 import { features } from "web-features";
-import denoConfig from "../deno.json" with { type: "json" };
 
 /** Loose JSON object type used to traverse BCD and web-features payloads without npm type imports. */
 export interface JsonRecord {
+	/** Any string key maps to an unknown value. */
 	[key: string]: unknown;
 }
 
@@ -65,12 +65,6 @@ export class UpstreamSourceError extends Error {}
 const VERSION_TOKEN = /^(latest|[A-Za-z0-9][A-Za-z0-9._-]*)$/;
 const UPSTREAM_CACHE_TTL_MS = 12 * 60 * 60 * 1000;
 
-interface PackageImport {
-	alias: string;
-	packageName: string;
-	requestedVersion: string;
-}
-
 interface CachedJsonRecord {
 	body: JsonRecord;
 	resolvedUrl: string;
@@ -78,7 +72,10 @@ interface CachedJsonRecord {
 }
 
 const upstreamJsonCache = new Map<string, CachedJsonRecord>();
-const upstreamJsonInflight = new Map<string, Promise<{ body: JsonRecord; resolvedUrl: string }>>();
+const upstreamJsonInflight = new Map<
+	string,
+	Promise<{ body: JsonRecord; resolvedUrl: string }>
+>();
 
 /**
  * Type guard for plain JSON objects.
@@ -99,27 +96,15 @@ function getString(value: unknown): string | undefined {
 	return typeof value === "string" ? value : undefined;
 }
 
-function parsePackageImport(alias: keyof typeof denoConfig.imports): PackageImport {
-	const specifier = denoConfig.imports[alias];
-	if (!specifier?.startsWith("npm:")) {
-		throw new Error(`Missing npm import for ${alias} in deno.json.`);
-	}
-
-	const raw = specifier.slice("npm:".length);
-	const separator = raw.lastIndexOf("@");
-	if (separator <= 0 || separator === raw.length - 1) {
-		throw new Error(`Invalid npm import for ${alias}: ${specifier}`);
-	}
-
-	return {
-		alias,
-		packageName: raw.slice(0, separator),
-		requestedVersion: raw.slice(separator + 1),
-	};
+function resolvedVersion(specifier: string): string {
+	const resolved = import.meta.resolve(specifier);
+	const atMatch = resolved.match(/@(\d[^/]*)\//);
+	if (atMatch?.[1]) return atMatch[1];
+	const segments = new URL(resolved).pathname.split("/");
+	const versionSegment = segments.find((s) => /^\d/.test(s));
+	if (versionSegment) return versionSegment;
+	throw new Error(`Cannot extract version from ${resolved}`);
 }
-
-const BCD_IMPORT = parsePackageImport("@mdn/browser-compat-data");
-const WF_IMPORT = parsePackageImport("web-features");
 
 function packageDataUrl(packageName: string, version: string): string {
 	return `https://unpkg.com/${packageName}@${version}/data.json`;
@@ -133,7 +118,10 @@ function packageDataUrl(packageName: string, version: string): string {
  * @param packageName The npm package name (e.g. `@mdn/browser-compat-data`)
  * @returns The version string, or `undefined` if not found
  */
-export function versionFromLocation(location: string, packageName: string): string | undefined {
+export function versionFromLocation(
+	location: string,
+	packageName: string,
+): string | undefined {
 	const url = new URL(location);
 	const decodedPath = decodeURIComponent(url.pathname);
 	const escapedPackageName = packageName.replaceAll("/", "\\/");
@@ -148,9 +136,15 @@ export function versionFromLocation(location: string, packageName: string): stri
 		return version.length > 0 ? version : undefined;
 	}
 
-	const segments = url.pathname.split("/").filter((segment) => segment.length > 0);
+	const segments = url.pathname
+		.split("/")
+		.filter((segment) => segment.length > 0);
 	const packageSegments = packageName.split("/");
-	for (let index = 0; index <= segments.length - packageSegments.length - 1; index++) {
+	for (
+		let index = 0;
+		index <= segments.length - packageSegments.length - 1;
+		index++
+	) {
 		const matchesPackage = packageSegments.every(
 			(segment, offset) => segments[index + offset] === segment,
 		);
@@ -162,7 +156,10 @@ export function versionFromLocation(location: string, packageName: string): stri
 	return undefined;
 }
 
-function parseVersionToken(name: string, value: string | null): string | undefined {
+function parseVersionToken(
+	name: string,
+	value: string | null,
+): string | undefined {
 	if (value === null) return undefined;
 	if (!VERSION_TOKEN.test(value)) {
 		throw new InvalidSourceRequestError(
@@ -173,40 +170,36 @@ function parseVersionToken(name: string, value: string | null): string | undefin
 }
 
 const DEFAULT_BCD_ROOT = asRecord(bcd, "Default BCD payload is not an object.");
-const DEFAULT_BCD_META = isRecord(DEFAULT_BCD_ROOT.__meta) ? DEFAULT_BCD_ROOT.__meta : undefined;
+const DEFAULT_BCD_META = isRecord(DEFAULT_BCD_ROOT.__meta)
+	? DEFAULT_BCD_ROOT.__meta
+	: undefined;
 const DEFAULT_BCD_VERSION = getString(DEFAULT_BCD_META?.version)
-	?? versionFromLocation(import.meta.resolve(BCD_IMPORT.alias), BCD_IMPORT.packageName)
-	?? BCD_IMPORT.requestedVersion;
+	?? resolvedVersion("@mdn/browser-compat-data");
 
 const DEFAULT_SVG_ROOT = asRecord(
 	DEFAULT_BCD_ROOT.svg,
 	"Default BCD payload is missing the svg root.",
 );
-const DEFAULT_FEATURE_MAP = asRecord(features, "Default web-features payload is not an object.");
-const DEFAULT_WF_VERSION = versionFromLocation(
-	import.meta.resolve(WF_IMPORT.alias),
-	WF_IMPORT.packageName,
-)
-	?? versionFromLocation(
-		import.meta.resolve(`npm:${WF_IMPORT.packageName}`),
-		WF_IMPORT.packageName,
-	)
-	?? WF_IMPORT.requestedVersion;
+const DEFAULT_FEATURE_MAP = asRecord(
+	features,
+	"Default web-features payload is not an object.",
+);
+const DEFAULT_WF_VERSION = resolvedVersion("web-features");
 
 const DEFAULT_SOURCES: SvgCompatSources = {
 	bcd: {
-		package: BCD_IMPORT.packageName,
-		requested: BCD_IMPORT.requestedVersion,
+		package: "@mdn/browser-compat-data",
+		requested: DEFAULT_BCD_VERSION,
 		resolved: DEFAULT_BCD_VERSION,
 		mode: "default",
-		source_url: packageDataUrl(BCD_IMPORT.packageName, DEFAULT_BCD_VERSION),
+		source_url: packageDataUrl("@mdn/browser-compat-data", DEFAULT_BCD_VERSION),
 	},
 	web_features: {
-		package: WF_IMPORT.packageName,
-		requested: WF_IMPORT.requestedVersion,
+		package: "web-features",
+		requested: DEFAULT_WF_VERSION,
 		resolved: DEFAULT_WF_VERSION,
 		mode: "default",
-		source_url: packageDataUrl(WF_IMPORT.packageName, DEFAULT_WF_VERSION),
+		source_url: packageDataUrl("web-features", DEFAULT_WF_VERSION),
 	},
 };
 
@@ -240,8 +233,8 @@ export function parseSourceSelection(url: URL): SourceSelection {
 	const useLatest = source === "latest";
 
 	return {
-		bcd: requestedBcd ?? (useLatest ? "latest" : BCD_IMPORT.requestedVersion),
-		wf: requestedWf ?? (useLatest ? "latest" : WF_IMPORT.requestedVersion),
+		bcd: requestedBcd ?? (useLatest ? "latest" : DEFAULT_BCD_VERSION),
+		wf: requestedWf ?? (useLatest ? "latest" : DEFAULT_WF_VERSION),
 	};
 }
 
@@ -252,16 +245,21 @@ export function parseSourceSelection(url: URL): SourceSelection {
  */
 export function defaultSourceSelection(): SourceSelection {
 	return {
-		bcd: BCD_IMPORT.requestedVersion,
-		wf: WF_IMPORT.requestedVersion,
+		bcd: DEFAULT_BCD_VERSION,
+		wf: DEFAULT_WF_VERSION,
 	};
 }
 
 function isDefaultSelection(selection: SourceSelection): boolean {
-	return selection.bcd === BCD_IMPORT.requestedVersion && selection.wf === WF_IMPORT.requestedVersion;
+	return (
+		selection.bcd === DEFAULT_BCD_VERSION
+		&& selection.wf === DEFAULT_WF_VERSION
+	);
 }
 
-async function fetchJsonRecord(url: string): Promise<{ body: JsonRecord; resolvedUrl: string }> {
+async function fetchJsonRecord(
+	url: string,
+): Promise<{ body: JsonRecord; resolvedUrl: string }> {
 	const cached = upstreamJsonCache.get(url);
 	if (cached && cached.expiresAt > Date.now()) {
 		return { body: cached.body, resolvedUrl: cached.resolvedUrl };
@@ -275,7 +273,9 @@ async function fetchJsonRecord(url: string): Promise<{ body: JsonRecord; resolve
 			headers: { accept: "application/json" },
 		});
 		if (!response.ok) {
-			throw new UpstreamSourceError(`Upstream fetch failed for ${url}: ${response.status}.`);
+			throw new UpstreamSourceError(
+				`Upstream fetch failed for ${url}: ${response.status}.`,
+			);
 		}
 
 		const payload: unknown = await response.json();
@@ -303,7 +303,7 @@ async function loadBcdRoot(requested: string): Promise<{
 	svgRoot: JsonRecord;
 	info: SourceInfo;
 }> {
-	if (requested === BCD_IMPORT.requestedVersion) {
+	if (requested === DEFAULT_BCD_VERSION) {
 		return {
 			root: DEFAULT_BCD_ROOT,
 			svgRoot: DEFAULT_SVG_ROOT,
@@ -311,11 +311,11 @@ async function loadBcdRoot(requested: string): Promise<{
 		};
 	}
 
-	const requestedUrl = packageDataUrl(BCD_IMPORT.packageName, requested);
+	const requestedUrl = packageDataUrl("@mdn/browser-compat-data", requested);
 	const { body, resolvedUrl } = await fetchJsonRecord(requestedUrl);
 	const meta = isRecord(body.__meta) ? body.__meta : undefined;
 	const resolved = getString(meta?.version)
-		?? versionFromLocation(resolvedUrl, BCD_IMPORT.packageName)
+		?? versionFromLocation(resolvedUrl, "@mdn/browser-compat-data")
 		?? (requested === "latest" ? undefined : requested);
 	if (!resolved) {
 		throw new UpstreamSourceError("Could not resolve fetched BCD version.");
@@ -325,7 +325,7 @@ async function loadBcdRoot(requested: string): Promise<{
 		root: body,
 		svgRoot: asRecord(body.svg, "Fetched BCD payload is missing the svg root."),
 		info: {
-			package: BCD_IMPORT.packageName,
+			package: "@mdn/browser-compat-data",
 			requested,
 			resolved,
 			mode: "override",
@@ -338,29 +338,31 @@ async function loadWebFeatures(requested: string): Promise<{
 	featureMap: JsonRecord;
 	info: SourceInfo;
 }> {
-	if (requested === WF_IMPORT.requestedVersion) {
+	if (requested === DEFAULT_WF_VERSION) {
 		return {
 			featureMap: DEFAULT_FEATURE_MAP,
 			info: DEFAULT_SOURCES.web_features,
 		};
 	}
 
-	const requestedUrl = packageDataUrl(WF_IMPORT.packageName, requested);
+	const requestedUrl = packageDataUrl("web-features", requested);
 	const { body, resolvedUrl } = await fetchJsonRecord(requestedUrl);
 	const featureMap = asRecord(
 		body.features,
 		"Fetched web-features payload is missing the features map.",
 	);
-	const resolved = versionFromLocation(resolvedUrl, WF_IMPORT.packageName)
+	const resolved = versionFromLocation(resolvedUrl, "web-features")
 		?? (requested === "latest" ? undefined : requested);
 	if (!resolved) {
-		throw new UpstreamSourceError("Could not resolve fetched web-features version.");
+		throw new UpstreamSourceError(
+			"Could not resolve fetched web-features version.",
+		);
 	}
 
 	return {
 		featureMap,
 		info: {
-			package: WF_IMPORT.packageName,
+			package: "web-features",
 			requested,
 			resolved,
 			mode: "override",
@@ -377,7 +379,9 @@ async function loadWebFeatures(requested: string): Promise<{
  * @returns Loaded and validated source payloads
  * @throws {UpstreamSourceError} If upstream fetch or validation fails
  */
-export async function loadSourceDataForSelection(selection: SourceSelection): Promise<LoadedSourceData> {
+export async function loadSourceDataForSelection(
+	selection: SourceSelection,
+): Promise<LoadedSourceData> {
 	if (isDefaultSelection(selection)) return DEFAULT_SOURCE_DATA;
 
 	const [bcdSource, webFeaturesSource] = await Promise.all([

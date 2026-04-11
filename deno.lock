@@ -13,6 +13,7 @@
     "jsr:@std/net@^1.0.6": "1.0.6",
     "jsr:@std/path@^1.1.4": "1.1.4",
     "jsr:@std/streams@^1.0.17": "1.0.17",
+    "npm:@mdn/browser-compat-data@*": "7.3.11",
     "npm:@mdn/browser-compat-data@7.3.11": "7.3.11",
     "npm:web-features@3.23.0": "3.23.0"
   },
@@ -79,22 +80,22 @@
       "integrity": "sha512-StLwngU3vc0DKGgwO+j7mQz1FhxaLPC1vR7v8zBsHgmqWIOqfE1+KMaD6GPMNhfnrpIyasKc9oNSLBIMlHpkww=="
     }
   },
+  "redirects": {
+    "https://esm.sh/@mdn/browser-compat-data@7.3.11/?raw": "https://esm.sh/@mdn/browser-compat-data@7.3.11/data.json?raw"
+  },
+  "remote": {
+    "https://esm.sh/@mdn/browser-compat-data@7.3.11": "3785413947dd81ead1d4f6465c8b48d9bb5c52fdf054ff297e8539d31579f93f",
+    "https://esm.sh/@mdn/browser-compat-data@7.3.11/data.json": "132cb702aa6f09f27b9d09ad3b44ac8a3ff506bb1ed9fcc6e939ed414f368fe6",
+    "https://esm.sh/@mdn/browser-compat-data@7.3.11/data.json?raw": "132cb702aa6f09f27b9d09ad3b44ac8a3ff506bb1ed9fcc6e939ed414f368fe6",
+    "https://esm.sh/@mdn/browser-compat-data@7.3.11/denonext/browser-compat-data.mjs": "efd588ddc9e6bc8833eed33df1ae4dbf24fee7604d2ee203bcffb92a38d65614",
+    "https://esm.sh/@mdn/browser-compat-data@7.3.11?no-dts": "3785413947dd81ead1d4f6465c8b48d9bb5c52fdf054ff297e8539d31579f93f"
+  },
   "workspace": {
     "dependencies": [
       "jsr:@std/assert@1",
       "jsr:@std/http@1",
       "npm:@mdn/browser-compat-data@7.3.11",
       "npm:web-features@3.23.0"
-    ],
-    "members": {
-      "workers/svg-compat": {
-        "dependencies": [
-          "jsr:@std/assert@1",
-          "jsr:@std/http@1",
-          "npm:@mdn/browser-compat-data@7.3.11",
-          "npm:web-features@3.23.0"
-        ]
-      }
-    }
+    ]
   }
 }

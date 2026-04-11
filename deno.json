@@ -8,13 +8,22 @@
 		"@std/http": "jsr:@std/http@1",
 		"web-features": "npm:web-features@3.23.0"
 	},
+
 	"fmt": { "exclude": ["**"] },
 	"tasks": {
 		"dev:all": "deno task --recursive dev",
-		"fmt": { "command": "dprint fmt", "description": "Format the codebase using dprint." }
+		"fmt": {
+			"command": "dprint fmt",
+			"description": "Format the codebase using dprint."
+		}
 	},
 	"deploy": {
 		"org": "kjanat"
 	},
-	"exclude": ["*.js", "target", "scripts"]
+	"exclude": ["*.js", "target", "scripts"],
+	"lint": {
+		"rules": {
+			"tags": ["recommended", "workspace"]
+		}
+	}
 }

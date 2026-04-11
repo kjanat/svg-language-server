@@ -17,7 +17,9 @@
 		"deno": {
 			"settings": {
 				"deno": {
-					"enable": true
+					"enable": true,
+					"enablePaths": [".", "./workers/*"],
+					"config": "deno.json"
 				}
 			}
 		}

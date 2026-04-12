@@ -1,5 +1,10 @@
 /** @type {NodeListOf<HTMLInputElement>} */
 const inputs = document.querySelectorAll("input.ver[data-pkg]");
+const searchParams = new URLSearchParams(location.search);
+for (const input of inputs) {
+	const v = searchParams.get(input.dataset.param);
+	if (v) input.value = v;
+}
 
 function navigate() {
 	const params = new URLSearchParams(location.search);
@@ -81,6 +86,7 @@ for (const input of inputs) {
 		list.hidden = true;
 		input.setAttribute("aria-expanded", "false");
 		active = -1;
+		navigate();
 	}
 
 	function highlight(idx) {
@@ -100,6 +106,10 @@ for (const input of inputs) {
 		active = -1;
 	});
 	input.addEventListener("keydown", (e) => {
+		if (e.key === "Enter" && active < 0) {
+			navigate();
+			return;
+		}
 		if (list.hidden && e.key !== "ArrowDown" && e.key !== "Tab") return;
 		if (
 			e.key === "ArrowDown"

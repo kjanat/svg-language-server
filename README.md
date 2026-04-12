@@ -10,6 +10,22 @@ definition/reference navigation.
 > This project is not published to crates.io yet.
 > Expect breaking changes while the workspace is still under active development.
 
+## Install
+
+LSP:
+
+```sh
+cargo install --git https://github.com/kjanat/svg-language-server \
+  svg-language-server
+```
+
+Formatter:
+
+```bash
+cargo install --git https://github.com/kjanat/svg-language-server \
+  svg-format
+```
+
 ## Workspace Contents
 
 | Crate                 | Purpose                                                                |

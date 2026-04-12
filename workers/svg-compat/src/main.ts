@@ -310,10 +310,9 @@ function parseBaseline(status: JsonRecord): Baseline | undefined {
 
 function extractYear(date: string | undefined): number | undefined {
 	if (!date) return undefined;
-	const [yearText] = date.split("-");
-	if (!yearText) return undefined;
-	const year = parseInt(yearText, 10);
-	return Number.isNaN(year) ? undefined : year;
+	const match = date.match(/(\d{4})/);
+	if (!match) return undefined;
+	return parseInt(match[1], 10);
 }
 
 function browserVersion(value: unknown): string | undefined {

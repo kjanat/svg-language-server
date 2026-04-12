@@ -19,9 +19,7 @@
 	"exports": "./src/main.ts",
 	"deploy": {
 		"org": "kjanat",
-		"app": "svg-compat",
-		"include": ["deno.json*", "src/**", "static/**"],
-		"exclude": ["src/**/*.test.ts"]
+		"app": "svg-compat"
 	},
 	"test": {
 		"permissions": {

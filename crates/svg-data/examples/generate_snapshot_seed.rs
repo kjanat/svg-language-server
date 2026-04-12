@@ -10,7 +10,7 @@ use svg_data::{
     ProfileLookup, attribute_for_profile, attributes, attributes_for_with_profile,
     elements_in_category, elements_with_profile,
     extraction::{SnapshotDataset, SnapshotDatasetWriter, SourceManifest},
-    review::{ReviewInput, build_review},
+    review::{Input, build_report},
     snapshot_schema::{
         AnimationBehavior, AttributeCategoryMembership, AttributeDefaultValue,
         AttributeRequirement, CategoriesFile, ElementAttributeEdge, ElementAttributeMatrixFile,
@@ -103,7 +103,7 @@ fn build_seed_dataset(
         schema_version: SNAPSHOT_SCHEMA_VERSION,
         edges,
     };
-    let review = build_review(ReviewInput {
+    let review = build_report(Input {
         elements: &elements,
         attributes: &attributes,
         grammars: &grammars,

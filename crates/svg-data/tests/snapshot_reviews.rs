@@ -3,7 +3,7 @@
 use std::{fs, path::Path};
 
 use svg_data::{
-    review::{ReviewInput, build_review},
+    review::{Input, build_report},
     snapshot_schema::{
         CategoriesFile, ElementAttributeMatrixFile, ExceptionsFile, GrammarFile, ReviewFile,
         SnapshotAttributeRecord, SnapshotElementRecord,
@@ -25,7 +25,7 @@ fn checked_in_snapshot_reviews_match_derived_audit() {
         let exceptions: ExceptionsFile = read_json(&root.join("exceptions.json"));
         let expected: ReviewFile = read_json(&root.join("review.json"));
 
-        let actual = build_review(ReviewInput {
+        let actual = build_report(Input {
             elements: &elements,
             attributes: &attributes,
             grammars: &grammars,

@@ -28,7 +28,7 @@ pub struct ReviewedSnapshotMembershipInput<'a> {
 
 /// Generated derived artifacts written under `data/derived/`.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct DerivedMembershipArtifacts {
+pub struct MembershipArtifacts {
     /// Canonical union element membership.
     pub elements: ElementMembershipFile,
     /// Canonical union attribute membership.
@@ -139,7 +139,7 @@ impl std::error::Error for DeriveError {}
 /// Returns an error if any canonical snapshot is missing or a review gate is not clean.
 pub fn build_membership_artifacts(
     inputs: &[ReviewedSnapshotMembershipInput<'_>],
-) -> Result<DerivedMembershipArtifacts, DeriveError> {
+) -> Result<MembershipArtifacts, DeriveError> {
     let canonical_snapshots = spec_snapshots();
     let input_by_snapshot: HashMap<SpecSnapshotId, ReviewedSnapshotMembershipInput<'_>> = inputs
         .iter()
@@ -213,7 +213,7 @@ pub fn build_membership_artifacts(
         })
         .collect();
 
-    Ok(DerivedMembershipArtifacts {
+    Ok(MembershipArtifacts {
         elements,
         attributes,
         overlays,
@@ -293,7 +293,7 @@ fn membership_set<'a>(
 mod tests {
     use super::*;
     use crate::{
-        review::{ReviewInput, build_review},
+        review::{Input, build_report},
         snapshot_schema::{
             CategoriesFile, ElementAttributeMatrixFile, ExceptionsFile, GrammarFile, ReviewFile,
             SnapshotAttributeRecord, SnapshotElementRecord,
@@ -301,7 +301,7 @@ mod tests {
     };
 
     fn clean_review() -> ReviewFile {
-        build_review(ReviewInput {
+        build_report(Input {
             elements: &[],
             attributes: &[],
             grammars: &GrammarFile {

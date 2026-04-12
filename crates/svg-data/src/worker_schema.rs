@@ -106,23 +106,34 @@ mod tests {
             }
         }"#;
 
-        let output: WorkerOutput = serde_json::from_str(json).unwrap();
+        let output: WorkerOutput = match serde_json::from_str(json) {
+            Ok(v) => v,
+            Err(e) => panic!("valid worker JSON should parse: {e}"),
+        };
         assert_eq!(output.elements.len(), 1);
         assert_eq!(output.attributes.len(), 1);
 
         let rect = &output.elements["rect"];
         assert!(!rect.deprecated);
         assert_eq!(rect.spec_url.len(), 1);
-        assert_eq!(rect.baseline.as_ref().unwrap().status, "widely");
-        assert_eq!(rect.baseline.as_ref().unwrap().since, Some(2015));
         assert_eq!(
-            rect.browser_support.as_ref().unwrap().chrome.as_deref(),
+            rect.baseline.as_ref().map(|b| b.status.as_str()),
+            Some("widely"),
+        );
+        assert_eq!(rect.baseline.as_ref().and_then(|b| b.since), Some(2015),);
+        assert_eq!(
+            rect.browser_support
+                .as_ref()
+                .and_then(|bs| bs.chrome.as_deref()),
             Some("1"),
         );
 
         let fill = &output.attributes["fill"];
         assert_eq!(fill.elements, vec!["*"]);
-        assert_eq!(fill.baseline.as_ref().unwrap().status, "limited");
-        assert!(fill.baseline.as_ref().unwrap().since.is_none());
+        assert_eq!(
+            fill.baseline.as_ref().map(|b| b.status.as_str()),
+            Some("limited"),
+        );
+        assert_eq!(fill.baseline.as_ref().and_then(|b| b.since), None);
     }
 }

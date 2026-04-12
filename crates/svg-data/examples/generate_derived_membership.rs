@@ -4,7 +4,7 @@ use std::{error::Error, fs, path::Path};
 
 use svg_data::{
     derived::{
-        AttributeMembershipFile, DerivedMembershipArtifacts, ElementMembershipFile,
+        AttributeMembershipFile, ElementMembershipFile, MembershipArtifacts,
         ReviewedSnapshotMembershipInput, SnapshotOverlayFile, build_membership_artifacts,
     },
     snapshot_schema::{ReviewFile, SnapshotAttributeRecord, SnapshotElementRecord},
@@ -58,7 +58,7 @@ fn derived_root() -> std::path::PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("data/derived")
 }
 
-fn write_artifacts(artifacts: &DerivedMembershipArtifacts) -> Result<(), Box<dyn Error>> {
+fn write_artifacts(artifacts: &MembershipArtifacts) -> Result<(), Box<dyn Error>> {
     let root = derived_root();
     write_json(&root.join("union/elements.json"), &artifacts.elements)?;
     write_json(&root.join("union/attributes.json"), &artifacts.attributes)?;

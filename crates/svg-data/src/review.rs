@@ -11,7 +11,7 @@ use crate::snapshot_schema::{
 
 /// Borrowed snapshot facts used to derive `review.json`.
 #[derive(Debug, Clone, Copy)]
-pub struct ReviewInput<'a> {
+pub struct Input<'a> {
     /// `elements.json` payload.
     pub elements: &'a [SnapshotElementRecord],
     /// `attributes.json` payload.
@@ -30,7 +30,7 @@ pub struct ReviewInput<'a> {
 
 /// Derive a complete review report from checked-in snapshot facts.
 #[must_use]
-pub fn build_review(input: ReviewInput<'_>) -> ReviewFile {
+pub fn build_report(input: Input<'_>) -> ReviewFile {
     let counts = ReviewCounts {
         elements: input.elements.len(),
         attributes: input.attributes.len(),
@@ -90,7 +90,7 @@ pub fn build_review(input: ReviewInput<'_>) -> ReviewFile {
         ),
     };
     let exception_inventory = build_exception_inventory(input.exceptions);
-    let unresolved = build_unresolved_issues(ReviewFacts {
+    let unresolved = build_unresolved_issues(&ReviewFacts {
         elements: input.elements,
         attributes: input.attributes,
         grammars: &input.grammars.grammars,
@@ -204,7 +204,7 @@ struct ReviewFacts<'a> {
     provenance: &'a ProvenanceCoverage,
 }
 
-fn build_unresolved_issues(facts: ReviewFacts<'_>) -> Vec<ReviewIssue> {
+fn build_unresolved_issues(facts: &ReviewFacts<'_>) -> Vec<ReviewIssue> {
     let element_names: BTreeSet<&str> = facts
         .elements
         .iter()
@@ -459,7 +459,7 @@ mod tests {
             confidence: crate::snapshot_schema::ExtractionConfidence::Exact,
         }];
         let notes = vec![String::from("seed note")];
-        let review = build_review(ReviewInput {
+        let review = build_report(Input {
             elements: &[SnapshotElementRecord {
                 name: String::from("svg"),
                 title: String::from("SVG root"),

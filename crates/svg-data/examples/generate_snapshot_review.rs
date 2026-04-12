@@ -3,7 +3,7 @@
 use std::{error::Error, fs, path::Path};
 
 use svg_data::{
-    review::{ReviewInput, build_review},
+    review::{Input, build_report},
     snapshot_schema::{
         CategoriesFile, ElementAttributeMatrixFile, ExceptionsFile, GrammarFile,
         SnapshotAttributeRecord, SnapshotElementRecord,
@@ -29,7 +29,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             read_json(&root.join("element_attribute_matrix.json"))?;
         let exceptions: ExceptionsFile = read_json(&root.join("exceptions.json"))?;
         let existing_review: ExistingReviewNotes = read_json(&root.join("review.json"))?;
-        let review = build_review(ReviewInput {
+        let review = build_report(Input {
             elements: &elements,
             attributes: &attributes,
             grammars: &grammars,

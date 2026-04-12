@@ -1,9 +1,11 @@
 use std::{collections::HashMap, fs, path::Path};
 
-use super::{BaselineValue, BrowserSupportValue, CompatEntry, ensure_cached, xlink};
+use super::{
+    BaselineValue, BrowserSupportValue, BrowserVersionValue, CompatEntry, ensure_cached,
+    worker_schema,
+};
 
-const BCD_URL: &str = "https://unpkg.com/@mdn/browser-compat-data@latest/data.json";
-const WEB_FEATURES_URL: &str = "https://unpkg.com/web-features@latest/data.json";
+const SVG_COMPAT_URL: &str = "https://svg-compat.kjanat.com/data.json";
 
 /// BCD-discovered attribute with compat metadata and element applicability.
 pub struct BcdAttribute {
@@ -12,49 +14,70 @@ pub struct BcdAttribute {
     pub elements: Vec<String>,
 }
 
-pub fn bcd_attr_applies_globally(elements: &[String]) -> bool {
-    elements.iter().any(|element| element == "*")
-}
-
 pub struct CompatData {
     pub elements: HashMap<String, CompatEntry>,
-    /// Attributes from BCD (global + element-specific, merged).
+    /// Attributes from the worker (global + element-specific, pre-merged).
     pub attributes: HashMap<String, BcdAttribute>,
 }
 
-/// Build lookup maps for elements + attributes.
+/// Fetch pre-processed compat data from the svg-compat worker.
 /// On any failure, prints a cargo warning and returns empty maps.
 pub fn fetch_compat_data(out_dir: &Path) -> CompatData {
     let offline = std::env::var("SVG_DATA_OFFLINE").is_ok();
-    let (bcd_ok, wf_ok, bcd_path, wf_path) = prepare_cache_paths(out_dir, offline);
-    let empty_data = CompatData {
+    let url = std::env::var("SVG_COMPAT_URL").unwrap_or_else(|_| SVG_COMPAT_URL.to_string());
+    let cache_path = out_dir.join("svg-compat-data.json");
+
+    let empty = CompatData {
         elements: HashMap::new(),
         attributes: HashMap::new(),
     };
 
-    if !bcd_ok {
-        println!("cargo::warning=compat: no BCD data — all entries get baseline: None");
-        return empty_data;
+    match ensure_cached(&url, &cache_path, offline) {
+        Ok(true) => {}
+        Ok(false) => {
+            println!("cargo::warning=compat: no cached data and offline — skipping");
+            return empty;
+        }
+        Err(error) => {
+            println!("cargo::warning=compat: fetch failed: {error}");
+            return empty;
+        }
     }
 
-    let Some(bcd_root) = read_cached_json(&bcd_path, "BCD") else {
-        return empty_data;
+    let raw = match fs::read_to_string(&cache_path) {
+        Ok(source) => source,
+        Err(error) => {
+            println!("cargo::warning=compat: failed to read cache: {error}");
+            return empty;
+        }
     };
-    let Some(svg_elements_obj) = svg_elements_object(&bcd_root) else {
-        return empty_data;
+
+    let output: worker_schema::WorkerOutput = match serde_json::from_str(&raw) {
+        Ok(parsed) => parsed,
+        Err(error) => {
+            println!("cargo::warning=compat: failed to parse worker JSON: {error}");
+            return empty;
+        }
     };
-    let wf_features = read_web_features(&wf_path, wf_ok);
-    let elements = collect_element_entries(svg_elements_obj, wf_features.as_ref());
+
+    let elements: HashMap<String, CompatEntry> = output
+        .elements
+        .iter()
+        .map(|(name, entry)| (name.clone(), convert_element(entry)))
+        .collect();
+
+    let attributes: HashMap<String, BcdAttribute> = output
+        .attributes
+        .iter()
+        .map(|(name, entry)| (name.clone(), convert_attribute(entry)))
+        .collect();
 
     println!(
-        "svg-data: loaded {} element entries from BCD",
+        "svg-data: loaded {} element entries from worker",
         elements.len()
     );
-
-    let attributes = collect_attribute_entries(&bcd_root, svg_elements_obj, wf_features.as_ref());
-
     println!(
-        "svg-data: loaded {} attribute entries from BCD",
+        "svg-data: loaded {} attribute entries from worker",
         attributes.len()
     );
 
@@ -64,453 +87,44 @@ pub fn fetch_compat_data(out_dir: &Path) -> CompatData {
     }
 }
 
-fn prepare_cache_paths(
-    out_dir: &Path,
-    offline: bool,
-) -> (bool, bool, std::path::PathBuf, std::path::PathBuf) {
-    let bcd_path = out_dir.join("bcd-data.json");
-    let wf_path = out_dir.join("web-features-data.json");
-    let bcd_ok = ensure_cached_with_warning(BCD_URL, &bcd_path, offline, "BCD");
-    let wf_ok = ensure_cached_with_warning(WEB_FEATURES_URL, &wf_path, offline, "web-features");
-    (bcd_ok, wf_ok, bcd_path, wf_path)
-}
-
-fn ensure_cached_with_warning(url: &str, path: &Path, offline: bool, label: &str) -> bool {
-    match ensure_cached(url, path, offline) {
-        Ok(value) => value,
-        Err(error) => {
-            println!("cargo::warning=compat: {label} fetch failed: {error}");
-            false
-        }
-    }
-}
-
-fn read_cached_json(path: &Path, label: &str) -> Option<serde_json::Value> {
-    let raw = match fs::read_to_string(path) {
-        Ok(source) => source,
-        Err(error) => {
-            println!("cargo::warning=compat: failed to read {label} cache: {error}");
-            return None;
-        }
-    };
-
-    match serde_json::from_str(&raw) {
-        Ok(json) => Some(json),
-        Err(error) => {
-            println!("cargo::warning=compat: failed to parse {label} JSON: {error}");
-            None
-        }
-    }
-}
-
-fn svg_elements_object(
-    bcd_root: &serde_json::Value,
-) -> Option<&serde_json::Map<String, serde_json::Value>> {
-    let Some(svg_elements) = bcd_root.pointer("/svg/elements") else {
-        println!("cargo::warning=compat: BCD missing /svg/elements path");
-        return None;
-    };
-    let Some(elements) = svg_elements.as_object() else {
-        println!("cargo::warning=compat: /svg/elements is not an object");
-        return None;
-    };
-    Some(elements)
-}
-
-fn read_web_features(path: &Path, wf_ok: bool) -> Option<serde_json::Value> {
-    if !wf_ok {
-        return None;
-    }
-
-    let json = read_cached_json(path, "web-features")?;
-    let features = json.get("features").filter(|v| v.is_object()).cloned();
-    if features.is_none() {
-        println!("cargo::warning=compat: web-features JSON missing or invalid \"features\" key");
-    }
-    features
-}
-
-fn collect_element_entries(
-    svg_elements_obj: &serde_json::Map<String, serde_json::Value>,
-    wf_features: Option<&serde_json::Value>,
-) -> HashMap<String, CompatEntry> {
-    svg_elements_obj
-        .iter()
-        .filter_map(|(element_name, element_data)| {
-            let compat = element_data.pointer("/__compat")?;
-            Some((
-                element_name.clone(),
-                compat_entry(compat, wf_features, &format!("svg.elements.{element_name}")),
-            ))
-        })
-        .collect()
-}
-
-fn collect_attribute_entries(
-    bcd_root: &serde_json::Value,
-    svg_elements_obj: &serde_json::Map<String, serde_json::Value>,
-    wf_features: Option<&serde_json::Value>,
-) -> HashMap<String, BcdAttribute> {
-    let mut attributes = HashMap::new();
-    collect_global_attributes(&mut attributes, bcd_root, wf_features);
-    collect_element_specific_attributes(&mut attributes, svg_elements_obj, wf_features);
-    attributes
-}
-
-fn collect_global_attributes(
-    attributes: &mut HashMap<String, BcdAttribute>,
-    bcd_root: &serde_json::Value,
-    wf_features: Option<&serde_json::Value>,
-) {
-    let Some(global_attributes) = bcd_root.pointer("/svg/global_attributes") else {
-        println!("cargo::warning=compat: BCD missing /svg/global_attributes path");
-        return;
-    };
-    let Some(attribute_map) = global_attributes.as_object() else {
-        println!("cargo::warning=compat: /svg/global_attributes is not an object");
-        return;
-    };
-
-    for (attribute_name, attribute_data) in attribute_map {
-        let Some(compat) = attribute_data.pointer("/__compat") else {
-            continue;
-        };
-        let canonical_name = xlink::canonical_svg_attribute_name(attribute_name);
-        attributes.insert(
-            canonical_name.into_owned(),
-            BcdAttribute {
-                compat: compat_entry(
-                    compat,
-                    wf_features,
-                    &format!("svg.global_attributes.{attribute_name}"),
-                ),
-                elements: vec!["*".to_string()],
-            },
-        );
-    }
-}
-
-fn collect_element_specific_attributes(
-    attributes: &mut HashMap<String, BcdAttribute>,
-    svg_elements_obj: &serde_json::Map<String, serde_json::Value>,
-    wf_features: Option<&serde_json::Value>,
-) {
-    for (element_name, element_data) in svg_elements_obj {
-        let Some(element_map) = element_data.as_object() else {
-            continue;
-        };
-
-        for (attribute_name, attribute_data) in element_map {
-            if attribute_name == "__compat" {
-                continue;
-            }
-
-            let Some(compat) = attribute_data.pointer("/__compat") else {
-                continue;
-            };
-
-            let compat_entry = compat_entry(
-                compat,
-                wf_features,
-                &format!("svg.elements.{element_name}.{attribute_name}"),
-            );
-            let canonical_name = xlink::canonical_svg_attribute_name(attribute_name);
-            merge_attribute_entry(
-                attributes,
-                canonical_name.as_ref(),
-                element_name,
-                compat_entry,
-            );
-        }
-    }
-}
-
-fn merge_attribute_entry(
-    attributes: &mut HashMap<String, BcdAttribute>,
-    attribute_name: &str,
-    element_name: &str,
-    compat: CompatEntry,
-) {
-    attributes
-        .entry(attribute_name.to_string())
-        .and_modify(|existing| {
-            if compat.deprecated {
-                existing.compat.deprecated = true;
-            }
-            if compat.experimental {
-                existing.compat.experimental = true;
-            }
-            if existing.compat.spec_url.is_none() {
-                existing.compat.spec_url.clone_from(&compat.spec_url);
-            }
-            if !bcd_attr_applies_globally(&existing.elements)
-                && !existing
-                    .elements
-                    .iter()
-                    .any(|element| element == element_name)
-            {
-                existing.elements.push(element_name.to_string());
-            }
-            match (&existing.compat.baseline, &compat.baseline) {
-                (None, _) => existing.compat.baseline.clone_from(&compat.baseline),
-                (Some(current), Some(new))
-                    if new.rank() < current.rank()
-                        || (new.rank() == current.rank()
-                            && new.since().zip(current.since()).is_some_and(
-                                |(new_since, current_since)| new_since > current_since,
-                            )) =>
-                {
-                    existing.compat.baseline.clone_from(&compat.baseline);
-                }
-                _ => {}
-            }
-            if let Some(browser_support) = &compat.browser_support {
-                merge_browser_support(&mut existing.compat.browser_support, browser_support);
-            }
-        })
-        .or_insert_with(|| BcdAttribute {
-            compat,
-            elements: vec![element_name.to_string()],
-        });
-}
-
-fn compat_entry(
-    compat: &serde_json::Value,
-    wf_features: Option<&serde_json::Value>,
-    compat_key: &str,
-) -> CompatEntry {
+fn convert_element(entry: &worker_schema::WorkerElement) -> CompatEntry {
     CompatEntry {
-        deprecated: compat
-            .pointer("/status/deprecated")
-            .and_then(serde_json::Value::as_bool)
-            .unwrap_or(false),
-        experimental: compat
-            .pointer("/status/experimental")
-            .and_then(serde_json::Value::as_bool)
-            .unwrap_or(false),
-        spec_url: extract_spec_url(compat),
-        baseline: extract_baseline(compat, wf_features, compat_key),
-        browser_support: extract_browser_support(compat),
+        deprecated: entry.deprecated,
+        experimental: entry.experimental,
+        spec_url: entry.spec_url.first().cloned(),
+        baseline: entry.baseline.as_ref().and_then(convert_baseline),
+        browser_support: entry.browser_support.as_ref().map(convert_browser_support),
     }
 }
 
-/// Given a BCD `__compat` object, web-features data, and BCD compat key,
-/// resolve baseline status.
-fn extract_baseline(
-    compat: &serde_json::Value,
-    wf_features: Option<&serde_json::Value>,
-    compat_key: &str,
-) -> Option<BaselineValue> {
-    let wf = wf_features?;
-
-    let tags = compat.get("tags")?.as_array()?;
-    let feature_id = tags.iter().find_map(|tag| {
-        let s = tag.as_str()?;
-        s.strip_prefix("web-features:")
-    })?;
-
-    let feature = wf.get(feature_id)?;
-    let status = feature.get("status")?;
-
-    if let Some(by_key) = status.get("by_compat_key")
-        && let Some(override_status) = by_key.get(compat_key)
-    {
-        return parse_baseline_value(override_status);
+fn convert_attribute(entry: &worker_schema::WorkerAttribute) -> BcdAttribute {
+    BcdAttribute {
+        compat: CompatEntry {
+            deprecated: entry.deprecated,
+            experimental: entry.experimental,
+            spec_url: entry.spec_url.first().cloned(),
+            baseline: entry.baseline.as_ref().and_then(convert_baseline),
+            browser_support: entry.browser_support.as_ref().map(convert_browser_support),
+        },
+        elements: entry.elements.clone(),
     }
-
-    parse_baseline_value(status)
 }
 
-fn parse_baseline_value(status: &serde_json::Value) -> Option<BaselineValue> {
-    match status.get("baseline")? {
-        serde_json::Value::Bool(false) => Some(BaselineValue::Limited),
-        serde_json::Value::String(s) if s == "high" => {
-            let year = extract_year(status, "baseline_high_date")?;
-            Some(BaselineValue::Widely { since: year })
-        }
-        serde_json::Value::String(s) if s == "low" => {
-            let year = extract_year(status, "baseline_low_date")?;
-            Some(BaselineValue::Newly { since: year })
-        }
+fn convert_baseline(b: &worker_schema::WorkerBaseline) -> Option<BaselineValue> {
+    match b.status.as_str() {
+        "widely" => Some(BaselineValue::Widely { since: b.since? }),
+        "newly" => Some(BaselineValue::Newly { since: b.since? }),
+        "limited" => Some(BaselineValue::Limited),
         _ => None,
     }
 }
 
-fn merge_browser_support(existing: &mut Option<BrowserSupportValue>, new: &BrowserSupportValue) {
-    let Some(existing) = existing.as_mut() else {
-        *existing = Some(new.clone());
-        return;
-    };
-
-    merge_browser_version(&mut existing.chrome, new.chrome.as_ref());
-    merge_browser_version(&mut existing.edge, new.edge.as_ref());
-    merge_browser_version(&mut existing.firefox, new.firefox.as_ref());
-    merge_browser_version(&mut existing.safari, new.safari.as_ref());
-}
-
-fn extract_browser_support(compat: &serde_json::Value) -> Option<BrowserSupportValue> {
-    let support = compat.get("support")?;
-
-    let version_added = |browser: &str| -> Option<String> {
-        let entry = support.get(browser)?;
-        if entry.is_array() {
-            for stmt in entry.as_array()? {
-                if let Some(version) = stmt
-                    .get("version_added")
-                    .and_then(serde_json::Value::as_str)
-                {
-                    return Some(version.to_owned());
-                }
-            }
-            None
-        } else {
-            let stmt = entry;
-            stmt.get("version_added")
-                .and_then(serde_json::Value::as_str)
-                .map(ToOwned::to_owned)
-        }
-    };
-
-    let browser_version = |browser: &str| -> Option<super::BrowserVersionValue> {
-        version_added(browser)
-            .map(super::BrowserVersionValue::Version)
-            .or_else(|| {
-                let entry = support.get(browser)?;
-                let stmt = if entry.is_array() {
-                    entry.get(0)?
-                } else {
-                    entry
-                };
-                match stmt.get("version_added")? {
-                    serde_json::Value::Bool(true) => Some(super::BrowserVersionValue::Unknown),
-                    _ => None,
-                }
-            })
-    };
-
-    let value = BrowserSupportValue {
-        chrome: browser_version("chrome"),
-        edge: browser_version("edge"),
-        firefox: browser_version("firefox"),
-        safari: browser_version("safari"),
-    };
-    if value.chrome.is_none()
-        && value.edge.is_none()
-        && value.firefox.is_none()
-        && value.safari.is_none()
-    {
-        None
-    } else {
-        Some(value)
-    }
-}
-
-fn merge_browser_version(
-    existing: &mut Option<super::BrowserVersionValue>,
-    new: Option<&super::BrowserVersionValue>,
-) {
-    let Some(new) = new else {
-        return;
-    };
-
-    let Some(current) = existing.as_ref() else {
-        *existing = Some(new.clone());
-        return;
-    };
-
-    match (current, new) {
-        (super::BrowserVersionValue::Unknown, super::BrowserVersionValue::Version(version)) => {
-            *existing = Some(super::BrowserVersionValue::Version(version.clone()));
-        }
-        (
-            super::BrowserVersionValue::Version(current),
-            super::BrowserVersionValue::Version(new),
-        ) if compare_browser_versions(new, current).is_gt() => {
-            *existing = Some(super::BrowserVersionValue::Version(new.clone()));
-        }
-        _ => {}
-    }
-}
-
-fn compare_browser_versions(left: &str, right: &str) -> std::cmp::Ordering {
-    let Some((left_upper_bound, left_parts)) = parse_browser_version(left) else {
-        return std::cmp::Ordering::Equal;
-    };
-    let Some((right_upper_bound, right_parts)) = parse_browser_version(right) else {
-        return std::cmp::Ordering::Equal;
-    };
-
-    let max_len = left_parts.len().max(right_parts.len());
-    for idx in 0..max_len {
-        let left_part = left_parts.get(idx).copied().unwrap_or(0);
-        let right_part = right_parts.get(idx).copied().unwrap_or(0);
-        match left_part.cmp(&right_part) {
-            std::cmp::Ordering::Equal => {}
-            non_eq => return non_eq,
-        }
-    }
-
-    (!left_upper_bound).cmp(&!right_upper_bound)
-}
-
-fn parse_browser_version(version: &str) -> Option<(bool, Vec<u32>)> {
-    let (upper_bound, version) = version
-        .strip_prefix('≤')
-        .map_or((false, version), |version| (true, version));
-    let parts = version
-        .split('.')
-        .map(str::parse)
-        .collect::<Result<Vec<u32>, _>>()
-        .ok()?;
-    Some((upper_bound, parts))
-}
-
-fn extract_spec_url(compat: &serde_json::Value) -> Option<String> {
-    match compat.get("spec_url")? {
-        serde_json::Value::String(s) => Some(s.clone()),
-        serde_json::Value::Array(arr) => arr.first().and_then(|v| v.as_str()).map(String::from),
-        _ => None,
-    }
-}
-
-fn extract_year(status: &serde_json::Value, key: &str) -> Option<u16> {
-    let date_str = status.get(key)?.as_str()?;
-    let year_str = date_str.split('-').next()?;
-    year_str.parse::<u16>().ok()
-}
-
-#[cfg(test)]
-mod tests {
-    use super::{
-        super::{BrowserSupportValue, BrowserVersionValue},
-        merge_browser_support,
-    };
-
-    #[test]
-    fn merge_browser_support_keeps_existing_versions_when_incoming_missing() {
-        let mut existing = Some(BrowserSupportValue {
-            chrome: Some(BrowserVersionValue::Version("80".to_string())),
-            edge: None,
-            firefox: None,
-            safari: None,
-        });
-        let incoming = BrowserSupportValue {
-            chrome: None,
-            edge: None,
-            firefox: Some(BrowserVersionValue::Version("90".to_string())),
-            safari: None,
-        };
-
-        merge_browser_support(&mut existing, &incoming);
-
-        let merged = existing.expect("merged browser support");
-        assert!(matches!(
-            merged.chrome,
-            Some(BrowserVersionValue::Version(ref version)) if version == "80"
-        ));
-        assert!(matches!(
-            merged.firefox,
-            Some(BrowserVersionValue::Version(ref version)) if version == "90"
-        ));
+fn convert_browser_support(bs: &worker_schema::WorkerBrowserSupport) -> BrowserSupportValue {
+    let version = |v: &Option<String>| v.as_ref().map(|s| BrowserVersionValue::Version(s.clone()));
+    BrowserSupportValue {
+        chrome: version(&bs.chrome),
+        edge: version(&bs.edge),
+        firefox: version(&bs.firefox),
+        safari: version(&bs.safari),
     }
 }

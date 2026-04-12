@@ -31,6 +31,8 @@ pub mod review;
 pub mod snapshot_schema;
 /// Public catalog type definitions.
 pub mod types;
+/// Deserialization types for the svg-compat worker JSON output.
+pub mod worker_schema;
 /// `XLink` attribute name canonicalization (BCD underscore form to colon form).
 pub mod xlink;
 

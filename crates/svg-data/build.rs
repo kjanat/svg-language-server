@@ -12,8 +12,8 @@ mod bcd;
 mod codegen;
 #[path = "src/types.rs"]
 mod types;
-#[path = "src/xlink.rs"]
-pub(crate) mod xlink;
+#[path = "src/worker_schema.rs"]
+mod worker_schema;
 
 use std::{
     collections::{BTreeMap, BTreeSet, HashMap, HashSet},
@@ -339,6 +339,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo::rerun-if-changed=data/specs");
     println!("cargo::rerun-if-changed=data/derived");
     println!("cargo::rerun-if-env-changed=SVG_DATA_OFFLINE");
+    println!("cargo::rerun-if-env-changed=SVG_COMPAT_URL");
 
     let inputs = load_build_inputs()?;
     let mut out = String::with_capacity(64 * 1024);

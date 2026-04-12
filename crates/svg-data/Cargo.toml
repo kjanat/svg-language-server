@@ -15,8 +15,8 @@ build                = "build.rs"
 [dependencies]
 serde.workspace      = true
 serde_json.workspace = true
-sha2                 = "0.11"
-toml                 = "1"
+sha2.workspace       = true
+toml.workspace       = true
 
 [dev-dependencies]
 tempfile.workspace = true

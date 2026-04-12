@@ -9,6 +9,9 @@ import bcd from "@mdn/browser-compat-data" with { type: "json" };
 import { fromFileUrl } from "@std/path";
 import { features } from "web-features";
 
+const BCD_PACKAGE = "@mdn/browser-compat-data";
+const WF_PACKAGE = "web-features";
+
 /** Loose JSON object type used to traverse BCD and web-features payloads without npm type imports. */
 export interface JsonRecord {
 	/** Any string key maps to an unknown value. */
@@ -65,6 +68,7 @@ export class UpstreamSourceError extends Error {}
 
 const VERSION_TOKEN = /^(latest|[A-Za-z0-9][A-Za-z0-9._-]*)$/;
 const UPSTREAM_CACHE_TTL_MS = 12 * 60 * 60 * 1000;
+const UPSTREAM_CACHE_MAX = 20;
 
 interface CachedJsonRecord {
 	body: JsonRecord;
@@ -95,15 +99,6 @@ function asRecord(value: unknown, message: string): JsonRecord {
 
 function getString(value: unknown): string | undefined {
 	return typeof value === "string" ? value : undefined;
-}
-
-function resolvedVersion(specifier: string): string {
-	const path = fromFileUrl(import.meta.resolve(specifier));
-	const atMatch = path.match(/@(\d[^/]*)\//);
-	if (atMatch?.[1]) return atMatch[1];
-	const versionSegment = path.split("/").find((s) => /^\d/.test(s));
-	if (versionSegment) return versionSegment;
-	throw new Error(`Cannot extract version from ${path}`);
 }
 
 function packageDataUrl(packageName: string, version: string): string {
@@ -139,6 +134,13 @@ export function versionFromLocation(
 	return undefined;
 }
 
+function resolvedVersion(specifier: string): string {
+	const resolved = import.meta.resolve(specifier);
+	const version = versionFromLocation(resolved, specifier);
+	if (!version) throw new Error(`Cannot extract version from ${resolved}`);
+	return version;
+}
+
 function parseVersionToken(
 	name: string,
 	value: string | null,
@@ -157,7 +159,7 @@ const DEFAULT_BCD_META = isRecord(DEFAULT_BCD_ROOT.__meta)
 	? DEFAULT_BCD_ROOT.__meta
 	: undefined;
 const DEFAULT_BCD_VERSION = getString(DEFAULT_BCD_META?.version)
-	?? resolvedVersion("@mdn/browser-compat-data");
+	?? resolvedVersion(BCD_PACKAGE);
 
 const DEFAULT_SVG_ROOT = asRecord(
 	DEFAULT_BCD_ROOT.svg,
@@ -167,22 +169,22 @@ const DEFAULT_FEATURE_MAP = asRecord(
 	features,
 	"Default web-features payload is not an object.",
 );
-const DEFAULT_WF_VERSION = resolvedVersion("web-features");
+const DEFAULT_WF_VERSION = resolvedVersion(WF_PACKAGE);
 
 const DEFAULT_SOURCES: SvgCompatSources = {
 	bcd: {
-		package: "@mdn/browser-compat-data",
+		package: BCD_PACKAGE,
 		requested: DEFAULT_BCD_VERSION,
 		resolved: DEFAULT_BCD_VERSION,
 		mode: "default",
-		source_url: packageDataUrl("@mdn/browser-compat-data", DEFAULT_BCD_VERSION),
+		source_url: packageDataUrl(BCD_PACKAGE, DEFAULT_BCD_VERSION),
 	},
 	web_features: {
-		package: "web-features",
+		package: WF_PACKAGE,
 		requested: DEFAULT_WF_VERSION,
 		resolved: DEFAULT_WF_VERSION,
 		mode: "default",
-		source_url: packageDataUrl("web-features", DEFAULT_WF_VERSION),
+		source_url: packageDataUrl(WF_PACKAGE, DEFAULT_WF_VERSION),
 	},
 };
 
@@ -266,9 +268,17 @@ async function fetchJsonRecord(
 			body: asRecord(payload, `Upstream payload from ${url} is not an object.`),
 			resolvedUrl: response.url,
 		};
+		const now = Date.now();
+		for (const [key, entry] of upstreamJsonCache) {
+			if (entry.expiresAt <= now) upstreamJsonCache.delete(key);
+		}
+		if (upstreamJsonCache.size >= UPSTREAM_CACHE_MAX) {
+			const oldest = upstreamJsonCache.keys().next();
+			if (!oldest.done) upstreamJsonCache.delete(oldest.value);
+		}
 		upstreamJsonCache.set(url, {
 			...result,
-			expiresAt: Date.now() + UPSTREAM_CACHE_TTL_MS,
+			expiresAt: now + UPSTREAM_CACHE_TTL_MS,
 		});
 		return result;
 	})();
@@ -294,11 +304,11 @@ async function loadBcdRoot(requested: string): Promise<{
 		};
 	}
 
-	const requestedUrl = packageDataUrl("@mdn/browser-compat-data", requested);
+	const requestedUrl = packageDataUrl(BCD_PACKAGE, requested);
 	const { body, resolvedUrl } = await fetchJsonRecord(requestedUrl);
 	const meta = isRecord(body.__meta) ? body.__meta : undefined;
 	const resolved = getString(meta?.version)
-		?? versionFromLocation(resolvedUrl, "@mdn/browser-compat-data")
+		?? versionFromLocation(resolvedUrl, BCD_PACKAGE)
 		?? (requested === "latest" ? undefined : requested);
 	if (!resolved) {
 		throw new UpstreamSourceError("Could not resolve fetched BCD version.");
@@ -308,7 +318,7 @@ async function loadBcdRoot(requested: string): Promise<{
 		root: body,
 		svgRoot: asRecord(body.svg, "Fetched BCD payload is missing the svg root."),
 		info: {
-			package: "@mdn/browser-compat-data",
+			package: BCD_PACKAGE,
 			requested,
 			resolved,
 			mode: "override",
@@ -328,13 +338,13 @@ async function loadWebFeatures(requested: string): Promise<{
 		};
 	}
 
-	const requestedUrl = packageDataUrl("web-features", requested);
+	const requestedUrl = packageDataUrl(WF_PACKAGE, requested);
 	const { body, resolvedUrl } = await fetchJsonRecord(requestedUrl);
 	const featureMap = asRecord(
 		body.features,
 		"Fetched web-features payload is missing the features map.",
 	);
-	const resolved = versionFromLocation(resolvedUrl, "web-features")
+	const resolved = versionFromLocation(resolvedUrl, WF_PACKAGE)
 		?? (requested === "latest" ? undefined : requested);
 	if (!resolved) {
 		throw new UpstreamSourceError(
@@ -345,7 +355,7 @@ async function loadWebFeatures(requested: string): Promise<{
 	return {
 		featureMap,
 		info: {
-			package: "web-features",
+			package: WF_PACKAGE,
 			requested,
 			resolved,
 			mode: "override",
@@ -381,14 +391,4 @@ export async function loadSourceDataForSelection(
 			web_features: webFeaturesSource.info,
 		},
 	};
-}
-
-/**
- * Convenience: parses source selection from URL and loads data.
- *
- * @param url The request URL with optional `?source=`, `?bcd=`, `?wf=` params
- * @returns Loaded and validated source payloads
- */
-export async function loadSourceData(url: URL): Promise<LoadedSourceData> {
-	return await loadSourceDataForSelection(parseSourceSelection(url));
 }

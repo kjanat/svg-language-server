@@ -670,6 +670,31 @@ function formatBaseline(baseline: Baseline | undefined): string {
 	return `${baseline.status} (${baseline.since ?? "?"})`;
 }
 
+const BASELINE_ICON_HIGH =
+	`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="10" viewBox="0 0 540 300" fill="none"><path fill="#c4eed0" d="M420 30L390 60L480 150L390 240L330 180L300 210L390 300L540 150L420 30Z"/><path fill="#c4eed0" d="M150 0L30 120L60 150L150 60L210 120L240 90L150 0Z"/><path d="M390 0L420 30L150 300L0 150L30 120L150 240L390 0Z" fill="#1EA446"/></svg>`;
+const BASELINE_ICON_LOW =
+	`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="10" viewBox="0 0 540 300" fill="none"><path fill="#a8c7fa" d="M150 0L180 30L150 60L120 30L150 0Z"/><path fill="#a8c7fa" d="M210 60L240 90L210 120L180 90L210 60Z"/><path fill="#a8c7fa" d="M450 60L480 90L450 120L420 90L450 60Z"/><path fill="#a8c7fa" d="M510 120L540 150L510 180L480 150L510 120Z"/><path fill="#a8c7fa" d="M450 180L480 210L450 240L420 210L450 180Z"/><path fill="#a8c7fa" d="M390 240L420 270L390 300L360 270L390 240Z"/><path fill="#a8c7fa" d="M330 180L360 210L330 240L300 210L330 180Z"/><path fill="#a8c7fa" d="M90 60L120 90L90 120L60 90L90 60Z"/><path fill="#4185ff" d="M390 0L420 30L150 300L0 150L30 120L150 240L390 0Z"/></svg>`;
+const BASELINE_ICON_LIMITED =
+	`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="10" viewBox="0 0 540 300" fill="none"><path d="M150 0L240 90L210 120L120 30L150 0Z" fill="#F09409"/><path fill="#565656" d="M420 30L540 150L420 270L390 240L480 150L390 60L420 30Z"/><path d="M330 180L300 210L390 300L420 270L330 180Z" fill="#F09409"/><path fill="#565656" d="M120 30L150 60L60 150L150 240L120 270L0 150L120 30Z"/><path d="M390 0L420 30L150 300L120 270L390 0Z" fill="#F09409"/></svg>`;
+
+function renderBaselineBadge(baseline: Baseline | undefined): string {
+	if (!baseline) return `<span class="muted">-</span>`;
+	const icon = baseline.status === "widely"
+		? BASELINE_ICON_HIGH
+		: baseline.status === "newly"
+		? BASELINE_ICON_LOW
+		: BASELINE_ICON_LIMITED;
+	const variant = baseline.status === "widely"
+		? "widely"
+		: baseline.status === "newly"
+		? "newly"
+		: "limited";
+	const label = baseline.status === "limited"
+		? "limited"
+		: `${baseline.status} ${baseline.since ?? ""}`.trim();
+	return `<span class="badge badge-${variant}">${icon} ${escape(label)}</span>`;
+}
+
 function formatBrowserSupport(browserSupport: BrowserSupport | undefined): string {
 	if (!browserSupport) return "-";
 	const parts = [
@@ -681,30 +706,26 @@ function formatBrowserSupport(browserSupport: BrowserSupport | undefined): strin
 	return parts.length > 0 ? parts.join(" | ") : "-";
 }
 
-function topElements(output: SvgCompatOutput): NamedCompatEntry[] {
+function allElements(output: SvgCompatOutput): NamedCompatEntry[] {
 	return Object.entries(output.elements)
-		.map(([name, entry]) => ({ name, ...entry }))
-		.slice(0, 24);
+		.map(([name, entry]) => ({ name, ...entry }));
 }
 
-function topAttributes(output: SvgCompatOutput): NamedAttributeEntry[] {
+function allAttributes(output: SvgCompatOutput): NamedAttributeEntry[] {
 	return Object.entries(output.attributes)
-		.map(([name, entry]) => ({ name, ...entry }))
-		.slice(0, 24);
+		.map(([name, entry]) => ({ name, ...entry }));
 }
 
 function deprecatedEntries(output: SvgCompatOutput): NamedCompatEntry[] {
 	return Object.entries(output.elements)
 		.filter(([, entry]) => entry.deprecated)
-		.map(([name, entry]) => ({ name, ...entry }))
-		.slice(0, 12);
+		.map(([name, entry]) => ({ name, ...entry }));
 }
 
 function limitedAttributes(output: SvgCompatOutput): NamedAttributeEntry[] {
 	return Object.entries(output.attributes)
 		.filter(([, entry]) => entry.baseline?.status === "limited")
-		.map(([name, entry]) => ({ name, ...entry }))
-		.slice(0, 12);
+		.map(([name, entry]) => ({ name, ...entry }));
 }
 
 function renderCompatRows(entries: NamedCompatEntry[]): string {
@@ -714,7 +735,7 @@ function renderCompatRows(entries: NamedCompatEntry[]): string {
 				? `<a href="${escape(entry.mdn_url)}">MDN</a>`
 				: "-";
 			return `<tr><th scope="row"><code>${escape(entry.name)}</code></th><td>${
-				escape(formatBaseline(entry.baseline))
+				renderBaselineBadge(entry.baseline)
 			}</td><td>${escape(formatBrowserSupport(entry.browser_support))}</td><td>${mdnCell}</td></tr>`;
 		})
 		.join("");
@@ -730,7 +751,7 @@ function renderAttributeRows(entries: NamedAttributeEntry[]): string {
 				? "global"
 				: entry.elements.join(", ");
 			return `<tr><th scope="row"><code>${escape(entry.name)}</code></th><td>${escape(elements)}</td><td>${
-				escape(formatBaseline(entry.baseline))
+				renderBaselineBadge(entry.baseline)
 			}</td><td>${mdnCell}</td></tr>`;
 		})
 		.join("");
@@ -769,6 +790,10 @@ export function renderHtml(output: SvgCompatOutput, requestUrl: URL): string {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SVG Compat</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
@@ -776,9 +801,13 @@ export function renderHtml(output: SvgCompatOutput, requestUrl: URL): string {
     <div class="hero">
       <p class="muted">SVG compatibility catalog</p>
       <h1>Browser face. Dynamic source knobs.</h1>
-      <p class="muted">Generated ${
-		escape(output.generated_at)
-	}. Ask for <code>/data.json</code>, <code>?format=json</code>, or <code>Accept: application/json</code>. Override upstream packages with <code>?source=latest</code> or explicit <code>?bcd=&lt;version&gt;&amp;wf=&lt;version&gt;</code>.</p>
+      <p class="muted">Generated ${escape(output.generated_at)}.<br>
+        Ask for <code>/data.json</code>, <code>?format=json</code>, or <code>Accept: application/json</code>.<br>
+        Override upstream packages with <code>?source=latest</code> or explicit <code>?bcd=</code><input type="text" class="ver" id="bcd-ver" list="bcd-versions" placeholder="version" aria-label="BCD version">
+        <code>&amp;wf=</code><input type="text" class="ver" id="wf-ver" list="wf-versions" placeholder="version" aria-label="Web Features version">.
+      </p>
+      <datalist id="bcd-versions"></datalist>
+      <datalist id="wf-versions"></datalist>
       <p>
         <a class="pill" href="${escape(jsonUrl)}">Open JSON endpoint</a>
         <a class="pill" href="${escape(schemaUrl)}">Open schema</a>
@@ -804,23 +833,23 @@ export function renderHtml(output: SvgCompatOutput, requestUrl: URL): string {
         </table>
       </section>
       <section>
-        <h2>Element snapshot</h2>
-        <p class="muted">First 24 sorted elements with baseline and browser floor.</p>
+        <h2>Elements</h2>
+        <p class="muted">All elements with baseline and browser floor.</p>
         <table>
           <thead>
             <tr><th>Name</th><th>Baseline</th><th>Support</th><th>Docs</th></tr>
           </thead>
-          <tbody>${renderCompatRows(topElements(output))}</tbody>
+          <tbody>${renderCompatRows(allElements(output))}</tbody>
         </table>
       </section>
       <section>
-        <h2>Attribute snapshot</h2>
-        <p class="muted">First 24 sorted attributes with scope and baseline.</p>
+        <h2>Attributes</h2>
+        <p class="muted">All attributes with scope and baseline.</p>
         <table>
           <thead>
             <tr><th>Name</th><th>Elements</th><th>Baseline</th><th>Docs</th></tr>
           </thead>
-          <tbody>${renderAttributeRows(topAttributes(output))}</tbody>
+          <tbody>${renderAttributeRows(allAttributes(output))}</tbody>
         </table>
       </section>
       <section>
@@ -845,6 +874,48 @@ export function renderHtml(output: SvgCompatOutput, requestUrl: URL): string {
       </section>
     </div>
   </main>
+  <script>
+    const fields = [
+      { id: "bcd-ver", list: "bcd-versions", pkg: "@mdn/browser-compat-data" },
+      { id: "wf-ver",  list: "wf-versions",  pkg: "web-features" },
+    ];
+    const loaded = new Set();
+    for (const f of fields) {
+      const input = document.getElementById(f.id);
+      input.addEventListener("focus", () => {
+        if (loaded.has(f.pkg)) return;
+        loaded.add(f.pkg);
+        fetch("https://registry.npmjs.org/" + f.pkg, {
+            headers: { "Accept": "application/vnd.npm.install-v1+json" }
+          })
+          .then(r => r.json())
+          .then(data => {
+            const dl = document.getElementById(f.list);
+            const vers = Object.keys(data.versions)
+              .filter(v => !v.includes("-"))
+              .reverse();
+            for (const v of vers) {
+              const opt = document.createElement("option");
+              opt.value = v;
+              dl.appendChild(opt);
+            }
+          })
+          .catch(() => {});
+      }, { once: true });
+    }
+    document.querySelectorAll(".ver").forEach(input => {
+      input.addEventListener("keydown", e => {
+        if (e.key !== "Enter") return;
+        const bcd = document.getElementById("bcd-ver").value.trim();
+        const wf = document.getElementById("wf-ver").value.trim();
+        if (!bcd && !wf) return;
+        const params = new URLSearchParams(location.search);
+        if (bcd) params.set("bcd", bcd);
+        if (wf) params.set("wf", wf);
+        location.search = params.toString();
+      });
+    });
+  </script>
 </body>
 </html>`;
 }

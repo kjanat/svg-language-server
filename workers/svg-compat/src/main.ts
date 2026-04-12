@@ -895,7 +895,7 @@ export function renderHtml(output: SvgCompatOutput, requestUrl: URL): string {
       </section>
     </div>
   </main>
-  <script type="module" src="/static/version-picker.js"></script>
+  <script type="module" src="/static/version-picker.mjs"></script>
   ${RELOAD_SCRIPT}
 </body>
 </html>`;

@@ -24,12 +24,25 @@ for (const input of inputs) {
 	input.setAttribute("aria-expanded", "false");
 	list.setAttribute("role", "listbox");
 
-	fetch("https://data.jsdelivr.com/v1/package/npm/" + input.dataset.pkg)
-		.then((r) => r.json())
-		.then((data) => {
-			allVersions = data.versions;
-		})
-		.catch(() => {});
+	const CACHE_TTL = 30 * 60 * 1000;
+	const cacheKey = `ver:${input.dataset.pkg}`;
+
+	try {
+		const cached = JSON.parse(localStorage.getItem(cacheKey));
+		if (cached && Date.now() < cached.exp) allVersions = cached.v;
+	} catch {}
+
+	if (!allVersions.length) {
+		fetch("https://data.jsdelivr.com/v1/package/npm/" + input.dataset.pkg)
+			.then((r) => r.json())
+			.then((data) => {
+				allVersions = data.versions;
+				try {
+					localStorage.setItem(cacheKey, JSON.stringify({ v: allVersions, exp: Date.now() + CACHE_TTL }));
+				} catch {}
+			})
+			.catch(() => {});
+	}
 
 	function show(filter) {
 		list.innerHTML = "";

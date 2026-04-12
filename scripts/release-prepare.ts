@@ -1,10 +1,10 @@
 #!/usr/bin/env bun
 import { $, file, write } from "bun";
-import { normalize } from "node:path";
+import { normalize, relative } from "node:path";
 
 const version = Bun.argv[2];
 if (!version || !/^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/.test(version)) {
-	console.error("usage: bun scripts/release-prepare.ts <version>");
+	console.error(`usage: ${relative(process.cwd(), import.meta.filename)} <version>`);
 	process.exit(1);
 }
 

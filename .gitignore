@@ -1,5 +1,6 @@
 target/
 /_*.md
+/*.png
 bun.lock
 node_modules/
 .playwright-mcp/

@@ -11,23 +11,48 @@
 	--link: #1a7ec5;
 	--code: #5a7a1a;
 	--badge-widely: #15803d;
-	--badge-newly: #a16207;
+	--badge-newly: #1b6ef3;
 	--badge-limited: #dc2626;
 	--badge-deprecated: #c2410c;
 	--hover-bg: rgba(0, 0, 0, 0.03);
 	--shadow-dropdown: rgba(0, 0, 0, 0.12);
 	--badge-widely-bg: rgba(21, 128, 61, 0.08);
 	--badge-widely-border: rgba(21, 128, 61, 0.2);
-	--badge-newly-bg: rgba(161, 98, 7, 0.07);
-	--badge-newly-border: rgba(161, 98, 7, 0.18);
+	--badge-newly-bg: rgba(27, 110, 243, 0.08);
+	--badge-newly-border: rgba(27, 110, 243, 0.2);
 	--badge-limited-bg: rgba(220, 38, 38, 0.06);
 	--badge-limited-border: rgba(220, 38, 38, 0.16);
+	--badge-pill-widely-bg: #e6f4ea;
+	--badge-pill-widely-fg: #099949;
+	--badge-pill-newly-bg: #082656;
+	--badge-pill-newly-fg: #f1f3f4;
+	--badge-pill-limited-bg: #f1f3f4;
+	--badge-pill-limited-fg: #ea8600;
 	--badge-deprecated-bg: rgba(194, 65, 12, 0.06);
 	--badge-deprecated-border: rgba(194, 65, 12, 0.16);
+	--badge-icon-widely: url("/badges/baseline-widely.svg");
+	--badge-icon-newly: url("/badges/baseline-newly.svg");
+	--badge-icon-limited: url("/badges/baseline-limited.svg");
+	--badge-pill-radius: 0.125rem;
 	--radius: 8px;
-	--font-display: "Plus Jakarta Sans", system-ui, sans-serif;
-	--font-body: system-ui, -apple-system, sans-serif;
-	--font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+	--font-display:
+		"Avenir Next",
+		"Segoe UI",
+		"Helvetica Neue",
+		system-ui,
+		sans-serif;
+	--font-body:
+		"Segoe UI",
+		"Helvetica Neue",
+		system-ui,
+		-apple-system,
+		sans-serif;
+	--font-mono:
+		"SFMono-Regular",
+		"Cascadia Mono",
+		"Fira Code",
+		ui-monospace,
+		monospace;
 }
 @media (prefers-color-scheme: dark) {
 	:root {
@@ -42,17 +67,23 @@
 		--link: #6cc0f0;
 		--code: #b5d26a;
 		--badge-widely: #34d399;
-		--badge-newly: #fbbf24;
+		--badge-newly: #4185ff;
 		--badge-limited: #f87171;
 		--badge-deprecated: #fb923c;
 		--hover-bg: rgba(255, 255, 255, 0.018);
 		--shadow-dropdown: rgba(0, 0, 0, 0.4);
 		--badge-widely-bg: rgba(52, 211, 153, 0.1);
 		--badge-widely-border: rgba(52, 211, 153, 0.2);
-		--badge-newly-bg: rgba(251, 191, 36, 0.08);
-		--badge-newly-border: rgba(251, 191, 36, 0.18);
+		--badge-newly-bg: rgba(65, 133, 255, 0.14);
+		--badge-newly-border: rgba(65, 133, 255, 0.3);
 		--badge-limited-bg: rgba(248, 113, 113, 0.08);
 		--badge-limited-border: rgba(248, 113, 113, 0.18);
+		--badge-pill-widely-bg: #0e2a10;
+		--badge-pill-widely-fg: #70eba3;
+		--badge-pill-newly-bg: #082656;
+		--badge-pill-newly-fg: #f1f3f4;
+		--badge-pill-limited-bg: #282a2c;
+		--badge-pill-limited-fg: #ea8600;
 		--badge-deprecated-bg: rgba(251, 146, 60, 0.08);
 		--badge-deprecated-border: rgba(251, 146, 60, 0.18);
 	}
@@ -290,31 +321,44 @@ code {
 .badge {
 	display: inline-flex;
 	align-items: center;
-	gap: 5px;
-	padding: 2px 8px;
-	border-radius: 4px;
-	font-size: 0.75rem;
-	font-weight: 500;
-	font-family: var(--font-mono);
+	gap: 0.35rem;
+	padding: 0.05rem 0.35rem;
+	border-radius: var(--badge-pill-radius);
+	font-size: 0.72rem;
+	font-weight: 700;
+	font-family: var(--font-body);
+	line-height: 1.2;
+	text-transform: uppercase;
 	white-space: nowrap;
 }
-.badge svg {
-	flex-shrink: 0;
+.badge::before {
+	content: "";
+	display: inline-block;
+	width: 18px;
+	height: 10px;
+	flex: none;
+	background-image: var(--badge-icon);
+	background-repeat: no-repeat;
+	background-size: 18px 10px;
+	background-position: center;
 }
 .badge-widely {
-	background: var(--badge-widely-bg);
-	color: var(--badge-widely);
-	border: 1px solid var(--badge-widely-border);
+	background: var(--badge-pill-widely-bg);
+	color: var(--badge-pill-widely-fg);
+	border: none;
+	--badge-icon: var(--badge-icon-widely);
 }
 .badge-newly {
-	background: var(--badge-newly-bg);
-	color: var(--badge-newly);
-	border: 1px solid var(--badge-newly-border);
+	background: var(--badge-pill-newly-bg);
+	color: var(--badge-pill-newly-fg);
+	border: none;
+	--badge-icon: var(--badge-icon-newly);
 }
 .badge-limited {
-	background: var(--badge-limited-bg);
-	color: var(--badge-limited);
-	border: 1px solid var(--badge-limited-border);
+	background: var(--badge-pill-limited-bg);
+	color: var(--badge-pill-limited-fg);
+	border: none;
+	--badge-icon: var(--badge-icon-limited);
 }
 .badge-deprecated {
 	background: var(--badge-deprecated-bg);

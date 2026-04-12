@@ -1,6 +1,15 @@
-import { assertEquals, assertExists } from "@std/assert";
+import { assert, assertEquals, assertExists } from "@std/assert";
 import server, { SVG_COMPAT_SCHEMA, type SvgCompatOutput } from "./main.ts";
+import { renderHtml } from "./render.ts";
 import { defaultSourceSelection, parseSourceSelection, versionFromLocation } from "./sources.ts";
+
+const DEV = (() => {
+	try {
+		return !Deno.env.get("DENO_DEPLOYMENT_ID");
+	} catch {
+		return true;
+	}
+})();
 
 async function fetchJson(path = "/"): Promise<Response> {
 	return await server.fetch(
@@ -13,7 +22,13 @@ async function fetchJson(path = "/"): Promise<Response> {
 Deno.test("responds with JSON", async () => {
 	const res = await fetchJson();
 	assertEquals(res.headers.get("content-type"), "application/json; charset=UTF-8");
-	assertEquals(res.headers.get("cache-control")?.includes("max-age=300"), true);
+	assertEquals(res.headers.get("x-content-type-options"), "nosniff");
+	assertEquals(res.headers.get("referrer-policy"), "strict-origin-when-cross-origin");
+	if (DEV) {
+		assertEquals(res.headers.get("cache-control"), "no-store");
+	} else {
+		assertEquals(res.headers.get("cache-control")?.includes("max-age=300"), true);
+	}
 	assertEquals(typeof res.headers.get("etag"), "string");
 	assertEquals(typeof res.headers.get("last-modified"), "string");
 	const data: SvgCompatOutput = await res.json();
@@ -91,14 +106,98 @@ Deno.test("browser gets HTML explorer", async () => {
 		}),
 	);
 	assertEquals(res.headers.get("content-type"), "text/html; charset=UTF-8");
+	assertEquals(res.headers.get("x-content-type-options"), "nosniff");
+	assertEquals(res.headers.get("referrer-policy"), "strict-origin-when-cross-origin");
+	assertEquals(
+		typeof res.headers.get("content-security-policy") === "string",
+		true,
+	);
 	const body = await res.text();
 	assertEquals(body.includes("<title>SVG Compat</title>"), true);
 	assertEquals(body.includes("Open JSON endpoint"), true);
-	assertEquals(body.includes("Element snapshot"), true);
+	assertEquals(body.includes("Browser face. Dynamic source knobs."), true);
 	assertEquals(body.includes("Upstream sources"), true);
 });
 
-Deno.test("non-browser requests without JSON accept get rejected", async () => {
+Deno.test("renderHtml includes baseline badge classes", () => {
+	const output: SvgCompatOutput = {
+		generated_at: "2026-01-01T00:00:00.000Z",
+		sources: {
+			bcd: {
+				package: "@mdn/browser-compat-data",
+				requested: "7.3.11",
+				resolved: "7.3.11",
+				mode: "default",
+				source_url: "https://example.com/bcd",
+			},
+			web_features: {
+				package: "web-features",
+				requested: "3.23.0",
+				resolved: "3.23.0",
+				mode: "default",
+				source_url: "https://example.com/wf",
+			},
+		},
+		elements: {
+			rect: {
+				deprecated: false,
+				experimental: false,
+				standard_track: true,
+				spec_url: [],
+				baseline: { status: "widely", since: 2015 },
+			},
+			dialog: {
+				deprecated: false,
+				experimental: false,
+				standard_track: true,
+				spec_url: [],
+				baseline: { status: "newly", since: 2024 },
+			},
+		},
+		attributes: {
+			fill: {
+				deprecated: false,
+				experimental: false,
+				standard_track: true,
+				spec_url: [],
+				elements: ["*"],
+				baseline: { status: "limited" },
+			},
+		},
+	};
+	const html = renderHtml(output, new URL("http://localhost/"));
+	assertEquals(html.includes("class=\"badge badge-widely\""), true);
+	assertEquals(html.includes("class=\"badge badge-newly\""), true);
+	assertEquals(html.includes("class=\"badge badge-limited\""), true);
+});
+
+Deno.test("baseline badge CSS uses svg asset variables", async () => {
+	const css = await Deno.readTextFile(new URL("../static/style.css", import.meta.url));
+
+	assert(/--badge-icon-widely:\s*url\(["']\/badges\/baseline-widely\.svg["']\);/.test(css));
+	assert(/--badge-icon-newly:\s*url\(["']\/badges\/baseline-newly\.svg["']\);/.test(css));
+	assert(/--badge-icon-limited:\s*url\(["']\/badges\/baseline-limited\.svg["']\);/.test(css));
+
+	assert(/\.badge::before\s*\{[^}]*background-image:\s*var\(--badge-icon\);/s.test(css));
+	assert(/\.badge-widely\s*\{[^}]*--badge-icon:\s*var\(--badge-icon-widely\);/s.test(css));
+	assert(/\.badge-newly\s*\{[^}]*--badge-icon:\s*var\(--badge-icon-newly\);/s.test(css));
+	assert(/\.badge-limited\s*\{[^}]*--badge-icon:\s*var\(--badge-icon-limited\);/s.test(css));
+
+	assert(/\.badge-(widely|newly|limited)::before/.test(css) === false);
+	assert(/transform:\s*rotate\(45deg\)/.test(css) === false);
+});
+
+Deno.test("wildcard accept defaults to HTML", async () => {
+	const res = await server.fetch(
+		new Request("http://localhost/", {
+			headers: { accept: "*/*" },
+		}),
+	);
+	assertEquals(res.status, 200);
+	assertEquals(res.headers.get("content-type"), "text/html; charset=UTF-8");
+});
+
+Deno.test("non-browser requests without JSON/HTML accept get rejected", async () => {
 	const res = await server.fetch(
 		new Request("http://localhost/", {
 			headers: { accept: "text/plain" },
@@ -117,12 +216,59 @@ Deno.test("data.json route returns JSON", async () => {
 Deno.test("schema endpoint returns schema", async () => {
 	const res = await server.fetch(new Request("http://localhost/schema.json"));
 	assertEquals(res.headers.get("content-type"), "application/schema+json; charset=utf-8");
-	assertEquals(res.headers.get("cache-control")?.includes("max-age=3600"), true);
+	if (DEV) {
+		assertEquals(res.headers.get("cache-control"), "no-store");
+	} else {
+		assertEquals(res.headers.get("cache-control")?.includes("max-age=3600"), true);
+	}
 	const schema = await res.json();
 	assertEquals(schema.title, SVG_COMPAT_SCHEMA.title);
 	assertEquals(schema.properties.generated_at.type, "string");
 	assertEquals(schema.properties.sources.type, "object");
 	assertEquals(schema.$defs.compatEntry.required.includes("spec_url"), true);
+});
+
+Deno.test("favicon routes serve static assets", async () => {
+	const ico = await server.fetch(new Request("http://localhost/favicon.ico"));
+	assertEquals(ico.status, 200);
+	assertEquals(ico.headers.get("x-content-type-options"), "nosniff");
+	assertEquals(typeof ico.headers.get("etag"), "string");
+	assertEquals(typeof ico.headers.get("last-modified"), "string");
+	if (DEV) {
+		assertEquals(ico.headers.get("cache-control"), "no-store");
+	} else {
+		assertEquals(ico.headers.get("cache-control")?.includes("immutable"), true);
+	}
+
+	const svg = await server.fetch(new Request("http://localhost/favicon.svg"));
+	assertEquals(svg.status, 200);
+	assertEquals(svg.headers.get("content-type"), "image/svg+xml");
+});
+
+Deno.test("root asset routes serve static assets", async () => {
+	const css = await server.fetch(new Request("http://localhost/style.css"));
+	assertEquals(css.status, 200);
+	assertEquals(css.headers.get("x-content-type-options"), "nosniff");
+	assertEquals(css.headers.get("content-type")?.startsWith("text/css"), true);
+	await css.arrayBuffer();
+
+	const js = await server.fetch(new Request("http://localhost/version-picker.mjs"));
+	assertEquals(js.status, 200);
+	assertEquals(js.headers.get("x-content-type-options"), "nosniff");
+	assertEquals(js.headers.get("content-type")?.startsWith("text/javascript"), true);
+	await js.arrayBuffer();
+
+	const badge = await server.fetch(new Request("http://localhost/badges/baseline-newly.svg"));
+	assertEquals(badge.status, 200);
+	assertEquals(badge.headers.get("x-content-type-options"), "nosniff");
+	assertEquals(badge.headers.get("content-type"), "image/svg+xml");
+	await badge.arrayBuffer();
+});
+
+Deno.test("legacy /static asset routes redirect to root asset paths", async () => {
+	const res = await server.fetch(new Request("http://localhost/static/style.css", { redirect: "manual" }));
+	assertEquals(res.status, 308);
+	assertEquals(res.headers.get("location"), "http://localhost/style.css");
 });
 
 Deno.test("invalid source override fails", async () => {
@@ -176,7 +322,7 @@ Deno.test("json endpoint returns 304 for matching etag", async () => {
 			},
 		}),
 	);
-	assertEquals(second.status, 304);
+	assertEquals(second.status, DEV ? 200 : 304);
 });
 
 Deno.test("html endpoint returns 304 for matching etag", async () => {
@@ -195,5 +341,5 @@ Deno.test("html endpoint returns 304 for matching etag", async () => {
 			},
 		}),
 	);
-	assertEquals(second.status, 304);
+	assertEquals(second.status, DEV ? 200 : 304);
 });

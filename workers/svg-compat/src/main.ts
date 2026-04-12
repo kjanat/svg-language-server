@@ -5,9 +5,24 @@
  * @module
  */
 
-import { escape } from "@std/html";
-import { serveDir } from "@std/http";
-import { contentType } from "@std/media-types";
+import {
+	applyCommonSecurityHeaders,
+	applyHtmlSecurityHeaders,
+	BOOT,
+	CACHE_POLICY,
+	cachedResponse,
+	DEV,
+	entityTag,
+	hashString,
+	jsonErrorResponse,
+	loadStaticAsset,
+	MIME,
+	negotiateFormat,
+	serveStaticRoute,
+	staticAssetResponse,
+	textResponse,
+} from "./http.ts";
+import { buildReloadScript, renderErrorHtml, renderHtml } from "./render.ts";
 import {
 	InvalidSourceRequestError,
 	isRecord,
@@ -32,22 +47,13 @@ const XLINK_MAP: Record<string, string> = {
 	xlink_type: "xlink:type",
 };
 
-const DEV = !Deno.env.get("DENO_DEPLOYMENT_ID");
-const BOOT = Date.now();
-const SNAPSHOT_CACHE_TTL_MS = 12 * 60 * 60 * 1000;
-
-interface CachedSnapshot {
-	output: SvgCompatOutput;
-	expiresAt: number;
-}
-
-const snapshotCache = new Map<string, CachedSnapshot>();
 const snapshotInflight = new Map<string, Promise<SvgCompatSnapshot>>();
-const RESPONSE_CACHE_CONTROL = "public, max-age=300, s-maxage=300, stale-while-revalidate=3600";
-const SCHEMA_CACHE_CONTROL = "public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400";
-const CONTENT_TYPE_JSON = contentType(".json");
-const CONTENT_TYPE_HTML = contentType(".html");
-const CONTENT_TYPE_TEXT = contentType(".txt");
+const JSON_INDENT = 2;
+const WEB_FEATURE_KIND_FEATURE = "feature";
+const PROD_GENERATED_AT = new Date(BOOT).toISOString();
+
+const FAVICON_ICO_ASSET = loadStaticAsset("favicon.ico", MIME.ico);
+const FAVICON_SVG_ASSET = loadStaticAsset("favicon.svg", MIME.svg);
 
 function canonicalAttributeName(name: string): string {
 	return XLINK_MAP[name] ?? name;
@@ -223,12 +229,24 @@ export const SVG_COMPAT_SCHEMA = {
 	},
 };
 
-interface NamedCompatEntry extends CompatEntry {
-	name: string;
+const loggedWarnings = new Set<string>();
+
+function stringifyUnknown(value: unknown): string {
+	if (typeof value === "string") return JSON.stringify(value);
+	if (typeof value === "number" || typeof value === "boolean") return String(value);
+	if (value === null) return "null";
+	if (value === undefined) return "undefined";
+	try {
+		return JSON.stringify(value);
+	} catch {
+		return String(value);
+	}
 }
 
-interface NamedAttributeEntry extends AttributeEntry {
-	name: string;
+function warnOnce(key: string, message: string): void {
+	if (loggedWarnings.has(key)) return;
+	loggedWarnings.add(key);
+	console.warn(message);
 }
 
 function getString(value: unknown): string | undefined {
@@ -271,19 +289,27 @@ function extractBaseline(
 
 	const featureId = featureTag.slice("web-features:".length);
 	const feature = getRecordProperty(featureMap, featureId);
-	if (!feature || getString(feature.kind) !== "feature") return undefined;
+	if (!feature) return undefined;
+	const featureKind = getString(feature.kind);
+	if (featureKind !== WEB_FEATURE_KIND_FEATURE) {
+		warnOnce(
+			`wf-kind:${featureKind ?? "<missing>"}`,
+			`svg-compat: unsupported web-features kind ${stringifyUnknown(featureKind)} for "${featureId}".`,
+		);
+		return undefined;
+	}
 
 	const status = getRecordProperty(feature, "status");
 	if (!status) return undefined;
 
 	const byCompatKey = getRecordProperty(status, "by_compat_key");
 	const overrideStatus = byCompatKey ? getRecordProperty(byCompatKey, compatKey) : undefined;
-	if (overrideStatus) return parseBaseline(overrideStatus);
+	if (overrideStatus) return parseBaseline(overrideStatus, compatKey);
 
-	return parseBaseline(status);
+	return parseBaseline(status, compatKey);
 }
 
-function parseBaseline(status: JsonRecord): Baseline | undefined {
+function parseBaseline(status: JsonRecord, compatKey: string): Baseline | undefined {
 	const baseline = status.baseline;
 	if (baseline === false) return { status: "limited" };
 	if (baseline === "high") {
@@ -305,14 +331,20 @@ function parseBaseline(status: JsonRecord): Baseline | undefined {
 			low_date: getString(status.baseline_low_date),
 		};
 	}
+	if (baseline !== undefined) {
+		warnOnce(
+			`wf-baseline:${stringifyUnknown(baseline)}`,
+			`svg-compat: unsupported baseline value ${stringifyUnknown(baseline)} for "${compatKey}".`,
+		);
+	}
 	return undefined;
 }
 
 function extractYear(date: string | undefined): number | undefined {
 	if (!date) return undefined;
-	const match = date.match(/(\d{4})/);
-	if (!match) return undefined;
-	return parseInt(match[1], 10);
+	const parsed = Date.parse(date);
+	if (Number.isNaN(parsed)) return undefined;
+	return new Date(parsed).getUTCFullYear();
 }
 
 function browserVersion(value: unknown): string | undefined {
@@ -435,7 +467,7 @@ function mergeBrowserSupport(
 
 /**
  * Merges an attribute compat entry from one element into the global attribute map.
- * Pessimistic: deprecated/experimental use OR, baseline picks worst, browser versions take latest.
+ * Consensus merge: deprecation/experimental only become true when every observed element agrees.
  */
 function mergeAttributeEntry(
 	attributes: Map<string, AttributeEntry>,
@@ -449,8 +481,8 @@ function mergeAttributeEntry(
 		return;
 	}
 
-	if (compat.deprecated) existing.deprecated = true;
-	if (compat.experimental) existing.experimental = true;
+	existing.deprecated = existing.deprecated && compat.deprecated;
+	existing.experimental = existing.experimental && compat.experimental;
 	if (!compat.standard_track) existing.standard_track = false;
 	if (!existing.description && compat.description) existing.description = compat.description;
 	if (!existing.mdn_url && compat.mdn_url) existing.mdn_url = compat.mdn_url;
@@ -569,7 +601,7 @@ function buildSnapshot(data: LoadedSourceData): SvgCompatSnapshot {
  */
 export function buildOutput(
 	snapshot: SvgCompatSnapshot,
-	generatedAt: string = new Date().toISOString(),
+	generatedAt: string = DEV ? new Date().toISOString() : PROD_GENERATED_AT,
 ): SvgCompatOutput {
 	return {
 		generated_at: generatedAt,
@@ -579,40 +611,28 @@ export function buildOutput(
 	};
 }
 
-/** Returns cached or freshly-built output for the given request URL's source selection. */
+/** Returns freshly-built output for the given request URL's source selection. */
 async function getOutput(url: URL): Promise<SvgCompatOutput> {
 	const selection = parseSourceSelection(url);
 	const key = `${selection.bcd}|${selection.wf}`;
-	const cached = snapshotCache.get(key);
-	if (!DEV && cached && cached.expiresAt > Date.now()) return cached.output;
 
-	const inflight = snapshotInflight.get(key);
-	if (inflight) {
-		const snapshot = await inflight;
-		return buildOutput(snapshot);
+	if (!DEV) {
+		const inflight = snapshotInflight.get(key);
+		if (inflight) {
+			const snapshot = await inflight;
+			return buildOutput(snapshot);
+		}
 	}
 
-	const promise = (async () => {
-		const sourceData = await loadSourceDataForSelection(selection);
-		return buildSnapshot(sourceData);
-	})();
+	const promise = loadSourceDataForSelection(selection).then(buildSnapshot);
 
-	snapshotInflight.set(key, promise);
+	if (!DEV) snapshotInflight.set(key, promise);
 	try {
 		const snapshot = await promise;
-		const output = buildOutput(snapshot);
-		snapshotCache.set(key, {
-			output,
-			expiresAt: Date.now() + SNAPSHOT_CACHE_TTL_MS,
-		});
-		return output;
+		return buildOutput(snapshot);
 	} finally {
-		snapshotInflight.delete(key);
+		if (!DEV) snapshotInflight.delete(key);
 	}
-}
-
-function entityTag(value: string): string {
-	return `W/"${value}"`;
 }
 
 function outputEtag(output: SvgCompatOutput): string {
@@ -626,316 +646,18 @@ function outputEtag(output: SvgCompatOutput): string {
 }
 
 function schemaEtag(): string {
-	return entityTag("svg-compat-schema-v1");
+	return entityTag(`svg-compat-schema-${hashString(schemaBody)}`);
 }
 
-function requestMatchesCache(request: Request, etag: string, lastModified: string): boolean {
-	const ifNoneMatch = request.headers.get("if-none-match");
-	if (ifNoneMatch) {
-		return ifNoneMatch.split(",").map((value) => value.trim()).includes(etag);
-	}
+const RELOAD_SCRIPT = buildReloadScript(DEV, BOOT);
 
-	const ifModifiedSince = request.headers.get("if-modified-since");
-	if (!ifModifiedSince) return false;
-	const requestTime = Date.parse(ifModifiedSince);
-	const modifiedTime = Date.parse(lastModified);
-	if (Number.isNaN(requestTime) || Number.isNaN(modifiedTime)) return false;
-	return requestTime >= modifiedTime;
-}
-
-function cachedResponse(
-	request: Request,
-	body: string,
-	contentType: string,
-	cacheControl: string,
-	etag: string,
-	lastModified: string,
-	status = 200,
-): Response {
-	if (DEV) {
-		return new Response(body, {
-			status,
-			headers: { "content-type": contentType, "cache-control": "no-store" },
-		});
-	}
+function htmlErrorResponse(status: number, message: string): Response {
 	const headers = new Headers({
-		"content-type": contentType,
-		"cache-control": cacheControl,
-		etag,
-		"last-modified": lastModified,
-		vary: "accept",
+		"content-type": MIME.html,
+		"cache-control": "no-store",
 	});
-	if (requestMatchesCache(request, etag, lastModified)) {
-		return new Response(null, { status: 304, headers });
-	}
-	return new Response(body, { status, headers });
-}
-
-const RELOAD_SCRIPT = DEV
-	? `<script>((b)=>{setInterval(()=>fetch("/__reload").then(r=>r.text()).then(t=>{if(t!==b){b=t;location.reload()}}),500)})(${
-		JSON.stringify(String(BOOT))
-	})</script>`
-	: "";
-
-function formatBaseline(baseline: Baseline | undefined): string {
-	if (!baseline) return "-";
-	if (baseline.status === "limited") return "limited";
-	return `${baseline.status} (${baseline.since ?? "?"})`;
-}
-
-const BASELINE_ICON_HIGH =
-	`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="10" viewBox="0 0 540 300" fill="none"><style>.g{fill:#c4eed0}@media(prefers-color-scheme:dark){.g{fill:#125225}}</style><path class="g" d="M420 30L390 60L480 150L390 240L330 180L300 210L390 300L540 150L420 30Z"/><path class="g" d="M150 0L30 120L60 150L150 60L210 120L240 90L150 0Z"/><path d="M390 0L420 30L150 300L0 150L30 120L150 240L390 0Z" fill="#1EA446"/></svg>`;
-const BASELINE_ICON_LOW =
-	`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="10" viewBox="0 0 540 300" fill="none"><style>.b{fill:#a8c7fa}.d{fill:#1b6ef3}@media(prefers-color-scheme:dark){.b{fill:#2d509e}.d{fill:#4185ff}}</style><path class="b" d="M150 0L180 30L150 60L120 30Z"/><path class="b" d="M210 60L240 90L210 120L180 90Z"/><path class="b" d="M450 60L480 90L450 120L420 90Z"/><path class="b" d="M510 120L540 150L510 180L480 150Z"/><path class="b" d="M450 180L480 210L450 240L420 210Z"/><path class="b" d="M390 240L420 270L390 300L360 270Z"/><path class="b" d="M330 180L360 210L330 240L300 210Z"/><path class="b" d="M90 60L120 90L90 120L60 90Z"/><path class="d" d="M390 0L420 30L150 300L0 150L30 120L150 240L390 0Z"/></svg>`;
-const BASELINE_ICON_LIMITED =
-	`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="10" viewBox="0 0 540 300" fill="none"><style>.x{fill:#c6c6c6}@media(prefers-color-scheme:dark){.x{fill:#565656}}</style><path d="M150 0L240 90L210 120L120 30Z" fill="#F09409"/><path class="x" d="M420 30L540 150L420 270L390 240L480 150L390 60Z"/><path d="M330 180L300 210L390 300L420 270Z" fill="#F09409"/><path class="x" d="M120 30L150 60L60 150L150 240L120 270L0 150Z"/><path d="M390 0L420 30L150 300L120 270Z" fill="#F09409"/></svg>`;
-
-function renderBaselineBadge(baseline: Baseline | undefined): string {
-	if (!baseline) return `<span class="muted">-</span>`;
-	const icon = baseline.status === "widely"
-		? BASELINE_ICON_HIGH
-		: baseline.status === "newly"
-		? BASELINE_ICON_LOW
-		: BASELINE_ICON_LIMITED;
-	const variant = baseline.status === "widely"
-		? "widely"
-		: baseline.status === "newly"
-		? "newly"
-		: "limited";
-	const label = baseline.status === "limited"
-		? "limited"
-		: `${baseline.status} ${baseline.since ?? ""}`.trim();
-	return `<span class="badge badge-${variant}">${icon} ${escape(label)}</span>`;
-}
-
-function formatBrowserSupport(browserSupport: BrowserSupport | undefined): string {
-	if (!browserSupport) return "-";
-	const parts = [
-		browserSupport.chrome ? `Chrome ${browserSupport.chrome}` : undefined,
-		browserSupport.edge ? `Edge ${browserSupport.edge}` : undefined,
-		browserSupport.firefox ? `Firefox ${browserSupport.firefox}` : undefined,
-		browserSupport.safari ? `Safari ${browserSupport.safari}` : undefined,
-	].filter((value): value is string => value !== undefined);
-	return parts.length > 0 ? parts.join(" | ") : "-";
-}
-
-function allElements(output: SvgCompatOutput): NamedCompatEntry[] {
-	return Object.entries(output.elements)
-		.map(([name, entry]) => ({ name, ...entry }));
-}
-
-function allAttributes(output: SvgCompatOutput): NamedAttributeEntry[] {
-	return Object.entries(output.attributes)
-		.map(([name, entry]) => ({ name, ...entry }));
-}
-
-function deprecatedEntries(output: SvgCompatOutput): NamedCompatEntry[] {
-	return Object.entries(output.elements)
-		.filter(([, entry]) => entry.deprecated)
-		.map(([name, entry]) => ({ name, ...entry }));
-}
-
-function limitedAttributes(output: SvgCompatOutput): NamedAttributeEntry[] {
-	return Object.entries(output.attributes)
-		.filter(([, entry]) => entry.baseline?.status === "limited")
-		.map(([name, entry]) => ({ name, ...entry }));
-}
-
-function renderCompatRows(entries: NamedCompatEntry[]): string {
-	return entries
-		.map((entry) => {
-			const mdnCell = entry.mdn_url
-				? `<a href="${escape(entry.mdn_url)}">MDN</a>`
-				: "-";
-			return `<tr><th scope="row"><code>${escape(entry.name)}</code></th><td>${
-				renderBaselineBadge(entry.baseline)
-			}</td><td>${escape(formatBrowserSupport(entry.browser_support))}</td><td>${mdnCell}</td></tr>`;
-		})
-		.join("");
-}
-
-function renderAttributeRows(entries: NamedAttributeEntry[]): string {
-	return entries
-		.map((entry) => {
-			const mdnCell = entry.mdn_url
-				? `<a href="${escape(entry.mdn_url)}">MDN</a>`
-				: "-";
-			const elements = entry.elements.length === 1 && entry.elements[0] === "*"
-				? "global"
-				: entry.elements.join(", ");
-			return `<tr><th scope="row"><code>${escape(entry.name)}</code></th><td>${escape(elements)}</td><td>${
-				renderBaselineBadge(entry.baseline)
-			}</td><td>${mdnCell}</td></tr>`;
-		})
-		.join("");
-}
-
-function renderSourceRows(output: SvgCompatOutput): string {
-	return Object.values(output.sources)
-		.map((source) => {
-			return `<tr><th scope="row"><code>${escape(source.package)}</code></th><td>${escape(source.requested)}</td><td>${
-				escape(source.resolved)
-			}</td><td>${escape(source.mode)}</td><td><a href="${escape(source.source_url)}">source</a></td></tr>`;
-		})
-		.join("");
-}
-
-/**
- * Renders the HTML dashboard page with stats, element/attribute tables, and source info.
- *
- * @param output The processed compat data
- * @param requestUrl Used to build links to JSON/schema endpoints
- * @returns Complete HTML string
- */
-export function renderHtml(output: SvgCompatOutput, requestUrl: URL): string {
-	const elementCount = Object.keys(output.elements).length;
-	const attributeCount = Object.keys(output.attributes).length;
-	const deprecatedCount = Object.values(output.elements).filter((entry) => entry.deprecated).length;
-	const limitedCount = Object.values(output.attributes).filter((entry) => entry.baseline?.status === "limited").length;
-	const jsonUrl = `${requestUrl.origin}/data.json`;
-	const schemaUrl = `${requestUrl.origin}/schema.json`;
-	const latestHtmlUrl = `${requestUrl.origin}/?source=latest`;
-	const latestJsonUrl = `${requestUrl.origin}/data.json?source=latest`;
-
-	return `<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SVG Compat</title>
-  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap">
-  <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-  <main>
-    <div class="hero">
-      <p class="muted">SVG compatibility catalog</p>
-      <h1>Browser face. Dynamic source knobs.</h1>
-      <div class="muted">Generated ${escape(output.generated_at)}.<br>
-        Ask for <code>/data.json</code>, <code>?format=json</code>, or <code>Accept: application/json</code>.<br>
-        Override upstream packages with <code>?source=latest</code> or explicit
-        <code>?bcd=</code>
-        <span class="ver-wrap">
-          <input type="text" class="ver" data-pkg="@mdn/browser-compat-data" data-param="bcd" placeholder="version" autocomplete="off" aria-label="BCD version">
-          <ul class="ver-list" hidden></ul>
-        </span>
-        <code>&amp;wf=</code>
-        <span class="ver-wrap">
-          <input type="text" class="ver" data-pkg="web-features" data-param="wf" placeholder="version" autocomplete="off" aria-label="Web Features version">
-          <ul class="ver-list" hidden></ul>
-        </span>.
-      </div>
-      <p>
-        <a class="pill" href="${escape(jsonUrl)}">Open JSON endpoint</a>
-        <a class="pill" href="${escape(schemaUrl)}">Open schema</a>
-        <a class="pill" href="${escape(latestHtmlUrl)}">Try latest in browser</a>
-        <a class="pill" href="${escape(latestJsonUrl)}">Try latest JSON</a>
-      </p>
-      <div class="stats">
-        <div class="stat"><strong>${elementCount}</strong><span class="muted">elements</span></div>
-        <div class="stat"><strong>${attributeCount}</strong><span class="muted">attributes</span></div>
-        <div class="stat"><strong>${deprecatedCount}</strong><span class="muted">deprecated elements</span></div>
-        <div class="stat"><strong>${limitedCount}</strong><span class="muted">limited attributes</span></div>
-      </div>
-    </div>
-    <div class="grid" style="margin-top: 16px;">
-      <section>
-        <h2>Upstream sources</h2>
-        <p class="muted">Effective package versions for this exact response.</p>
-        <table>
-          <thead>
-            <tr><th>Package</th><th>Requested</th><th>Resolved</th><th>Mode</th><th>Link</th></tr>
-          </thead>
-          <tbody>${renderSourceRows(output)}</tbody>
-        </table>
-      </section>
-      <section>
-        <h2>Elements</h2>
-        <p class="muted">All elements with baseline and browser floor.</p>
-        <table>
-          <thead>
-            <tr><th>Name</th><th>Baseline</th><th>Support</th><th>Docs</th></tr>
-          </thead>
-          <tbody>${renderCompatRows(allElements(output))}</tbody>
-        </table>
-      </section>
-      <section>
-        <h2>Attributes</h2>
-        <p class="muted">All attributes with scope and baseline.</p>
-        <table>
-          <thead>
-            <tr><th>Name</th><th>Elements</th><th>Baseline</th><th>Docs</th></tr>
-          </thead>
-          <tbody>${renderAttributeRows(allAttributes(output))}</tbody>
-        </table>
-      </section>
-      <section>
-        <h2>Deprecated elements</h2>
-        <p class="muted">Quick smoke panel for legacy SVG pieces.</p>
-        <table>
-          <thead>
-            <tr><th>Name</th><th>Baseline</th><th>Support</th><th>Docs</th></tr>
-          </thead>
-          <tbody>${renderCompatRows(deprecatedEntries(output))}</tbody>
-        </table>
-      </section>
-      <section>
-        <h2>Limited attributes</h2>
-        <p class="muted">Useful for cross-browser pain radar.</p>
-        <table>
-          <thead>
-            <tr><th>Name</th><th>Elements</th><th>Baseline</th><th>Docs</th></tr>
-          </thead>
-          <tbody>${renderAttributeRows(limitedAttributes(output))}</tbody>
-        </table>
-      </section>
-    </div>
-  </main>
-  <script type="module" src="/static/version-picker.mjs"></script>
-  ${RELOAD_SCRIPT}
-</body>
-</html>`;
-}
-
-function renderErrorHtml(status: number, message: string): string {
-	return `<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SVG Compat Error</title>
-  <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-  <main class="error-page">
-    <article>
-      <p><strong>${status}</strong></p>
-      <h1>Request failed</h1>
-      <p>${escape(message)}</p>
-      <p>Ask for <code>application/json</code>, <code>/data.json</code>, or <code>text/html</code>.</p>
-    </article>
-  </main>
-  ${RELOAD_SCRIPT}
-</body>
-</html>`;
-}
-
-function wantsJson(request: Request, url: URL): boolean {
-	if (url.pathname === "/data.json") return true;
-	if (url.pathname === "/schema.json") return true;
-	if (url.searchParams.get("format") === "json") return true;
-	const accept = request.headers.get("accept");
-	if (!accept) return false;
-	return accept.includes("application/json");
-}
-
-function wantsHtml(request: Request): boolean {
-	const accept = request.headers.get("accept");
-	if (!accept) return false;
-	return accept.includes("text/html");
+	applyHtmlSecurityHeaders(headers);
+	return new Response(renderErrorHtml(status, message, RELOAD_SCRIPT), { status, headers });
 }
 
 function classifyError(error: unknown): { status: number; message: string } {
@@ -948,8 +670,8 @@ function classifyError(error: unknown): { status: number; message: string } {
 	return { status: 500, message: "Internal server error." };
 }
 
-const schemaBody = JSON.stringify(SVG_COMPAT_SCHEMA, null, "  ");
-const schemaLastModified = new Date("2026-04-11T00:00:00.000Z").toUTCString();
+const schemaBody = JSON.stringify(SVG_COMPAT_SCHEMA, null, JSON_INDENT);
+const schemaLastModified = new Date(BOOT).toUTCString();
 const schemaTag = schemaEtag();
 
 /** Deno serve-compatible handler. */
@@ -963,43 +685,66 @@ const server: Server = {
 	async fetch(request: Request): Promise<Response> {
 		const url = new URL(request.url);
 		if (request.method !== "GET" && request.method !== "HEAD") {
+			const headers = new Headers({
+				allow: "GET, HEAD",
+				"content-type": MIME.text,
+			});
+			applyCommonSecurityHeaders(headers);
 			return new Response("Method not allowed", {
 				status: 405,
-				headers: { allow: "GET, HEAD" },
+				headers,
 			});
 		}
 
 		if (DEV && url.pathname === "/__reload") {
-			return new Response(String(BOOT), {
-				headers: { "content-type": CONTENT_TYPE_TEXT, "cache-control": "no-store" },
-			});
+			return textResponse(String(BOOT));
+		}
+
+		if (url.pathname === "/favicon.ico") {
+			return staticAssetResponse(request, FAVICON_ICO_ASSET);
+		}
+
+		if (url.pathname === "/favicon.svg") {
+			return staticAssetResponse(request, FAVICON_SVG_ASSET);
+		}
+
+		if (
+			url.pathname === "/style.css"
+			|| url.pathname === "/version-picker.mjs"
+			|| url.pathname.startsWith("/badges/")
+		) {
+			return await serveStaticRoute(request, "");
 		}
 
 		if (url.pathname.startsWith("/static/")) {
-			return serveDir(request, {
-				fsRoot: new URL("../static", import.meta.url).pathname,
-				urlRoot: "static",
-			});
+			const redirectUrl = new URL(request.url);
+			redirectUrl.pathname = url.pathname.slice("/static".length);
+			return Response.redirect(redirectUrl, 308);
 		}
 
-		if (wantsJson(request, url) && url.pathname === "/schema.json") {
+		const format = negotiateFormat(request, url);
+
+		if (url.pathname === "/schema.json") {
+			if (format === "html") {
+				return textResponse(
+					"Not acceptable. /schema.json is JSON only. Ask for application/json or */*.",
+					406,
+				);
+			}
 			return cachedResponse(
 				request,
 				schemaBody,
-				"application/schema+json; charset=utf-8",
-				SCHEMA_CACHE_CONTROL,
+				MIME.schema,
+				CACHE_POLICY.schema,
 				schemaTag,
 				schemaLastModified,
 			);
 		}
 
-		if (!wantsJson(request, url) && !wantsHtml(request)) {
-			return new Response(
+		if (format === "not-acceptable") {
+			return textResponse(
 				"Not acceptable. Ask for application/json, /data.json, ?format=json, or text/html.",
-				{
-					status: 406,
-					headers: { "content-type": CONTENT_TYPE_TEXT },
-				},
+				406,
 			);
 		}
 
@@ -1008,12 +753,12 @@ const server: Server = {
 			const etag = outputEtag(output);
 			const lastModified = new Date(output.generated_at).toUTCString();
 
-			if (wantsJson(request, url)) {
+			if (format === "json") {
 				return cachedResponse(
 					request,
-					JSON.stringify(output, null, "  "),
-					CONTENT_TYPE_JSON,
-					RESPONSE_CACHE_CONTROL,
+					JSON.stringify(output, null, JSON_INDENT),
+					MIME.json,
+					CACHE_POLICY.response,
 					etag,
 					lastModified,
 				);
@@ -1021,32 +766,23 @@ const server: Server = {
 
 			return cachedResponse(
 				request,
-				renderHtml(output, url),
-				CONTENT_TYPE_HTML,
-				RESPONSE_CACHE_CONTROL,
+				renderHtml(output, url, RELOAD_SCRIPT),
+				MIME.html,
+				CACHE_POLICY.response,
 				etag,
 				lastModified,
 			);
 		} catch (error) {
 			const { status, message } = classifyError(error);
-			if (wantsJson(request, url)) {
-				return new Response(JSON.stringify({ error: { status, message } }, null, "  "), {
-					status,
-					headers: { "content-type": CONTENT_TYPE_JSON },
-				});
+			if (format === "json") {
+				return jsonErrorResponse(status, message);
 			}
 
-			if (wantsHtml(request)) {
-				return new Response(renderErrorHtml(status, message), {
-					status,
-					headers: { "content-type": CONTENT_TYPE_HTML },
-				});
+			if (format === "html") {
+				return htmlErrorResponse(status, message);
 			}
 
-			return new Response(message, {
-				status,
-				headers: { "content-type": CONTENT_TYPE_TEXT },
-			});
+			return textResponse(message, status);
 		}
 	},
 } satisfies Deno.ServeDefaultExport;

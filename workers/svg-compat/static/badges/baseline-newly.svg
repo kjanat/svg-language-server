@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="18" height="10" viewBox="0 0 540 300" fill="none">
+	<style>
+		.b {
+			fill: #a8c7fa;
+		}
+		.d {
+			fill: #1b6ef3;
+		}
+		@media (prefers-color-scheme: dark) {
+			.b {
+				fill: #2d509e;
+			}
+			.d {
+				fill: #4185ff;
+			}
+		}
+	</style>
+	<path class="b" d="M150 0L180 30L150 60L120 30Z" />
+	<path class="b" d="M210 60L240 90L210 120L180 90Z" />
+	<path class="b" d="M450 60L480 90L450 120L420 90Z" />
+	<path class="b" d="M510 120L540 150L510 180L480 150Z" />
+	<path class="b" d="M450 180L480 210L450 240L420 210Z" />
+	<path class="b" d="M390 240L420 270L390 300L360 270Z" />
+	<path class="b" d="M330 180L360 210L330 240L300 210Z" />
+	<path class="b" d="M90 60L120 90L90 120L60 90Z" />
+	<path class="d" d="M390 0L420 30L150 300L0 150L30 120L150 240L390 0Z" />
+</svg>

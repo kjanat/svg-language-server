@@ -153,6 +153,17 @@ Deno.test("version inference handles bundled npm path", () => {
 	);
 });
 
+Deno.test("version inference handles deploy npm resolver format", () => {
+	assertEquals(
+		versionFromLocation("npm:web-features@3.23.0", "web-features"),
+		"3.23.0",
+	);
+	assertEquals(
+		versionFromLocation("npm:@mdn/browser-compat-data@7.3.11", "@mdn/browser-compat-data"),
+		"7.3.11",
+	);
+});
+
 Deno.test("json endpoint returns 304 for matching etag", async () => {
 	const first = await fetchJson();
 	const etag = first.headers.get("etag");

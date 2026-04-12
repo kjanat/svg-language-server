@@ -28,7 +28,14 @@
 	"exports": "./src/main.ts",
 	"deploy": {
 		"org": "kjanat",
-		"app": "svg-compat"
+		"app": "svg-compat",
+		"install": "deno install",
+		"runtime": {
+			"type": "dynamic",
+			"entrypoint": "main.ts",
+			"cwd": "src",
+			"memory_limit": 512
+		}
 	},
 	"test": {
 		"permissions": {

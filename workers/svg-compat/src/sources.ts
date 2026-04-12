@@ -105,6 +105,10 @@ function packageDataUrl(packageName: string, version: string): string {
 	return `https://unpkg.com/${packageName}@${version}/data.json`;
 }
 
+function escapeRegExp(value: string): string {
+	return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 /**
  * Extracts the resolved version from a URL like
  * `https://unpkg.com/@mdn/browser-compat-data@7.3.11/data.json`.
@@ -120,8 +124,8 @@ export function versionFromLocation(
 	const url = new URL(location);
 	const path = url.protocol === "file:" ? fromFileUrl(url) : url.pathname;
 	const decoded = decodeURIComponent(path);
-	const escaped = packageName.replaceAll("/", "\\/");
-	const match = decoded.match(new RegExp(`/${escaped}@([^/]+)(?:/|$)`));
+	const escaped = escapeRegExp(packageName);
+	const match = decoded.match(new RegExp(`(?:^|/)${escaped}@([^/]+)(?:/|$)`));
 	if (match?.[1]) return match[1];
 	const segments = decoded.split("/").filter((s) => s.length > 0);
 	const pkgParts = packageName.split("/");

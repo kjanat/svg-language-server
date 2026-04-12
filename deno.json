@@ -21,7 +21,8 @@
 		}
 	},
 	"deploy": {
-		"org": "kjanat"
+		"org": "kjanat",
+		"app": "svg-compat"
 	},
 	"exclude": ["*.js", "target", "scripts"],
 	"lint": {

@@ -172,6 +172,10 @@ code {
 }
 
 /* ── version inputs ──────────────────── */
+.ver-wrap {
+	position: relative;
+	display: inline-block;
+}
 .ver {
 	background: none;
 	border: none;
@@ -191,6 +195,38 @@ code {
 .ver:focus {
 	border-bottom-style: solid;
 	border-color: var(--link);
+}
+.ver-list {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	margin: 4px 0 0;
+	padding: 4px 0;
+	list-style: none;
+	background: var(--surface-raised);
+	border: 1px solid var(--border);
+	border-radius: 6px;
+	width: max-content;
+	max-height: min(400px, 60vh);
+	overflow-y: auto;
+	z-index: 10;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+.ver-list[hidden],
+.ver-list:empty {
+	display: none;
+}
+.ver-list li {
+	padding: 4px 12px;
+	font-family: var(--font-mono);
+	font-size: 0.8rem;
+	color: var(--text);
+	cursor: pointer;
+}
+.ver-list li:hover,
+.ver-list li.active {
+	background: rgba(255, 255, 255, 0.06);
+	color: var(--accent);
 }
 
 /* ── pills ───────────────────────────── */

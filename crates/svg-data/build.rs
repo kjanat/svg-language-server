@@ -1094,6 +1094,7 @@ fn write_membership_lookup(
     writeln!(out, "}}")?;
     writeln!(out)?;
 
+    writeln!(out, "#[allow(clippy::too_many_lines)]")?;
     writeln!(
         out,
         "pub fn generated_known_attribute_snapshots(name: &str) -> Option<&'static [SpecSnapshotId]> {{"
@@ -1130,6 +1131,7 @@ fn write_profile_attribute_lookup(
     }
     writeln!(out)?;
 
+    writeln!(out, "#[allow(clippy::too_many_lines)]")?;
     writeln!(
         out,
         "pub fn generated_attribute_names_for_profile(snapshot: SpecSnapshotId, element_name: &str) -> &'static [&'static str] {{"

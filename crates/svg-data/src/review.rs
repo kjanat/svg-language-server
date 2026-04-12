@@ -204,148 +204,29 @@ struct ReviewFacts<'a> {
     provenance: &'a ProvenanceCoverage,
 }
 
+struct ReviewNameSets<'a> {
+    element_names: BTreeSet<&'a str>,
+    attribute_names: BTreeSet<&'a str>,
+    grammar_ids: BTreeSet<&'a str>,
+}
+
+struct ReviewIssueCounts {
+    attribute_list_mismatches: usize,
+    dangling_matrix_elements: usize,
+    dangling_matrix_attributes: usize,
+    dangling_element_categories: usize,
+    dangling_attribute_categories: usize,
+    dangling_exception_elements: usize,
+    dangling_exception_attributes: usize,
+    dangling_exception_grammars: usize,
+}
+
 fn build_unresolved_issues(facts: &ReviewFacts<'_>) -> Vec<ReviewIssue> {
-    let element_names: BTreeSet<&str> = facts
-        .elements
-        .iter()
-        .map(|element| element.name.as_str())
-        .collect();
-    let attribute_names: BTreeSet<&str> = facts
-        .attributes
-        .iter()
-        .map(|attribute| attribute.name.as_str())
-        .collect();
-    let grammar_ids: BTreeSet<&str> = facts
-        .grammars
-        .iter()
-        .map(|grammar| grammar.id.as_str())
-        .collect();
-
-    let matrix_edges_by_element: BTreeMap<&str, BTreeSet<&str>> =
-        facts
-            .matrix
-            .edges
-            .iter()
-            .fold(BTreeMap::new(), |mut acc, edge| {
-                acc.entry(edge.element.as_str())
-                    .or_default()
-                    .insert(edge.attribute.as_str());
-                acc
-            });
-
-    let attribute_list_mismatches = facts
-        .elements
-        .iter()
-        .filter(|element| {
-            let declared: BTreeSet<&str> = element.attributes.iter().map(String::as_str).collect();
-            let matrix_list = matrix_edges_by_element.get(element.name.as_str());
-            matrix_list.map_or(!declared.is_empty(), |matrix_attributes| {
-                declared != *matrix_attributes
-            })
-        })
-        .count();
-
-    let dangling_matrix_elements = facts
-        .matrix
-        .edges
-        .iter()
-        .filter(|edge| !element_names.contains(edge.element.as_str()))
-        .count();
-    let dangling_matrix_attributes = facts
-        .matrix
-        .edges
-        .iter()
-        .filter(|edge| !attribute_names.contains(edge.attribute.as_str()))
-        .count();
-    let dangling_element_categories = facts
-        .categories
-        .element_categories
-        .iter()
-        .filter(|membership| !element_names.contains(membership.element.as_str()))
-        .count();
-    let dangling_attribute_categories = facts
-        .categories
-        .attribute_categories
-        .iter()
-        .filter(|membership| !attribute_names.contains(membership.attribute.as_str()))
-        .count();
-    let dangling_exception_elements = facts
-        .exceptions
-        .exceptions
-        .iter()
-        .filter(|exception| match &exception.scope {
-            ExceptionScope::Element { name } => !element_names.contains(name.as_str()),
-            ExceptionScope::ElementAttribute { element, .. } => {
-                !element_names.contains(element.as_str())
-            }
-            _ => false,
-        })
-        .count();
-    let dangling_exception_attributes = facts
-        .exceptions
-        .exceptions
-        .iter()
-        .filter(|exception| match &exception.scope {
-            ExceptionScope::Attribute { name } => !attribute_names.contains(name.as_str()),
-            ExceptionScope::ElementAttribute { attribute, .. } => {
-                !attribute_names.contains(attribute.as_str())
-            }
-            _ => false,
-        })
-        .count();
-    let dangling_exception_grammars = facts
-        .exceptions
-        .exceptions
-        .iter()
-        .filter(|exception| match &exception.scope {
-            ExceptionScope::Grammar { grammar_id } => !grammar_ids.contains(grammar_id.as_str()),
-            _ => false,
-        })
-        .count();
-
     let mut unresolved = Vec::new();
-    push_missing_provenance_issue(
-        &mut unresolved,
-        "elements-provenance",
-        "elements.json",
-        &facts.provenance.elements,
-    );
-    push_missing_provenance_issue(
-        &mut unresolved,
-        "attributes-provenance",
-        "attributes.json",
-        &facts.provenance.attributes,
-    );
-    push_missing_provenance_issue(
-        &mut unresolved,
-        "grammars-provenance",
-        "grammars.json",
-        &facts.provenance.grammars,
-    );
-    push_missing_provenance_issue(
-        &mut unresolved,
-        "element-categories-provenance",
-        "categories.json element_categories",
-        &facts.provenance.element_categories,
-    );
-    push_missing_provenance_issue(
-        &mut unresolved,
-        "attribute-categories-provenance",
-        "categories.json attribute_categories",
-        &facts.provenance.attribute_categories,
-    );
-    push_missing_provenance_issue(
-        &mut unresolved,
-        "applicability-edges-provenance",
-        "element_attribute_matrix.json",
-        &facts.provenance.applicability_edges,
-    );
-    push_missing_provenance_issue(
-        &mut unresolved,
-        "exceptions-provenance",
-        "exceptions.json",
-        &facts.provenance.exceptions,
-    );
+    let names = review_name_sets(facts);
+    let issue_counts = collect_issue_counts(facts, &names);
+
+    push_provenance_issues(&mut unresolved, facts.provenance);
     push_count_issue(
         &mut unresolved,
         "applicability-missing-elements",
@@ -355,53 +236,204 @@ fn build_unresolved_issues(facts: &ReviewFacts<'_>) -> Vec<ReviewIssue> {
     push_count_issue(
         &mut unresolved,
         "applicability-mismatches",
-        attribute_list_mismatches,
+        issue_counts.attribute_list_mismatches,
         "elements whose declared attribute list disagrees with matrix edges",
     );
     push_count_issue(
         &mut unresolved,
         "matrix-dangling-elements",
-        dangling_matrix_elements,
+        issue_counts.dangling_matrix_elements,
         "matrix edges that reference unknown elements",
     );
     push_count_issue(
         &mut unresolved,
         "matrix-dangling-attributes",
-        dangling_matrix_attributes,
+        issue_counts.dangling_matrix_attributes,
         "matrix edges that reference unknown attributes",
     );
     push_count_issue(
         &mut unresolved,
         "element-category-dangling-elements",
-        dangling_element_categories,
+        issue_counts.dangling_element_categories,
         "element category memberships that reference unknown elements",
     );
     push_count_issue(
         &mut unresolved,
         "attribute-category-dangling-attributes",
-        dangling_attribute_categories,
+        issue_counts.dangling_attribute_categories,
         "attribute category memberships that reference unknown attributes",
     );
     push_count_issue(
         &mut unresolved,
         "exception-dangling-elements",
-        dangling_exception_elements,
+        issue_counts.dangling_exception_elements,
         "exceptions that reference unknown elements",
     );
     push_count_issue(
         &mut unresolved,
         "exception-dangling-attributes",
-        dangling_exception_attributes,
+        issue_counts.dangling_exception_attributes,
         "exceptions that reference unknown attributes",
     );
     push_count_issue(
         &mut unresolved,
         "exception-dangling-grammars",
-        dangling_exception_grammars,
+        issue_counts.dangling_exception_grammars,
         "exceptions that reference unknown grammars",
     );
 
     unresolved
+}
+
+fn review_name_sets<'a>(facts: &'a ReviewFacts<'_>) -> ReviewNameSets<'a> {
+    ReviewNameSets {
+        element_names: facts
+            .elements
+            .iter()
+            .map(|element| element.name.as_str())
+            .collect(),
+        attribute_names: facts
+            .attributes
+            .iter()
+            .map(|attribute| attribute.name.as_str())
+            .collect(),
+        grammar_ids: facts
+            .grammars
+            .iter()
+            .map(|grammar| grammar.id.as_str())
+            .collect(),
+    }
+}
+
+fn collect_issue_counts(facts: &ReviewFacts<'_>, names: &ReviewNameSets<'_>) -> ReviewIssueCounts {
+    ReviewIssueCounts {
+        attribute_list_mismatches: count_attribute_list_mismatches(facts),
+        dangling_matrix_elements: facts
+            .matrix
+            .edges
+            .iter()
+            .filter(|edge| !names.element_names.contains(edge.element.as_str()))
+            .count(),
+        dangling_matrix_attributes: facts
+            .matrix
+            .edges
+            .iter()
+            .filter(|edge| !names.attribute_names.contains(edge.attribute.as_str()))
+            .count(),
+        dangling_element_categories: facts
+            .categories
+            .element_categories
+            .iter()
+            .filter(|membership| !names.element_names.contains(membership.element.as_str()))
+            .count(),
+        dangling_attribute_categories: facts
+            .categories
+            .attribute_categories
+            .iter()
+            .filter(|membership| {
+                !names
+                    .attribute_names
+                    .contains(membership.attribute.as_str())
+            })
+            .count(),
+        dangling_exception_elements: facts
+            .exceptions
+            .exceptions
+            .iter()
+            .filter(|exception| match &exception.scope {
+                ExceptionScope::Element { name } => !names.element_names.contains(name.as_str()),
+                ExceptionScope::ElementAttribute { element, .. } => {
+                    !names.element_names.contains(element.as_str())
+                }
+                _ => false,
+            })
+            .count(),
+        dangling_exception_attributes: facts
+            .exceptions
+            .exceptions
+            .iter()
+            .filter(|exception| match &exception.scope {
+                ExceptionScope::Attribute { name } => {
+                    !names.attribute_names.contains(name.as_str())
+                }
+                ExceptionScope::ElementAttribute { attribute, .. } => {
+                    !names.attribute_names.contains(attribute.as_str())
+                }
+                _ => false,
+            })
+            .count(),
+        dangling_exception_grammars: facts
+            .exceptions
+            .exceptions
+            .iter()
+            .filter(|exception| match &exception.scope {
+                ExceptionScope::Grammar { grammar_id } => {
+                    !names.grammar_ids.contains(grammar_id.as_str())
+                }
+                _ => false,
+            })
+            .count(),
+    }
+}
+
+fn count_attribute_list_mismatches(facts: &ReviewFacts<'_>) -> usize {
+    let matrix_edges_by_element =
+        facts
+            .matrix
+            .edges
+            .iter()
+            .fold(BTreeMap::new(), |mut acc, edge| {
+                acc.entry(edge.element.as_str())
+                    .or_insert_with(BTreeSet::new)
+                    .insert(edge.attribute.as_str());
+                acc
+            });
+
+    facts
+        .elements
+        .iter()
+        .filter(|element| {
+            let declared: BTreeSet<&str> = element.attributes.iter().map(String::as_str).collect();
+            let matrix_list = matrix_edges_by_element.get(element.name.as_str());
+            matrix_list.map_or(!declared.is_empty(), |matrix_attributes| {
+                declared != *matrix_attributes
+            })
+        })
+        .count()
+}
+
+fn push_provenance_issues(unresolved: &mut Vec<ReviewIssue>, provenance: &ProvenanceCoverage) {
+    for (id, label, coverage) in [
+        ("elements-provenance", "elements.json", &provenance.elements),
+        (
+            "attributes-provenance",
+            "attributes.json",
+            &provenance.attributes,
+        ),
+        ("grammars-provenance", "grammars.json", &provenance.grammars),
+        (
+            "element-categories-provenance",
+            "categories.json element_categories",
+            &provenance.element_categories,
+        ),
+        (
+            "attribute-categories-provenance",
+            "categories.json attribute_categories",
+            &provenance.attribute_categories,
+        ),
+        (
+            "applicability-edges-provenance",
+            "element_attribute_matrix.json",
+            &provenance.applicability_edges,
+        ),
+        (
+            "exceptions-provenance",
+            "exceptions.json",
+            &provenance.exceptions,
+        ),
+    ] {
+        push_missing_provenance_issue(unresolved, id, label, coverage);
+    }
 }
 
 fn push_missing_provenance_issue(

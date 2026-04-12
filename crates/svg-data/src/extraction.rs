@@ -748,94 +748,125 @@ mod tests {
         ReviewCounts, ValueSyntax,
     };
 
-    #[test]
-    fn parses_checked_in_snapshot_manifest_and_builds_metadata() -> Result<()> {
-        let manifest = SourceManifest::read(
-            &Path::new(env!("CARGO_MANIFEST_DIR")).join("data/sources/svg2-ed-20250914.toml"),
-        )?;
-
-        assert_eq!(manifest.schema_version, SOURCE_MANIFEST_SCHEMA_VERSION);
-        assert_eq!(
-            manifest.snapshot,
-            Some(SpecSnapshotId::Svg2EditorsDraft20250914)
-        );
-
-        let metadata = manifest.snapshot_metadata("extractor-v1", "2026-04-09")?;
-        assert_eq!(metadata.snapshot, SpecSnapshotId::Svg2EditorsDraft20250914);
-        assert_eq!(metadata.pinned_sources.len(), manifest.inputs.len());
-        assert_eq!(metadata.status, SnapshotStatus::EditorsDraft);
-        Ok(())
-    }
-
-    #[test]
-    fn cache_reuses_existing_text_in_offline_mode() -> Result<()> {
-        let temp_dir = tempdir().map_err(|source| Error::Io {
+    fn temp_dir_path() -> Result<tempfile::TempDir> {
+        tempdir().map_err(|source| Error::Io {
             path: PathBuf::from("tempdir"),
             source,
-        })?;
-        let online_cache = Cache::new(temp_dir.path().join("cache"), false);
-        let cache_key = Path::new("spec-sources/svg11-rec-20030114/eltindex.html");
-
-        let first =
-            online_cache.load_or_fetch_text(cache_key, false, || Ok(String::from("<html/>")))?;
-        assert!(!first.cache_hit);
-
-        let offline_cache = Cache::new(temp_dir.path().join("cache"), true);
-        let second = offline_cache.load_or_fetch_text(cache_key, false, || {
-            Err(String::from("should not fetch when cache exists"))
-        })?;
-
-        assert!(second.cache_hit);
-        assert_eq!(second.text, "<html/>");
-        assert!(second.checksum_path.exists());
-        Ok(())
+        })
     }
 
-    #[test]
-    fn writes_snapshot_dataset_files_with_stable_names() -> Result<()> {
-        let temp_dir = tempdir().map_err(|source| Error::Io {
-            path: PathBuf::from("tempdir"),
-            source,
-        })?;
-        let writer = SnapshotDatasetWriter::new(temp_dir.path().join("specs"));
-        let manifest = SourceManifest::read(
-            &Path::new(env!("CARGO_MANIFEST_DIR")).join("data/sources/svg11-rec-20030114.toml"),
-        )?;
-        let dataset = SnapshotDataset {
-            metadata: manifest.snapshot_metadata("extractor-v1", "2026-04-09")?,
-            elements: vec![SnapshotElementRecord {
-                name: String::from("svg"),
-                title: String::from("SVG root element"),
-                categories: vec![String::from("container")],
-                content_model: ElementContentModel::AnySvg,
-                attributes: vec![String::from("width")],
-                provenance: vec![manifest.fact_provenance(
-                    "tr-root",
-                    ProvenanceSourceKind::Html,
-                    SourceLocator::Fragment {
-                        anchor: String::from("SVGElement"),
-                    },
-                    ExtractionConfidence::Exact,
-                )?],
-            }],
-            attributes: vec![SnapshotAttributeRecord {
-                name: String::from("width"),
-                title: String::from("Width attribute"),
-                value_syntax: ValueSyntax::Opaque {
-                    display: String::from("<length>"),
-                    reason: String::from("grammar not normalized yet"),
+    fn sample_snapshot_element(manifest: &SourceManifest) -> Result<SnapshotElementRecord> {
+        Ok(SnapshotElementRecord {
+            name: String::from("svg"),
+            title: String::from("SVG root element"),
+            categories: vec![String::from("container")],
+            content_model: ElementContentModel::AnySvg,
+            attributes: vec![String::from("width")],
+            provenance: vec![manifest.fact_provenance(
+                "tr-root",
+                ProvenanceSourceKind::Html,
+                SourceLocator::Fragment {
+                    anchor: String::from("SVGElement"),
                 },
-                default_value: AttributeDefaultValue::None,
-                animatable: AnimationBehavior::Unspecified,
-                provenance: vec![manifest.fact_provenance(
-                    "attribute-index",
-                    ProvenanceSourceKind::Index,
-                    SourceLocator::Fragment {
-                        anchor: String::from("width"),
-                    },
-                    ExtractionConfidence::Derived,
-                )?],
-            }],
+                ExtractionConfidence::Exact,
+            )?],
+        })
+    }
+
+    fn sample_snapshot_attribute(manifest: &SourceManifest) -> Result<SnapshotAttributeRecord> {
+        Ok(SnapshotAttributeRecord {
+            name: String::from("width"),
+            title: String::from("Width attribute"),
+            value_syntax: ValueSyntax::Opaque {
+                display: String::from("<length>"),
+                reason: String::from("grammar not normalized yet"),
+            },
+            default_value: AttributeDefaultValue::None,
+            animatable: AnimationBehavior::Unspecified,
+            provenance: vec![manifest.fact_provenance(
+                "attribute-index",
+                ProvenanceSourceKind::Index,
+                SourceLocator::Fragment {
+                    anchor: String::from("width"),
+                },
+                ExtractionConfidence::Derived,
+            )?],
+        })
+    }
+
+    fn sample_review_file() -> ReviewFile {
+        ReviewFile {
+            schema_version: SNAPSHOT_SCHEMA_VERSION,
+            counts: ReviewCounts {
+                elements: 1,
+                attributes: 1,
+                grammars: 0,
+                applicability_edges: 1,
+                exceptions: 0,
+            },
+            applicability: ApplicabilityCoverage {
+                elements_requiring_matrix_entries: 1,
+                elements_with_matrix_entries: 1,
+                elements_missing_matrix_entries: Vec::new(),
+            },
+            provenance: ProvenanceCoverage {
+                elements: ProvenanceCoverageCount {
+                    total: 1,
+                    covered: 1,
+                    missing: 0,
+                },
+                attributes: ProvenanceCoverageCount {
+                    total: 1,
+                    covered: 1,
+                    missing: 0,
+                },
+                grammars: ProvenanceCoverageCount {
+                    total: 0,
+                    covered: 0,
+                    missing: 0,
+                },
+                element_categories: ProvenanceCoverageCount {
+                    total: 0,
+                    covered: 0,
+                    missing: 0,
+                },
+                attribute_categories: ProvenanceCoverageCount {
+                    total: 0,
+                    covered: 0,
+                    missing: 0,
+                },
+                applicability_edges: ProvenanceCoverageCount {
+                    total: 1,
+                    covered: 0,
+                    missing: 1,
+                },
+                exceptions: ProvenanceCoverageCount {
+                    total: 0,
+                    covered: 0,
+                    missing: 0,
+                },
+            },
+            exception_inventory: ExceptionInventory {
+                total: 0,
+                corrected: 0,
+                deferred: 0,
+                snapshot_scoped: 0,
+                element_scoped: 0,
+                attribute_scoped: 0,
+                element_attribute_scoped: 0,
+                grammar_scoped: 0,
+                ids: Vec::new(),
+            },
+            unresolved: Vec::new(),
+            manual_notes: Vec::new(),
+        }
+    }
+
+    fn sample_snapshot_dataset(manifest: &SourceManifest) -> Result<SnapshotDataset> {
+        Ok(SnapshotDataset {
+            metadata: manifest.snapshot_metadata("extractor-v1", "2026-04-09")?,
+            elements: vec![sample_snapshot_element(manifest)?],
+            attributes: vec![sample_snapshot_attribute(manifest)?],
             grammars: GrammarFile {
                 schema_version: SNAPSHOT_SCHEMA_VERSION,
                 grammars: Vec::new(),
@@ -858,72 +889,58 @@ mod tests {
                 schema_version: SNAPSHOT_SCHEMA_VERSION,
                 exceptions: Vec::new(),
             },
-            review: ReviewFile {
-                schema_version: SNAPSHOT_SCHEMA_VERSION,
-                counts: ReviewCounts {
-                    elements: 1,
-                    attributes: 1,
-                    grammars: 0,
-                    applicability_edges: 1,
-                    exceptions: 0,
-                },
-                applicability: ApplicabilityCoverage {
-                    elements_requiring_matrix_entries: 1,
-                    elements_with_matrix_entries: 1,
-                    elements_missing_matrix_entries: Vec::new(),
-                },
-                provenance: ProvenanceCoverage {
-                    elements: ProvenanceCoverageCount {
-                        total: 1,
-                        covered: 1,
-                        missing: 0,
-                    },
-                    attributes: ProvenanceCoverageCount {
-                        total: 1,
-                        covered: 1,
-                        missing: 0,
-                    },
-                    grammars: ProvenanceCoverageCount {
-                        total: 0,
-                        covered: 0,
-                        missing: 0,
-                    },
-                    element_categories: ProvenanceCoverageCount {
-                        total: 0,
-                        covered: 0,
-                        missing: 0,
-                    },
-                    attribute_categories: ProvenanceCoverageCount {
-                        total: 0,
-                        covered: 0,
-                        missing: 0,
-                    },
-                    applicability_edges: ProvenanceCoverageCount {
-                        total: 1,
-                        covered: 0,
-                        missing: 1,
-                    },
-                    exceptions: ProvenanceCoverageCount {
-                        total: 0,
-                        covered: 0,
-                        missing: 0,
-                    },
-                },
-                exception_inventory: ExceptionInventory {
-                    total: 0,
-                    corrected: 0,
-                    deferred: 0,
-                    snapshot_scoped: 0,
-                    element_scoped: 0,
-                    attribute_scoped: 0,
-                    element_attribute_scoped: 0,
-                    grammar_scoped: 0,
-                    ids: Vec::new(),
-                },
-                unresolved: Vec::new(),
-                manual_notes: Vec::new(),
-            },
-        };
+            review: sample_review_file(),
+        })
+    }
+
+    #[test]
+    fn parses_checked_in_snapshot_manifest_and_builds_metadata() -> Result<()> {
+        let manifest = SourceManifest::read(
+            &Path::new(env!("CARGO_MANIFEST_DIR")).join("data/sources/svg2-ed-20250914.toml"),
+        )?;
+
+        assert_eq!(manifest.schema_version, SOURCE_MANIFEST_SCHEMA_VERSION);
+        assert_eq!(
+            manifest.snapshot,
+            Some(SpecSnapshotId::Svg2EditorsDraft20250914)
+        );
+
+        let metadata = manifest.snapshot_metadata("extractor-v1", "2026-04-09")?;
+        assert_eq!(metadata.snapshot, SpecSnapshotId::Svg2EditorsDraft20250914);
+        assert_eq!(metadata.pinned_sources.len(), manifest.inputs.len());
+        assert_eq!(metadata.status, SnapshotStatus::EditorsDraft);
+        Ok(())
+    }
+
+    #[test]
+    fn cache_reuses_existing_text_in_offline_mode() -> Result<()> {
+        let temp_dir = temp_dir_path()?;
+        let online_cache = Cache::new(temp_dir.path().join("cache"), false);
+        let cache_key = Path::new("spec-sources/svg11-rec-20030114/eltindex.html");
+
+        let first =
+            online_cache.load_or_fetch_text(cache_key, false, || Ok(String::from("<html/>")))?;
+        assert!(!first.cache_hit);
+
+        let offline_cache = Cache::new(temp_dir.path().join("cache"), true);
+        let second = offline_cache.load_or_fetch_text(cache_key, false, || {
+            Err(String::from("should not fetch when cache exists"))
+        })?;
+
+        assert!(second.cache_hit);
+        assert_eq!(second.text, "<html/>");
+        assert!(second.checksum_path.exists());
+        Ok(())
+    }
+
+    #[test]
+    fn writes_snapshot_dataset_files_with_stable_names() -> Result<()> {
+        let temp_dir = temp_dir_path()?;
+        let writer = SnapshotDatasetWriter::new(temp_dir.path().join("specs"));
+        let manifest = SourceManifest::read(
+            &Path::new(env!("CARGO_MANIFEST_DIR")).join("data/sources/svg11-rec-20030114.toml"),
+        )?;
+        let dataset = sample_snapshot_dataset(&manifest)?;
 
         let paths = writer.write(&dataset)?;
         assert_eq!(paths.len(), 8);

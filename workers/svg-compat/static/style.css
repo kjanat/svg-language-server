@@ -1,23 +1,61 @@
 :root {
-	color-scheme: dark;
-	--bg: #0c0c0f;
-	--surface: #15151a;
-	--surface-raised: #1b1b22;
-	--border: #28283a;
-	--border-subtle: #20202c;
-	--text: #e8e8f0;
-	--text-muted: #7e7e96;
-	--accent: #eba55a;
-	--link: #6cc0f0;
-	--code: #b5d26a;
-	--badge-widely: #34d399;
-	--badge-newly: #fbbf24;
-	--badge-limited: #f87171;
-	--badge-deprecated: #fb923c;
+	color-scheme: light dark;
+	--bg: #f4f4f7;
+	--surface: #fff;
+	--surface-raised: #f0f0f4;
+	--border: #d8d8e0;
+	--border-subtle: #e4e4ec;
+	--text: #1a1a2e;
+	--text-muted: #6e6e82;
+	--accent: #c4792a;
+	--link: #1a7ec5;
+	--code: #5a7a1a;
+	--badge-widely: #15803d;
+	--badge-newly: #a16207;
+	--badge-limited: #dc2626;
+	--badge-deprecated: #c2410c;
+	--hover-bg: rgba(0, 0, 0, 0.03);
+	--shadow-dropdown: rgba(0, 0, 0, 0.12);
+	--badge-widely-bg: rgba(21, 128, 61, 0.08);
+	--badge-widely-border: rgba(21, 128, 61, 0.2);
+	--badge-newly-bg: rgba(161, 98, 7, 0.07);
+	--badge-newly-border: rgba(161, 98, 7, 0.18);
+	--badge-limited-bg: rgba(220, 38, 38, 0.06);
+	--badge-limited-border: rgba(220, 38, 38, 0.16);
+	--badge-deprecated-bg: rgba(194, 65, 12, 0.06);
+	--badge-deprecated-border: rgba(194, 65, 12, 0.16);
 	--radius: 8px;
 	--font-display: "Plus Jakarta Sans", system-ui, sans-serif;
 	--font-body: system-ui, -apple-system, sans-serif;
 	--font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) {
+	:root {
+		--bg: #0c0c0f;
+		--surface: #15151a;
+		--surface-raised: #1b1b22;
+		--border: #28283a;
+		--border-subtle: #20202c;
+		--text: #e8e8f0;
+		--text-muted: #7e7e96;
+		--accent: #eba55a;
+		--link: #6cc0f0;
+		--code: #b5d26a;
+		--badge-widely: #34d399;
+		--badge-newly: #fbbf24;
+		--badge-limited: #f87171;
+		--badge-deprecated: #fb923c;
+		--hover-bg: rgba(255, 255, 255, 0.018);
+		--shadow-dropdown: rgba(0, 0, 0, 0.4);
+		--badge-widely-bg: rgba(52, 211, 153, 0.1);
+		--badge-widely-border: rgba(52, 211, 153, 0.2);
+		--badge-newly-bg: rgba(251, 191, 36, 0.08);
+		--badge-newly-border: rgba(251, 191, 36, 0.18);
+		--badge-limited-bg: rgba(248, 113, 113, 0.08);
+		--badge-limited-border: rgba(248, 113, 113, 0.18);
+		--badge-deprecated-bg: rgba(251, 146, 60, 0.08);
+		--badge-deprecated-border: rgba(251, 146, 60, 0.18);
+	}
 }
 * {
 	box-sizing: border-box;
@@ -155,7 +193,7 @@ tbody tr {
 	transition: background 0.1s;
 }
 tbody tr:hover {
-	background: rgba(255, 255, 255, 0.018);
+	background: var(--hover-bg);
 }
 
 /* ── code ────────────────────────────── */
@@ -210,7 +248,7 @@ code {
 	max-height: min(400px, 60vh);
 	overflow-y: auto;
 	z-index: 10;
-	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+	box-shadow: 0 8px 24px var(--shadow-dropdown);
 }
 .ver-list[hidden],
 .ver-list:empty {
@@ -225,7 +263,7 @@ code {
 }
 .ver-list li:hover,
 .ver-list li.active {
-	background: rgba(255, 255, 255, 0.06);
+	background: var(--hover-bg);
 	color: var(--accent);
 }
 
@@ -244,7 +282,7 @@ code {
 }
 .pill:hover {
 	border-color: var(--accent);
-	background: rgba(235, 165, 90, 0.07);
+	background: var(--hover-bg);
 	opacity: 1;
 }
 
@@ -264,24 +302,24 @@ code {
 	flex-shrink: 0;
 }
 .badge-widely {
-	background: rgba(52, 211, 153, 0.1);
+	background: var(--badge-widely-bg);
 	color: var(--badge-widely);
-	border: 1px solid rgba(52, 211, 153, 0.2);
+	border: 1px solid var(--badge-widely-border);
 }
 .badge-newly {
-	background: rgba(251, 191, 36, 0.08);
+	background: var(--badge-newly-bg);
 	color: var(--badge-newly);
-	border: 1px solid rgba(251, 191, 36, 0.18);
+	border: 1px solid var(--badge-newly-border);
 }
 .badge-limited {
-	background: rgba(248, 113, 113, 0.08);
+	background: var(--badge-limited-bg);
 	color: var(--badge-limited);
-	border: 1px solid rgba(248, 113, 113, 0.18);
+	border: 1px solid var(--badge-limited-border);
 }
 .badge-deprecated {
-	background: rgba(251, 146, 60, 0.08);
+	background: var(--badge-deprecated-bg);
 	color: var(--badge-deprecated);
-	border: 1px solid rgba(251, 146, 60, 0.18);
+	border: 1px solid var(--badge-deprecated-border);
 }
 
 /* ── error page ──────────────────────── */

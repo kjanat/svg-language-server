@@ -78,10 +78,51 @@ export const SVG_COMPAT_SCHEMA = {
 			type: "object",
 			additionalProperties: false,
 			properties: {
-				chrome: { type: "string" },
-				edge: { type: "string" },
-				firefox: { type: "string" },
-				safari: { type: "string" },
+				chrome: { $ref: "#/$defs/browserVersion" },
+				edge: { $ref: "#/$defs/browserVersion" },
+				firefox: { $ref: "#/$defs/browserVersion" },
+				safari: { $ref: "#/$defs/browserVersion" },
+			},
+		},
+		browserVersion: {
+			type: "object",
+			required: ["raw_value_added"],
+			additionalProperties: false,
+			properties: {
+				/* Literal upstream `version_added` value — always present. */
+				raw_value_added: {
+					anyOf: [
+						{ type: "string" },
+						{ type: "boolean" },
+						{ type: "null" },
+					],
+				},
+				version_added: { type: "string" },
+				version_qualifier: { enum: ["before", "after", "approximately"] },
+				supported: { type: "boolean" },
+				version_removed: { type: "string" },
+				version_removed_qualifier: { enum: ["before", "after", "approximately"] },
+				partial_implementation: { type: "boolean" },
+				prefix: { type: "string" },
+				alternative_name: { type: "string" },
+				flags: {
+					type: "array",
+					items: { $ref: "#/$defs/browserFlag" },
+				},
+				notes: {
+					type: "array",
+					items: { type: "string" },
+				},
+			},
+		},
+		browserFlag: {
+			type: "object",
+			required: ["type", "name"],
+			additionalProperties: false,
+			properties: {
+				type: { type: "string" },
+				name: { type: "string" },
+				value_to_set: { type: "string" },
 			},
 		},
 		compatEntry: {

@@ -19,6 +19,8 @@
 	--badge-newly-fg: #1d4ed8;
 	--badge-limited-bg: #fef3c7;
 	--badge-limited-fg: #92400e;
+	--baseline-cross: #ea8600;
+	--chip-supported: #1e8e3e;
 	--chip-bg: rgba(0, 0, 0, 0.035);
 	--chip-border: rgba(0, 0, 0, 0.06);
 	--radius: 8px;
@@ -71,6 +73,7 @@
 		--badge-newly-fg: #8db4ff;
 		--badge-limited-bg: #3f2a0a;
 		--badge-limited-fg: #fbbf24;
+		--chip-supported: #7ae1a2;
 		--chip-bg: rgba(255, 255, 255, 0.04);
 		--chip-border: rgba(255, 255, 255, 0.08);
 	}
@@ -532,6 +535,24 @@ code {
 	height: 18px;
 	flex: none;
 	display: block;
+	background-color: currentColor;
+	mask-image: var(--chip-status-mask);
+	mask-position: center;
+	mask-repeat: no-repeat;
+	mask-size: contain;
+	-webkit-mask-image: var(--chip-status-mask);
+	-webkit-mask-position: center;
+	-webkit-mask-repeat: no-repeat;
+	-webkit-mask-size: contain;
+}
+.chip-status--supported {
+	color: var(--chip-supported);
+}
+.chip-status--missing {
+	color: var(--baseline-cross);
+}
+.chip-version {
+	display: none;
 }
 /*
  * Version column widths are driven by data, not hardcoded. render.tsx

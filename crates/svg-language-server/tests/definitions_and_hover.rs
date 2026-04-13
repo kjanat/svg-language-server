@@ -282,6 +282,48 @@ fn hover_renders_baseline_qualifier_for_fegaussianblur() -> TestResult {
 }
 
 #[test]
+fn hover_marks_glyph_orientation_horizontal_unsupported_across_chromium_firefox() -> TestResult {
+    // Regression guard for the browser-support preservation pipeline:
+    // BCD records `version_added: false` for chrome/edge/firefox on the
+    // `glyph-orientation-horizontal` attribute. Previously the entire
+    // browser_support block was silently dropped by the worker, so the
+    // hover line read "Chrome supported | ..." even though BCD said the
+    // opposite. After the fix, hover must render `✗` for unsupported
+    // engines.
+    let mut server = TestServer::start()?;
+    let svg = r#"<svg><text glyph-orientation-horizontal="0">x</text></svg>"#;
+    server.open("file:///goh.svg", svg)?;
+
+    let attr_character = u32::try_from(
+        svg.find("glyph-orientation-horizontal")
+            .ok_or("attr present")?,
+    )? + 1;
+    let hover_resp = server.request(
+        "textDocument/hover",
+        &json!({
+            "textDocument": { "uri": "file:///goh.svg" },
+            "position": { "line": 0, "character": attr_character }
+        }),
+    )?;
+
+    let hover_value = hover_resp["result"]["contents"]["value"]
+        .as_str()
+        .ok_or("glyph-orientation-horizontal hover markdown")?;
+    // At least chrome/firefox/edge must render as unsupported.
+    assert!(
+        hover_value.contains("Chrome \u{2717}"),
+        "hover should mark chrome as unsupported: {hover_value}"
+    );
+    assert!(
+        hover_value.contains("Firefox \u{2717}"),
+        "hover should mark firefox as unsupported: {hover_value}"
+    );
+
+    server.shutdown_and_exit()?;
+    Ok(())
+}
+
+#[test]
 fn hover_shows_profile_lifecycle_separately_from_browser_support() -> TestResult {
     let hover_svg =
         r##"<svg xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="#icon"/></svg>"##;

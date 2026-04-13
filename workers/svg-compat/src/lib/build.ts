@@ -16,6 +16,7 @@ import type {
 	AttributeEntry,
 	Baseline,
 	BrowserSupport,
+	BrowserVersion,
 	CompatEntry,
 	SvgCompatOutput,
 	SvgCompatSnapshot,
@@ -40,39 +41,70 @@ function baselineRank(baseline: Baseline): number {
 	return 2;
 }
 
-function parseBrowserVersion(
-	version: string,
-): { upperBound: boolean; parts: number[] } | undefined {
-	const isUpperBound = version.startsWith("≤");
-	const stripped = isUpperBound ? version.slice(1) : version;
-	const parts = stripped.split(".").map(Number);
+function parseVersionParts(version: string): number[] | undefined {
+	const parts = version.split(".").map(Number);
 	if (parts.some(Number.isNaN)) return undefined;
-	return { upperBound: isUpperBound, parts };
+	return parts;
 }
 
-/** Compares semver-ish browser versions. Handles `≤` upper-bound markers. */
-function compareBrowserVersions(left: string, right: string): number {
-	const parsedLeft = parseBrowserVersion(left);
-	const parsedRight = parseBrowserVersion(right);
+/**
+ * Compares two parsed version strings (e.g. `"50"` vs `"50.1"`).
+ * Returns negative if `left < right`, positive if `left > right`.
+ * Unparseable pairs fall back to `0` — merge will keep existing.
+ */
+function compareVersionStrings(left: string, right: string): number {
+	const parsedLeft = parseVersionParts(left);
+	const parsedRight = parseVersionParts(right);
 	if (!parsedLeft || !parsedRight) return 0;
-
-	const maxLength = Math.max(parsedLeft.parts.length, parsedRight.parts.length);
+	const maxLength = Math.max(parsedLeft.length, parsedRight.length);
 	for (let index = 0; index < maxLength; index++) {
-		const leftPart = parsedLeft.parts[index] ?? 0;
-		const rightPart = parsedRight.parts[index] ?? 0;
+		const leftPart = parsedLeft[index] ?? 0;
+		const rightPart = parsedRight[index] ?? 0;
 		if (leftPart !== rightPart) return leftPart - rightPart;
 	}
+	return 0;
+}
 
-	return (parsedLeft.upperBound ? 0 : 1) - (parsedRight.upperBound ? 0 : 1);
+/**
+ * Rank for cross-element merging. Higher = more restrictive = wins.
+ * Rationale: an attribute shared across elements surfaces the
+ * tightest support envelope. `false` (explicitly unsupported here)
+ * trumps any concrete version; a concrete version trumps `true` /
+ * `null` (which carry no version data).
+ *
+ * Two BrowserVersions with concrete string versions fall through to
+ * a numeric compare on `version_added`.
+ */
+function browserVersionRank(version: BrowserVersion): number {
+	const raw = version.raw_value_added;
+	if (raw === false) return 4;
+	if (typeof raw === "string") return 3;
+	if (raw === true) return 2;
+	if (raw === null) return 1;
+	return 0;
 }
 
 function mergeBrowserVersion(
-	existing: string | undefined,
-	incoming: string | undefined,
-): string | undefined {
+	existing: BrowserVersion | undefined,
+	incoming: BrowserVersion | undefined,
+): BrowserVersion | undefined {
 	if (incoming === undefined) return existing;
 	if (existing === undefined) return incoming;
-	if (compareBrowserVersions(incoming, existing) > 0) return incoming;
+	const existingRank = browserVersionRank(existing);
+	const incomingRank = browserVersionRank(incoming);
+	if (incomingRank > existingRank) return incoming;
+	if (incomingRank < existingRank) return existing;
+	// Same rank. For concrete versions, compare numerically.
+	if (
+		typeof existing.raw_value_added === "string"
+		&& typeof incoming.raw_value_added === "string"
+		&& existing.version_added !== undefined
+		&& incoming.version_added !== undefined
+	) {
+		return compareVersionStrings(incoming.version_added, existing.version_added) > 0
+			? incoming
+			: existing;
+	}
 	return existing;
 }
 

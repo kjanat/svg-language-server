@@ -48,10 +48,34 @@ const ALL_ELEMENT_CATEGORIES: &[&str] = &[
     "NeverRendered",
 ];
 
+/// Literal upstream `version_added` value mirrored at build time.
 #[derive(Clone)]
-enum BrowserVersionValue {
-    Unknown,
-    Version(String),
+enum RawVersionAddedValue {
+    Text(String),
+    Flag(bool),
+    Null,
+}
+
+#[derive(Clone)]
+struct BrowserFlagValue {
+    flag_type: String,
+    name: String,
+    value_to_set: Option<String>,
+}
+
+#[derive(Clone)]
+struct BrowserVersionValue {
+    raw_value_added: RawVersionAddedValue,
+    version_added: Option<String>,
+    version_qualifier: Option<BaselineQualifierValue>,
+    supported: Option<bool>,
+    version_removed: Option<String>,
+    version_removed_qualifier: Option<BaselineQualifierValue>,
+    partial_implementation: bool,
+    prefix: Option<String>,
+    alternative_name: Option<String>,
+    flags: Vec<BrowserFlagValue>,
+    notes: Vec<String>,
 }
 
 #[derive(Clone, Default)]

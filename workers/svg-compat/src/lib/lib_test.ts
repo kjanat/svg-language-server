@@ -8,7 +8,7 @@
  */
 
 import { assertEquals, assertExists } from "@std/assert";
-import { _resetLoggedWarnings, parseBaseline, parseBaselineDate } from "./parse.ts";
+import { _resetLoggedWarnings, parseBaseline, parseBaselineDate, parseBrowserVersion } from "./parse.ts";
 import type { BaselineDate } from "./types.ts";
 
 Deno.test("parseBaselineDate maps known qualifier prefixes", () => {
@@ -123,4 +123,143 @@ Deno.test("parseBaseline returns limited with preserved dates when baseline === 
 Deno.test("parseBaseline returns undefined only when there is no upstream data at all", () => {
 	_resetLoggedWarnings();
 	assertEquals(parseBaseline({}, "test.fixture"), undefined);
+});
+
+Deno.test("parseBrowserVersion preserves concrete version string", () => {
+	_resetLoggedWarnings();
+	const got = parseBrowserVersion({ version_added: "50" }, "chrome", "test.fixture");
+	assertExists(got);
+	assertEquals(got?.raw_value_added, "50");
+	assertEquals(got?.version_added, "50");
+	assertEquals(got?.version_qualifier, undefined);
+	assertEquals(got?.supported, undefined);
+});
+
+Deno.test("parseBrowserVersion extracts ≤ qualifier on version strings", () => {
+	_resetLoggedWarnings();
+	const got = parseBrowserVersion({ version_added: "≤50" }, "chrome", "test.fixture");
+	assertExists(got);
+	assertEquals(got?.raw_value_added, "≤50");
+	assertEquals(got?.version_added, "50");
+	assertEquals(got?.version_qualifier, "before");
+});
+
+Deno.test("parseBrowserVersion preserves explicit false (the glyph-orientation-horizontal case)", () => {
+	_resetLoggedWarnings();
+	const got = parseBrowserVersion({ version_added: false }, "chrome", "test.fixture");
+	assertExists(got);
+	assertEquals(got?.raw_value_added, false);
+	assertEquals(got?.supported, false);
+	assertEquals(got?.version_added, undefined);
+});
+
+Deno.test("parseBrowserVersion preserves true (supported, version unknown)", () => {
+	_resetLoggedWarnings();
+	const got = parseBrowserVersion({ version_added: true }, "chrome", "test.fixture");
+	assertExists(got);
+	assertEquals(got?.raw_value_added, true);
+	assertEquals(got?.supported, true);
+});
+
+Deno.test("parseBrowserVersion preserves null", () => {
+	_resetLoggedWarnings();
+	const got = parseBrowserVersion({ version_added: null }, "chrome", "test.fixture");
+	assertExists(got);
+	assertEquals(got?.raw_value_added, null);
+	assertEquals(got?.supported, undefined);
+	assertEquals(got?.version_added, undefined);
+});
+
+Deno.test("parseBrowserVersion surfaces version_removed with qualifier", () => {
+	_resetLoggedWarnings();
+	const got = parseBrowserVersion(
+		{ version_added: "22", version_removed: "≤120" },
+		"chrome",
+		"test.fixture",
+	);
+	assertExists(got);
+	assertEquals(got?.version_added, "22");
+	assertEquals(got?.version_removed, "120");
+	assertEquals(got?.version_removed_qualifier, "before");
+});
+
+Deno.test("parseBrowserVersion preserves partial_implementation, prefix, alternative_name", () => {
+	_resetLoggedWarnings();
+	const got = parseBrowserVersion(
+		{
+			version_added: "80",
+			partial_implementation: true,
+			prefix: "-webkit-",
+			alternative_name: "foo-bar",
+		},
+		"chrome",
+		"test.fixture",
+	);
+	assertExists(got);
+	assertEquals(got?.partial_implementation, true);
+	assertEquals(got?.prefix, "-webkit-");
+	assertEquals(got?.alternative_name, "foo-bar");
+});
+
+Deno.test("parseBrowserVersion normalises notes (string → string[])", () => {
+	_resetLoggedWarnings();
+	const single = parseBrowserVersion(
+		{ version_added: "50", notes: "only partial" },
+		"chrome",
+		"test.fixture",
+	);
+	assertEquals(single?.notes, ["only partial"]);
+
+	const array = parseBrowserVersion(
+		{ version_added: "50", notes: ["a", "b"] },
+		"chrome",
+		"test.fixture",
+	);
+	assertEquals(array?.notes, ["a", "b"]);
+});
+
+Deno.test("parseBrowserVersion validates flag shapes and drops malformed entries", () => {
+	_resetLoggedWarnings();
+	const got = parseBrowserVersion(
+		{
+			version_added: "50",
+			flags: [
+				{ type: "preference", name: "layout.css.foo" },
+				{ type: "runtime_flag", name: "enable-foo", value_to_set: "true" },
+				{ type: "preference" }, // missing name → dropped + warned
+			],
+		},
+		"firefox",
+		"test.fixture",
+	);
+	assertExists(got);
+	assertExists(got?.flags);
+	assertEquals(got?.flags?.length, 2);
+	assertEquals(got?.flags?.[0], { type: "preference", name: "layout.css.foo" });
+	assertEquals(got?.flags?.[1], {
+		type: "runtime_flag",
+		name: "enable-foo",
+		value_to_set: "true",
+	});
+});
+
+Deno.test("parseBrowserVersion picks first statement from array form", () => {
+	_resetLoggedWarnings();
+	// BCD convention: array elements are most-recent first.
+	const got = parseBrowserVersion(
+		[
+			{ version_added: "80" },
+			{ version_added: "50", prefix: "-webkit-" },
+		],
+		"chrome",
+		"test.fixture",
+	);
+	assertExists(got);
+	assertEquals(got?.version_added, "80");
+	assertEquals(got?.prefix, undefined);
+});
+
+Deno.test("parseBrowserVersion returns undefined only for truly absent data", () => {
+	_resetLoggedWarnings();
+	assertEquals(parseBrowserVersion(undefined, "chrome", "test.fixture"), undefined);
 });

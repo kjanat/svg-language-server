@@ -140,22 +140,88 @@ pub enum BaselineStatus {
     Limited,
 }
 
-/// Browser support status for a single browser.
+/// Literal upstream `version_added` value from BCD, preserved verbatim.
+///
+/// Distinguishes three states the old flat-string shape conflated:
+/// - `Text("50")` — supported since that version,
+/// - `Flag(false)` — explicitly not supported,
+/// - `Flag(true)` — supported with unknown version,
+/// - `Null` — upstream has no data.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum BrowserVersion {
-    /// The feature is supported, but the first version is unknown.
-    Unknown,
-    /// The feature is supported starting with the given version.
-    Version(&'static str),
+pub enum RawVersionAdded {
+    /// Upstream version string (e.g. `"50"`, `"≤50"`).
+    Text(&'static str),
+    /// Explicit boolean: `true` = supported, `false` = unsupported.
+    Flag(bool),
+    /// Upstream explicitly emitted `null` / was absent.
+    Null,
+}
+
+/// A single BCD flag statement (preference or runtime flag).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct BrowserFlag {
+    /// Flag category, e.g. `"preference"` or `"runtime_flag"`.
+    pub flag_type: &'static str,
+    /// Preference / flag name.
+    pub name: &'static str,
+    /// Value the flag must be set to for the feature to work.
+    pub value_to_set: Option<&'static str>,
+}
+
+/// Browser support state for a single browser.
+///
+/// Mirrors the worker's `BrowserVersion` sub-object. Every upstream
+/// signal survives end-to-end: explicit non-support, version removal,
+/// partial implementation, vendor prefix, runtime flags, and notes.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct BrowserVersion {
+    /// Literal upstream value, byte-for-byte.
+    pub raw_value_added: RawVersionAdded,
+    /// Parsed version string when `raw_value_added` was a usable literal.
+    pub version_added: Option<&'static str>,
+    /// Qualifier on `version_added` (`≤` / `≥` / `~`).
+    pub version_qualifier: Option<BaselineQualifier>,
+    /// `Some(false)` when BCD explicitly stated "not supported";
+    /// `Some(true)` when supported with unknown version.
+    pub supported: Option<bool>,
+    /// Upstream `version_removed` — present when support was dropped.
+    pub version_removed: Option<&'static str>,
+    /// Qualifier on `version_removed`.
+    pub version_removed_qualifier: Option<BaselineQualifier>,
+    /// `true` when the browser ships the feature but deviates from the spec.
+    pub partial_implementation: bool,
+    /// Vendor prefix required (e.g. `"-webkit-"`).
+    pub prefix: Option<&'static str>,
+    /// Alternative name under which the feature ships.
+    pub alternative_name: Option<&'static str>,
+    /// Preference / runtime flags gating the feature.
+    pub flags: &'static [BrowserFlag],
+    /// Free-form caveats, normalised to a slice of strings.
+    pub notes: &'static [&'static str],
+}
+
+impl BrowserVersion {
+    /// Empty sentinel used where a browser entry is missing entirely.
+    pub const EMPTY: Self = Self {
+        raw_value_added: RawVersionAdded::Null,
+        version_added: None,
+        version_qualifier: None,
+        supported: None,
+        version_removed: None,
+        version_removed_qualifier: None,
+        partial_implementation: false,
+        prefix: None,
+        alternative_name: None,
+        flags: &[],
+        notes: &[],
+    };
 }
 
 /// Per-browser support data for the four major desktop browsers.
 ///
-/// `None` means the browser does not support the feature.
-/// `Some(BrowserVersion::Unknown)` means support is known but the first
-/// version is not.
-/// `Some(BrowserVersion::Version("85"))` means support was added in that
-/// version.
+/// `None` means upstream is silent for that browser. A `Some(..)` with
+/// `supported == Some(false)` means upstream explicitly says "not
+/// supported" — this is a different state from "no data".
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct BrowserSupport {
     /// Chrome desktop support data.

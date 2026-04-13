@@ -23,7 +23,15 @@
  */
 
 import { isRecord, type JsonRecord } from "../sources.ts";
-import type { Baseline, BaselineDate, BrowserSupport, CompatEntry } from "./types.ts";
+import type {
+	Baseline,
+	BaselineDate,
+	BrowserFlag,
+	BrowserSupport,
+	BrowserVersion,
+	CompatEntry,
+	VersionQualifier,
+} from "./types.ts";
 
 const WEB_FEATURE_KIND_FEATURE = "feature";
 
@@ -273,25 +281,194 @@ export function extractBaseline(
 	return parseBaseline(status, compatKey);
 }
 
-function browserVersion(value: unknown): string | undefined {
-	if (isRecord(value)) return getString(value.version_added);
-	if (!Array.isArray(value)) return undefined;
-	for (const entry of value) {
-		if (!isRecord(entry)) continue;
-		const version = getString(entry.version_added);
-		if (version !== undefined) return version;
-	}
-	return undefined;
+/**
+ * Lookup table for known BCD version-string prefixes. Same set as
+ * `KNOWN_DATE_PREFIXES` — version numbers carry the same "at or
+ * before / at or after" semantics as baseline dates.
+ */
+const KNOWN_VERSION_PREFIXES: Record<string, VersionQualifier> = {
+	"≤": "before",
+	"<": "before",
+	"<=": "before",
+	"≥": "after",
+	">": "after",
+	">=": "after",
+	"~": "approximately",
+};
+
+interface ParsedVersionString {
+	version: string;
+	qualifier?: VersionQualifier;
 }
 
-export function extractBrowserSupport(compat: JsonRecord): BrowserSupport | undefined {
+/**
+ * Splits a BCD version string into a clean version + qualifier.
+ * Mirrors `parseBaselineDate` on version numbers rather than dates.
+ * Returns `undefined` only when `raw` is empty or not a string.
+ *
+ * Examples:
+ *   "50"   → { version: "50" }
+ *   "≤50"  → { version: "50", qualifier: "before" }
+ *   "<=50" → { version: "50", qualifier: "before" }
+ *   "~50"  → { version: "50", qualifier: "approximately" }
+ *   "%50"  → { version: "50", qualifier: "approximately" } + warnOnce
+ */
+function parseBrowserVersionString(
+	raw: string,
+	compatKey: string,
+): ParsedVersionString | undefined {
+	if (raw.length === 0) return undefined;
+	const match = raw.match(/^([^0-9A-Za-z]*)(.+)$/);
+	if (!match) return undefined;
+	const [, prefix, body] = match;
+	if (body.length === 0) return undefined;
+	if (prefix.length === 0) return { version: body };
+	const known = KNOWN_VERSION_PREFIXES[prefix];
+	if (known) return { version: body, qualifier: known };
+	warnOnce(
+		`wf-version-prefix:${prefix}`,
+		`svg-compat: unrecognised version prefix ${stringifyUnknown(prefix)} (in ${
+			stringifyUnknown(raw)
+		}) for "${compatKey}" — treating as "approximately". Add it to KNOWN_VERSION_PREFIXES if it should map to "before" or "after".`,
+	);
+	return { version: body, qualifier: "approximately" };
+}
+
+function parseBrowserNotes(value: unknown): string[] | undefined {
+	if (typeof value === "string") return [value];
+	if (!Array.isArray(value)) return undefined;
+	const notes = value.filter((entry): entry is string => typeof entry === "string");
+	return notes.length > 0 ? notes : undefined;
+}
+
+function parseBrowserFlags(
+	value: unknown,
+	compatKey: string,
+	browser: string,
+): BrowserFlag[] | undefined {
+	if (!Array.isArray(value)) return undefined;
+	const flags: BrowserFlag[] = [];
+	for (const entry of value) {
+		if (!isRecord(entry)) continue;
+		const type = getString(entry.type);
+		const name = getString(entry.name);
+		if (type === undefined || name === undefined) {
+			warnOnce(
+				`wf-flag-shape:${stringifyUnknown(entry)}`,
+				`svg-compat: unrecognised flag shape ${stringifyUnknown(entry)} for "${compatKey}" / ${browser}. Skipping.`,
+			);
+			continue;
+		}
+		const flag: BrowserFlag = { type, name };
+		const valueToSet = getString(entry.value_to_set);
+		if (valueToSet !== undefined) flag.value_to_set = valueToSet;
+		flags.push(flag);
+	}
+	return flags.length > 0 ? flags : undefined;
+}
+
+/**
+ * Parses a single browser's `support` entry from a BCD compat block
+ * into our typed `BrowserVersion` form.
+ *
+ * `support[browser]` can be:
+ * - a single statement object (most common),
+ * - an array of statements (BCD convention: most-recent first),
+ * - absent entirely — returns `undefined`.
+ *
+ * When the upstream shape is unexpected, we warn and return
+ * `undefined` rather than inventing data. When the upstream shape
+ * is recognised, we ALWAYS return a `BrowserVersion` — no silent
+ * discard, even for `version_added: false`.
+ */
+export function parseBrowserVersion(
+	value: unknown,
+	browser: string,
+	compatKey: string,
+): BrowserVersion | undefined {
+	if (value === undefined) return undefined;
+	const stmt = isRecord(value)
+		? value
+		: Array.isArray(value) && value.length > 0 && isRecord(value[0])
+		? value[0]
+		: undefined;
+	if (!stmt) {
+		warnOnce(
+			`wf-browser-shape:${browser}`,
+			`svg-compat: unrecognised support statement shape ${
+				stringifyUnknown(value)
+			} for "${compatKey}" / ${browser}. Skipping.`,
+		);
+		return undefined;
+	}
+
+	const rawAdded = stmt.version_added;
+	let raw_value_added: BrowserVersion["raw_value_added"];
+	if (
+		typeof rawAdded === "string"
+		|| typeof rawAdded === "boolean"
+		|| rawAdded === null
+	) {
+		raw_value_added = rawAdded;
+	} else {
+		warnOnce(
+			`wf-version-added-type:${typeof rawAdded}`,
+			`svg-compat: unexpected version_added type ${
+				stringifyUnknown(rawAdded)
+			} for "${compatKey}" / ${browser}. Coercing to null.`,
+		);
+		raw_value_added = null;
+	}
+
+	const result: BrowserVersion = { raw_value_added };
+
+	if (typeof raw_value_added === "string") {
+		const parsed = parseBrowserVersionString(raw_value_added, compatKey);
+		if (parsed) {
+			result.version_added = parsed.version;
+			if (parsed.qualifier !== undefined) result.version_qualifier = parsed.qualifier;
+		}
+	} else if (raw_value_added === false) {
+		result.supported = false;
+	} else if (raw_value_added === true) {
+		result.supported = true;
+	}
+
+	const rawRemoved = getString(stmt.version_removed);
+	if (rawRemoved !== undefined) {
+		const parsedRemoved = parseBrowserVersionString(rawRemoved, compatKey);
+		if (parsedRemoved) {
+			result.version_removed = parsedRemoved.version;
+			if (parsedRemoved.qualifier !== undefined) {
+				result.version_removed_qualifier = parsedRemoved.qualifier;
+			}
+		}
+	}
+
+	if (stmt.partial_implementation === true) result.partial_implementation = true;
+	const prefix = getString(stmt.prefix);
+	if (prefix !== undefined) result.prefix = prefix;
+	const altName = getString(stmt.alternative_name);
+	if (altName !== undefined) result.alternative_name = altName;
+	const flags = parseBrowserFlags(stmt.flags, compatKey, browser);
+	if (flags !== undefined) result.flags = flags;
+	const notes = parseBrowserNotes(stmt.notes);
+	if (notes !== undefined) result.notes = notes;
+
+	return result;
+}
+
+export function extractBrowserSupport(
+	compat: JsonRecord,
+	compatKey: string,
+): BrowserSupport | undefined {
 	const support = getRecordProperty(compat, "support");
 	if (!support) return undefined;
 
-	const chrome = browserVersion(support.chrome);
-	const edge = browserVersion(support.edge);
-	const firefox = browserVersion(support.firefox);
-	const safari = browserVersion(support.safari);
+	const chrome = parseBrowserVersion(support.chrome, "chrome", compatKey);
+	const edge = parseBrowserVersion(support.edge, "edge", compatKey);
+	const firefox = parseBrowserVersion(support.firefox, "firefox", compatKey);
+	const safari = parseBrowserVersion(support.safari, "safari", compatKey);
 
 	if (
 		chrome === undefined
@@ -332,6 +509,6 @@ export function makeCompatEntry(
 		standard_track: getBoolean(status?.standard_track) ?? true,
 		spec_url: extractSpecUrls(compat),
 		baseline: extractBaseline(compat, featureMap, compatKey),
-		browser_support: extractBrowserSupport(compat),
+		browser_support: extractBrowserSupport(compat, compatKey),
 	};
 }

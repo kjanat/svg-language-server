@@ -171,6 +171,46 @@ Deno.test("renderHtml includes baseline badge classes", () => {
 	assertEquals(html.includes("class=\"badge badge-limited\""), true);
 });
 
+Deno.test("renderHtml uses masked browser status glyphs", () => {
+	const output: SvgCompatOutput = {
+		generated_at: "2026-01-01T00:00:00.000Z",
+		sources: {
+			bcd: {
+				package: "@mdn/browser-compat-data",
+				requested: "7.3.11",
+				resolved: "7.3.11",
+				mode: "default",
+				source_url: "https://example.com/bcd",
+			},
+			web_features: {
+				package: "web-features",
+				requested: "3.23.0",
+				resolved: "3.23.0",
+				mode: "default",
+				source_url: "https://example.com/wf",
+			},
+		},
+		elements: {
+			rect: {
+				deprecated: false,
+				experimental: false,
+				standard_track: true,
+				spec_url: [],
+				browser_support: {
+					chrome: { raw_value_added: "1", version_added: "1" },
+				},
+			},
+		},
+		attributes: {},
+	};
+	const html = renderHtml(output, new URL("http://localhost/"));
+	assertEquals(html.includes("class=\"chip-status chip-status--supported\""), true);
+	assertEquals(html.includes("class=\"chip-status chip-status--missing\""), true);
+	assertEquals(html.includes("/browsers/check.svg"), true);
+	assertEquals(html.includes("/browsers/cross.svg"), true);
+	assertEquals(html.includes("<img class=\"chip-status\""), false);
+});
+
 Deno.test("baseline parser preserves ≤ qualifier on real feGaussianBlur entry", async () => {
 	// Live web-features dataset regression guard. feGaussianBlur is
 	// the canary: baseline_high_date "≤2021-04-02" in v3.23.0. If
@@ -190,6 +230,38 @@ Deno.test("baseline parser preserves ≤ qualifier on real feGaussianBlur entry"
 	assertExists(blur.baseline?.low_date);
 	assertEquals(blur.baseline?.low_date?.raw, "≤2018-10-02");
 	assertEquals(blur.baseline?.low_date?.date, "2018-10-02");
+});
+
+Deno.test("browser support preserves explicit false + ≤ qualifier on glyph-orientation-horizontal", async () => {
+	// Live regression guard for the browser-support-preservation fix.
+	// glyph-orientation-horizontal is the canary: BCD 7.3.11 records
+	// version_added: false for chrome/edge/firefox and "≤13.1" for safari.
+	// Previously the entire browser_support block was silently dropped.
+	const res = await server.fetch(new Request("http://localhost/data.json"));
+	assertEquals(res.status, 200);
+	const json = (await res.json()) as SvgCompatOutput;
+	const attr = json.attributes["glyph-orientation-horizontal"];
+	assertExists(attr.browser_support);
+	assertEquals(attr.browser_support?.chrome?.raw_value_added, false);
+	assertEquals(attr.browser_support?.chrome?.supported, false);
+	assertEquals(attr.browser_support?.firefox?.supported, false);
+	assertEquals(attr.browser_support?.edge?.supported, false);
+	assertExists(attr.browser_support?.safari);
+	assertEquals(attr.browser_support?.safari?.raw_value_added, "≤13.1");
+	assertEquals(attr.browser_support?.safari?.version_added, "13.1");
+	assertEquals(attr.browser_support?.safari?.version_qualifier, "before");
+});
+
+Deno.test("browser support preserves font-width (Safari-only attribute)", async () => {
+	const res = await server.fetch(new Request("http://localhost/data.json"));
+	assertEquals(res.status, 200);
+	const json = (await res.json()) as SvgCompatOutput;
+	const attr = json.attributes["font-width"];
+	assertExists(attr.browser_support);
+	assertEquals(attr.browser_support?.chrome?.supported, false);
+	assertEquals(attr.browser_support?.firefox?.supported, false);
+	assertEquals(attr.browser_support?.edge?.supported, false);
+	assertEquals(attr.browser_support?.safari?.version_added, "18.4");
 });
 
 Deno.test("attributes table renders Support column", async () => {

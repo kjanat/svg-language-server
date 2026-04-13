@@ -8,7 +8,7 @@
  * @module
  */
 
-import type { AttributeEntry, BrowserSupport, CompatEntry, SvgCompatOutput } from "./main.ts";
+import type { AttributeEntry, BrowserSupport, BrowserVersion, CompatEntry, SvgCompatOutput } from "./main.ts";
 import type { SourceInfo } from "./sources.ts";
 
 /** Browser keys used in chip rendering; ordered for display. */
@@ -80,6 +80,29 @@ function named<T>(record: Record<string, T>): Array<T & { name: string }> {
  * @returns Max character count per browser key. Floors at 1 so empty
  *   datasets still produce a sane layout.
  */
+const QUALIFIER_GLYPH: Record<NonNullable<BrowserVersion["version_qualifier"]>, string> = {
+	before: "≤",
+	after: "≥",
+	approximately: "~",
+};
+
+/**
+ * Short text shown inside the chip for one browser. Mirrors what
+ * {@link BrowserSupport} (the component) renders so the column-width
+ * computation stays in sync with the actual glyph layout.
+ */
+export function browserVersionChipLabel(version: BrowserVersion): string {
+	if (version.supported === false) return "—";
+	if (version.version_added !== undefined) {
+		const glyph = version.version_qualifier
+			? QUALIFIER_GLYPH[version.version_qualifier]
+			: "";
+		return `${glyph}${version.version_added}`;
+	}
+	if (version.raw_value_added === true) return "✓";
+	return "—";
+}
+
 function computeBrowserMaxChars(elements: NamedCompatEntry[]): BrowserMaxChars {
 	const max: BrowserMaxChars = { chrome: 1, edge: 1, firefox: 1, safari: 1 };
 	for (const entry of elements) {
@@ -87,9 +110,9 @@ function computeBrowserMaxChars(elements: NamedCompatEntry[]): BrowserMaxChars {
 		if (!support) continue;
 		for (const key of BROWSER_KEYS) {
 			const version = support[key];
-			if (version !== undefined && version.length > max[key]) {
-				max[key] = version.length;
-			}
+			if (version === undefined) continue;
+			const label = browserVersionChipLabel(version);
+			if (label.length > max[key]) max[key] = label.length;
 		}
 	}
 	return max;
@@ -138,12 +161,33 @@ export function buildPageModel(
 function browserTokens(entry: CompatEntry): string[] {
 	const support = entry.browser_support;
 	if (!support) return [];
-	const names: string[] = [];
-	if (support.chrome !== undefined) names.push("chrome");
-	if (support.edge !== undefined) names.push("edge");
-	if (support.firefox !== undefined) names.push("firefox");
-	if (support.safari !== undefined) names.push("safari");
-	return names;
+	const tokens: string[] = [];
+	let anySupported = false;
+	let anyUnsupported = false;
+	let anyRemoved = false;
+	let anyPartial = false;
+	let anyPrefixed = false;
+	let anyFlagged = false;
+	for (const key of BROWSER_KEYS) {
+		const version = support[key];
+		if (version === undefined) continue;
+		tokens.push(key);
+		if (version.supported === false) anyUnsupported = true;
+		else if (version.version_added !== undefined || version.raw_value_added === true) {
+			anySupported = true;
+		}
+		if (version.version_removed !== undefined) anyRemoved = true;
+		if (version.partial_implementation) anyPartial = true;
+		if (version.prefix !== undefined) anyPrefixed = true;
+		if (version.flags !== undefined) anyFlagged = true;
+	}
+	if (anySupported) tokens.push("supported");
+	if (anyUnsupported) tokens.push("unsupported");
+	if (anyRemoved) tokens.push("removed");
+	if (anyPartial) tokens.push("partial");
+	if (anyPrefixed) tokens.push("prefixed");
+	if (anyFlagged) tokens.push("flagged");
+	return tokens;
 }
 
 function baselineTokens(entry: CompatEntry): string[] {

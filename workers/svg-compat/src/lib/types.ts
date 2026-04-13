@@ -78,16 +78,124 @@ export interface Baseline {
 	high_date?: BaselineDate;
 }
 
-/** Minimum browser versions that support a feature, from BCD `support` block. */
+/**
+ * Qualifier on a browser version number when upstream carries a
+ * comparison prefix (`"≤50"`, `"~50"`, etc.). Same semantics as
+ * `BaselineDate.qualifier` — one mental model for every inexact
+ * upstream value.
+ */
+export type VersionQualifier = "before" | "after" | "approximately";
+
+/**
+ * A per-browser flag declaration — BCD's `FlagStatement` mirrored
+ * byte-for-byte. Present when a feature is gated behind a preference
+ * or runtime flag in that browser.
+ */
+export interface BrowserFlag {
+	/**
+	 * Flag category. BCD currently only ships `"preference"` and
+	 * `"runtime_flag"`; the type is open-ended so future values pass
+	 * through with a warning rather than getting dropped.
+	 */
+	type: string;
+	/** Preference/flag name. */
+	name: string;
+	/** Value the flag must be set to for the feature to work. */
+	value_to_set?: string;
+}
+
+/**
+ * A single browser's support state, parsed from a BCD
+ * `SimpleSupportStatement`.
+ *
+ * `raw_value_added` is **always** present — the literal upstream
+ * JSON value for `version_added`, byte-for-byte — so no upstream
+ * signal is ever silently dropped. Parsed companion fields are
+ * best-effort extractions.
+ *
+ * This shape lets downstream consumers distinguish three states
+ * that the old flat-string shape conflated:
+ *
+ * - **Supported since v50** → `{ raw_value_added: "50", version_added: "50" }`
+ * - **Explicitly unsupported** → `{ raw_value_added: false, supported: false }`
+ * - **Not in upstream at all** → the field itself is `undefined`
+ *
+ * Upstream `false` statements (478 in the SVG tree today) previously
+ * collapsed to `undefined` and were indistinguishable from "no data".
+ */
+export interface BrowserVersion {
+	/**
+	 * Literal `version_added` value from BCD. Always present. One of:
+	 *
+	 * - a version string like `"50"`, `"≤50"`, `"preview"`,
+	 * - `false` (explicitly not supported),
+	 * - `true` (supported, version unknown),
+	 * - `null` (upstream doesn't know).
+	 */
+	raw_value_added: string | boolean | null;
+	/**
+	 * Parsed version string when `raw_value_added` was a usable
+	 * version literal. Absent when `raw_value_added` was
+	 * `false`/`true`/`null` or unparseable.
+	 */
+	version_added?: string;
+	/**
+	 * Qualifier on `version_added` when upstream used `"≤50"` /
+	 * `"≥50"` / `"~50"`. Unknown prefixes fall through to
+	 * `"approximately"` with a one-time warning.
+	 */
+	version_qualifier?: VersionQualifier;
+	/**
+	 * `false` when `raw_value_added === false` — i.e. BCD explicitly
+	 * stated this browser does NOT support the feature.
+	 * `true` when `raw_value_added === true` — supported, version
+	 * unknown. Absent in every other case so callers can distinguish
+	 * "upstream is silent" from "upstream explicitly said no".
+	 */
+	supported?: boolean;
+	/** Upstream `version_removed` — present when support was dropped. */
+	version_removed?: string;
+	/** Qualifier on `version_removed` (same semantics as `version_qualifier`). */
+	version_removed_qualifier?: VersionQualifier;
+	/**
+	 * Upstream `partial_implementation: true` — the browser ships
+	 * the feature but deviates from the spec in a compatibility-
+	 * affecting way.
+	 */
+	partial_implementation?: boolean;
+	/** Upstream `prefix` — vendor prefix required (e.g. `"-webkit-"`). */
+	prefix?: string;
+	/**
+	 * Upstream `alternative_name` — the browser ships this feature
+	 * under a different name.
+	 */
+	alternative_name?: string;
+	/** Upstream `flags` — the feature is behind a pref or runtime flag. */
+	flags?: BrowserFlag[];
+	/**
+	 * Upstream `notes` — free-form caveats. BCD accepts a single
+	 * string OR an array of 2+ strings; we normalise to `string[]`.
+	 */
+	notes?: string[];
+}
+
+/**
+ * Per-browser support for the four major desktop browsers we track.
+ *
+ * A field is `undefined` only when upstream has no entry at all for
+ * that browser; an explicit `version_added: false` upstream surfaces
+ * as `{ raw_value_added: false, supported: false }` so the distinction
+ * is preserved.
+ */
 export interface BrowserSupport {
-	/** Minimum Chrome desktop version. */
-	chrome?: string;
-	/** Minimum Edge version. */
-	edge?: string;
-	/** Minimum Firefox desktop version. */
-	firefox?: string;
-	/** Minimum Safari desktop version. */
-	safari?: string;
+	/** Chrome desktop support state. */
+	chrome?: BrowserVersion;
+	/** Edge support state. */
+	edge?: BrowserVersion;
+	/** Firefox desktop support state. */
+	firefox?: BrowserVersion;
+	/** Safari desktop support state. */
+	safari?: BrowserVersion;
 }
 
 /** Processed compatibility entry for an SVG element or attribute. */

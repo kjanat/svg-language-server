@@ -46,12 +46,15 @@ export type {
 	AttributeEntry,
 	Baseline,
 	BaselineDate,
+	BrowserFlag,
 	BrowserSupport,
+	BrowserVersion,
 	CompatEntry,
 	SourceInfo,
 	SvgCompatOutput,
 	SvgCompatSnapshot,
 	SvgCompatSources,
+	VersionQualifier,
 } from "./lib/mod.ts";
 export { buildOutput, buildSnapshot, SVG_COMPAT_SCHEMA } from "./lib/mod.ts";
 

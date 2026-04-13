@@ -61,7 +61,10 @@
 	"test": {
 		"permissions": {
 			"read": true,
-			"net": true
+			"net": true,
+			"run": ["deno"],
+			"write": true,
+			"env": true
 		}
 	}
 }

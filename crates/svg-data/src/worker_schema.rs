@@ -92,26 +92,105 @@ pub struct WorkerBaselineDate {
     pub qualifier: Option<String>,
 }
 
-/// Per-browser minimum version strings.
+/// Per-browser support state.
 #[derive(Deserialize)]
 pub struct WorkerBrowserSupport {
-    /// Minimum Chrome version (e.g. `"88"`, `"≤50"`).
-    pub chrome: Option<String>,
-    /// Minimum Edge version.
-    pub edge: Option<String>,
-    /// Minimum Firefox version.
-    pub firefox: Option<String>,
-    /// Minimum Safari version.
-    pub safari: Option<String>,
+    /// Chrome support state.
+    #[serde(default)]
+    pub chrome: Option<WorkerBrowserVersion>,
+    /// Edge support state.
+    #[serde(default)]
+    pub edge: Option<WorkerBrowserVersion>,
+    /// Firefox support state.
+    #[serde(default)]
+    pub firefox: Option<WorkerBrowserVersion>,
+    /// Safari support state.
+    #[serde(default)]
+    pub safari: Option<WorkerBrowserVersion>,
+}
+
+/// Literal upstream `version_added` value from BCD. One of:
+/// version string, `false` (explicitly unsupported),
+/// `true` (supported, version unknown), or `null` (no data).
+#[derive(Default, Deserialize)]
+#[serde(untagged)]
+pub enum WorkerRawVersionAdded {
+    /// Version string such as `"50"` or `"≤50"`.
+    Text(String),
+    /// `true` = supported (version unknown), `false` = explicitly unsupported.
+    Flag(bool),
+    /// Upstream has no data for this browser.
+    #[default]
+    Null,
+}
+
+/// Per-browser support statement mirrored from the worker's `BrowserVersion`.
+///
+/// The `raw_value_added` field is always present and preserves the exact
+/// upstream signal so downstream consumers can distinguish "explicitly
+/// unsupported" (`false`) from "no upstream data" (the field itself absent).
+#[derive(Deserialize)]
+pub struct WorkerBrowserVersion {
+    /// Literal upstream `version_added` value (string / bool / null).
+    pub raw_value_added: WorkerRawVersionAdded,
+    /// Parsed version when `raw_value_added` was a usable string.
+    #[serde(default)]
+    pub version_added: Option<String>,
+    /// Qualifier on `version_added` (`before` / `after` / `approximately`).
+    #[serde(default)]
+    pub version_qualifier: Option<String>,
+    /// `false` when BCD explicitly stated "not supported"; `true` when
+    /// supported with unknown version. Absent otherwise.
+    #[serde(default)]
+    pub supported: Option<bool>,
+    /// Upstream `version_removed` — present when support was dropped.
+    #[serde(default)]
+    pub version_removed: Option<String>,
+    /// Qualifier on `version_removed`.
+    #[serde(default)]
+    pub version_removed_qualifier: Option<String>,
+    /// Upstream `partial_implementation` — ships but deviates from spec.
+    #[serde(default)]
+    pub partial_implementation: Option<bool>,
+    /// Vendor prefix required (e.g. `"-webkit-"`).
+    #[serde(default)]
+    pub prefix: Option<String>,
+    /// Alternative name under which the feature ships.
+    #[serde(default)]
+    pub alternative_name: Option<String>,
+    /// Preference / runtime flags gating the feature.
+    #[serde(default)]
+    pub flags: Option<Vec<WorkerBrowserFlag>>,
+    /// Free-form caveats, normalised to a list.
+    #[serde(default)]
+    pub notes: Option<Vec<String>>,
+}
+
+/// A single BCD flag statement (preference or runtime flag).
+#[derive(Deserialize)]
+pub struct WorkerBrowserFlag {
+    /// Flag category (e.g. `"preference"`, `"runtime_flag"`).
+    pub r#type: String,
+    /// Preference / flag name.
+    pub name: String,
+    /// Value the flag must be set to for the feature to work.
+    #[serde(default)]
+    pub value_to_set: Option<String>,
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    #[test]
-    fn deserialize_worker_output() {
-        let json = r#"{
+    fn fixture() -> WorkerOutput {
+        let json = FIXTURE_JSON;
+        match serde_json::from_str(json) {
+            Ok(v) => v,
+            Err(e) => panic!("valid worker JSON should parse: {e}"),
+        }
+    }
+
+    const FIXTURE_JSON: &str = r#"{
             "generated_at": "2025-01-01T00:00:00Z",
             "sources": {
                 "bcd": { "package": "x", "requested": "1", "resolved": "1", "mode": "default", "source_url": "x" },
@@ -129,7 +208,12 @@ mod tests {
                         "low_date": { "raw": "2015-07-29", "date": "2015-07-29" },
                         "high_date": { "raw": "2018-01-29", "date": "2018-01-29" }
                     },
-                    "browser_support": { "chrome": "1", "edge": "12", "firefox": "1.5", "safari": "3" }
+                    "browser_support": {
+                        "chrome": { "raw_value_added": "1", "version_added": "1" },
+                        "edge": { "raw_value_added": "12", "version_added": "12" },
+                        "firefox": { "raw_value_added": "1.5", "version_added": "1.5" },
+                        "safari": { "raw_value_added": "3", "version_added": "3" }
+                    }
                 },
                 "feGaussianBlur": {
                     "deprecated": false,
@@ -143,7 +227,16 @@ mod tests {
                         "low_date": { "raw": "≤2018-10-02", "date": "2018-10-02", "qualifier": "before" },
                         "high_date": { "raw": "≤2021-04-02", "date": "2021-04-02", "qualifier": "before" }
                     },
-                    "browser_support": { "chrome": "5", "edge": "≤18", "firefox": "3", "safari": "6" }
+                    "browser_support": {
+                        "chrome": { "raw_value_added": "5", "version_added": "5" },
+                        "edge": {
+                            "raw_value_added": "≤18",
+                            "version_added": "18",
+                            "version_qualifier": "before"
+                        },
+                        "firefox": { "raw_value_added": "3", "version_added": "3" },
+                        "safari": { "raw_value_added": "6", "version_added": "6" }
+                    }
                 }
             },
             "attributes": {
@@ -153,19 +246,41 @@ mod tests {
                     "standard_track": true,
                     "spec_url": [],
                     "baseline": { "status": "limited" },
-                    "browser_support": { "chrome": "1" },
+                    "browser_support": {
+                        "chrome": { "raw_value_added": "1", "version_added": "1" }
+                    },
+                    "elements": ["*"]
+                },
+                "glyph-orientation-horizontal": {
+                    "deprecated": true,
+                    "experimental": false,
+                    "standard_track": true,
+                    "spec_url": [],
+                    "browser_support": {
+                        "chrome": { "raw_value_added": false, "supported": false },
+                        "edge": { "raw_value_added": false, "supported": false },
+                        "firefox": { "raw_value_added": false, "supported": false },
+                        "safari": {
+                            "raw_value_added": "≤13.1",
+                            "version_added": "13.1",
+                            "version_qualifier": "before"
+                        }
+                    },
                     "elements": ["*"]
                 }
             }
         }"#;
 
-        let output: WorkerOutput = match serde_json::from_str(json) {
-            Ok(v) => v,
-            Err(e) => panic!("valid worker JSON should parse: {e}"),
-        };
+    #[test]
+    fn deserialize_fixture_counts() {
+        let output = fixture();
         assert_eq!(output.elements.len(), 2);
-        assert_eq!(output.attributes.len(), 1);
+        assert_eq!(output.attributes.len(), 2);
+    }
 
+    #[test]
+    fn rect_parses_with_baseline_and_support() {
+        let output = fixture();
         let rect = &output.elements["rect"];
         assert!(!rect.deprecated);
         assert_eq!(rect.spec_url.len(), 1);
@@ -185,10 +300,15 @@ mod tests {
         assert_eq!(
             rect.browser_support
                 .as_ref()
-                .and_then(|bs| bs.chrome.as_deref()),
+                .and_then(|bs| bs.chrome.as_ref())
+                .and_then(|v| v.version_added.as_deref()),
             Some("1"),
         );
+    }
 
+    #[test]
+    fn fe_gaussian_blur_preserves_baseline_and_edge_qualifiers() {
+        let output = fixture();
         // The canary: feGaussianBlur's qualifier must survive end-to-end.
         let blur = &output.elements["feGaussianBlur"];
         assert_eq!(blur.baseline.as_ref().and_then(|b| b.since), Some(2021),);
@@ -204,7 +324,17 @@ mod tests {
         assert_eq!(high.raw, "≤2021-04-02");
         assert_eq!(high.date.as_deref(), Some("2021-04-02"));
         assert_eq!(high.qualifier.as_deref(), Some("before"));
+        // Edge carries a ≤ version qualifier — must round-trip.
+        let Some(edge) = blur.browser_support.as_ref().and_then(|b| b.edge.as_ref()) else {
+            panic!("feGaussianBlur fixture must have edge support");
+        };
+        assert_eq!(edge.version_added.as_deref(), Some("18"));
+        assert_eq!(edge.version_qualifier.as_deref(), Some("before"));
+    }
 
+    #[test]
+    fn fill_has_limited_baseline_no_year() {
+        let output = fixture();
         let fill = &output.attributes["fill"];
         assert_eq!(fill.elements, vec!["*"]);
         assert_eq!(
@@ -212,5 +342,31 @@ mod tests {
             Some("limited"),
         );
         assert_eq!(fill.baseline.as_ref().and_then(|b| b.since), None);
+    }
+
+    #[test]
+    fn glyph_orientation_horizontal_preserves_explicit_false_plus_qualifier() {
+        let output = fixture();
+        // Second canary: glyph-orientation-horizontal preserves explicit
+        // false for all engines except Safari, where the ≤13.1 qualifier
+        // survives end-to-end.
+        let goh = &output.attributes["glyph-orientation-horizontal"];
+        assert!(goh.deprecated);
+        let Some(support) = goh.browser_support.as_ref() else {
+            panic!("glyph-orientation-horizontal must carry browser_support");
+        };
+        let Some(chrome) = support.chrome.as_ref() else {
+            panic!("glyph-orientation-horizontal must have chrome support data");
+        };
+        assert!(matches!(
+            chrome.raw_value_added,
+            WorkerRawVersionAdded::Flag(false)
+        ));
+        assert_eq!(chrome.supported, Some(false));
+        let Some(safari) = support.safari.as_ref() else {
+            panic!("glyph-orientation-horizontal must have safari support data");
+        };
+        assert_eq!(safari.version_added.as_deref(), Some("13.1"));
+        assert_eq!(safari.version_qualifier.as_deref(), Some("before"));
     }
 }

@@ -704,11 +704,19 @@ enum RuntimeBrowserOverride<'a> {
 }
 
 const fn baked_browser_version(version: Option<BrowserVersion>) -> BrowserVersionView<'static> {
-    match version {
-        None => BrowserVersionView::Unsupported,
-        Some(BrowserVersion::Unknown) => BrowserVersionView::SupportedUnknown,
-        Some(BrowserVersion::Version(version)) => BrowserVersionView::Version(version),
+    let Some(v) = version else {
+        return BrowserVersionView::Unsupported;
+    };
+    if matches!(v.supported, Some(false)) {
+        return BrowserVersionView::Unsupported;
     }
+    if let Some(version) = v.version_added {
+        return BrowserVersionView::Version(version);
+    }
+    if matches!(v.supported, Some(true)) {
+        return BrowserVersionView::SupportedUnknown;
+    }
+    BrowserVersionView::Unsupported
 }
 
 fn effective_browser_version(
@@ -722,7 +730,9 @@ fn effective_browser_version(
             BrowserVersionView::Version(version)
         }
         RuntimeBrowserOverride::Supported(RuntimeBrowserVersion::Unknown) => match baked {
-            Some(BrowserVersion::Version(version)) => BrowserVersionView::Version(version),
+            Some(v) if v.version_added.is_some() => {
+                BrowserVersionView::Version(v.version_added.unwrap_or(""))
+            }
             _ => BrowserVersionView::SupportedUnknown,
         },
     }
@@ -745,10 +755,26 @@ mod tests {
 
     use super::*;
 
+    fn bv_unknown() -> BrowserVersion {
+        BrowserVersion {
+            raw_value_added: svg_data::RawVersionAdded::Flag(true),
+            supported: Some(true),
+            ..BrowserVersion::EMPTY
+        }
+    }
+
+    fn bv_version(version: &'static str) -> BrowserVersion {
+        BrowserVersion {
+            raw_value_added: svg_data::RawVersionAdded::Text(version),
+            version_added: Some(version),
+            ..BrowserVersion::EMPTY
+        }
+    }
+
     #[test]
     fn unknown_browser_version_is_shown_as_supported() {
         let baked = BrowserSupport {
-            chrome: Some(BrowserVersion::Unknown),
+            chrome: Some(bv_unknown()),
             edge: None,
             firefox: None,
             safari: None,
@@ -767,7 +793,7 @@ mod tests {
     #[test]
     fn runtime_unknown_version_keeps_baked_known_version() {
         let baked = BrowserSupport {
-            chrome: Some(BrowserVersion::Version("120")),
+            chrome: Some(bv_version("120")),
             edge: None,
             firefox: None,
             safari: None,

@@ -1,8 +1,8 @@
 use std::{collections::HashMap, fs, path::Path};
 
 use super::{
-    BaselineQualifierValue, BaselineValue, BrowserSupportValue, BrowserVersionValue, CompatEntry,
-    ensure_cached, worker_schema,
+    BaselineQualifierValue, BaselineValue, BrowserFlagValue, BrowserSupportValue,
+    BrowserVersionValue, CompatEntry, RawVersionAddedValue, ensure_cached, worker_schema,
 };
 
 const SVG_COMPAT_URL: &str = "https://svg-compat.kjanat.com/data.json";
@@ -149,11 +149,53 @@ fn convert_qualifier(raw: Option<&str>) -> Option<BaselineQualifierValue> {
 }
 
 fn convert_browser_support(bs: &worker_schema::WorkerBrowserSupport) -> BrowserSupportValue {
-    let version = |v: &Option<String>| v.as_ref().map(|s| BrowserVersionValue::Version(s.clone()));
     BrowserSupportValue {
-        chrome: version(&bs.chrome),
-        edge: version(&bs.edge),
-        firefox: version(&bs.firefox),
-        safari: version(&bs.safari),
+        chrome: bs.chrome.as_ref().map(convert_browser_version),
+        edge: bs.edge.as_ref().map(convert_browser_version),
+        firefox: bs.firefox.as_ref().map(convert_browser_version),
+        safari: bs.safari.as_ref().map(convert_browser_version),
+    }
+}
+
+fn convert_browser_version(v: &worker_schema::WorkerBrowserVersion) -> BrowserVersionValue {
+    BrowserVersionValue {
+        raw_value_added: convert_raw_version_added(&v.raw_value_added),
+        version_added: v.version_added.clone(),
+        version_qualifier: convert_version_qualifier(v.version_qualifier.as_deref()),
+        supported: v.supported,
+        version_removed: v.version_removed.clone(),
+        version_removed_qualifier: convert_version_qualifier(
+            v.version_removed_qualifier.as_deref(),
+        ),
+        partial_implementation: v.partial_implementation.unwrap_or(false),
+        prefix: v.prefix.clone(),
+        alternative_name: v.alternative_name.clone(),
+        flags: v
+            .flags
+            .as_ref()
+            .map(|list| list.iter().map(convert_browser_flag).collect())
+            .unwrap_or_default(),
+        notes: v.notes.clone().unwrap_or_default(),
+    }
+}
+
+fn convert_raw_version_added(raw: &worker_schema::WorkerRawVersionAdded) -> RawVersionAddedValue {
+    match raw {
+        worker_schema::WorkerRawVersionAdded::Text(s) => RawVersionAddedValue::Text(s.clone()),
+        worker_schema::WorkerRawVersionAdded::Flag(b) => RawVersionAddedValue::Flag(*b),
+        worker_schema::WorkerRawVersionAdded::Null => RawVersionAddedValue::Null,
+    }
+}
+
+fn convert_version_qualifier(raw: Option<&str>) -> Option<BaselineQualifierValue> {
+    // Version qualifier uses the same semantic as baseline qualifier.
+    convert_qualifier(raw)
+}
+
+fn convert_browser_flag(f: &worker_schema::WorkerBrowserFlag) -> BrowserFlagValue {
+    BrowserFlagValue {
+        flag_type: f.r#type.clone(),
+        name: f.name.clone(),
+        value_to_set: f.value_to_set.clone(),
     }
 }

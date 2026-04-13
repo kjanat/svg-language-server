@@ -4,6 +4,7 @@ version.workspace    = true
 authors.workspace    = true
 edition.workspace    = true
 description          = "Compile-time SVG spec catalog from MDN browser-compat-data"
+documentation        = "https://svg-compat.kjanat.com/"
 readme               = "README.md"
 homepage             = "https://github.com/kjanat/svg-language-server/tree/master/crates/svg-data"
 repository.workspace = true

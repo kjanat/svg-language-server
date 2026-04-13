@@ -29,3 +29,8 @@ Each entry includes description, MDN URL, deprecation flag, baseline browser sup
 [MDN browser-compat-data]: https://github.com/mdn/browser-compat-data
 [web-features]: https://github.com/nicedoc/web-features
 [svg-language-server]: https://github.com/kjanat/svg-language-server
+
+## TODO
+
+- [ ] https://github.com/mdn/browser-compat-data/ look into loading shit from this repo directly.\
+      Has per-attr/element whatever json files, that could be lazy loaded through e.g. jsdelivr.

@@ -32,3 +32,8 @@ Build-script generated SVG catalog crate. Produces baked metadata used by lint +
 ## NOTES
 
 - Changes here ripple into lint diagnostics and LSP docs/completions; verify both after edits.
+
+## TODO
+
+- [ ] https://github.com/mdn/browser-compat-data/ look into loading shit from this repo directly
+      Has per-attr/element whatever json files, that could be lazy loaded through e.g. jsdelivr.

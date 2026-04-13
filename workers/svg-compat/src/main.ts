@@ -22,7 +22,7 @@ import {
 	staticAssetResponse,
 	textResponse,
 } from "./http.ts";
-import { buildReloadScript, renderErrorHtml, renderHtml } from "./render.ts";
+import { renderErrorHtml, renderHtml } from "./render.tsx";
 import {
 	InvalidSourceRequestError,
 	isRecord,
@@ -649,15 +649,13 @@ function schemaEtag(): string {
 	return entityTag(`svg-compat-schema-${hashString(schemaBody)}`);
 }
 
-const RELOAD_SCRIPT = buildReloadScript(DEV, BOOT);
-
 function htmlErrorResponse(status: number, message: string): Response {
 	const headers = new Headers({
 		"content-type": MIME.html,
 		"cache-control": "no-store",
 	});
 	applyHtmlSecurityHeaders(headers);
-	return new Response(renderErrorHtml(status, message, RELOAD_SCRIPT), { status, headers });
+	return new Response(renderErrorHtml(status, message, DEV, BOOT), { status, headers });
 }
 
 function classifyError(error: unknown): { status: number; message: string } {
@@ -711,7 +709,9 @@ const server: Server = {
 		if (
 			url.pathname === "/style.css"
 			|| url.pathname === "/version-picker.mjs"
+			|| url.pathname === "/table-filter.mjs"
 			|| url.pathname.startsWith("/badges/")
+			|| url.pathname.startsWith("/browsers/")
 		) {
 			return await serveStaticRoute(request, "");
 		}
@@ -766,7 +766,7 @@ const server: Server = {
 
 			return cachedResponse(
 				request,
-				renderHtml(output, url, RELOAD_SCRIPT),
+				renderHtml(output, url, DEV, BOOT),
 				MIME.html,
 				CACHE_POLICY.response,
 				etag,

@@ -1,6 +1,6 @@
-import { assert, assertEquals, assertExists } from "@std/assert";
+import { assertEquals, assertExists } from "@std/assert";
 import server, { SVG_COMPAT_SCHEMA, type SvgCompatOutput } from "./main.ts";
-import { renderHtml } from "./render.ts";
+import { renderHtml } from "./render.tsx";
 import { defaultSourceSelection, parseSourceSelection, versionFromLocation } from "./sources.ts";
 
 const DEV = (() => {
@@ -169,22 +169,6 @@ Deno.test("renderHtml includes baseline badge classes", () => {
 	assertEquals(html.includes("class=\"badge badge-widely\""), true);
 	assertEquals(html.includes("class=\"badge badge-newly\""), true);
 	assertEquals(html.includes("class=\"badge badge-limited\""), true);
-});
-
-Deno.test("baseline badge CSS uses svg asset variables", async () => {
-	const css = await Deno.readTextFile(new URL("../static/style.css", import.meta.url));
-
-	assert(/--badge-icon-widely:\s*url\(["']\/badges\/baseline-widely\.svg["']\);/.test(css));
-	assert(/--badge-icon-newly:\s*url\(["']\/badges\/baseline-newly\.svg["']\);/.test(css));
-	assert(/--badge-icon-limited:\s*url\(["']\/badges\/baseline-limited\.svg["']\);/.test(css));
-
-	assert(/\.badge::before\s*\{[^}]*background-image:\s*var\(--badge-icon\);/s.test(css));
-	assert(/\.badge-widely\s*\{[^}]*--badge-icon:\s*var\(--badge-icon-widely\);/s.test(css));
-	assert(/\.badge-newly\s*\{[^}]*--badge-icon:\s*var\(--badge-icon-newly\);/s.test(css));
-	assert(/\.badge-limited\s*\{[^}]*--badge-icon:\s*var\(--badge-icon-limited\);/s.test(css));
-
-	assert(/\.badge-(widely|newly|limited)::before/.test(css) === false);
-	assert(/transform:\s*rotate\(45deg\)/.test(css) === false);
 });
 
 Deno.test("wildcard accept defaults to HTML", async () => {

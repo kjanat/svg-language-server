@@ -47,6 +47,8 @@
     "npm:event-source-polyfill@^1.0.31": "1.0.31",
     "npm:jsonc-parser@^3.3.1": "3.3.1",
     "npm:open@^10.1.0": "10.2.0",
+    "npm:preact-render-to-string@6": "6.6.7_preact@10.29.1",
+    "npm:preact@10": "10.29.1",
     "npm:prompts@2.4.2": "2.4.2",
     "npm:superjson@^2.2.2": "2.2.6",
     "npm:temporal-polyfill@0.3": "0.3.0",
@@ -302,6 +304,15 @@
         "wsl-utils"
       ]
     },
+    "preact-render-to-string@6.6.7_preact@10.29.1": {
+      "integrity": "sha512-3XdbsX3+vn9dQW+jJI/FsI9rlkgl6dbeUpqLsChak6jp3j3auFqBCkno7VChbMFs5Q8ylBj6DrUkKRwtVN3nvw==",
+      "dependencies": [
+        "preact"
+      ]
+    },
+    "preact@10.29.1": {
+      "integrity": "sha512-gQCLc/vWroE8lIpleXtdJhTFDogTdZG9AjMUpVkDf2iTCNwYNWA+u16dL41TqUDJO4gm2IgrcMv3uTpjd4Pwmg=="
+    },
     "prompts@2.4.2": {
       "integrity": "sha512-NxNv/kLguCA7p3jE8oL2aEBsrJWgAakBpgmgK6lpPWV+WuOmY6r2/zbAVnP+T8bQlA0nzHXSJSJW0Hq7ylaD2Q==",
       "dependencies": [
@@ -380,6 +391,8 @@
           "jsr:@std/media-types@1",
           "jsr:@std/path@1",
           "npm:@mdn/browser-compat-data@7.3.11",
+          "npm:preact-render-to-string@6",
+          "npm:preact@10",
           "npm:web-features@3.23.0"
         ]
       }

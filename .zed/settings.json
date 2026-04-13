@@ -3,7 +3,7 @@
 	"formatter": [{ "external": { "command": "dprint", "arguments": ["fmt", "--stdin", "{buffer_path}"] } }],
 	"languages": {
 		"Rust": { "wrap_guides": [100] },
-		"TypeScript": { "language_servers": ["deno", "vtsls", "tsgo"] }
+		"TypeScript": { "language_servers": ["deno", "!vtsls", "tsgo"] }
 	},
 	"lsp": {
 		"rust-analyzer": {

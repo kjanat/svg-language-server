@@ -9,7 +9,10 @@ pub fn escape(s: &str) -> String {
     s.chars().flat_map(char::escape_default).collect()
 }
 
-#[allow(dead_code)]
+#[expect(
+    dead_code,
+    reason = "Used by build.rs but not all codegen paths exercise it"
+)]
 pub fn write_static_str_slice(out: &mut String, name: &str, items: &[String]) -> std::fmt::Result {
     write!(out, "static {name}: &[&str] = &[")?;
     for (i, item) in items.iter().enumerate() {

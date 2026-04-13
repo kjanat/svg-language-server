@@ -237,6 +237,36 @@ mod tests {
     }
 
     #[test]
+    fn parse_baseline_value_widely_with_before_qualifier() {
+        let status = json!({
+            "baseline": "high",
+            "baseline_high_date": "≤2020-01-01"
+        });
+        assert_eq!(
+            parse_baseline_value(&status),
+            Some(BaselineStatus::Widely {
+                since: 2020,
+                qualifier: Some(BaselineQualifier::Before),
+            }),
+        );
+    }
+
+    #[test]
+    fn parse_baseline_value_newly_with_after_qualifier() {
+        let status = json!({
+            "baseline": "low",
+            "baseline_low_date": ">=2023-06-15"
+        });
+        assert_eq!(
+            parse_baseline_value(&status),
+            Some(BaselineStatus::Newly {
+                since: 2023,
+                qualifier: Some(BaselineQualifier::After),
+            }),
+        );
+    }
+
+    #[test]
     fn parse_baseline_value_limited() {
         let status = json!({ "baseline": false });
         assert_eq!(parse_baseline_value(&status), Some(BaselineStatus::Limited));
@@ -334,6 +364,40 @@ mod tests {
     fn parse_year_missing() {
         let status = json!({});
         assert_eq!(parse_year(&status, "date"), None);
+    }
+
+    #[test]
+    fn split_date_prefix_covers_every_known_prefix() {
+        // Longest-match pairs (`<=` / `>=`) must win over their single-char
+        // counterparts; a regression here would silently leave `"="` at the
+        // head of the body and turn a valid date into `None`.
+        let cases: &[(&str, Option<BaselineQualifier>, &str)] = &[
+            (
+                "<=2020-01-01",
+                Some(BaselineQualifier::Before),
+                "2020-01-01",
+            ),
+            (">=2023-06-15", Some(BaselineQualifier::After), "2023-06-15"),
+            ("≤2021-04-02", Some(BaselineQualifier::Before), "2021-04-02"),
+            ("<2019-12-31", Some(BaselineQualifier::Before), "2019-12-31"),
+            ("≥2022-07-04", Some(BaselineQualifier::After), "2022-07-04"),
+            (">2024-03-10", Some(BaselineQualifier::After), "2024-03-10"),
+            (
+                "~2021-04-02",
+                Some(BaselineQualifier::Approximately),
+                "2021-04-02",
+            ),
+            ("2023-03-27", None, "2023-03-27"),
+        ];
+
+        for (input, want_qualifier, want_body) in cases {
+            let (qualifier, body) = split_date_prefix(input);
+            assert_eq!(
+                qualifier, *want_qualifier,
+                "qualifier mismatch for input {input:?}"
+            );
+            assert_eq!(body, *want_body, "body mismatch for input {input:?}");
+        }
     }
 
     /// Helper: build a BCD compat object tagged with a web-features ID.

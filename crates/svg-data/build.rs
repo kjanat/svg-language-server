@@ -1,4 +1,7 @@
-#![allow(dead_code)]
+#![expect(
+    dead_code,
+    reason = "Build script defines types/functions not all code paths use"
+)]
 
 //! Build script that generates the baked SVG catalog from reviewed snapshot
 //! datasets and browser-compat overlays.
@@ -469,12 +472,17 @@ fn load_build_inputs() -> Result<BuildInputs, Box<dyn Error>> {
     })
 }
 
+/// The most recent snapshot in [`canonical_snapshots`]. Features present only
+/// here are `Experimental`; features absent here are `Obsolete`. Bump this and
+/// append to `canonical_snapshots` together when a new snapshot lands.
+const LATEST_SNAPSHOT: SpecSnapshotId = SpecSnapshotId::Svg2EditorsDraft20250914;
+
 fn canonical_snapshots() -> Vec<SpecSnapshotId> {
     vec![
         SpecSnapshotId::Svg11Rec20030114,
         SpecSnapshotId::Svg11Rec20110816,
         SpecSnapshotId::Svg2Cr20181004,
-        SpecSnapshotId::Svg2EditorsDraft20250914,
+        LATEST_SNAPSHOT,
     ]
 }
 
@@ -690,9 +698,9 @@ fn latest_present_snapshot(present_in: &[SpecSnapshotId]) -> Option<SpecSnapshot
 }
 
 fn union_lifecycle_expr(present_in: &[SpecSnapshotId]) -> &'static str {
-    if !present_in.contains(&SpecSnapshotId::Svg2EditorsDraft20250914) {
+    if !present_in.contains(&LATEST_SNAPSHOT) {
         "SpecLifecycle::Obsolete"
-    } else if present_in == [SpecSnapshotId::Svg2EditorsDraft20250914] {
+    } else if present_in == [LATEST_SNAPSHOT] {
         "SpecLifecycle::Experimental"
     } else {
         "SpecLifecycle::Stable"

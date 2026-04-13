@@ -43,9 +43,9 @@ use catalog::{
     generated_known_attribute_snapshots, generated_known_element_snapshots,
 };
 pub use types::{
-    AttributeDef, AttributeValues, BaselineStatus, BrowserSupport, BrowserVersion, ContentModel,
-    ElementCategory, ElementDef, ProfileLookup, ProfiledAttribute, ProfiledElement, SpecLifecycle,
-    SpecSnapshotId, SpecSnapshotMetadata,
+    AttributeDef, AttributeValues, BaselineQualifier, BaselineStatus, BrowserSupport,
+    BrowserVersion, ContentModel, ElementCategory, ElementDef, ProfileLookup, ProfiledAttribute,
+    ProfiledElement, SpecLifecycle, SpecSnapshotId, SpecSnapshotMetadata,
 };
 
 const SVG11_REC_20030114_ALIASES: &[&str] = &[

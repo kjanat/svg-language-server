@@ -1,4 +1,4 @@
-import { assertEquals, assertExists } from "@std/assert";
+import { assert, assertEquals, assertExists } from "@std/assert";
 import server, { SVG_COMPAT_SCHEMA, type SvgCompatOutput } from "./main.ts";
 import { renderHtml } from "./render.tsx";
 import { defaultSourceSelection, parseSourceSelection, versionFromLocation } from "./sources.ts";
@@ -169,6 +169,41 @@ Deno.test("renderHtml includes baseline badge classes", () => {
 	assertEquals(html.includes("class=\"badge badge-widely\""), true);
 	assertEquals(html.includes("class=\"badge badge-newly\""), true);
 	assertEquals(html.includes("class=\"badge badge-limited\""), true);
+});
+
+Deno.test("baseline parser preserves ≤ qualifier on real feGaussianBlur entry", async () => {
+	// Live web-features dataset regression guard. feGaussianBlur is
+	// the canary: baseline_high_date "≤2021-04-02" in v3.23.0. If
+	// upstream rewrites this entry the test fails loudly and we revisit.
+	const res = await server.fetch(new Request("http://localhost/data.json"));
+	assertEquals(res.status, 200);
+	const json = (await res.json()) as SvgCompatOutput;
+	const blur = json.elements.feGaussianBlur;
+	assertExists(blur.baseline);
+	assertEquals(blur.baseline?.status, "widely");
+	assertEquals(blur.baseline?.since, 2021);
+	assertEquals(blur.baseline?.since_qualifier, "before");
+	assertExists(blur.baseline?.high_date);
+	assertEquals(blur.baseline?.high_date?.raw, "≤2021-04-02");
+	assertEquals(blur.baseline?.high_date?.date, "2021-04-02");
+	assertEquals(blur.baseline?.high_date?.qualifier, "before");
+	assertExists(blur.baseline?.low_date);
+	assertEquals(blur.baseline?.low_date?.raw, "≤2018-10-02");
+	assertEquals(blur.baseline?.low_date?.date, "2018-10-02");
+});
+
+Deno.test("attributes table renders Support column", async () => {
+	const res = await server.fetch(
+		new Request("http://localhost/", { headers: { accept: "text/html" } }),
+	);
+	const body = await res.text();
+	// Both the elements table and the attributes table must now have
+	// a Support column header — Bug A regression guard.
+	const supportHeaders = body.match(/<th[^>]*scope="col"[^>]*>Support<\/th>/g) ?? [];
+	assert(
+		supportHeaders.length >= 2,
+		`expected ≥2 Support headers (elements + attributes), got ${supportHeaders.length}`,
+	);
 });
 
 Deno.test("wildcard accept defaults to HTML", async () => {

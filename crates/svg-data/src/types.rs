@@ -103,6 +103,22 @@ pub enum AttributeValues {
     PathData,
 }
 
+/// Qualifier on a baseline year when the upstream date carried a comparison prefix.
+///
+/// Mirrors `svg-compat` worker's `since_qualifier` field end-to-end so
+/// the LSP hover and lint diagnostics can render `≤2021` rather than
+/// silently lying about the precise year.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum BaselineQualifier {
+    /// At-or-before the year (web-features `≤` / `<` / `<=`).
+    Before,
+    /// At-or-after the year (web-features `≥` / `>` / `>=`).
+    After,
+    /// Fuzzy or unknown upstream prefix (web-features `~`, or any
+    /// future prefix the worker didn't recognise).
+    Approximately,
+}
+
 /// Baseline browser support status.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum BaselineStatus {
@@ -110,11 +126,15 @@ pub enum BaselineStatus {
     Widely {
         /// First calendar year in which the feature was considered widely available.
         since: u16,
+        /// Qualifier on `since` when the upstream date was inexact.
+        qualifier: Option<BaselineQualifier>,
     },
     /// Newly in Baseline since the given year.
     Newly {
         /// First calendar year in which the feature entered Baseline.
         since: u16,
+        /// Qualifier on `since` when the upstream date was inexact.
+        qualifier: Option<BaselineQualifier>,
     },
     /// Not part of Baseline support.
     Limited,

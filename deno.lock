@@ -9,6 +9,7 @@
     "jsr:@deno/deploy@*": "0.0.76",
     "jsr:@deno/framework-detect@0": "0.2.0",
     "jsr:@deno/sandbox@~0.4.4": "0.4.4",
+    "jsr:@kjanat/dreamcli@*": "2.0.1",
     "jsr:@std/assert@1": "1.0.19",
     "jsr:@std/async@^1.0.15": "1.0.16",
     "jsr:@std/cli@1.0.22": "1.0.22",
@@ -129,6 +130,9 @@
         "npm:ws",
         "npm:zod"
       ]
+    },
+    "@kjanat/dreamcli@2.0.1": {
+      "integrity": "f3b868fd91019544e07300ae886a2c5bfdc038b088cabb7980debdbf6aa96312"
     },
     "@std/assert@1.0.19": {
       "integrity": "eaada96ee120cb980bc47e040f82814d786fe8162ecc53c91d8df60b8755991e",
@@ -385,6 +389,7 @@
     "members": {
       "workers/svg-compat": {
         "dependencies": [
+          "jsr:@kjanat/dreamcli@*",
           "jsr:@std/assert@1",
           "jsr:@std/html@1",
           "jsr:@std/http@1",

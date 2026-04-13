@@ -8,6 +8,7 @@
 		"jsxPrecompileSkipElements": ["a", "script", "style", "link", "head"]
 	},
 	"imports": {
+		"@kjanat/dreamcli": "jsr:@kjanat/dreamcli",
 		"@mdn/browser-compat-data": "npm:@mdn/browser-compat-data@7.3.11",
 		"@std/assert": "jsr:@std/assert@1",
 		"@std/html": "jsr:@std/html@1",
@@ -31,6 +32,18 @@
 		"fmt": {
 			"command": "dprint fmt",
 			"description": "Format the codebase using dprint."
+		},
+		"cli": {
+			"command": "deno run -A src/cli.ts",
+			"description": "Run the svg-compat CLI."
+		},
+		"emit:data": {
+			"command": "deno run -A src/cli.ts emit data",
+			"description": "Emit /data.json equivalent to stdout."
+		},
+		"emit:schema": {
+			"command": "deno run -A src/cli.ts emit schema",
+			"description": "Emit the JSON schema to stdout."
 		}
 	},
 	"exports": "./src/main.ts",

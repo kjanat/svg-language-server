@@ -1,7 +1,8 @@
 use std::{fmt::Write as _, sync::LazyLock};
 
 use svg_data::{
-    BaselineStatus, BrowserSupport, BrowserVersion, ProfileLookup, SpecLifecycle, SpecSnapshotId,
+    BaselineQualifier, BaselineStatus, BrowserSupport, BrowserVersion, ProfileLookup,
+    SpecLifecycle, SpecSnapshotId,
 };
 use tower_lsp_server::ls_types::Uri;
 use url::Url;
@@ -563,18 +564,32 @@ static BASELINE_LOW: LazyLock<String> =
 static BASELINE_LIMITED: LazyLock<String> =
     LazyLock::new(|| svg_data_uri(include_str!("../assets/baseline-limited.svg")));
 
+/// Glyph to render before a baseline year when the upstream date
+/// carried a qualifier prefix — mirrors the worker's `BaselineBadge`
+/// so the LSP hover surfaces `≤2021` instead of silently lying.
+const fn format_baseline_qualifier(qualifier: Option<BaselineQualifier>) -> &'static str {
+    match qualifier {
+        Some(BaselineQualifier::Before) => "≤",
+        Some(BaselineQualifier::After) => "≥",
+        Some(BaselineQualifier::Approximately) => "~",
+        None => "",
+    }
+}
+
 fn format_baseline(baseline: BaselineStatus) -> String {
     match baseline {
-        BaselineStatus::Widely { since } => {
+        BaselineStatus::Widely { since, qualifier } => {
             let icon = &*BASELINE_HIGH;
+            let q = format_baseline_qualifier(qualifier);
             format!(
-                "![Baseline icon]({icon}) _Widely available across major browsers (Baseline since {since})_"
+                "![Baseline icon]({icon}) _Widely available across major browsers (Baseline since {q}{since})_"
             )
         }
-        BaselineStatus::Newly { since } => {
+        BaselineStatus::Newly { since, qualifier } => {
             let icon = &*BASELINE_LOW;
+            let q = format_baseline_qualifier(qualifier);
             format!(
-                "![Baseline icon]({icon}) _Newly available across major browsers (Baseline since {since})_"
+                "![Baseline icon]({icon}) _Newly available across major browsers (Baseline since {q}{since})_"
             )
         }
         BaselineStatus::Limited => {

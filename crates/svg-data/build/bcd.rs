@@ -1,8 +1,8 @@
 use std::{collections::HashMap, fs, path::Path};
 
 use super::{
-    BaselineValue, BrowserSupportValue, BrowserVersionValue, CompatEntry, ensure_cached,
-    worker_schema,
+    BaselineQualifierValue, BaselineValue, BrowserSupportValue, BrowserVersionValue, CompatEntry,
+    ensure_cached, worker_schema,
 };
 
 const SVG_COMPAT_URL: &str = "https://svg-compat.kjanat.com/data.json";
@@ -111,11 +111,40 @@ fn convert_attribute(entry: &worker_schema::WorkerAttribute) -> BcdAttribute {
 }
 
 fn convert_baseline(b: &worker_schema::WorkerBaseline) -> Option<BaselineValue> {
+    let qualifier = convert_qualifier(b.since_qualifier.as_deref());
     match b.status.as_str() {
-        "widely" => Some(BaselineValue::Widely { since: b.since? }),
-        "newly" => Some(BaselineValue::Newly { since: b.since? }),
+        "widely" => Some(BaselineValue::Widely {
+            since: b.since?,
+            qualifier,
+        }),
+        "newly" => Some(BaselineValue::Newly {
+            since: b.since?,
+            qualifier,
+        }),
         "limited" => Some(BaselineValue::Limited),
-        _ => None,
+        other => {
+            // Match the worker's "warn loudly on unknown" rule so an
+            // unexpected upstream status doesn't silently drop the entry.
+            println!(
+                "cargo::warning=svg-data: unknown baseline status {other:?}, treating as Limited"
+            );
+            Some(BaselineValue::Limited)
+        }
+    }
+}
+
+fn convert_qualifier(raw: Option<&str>) -> Option<BaselineQualifierValue> {
+    match raw {
+        Some("before") => Some(BaselineQualifierValue::Before),
+        Some("after") => Some(BaselineQualifierValue::After),
+        Some("approximately") => Some(BaselineQualifierValue::Approximately),
+        Some(other) => {
+            println!(
+                "cargo::warning=svg-data: unknown baseline qualifier {other:?}, treating as Approximately"
+            );
+            Some(BaselineQualifierValue::Approximately)
+        }
+        None => None,
     }
 }
 

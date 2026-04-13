@@ -247,6 +247,41 @@ fn typed_attribute_hover_resolves_catalog() -> TestResult {
 }
 
 #[test]
+fn hover_renders_baseline_qualifier_for_fegaussianblur() -> TestResult {
+    // Regression guard for the `≤` qualifier propagation pipeline:
+    // BCD → web-features (`baseline_high_date: "≤2021-04-02"`) → worker
+    // `/data.json` → svg-data build script → static catalog →
+    // svg-language-server hover markdown. If any layer drops the
+    // qualifier the hover will render `since 2021` instead of `since ≤2021`.
+    let mut server = TestServer::start()?;
+
+    let svg =
+        r#"<svg><defs><filter id="blur"><feGaussianBlur stdDeviation="3" /></filter></defs></svg>"#;
+    server.open("file:///baseline-qualifier.svg", svg)?;
+
+    let tag_character =
+        u32::try_from(svg.find("feGaussianBlur").ok_or("feGaussianBlur present")?)? + 1;
+    let hover_resp = server.request(
+        "textDocument/hover",
+        &json!({
+            "textDocument": { "uri": "file:///baseline-qualifier.svg" },
+            "position": { "line": 0, "character": tag_character }
+        }),
+    )?;
+
+    let hover_value = hover_resp["result"]["contents"]["value"]
+        .as_str()
+        .ok_or("feGaussianBlur hover markdown")?;
+    assert!(
+        hover_value.contains("Baseline since ≤"),
+        "hover should surface the ≤ qualifier on feGaussianBlur: {hover_resp}"
+    );
+
+    server.shutdown_and_exit()?;
+    Ok(())
+}
+
+#[test]
 fn hover_shows_profile_lifecycle_separately_from_browser_support() -> TestResult {
     let hover_svg =
         r##"<svg xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="#icon"/></svg>"##;

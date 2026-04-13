@@ -4,25 +4,57 @@
 //! logic but cannot import from this crate (build scripts compile separately).
 //! When modifying these helpers, keep `build/bcd.rs` in sync.
 
-use crate::BaselineStatus;
+use crate::{BaselineQualifier, BaselineStatus};
 
 /// Parse a baseline status value from a web-features `status` JSON object.
 ///
 /// Expects the `{ "baseline": "high"|"low"|false, "baseline_high_date": "YYYY-...", ... }` shape.
+///
+/// Mirrors the worker's `parseBaseline` behaviour: prefixes on the date
+/// field (`≤2021-04-02`, `≥…`, `~…`) are parsed into a qualifier that
+/// travels alongside the year so downstream consumers can render
+/// `≤2021` instead of silently lying about the precise date.
 #[must_use]
 pub fn parse_baseline_value(status: &serde_json::Value) -> Option<BaselineStatus> {
     match status.get("baseline")? {
         serde_json::Value::Bool(false) => Some(BaselineStatus::Limited),
         serde_json::Value::String(s) if s == "high" => {
-            let since = parse_year(status, "baseline_high_date")?;
-            Some(BaselineStatus::Widely { since })
+            let (since, qualifier) = parse_year_and_qualifier(status, "baseline_high_date")?;
+            Some(BaselineStatus::Widely { since, qualifier })
         }
         serde_json::Value::String(s) if s == "low" => {
-            let since = parse_year(status, "baseline_low_date")?;
-            Some(BaselineStatus::Newly { since })
+            let (since, qualifier) = parse_year_and_qualifier(status, "baseline_low_date")?;
+            Some(BaselineStatus::Newly { since, qualifier })
         }
         _ => None,
     }
+}
+
+/// Splits a baseline date string into its qualifier prefix (if any)
+/// and the ISO body. Mirrors the worker's `KNOWN_DATE_PREFIXES`.
+#[must_use]
+fn split_date_prefix(raw: &str) -> (Option<BaselineQualifier>, &str) {
+    // Longest-match first so `<=` and `>=` win over `<` / `>`.
+    for (prefix, q) in [
+        ("<=", BaselineQualifier::Before),
+        (">=", BaselineQualifier::After),
+    ] {
+        if let Some(body) = raw.strip_prefix(prefix) {
+            return (Some(q), body);
+        }
+    }
+    for (prefix, q) in [
+        ("≤", BaselineQualifier::Before),
+        ("<", BaselineQualifier::Before),
+        ("≥", BaselineQualifier::After),
+        (">", BaselineQualifier::After),
+        ("~", BaselineQualifier::Approximately),
+    ] {
+        if let Some(body) = raw.strip_prefix(prefix) {
+            return (Some(q), body);
+        }
+    }
+    (None, raw)
 }
 
 /// Resolve baseline status for a BCD compat entry via web-features tags.
@@ -137,9 +169,32 @@ pub fn extract_browser_versions(compat: &serde_json::Value) -> Option<BrowserVer
 }
 
 /// Extract the first calendar year from a date string like `"2023-03-27"`.
+///
+/// Strips any qualifier prefix before parsing, so `"≤2021-04-02"` still
+/// yields `Some(2021)`. Use [`parse_year_and_qualifier`] when the
+/// caller also needs the prefix (e.g. to populate
+/// `BaselineStatus::{Widely,Newly}.qualifier`).
 #[must_use]
 pub fn parse_year(status: &serde_json::Value, key: &str) -> Option<u16> {
-    status.get(key)?.as_str()?.split('-').next()?.parse().ok()
+    let raw = status.get(key)?.as_str()?;
+    let (_prefix, body) = split_date_prefix(raw);
+    body.split('-').next()?.parse().ok()
+}
+
+/// Like [`parse_year`], but also returns the qualifier parsed from the date prefix.
+///
+/// Mirrors the worker's `parseBaselineDate` semantics — prefix tells
+/// the caller whether the year is exact or "at or before" /
+/// "at or after".
+#[must_use]
+pub fn parse_year_and_qualifier(
+    status: &serde_json::Value,
+    key: &str,
+) -> Option<(u16, Option<BaselineQualifier>)> {
+    let raw = status.get(key)?.as_str()?;
+    let (qualifier, body) = split_date_prefix(raw);
+    let year: u16 = body.split('-').next()?.parse().ok()?;
+    Some((year, qualifier))
 }
 
 #[cfg(test)]
@@ -156,7 +211,13 @@ mod tests {
             "baseline_high_date": "2020-01-01"
         });
         let result = parse_baseline_value(&status);
-        assert_eq!(result, Some(BaselineStatus::Widely { since: 2020 }));
+        assert_eq!(
+            result,
+            Some(BaselineStatus::Widely {
+                since: 2020,
+                qualifier: None
+            })
+        );
     }
 
     #[test]
@@ -166,7 +227,13 @@ mod tests {
             "baseline_low_date": "2023-06-15"
         });
         let result = parse_baseline_value(&status);
-        assert_eq!(result, Some(BaselineStatus::Newly { since: 2023 }));
+        assert_eq!(
+            result,
+            Some(BaselineStatus::Newly {
+                since: 2023,
+                qualifier: None
+            })
+        );
     }
 
     #[test]
@@ -293,7 +360,10 @@ mod tests {
         });
         assert_eq!(
             resolve_baseline(&compat, Some(&wf), "svg.elements.rect"),
-            Some(BaselineStatus::Widely { since: 2020 }),
+            Some(BaselineStatus::Widely {
+                since: 2020,
+                qualifier: None
+            }),
         );
     }
 
@@ -310,7 +380,10 @@ mod tests {
         });
         assert_eq!(
             resolve_baseline(&compat, Some(&wf), "svg.elements.rect"),
-            Some(BaselineStatus::Newly { since: 2024 }),
+            Some(BaselineStatus::Newly {
+                since: 2024,
+                qualifier: None
+            }),
         );
     }
 
@@ -334,7 +407,10 @@ mod tests {
         // Malformed override: present but unparseable → falls back to top-level status
         assert_eq!(
             resolve_baseline(&compat, Some(&wf), "svg.elements.rect"),
-            Some(BaselineStatus::Newly { since: 2024 }),
+            Some(BaselineStatus::Newly {
+                since: 2024,
+                qualifier: None
+            }),
         );
     }
 

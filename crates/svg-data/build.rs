@@ -70,10 +70,26 @@ struct CompatEntry {
     browser_support: Option<BrowserSupportValue>,
 }
 
+/// Qualifier on a baseline year when the upstream date carries a
+/// comparison prefix. Mirrors `svg_data::BaselineQualifier` so the
+/// build-time and runtime representations stay identical.
+#[derive(Clone, Copy)]
+enum BaselineQualifierValue {
+    Before,
+    After,
+    Approximately,
+}
+
 #[derive(Clone)]
 enum BaselineValue {
-    Widely { since: u16 },
-    Newly { since: u16 },
+    Widely {
+        since: u16,
+        qualifier: Option<BaselineQualifierValue>,
+    },
+    Newly {
+        since: u16,
+        qualifier: Option<BaselineQualifierValue>,
+    },
     Limited,
 }
 
@@ -88,7 +104,7 @@ impl BaselineValue {
 
     const fn since(&self) -> Option<u16> {
         match self {
-            Self::Widely { since } | Self::Newly { since } => Some(*since),
+            Self::Widely { since, .. } | Self::Newly { since, .. } => Some(*since),
             Self::Limited => None,
         }
     }

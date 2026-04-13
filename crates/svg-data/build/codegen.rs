@@ -1,6 +1,6 @@
 use std::fmt::Write as _;
 
-use super::{BaselineValue, BrowserSupportValue, BrowserVersionValue};
+use super::{BaselineQualifierValue, BaselineValue, BrowserSupportValue, BrowserVersionValue};
 
 pub fn escape(s: &str) -> String {
     s.chars().flat_map(char::escape_default).collect()
@@ -33,13 +33,28 @@ pub fn ident_from(name: &str) -> String {
 pub fn format_baseline(baseline: Option<&BaselineValue>) -> String {
     match baseline {
         None => "None".to_string(),
-        Some(BaselineValue::Widely { since }) => {
-            format!("Some(BaselineStatus::Widely {{ since: {since} }})")
+        Some(BaselineValue::Widely { since, qualifier }) => {
+            format!(
+                "Some(BaselineStatus::Widely {{ since: {since}, qualifier: {} }})",
+                format_qualifier(*qualifier),
+            )
         }
-        Some(BaselineValue::Newly { since }) => {
-            format!("Some(BaselineStatus::Newly {{ since: {since} }})")
+        Some(BaselineValue::Newly { since, qualifier }) => {
+            format!(
+                "Some(BaselineStatus::Newly {{ since: {since}, qualifier: {} }})",
+                format_qualifier(*qualifier),
+            )
         }
         Some(BaselineValue::Limited) => "Some(BaselineStatus::Limited)".to_string(),
+    }
+}
+
+const fn format_qualifier(qualifier: Option<BaselineQualifierValue>) -> &'static str {
+    match qualifier {
+        None => "None",
+        Some(BaselineQualifierValue::Before) => "Some(BaselineQualifier::Before)",
+        Some(BaselineQualifierValue::After) => "Some(BaselineQualifier::After)",
+        Some(BaselineQualifierValue::Approximately) => "Some(BaselineQualifier::Approximately)",
     }
 }
 

@@ -355,7 +355,7 @@ const fn baseline_rank(baseline: BaselineStatus) -> u8 {
 
 const fn baseline_since(baseline: BaselineStatus) -> u16 {
     match baseline {
-        BaselineStatus::Widely { since } | BaselineStatus::Newly { since } => since,
+        BaselineStatus::Widely { since, .. } | BaselineStatus::Newly { since, .. } => since,
         BaselineStatus::Limited => 0,
     }
 }
@@ -374,16 +374,34 @@ mod tests {
 
     #[test]
     fn merge_baseline_prefers_worse_rank() {
-        let mut existing = Some(BaselineStatus::Widely { since: 2020 });
+        let mut existing = Some(BaselineStatus::Widely {
+            since: 2020,
+            qualifier: None,
+        });
         merge_baseline(&mut existing, Some(BaselineStatus::Limited));
         assert_eq!(existing, Some(BaselineStatus::Limited));
     }
 
     #[test]
     fn merge_baseline_tightens_equal_rank_year() {
-        let mut existing = Some(BaselineStatus::Newly { since: 2024 });
-        merge_baseline(&mut existing, Some(BaselineStatus::Newly { since: 2025 }));
-        assert_eq!(existing, Some(BaselineStatus::Newly { since: 2025 }));
+        let mut existing = Some(BaselineStatus::Newly {
+            since: 2024,
+            qualifier: None,
+        });
+        merge_baseline(
+            &mut existing,
+            Some(BaselineStatus::Newly {
+                since: 2025,
+                qualifier: None,
+            }),
+        );
+        assert_eq!(
+            existing,
+            Some(BaselineStatus::Newly {
+                since: 2025,
+                qualifier: None
+            })
+        );
     }
 
     #[test]

@@ -12,6 +12,12 @@ interface Props {
 	 * override the dashboard `main` layout without nesting landmarks.
 	 */
 	bare?: boolean;
+	/**
+	 * Inline style applied to the `<main>` element. Used to pass
+	 * computed CSS custom properties (e.g. per-browser chip column
+	 * widths derived from the dataset) down to the cascade.
+	 */
+	mainStyle?: string;
 	children: ComponentChildren;
 }
 
@@ -23,7 +29,7 @@ interface Props {
  * by URL so multi-instance rendering is free.
  */
 export function Layout(
-	{ dev, boot, title = "SVG Compat", bare = false, children }: Props,
+	{ dev, boot, title = "SVG Compat", bare = false, mainStyle, children }: Props,
 ) {
 	return (
 		<html lang="en">
@@ -35,7 +41,7 @@ export function Layout(
 				<link rel="stylesheet" href="/style.css" />
 			</head>
 			<body>
-				{bare ? children : <main>{children}</main>}
+				{bare ? children : <main style={mainStyle}>{children}</main>}
 				<DevReload dev={dev} boot={boot} />
 			</body>
 		</html>

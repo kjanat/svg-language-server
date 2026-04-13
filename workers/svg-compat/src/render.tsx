@@ -16,7 +16,24 @@ import { Layout } from "./components/Layout.tsx";
 import { TableSection } from "./components/TableSection.tsx";
 import { UpstreamSources } from "./components/UpstreamSources.tsx";
 import type { SvgCompatOutput } from "./main.ts";
-import { buildPageModel } from "./view.ts";
+import { BROWSER_KEYS, type BrowserMaxChars, buildPageModel } from "./view.ts";
+
+/**
+ * Builds the inline `<main style>` string carrying per-browser chip
+ * column widths as CSS custom properties. Derived from the current
+ * dataset so adding a new 3-digit Chrome version automatically widens
+ * the Chrome column — no stylesheet edit required.
+ *
+ * Also emits `--chip-chars-max`, used by the container query in the
+ * stylesheet: when the chip row wraps (narrow container / mobile) all
+ * chips snap to the global max width so the wrapped rows form a tidy
+ * grid instead of a ragged one.
+ */
+function buildChipColumnStyle(maxChars: BrowserMaxChars): string {
+	const perBrowser = BROWSER_KEYS.map((key) => `--chip-chars-${key}:${maxChars[key]}`);
+	const globalMax = Math.max(...BROWSER_KEYS.map((key) => maxChars[key]));
+	return [...perBrowser, `--chip-chars-max:${globalMax}`].join(";");
+}
 
 /**
  * Renders the main SVG-compat dashboard as a complete HTML document.
@@ -34,7 +51,7 @@ export function renderHtml(
 ): string {
 	const model = buildPageModel(output, requestUrl);
 	const body = render(
-		<Layout dev={dev} boot={boot}>
+		<Layout dev={dev} boot={boot} mainStyle={buildChipColumnStyle(model.browserMaxChars)}>
 			<Hero model={model} />
 			<UpstreamSources sources={model.sources} />
 			<TableSection

@@ -22,6 +22,15 @@
 	--chip-bg: rgba(0, 0, 0, 0.035);
 	--chip-border: rgba(0, 0, 0, 0.06);
 	--radius: 8px;
+	/*
+	 * Row-height tokens. Quantise .table-scroll max-height so the
+	 * scroll always ends on a row boundary — no half-rows clipped at
+	 * the bottom. --row-h must accommodate the tallest cell content
+	 * (browser chip badge ≈ 24px) plus breathing room.
+	 */
+	--row-h: 48px;
+	--head-h: 40px;
+	--rows-visible: 14;
 	--font-display:
 		"Avenir Next",
 		"Segoe UI",
@@ -273,9 +282,15 @@ section {
 /* ── tables ──────────────────────────── */
 .table-scroll {
 	overflow-x: auto;
-	max-height: 72vh;
 	overflow-y: auto;
+	/* Quantised max-height: --rows-visible whole rows + sticky head.
+	 * Capped at viewport so very small screens still scroll naturally. */
+	max-height: min(
+		78vh,
+		calc(var(--head-h) + var(--row-h) * var(--rows-visible))
+	);
 	border-top: 1px solid var(--border-subtle);
+	scroll-padding-top: var(--head-h);
 }
 table {
 	width: 100%;
@@ -284,7 +299,8 @@ table {
 }
 thead th {
 	text-align: left;
-	padding: 10px 14px;
+	padding: 0 14px;
+	height: var(--head-h);
 	color: var(--text-muted);
 	font-weight: 600;
 	font-size: 0.68rem;
@@ -305,7 +321,8 @@ thead th:last-child {
 td,
 tbody th {
 	text-align: left;
-	padding: 11px 14px;
+	padding: 0 14px;
+	height: var(--row-h);
 	border-top: 1px solid var(--border-subtle);
 	vertical-align: middle;
 	font-weight: normal;
@@ -515,6 +532,54 @@ code {
 	height: 18px;
 	flex: none;
 	display: block;
+}
+/*
+ * Version column widths are driven by data, not hardcoded. render.tsx
+ * computes the longest version string length per browser across all
+ * elements and sets `--chip-chars-{key}` on <main> via inline style.
+ * This rule then uses those counts to reserve exactly enough room for
+ * the widest value currently in the dataset. If Chrome ever grows to
+ * "100" (3 chars), the Chrome column widens on the next render — no
+ * stylesheet edit required. Fallback 3 keeps things sane if the vars
+ * are missing.
+ */
+.chip-version {
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+}
+.chip-chrome .chip-version {
+	min-width: calc(var(--chip-chars-chrome, 3) * 1ch);
+}
+.chip-edge .chip-version {
+	min-width: calc(var(--chip-chars-edge, 3) * 1ch);
+}
+.chip-firefox .chip-version {
+	min-width: calc(var(--chip-chars-firefox, 3) * 1ch);
+}
+.chip-safari .chip-version {
+	min-width: calc(var(--chip-chars-safari, 3) * 1ch);
+}
+/*
+ * Wrapping override: at narrow viewports the Support cell is no
+ * longer wide enough to hold all 4 chips on one row. Snap every
+ * chip to the global max width so the wrapped rows form a tidy
+ * grid instead of a ragged layout. Threshold picked empirically
+ * by measurement: at 800px viewport the support cell is ~341px,
+ * just barely fitting the 293px-wide per-browser layout. Below
+ * 800px the cell narrows past the wrap point.
+ *
+ * Container queries would be more precise (per-cell), but putting
+ * `container-type` on the cell or the chip list breaks table
+ * auto-layout (size containment kills the cell's content-driven
+ * width). A viewport @media is the pragmatic fallback.
+ */
+@media (max-width: 800px) {
+	.chip-chrome .chip-version,
+	.chip-edge .chip-version,
+	.chip-firefox .chip-version,
+	.chip-safari .chip-version {
+		min-width: calc(var(--chip-chars-max, 3) * 1ch);
+	}
 }
 .chip-missing {
 	color: var(--text-muted);

@@ -8,8 +8,19 @@
  * @module
  */
 
-import type { AttributeEntry, CompatEntry, SvgCompatOutput } from "./main.ts";
+import type { AttributeEntry, BrowserSupport, CompatEntry, SvgCompatOutput } from "./main.ts";
 import type { SourceInfo } from "./sources.ts";
+
+/** Browser keys used in chip rendering; ordered for display. */
+export const BROWSER_KEYS = [
+	"chrome",
+	"edge",
+	"firefox",
+	"safari",
+] as const satisfies readonly (keyof BrowserSupport)[];
+
+/** Maximum version-string character count per browser across all elements. */
+export type BrowserMaxChars = Record<(typeof BROWSER_KEYS)[number], number>;
 
 /** Compat entry + the tag name it belongs to (keyed from the output record). */
 export interface NamedCompatEntry extends CompatEntry {
@@ -49,10 +60,39 @@ export interface PageModel {
 	deprecatedElements: NamedCompatEntry[];
 	limitedAttributes: NamedAttributeEntry[];
 	urls: PageUrls;
+	browserMaxChars: BrowserMaxChars;
 }
 
 function named<T>(record: Record<string, T>): Array<T & { name: string }> {
 	return Object.entries(record).map(([name, entry]) => ({ name, ...entry }));
+}
+
+/**
+ * Computes the longest version-string length for each browser across
+ * all element entries. Drives per-browser chip column widths so they
+ * adapt to the current dataset (e.g. a future Chrome "100" would widen
+ * the Chrome column from 2 to 3 chars automatically).
+ *
+ * Elements without recorded support for a browser don't contribute —
+ * the missing-state chip shows "—" which always fits in 1 char.
+ *
+ * @param elements Named element entries from the page model.
+ * @returns Max character count per browser key. Floors at 1 so empty
+ *   datasets still produce a sane layout.
+ */
+function computeBrowserMaxChars(elements: NamedCompatEntry[]): BrowserMaxChars {
+	const max: BrowserMaxChars = { chrome: 1, edge: 1, firefox: 1, safari: 1 };
+	for (const entry of elements) {
+		const support = entry.browser_support;
+		if (!support) continue;
+		for (const key of BROWSER_KEYS) {
+			const version = support[key];
+			if (version !== undefined && version.length > max[key]) {
+				max[key] = version.length;
+			}
+		}
+	}
+	return max;
 }
 
 /**
@@ -91,6 +131,7 @@ export function buildPageModel(
 			latestHtml: `${origin}/?source=latest`,
 			latestJson: `${origin}/data.json?source=latest`,
 		},
+		browserMaxChars: computeBrowserMaxChars(elements),
 	};
 }
 

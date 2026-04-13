@@ -28,7 +28,7 @@ export function BrowserSupport({ support }: Props) {
 				const hasVersion = version !== undefined;
 				return (
 					<li
-						class={`chip${hasVersion ? "" : " chip-missing"}`}
+						class={`chip chip-${key}${hasVersion ? "" : " chip-missing"}`}
 						title={hasVersion ? `${label} ${version}` : `${label} not supported`}
 					>
 						<span class="chip-badge">

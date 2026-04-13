@@ -36,17 +36,6 @@ import {
 
 export type { SourceInfo, SvgCompatSources } from "./sources.ts";
 
-/** BCD uses underscore-delimited xlink names; SVG uses colon-delimited. */
-const XLINK_MAP: Record<string, string> = {
-	xlink_actuate: "xlink:actuate",
-	xlink_arcrole: "xlink:arcrole",
-	xlink_href: "xlink:href",
-	xlink_role: "xlink:role",
-	xlink_show: "xlink:show",
-	xlink_title: "xlink:title",
-	xlink_type: "xlink:type",
-};
-
 const snapshotInflight = new Map<string, Promise<SvgCompatSnapshot>>();
 const JSON_INDENT = 2;
 const WEB_FEATURE_KIND_FEATURE = "feature";
@@ -55,8 +44,17 @@ const PROD_GENERATED_AT = new Date(BOOT).toISOString();
 const FAVICON_ICO_ASSET = loadStaticAsset("favicon.ico", MIME.ico);
 const FAVICON_SVG_ASSET = loadStaticAsset("favicon.svg", MIME.svg);
 
+/**
+ * BCD uses underscore-delimited namespace names (`xlink_href`, `xml_lang`);
+ * SVG uses colon-delimited (`xlink:href`, `xml:lang`). Canonicalise here.
+ * Regex subsumes the old hand-written XLINK_MAP and auto-covers any future
+ * `xml_*` / `xlink_*` additions upstream.
+ */
+const NAMESPACE_UNDERSCORE = /^(xlink|xml)_(\w+)$/;
+
 function canonicalAttributeName(name: string): string {
-	return XLINK_MAP[name] ?? name;
+	const match = name.match(NAMESPACE_UNDERSCORE);
+	return match ? `${match[1]}:${match[2]}` : name;
 }
 
 /** Web-platform baseline status resolved from the `web-features` dataset. */

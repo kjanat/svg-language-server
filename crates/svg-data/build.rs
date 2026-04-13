@@ -375,11 +375,35 @@ fn ensure_cached(url: &str, dest: &Path, offline: bool) -> Result<bool, String> 
     Ok(true)
 }
 
+fn emit_rerun_if_changed(path: &Path) -> Result<(), Box<dyn Error>> {
+    if !path.exists() {
+        return Ok(());
+    }
+
+    if path.is_file() {
+        println!("cargo::rerun-if-changed={}", path.display());
+        return Ok(());
+    }
+
+    for entry in fs::read_dir(path)? {
+        let entry = entry?;
+        emit_rerun_if_changed(&entry.path())?;
+    }
+
+    Ok(())
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
+    let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let svg_compat_dir = manifest_dir.join("../../workers/svg-compat");
+
     println!("cargo::rerun-if-changed=data/specs");
     println!("cargo::rerun-if-changed=data/derived");
     println!("cargo::rerun-if-env-changed=SVG_DATA_OFFLINE");
+    println!("cargo::rerun-if-env-changed=SVG_COMPAT_FILE");
     println!("cargo::rerun-if-env-changed=SVG_COMPAT_URL");
+    emit_rerun_if_changed(&svg_compat_dir.join("src"))?;
+    emit_rerun_if_changed(&svg_compat_dir.join("deno.json"))?;
 
     let inputs = load_build_inputs()?;
     let mut out = String::with_capacity(64 * 1024);

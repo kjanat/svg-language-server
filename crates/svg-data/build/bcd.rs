@@ -1,4 +1,9 @@
-use std::{collections::HashMap, fs, path::Path};
+use std::{
+    collections::HashMap,
+    fs,
+    path::{Path, PathBuf},
+    process::Command,
+};
 
 use super::{
     BaselineQualifierValue, BaselineValue, BrowserFlagValue, BrowserSupportValue,
@@ -6,6 +11,8 @@ use super::{
 };
 
 const SVG_COMPAT_URL: &str = "https://svg-compat.kjanat.com/data.json";
+const SVG_COMPAT_FILE_ENV: &str = "SVG_COMPAT_FILE";
+const SVG_COMPAT_URL_ENV: &str = "SVG_COMPAT_URL";
 
 /// BCD-discovered attribute with compat metadata and element applicability.
 pub struct BcdAttribute {
@@ -24,7 +31,6 @@ pub struct CompatData {
 /// On any failure, prints a cargo warning and returns empty maps.
 pub fn fetch_compat_data(out_dir: &Path) -> CompatData {
     let offline = std::env::var("SVG_DATA_OFFLINE").is_ok();
-    let url = std::env::var("SVG_COMPAT_URL").unwrap_or_else(|_| SVG_COMPAT_URL.to_string());
     let cache_path = out_dir.join("svg-compat-data.json");
 
     let empty = CompatData {
@@ -32,22 +38,11 @@ pub fn fetch_compat_data(out_dir: &Path) -> CompatData {
         attributes: HashMap::new(),
     };
 
-    match ensure_cached(&url, &cache_path, offline) {
-        Ok(true) => {}
-        Ok(false) => {
-            println!("cargo::warning=compat: no cached data and offline — skipping");
-            return empty;
-        }
+    let raw = match load_worker_json(&cache_path, offline) {
+        Ok(Some(source)) => source,
+        Ok(None) => return empty,
         Err(error) => {
-            println!("cargo::warning=compat: fetch failed: {error}");
-            return empty;
-        }
-    }
-
-    let raw = match fs::read_to_string(&cache_path) {
-        Ok(source) => source,
-        Err(error) => {
-            println!("cargo::warning=compat: failed to read cache: {error}");
+            println!("cargo::warning=compat: {error}");
             return empty;
         }
     };
@@ -85,6 +80,118 @@ pub fn fetch_compat_data(out_dir: &Path) -> CompatData {
         elements,
         attributes,
     }
+}
+
+fn load_worker_json(cache_path: &Path, offline: bool) -> Result<Option<String>, String> {
+    if let Some(file_path) = compat_file_path()? {
+        println!("svg-data: using local compat file {}", file_path.display());
+        return read_json_file(&file_path, "local compat file").map(Some);
+    }
+
+    if std::env::var(SVG_COMPAT_URL_ENV).is_err()
+        && !offline
+        && let Some(worker_dir) = local_worker_dir()
+    {
+        match run_local_worker_cli(&worker_dir, cache_path) {
+            Ok(()) => {
+                println!(
+                    "svg-data: using local svg-compat CLI {}",
+                    worker_dir.display()
+                );
+                return read_json_file(cache_path, "local svg-compat CLI output").map(Some);
+            }
+            Err(error) => {
+                println!(
+                    "cargo::warning=compat: local svg-compat CLI failed: {error}; falling back to remote cache"
+                );
+            }
+        }
+    }
+
+    let url = std::env::var(SVG_COMPAT_URL_ENV).unwrap_or_else(|_| SVG_COMPAT_URL.to_string());
+    match ensure_cached(&url, cache_path, offline) {
+        Ok(true) => read_json_file(cache_path, "compat cache").map(Some),
+        Ok(false) => {
+            println!("cargo::warning=compat: no cached data and offline — skipping");
+            Ok(None)
+        }
+        Err(error) => Err(format!("fetch failed: {error}")),
+    }
+}
+
+fn compat_file_path() -> Result<Option<PathBuf>, String> {
+    let Ok(raw_path) = std::env::var(SVG_COMPAT_FILE_ENV) else {
+        return Ok(None);
+    };
+
+    let path = PathBuf::from(raw_path);
+    let resolved = if path.is_absolute() {
+        path
+    } else {
+        workspace_root()
+            .unwrap_or_else(|| Path::new(env!("CARGO_MANIFEST_DIR")).to_path_buf())
+            .join(path)
+    };
+
+    if resolved.exists() {
+        Ok(Some(resolved))
+    } else {
+        Err(format!(
+            "{} points to missing file {}",
+            SVG_COMPAT_FILE_ENV,
+            resolved.display()
+        ))
+    }
+}
+
+fn local_worker_dir() -> Option<PathBuf> {
+    let worker_dir = workspace_root()?.join("workers/svg-compat");
+    let cli_path = worker_dir.join("src/cli.ts");
+    cli_path.exists().then_some(worker_dir)
+}
+
+fn workspace_root() -> Option<PathBuf> {
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .ancestors()
+        .nth(2)
+        .map(Path::to_path_buf)
+}
+
+fn run_local_worker_cli(worker_dir: &Path, cache_path: &Path) -> Result<(), String> {
+    let output = Command::new("deno")
+        .arg("run")
+        .arg("-A")
+        .arg("src/cli.ts")
+        .arg("emit")
+        .arg("data")
+        .arg("--out")
+        .arg(cache_path)
+        .current_dir(worker_dir)
+        .output()
+        .map_err(|error| format!("spawn deno in {}: {error}", worker_dir.display()))?;
+
+    if output.status.success() {
+        return Ok(());
+    }
+
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let details = stderr.trim();
+    if !details.is_empty() {
+        return Err(format!("exit {}: {details}", output.status));
+    }
+
+    let details = stdout.trim();
+    if !details.is_empty() {
+        return Err(format!("exit {}: {details}", output.status));
+    }
+
+    Err(format!("exit {}", output.status))
+}
+
+fn read_json_file(path: &Path, label: &str) -> Result<String, String> {
+    fs::read_to_string(path)
+        .map_err(|error| format!("failed to read {label} {}: {error}", path.display()))
 }
 
 fn convert_element(entry: &worker_schema::WorkerElement) -> CompatEntry {

@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 
-/// Map legacy underscore-delimited xlink attribute names (as found in BCD
-/// data) to their canonical colon-delimited SVG namespace form.
+/// Map legacy underscore-delimited xlink attribute names (as found in BCD data)
+/// to their canonical colon-delimited SVG namespace form.
 ///
 /// Unrecognized names pass through unchanged.
 #[inline]

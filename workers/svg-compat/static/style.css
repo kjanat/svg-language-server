@@ -21,10 +21,6 @@
 	--badge-limited-fg: #92400e;
 	--chip-bg: rgba(0, 0, 0, 0.035);
 	--chip-border: rgba(0, 0, 0, 0.06);
-	--brand-chrome: #4285f4;
-	--brand-edge: #0078d4;
-	--brand-firefox: #ff7139;
-	--brand-safari: #1e90ff;
 	--radius: 8px;
 	--font-display:
 		"Avenir Next",
@@ -502,18 +498,28 @@ code {
 	font-variant-numeric: tabular-nums;
 	color: var(--text);
 }
-.chip-glyph {
+.chip-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 1px;
+	flex: none;
+}
+.chip-logo {
+	width: 18px;
+	height: 18px;
+	flex: none;
+	display: block;
+}
+.chip-status {
 	width: 14px;
-	height: 14px;
+	height: 18px;
 	flex: none;
 	display: block;
 }
 .chip-missing {
 	color: var(--text-muted);
 	background: transparent;
-}
-.chip-missing .chip-glyph {
-	opacity: 0.4;
+	opacity: 0.75;
 }
 
 /* ── error page ──────────────────────── */

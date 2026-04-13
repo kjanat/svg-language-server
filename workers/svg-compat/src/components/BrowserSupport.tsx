@@ -17,6 +17,9 @@ const BROWSERS: BrowserSpec[] = [
 	{ key: "safari", label: "Safari", src: "/browsers/safari.svg" },
 ];
 
+const STATUS_SUPPORTED = "/browsers/check.svg";
+const STATUS_MISSING = "/browsers/cross.svg";
+
 export function BrowserSupport({ support }: Props) {
 	return (
 		<ul class="browser-chips" aria-label="Minimum browser versions">
@@ -25,10 +28,19 @@ export function BrowserSupport({ support }: Props) {
 				const hasVersion = version !== undefined;
 				return (
 					<li
-						class={`chip chip-${key}${hasVersion ? "" : " chip-missing"}`}
-						title={hasVersion ? `${label} ${version}` : `${label} not recorded`}
+						class={`chip${hasVersion ? "" : " chip-missing"}`}
+						title={hasVersion ? `${label} ${version}` : `${label} not supported`}
 					>
-						<img class="chip-glyph" src={src} alt="" width="14" height="14" />
+						<span class="chip-badge">
+							<img class="chip-logo" src={src} alt="" width="18" height="18" />
+							<img
+								class="chip-status"
+								src={hasVersion ? STATUS_SUPPORTED : STATUS_MISSING}
+								alt=""
+								width="14"
+								height="18"
+							/>
+						</span>
 						<span class="chip-version">{hasVersion ? version : "—"}</span>
 					</li>
 				);

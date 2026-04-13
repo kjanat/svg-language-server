@@ -86,7 +86,7 @@ export function renderErrorHtml(
 	boot = 0,
 ): string {
 	const body = render(
-		<Layout dev={dev} boot={boot} title="SVG Compat Error">
+		<Layout dev={dev} boot={boot} bare title="SVG Compat Error">
 			<ErrorPage status={status} message={message} />
 		</Layout>,
 	);

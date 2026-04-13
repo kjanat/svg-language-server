@@ -11,8 +11,13 @@ interface Props {
 
 /**
  * Section shell with header, live-filter input, counter, and a child
- * table. The `id` must match the `data-filter-target` attribute on the
- * search input so table-filter.mjs can find the table rows to toggle.
+ * table. Emits its own `<script type="module" src="/table-filter.mjs">`
+ * so the section is self-contained — no Layout coordination needed.
+ * Multiple instances are free: module scripts dedupe by URL, so the
+ * filter module evaluates exactly once per page.
+ *
+ * The `id` must match the `data-filter-target` attribute on the search
+ * input so the filter script can find the table rows to toggle.
  */
 export function TableSection(
 	{ id, title, description, total, placeholder, children }: Props,
@@ -37,6 +42,7 @@ export function TableSection(
 				</label>
 			</header>
 			{children}
+			<script type="module" src="/table-filter.mjs"></script>
 		</section>
 	);
 }

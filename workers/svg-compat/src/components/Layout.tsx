@@ -5,11 +5,25 @@ interface Props {
 	dev: boolean;
 	boot: number;
 	title?: string;
+	/**
+	 * When true, skips the default `<main>` wrapper. The caller is
+	 * responsible for rendering its own landmark element — used by the
+	 * error page, which needs `<main class="error-page">` styles to
+	 * override the dashboard `main` layout without nesting landmarks.
+	 */
+	bare?: boolean;
 	children: ComponentChildren;
 }
 
+/**
+ * Document shell. Does not load any interactive scripts itself —
+ * each interactive component (TableSection, VersionCombo) emits its
+ * own `<script type="module" src>` so script loading is a property
+ * of the component tree, not of the layout. Module scripts dedupe
+ * by URL so multi-instance rendering is free.
+ */
 export function Layout(
-	{ dev, boot, title = "SVG Compat", children }: Props,
+	{ dev, boot, title = "SVG Compat", bare = false, children }: Props,
 ) {
 	return (
 		<html lang="en">
@@ -21,9 +35,7 @@ export function Layout(
 				<link rel="stylesheet" href="/style.css" />
 			</head>
 			<body>
-				<main>{children}</main>
-				<script type="module" src="/version-picker.mjs"></script>
-				<script type="module" src="/table-filter.mjs"></script>
+				{bare ? children : <main>{children}</main>}
 				<DevReload dev={dev} boot={boot} />
 			</body>
 		</html>

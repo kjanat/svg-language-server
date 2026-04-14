@@ -1,0 +1,88 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "SnapshotOverlayFile",
+	"description": "Typed payload for `data/derived/overlays/<from>__<to>.json`.",
+	"type": "object",
+	"properties": {
+		"attributes": {
+			"description": "Attribute membership changes between snapshots.",
+			"$ref": "#/$defs/MembershipDelta"
+		},
+		"elements": {
+			"description": "Element membership changes between snapshots.",
+			"$ref": "#/$defs/MembershipDelta"
+		},
+		"from_snapshot": {
+			"description": "Snapshot id the diff starts from.",
+			"$ref": "#/$defs/SpecSnapshotId"
+		},
+		"schema_version": {
+			"description": "Schema version for this derived payload.",
+			"type": "integer",
+			"format": "uint32",
+			"minimum": 0
+		},
+		"to_snapshot": {
+			"description": "Snapshot id the diff targets.",
+			"$ref": "#/$defs/SpecSnapshotId"
+		}
+	},
+	"required": [
+		"schema_version",
+		"from_snapshot",
+		"to_snapshot",
+		"elements",
+		"attributes"
+	],
+	"$defs": {
+		"MembershipDelta": {
+			"description": "Added and removed names between two adjacent snapshots.",
+			"type": "object",
+			"properties": {
+				"added": {
+					"description": "Names present in the target snapshot but not the source snapshot.",
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"removed": {
+					"description": "Names present in the source snapshot but not the target snapshot.",
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				}
+			},
+			"required": [
+				"added",
+				"removed"
+			]
+		},
+		"SpecSnapshotId": {
+			"description": "Canonical SVG spec snapshot identifiers supported by profile-aware lookups.",
+			"oneOf": [
+				{
+					"description": "SVG 1.1 Recommendation (2003-01-14).",
+					"type": "string",
+					"const": "Svg11Rec20030114"
+				},
+				{
+					"description": "SVG 1.1 Second Edition Recommendation (2011-08-16).",
+					"type": "string",
+					"const": "Svg11Rec20110816"
+				},
+				{
+					"description": "SVG 2 Candidate Recommendation (2018-10-04).",
+					"type": "string",
+					"const": "Svg2Cr20181004"
+				},
+				{
+					"description": "Pinned SVG 2 Editor's Draft snapshot (2025-09-14).",
+					"type": "string",
+					"const": "Svg2EditorsDraft20250914"
+				}
+			]
+		}
+	}
+}

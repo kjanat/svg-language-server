@@ -2,6 +2,7 @@
 
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -38,7 +39,7 @@ pub struct MembershipArtifacts {
 }
 
 /// Typed payload for `data/derived/union/elements.json`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct ElementMembershipFile {
     /// Schema version for this derived payload.
     pub schema_version: u32,
@@ -49,7 +50,7 @@ pub struct ElementMembershipFile {
 }
 
 /// Typed payload for `data/derived/union/attributes.json`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct AttributeMembershipFile {
     /// Schema version for this derived payload.
     pub schema_version: u32,
@@ -60,7 +61,7 @@ pub struct AttributeMembershipFile {
 }
 
 /// Canonical union membership for one named feature.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct FeatureMembershipRecord {
     /// Element or attribute name.
     pub name: String,
@@ -69,7 +70,7 @@ pub struct FeatureMembershipRecord {
 }
 
 /// Typed payload for `data/derived/overlays/<from>__<to>.json`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct SnapshotOverlayFile {
     /// Schema version for this derived payload.
     pub schema_version: u32,
@@ -84,7 +85,7 @@ pub struct SnapshotOverlayFile {
 }
 
 /// Added and removed names between two adjacent snapshots.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct MembershipDelta {
     /// Names present in the target snapshot but not the source snapshot.
     pub added: Vec<String>,

@@ -13,6 +13,7 @@ use std::{error::Error, fs, path::Path};
 use schemars::{Schema, schema_for};
 use serde_json::json;
 use svg_data::{
+    derived::{AttributeMembershipFile, ElementMembershipFile, SnapshotOverlayFile},
     extraction::SourceManifest,
     snapshot_schema::{
         CategoriesFile, ElementAttributeMatrixFile, ExceptionsFile, GrammarFile, ReviewFile,
@@ -20,14 +21,26 @@ use svg_data::{
     },
 };
 
+/// Published base URL for the schema files. `fileMatch` consumers that honor
+/// the catalog (SchemaStore-aware tools, `check-jsonschema --catalog`) fetch
+/// each schema from this location. The SchemaStore catalog meta-schema
+/// requires `format: uri` for `url`, so relative paths are not valid here.
+/// Local-development LSP uses the relative paths in `.zed/settings.json`.
+const RAW_SCHEMA_BASE_URL: &str = "https://raw.githubusercontent.com/kjanat/svg-language-server/master/crates/svg-data/data/schemas";
+
+fn schema_url(file_name: &str) -> String {
+    format!("{RAW_SCHEMA_BASE_URL}/{file_name}")
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     let schemas_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("data/schemas");
     fs::create_dir_all(&schemas_dir)?;
 
     let files: &[(&str, Schema)] = &[
         ("snapshot", schema_for!(SnapshotMetadataFile)),
-        // elements.json and attributes.json are top-level JSON arrays, so they
-        // cannot carry an inline "$schema" key. The catalog covers them instead.
+        // Per-snapshot elements.json and attributes.json are top-level JSON
+        // arrays, so they cannot carry an inline "$schema" key. The catalog
+        // covers them instead.
         ("elements", schema_for!(Vec<SnapshotElementRecord>)),
         ("attributes", schema_for!(Vec<SnapshotAttributeRecord>)),
         ("grammars", schema_for!(GrammarFile)),
@@ -39,6 +52,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         ("exceptions", schema_for!(ExceptionsFile)),
         ("review", schema_for!(ReviewFile)),
         ("source-manifest", schema_for!(SourceManifest)),
+        // Derived union artifacts are object wrappers, not bare arrays —
+        // they need their own schemas distinct from the per-snapshot ones.
+        ("union-elements", schema_for!(ElementMembershipFile)),
+        ("union-attributes", schema_for!(AttributeMembershipFile)),
+        ("overlay", schema_for!(SnapshotOverlayFile)),
     ];
 
     for (name, schema) in files {
@@ -49,67 +67,87 @@ fn main() -> Result<(), Box<dyn Error>> {
         println!("{}", path.display());
     }
 
-    // Catalog: maps file-glob patterns → schema URLs (relative to this file).
-    // fileMatch globs are matched against workspace-root-relative paths.
-    // url paths are relative to the catalog file itself.
+    // Catalog: maps file-glob patterns → schema URLs. Entries follow the
+    // SchemaStore catalog format — `fileMatch` globs are matched against
+    // workspace-root-relative paths, and `url` MUST be an absolute URI.
     // Tools: VS Code JSON language server, check-jsonschema --catalog, etc.
+    // Local-development LSP uses relative paths in `.zed/settings.json` so
+    // local schema edits take effect without going through the remote.
     let catalog = json!({
         "$schema": "https://json.schemastore.org/schema-catalog.json",
         "version": 1,
         "schemas": [
             {
                 "name": "SVG Spec Snapshot Metadata",
+                "description": "Per-snapshot metadata: id, date, status, pinned sources, ingestion info.",
                 "fileMatch": ["**/specs/*/snapshot.json"],
-                "url": "snapshot.schema.json"
+                "url": schema_url("snapshot.schema.json")
             },
             {
                 "name": "SVG Spec Elements",
-                "description": "Per-snapshot and union element records. Top-level array — no inline $schema possible.",
-                "fileMatch": [
-                    "**/specs/*/elements.json",
-                    "**/derived/union/elements.json"
-                ],
-                "url": "elements.schema.json"
+                "description": "Per-snapshot element records. Top-level array — no inline $schema possible.",
+                "fileMatch": ["**/specs/*/elements.json"],
+                "url": schema_url("elements.schema.json")
             },
             {
                 "name": "SVG Spec Attributes",
-                "description": "Per-snapshot and union attribute records. Top-level array — no inline $schema possible.",
-                "fileMatch": [
-                    "**/specs/*/attributes.json",
-                    "**/derived/union/attributes.json"
-                ],
-                "url": "attributes.schema.json"
+                "description": "Per-snapshot attribute records. Top-level array — no inline $schema possible.",
+                "fileMatch": ["**/specs/*/attributes.json"],
+                "url": schema_url("attributes.schema.json")
+            },
+            {
+                "name": "SVG Union Element Membership",
+                "description": "Derived union element membership across all canonical snapshots.",
+                "fileMatch": ["**/derived/union/elements.json"],
+                "url": schema_url("union-elements.schema.json")
+            },
+            {
+                "name": "SVG Union Attribute Membership",
+                "description": "Derived union attribute membership across all canonical snapshots.",
+                "fileMatch": ["**/derived/union/attributes.json"],
+                "url": schema_url("union-attributes.schema.json")
+            },
+            {
+                "name": "SVG Snapshot Overlay",
+                "description": "Adjacent snapshot diff for element and attribute membership.",
+                "fileMatch": ["**/derived/overlays/*.json"],
+                "url": schema_url("overlay.schema.json")
             },
             {
                 "name": "SVG Spec Grammars",
+                "description": "Attribute value grammar definitions keyed by grammar id.",
                 "fileMatch": ["**/specs/*/grammars.json"],
-                "url": "grammars.schema.json"
+                "url": schema_url("grammars.schema.json")
             },
             {
                 "name": "SVG Spec Categories",
+                "description": "Element category memberships used for content-model grouping.",
                 "fileMatch": ["**/specs/*/categories.json"],
-                "url": "categories.schema.json"
+                "url": schema_url("categories.schema.json")
             },
             {
                 "name": "SVG Element–Attribute Matrix",
+                "description": "Per-element attribute applicability matrix for the snapshot.",
                 "fileMatch": ["**/specs/*/element_attribute_matrix.json"],
-                "url": "element_attribute_matrix.schema.json"
+                "url": schema_url("element_attribute_matrix.schema.json")
             },
             {
                 "name": "SVG Spec Exceptions",
+                "description": "Hand-curated exceptions and overrides applied on top of extracted data.",
                 "fileMatch": ["**/specs/*/exceptions.json"],
-                "url": "exceptions.schema.json"
+                "url": schema_url("exceptions.schema.json")
             },
             {
                 "name": "SVG Spec Review",
+                "description": "Extraction review notes and confidence annotations per fact.",
                 "fileMatch": ["**/specs/*/review.json"],
-                "url": "review.schema.json"
+                "url": schema_url("review.schema.json")
             },
             {
                 "name": "SVG Source Manifest",
                 "description": "TOML source manifests already carry a #:schema comment; this entry covers JSON-tool consumers.",
                 "fileMatch": ["**/sources/*.toml"],
-                "url": "source-manifest.schema.json"
+                "url": schema_url("source-manifest.schema.json")
             }
         ]
     });

@@ -6,6 +6,58 @@
 		"TypeScript": { "language_servers": ["deno", "!vtsls", "tsgo"] }
 	},
 	"lsp": {
+		"json-language-server": {
+			"settings": {
+				"json": {
+					"schemas": [
+						{
+							"fileMatch": ["**/specs/*/snapshot.json"],
+							"url": "./crates/svg-data/data/schemas/snapshot.schema.json"
+						},
+						{
+							"fileMatch": ["**/specs/*/elements.json"],
+							"url": "./crates/svg-data/data/schemas/elements.schema.json"
+						},
+						{
+							"fileMatch": ["**/specs/*/attributes.json"],
+							"url": "./crates/svg-data/data/schemas/attributes.schema.json"
+						},
+						{
+							"fileMatch": ["**/derived/union/elements.json"],
+							"url": "./crates/svg-data/data/schemas/union-elements.schema.json"
+						},
+						{
+							"fileMatch": ["**/derived/union/attributes.json"],
+							"url": "./crates/svg-data/data/schemas/union-attributes.schema.json"
+						},
+						{
+							"fileMatch": ["**/derived/overlays/*.json"],
+							"url": "./crates/svg-data/data/schemas/overlay.schema.json"
+						},
+						{
+							"fileMatch": ["**/specs/*/grammars.json"],
+							"url": "./crates/svg-data/data/schemas/grammars.schema.json"
+						},
+						{
+							"fileMatch": ["**/specs/*/categories.json"],
+							"url": "./crates/svg-data/data/schemas/categories.schema.json"
+						},
+						{
+							"fileMatch": ["**/specs/*/element_attribute_matrix.json"],
+							"url": "./crates/svg-data/data/schemas/element_attribute_matrix.schema.json"
+						},
+						{
+							"fileMatch": ["**/specs/*/exceptions.json"],
+							"url": "./crates/svg-data/data/schemas/exceptions.schema.json"
+						},
+						{
+							"fileMatch": ["**/specs/*/review.json"],
+							"url": "./crates/svg-data/data/schemas/review.schema.json"
+						}
+					]
+				}
+			}
+		},
 		"rust-analyzer": {
 			"initialization_options": {
 				"cargo": {

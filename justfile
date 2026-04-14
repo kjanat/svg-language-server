@@ -10,6 +10,7 @@ alias t := test
 alias b := build
 alias br := build-release
 alias cmt := commit
+alias gs := generate-schemas
 
 # Returns the list of all available commands
 default:
@@ -96,8 +97,8 @@ run-lsp *ARGS:
 # Let gippity write a nice commit message
 [arg("model", long="model", short="m")]
 [arg("variant", long="variant", short="v")]
-commit model="openai/gpt-5.4" variant="medium" *$MESSAGE:
-    opencode run --command commit --model={{ model }} --variant={{ variant }} "$MESSAGE"
+commit model="openai/gpt-5.4" variant="medium" message='':
+    opencode run --command commit --model={{ model }} --variant={{ variant }} '{{ message }}'
 
 # Validate generated dist CI matches checked-in workflow
 dist-check:
@@ -110,6 +111,11 @@ dist-plan *ARGS:
 # Refresh generated dist CI after config changes
 dist-generate:
     cargo dist generate --mode=ci
+
+# Regenerate svg-data JSON schemas and format the outputs
+generate-schemas:
+    cargo run -p svg-data --example generate_schemas
+    dprint fmt 'crates/svg-data/**/*.json'
 
 # Prepare a release commit and local tag without pushing
 release-prepare VERSION:

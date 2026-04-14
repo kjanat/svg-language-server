@@ -1,3 +1,5 @@
+#:schema ../schemas/source-manifest.schema.json
+
 schema_version   = 1
 manifest_id      = "foreign-references"
 title            = "SVG external specification pins"

@@ -1,4 +1,5 @@
 {
+	"$schema": "../../schemas/snapshot.schema.json",
 	"schema_version": 1,
 	"snapshot": "Svg2Cr20181004",
 	"title": "SVG 2 Candidate Recommendation",

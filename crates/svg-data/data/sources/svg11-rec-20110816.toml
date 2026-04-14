@@ -1,3 +1,5 @@
+#:schema ../schemas/source-manifest.schema.json
+
 schema_version   = 1
 manifest_id      = "svg11-rec-20110816"
 snapshot         = "Svg11Rec20110816"

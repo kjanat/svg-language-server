@@ -6,6 +6,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
@@ -158,7 +159,7 @@ impl StdError for Error {
 }
 
 /// Checked-in manifest describing one snapshot or external pin set.
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
 pub struct SourceManifest {
     /// Schema version for the manifest file.
     pub schema_version: u32,
@@ -303,7 +304,7 @@ impl SourceManifest {
 }
 
 /// Top-level source status classification.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
 pub enum SourceManifestStatus {
     /// Recommendation-class snapshot.
     #[serde(rename = "REC")]
@@ -331,7 +332,7 @@ impl fmt::Display for SourceManifestStatus {
 }
 
 /// Authority precedence policy for a source manifest.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
 pub enum SourceAuthorityPolicy {
     /// Prefer the dated W3C TR snapshot.
     #[serde(rename = "tr-first")]
@@ -345,7 +346,7 @@ pub enum SourceAuthorityPolicy {
 }
 
 /// Top-level authority metadata for a manifest.
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
 pub struct ManifestAuthority {
     /// Authority kind.
     pub kind: String,
@@ -356,7 +357,7 @@ pub struct ManifestAuthority {
 }
 
 /// Top-level manifest pin.
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
 pub struct ManifestPin {
     /// Pin kind.
     pub kind: ManifestPinKind,
@@ -367,7 +368,7 @@ pub struct ManifestPin {
 }
 
 /// Manifest pin kind.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
 pub enum ManifestPinKind {
     /// Pinned absolute URL.
     #[serde(rename = "dated-url")]
@@ -378,7 +379,7 @@ pub enum ManifestPinKind {
 }
 
 /// Checksum policy declared by a manifest.
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
 pub struct ManifestChecksum {
     /// Checksum strategy name.
     pub strategy: String,
@@ -387,7 +388,7 @@ pub struct ManifestChecksum {
 }
 
 /// Fetch policy declared by a manifest.
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
 pub struct ManifestFetch {
     /// Fetch policy name.
     pub policy: String,
@@ -398,7 +399,7 @@ pub struct ManifestFetch {
 }
 
 /// One manifest input, either snapshot-native or foreign-reference-only.
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
 #[serde(untagged)]
 pub enum SourceManifestInput {
     /// Snapshot-native input.
@@ -453,7 +454,7 @@ impl SourceManifestInput {
 }
 
 /// Snapshot-native manifest input.
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
 pub struct SnapshotManifestInput {
     /// Stable input id.
     pub id: String,
@@ -474,7 +475,7 @@ pub struct SnapshotManifestInput {
 }
 
 /// Authority classification for a snapshot-native manifest input.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum SnapshotInputAuthority {
     /// Normative or canonical-inventory source.
@@ -493,7 +494,7 @@ impl SnapshotInputAuthority {
 }
 
 /// Foreign pinned reference declared as an input.
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
 pub struct ForeignManifestInput {
     /// Stable input id.
     pub id: String,
@@ -693,25 +694,55 @@ impl SnapshotDatasetWriter {
             source,
         })?;
 
+        let schema = |name: &str| Some(format!("../../schemas/{name}.schema.json"));
         let writes = [
-            write_json_file(snapshot_root.join("snapshot.json"), &dataset.metadata),
-            write_json_file(snapshot_root.join("elements.json"), &dataset.elements),
-            write_json_file(snapshot_root.join("attributes.json"), &dataset.attributes),
-            write_json_file(snapshot_root.join("grammars.json"), &dataset.grammars),
-            write_json_file(snapshot_root.join("categories.json"), &dataset.categories),
+            write_json_file(
+                snapshot_root.join("snapshot.json"),
+                &dataset.metadata,
+                schema("snapshot"),
+            ),
+            write_json_file(
+                snapshot_root.join("elements.json"),
+                &dataset.elements,
+                schema("elements"),
+            ),
+            write_json_file(
+                snapshot_root.join("attributes.json"),
+                &dataset.attributes,
+                schema("attributes"),
+            ),
+            write_json_file(
+                snapshot_root.join("grammars.json"),
+                &dataset.grammars,
+                schema("grammars"),
+            ),
+            write_json_file(
+                snapshot_root.join("categories.json"),
+                &dataset.categories,
+                schema("categories"),
+            ),
             write_json_file(
                 snapshot_root.join("element_attribute_matrix.json"),
                 &dataset.element_attribute_matrix,
+                schema("element_attribute_matrix"),
             ),
-            write_json_file(snapshot_root.join("exceptions.json"), &dataset.exceptions),
-            write_json_file(snapshot_root.join("review.json"), &dataset.review),
+            write_json_file(
+                snapshot_root.join("exceptions.json"),
+                &dataset.exceptions,
+                schema("exceptions"),
+            ),
+            write_json_file(
+                snapshot_root.join("review.json"),
+                &dataset.review,
+                schema("review"),
+            ),
         ];
 
         writes.into_iter().collect()
     }
 }
 
-fn write_json_file<T>(path: PathBuf, value: &T) -> Result<PathBuf>
+fn write_json_file<T>(path: PathBuf, value: &T, schema_url: Option<String>) -> Result<PathBuf>
 where
     T: Serialize,
 {
@@ -719,6 +750,11 @@ where
         path: path.clone(),
         source,
     })?;
+    // Inject $schema as the first key for object-typed payloads.
+    // Array payloads (elements.json, attributes.json) silently skip injection.
+    if let (Some(url), true, Some(newline)) = (schema_url, json.starts_with('{'), json.find('\n')) {
+        json.insert_str(newline + 1, &format!("  \"$schema\": \"{url}\",\n"));
+    }
     json.push('\n');
     write_bytes_with_parents(&path, json.as_bytes())?;
     Ok(path)

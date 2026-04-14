@@ -1,4 +1,5 @@
 {
+	"$schema": "../../schemas/review.schema.json",
 	"schema_version": 1,
 	"counts": {
 		"elements": 63,

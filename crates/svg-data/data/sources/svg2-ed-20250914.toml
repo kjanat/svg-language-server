@@ -1,3 +1,5 @@
+#:schema ../schemas/source-manifest.schema.json
+
 schema_version   = 1
 manifest_id      = "svg2-ed-20250914"
 snapshot         = "Svg2EditorsDraft20250914"

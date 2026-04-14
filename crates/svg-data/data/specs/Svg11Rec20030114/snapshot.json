@@ -1,4 +1,5 @@
 {
+	"$schema": "../../schemas/snapshot.schema.json",
 	"schema_version": 1,
 	"snapshot": "Svg11Rec20030114",
 	"title": "SVG 1.1 First Edition",

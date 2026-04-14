@@ -1,4 +1,5 @@
 {
+	"$schema": "../../schemas/element_attribute_matrix.schema.json",
 	"schema_version": 1,
 	"edges": [
 		{

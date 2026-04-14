@@ -1,0 +1,372 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "SourceManifest",
+	"description": "Checked-in manifest describing one snapshot or external pin set.",
+	"type": "object",
+	"properties": {
+		"authority": {
+			"description": "Top-level authority descriptor when one exists.",
+			"anyOf": [
+				{
+					"$ref": "#/$defs/ManifestAuthority"
+				},
+				{
+					"type": "null"
+				}
+			],
+			"default": null
+		},
+		"authority_policy": {
+			"description": "Authority precedence strategy.",
+			"$ref": "#/$defs/SourceAuthorityPolicy"
+		},
+		"checksum": {
+			"description": "Checksum policy.",
+			"$ref": "#/$defs/ManifestChecksum"
+		},
+		"fetch": {
+			"description": "Fetch policy.",
+			"$ref": "#/$defs/ManifestFetch"
+		},
+		"inputs": {
+			"description": "Inputs consumed by the extractor.",
+			"type": "array",
+			"items": {
+				"$ref": "#/$defs/SourceManifestInput"
+			}
+		},
+		"manifest_id": {
+			"description": "Stable manifest id.",
+			"type": "string"
+		},
+		"pin": {
+			"description": "Top-level pin when one exists.",
+			"anyOf": [
+				{
+					"$ref": "#/$defs/ManifestPin"
+				},
+				{
+					"type": "null"
+				}
+			],
+			"default": null
+		},
+		"schema_version": {
+			"description": "Schema version for the manifest file.",
+			"type": "integer",
+			"format": "uint32",
+			"minimum": 0
+		},
+		"snapshot": {
+			"description": "Snapshot id if this manifest drives a checked-in snapshot dataset.",
+			"anyOf": [
+				{
+					"$ref": "#/$defs/SpecSnapshotId"
+				},
+				{
+					"type": "null"
+				}
+			],
+			"default": null
+		},
+		"status": {
+			"description": "Source status classification.",
+			"$ref": "#/$defs/SourceManifestStatus"
+		},
+		"title": {
+			"description": "Human-readable title.",
+			"type": "string"
+		}
+	},
+	"required": [
+		"schema_version",
+		"manifest_id",
+		"title",
+		"status",
+		"authority_policy",
+		"checksum",
+		"fetch",
+		"inputs"
+	],
+	"$defs": {
+		"ForeignManifestInput": {
+			"description": "Foreign pinned reference declared as an input.",
+			"type": "object",
+			"properties": {
+				"authority": {
+					"description": "Human-readable authority.",
+					"type": "string"
+				},
+				"id": {
+					"description": "Stable input id.",
+					"type": "string"
+				},
+				"kind": {
+					"description": "Raw foreign source kind.",
+					"type": "string"
+				},
+				"pin": {
+					"description": "Pinned external target.",
+					"type": "string"
+				},
+				"role": {
+					"description": "Human-readable role.",
+					"type": "string"
+				},
+				"scope": {
+					"description": "Scope summary.",
+					"type": "string"
+				}
+			},
+			"required": [
+				"id",
+				"authority",
+				"kind",
+				"scope",
+				"pin",
+				"role"
+			]
+		},
+		"ManifestAuthority": {
+			"description": "Top-level authority metadata for a manifest.",
+			"type": "object",
+			"properties": {
+				"kind": {
+					"description": "Authority kind.",
+					"type": "string"
+				},
+				"title": {
+					"description": "Human-readable authority title.",
+					"type": "string"
+				},
+				"url": {
+					"description": "Canonical authority URL.",
+					"type": "string"
+				}
+			},
+			"required": [
+				"kind",
+				"title",
+				"url"
+			]
+		},
+		"ManifestChecksum": {
+			"description": "Checksum policy declared by a manifest.",
+			"type": "object",
+			"properties": {
+				"note": {
+					"description": "Human note about the checksum policy.",
+					"type": "string"
+				},
+				"strategy": {
+					"description": "Checksum strategy name.",
+					"type": "string"
+				}
+			},
+			"required": [
+				"strategy",
+				"note"
+			]
+		},
+		"ManifestFetch": {
+			"description": "Fetch policy declared by a manifest.",
+			"type": "object",
+			"properties": {
+				"allow_live_refresh": {
+					"description": "Whether live refresh is allowed.",
+					"type": "boolean"
+				},
+				"cache_subdir": {
+					"description": "Relative cache subdirectory.",
+					"type": "string"
+				},
+				"policy": {
+					"description": "Fetch policy name.",
+					"type": "string"
+				}
+			},
+			"required": [
+				"policy",
+				"cache_subdir",
+				"allow_live_refresh"
+			]
+		},
+		"ManifestPin": {
+			"description": "Top-level manifest pin.",
+			"type": "object",
+			"properties": {
+				"date": {
+					"description": "Snapshot or pin date.",
+					"type": "string"
+				},
+				"kind": {
+					"description": "Pin kind.",
+					"$ref": "#/$defs/ManifestPinKind"
+				},
+				"value": {
+					"description": "Exact pinned value.",
+					"type": "string"
+				}
+			},
+			"required": [
+				"kind",
+				"value",
+				"date"
+			]
+		},
+		"ManifestPinKind": {
+			"description": "Manifest pin kind.",
+			"oneOf": [
+				{
+					"description": "Pinned absolute URL.",
+					"type": "string",
+					"const": "dated-url"
+				},
+				{
+					"description": "Pinned repository commit hash.",
+					"type": "string",
+					"const": "git-commit"
+				}
+			]
+		},
+		"SnapshotInputAuthority": {
+			"description": "Authority classification for a snapshot-native manifest input.",
+			"oneOf": [
+				{
+					"description": "Normative or canonical-inventory source.",
+					"type": "string",
+					"const": "primary"
+				},
+				{
+					"description": "Assistive or cross-check source — does not override authority.",
+					"type": "string",
+					"const": "supporting"
+				}
+			]
+		},
+		"SnapshotManifestInput": {
+			"description": "Snapshot-native manifest input.",
+			"type": "object",
+			"properties": {
+				"authority": {
+					"description": "Canonical authority classification — drives provenance gating rather\nthan parsing the free-form `role` string.",
+					"$ref": "#/$defs/SnapshotInputAuthority"
+				},
+				"id": {
+					"description": "Stable input id.",
+					"type": "string"
+				},
+				"kind": {
+					"description": "Raw source kind.",
+					"type": "string"
+				},
+				"locator": {
+					"description": "Fetch locator.",
+					"type": "string"
+				},
+				"path": {
+					"description": "Optional repo-relative path for git-backed manifests, so per-input\n`SourcePin::GitCommit { path }` stays distinguishable when several\ninputs share the same commit.",
+					"type": [
+						"string",
+						"null"
+					],
+					"default": null
+				},
+				"role": {
+					"description": "Human-readable role.",
+					"type": "string"
+				}
+			},
+			"required": [
+				"id",
+				"kind",
+				"locator",
+				"role",
+				"authority"
+			]
+		},
+		"SourceAuthorityPolicy": {
+			"description": "Authority precedence policy for a source manifest.",
+			"oneOf": [
+				{
+					"description": "Prefer the dated W3C TR snapshot.",
+					"type": "string",
+					"const": "tr-first"
+				},
+				{
+					"description": "Prefer a pinned repository commit.",
+					"type": "string",
+					"const": "git-first"
+				},
+				{
+					"description": "Typed foreign reference set.",
+					"type": "string",
+					"const": "typed-foreign-refs"
+				}
+			]
+		},
+		"SourceManifestInput": {
+			"description": "One manifest input, either snapshot-native or foreign-reference-only.",
+			"anyOf": [
+				{
+					"description": "Snapshot-native input.",
+					"$ref": "#/$defs/SnapshotManifestInput"
+				},
+				{
+					"description": "Foreign-reference-only input.",
+					"$ref": "#/$defs/ForeignManifestInput"
+				}
+			]
+		},
+		"SourceManifestStatus": {
+			"description": "Top-level source status classification.",
+			"oneOf": [
+				{
+					"description": "Recommendation-class snapshot.",
+					"type": "string",
+					"const": "REC"
+				},
+				{
+					"description": "Candidate recommendation snapshot.",
+					"type": "string",
+					"const": "CR"
+				},
+				{
+					"description": "Editor's draft snapshot.",
+					"type": "string",
+					"const": "ED"
+				},
+				{
+					"description": "Mixed-status foreign pin set.",
+					"type": "string",
+					"const": "mixed"
+				}
+			]
+		},
+		"SpecSnapshotId": {
+			"description": "Canonical SVG spec snapshot identifiers supported by profile-aware lookups.",
+			"oneOf": [
+				{
+					"description": "SVG 1.1 Recommendation (2003-01-14).",
+					"type": "string",
+					"const": "Svg11Rec20030114"
+				},
+				{
+					"description": "SVG 1.1 Second Edition Recommendation (2011-08-16).",
+					"type": "string",
+					"const": "Svg11Rec20110816"
+				},
+				{
+					"description": "SVG 2 Candidate Recommendation (2018-10-04).",
+					"type": "string",
+					"const": "Svg2Cr20181004"
+				},
+				{
+					"description": "Pinned SVG 2 Editor's Draft snapshot (2025-09-14).",
+					"type": "string",
+					"const": "Svg2EditorsDraft20250914"
+				}
+			]
+		}
+	}
+}

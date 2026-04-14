@@ -1,0 +1,387 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "ExceptionsFile",
+	"description": "Typed payload for `exceptions.json`.",
+	"type": "object",
+	"properties": {
+		"exceptions": {
+			"description": "Curated exceptions for prose-only or source-bug cases.",
+			"type": "array",
+			"items": {
+				"$ref": "#/$defs/SnapshotException"
+			}
+		},
+		"schema_version": {
+			"description": "Schema version for the exceptions payload.",
+			"type": "integer",
+			"format": "uint32",
+			"minimum": 0
+		}
+	},
+	"required": [
+		"schema_version",
+		"exceptions"
+	],
+	"$defs": {
+		"ExceptionDisposition": {
+			"description": "Reviewer-approved action for an exception.",
+			"oneOf": [
+				{
+					"description": "Override extracted data with the curated fix.",
+					"type": "string",
+					"const": "corrected"
+				},
+				{
+					"description": "Keep extracted data but flag it for manual review.",
+					"type": "string",
+					"const": "deferred"
+				}
+			]
+		},
+		"ExceptionScope": {
+			"description": "Scope of a curated exception.",
+			"oneOf": [
+				{
+					"description": "Exception applies to snapshot metadata.",
+					"type": "object",
+					"properties": {
+						"kind": {
+							"type": "string",
+							"const": "snapshot"
+						}
+					},
+					"required": [
+						"kind"
+					]
+				},
+				{
+					"description": "Exception applies to one element.",
+					"type": "object",
+					"properties": {
+						"kind": {
+							"type": "string",
+							"const": "element"
+						},
+						"name": {
+							"description": "Element name.",
+							"type": "string"
+						}
+					},
+					"required": [
+						"kind",
+						"name"
+					]
+				},
+				{
+					"description": "Exception applies to one attribute.",
+					"type": "object",
+					"properties": {
+						"kind": {
+							"type": "string",
+							"const": "attribute"
+						},
+						"name": {
+							"description": "Attribute name.",
+							"type": "string"
+						}
+					},
+					"required": [
+						"kind",
+						"name"
+					]
+				},
+				{
+					"description": "Exception applies to one element/attribute edge.",
+					"type": "object",
+					"properties": {
+						"attribute": {
+							"description": "Attribute name.",
+							"type": "string"
+						},
+						"element": {
+							"description": "Element name.",
+							"type": "string"
+						},
+						"kind": {
+							"type": "string",
+							"const": "element_attribute"
+						}
+					},
+					"required": [
+						"kind",
+						"element",
+						"attribute"
+					]
+				},
+				{
+					"description": "Exception applies to one grammar.",
+					"type": "object",
+					"properties": {
+						"grammar_id": {
+							"description": "Grammar id.",
+							"type": "string"
+						},
+						"kind": {
+							"type": "string",
+							"const": "grammar"
+						}
+					},
+					"required": [
+						"kind",
+						"grammar_id"
+					]
+				}
+			]
+		},
+		"ExtractionConfidence": {
+			"description": "Confidence attached to an extracted fact.",
+			"oneOf": [
+				{
+					"description": "Parsed from a structured authoritative source.",
+					"type": "string",
+					"const": "exact"
+				},
+				{
+					"description": "Derived from a reliable but indirect source.",
+					"type": "string",
+					"const": "derived"
+				},
+				{
+					"description": "Human-curated fallback.",
+					"type": "string",
+					"const": "manual"
+				}
+			]
+		},
+		"FactProvenance": {
+			"description": "Provenance attached to a normalized fact.",
+			"type": "object",
+			"properties": {
+				"confidence": {
+					"description": "Extraction confidence classification.",
+					"$ref": "#/$defs/ExtractionConfidence"
+				},
+				"locator": {
+					"description": "Concrete source locator within the pinned input.",
+					"$ref": "#/$defs/SourceLocator"
+				},
+				"pin": {
+					"description": "Exact pinned location for the source.",
+					"$ref": "#/$defs/SourcePin"
+				},
+				"source_id": {
+					"description": "Source input id from the pinned manifest.",
+					"type": "string"
+				},
+				"source_kind": {
+					"description": "Kind of source material used for extraction.",
+					"$ref": "#/$defs/ProvenanceSourceKind"
+				}
+			},
+			"required": [
+				"source_id",
+				"source_kind",
+				"pin",
+				"locator",
+				"confidence"
+			]
+		},
+		"ProvenanceSourceKind": {
+			"description": "Source material used for a normalized fact.",
+			"oneOf": [
+				{
+					"description": "W3C TR or editor's draft chapter HTML.",
+					"type": "string",
+					"const": "html"
+				},
+				{
+					"description": "Element or attribute index page.",
+					"type": "string",
+					"const": "index"
+				},
+				{
+					"description": "Flattened DTD or DTD-derived source.",
+					"type": "string",
+					"const": "dtd"
+				},
+				{
+					"description": "`definitions.xml` or companion definitions file.",
+					"type": "string",
+					"const": "definitions_xml"
+				},
+				{
+					"description": "Manual curated note.",
+					"type": "string",
+					"const": "manual_review"
+				}
+			]
+		},
+		"SnapshotException": {
+			"description": "Curated exception attached to a snapshot fact.",
+			"type": "object",
+			"properties": {
+				"disposition": {
+					"description": "Human-reviewed disposition.",
+					"$ref": "#/$defs/ExceptionDisposition"
+				},
+				"id": {
+					"description": "Stable exception id.",
+					"type": "string"
+				},
+				"provenance": {
+					"description": "Provenance for the exception source.",
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/FactProvenance"
+					}
+				},
+				"reason": {
+					"description": "Why the exception exists.",
+					"type": "string"
+				},
+				"scope": {
+					"description": "Narrow scope for the exception.",
+					"$ref": "#/$defs/ExceptionScope"
+				}
+			},
+			"required": [
+				"id",
+				"scope",
+				"disposition",
+				"reason",
+				"provenance"
+			]
+		},
+		"SourceLocator": {
+			"description": "Exact location inside a pinned source.",
+			"oneOf": [
+				{
+					"description": "HTML fragment id.",
+					"type": "object",
+					"properties": {
+						"anchor": {
+							"description": "Fragment id or anchor name.",
+							"type": "string"
+						},
+						"kind": {
+							"type": "string",
+							"const": "fragment"
+						}
+					},
+					"required": [
+						"kind",
+						"anchor"
+					]
+				},
+				{
+					"description": "Structured definition in a file.",
+					"type": "object",
+					"properties": {
+						"file": {
+							"description": "File path relative to the pinned source root.",
+							"type": "string"
+						},
+						"id": {
+							"description": "Definition id within the file.",
+							"type": "string"
+						},
+						"kind": {
+							"type": "string",
+							"const": "definition"
+						}
+					},
+					"required": [
+						"kind",
+						"file",
+						"id"
+					]
+				},
+				{
+					"description": "Specific line range in a text file.",
+					"type": "object",
+					"properties": {
+						"end_line": {
+							"description": "Inclusive ending 1-based line number.",
+							"type": "integer",
+							"format": "uint32",
+							"minimum": 1
+						},
+						"file": {
+							"description": "File path relative to the pinned source root.",
+							"type": "string"
+						},
+						"kind": {
+							"type": "string",
+							"const": "line_range"
+						},
+						"start_line": {
+							"description": "Starting 1-based line number.",
+							"type": "integer",
+							"format": "uint32",
+							"minimum": 1
+						}
+					},
+					"required": [
+						"kind",
+						"file",
+						"start_line",
+						"end_line"
+					]
+				}
+			]
+		},
+		"SourcePin": {
+			"description": "Exact pin used to make source fetching reproducible.",
+			"oneOf": [
+				{
+					"description": "Pinned absolute URL.",
+					"type": "object",
+					"properties": {
+						"kind": {
+							"type": "string",
+							"const": "url"
+						},
+						"url": {
+							"description": "Canonical source URL.",
+							"type": "string"
+						}
+					},
+					"required": [
+						"kind",
+						"url"
+					]
+				},
+				{
+					"description": "Pinned repository commit and optional path.",
+					"type": "object",
+					"properties": {
+						"commit": {
+							"description": "Exact commit hash.",
+							"type": "string"
+						},
+						"kind": {
+							"type": "string",
+							"const": "git_commit"
+						},
+						"path": {
+							"description": "Optional path within the repo.",
+							"type": [
+								"string",
+								"null"
+							]
+						},
+						"repository": {
+							"description": "Repository URL.",
+							"type": "string"
+						}
+					},
+					"required": [
+						"kind",
+						"repository",
+						"commit"
+					]
+				}
+			]
+		}
+	}
+}

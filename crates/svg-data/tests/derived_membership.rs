@@ -118,7 +118,7 @@ fn overlays_match_adjacent_snapshot_diffs() {
         .unwrap_or_else(|| panic!("expected SVG 1.1 second -> SVG 2 CR overlay"));
     assert_eq!(overlay_2011_to_2018.elements.added, ["feDropShadow"]);
     assert!(overlay_2011_to_2018.elements.removed.is_empty());
-    assert_eq!(overlay_2011_to_2018.attributes.added, ["href"]);
+    assert_eq!(overlay_2011_to_2018.attributes.added, ["href", "method"]);
     assert_eq!(
         overlay_2011_to_2018.attributes.removed,
         ["xlink:actuate", "xlink:href", "xlink:show", "xlink:title"]

@@ -1245,7 +1245,7 @@
 					},
 					"locator": {
 						"kind": "fragment",
-						"anchor": "transform"
+						"anchor": "gradientTransform"
 					},
 					"confidence": "derived"
 				},
@@ -1258,7 +1258,7 @@
 					},
 					"locator": {
 						"kind": "fragment",
-						"anchor": "transform"
+						"anchor": "gradientTransform"
 					},
 					"confidence": "derived"
 				}

@@ -269,24 +269,6 @@
 			]
 		},
 		{
-			"name": "data_attributes",
-			"present_in": [
-				"Svg11Rec20030114",
-				"Svg11Rec20110816",
-				"Svg2Cr20181004",
-				"Svg2EditorsDraft20250914"
-			]
-		},
-		{
-			"name": "data_uri",
-			"present_in": [
-				"Svg11Rec20030114",
-				"Svg11Rec20110816",
-				"Svg2Cr20181004",
-				"Svg2EditorsDraft20250914"
-			]
-		},
-		{
 			"name": "decoding",
 			"present_in": [
 				"Svg11Rec20030114",
@@ -414,15 +396,6 @@
 		},
 		{
 			"name": "exponent",
-			"present_in": [
-				"Svg11Rec20030114",
-				"Svg11Rec20110816",
-				"Svg2Cr20181004",
-				"Svg2EditorsDraft20250914"
-			]
-		},
-		{
-			"name": "external_uri",
 			"present_in": [
 				"Svg11Rec20030114",
 				"Svg11Rec20110816",
@@ -942,6 +915,13 @@
 			]
 		},
 		{
+			"name": "method",
+			"present_in": [
+				"Svg2Cr20181004",
+				"Svg2EditorsDraft20250914"
+			]
+		},
+		{
 			"name": "mode",
 			"present_in": [
 				"Svg11Rec20030114",
@@ -961,15 +941,6 @@
 		},
 		{
 			"name": "offset",
-			"present_in": [
-				"Svg11Rec20030114",
-				"Svg11Rec20110816",
-				"Svg2Cr20181004",
-				"Svg2EditorsDraft20250914"
-			]
-		},
-		{
-			"name": "omit_external_fragment",
 			"present_in": [
 				"Svg11Rec20030114",
 				"Svg11Rec20110816",
@@ -1617,15 +1588,6 @@
 			]
 		},
 		{
-			"name": "tooltip_display",
-			"present_in": [
-				"Svg11Rec20030114",
-				"Svg11Rec20110816",
-				"Svg2Cr20181004",
-				"Svg2EditorsDraft20250914"
-			]
-		},
-		{
 			"name": "transform",
 			"present_in": [
 				"Svg11Rec20030114",
@@ -1804,24 +1766,6 @@
 			"present_in": [
 				"Svg11Rec20030114",
 				"Svg11Rec20110816"
-			]
-		},
-		{
-			"name": "xml_lang",
-			"present_in": [
-				"Svg11Rec20030114",
-				"Svg11Rec20110816",
-				"Svg2Cr20181004",
-				"Svg2EditorsDraft20250914"
-			]
-		},
-		{
-			"name": "xml_space",
-			"present_in": [
-				"Svg11Rec20030114",
-				"Svg11Rec20110816",
-				"Svg2Cr20181004",
-				"Svg2EditorsDraft20250914"
 			]
 		},
 		{

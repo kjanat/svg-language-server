@@ -2,291 +2,6 @@
 	"schema_version": 1,
 	"element_categories": [
 		{
-			"element": "svg",
-			"category": "container",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "svg"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "g",
-			"category": "container",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "g"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "defs",
-			"category": "container",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "defs"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "use",
-			"category": "structural",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "use"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "symbol",
-			"category": "container",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "symbol"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "rect",
-			"category": "shape",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "rect"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "circle",
-			"category": "shape",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "circle"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "ellipse",
-			"category": "shape",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "ellipse"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "line",
-			"category": "shape",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "line"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "polyline",
-			"category": "shape",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "polyline"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "polygon",
-			"category": "shape",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "polygon"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "path",
-			"category": "shape",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "path"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "text",
-			"category": "text",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "text"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "tspan",
-			"category": "text",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "tspan"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "textPath",
-			"category": "text",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "textPath"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
 			"element": "a",
 			"category": "container",
 			"provenance": [
@@ -300,329 +15,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "a"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "image",
-			"category": "structural",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "image"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "title",
-			"category": "descriptive",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "title"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "desc",
-			"category": "descriptive",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "desc"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "metadata",
-			"category": "descriptive",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "metadata"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "clipPath",
-			"category": "clip_mask",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "clipPath"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "mask",
-			"category": "clip_mask",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "mask"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "linearGradient",
-			"category": "gradient",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "linearGradient"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "radialGradient",
-			"category": "gradient",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "radialGradient"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "stop",
-			"category": "gradient",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "stop"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "pattern",
-			"category": "paint_server",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "pattern"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "filter",
-			"category": "filter",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "filter"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feGaussianBlur",
-			"category": "filter_primitive",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "feGaussianBlur"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "foreignObject",
-			"category": "structural",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "foreignObject"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "style",
-			"category": "never_rendered",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "style"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "script",
-			"category": "never_rendered",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "script"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "marker",
-			"category": "container",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "marker"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "switch",
-			"category": "structural",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "switch"
 					},
 					"confidence": "derived"
 				}
@@ -686,8 +78,8 @@
 			]
 		},
 		{
-			"element": "set",
-			"category": "animation",
+			"element": "circle",
+			"category": "shape",
 			"provenance": [
 				{
 					"source_id": "tr-root",
@@ -698,15 +90,15 @@
 					},
 					"locator": {
 						"kind": "fragment",
-						"anchor": "set"
+						"anchor": "circle"
 					},
 					"confidence": "derived"
 				}
 			]
 		},
 		{
-			"element": "mpath",
-			"category": "motion_path",
+			"element": "clipPath",
+			"category": "clip_mask",
 			"provenance": [
 				{
 					"source_id": "tr-root",
@@ -717,15 +109,15 @@
 					},
 					"locator": {
 						"kind": "fragment",
-						"anchor": "mpath"
+						"anchor": "clipPath"
 					},
 					"confidence": "derived"
 				}
 			]
 		},
 		{
-			"element": "feDistantLight",
-			"category": "light_source",
+			"element": "defs",
+			"category": "container",
 			"provenance": [
 				{
 					"source_id": "tr-root",
@@ -736,15 +128,15 @@
 					},
 					"locator": {
 						"kind": "fragment",
-						"anchor": "feDistantLight"
+						"anchor": "defs"
 					},
 					"confidence": "derived"
 				}
 			]
 		},
 		{
-			"element": "fePointLight",
-			"category": "light_source",
+			"element": "desc",
+			"category": "descriptive",
 			"provenance": [
 				{
 					"source_id": "tr-root",
@@ -755,15 +147,15 @@
 					},
 					"locator": {
 						"kind": "fragment",
-						"anchor": "fePointLight"
+						"anchor": "desc"
 					},
 					"confidence": "derived"
 				}
 			]
 		},
 		{
-			"element": "feSpotLight",
-			"category": "light_source",
+			"element": "ellipse",
+			"category": "shape",
 			"provenance": [
 				{
 					"source_id": "tr-root",
@@ -774,7 +166,7 @@
 					},
 					"locator": {
 						"kind": "fragment",
-						"anchor": "feSpotLight"
+						"anchor": "ellipse"
 					},
 					"confidence": "derived"
 				}
@@ -914,6 +306,25 @@
 			]
 		},
 		{
+			"element": "feDistantLight",
+			"category": "light_source",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "feDistantLight"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
 			"element": "feFlood",
 			"category": "filter_primitive",
 			"provenance": [
@@ -927,6 +338,101 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "feFlood"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "feFuncA",
+			"category": "transfer_function",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "feFuncA"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "feFuncB",
+			"category": "transfer_function",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "feFuncB"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "feFuncG",
+			"category": "transfer_function",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "feFuncG"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "feFuncR",
+			"category": "transfer_function",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "feFuncR"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "feGaussianBlur",
+			"category": "filter_primitive",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "feGaussianBlur"
 					},
 					"confidence": "derived"
 				}
@@ -1028,6 +534,25 @@
 			]
 		},
 		{
+			"element": "fePointLight",
+			"category": "light_source",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "fePointLight"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
 			"element": "feSpecularLighting",
 			"category": "filter_primitive",
 			"provenance": [
@@ -1041,6 +566,25 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "feSpecularLighting"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "feSpotLight",
+			"category": "light_source",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "feSpotLight"
 					},
 					"confidence": "derived"
 				}
@@ -1085,8 +629,8 @@
 			]
 		},
 		{
-			"element": "feFuncR",
-			"category": "transfer_function",
+			"element": "filter",
+			"category": "filter",
 			"provenance": [
 				{
 					"source_id": "tr-root",
@@ -1097,15 +641,15 @@
 					},
 					"locator": {
 						"kind": "fragment",
-						"anchor": "feFuncR"
+						"anchor": "filter"
 					},
 					"confidence": "derived"
 				}
 			]
 		},
 		{
-			"element": "feFuncG",
-			"category": "transfer_function",
+			"element": "foreignObject",
+			"category": "structural",
 			"provenance": [
 				{
 					"source_id": "tr-root",
@@ -1116,15 +660,15 @@
 					},
 					"locator": {
 						"kind": "fragment",
-						"anchor": "feFuncG"
+						"anchor": "foreignObject"
 					},
 					"confidence": "derived"
 				}
 			]
 		},
 		{
-			"element": "feFuncB",
-			"category": "transfer_function",
+			"element": "g",
+			"category": "container",
 			"provenance": [
 				{
 					"source_id": "tr-root",
@@ -1135,15 +679,15 @@
 					},
 					"locator": {
 						"kind": "fragment",
-						"anchor": "feFuncB"
+						"anchor": "g"
 					},
 					"confidence": "derived"
 				}
 			]
 		},
 		{
-			"element": "feFuncA",
-			"category": "transfer_function",
+			"element": "image",
+			"category": "structural",
 			"provenance": [
 				{
 					"source_id": "tr-root",
@@ -1154,7 +698,463 @@
 					},
 					"locator": {
 						"kind": "fragment",
-						"anchor": "feFuncA"
+						"anchor": "image"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "line",
+			"category": "shape",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "line"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "linearGradient",
+			"category": "gradient",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "linearGradient"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "marker",
+			"category": "container",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "marker"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "mask",
+			"category": "clip_mask",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "mask"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "metadata",
+			"category": "descriptive",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "metadata"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "mpath",
+			"category": "motion_path",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "mpath"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "path",
+			"category": "shape",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "path"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "pattern",
+			"category": "paint_server",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "pattern"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "polygon",
+			"category": "shape",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "polygon"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "polyline",
+			"category": "shape",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "polyline"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "radialGradient",
+			"category": "gradient",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "radialGradient"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "rect",
+			"category": "shape",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "rect"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "script",
+			"category": "never_rendered",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "script"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "set",
+			"category": "animation",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "set"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "stop",
+			"category": "gradient",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "stop"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "style",
+			"category": "never_rendered",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "style"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "svg",
+			"category": "container",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "svg"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "switch",
+			"category": "structural",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "switch"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "symbol",
+			"category": "container",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "symbol"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "text",
+			"category": "text",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "text"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "textPath",
+			"category": "text",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "textPath"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "title",
+			"category": "descriptive",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "title"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "tspan",
+			"category": "text",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "tspan"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "use",
+			"category": "structural",
+			"provenance": [
+				{
+					"source_id": "tr-root",
+					"source_kind": "html",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+					},
+					"locator": {
+						"kind": "fragment",
+						"anchor": "use"
 					},
 					"confidence": "derived"
 				}

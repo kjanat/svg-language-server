@@ -1,10 +1,10 @@
 [
 	{
-		"name": "fill",
-		"title": "Defines the color used to paint the interior of the element.",
+		"name": "accumulate",
+		"title": "Controls whether an animation is cumulative.",
 		"value_syntax": {
 			"kind": "grammar_ref",
-			"grammar_id": "color"
+			"grammar_id": "enum-accumulate"
 		},
 		"default_value": {
 			"kind": "none"
@@ -20,7 +20,7 @@
 				},
 				"locator": {
 					"kind": "fragment",
-					"anchor": "fill"
+					"anchor": "accumulate"
 				},
 				"confidence": "derived"
 			},
@@ -34,2437 +34,7 @@
 				"locator": {
 					"kind": "definition",
 					"file": "DTD/svg11-flat.dtd",
-					"id": "fill"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "stroke",
-		"title": "Defines the color used to paint the outline of the element.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "color"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "stroke"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "stroke"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "stroke-width",
-		"title": "Defines the width of the stroke.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "length"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "stroke-width"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "stroke-width"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "stroke-linecap",
-		"title": "Defines the shape at the end of open subpaths.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "enum-stroke-linecap"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "stroke-linecap"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "stroke-linecap"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "stroke-linejoin",
-		"title": "Defines the shape at the corners of stroked paths.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "enum-stroke-linejoin"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "stroke-linejoin"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "stroke-linejoin"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "stroke-dasharray",
-		"title": "Defines the pattern of dashes and gaps for a stroke.",
-		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "stroke-dasharray"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "stroke-dasharray"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "stroke-opacity",
-		"title": "Defines the opacity of the stroke.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "number-or-percentage"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "stroke-opacity"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "stroke-opacity"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "fill-opacity",
-		"title": "Defines the opacity of the fill.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "number-or-percentage"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "fill-opacity"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "fill-opacity"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "opacity",
-		"title": "Defines the transparency of the element.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "number-or-percentage"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "opacity"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "opacity"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "fill-rule",
-		"title": "Defines the algorithm for determining the interior of a shape.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "enum-fill-rule"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "fill-rule"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "fill-rule"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "clip-rule",
-		"title": "Defines the clipping algorithm.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "enum-clip-rule"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "clip-rule"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "clip-rule"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "color",
-		"title": "Defines the value for the currentColor keyword.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "color"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "color"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "color"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "display",
-		"title": "Controls whether an element is rendered.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "enum-display"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "display"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "display"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "visibility",
-		"title": "Controls the visibility of an element.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "enum-visibility"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "visibility"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "visibility"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "font-family",
-		"title": "Specifies the font family.",
-		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "font-family"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "font-family"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "font-size",
-		"title": "Specifies the size of the font.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "length"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "font-size"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "font-size"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "font-weight",
-		"title": "Specifies the weight of the font.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "enum-font-weight"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "font-weight"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "font-weight"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "font-style",
-		"title": "Specifies the style of the font.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "enum-font-style"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "font-style"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "font-style"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "text-anchor",
-		"title": "Defines the alignment of text.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "enum-text-anchor"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "text-anchor"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "text-anchor"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "dominant-baseline",
-		"title": "Defines the dominant baseline.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "enum-dominant-baseline"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "dominant-baseline"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "dominant-baseline"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "text-decoration",
-		"title": "Specifies text decoration.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "enum-text-decoration"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "text-decoration"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "text-decoration"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "clip-path",
-		"title": "Defines a clipping path.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "url-reference"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "clip-path"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "clip-path"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "mask",
-		"title": "Defines a mask.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "url-reference"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "mask"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "mask"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "filter",
-		"title": "Defines a filter effect.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "url-reference"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "filter"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "filter"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "transform",
-		"title": "Defines a transformation.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "transform-list-translate-rotate-scale-skewx-skewy-matrix"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "transform"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "transform"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "overflow",
-		"title": "Controls overflow behavior.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "enum-overflow"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "overflow"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "overflow"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "pointer-events",
-		"title": "Controls when the element responds to pointer events.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "enum-pointer-events"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "pointer-events"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "pointer-events"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "id",
-		"title": "Defines a unique identifier.",
-		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "id"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "id"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "class",
-		"title": "Assigns CSS class names.",
-		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "class"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "class"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "style",
-		"title": "Defines inline CSS styles.",
-		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "style"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "style"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "d",
-		"title": "Defines a path to be drawn.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "path-data"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "d"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "d"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "viewBox",
-		"title": "Defines the SVG viewport coordinates.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "view-box"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "viewBox"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "viewBox"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "preserveAspectRatio",
-		"title": "Defines how the viewBox scales to fit the viewport.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "preserve-aspect-ratio"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "preserveAspectRatio"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "preserveAspectRatio"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "x",
-		"title": "Defines the x coordinate.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "length"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "x"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "x"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "y",
-		"title": "Defines the y coordinate.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "length"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "y"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "y"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "width",
-		"title": "Defines the width.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "length"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "width"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "width"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "height",
-		"title": "Defines the height.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "length"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "height"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "height"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "cx",
-		"title": "Defines the x coordinate of the center.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "length"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "cx"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "cx"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "cy",
-		"title": "Defines the y coordinate of the center.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "length"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "cy"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "cy"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "r",
-		"title": "Defines the radius.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "length"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "r"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "r"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "rx",
-		"title": "Defines the horizontal radius.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "length"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "rx"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "rx"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "ry",
-		"title": "Defines the vertical radius.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "length"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "ry"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "ry"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "x1",
-		"title": "Defines the first x coordinate.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "length"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "x1"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "x1"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "y1",
-		"title": "Defines the first y coordinate.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "length"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "y1"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "y1"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "x2",
-		"title": "Defines the second x coordinate.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "length"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "x2"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "x2"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "y2",
-		"title": "Defines the second y coordinate.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "length"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "y2"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "y2"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "points",
-		"title": "Defines the list of points.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "points"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "points"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "points"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "stop-color",
-		"title": "Defines the color of a gradient stop.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "color"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "stop-color"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "stop-color"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "stop-opacity",
-		"title": "Defines the opacity of a gradient stop.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "number-or-percentage"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "stop-opacity"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "stop-opacity"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "offset",
-		"title": "Defines the position of a gradient stop.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "number-or-percentage"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "offset"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "offset"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "gradientUnits",
-		"title": "Defines the coordinate system for gradient attributes.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "enum-gradientunits"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "gradientUnits"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "gradientUnits"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "gradientTransform",
-		"title": "Defines a transformation for the gradient.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "transform-list-translate-rotate-scale-skewx-skewy-matrix"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "gradientTransform"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "gradientTransform"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "spreadMethod",
-		"title": "Defines how the gradient spreads beyond its bounds.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "enum-spreadmethod"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "spreadMethod"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "spreadMethod"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "in",
-		"title": "Identifies the input for the filter primitive.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "enum-in"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "in"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "in"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "stdDeviation",
-		"title": "Defines the standard deviation for the blur.",
-		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "stdDeviation"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "stdDeviation"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "begin",
-		"title": "Defines when an animation element should begin.",
-		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "begin"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "begin"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "end",
-		"title": "Defines an end value for an animation element.",
-		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "end"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "end"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "repeatDur",
-		"title": "Specifies the total duration for repeating an animation.",
-		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "repeatDur"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "repeatDur"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "keyTimes",
-		"title": "Specifies a semicolon-separated list of time values used to control the pacing of the animation.",
-		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "keyTimes"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "keyTimes"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "keySplines",
-		"title": "Defines a set of Bezier control points associated with the keyTimes list.",
-		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "keySplines"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "keySplines"
+					"id": "accumulate"
 				},
 				"confidence": "derived"
 			}
@@ -2512,90 +82,8 @@
 		]
 	},
 	{
-		"name": "accumulate",
-		"title": "Controls whether an animation is cumulative.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "enum-accumulate"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "accumulate"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "accumulate"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "restart",
-		"title": "Controls the circumstances under which an animation can be restarted.",
-		"value_syntax": {
-			"kind": "grammar_ref",
-			"grammar_id": "enum-restart"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "restart"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "restart"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "result",
-		"title": "Assigns a name to a filter primitive output for use by subsequent filter primitives.",
+		"name": "alignment-baseline",
+		"title": "The alignment-baseline SVG attribute.",
 		"value_syntax": {
 			"kind": "opaque",
 			"display": "text",
@@ -2615,7 +103,7 @@
 				},
 				"locator": {
 					"kind": "fragment",
-					"anchor": "result"
+					"anchor": "alignment-baseline"
 				},
 				"confidence": "derived"
 			},
@@ -2629,133 +117,7 @@
 				"locator": {
 					"kind": "definition",
 					"file": "DTD/svg11-flat.dtd",
-					"id": "result"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "tableValues",
-		"title": "Defines the lookup table for a component transfer function.",
-		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "tableValues"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "tableValues"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "slope",
-		"title": "Defines the slope of the linear transfer function.",
-		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "slope"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "slope"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "intercept",
-		"title": "Defines the intercept of the linear transfer function.",
-		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "intercept"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "intercept"
+					"id": "alignment-baseline"
 				},
 				"confidence": "derived"
 			}
@@ -2798,90 +160,6 @@
 					"kind": "definition",
 					"file": "DTD/svg11-flat.dtd",
 					"id": "amplitude"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "exponent",
-		"title": "Defines the exponent of the gamma transfer function.",
-		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "exponent"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "exponent"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "alignment-baseline",
-		"title": "The alignment-baseline SVG attribute.",
-		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "alignment-baseline"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "flattened-dtd",
-				"source_kind": "dtd",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "DTD/svg11-flat.dtd",
-					"id": "alignment-baseline"
 				},
 				"confidence": "derived"
 			}
@@ -3224,6 +502,48 @@
 		]
 	},
 	{
+		"name": "begin",
+		"title": "Defines when an animation element should begin.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "begin"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "begin"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
 		"name": "bias",
 		"title": "The bias SVG attribute.",
 		"value_syntax": {
@@ -3350,6 +670,48 @@
 		]
 	},
 	{
+		"name": "class",
+		"title": "Assigns CSS class names.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "class"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "class"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
 		"name": "clip",
 		"title": "The clip SVG attribute.",
 		"value_syntax": {
@@ -3392,6 +754,88 @@
 		]
 	},
 	{
+		"name": "clip-path",
+		"title": "Defines a clipping path.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "url-reference"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "clip-path"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "clip-path"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "clip-rule",
+		"title": "Defines the clipping algorithm.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-clip-rule"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "clip-rule"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "clip-rule"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
 		"name": "clipPathUnits",
 		"title": "The clipPathUnits SVG attribute.",
 		"value_syntax": {
@@ -3428,6 +872,47 @@
 					"kind": "definition",
 					"file": "DTD/svg11-flat.dtd",
 					"id": "clipPathUnits"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "color",
+		"title": "Defines the value for the currentColor keyword.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "color"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "color"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "color"
 				},
 				"confidence": "derived"
 			}
@@ -3602,12 +1087,11 @@
 		]
 	},
 	{
-		"name": "data_attributes",
-		"title": "The data_attributes SVG attribute.",
+		"name": "cx",
+		"title": "Defines the x coordinate of the center.",
 		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
+			"kind": "grammar_ref",
+			"grammar_id": "length"
 		},
 		"default_value": {
 			"kind": "none"
@@ -3623,7 +1107,7 @@
 				},
 				"locator": {
 					"kind": "fragment",
-					"anchor": "data_attributes"
+					"anchor": "cx"
 				},
 				"confidence": "derived"
 			},
@@ -3637,19 +1121,18 @@
 				"locator": {
 					"kind": "definition",
 					"file": "DTD/svg11-flat.dtd",
-					"id": "data_attributes"
+					"id": "cx"
 				},
 				"confidence": "derived"
 			}
 		]
 	},
 	{
-		"name": "data_uri",
-		"title": "The data_uri SVG attribute.",
+		"name": "cy",
+		"title": "Defines the y coordinate of the center.",
 		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
+			"kind": "grammar_ref",
+			"grammar_id": "length"
 		},
 		"default_value": {
 			"kind": "none"
@@ -3665,7 +1148,7 @@
 				},
 				"locator": {
 					"kind": "fragment",
-					"anchor": "data_uri"
+					"anchor": "cy"
 				},
 				"confidence": "derived"
 			},
@@ -3679,7 +1162,48 @@
 				"locator": {
 					"kind": "definition",
 					"file": "DTD/svg11-flat.dtd",
-					"id": "data_uri"
+					"id": "cy"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "d",
+		"title": "Defines a path to be drawn.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "path-data"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "d"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "d"
 				},
 				"confidence": "derived"
 			}
@@ -3854,6 +1378,47 @@
 		]
 	},
 	{
+		"name": "display",
+		"title": "Controls whether an element is rendered.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-display"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "display"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "display"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
 		"name": "divisor",
 		"title": "The divisor SVG attribute.",
 		"value_syntax": {
@@ -3890,6 +1455,47 @@
 					"kind": "definition",
 					"file": "DTD/svg11-flat.dtd",
 					"id": "divisor"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "dominant-baseline",
+		"title": "Defines the dominant baseline.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-dominant-baseline"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "dominant-baseline"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "dominant-baseline"
 				},
 				"confidence": "derived"
 			}
@@ -4148,8 +1754,8 @@
 		]
 	},
 	{
-		"name": "external_uri",
-		"title": "The external_uri SVG attribute.",
+		"name": "end",
+		"title": "Defines an end value for an animation element.",
 		"value_syntax": {
 			"kind": "opaque",
 			"display": "text",
@@ -4169,7 +1775,7 @@
 				},
 				"locator": {
 					"kind": "fragment",
-					"anchor": "external_uri"
+					"anchor": "end"
 				},
 				"confidence": "derived"
 			},
@@ -4183,7 +1789,49 @@
 				"locator": {
 					"kind": "definition",
 					"file": "DTD/svg11-flat.dtd",
-					"id": "external_uri"
+					"id": "end"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "exponent",
+		"title": "Defines the exponent of the gamma transfer function.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "exponent"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "exponent"
 				},
 				"confidence": "derived"
 			}
@@ -4226,6 +1874,170 @@
 					"kind": "definition",
 					"file": "DTD/svg11-flat.dtd",
 					"id": "fetchpriority"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "fill",
+		"title": "Defines the color used to paint the interior of the element.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "color"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "fill"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "fill"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "fill-opacity",
+		"title": "Defines the opacity of the fill.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "number-or-percentage"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "fill-opacity"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "fill-opacity"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "fill-rule",
+		"title": "Defines the algorithm for determining the interior of a shape.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-fill-rule"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "fill-rule"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "fill-rule"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "filter",
+		"title": "Defines a filter effect.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "url-reference"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "filter"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "filter"
 				},
 				"confidence": "derived"
 			}
@@ -4358,6 +2170,89 @@
 		]
 	},
 	{
+		"name": "font-family",
+		"title": "Specifies the font family.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "font-family"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "font-family"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "font-size",
+		"title": "Specifies the size of the font.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "length"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "font-size"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "font-size"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
 		"name": "font-size-adjust",
 		"title": "The font-size-adjust SVG attribute.",
 		"value_syntax": {
@@ -4442,6 +2337,47 @@
 		]
 	},
 	{
+		"name": "font-style",
+		"title": "Specifies the style of the font.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-font-style"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "font-style"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "font-style"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
 		"name": "font-variant",
 		"title": "The font-variant SVG attribute.",
 		"value_syntax": {
@@ -4478,6 +2414,47 @@
 					"kind": "definition",
 					"file": "DTD/svg11-flat.dtd",
 					"id": "font-variant"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "font-weight",
+		"title": "Specifies the weight of the font.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-font-weight"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "font-weight"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "font-weight"
 				},
 				"confidence": "derived"
 			}
@@ -4778,6 +2755,129 @@
 		]
 	},
 	{
+		"name": "gradientTransform",
+		"title": "Defines a transformation for the gradient.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "transform-list-translate-rotate-scale-skewx-skewy-matrix"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "gradientTransform"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "gradientTransform"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "gradientUnits",
+		"title": "Defines the coordinate system for gradient attributes.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-gradientunits"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "gradientUnits"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "gradientUnits"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "height",
+		"title": "Defines the height.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "length"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "height"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "height"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
 		"name": "hreflang",
 		"title": "The hreflang SVG attribute.",
 		"value_syntax": {
@@ -4814,6 +2914,48 @@
 					"kind": "definition",
 					"file": "DTD/svg11-flat.dtd",
 					"id": "hreflang"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "id",
+		"title": "Defines a unique identifier.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "id"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "id"
 				},
 				"confidence": "derived"
 			}
@@ -4862,6 +3004,47 @@
 		]
 	},
 	{
+		"name": "in",
+		"title": "Identifies the input for the filter primitive.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-in"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "in"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "in"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
 		"name": "in2",
 		"title": "The in2 SVG attribute.",
 		"value_syntax": {
@@ -4898,6 +3081,48 @@
 					"kind": "definition",
 					"file": "DTD/svg11-flat.dtd",
 					"id": "in2"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "intercept",
+		"title": "Defines the intercept of the linear transfer function.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "intercept"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "intercept"
 				},
 				"confidence": "derived"
 			}
@@ -5234,6 +3459,90 @@
 					"kind": "definition",
 					"file": "DTD/svg11-flat.dtd",
 					"id": "keyPoints"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "keySplines",
+		"title": "Defines a set of Bezier control points associated with the keyTimes list.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "keySplines"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "keySplines"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "keyTimes",
+		"title": "Specifies a semicolon-separated list of time values used to control the pacing of the animation.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "keyTimes"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "keyTimes"
 				},
 				"confidence": "derived"
 			}
@@ -5702,6 +4011,47 @@
 		]
 	},
 	{
+		"name": "mask",
+		"title": "Defines a mask.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "url-reference"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "mask"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "mask"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
 		"name": "maskContentUnits",
 		"title": "The maskContentUnits SVG attribute.",
 		"value_syntax": {
@@ -5912,12 +4262,11 @@
 		]
 	},
 	{
-		"name": "omit_external_fragment",
-		"title": "The omit_external_fragment SVG attribute.",
+		"name": "offset",
+		"title": "Defines the position of a gradient stop.",
 		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
+			"kind": "grammar_ref",
+			"grammar_id": "number-or-percentage"
 		},
 		"default_value": {
 			"kind": "none"
@@ -5933,7 +4282,7 @@
 				},
 				"locator": {
 					"kind": "fragment",
-					"anchor": "omit_external_fragment"
+					"anchor": "offset"
 				},
 				"confidence": "derived"
 			},
@@ -5947,7 +4296,48 @@
 				"locator": {
 					"kind": "definition",
 					"file": "DTD/svg11-flat.dtd",
-					"id": "omit_external_fragment"
+					"id": "offset"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "opacity",
+		"title": "Defines the transparency of the element.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "number-or-percentage"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "opacity"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "opacity"
 				},
 				"confidence": "derived"
 			}
@@ -6116,6 +4506,47 @@
 					"kind": "definition",
 					"file": "DTD/svg11-flat.dtd",
 					"id": "origin"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "overflow",
+		"title": "Controls overflow behavior.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-overflow"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "overflow"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "overflow"
 				},
 				"confidence": "derived"
 			}
@@ -6374,6 +4805,88 @@
 		]
 	},
 	{
+		"name": "pointer-events",
+		"title": "Controls when the element responds to pointer events.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-pointer-events"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "pointer-events"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "pointer-events"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "points",
+		"title": "Defines the list of points.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "points"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "points"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "points"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
 		"name": "pointsAtX",
 		"title": "The pointsAtX SVG attribute.",
 		"value_syntax": {
@@ -6542,6 +5055,47 @@
 		]
 	},
 	{
+		"name": "preserveAspectRatio",
+		"title": "Defines how the viewBox scales to fit the viewport.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "preserve-aspect-ratio"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "preserveAspectRatio"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "preserveAspectRatio"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
 		"name": "primitiveUnits",
 		"title": "The primitiveUnits SVG attribute.",
 		"value_syntax": {
@@ -6578,6 +5132,47 @@
 					"kind": "definition",
 					"file": "DTD/svg11-flat.dtd",
 					"id": "primitiveUnits"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "r",
+		"title": "Defines the radius.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "length"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "r"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "r"
 				},
 				"confidence": "derived"
 			}
@@ -6836,6 +5431,48 @@
 		]
 	},
 	{
+		"name": "repeatDur",
+		"title": "Specifies the total duration for repeating an animation.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "repeatDur"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "repeatDur"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
 		"name": "requiredExtensions",
 		"title": "The requiredExtensions SVG attribute.",
 		"value_syntax": {
@@ -6878,6 +5515,90 @@
 		]
 	},
 	{
+		"name": "restart",
+		"title": "Controls the circumstances under which an animation can be restarted.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "restart"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "restart"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "result",
+		"title": "Assigns a name to a filter primitive output for use by subsequent filter primitives.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "result"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "result"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
 		"name": "rotate",
 		"title": "The rotate SVG attribute.",
 		"value_syntax": {
@@ -6914,6 +5635,88 @@
 					"kind": "definition",
 					"file": "DTD/svg11-flat.dtd",
 					"id": "rotate"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "rx",
+		"title": "Defines the horizontal radius.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "length"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "rx"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "rx"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "ry",
+		"title": "Defines the vertical radius.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "length"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "ry"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "ry"
 				},
 				"confidence": "derived"
 			}
@@ -7088,6 +5891,48 @@
 		]
 	},
 	{
+		"name": "slope",
+		"title": "Defines the slope of the linear transfer function.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "slope"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "slope"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
 		"name": "spacing",
 		"title": "The spacing SVG attribute.",
 		"value_syntax": {
@@ -7214,6 +6059,47 @@
 		]
 	},
 	{
+		"name": "spreadMethod",
+		"title": "Defines how the gradient spreads beyond its bounds.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-spreadmethod"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "spreadMethod"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "spreadMethod"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
 		"name": "startOffset",
 		"title": "The startOffset SVG attribute.",
 		"value_syntax": {
@@ -7250,6 +6136,48 @@
 					"kind": "definition",
 					"file": "DTD/svg11-flat.dtd",
 					"id": "startOffset"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "stdDeviation",
+		"title": "Defines the standard deviation for the blur.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "stdDeviation"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "stdDeviation"
 				},
 				"confidence": "derived"
 			}
@@ -7298,6 +6226,171 @@
 		]
 	},
 	{
+		"name": "stop-color",
+		"title": "Defines the color of a gradient stop.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "color"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "stop-color"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "stop-color"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "stop-opacity",
+		"title": "Defines the opacity of a gradient stop.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "number-or-percentage"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "stop-opacity"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "stop-opacity"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "stroke",
+		"title": "Defines the color used to paint the outline of the element.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "color"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "stroke"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "stroke"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "stroke-dasharray",
+		"title": "Defines the pattern of dashes and gaps for a stroke.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "stroke-dasharray"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "stroke-dasharray"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
 		"name": "stroke-dashoffset",
 		"title": "The stroke-dashoffset SVG attribute.",
 		"value_syntax": {
@@ -7340,6 +6433,88 @@
 		]
 	},
 	{
+		"name": "stroke-linecap",
+		"title": "Defines the shape at the end of open subpaths.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-stroke-linecap"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "stroke-linecap"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "stroke-linecap"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "stroke-linejoin",
+		"title": "Defines the shape at the corners of stroked paths.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-stroke-linejoin"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "stroke-linejoin"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "stroke-linejoin"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
 		"name": "stroke-miterlimit",
 		"title": "The stroke-miterlimit SVG attribute.",
 		"value_syntax": {
@@ -7376,6 +6551,130 @@
 					"kind": "definition",
 					"file": "DTD/svg11-flat.dtd",
 					"id": "stroke-miterlimit"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "stroke-opacity",
+		"title": "Defines the opacity of the stroke.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "number-or-percentage"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "stroke-opacity"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "stroke-opacity"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "stroke-width",
+		"title": "Defines the width of the stroke.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "length"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "stroke-width"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "stroke-width"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "style",
+		"title": "Defines inline CSS styles.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "style"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "style"
 				},
 				"confidence": "derived"
 			}
@@ -7508,6 +6807,48 @@
 		]
 	},
 	{
+		"name": "tableValues",
+		"title": "Defines the lookup table for a component transfer function.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "tableValues"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "tableValues"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
 		"name": "target",
 		"title": "The target SVG attribute.",
 		"value_syntax": {
@@ -7628,6 +6969,88 @@
 					"kind": "definition",
 					"file": "DTD/svg11-flat.dtd",
 					"id": "targetY"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "text-anchor",
+		"title": "Defines the alignment of text.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-text-anchor"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "text-anchor"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "text-anchor"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "text-decoration",
+		"title": "Specifies text decoration.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-text-decoration"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "text-decoration"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "text-decoration"
 				},
 				"confidence": "derived"
 			}
@@ -7844,12 +7267,11 @@
 		]
 	},
 	{
-		"name": "tooltip_display",
-		"title": "The tooltip_display SVG attribute.",
+		"name": "transform",
+		"title": "Defines a transformation.",
 		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
+			"kind": "grammar_ref",
+			"grammar_id": "transform-list-translate-rotate-scale-skewx-skewy-matrix"
 		},
 		"default_value": {
 			"kind": "none"
@@ -7865,7 +7287,7 @@
 				},
 				"locator": {
 					"kind": "fragment",
-					"anchor": "tooltip_display"
+					"anchor": "transform"
 				},
 				"confidence": "derived"
 			},
@@ -7879,7 +7301,7 @@
 				"locator": {
 					"kind": "definition",
 					"file": "DTD/svg11-flat.dtd",
-					"id": "tooltip_display"
+					"id": "transform"
 				},
 				"confidence": "derived"
 			}
@@ -8138,6 +7560,88 @@
 		]
 	},
 	{
+		"name": "viewBox",
+		"title": "Defines the SVG viewport coordinates.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "view-box"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "viewBox"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "viewBox"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "visibility",
+		"title": "Controls the visibility of an element.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-visibility"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "visibility"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "visibility"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
 		"name": "white-space",
 		"title": "The white-space SVG attribute.",
 		"value_syntax": {
@@ -8174,6 +7678,47 @@
 					"kind": "definition",
 					"file": "DTD/svg11-flat.dtd",
 					"id": "white-space"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "width",
+		"title": "Defines the width.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "length"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "width"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "width"
 				},
 				"confidence": "derived"
 			}
@@ -8258,6 +7803,129 @@
 					"kind": "definition",
 					"file": "DTD/svg11-flat.dtd",
 					"id": "writing-mode"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "x",
+		"title": "Defines the x coordinate.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "length"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "x"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "x"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "x1",
+		"title": "Defines the first x coordinate.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "length"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "x1"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "x1"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "x2",
+		"title": "Defines the second x coordinate.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "length"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "x2"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "x2"
 				},
 				"confidence": "derived"
 			}
@@ -8474,12 +8142,11 @@
 		]
 	},
 	{
-		"name": "xml_lang",
-		"title": "The xml_lang SVG attribute.",
+		"name": "y",
+		"title": "Defines the y coordinate.",
 		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
+			"kind": "grammar_ref",
+			"grammar_id": "length"
 		},
 		"default_value": {
 			"kind": "none"
@@ -8495,7 +8162,7 @@
 				},
 				"locator": {
 					"kind": "fragment",
-					"anchor": "xml_lang"
+					"anchor": "y"
 				},
 				"confidence": "derived"
 			},
@@ -8509,19 +8176,18 @@
 				"locator": {
 					"kind": "definition",
 					"file": "DTD/svg11-flat.dtd",
-					"id": "xml_lang"
+					"id": "y"
 				},
 				"confidence": "derived"
 			}
 		]
 	},
 	{
-		"name": "xml_space",
-		"title": "The xml_space SVG attribute.",
+		"name": "y1",
+		"title": "Defines the first y coordinate.",
 		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
+			"kind": "grammar_ref",
+			"grammar_id": "length"
 		},
 		"default_value": {
 			"kind": "none"
@@ -8537,7 +8203,7 @@
 				},
 				"locator": {
 					"kind": "fragment",
-					"anchor": "xml_space"
+					"anchor": "y1"
 				},
 				"confidence": "derived"
 			},
@@ -8551,7 +8217,48 @@
 				"locator": {
 					"kind": "definition",
 					"file": "DTD/svg11-flat.dtd",
-					"id": "xml_space"
+					"id": "y1"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "y2",
+		"title": "Defines the second y coordinate.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "length"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "attribute-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "y2"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "flattened-dtd",
+				"source_kind": "dtd",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "DTD/svg11-flat.dtd",
+					"id": "y2"
 				},
 				"confidence": "derived"
 			}

@@ -8,56 +8,56 @@
 		{
 			"manifest_id": "svg2-ed-20250914",
 			"input_id": "publish-conf",
-			"authority": "supporting",
+			"authority": "primary",
 			"pin": {
 				"kind": "git_commit",
 				"repository": "https://github.com/w3c/svgwg",
 				"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-				"path": null
+				"path": "master/publish.xml"
 			}
 		},
 		{
 			"manifest_id": "svg2-ed-20250914",
 			"input_id": "definitions",
-			"authority": "supporting",
+			"authority": "primary",
 			"pin": {
 				"kind": "git_commit",
 				"repository": "https://github.com/w3c/svgwg",
 				"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-				"path": null
+				"path": "master/definitions.xml"
 			}
 		},
 		{
 			"manifest_id": "svg2-ed-20250914",
 			"input_id": "definitions-filters",
-			"authority": "supporting",
+			"authority": "primary",
 			"pin": {
 				"kind": "git_commit",
 				"repository": "https://github.com/w3c/svgwg",
 				"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-				"path": null
+				"path": "master/definitions-filters.xml"
 			}
 		},
 		{
 			"manifest_id": "svg2-ed-20250914",
 			"input_id": "definitions-masking",
-			"authority": "supporting",
+			"authority": "primary",
 			"pin": {
 				"kind": "git_commit",
 				"repository": "https://github.com/w3c/svgwg",
 				"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-				"path": null
+				"path": "master/definitions-masking.xml"
 			}
 		},
 		{
 			"manifest_id": "svg2-ed-20250914",
 			"input_id": "definitions-compositing",
-			"authority": "supporting",
+			"authority": "primary",
 			"pin": {
 				"kind": "git_commit",
 				"repository": "https://github.com/w3c/svgwg",
 				"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-				"path": null
+				"path": "master/definitions-compositing.xml"
 			}
 		},
 		{
@@ -123,6 +123,15 @@
 			"pin": {
 				"kind": "url",
 				"url": "https://drafts.csswg.org/css-color-4/"
+			}
+		},
+		{
+			"manifest_id": "foreign-references",
+			"input_id": "wai-aria-1.1",
+			"authority": "foreign_reference",
+			"pin": {
+				"kind": "url",
+				"url": "https://www.w3.org/TR/wai-aria-1.1/"
 			}
 		}
 	],

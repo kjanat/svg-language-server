@@ -2,9 +2,9 @@
 	"schema_version": 1,
 	"counts": {
 		"elements": 62,
-		"attributes": 208,
-		"grammars": 29,
-		"applicability_edges": 4651,
+		"attributes": 201,
+		"grammars": 28,
+		"applicability_edges": 4498,
 		"exceptions": 0
 	},
 	"applicability": {
@@ -19,13 +19,13 @@
 			"missing": 0
 		},
 		"attributes": {
-			"total": 208,
-			"covered": 208,
+			"total": 201,
+			"covered": 201,
 			"missing": 0
 		},
 		"grammars": {
-			"total": 29,
-			"covered": 29,
+			"total": 28,
+			"covered": 28,
 			"missing": 0
 		},
 		"element_categories": {
@@ -39,8 +39,8 @@
 			"missing": 0
 		},
 		"applicability_edges": {
-			"total": 4651,
-			"covered": 4651,
+			"total": 4498,
+			"covered": 4498,
 			"missing": 0
 		},
 		"exceptions": {

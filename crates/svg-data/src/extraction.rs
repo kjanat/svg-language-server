@@ -417,15 +417,9 @@ impl SourceManifestInput {
         }
     }
 
-    fn authority_classification(&self) -> SourceAuthority {
+    const fn authority_classification(&self) -> SourceAuthority {
         match self {
-            Self::Snapshot(input) => {
-                if input.role.contains("normative") {
-                    SourceAuthority::Primary
-                } else {
-                    SourceAuthority::Supporting
-                }
-            }
+            Self::Snapshot(input) => input.authority.into_source_authority(),
             Self::Foreign(_) => SourceAuthority::ForeignReference,
         }
     }
@@ -436,7 +430,7 @@ impl SourceManifestInput {
         authority: Option<&ManifestAuthority>,
     ) -> SourcePin {
         match self {
-            Self::Snapshot(_) => manifest_pin.map_or_else(
+            Self::Snapshot(input) => manifest_pin.map_or_else(
                 || SourcePin::Url { url: String::new() },
                 |pin| match pin.kind {
                     ManifestPinKind::DatedUrl => SourcePin::Url {
@@ -447,7 +441,7 @@ impl SourceManifestInput {
                             manifest_authority.url.clone()
                         }),
                         commit: pin.value.clone(),
-                        path: None,
+                        path: input.path.clone(),
                     },
                 },
             ),
@@ -469,6 +463,33 @@ pub struct SnapshotManifestInput {
     pub locator: String,
     /// Human-readable role.
     pub role: String,
+    /// Canonical authority classification — drives provenance gating rather
+    /// than parsing the free-form `role` string.
+    pub authority: SnapshotInputAuthority,
+    /// Optional repo-relative path for git-backed manifests, so per-input
+    /// `SourcePin::GitCommit { path }` stays distinguishable when several
+    /// inputs share the same commit.
+    #[serde(default)]
+    pub path: Option<String>,
+}
+
+/// Authority classification for a snapshot-native manifest input.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum SnapshotInputAuthority {
+    /// Normative or canonical-inventory source.
+    Primary,
+    /// Assistive or cross-check source — does not override authority.
+    Supporting,
+}
+
+impl SnapshotInputAuthority {
+    const fn into_source_authority(self) -> SourceAuthority {
+        match self {
+            Self::Primary => SourceAuthority::Primary,
+            Self::Supporting => SourceAuthority::Supporting,
+        }
+    }
 }
 
 /// Foreign pinned reference declared as an input.
@@ -909,6 +930,49 @@ mod tests {
         assert_eq!(metadata.snapshot, SpecSnapshotId::Svg2EditorsDraft20250914);
         assert_eq!(metadata.pinned_sources.len(), manifest.inputs.len());
         assert_eq!(metadata.status, SnapshotStatus::EditorsDraft);
+        Ok(())
+    }
+
+    #[test]
+    fn git_backed_snapshot_pins_preserve_per_input_path_and_authority() -> Result<()> {
+        let manifest = SourceManifest::read(
+            &Path::new(env!("CARGO_MANIFEST_DIR")).join("data/sources/svg2-ed-20250914.toml"),
+        )?;
+
+        // `definitions` is the primary structured-data input; its pin must
+        // point at `master/definitions.xml` within the pinned commit so
+        // snapshot.json can distinguish it from `publish.xml` and friends.
+        let definitions = manifest.source_ref("definitions")?;
+        assert_eq!(definitions.authority, SourceAuthority::Primary);
+        match &definitions.pin {
+            SourcePin::GitCommit {
+                path: Some(path), ..
+            } => assert_eq!(path, "master/definitions.xml"),
+            other => panic!("expected GitCommit pin with path, got {other:?}"),
+        }
+
+        // `chapter-html` is a prose cross-check — no per-input file path,
+        // and must classify as Supporting (not Primary) despite the role
+        // string containing no "normative" substring.
+        let chapter_html = manifest.source_ref("chapter-html")?;
+        assert_eq!(chapter_html.authority, SourceAuthority::Supporting);
+        match &chapter_html.pin {
+            SourcePin::GitCommit { path, .. } => assert_eq!(path, &None),
+            other @ SourcePin::Url { .. } => panic!("expected GitCommit pin, got {other:?}"),
+        }
+
+        // Every git-pinned definitions input round-trips a distinct path.
+        let mut paths: Vec<String> = Vec::new();
+        for id in ["publish-conf", "definitions", "definitions-filters"] {
+            match manifest.source_ref(id)?.pin {
+                SourcePin::GitCommit {
+                    path: Some(path), ..
+                } => paths.push(path),
+                other => panic!("expected GitCommit pin with path for {id}, got {other:?}"),
+            }
+        }
+        let distinct: std::collections::HashSet<_> = paths.iter().collect();
+        assert_eq!(distinct.len(), 3, "per-input paths must be distinct");
         Ok(())
     }
 

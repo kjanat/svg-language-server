@@ -32,23 +32,7 @@
 						"kind": "git_commit",
 						"repository": "https://github.com/w3c/svgwg",
 						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "points"
-					},
-					"confidence": "derived"
-				},
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
+						"path": "master/definitions.xml"
 					},
 					"locator": {
 						"kind": "definition",
@@ -83,23 +67,7 @@
 						"kind": "git_commit",
 						"repository": "https://github.com/w3c/svgwg",
 						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "accumulate"
-					},
-					"confidence": "derived"
-				},
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
+						"path": "master/definitions.xml"
 					},
 					"locator": {
 						"kind": "definition",
@@ -134,23 +102,7 @@
 						"kind": "git_commit",
 						"repository": "https://github.com/w3c/svgwg",
 						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "additive"
-					},
-					"confidence": "derived"
-				},
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
+						"path": "master/definitions.xml"
 					},
 					"locator": {
 						"kind": "definition",
@@ -185,23 +137,7 @@
 						"kind": "git_commit",
 						"repository": "https://github.com/w3c/svgwg",
 						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "clip-rule"
-					},
-					"confidence": "derived"
-				},
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
+						"path": "master/definitions.xml"
 					},
 					"locator": {
 						"kind": "definition",
@@ -240,23 +176,7 @@
 						"kind": "git_commit",
 						"repository": "https://github.com/w3c/svgwg",
 						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "display"
-					},
-					"confidence": "derived"
-				},
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
+						"path": "master/definitions.xml"
 					},
 					"locator": {
 						"kind": "definition",
@@ -319,23 +239,7 @@
 						"kind": "git_commit",
 						"repository": "https://github.com/w3c/svgwg",
 						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "dominant-baseline"
-					},
-					"confidence": "derived"
-				},
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
+						"path": "master/definitions.xml"
 					},
 					"locator": {
 						"kind": "definition",
@@ -370,23 +274,7 @@
 						"kind": "git_commit",
 						"repository": "https://github.com/w3c/svgwg",
 						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "fill-rule"
-					},
-					"confidence": "derived"
-				},
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
+						"path": "master/definitions.xml"
 					},
 					"locator": {
 						"kind": "definition",
@@ -425,23 +313,7 @@
 						"kind": "git_commit",
 						"repository": "https://github.com/w3c/svgwg",
 						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "font-style"
-					},
-					"confidence": "derived"
-				},
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
+						"path": "master/definitions.xml"
 					},
 					"locator": {
 						"kind": "definition",
@@ -520,23 +392,7 @@
 						"kind": "git_commit",
 						"repository": "https://github.com/w3c/svgwg",
 						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "font-weight"
-					},
-					"confidence": "derived"
-				},
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
+						"path": "master/definitions.xml"
 					},
 					"locator": {
 						"kind": "definition",
@@ -571,23 +427,7 @@
 						"kind": "git_commit",
 						"repository": "https://github.com/w3c/svgwg",
 						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "gradientUnits"
-					},
-					"confidence": "derived"
-				},
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
+						"path": "master/definitions.xml"
 					},
 					"locator": {
 						"kind": "definition",
@@ -638,23 +478,7 @@
 						"kind": "git_commit",
 						"repository": "https://github.com/w3c/svgwg",
 						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "in"
-					},
-					"confidence": "derived"
-				},
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
+						"path": "master/definitions.xml"
 					},
 					"locator": {
 						"kind": "definition",
@@ -697,23 +521,7 @@
 						"kind": "git_commit",
 						"repository": "https://github.com/w3c/svgwg",
 						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "overflow"
-					},
-					"confidence": "derived"
-				},
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
+						"path": "master/definitions.xml"
 					},
 					"locator": {
 						"kind": "definition",
@@ -780,23 +588,7 @@
 						"kind": "git_commit",
 						"repository": "https://github.com/w3c/svgwg",
 						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "pointer-events"
-					},
-					"confidence": "derived"
-				},
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
+						"path": "master/definitions.xml"
 					},
 					"locator": {
 						"kind": "definition",
@@ -835,23 +627,7 @@
 						"kind": "git_commit",
 						"repository": "https://github.com/w3c/svgwg",
 						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "spreadMethod"
-					},
-					"confidence": "derived"
-				},
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
+						"path": "master/definitions.xml"
 					},
 					"locator": {
 						"kind": "definition",
@@ -890,23 +666,7 @@
 						"kind": "git_commit",
 						"repository": "https://github.com/w3c/svgwg",
 						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "stroke-linecap"
-					},
-					"confidence": "derived"
-				},
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
+						"path": "master/definitions.xml"
 					},
 					"locator": {
 						"kind": "definition",
@@ -945,23 +705,7 @@
 						"kind": "git_commit",
 						"repository": "https://github.com/w3c/svgwg",
 						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "stroke-linejoin"
-					},
-					"confidence": "derived"
-				},
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
+						"path": "master/definitions.xml"
 					},
 					"locator": {
 						"kind": "definition",
@@ -1000,23 +744,7 @@
 						"kind": "git_commit",
 						"repository": "https://github.com/w3c/svgwg",
 						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "text-anchor"
-					},
-					"confidence": "derived"
-				},
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
+						"path": "master/definitions.xml"
 					},
 					"locator": {
 						"kind": "definition",
@@ -1059,23 +787,7 @@
 						"kind": "git_commit",
 						"repository": "https://github.com/w3c/svgwg",
 						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "text-decoration"
-					},
-					"confidence": "derived"
-				},
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
+						"path": "master/definitions.xml"
 					},
 					"locator": {
 						"kind": "definition",
@@ -1114,23 +826,7 @@
 						"kind": "git_commit",
 						"repository": "https://github.com/w3c/svgwg",
 						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "visibility"
-					},
-					"confidence": "derived"
-				},
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
+						"path": "master/definitions.xml"
 					},
 					"locator": {
 						"kind": "definition",
@@ -1156,23 +852,7 @@
 						"kind": "git_commit",
 						"repository": "https://github.com/w3c/svgwg",
 						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "d"
-					},
-					"confidence": "derived"
-				},
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
+						"path": "master/definitions.xml"
 					},
 					"locator": {
 						"kind": "definition",
@@ -1201,23 +881,7 @@
 						"kind": "git_commit",
 						"repository": "https://github.com/w3c/svgwg",
 						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "points"
-					},
-					"confidence": "derived"
-				},
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
+						"path": "master/definitions.xml"
 					},
 					"locator": {
 						"kind": "definition",
@@ -1305,23 +969,7 @@
 						"kind": "git_commit",
 						"repository": "https://github.com/w3c/svgwg",
 						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "preserveAspectRatio"
-					},
-					"confidence": "derived"
-				},
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
+						"path": "master/definitions.xml"
 					},
 					"locator": {
 						"kind": "definition",
@@ -1375,28 +1023,12 @@
 						"kind": "git_commit",
 						"repository": "https://github.com/w3c/svgwg",
 						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
+						"path": "master/definitions.xml"
 					},
 					"locator": {
 						"kind": "definition",
 						"file": "definitions.xml",
-						"id": "transform"
-					},
-					"confidence": "derived"
-				},
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "transform"
+						"id": "gradientTransform"
 					},
 					"confidence": "derived"
 				}
@@ -1417,23 +1049,7 @@
 						"kind": "git_commit",
 						"repository": "https://github.com/w3c/svgwg",
 						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "href"
-					},
-					"confidence": "derived"
-				},
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
+						"path": "master/definitions.xml"
 					},
 					"locator": {
 						"kind": "definition",
@@ -1476,23 +1092,7 @@
 						"kind": "git_commit",
 						"repository": "https://github.com/w3c/svgwg",
 						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "viewBox"
-					},
-					"confidence": "derived"
-				},
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": null
+						"path": "master/definitions.xml"
 					},
 					"locator": {
 						"kind": "definition",

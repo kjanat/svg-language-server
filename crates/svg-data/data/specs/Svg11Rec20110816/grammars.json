@@ -18,7 +18,7 @@
 					},
 					"locator": {
 						"kind": "fragment",
-						"anchor": "fill"
+						"anchor": "color"
 					},
 					"confidence": "derived"
 				},
@@ -32,7 +32,7 @@
 					"locator": {
 						"kind": "definition",
 						"file": "DTD/svg11-flat.dtd",
-						"id": "fill"
+						"id": "color"
 					},
 					"confidence": "derived"
 				}
@@ -780,56 +780,6 @@
 			]
 		},
 		{
-			"id": "enum-restart",
-			"title": "restart keywords",
-			"root": {
-				"kind": "choice",
-				"options": [
-					{
-						"kind": "keyword",
-						"value": "always"
-					},
-					{
-						"kind": "keyword",
-						"value": "whenNotActive"
-					},
-					{
-						"kind": "keyword",
-						"value": "never"
-					}
-				]
-			},
-			"provenance": [
-				{
-					"source_id": "attribute-index",
-					"source_kind": "index",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2011/REC-SVG11-20110816/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "restart"
-					},
-					"confidence": "derived"
-				},
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2011/REC-SVG11-20110816/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "restart"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
 			"id": "enum-spreadmethod",
 			"title": "spreadMethod keywords",
 			"root": {
@@ -1150,7 +1100,7 @@
 					},
 					"locator": {
 						"kind": "fragment",
-						"anchor": "stroke-width"
+						"anchor": "cx"
 					},
 					"confidence": "derived"
 				},
@@ -1164,7 +1114,7 @@
 					"locator": {
 						"kind": "definition",
 						"file": "DTD/svg11-flat.dtd",
-						"id": "stroke-width"
+						"id": "cx"
 					},
 					"confidence": "derived"
 				}
@@ -1196,7 +1146,7 @@
 					},
 					"locator": {
 						"kind": "fragment",
-						"anchor": "stroke-opacity"
+						"anchor": "fill-opacity"
 					},
 					"confidence": "derived"
 				},
@@ -1210,7 +1160,7 @@
 					"locator": {
 						"kind": "definition",
 						"file": "DTD/svg11-flat.dtd",
-						"id": "stroke-opacity"
+						"id": "fill-opacity"
 					},
 					"confidence": "derived"
 				}
@@ -1437,7 +1387,7 @@
 					},
 					"locator": {
 						"kind": "fragment",
-						"anchor": "transform"
+						"anchor": "gradientTransform"
 					},
 					"confidence": "derived"
 				},
@@ -1451,7 +1401,7 @@
 					"locator": {
 						"kind": "definition",
 						"file": "DTD/svg11-flat.dtd",
-						"id": "transform"
+						"id": "gradientTransform"
 					},
 					"confidence": "derived"
 				}

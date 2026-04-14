@@ -43,6 +43,20 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+/// Shared blocklist of upstream BCD/web-features IDs that never map to
+/// a real serialized SVG attribute name. Read from the same text file
+/// that `build.rs` uses so both paths stay in lockstep automatically.
+const PLACEHOLDER_ATTRIBUTE_NAMES_RAW: &str =
+    include_str!("../data/placeholder_attribute_names.txt");
+
+fn is_placeholder_attribute_name(name: &str) -> bool {
+    PLACEHOLDER_ATTRIBUTE_NAMES_RAW
+        .lines()
+        .map(str::trim)
+        .filter(|line| !line.is_empty())
+        .any(|blocked| blocked == name)
+}
+
 fn build_seed_dataset(
     snapshot: SpecSnapshotId,
     manifest: &SourceManifest,
@@ -52,6 +66,7 @@ fn build_seed_dataset(
     let elements_with_profile = elements_with_profile(snapshot);
     let attributes_with_profile: Vec<_> = attributes()
         .iter()
+        .filter(|attribute| !is_placeholder_attribute_name(attribute.name))
         .filter_map(
             |attribute| match attribute_for_profile(snapshot, attribute.name) {
                 ProfileLookup::Present { value, .. } => Some(value),
@@ -155,32 +170,56 @@ fn build_seed_elements(
             let element = profiled.element;
             let attributes = attributes_for_with_profile(snapshot, element.name)
                 .into_iter()
+                .filter(|profiled_attribute| {
+                    !is_placeholder_attribute_name(profiled_attribute.attribute.name)
+                })
                 .map(|profiled_attribute| profiled_attribute.attribute.name.to_string())
                 .collect();
 
+            let mut provenance = vec![
+                manifest.fact_provenance(
+                    bindings.element_index_input,
+                    bindings.element_index_source_kind,
+                    bindings.element_index_locator(element.name),
+                    bindings.element_index_confidence,
+                )?,
+                manifest.fact_provenance(
+                    bindings.detail_input,
+                    bindings.detail_source_kind,
+                    bindings.element_locator(element.name),
+                    bindings.detail_confidence,
+                )?,
+            ];
+            dedup_provenance(&mut provenance);
             Ok(SnapshotElementRecord {
                 name: element.name.to_string(),
                 title: element.description.to_string(),
                 categories: category_ids_for_element(element.name),
                 content_model: normalize_content_model(&element.content_model),
                 attributes,
-                provenance: vec![
-                    manifest.fact_provenance(
-                        bindings.element_index_input,
-                        bindings.element_index_source_kind,
-                        bindings.element_index_locator(element.name),
-                        bindings.element_index_confidence,
-                    )?,
-                    manifest.fact_provenance(
-                        bindings.detail_input,
-                        bindings.detail_source_kind,
-                        bindings.element_locator(element.name),
-                        bindings.detail_confidence,
-                    )?,
-                ],
+                provenance,
             })
         })
         .collect()
+}
+
+/// Order-preserving, first-wins dedup for provenance vectors.
+///
+/// Two distinct `SeedSourceBindings` fields (e.g. `attribute_index_*` and
+/// `detail_*`) can point at the same source id, kind, file and locator —
+/// most notably in `Svg2EditorsDraft20250914` where every binding resolves
+/// to `definitions.xml`. Without dedup the generated snapshot carries
+/// byte-identical provenance rows that skew coverage accounting.
+fn dedup_provenance(provenance: &mut Vec<FactProvenance>) {
+    let mut seen: Vec<FactProvenance> = Vec::with_capacity(provenance.len());
+    provenance.retain(|entry| {
+        if seen.iter().any(|existing| existing == entry) {
+            false
+        } else {
+            seen.push(entry.clone());
+            true
+        }
+    });
 }
 
 struct SeedAttributeData {
@@ -213,6 +252,7 @@ fn build_seed_attributes(
                     bindings.detail_confidence,
                 )?,
             ];
+            dedup_provenance(&mut provenance);
 
             Ok(SnapshotAttributeRecord {
                 name: attribute.name.to_string(),
@@ -274,6 +314,9 @@ fn build_seed_edges(
         let required: BTreeSet<&str> = element.required_attrs.iter().copied().collect();
         for profiled_attribute in attributes_for_with_profile(snapshot, element.name) {
             let attribute = profiled_attribute.attribute;
+            if is_placeholder_attribute_name(attribute.name) {
+                continue;
+            }
             edges.push(ElementAttributeEdge {
                 element: element.name.to_string(),
                 attribute: attribute.name.to_string(),
@@ -296,13 +339,11 @@ fn build_seed_edges(
 }
 
 fn parse_snapshot_id(value: &str) -> Result<SpecSnapshotId, Box<dyn Error>> {
-    match value {
-        "Svg11Rec20030114" => Ok(SpecSnapshotId::Svg11Rec20030114),
-        "Svg11Rec20110816" => Ok(SpecSnapshotId::Svg11Rec20110816),
-        "Svg2Cr20181004" => Ok(SpecSnapshotId::Svg2Cr20181004),
-        "Svg2EditorsDraft20250914" => Ok(SpecSnapshotId::Svg2EditorsDraft20250914),
-        _ => Err(format!("snapshot seed generator does not support {value}").into()),
-    }
+    svg_data::spec_snapshots()
+        .iter()
+        .copied()
+        .find(|snapshot| snapshot.as_str() == value)
+        .ok_or_else(|| format!("snapshot seed generator does not support {value}").into())
 }
 
 fn manifest_path(snapshot: SpecSnapshotId) -> std::path::PathBuf {
@@ -345,6 +386,7 @@ const fn foreign_reference_source_ids() -> &'static [&'static str] {
         "compositing-1",
         "css-values-3",
         "css-color-4",
+        "wai-aria-1.1",
     ]
 }
 
@@ -360,6 +402,10 @@ fn normalize_content_model(content_model: &ContentModel) -> ElementContentModel 
                 .map(|category| category_id(*category).to_string())
                 .collect(),
         },
+        ContentModel::ChildrenSet(elements) => ElementContentModel::ElementSet {
+            elements: elements.iter().map(|name| (*name).to_string()).collect(),
+        },
+        ContentModel::AnySvg => ElementContentModel::AnySvg,
         ContentModel::Foreign => ElementContentModel::ForeignNamespace,
         ContentModel::Void => ElementContentModel::Empty,
         ContentModel::Text => ElementContentModel::TextOnly,
@@ -865,7 +911,7 @@ const fn seed_source_bindings(snapshot: SpecSnapshotId) -> SeedSourceBindings {
             detail_source_kind: ProvenanceSourceKind::Html,
             detail_confidence: ExtractionConfidence::Derived,
             detail_file: None,
-            review_note: "SVG 2 CR seed facts stay SVG-owned only; foreign grammar and module references remain explicit follow-up work for later ingestion phases.",
+            review_note: "SVG 2 CR seed facts are SVG-owned; foreign references (svg-animations, css-masking-1, filter-effects-1, compositing-1, wai-aria-1.1, css-color-4, css-values-3) are emitted per-attribute when a foreign manifest is present.",
         },
         SpecSnapshotId::Svg2EditorsDraft20250914 => SeedSourceBindings {
             element_index_input: "definitions",

@@ -36,6 +36,13 @@ pub struct ElementDef {
 pub enum ContentModel {
     /// The element accepts children from the listed categories.
     Children(&'static [ElementCategory]),
+    /// The element accepts the explicitly listed child elements by name,
+    /// rather than by category. Mirrors the snapshot-schema `ElementSet` case
+    /// for descriptors like `<animate>`'s narrowly defined content model.
+    ChildrenSet(&'static [&'static str]),
+    /// The element accepts any element from the SVG namespace. Mirrors the
+    /// snapshot-schema `AnySvg` case used for root containers like `<svg>`.
+    AnySvg,
     /// The element accepts foreign-namespace content such as HTML.
     Foreign,
     /// The element is empty and must not have children.

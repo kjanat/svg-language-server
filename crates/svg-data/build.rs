@@ -294,7 +294,7 @@ struct UnionElement {
     required_attrs: Vec<String>,
     attrs: Vec<String>,
     global_attrs: bool,
-    category: Option<String>,
+    categories: Vec<String>,
     known_in: Vec<SpecSnapshotId>,
 }
 
@@ -337,6 +337,14 @@ struct BuildInputs {
     attributes: Vec<UnionAttribute>,
     profile_attributes: Vec<(SpecSnapshotId, BTreeMap<String, Vec<String>>)>,
     compat: bcd::CompatData,
+}
+
+/// Minimal record from `data/elements.json` used to augment the per-snapshot
+/// profile attribute mappings with curated element→attribute edges.
+#[derive(Debug, Deserialize)]
+struct CuratedElementRecord {
+    name: String,
+    attrs: Vec<String>,
 }
 
 fn ensure_cached(url: &str, dest: &Path, offline: bool) -> Result<bool, String> {
@@ -402,6 +410,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     println!("cargo::rerun-if-changed=data/specs");
     println!("cargo::rerun-if-changed=data/derived");
+    println!("cargo::rerun-if-changed=data/elements.json");
+    println!("cargo::rerun-if-changed=data/placeholder_attribute_names.txt");
     println!("cargo::rerun-if-env-changed=SVG_DATA_OFFLINE");
     println!("cargo::rerun-if-env-changed=SVG_COMPAT_FILE");
     println!("cargo::rerun-if-env-changed=SVG_COMPAT_URL");
@@ -459,9 +469,13 @@ fn load_build_inputs() -> Result<BuildInputs, Box<dyn Error>> {
     let attribute_membership: AttributeMembershipFile =
         read_json(&manifest_dir.join("data/derived/union/attributes.json"))?;
 
+    let curated_elements: Vec<CuratedElementRecord> =
+        read_json(&manifest_dir.join("data/elements.json"))?;
+
     let elements = build_union_elements(&snapshot_data, &element_membership)?;
     let attributes = build_union_attributes(&snapshot_data, &attribute_membership)?;
-    let profile_attributes = build_profile_attributes(&snapshots, &snapshot_data);
+    let profile_attributes =
+        build_profile_attributes(&snapshots, &snapshot_data, &curated_elements);
 
     Ok(BuildInputs {
         out_path,
@@ -506,6 +520,9 @@ fn load_snapshot_build_data(
     let mut attribute_counts: HashMap<String, usize> = HashMap::new();
 
     for edge in matrix.edges {
+        if is_placeholder_attribute_name(&edge.attribute) {
+            continue;
+        }
         element_attributes
             .entry(edge.element.clone())
             .or_default()
@@ -599,17 +616,32 @@ fn build_union_elements(
             required_attrs,
             attrs,
             global_attrs,
-            category: element
+            categories: element
                 .categories
-                .first()
+                .iter()
                 .map(|category| map_category_name(category))
-                .transpose()?,
+                .collect::<Result<Vec<_>, _>>()?,
             known_in: feature.present_in.clone(),
         });
     }
 
     elements.sort_by(|left, right| left.name.cmp(&right.name));
     Ok(elements)
+}
+
+/// Shared blocklist of upstream BCD/web-features IDs that do not
+/// correspond to valid serialized SVG attribute names. Read from a plain
+/// text file at compile time so `examples/generate_snapshot_seed.rs` can
+/// `include_str!` the same source of truth without crossing the
+/// lib-vs-build-script boundary.
+const PLACEHOLDER_ATTRIBUTE_NAMES_RAW: &str = include_str!("data/placeholder_attribute_names.txt");
+
+fn is_placeholder_attribute_name(name: &str) -> bool {
+    PLACEHOLDER_ATTRIBUTE_NAMES_RAW
+        .lines()
+        .map(str::trim)
+        .filter(|line| !line.is_empty())
+        .any(|blocked| blocked == name)
 }
 
 fn build_union_attributes(
@@ -619,6 +651,9 @@ fn build_union_attributes(
     let mut attributes = Vec::with_capacity(membership.attributes.len());
 
     for feature in &membership.attributes {
+        if is_placeholder_attribute_name(&feature.name) {
+            continue;
+        }
         let snapshot = latest_present_snapshot(&feature.present_in)
             .ok_or_else(|| format!("attribute {} has no present snapshots", feature.name))?;
         let data = snapshot_data
@@ -658,25 +693,48 @@ fn build_union_attributes(
 fn build_profile_attributes(
     snapshots: &[SpecSnapshotId],
     snapshot_data: &HashMap<SpecSnapshotId, SnapshotBuildData>,
+    curated_elements: &[CuratedElementRecord],
 ) -> Vec<(SpecSnapshotId, BTreeMap<String, Vec<String>>)> {
     snapshots
         .iter()
         .copied()
         .map(|snapshot| {
-            let mapping = snapshot_data
-                .get(&snapshot)
-                .map(|data| {
-                    data.element_attributes
-                        .iter()
-                        .map(|(element, edges)| {
-                            (
-                                element.clone(),
-                                edges.iter().map(|edge| edge.name.clone()).collect(),
-                            )
-                        })
-                        .collect()
+            let Some(data) = snapshot_data.get(&snapshot) else {
+                return (snapshot, BTreeMap::default());
+            };
+
+            let mut mapping: BTreeMap<String, Vec<String>> = data
+                .element_attributes
+                .iter()
+                .map(|(element, edges)| {
+                    (
+                        element.clone(),
+                        edges.iter().map(|edge| edge.name.clone()).collect(),
+                    )
                 })
-                .unwrap_or_default();
+                .collect();
+
+            // Augment with edges from the curated catalog (data/elements.json).
+            // An attr is included only when it already has a record in this
+            // snapshot's attributes.json — so version-specific attrs like `href`
+            // (SVG 2 only) and `xlink:href` (SVG 1.1 only) are filtered correctly
+            // without any explicit per-snapshot logic.
+            for curated in curated_elements {
+                if !data.elements.contains_key(&curated.name) {
+                    continue;
+                }
+                let entry = mapping.entry(curated.name.clone()).or_default();
+                for attr in &curated.attrs {
+                    if data.attributes.contains_key(attr) {
+                        let already_present = entry.iter().any(|e| e == attr);
+                        if !already_present {
+                            entry.push(attr.clone());
+                        }
+                    }
+                }
+                entry.sort();
+            }
+
             (snapshot, mapping)
         })
         .collect::<Vec<_>>()
@@ -740,6 +798,13 @@ fn union_values_from_syntax(
             ("css-color-4", "<color>") => UnionValues::Color,
             ("css-values-3", "<length>") => UnionValues::Length,
             ("css-values-3", "<number-or-percentage>") => UnionValues::NumberOrPercentage,
+            // Url-valued attributes in SVG 2 that forward to CSS specs.
+            // Without these the runtime catalog would fall back to FreeText
+            // and the LSP would lose `url(#id)` completion for clip-path /
+            // mask / filter.
+            ("css-masking-1", "clip-path" | "mask") | ("filter-effects-1", "filter") => {
+                UnionValues::Url
+            }
             _ => UnionValues::FreeText,
         },
         ValueSyntaxJson::Opaque { .. } => UnionValues::FreeText,
@@ -974,10 +1039,12 @@ fn write_elements_array(
         let content_model = match &element.content_model {
             ElementContentModelJson::Empty => "ContentModel::Void".to_string(),
             ElementContentModelJson::TextOnly => "ContentModel::Text".to_string(),
-            ElementContentModelJson::AnySvg
-            | ElementContentModelJson::CategorySet { .. }
-            | ElementContentModelJson::ElementSet { .. } => {
+            ElementContentModelJson::AnySvg => "ContentModel::AnySvg".to_string(),
+            ElementContentModelJson::CategorySet { .. } => {
                 format!("ContentModel::Children(EL_{id}_CHILDREN)")
+            }
+            ElementContentModelJson::ElementSet { .. } => {
+                format!("ContentModel::ChildrenSet(EL_{id}_CHILDREN_SET)")
             }
             ElementContentModelJson::ForeignNamespace => "ContentModel::Foreign".to_string(),
         };
@@ -1095,7 +1162,7 @@ fn write_attributes_array(
 fn write_category_mapping(out: &mut String, elements: &[UnionElement]) -> std::fmt::Result {
     let mut category_map: HashMap<&str, Vec<&str>> = HashMap::new();
     for element in elements {
-        if let Some(category) = &element.category {
+        for category in &element.categories {
             category_map
                 .entry(category.as_str())
                 .or_default()

@@ -2,306 +2,6 @@
 	"schema_version": 1,
 	"element_categories": [
 		{
-			"element": "svg",
-			"category": "container",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "svg"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "g",
-			"category": "container",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "g"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "defs",
-			"category": "container",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "defs"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "use",
-			"category": "structural",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "use"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "symbol",
-			"category": "container",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "symbol"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "rect",
-			"category": "shape",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "rect"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "circle",
-			"category": "shape",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "circle"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "ellipse",
-			"category": "shape",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "ellipse"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "line",
-			"category": "shape",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "line"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "polyline",
-			"category": "shape",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "polyline"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "polygon",
-			"category": "shape",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "polygon"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "path",
-			"category": "shape",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "path"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "text",
-			"category": "text",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "text"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "tspan",
-			"category": "text",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "tspan"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "textPath",
-			"category": "text",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "textPath"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
 			"element": "a",
 			"category": "container",
 			"provenance": [
@@ -316,346 +16,6 @@
 						"kind": "definition",
 						"file": "DTD/svg11-flat.dtd",
 						"id": "a"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "image",
-			"category": "structural",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "image"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "title",
-			"category": "descriptive",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "title"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "desc",
-			"category": "descriptive",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "desc"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "metadata",
-			"category": "descriptive",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "metadata"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "clipPath",
-			"category": "clip_mask",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "clipPath"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "mask",
-			"category": "clip_mask",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "mask"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "linearGradient",
-			"category": "gradient",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "linearGradient"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "radialGradient",
-			"category": "gradient",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "radialGradient"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "stop",
-			"category": "gradient",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "stop"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "pattern",
-			"category": "paint_server",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "pattern"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "filter",
-			"category": "filter",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "filter"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feGaussianBlur",
-			"category": "filter_primitive",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "feGaussianBlur"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "foreignObject",
-			"category": "structural",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "foreignObject"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "style",
-			"category": "never_rendered",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "style"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "script",
-			"category": "never_rendered",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "script"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "marker",
-			"category": "container",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "marker"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "switch",
-			"category": "structural",
-			"provenance": [
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "switch"
 					},
 					"confidence": "derived"
 				}
@@ -722,8 +82,8 @@
 			]
 		},
 		{
-			"element": "set",
-			"category": "animation",
+			"element": "circle",
+			"category": "shape",
 			"provenance": [
 				{
 					"source_id": "flattened-dtd",
@@ -735,15 +95,15 @@
 					"locator": {
 						"kind": "definition",
 						"file": "DTD/svg11-flat.dtd",
-						"id": "set"
+						"id": "circle"
 					},
 					"confidence": "derived"
 				}
 			]
 		},
 		{
-			"element": "mpath",
-			"category": "motion_path",
+			"element": "clipPath",
+			"category": "clip_mask",
 			"provenance": [
 				{
 					"source_id": "flattened-dtd",
@@ -755,15 +115,15 @@
 					"locator": {
 						"kind": "definition",
 						"file": "DTD/svg11-flat.dtd",
-						"id": "mpath"
+						"id": "clipPath"
 					},
 					"confidence": "derived"
 				}
 			]
 		},
 		{
-			"element": "feDistantLight",
-			"category": "light_source",
+			"element": "defs",
+			"category": "container",
 			"provenance": [
 				{
 					"source_id": "flattened-dtd",
@@ -775,15 +135,15 @@
 					"locator": {
 						"kind": "definition",
 						"file": "DTD/svg11-flat.dtd",
-						"id": "feDistantLight"
+						"id": "defs"
 					},
 					"confidence": "derived"
 				}
 			]
 		},
 		{
-			"element": "fePointLight",
-			"category": "light_source",
+			"element": "desc",
+			"category": "descriptive",
 			"provenance": [
 				{
 					"source_id": "flattened-dtd",
@@ -795,15 +155,15 @@
 					"locator": {
 						"kind": "definition",
 						"file": "DTD/svg11-flat.dtd",
-						"id": "fePointLight"
+						"id": "desc"
 					},
 					"confidence": "derived"
 				}
 			]
 		},
 		{
-			"element": "feSpotLight",
-			"category": "light_source",
+			"element": "ellipse",
+			"category": "shape",
 			"provenance": [
 				{
 					"source_id": "flattened-dtd",
@@ -815,7 +175,7 @@
 					"locator": {
 						"kind": "definition",
 						"file": "DTD/svg11-flat.dtd",
-						"id": "feSpotLight"
+						"id": "ellipse"
 					},
 					"confidence": "derived"
 				}
@@ -962,6 +322,26 @@
 			]
 		},
 		{
+			"element": "feDistantLight",
+			"category": "light_source",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "feDistantLight"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
 			"element": "feFlood",
 			"category": "filter_primitive",
 			"provenance": [
@@ -976,6 +356,106 @@
 						"kind": "definition",
 						"file": "DTD/svg11-flat.dtd",
 						"id": "feFlood"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "feFuncA",
+			"category": "transfer_function",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "feFuncA"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "feFuncB",
+			"category": "transfer_function",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "feFuncB"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "feFuncG",
+			"category": "transfer_function",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "feFuncG"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "feFuncR",
+			"category": "transfer_function",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "feFuncR"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "feGaussianBlur",
+			"category": "filter_primitive",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "feGaussianBlur"
 					},
 					"confidence": "derived"
 				}
@@ -1082,6 +562,26 @@
 			]
 		},
 		{
+			"element": "fePointLight",
+			"category": "light_source",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "fePointLight"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
 			"element": "feSpecularLighting",
 			"category": "filter_primitive",
 			"provenance": [
@@ -1096,6 +596,26 @@
 						"kind": "definition",
 						"file": "DTD/svg11-flat.dtd",
 						"id": "feSpecularLighting"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "feSpotLight",
+			"category": "light_source",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "feSpotLight"
 					},
 					"confidence": "derived"
 				}
@@ -1142,8 +662,8 @@
 			]
 		},
 		{
-			"element": "feFuncR",
-			"category": "transfer_function",
+			"element": "filter",
+			"category": "filter",
 			"provenance": [
 				{
 					"source_id": "flattened-dtd",
@@ -1155,15 +675,15 @@
 					"locator": {
 						"kind": "definition",
 						"file": "DTD/svg11-flat.dtd",
-						"id": "feFuncR"
+						"id": "filter"
 					},
 					"confidence": "derived"
 				}
 			]
 		},
 		{
-			"element": "feFuncG",
-			"category": "transfer_function",
+			"element": "foreignObject",
+			"category": "structural",
 			"provenance": [
 				{
 					"source_id": "flattened-dtd",
@@ -1175,15 +695,15 @@
 					"locator": {
 						"kind": "definition",
 						"file": "DTD/svg11-flat.dtd",
-						"id": "feFuncG"
+						"id": "foreignObject"
 					},
 					"confidence": "derived"
 				}
 			]
 		},
 		{
-			"element": "feFuncB",
-			"category": "transfer_function",
+			"element": "g",
+			"category": "container",
 			"provenance": [
 				{
 					"source_id": "flattened-dtd",
@@ -1195,15 +715,15 @@
 					"locator": {
 						"kind": "definition",
 						"file": "DTD/svg11-flat.dtd",
-						"id": "feFuncB"
+						"id": "g"
 					},
 					"confidence": "derived"
 				}
 			]
 		},
 		{
-			"element": "feFuncA",
-			"category": "transfer_function",
+			"element": "image",
+			"category": "structural",
 			"provenance": [
 				{
 					"source_id": "flattened-dtd",
@@ -1215,7 +735,487 @@
 					"locator": {
 						"kind": "definition",
 						"file": "DTD/svg11-flat.dtd",
-						"id": "feFuncA"
+						"id": "image"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "line",
+			"category": "shape",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "line"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "linearGradient",
+			"category": "gradient",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "linearGradient"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "marker",
+			"category": "container",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "marker"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "mask",
+			"category": "clip_mask",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "mask"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "metadata",
+			"category": "descriptive",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "metadata"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "mpath",
+			"category": "motion_path",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "mpath"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "path",
+			"category": "shape",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "path"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "pattern",
+			"category": "paint_server",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "pattern"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "polygon",
+			"category": "shape",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "polygon"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "polyline",
+			"category": "shape",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "polyline"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "radialGradient",
+			"category": "gradient",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "radialGradient"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "rect",
+			"category": "shape",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "rect"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "script",
+			"category": "never_rendered",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "script"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "set",
+			"category": "animation",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "set"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "stop",
+			"category": "gradient",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "stop"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "style",
+			"category": "never_rendered",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "style"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "svg",
+			"category": "container",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "svg"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "switch",
+			"category": "structural",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "switch"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "symbol",
+			"category": "container",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "symbol"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "text",
+			"category": "text",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "text"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "textPath",
+			"category": "text",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "textPath"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "title",
+			"category": "descriptive",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "title"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "tspan",
+			"category": "text",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "tspan"
+					},
+					"confidence": "derived"
+				}
+			]
+		},
+		{
+			"element": "use",
+			"category": "structural",
+			"provenance": [
+				{
+					"source_id": "flattened-dtd",
+					"source_kind": "dtd",
+					"pin": {
+						"kind": "url",
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
+					},
+					"locator": {
+						"kind": "definition",
+						"file": "DTD/svg11-flat.dtd",
+						"id": "use"
 					},
 					"confidence": "derived"
 				}

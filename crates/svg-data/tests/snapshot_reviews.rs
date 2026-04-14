@@ -1,12 +1,12 @@
 //! Regression coverage for deterministic snapshot review reports.
 
-use std::{fs, path::Path};
+use std::{collections::BTreeSet, fs, path::Path};
 
 use svg_data::{
     review::{Input, build_report},
     snapshot_schema::{
-        CategoriesFile, ElementAttributeMatrixFile, ExceptionsFile, GrammarFile, ReviewFile,
-        SnapshotAttributeRecord, SnapshotElementRecord,
+        CategoriesFile, ElementAttributeMatrixFile, ExceptionsFile, FactProvenance, GrammarFile,
+        ReviewFile, SnapshotAttributeRecord, SnapshotElementRecord, SnapshotMetadataFile,
     },
     spec_snapshots,
 };
@@ -52,6 +52,77 @@ fn checked_in_snapshot_reviews_match_derived_audit() {
         assert_eq!(actual.provenance.attributes.missing, 0);
         assert_eq!(actual.provenance.grammars.missing, 0);
         assert_eq!(actual.provenance.applicability_edges.missing, 0);
+    }
+}
+
+#[test]
+fn every_provenance_source_id_resolves_to_a_pinned_input() {
+    for snapshot in spec_snapshots() {
+        let root =
+            Path::new(env!("CARGO_MANIFEST_DIR")).join(format!("data/specs/{}", snapshot.as_str()));
+
+        let metadata: SnapshotMetadataFile = read_json(&root.join("snapshot.json"));
+        let allowed: BTreeSet<String> = metadata
+            .pinned_sources
+            .iter()
+            .map(|source| source.input_id.clone())
+            .collect();
+
+        let elements: Vec<SnapshotElementRecord> = read_json(&root.join("elements.json"));
+        let attributes: Vec<SnapshotAttributeRecord> = read_json(&root.join("attributes.json"));
+        let grammars: GrammarFile = read_json(&root.join("grammars.json"));
+        let categories: CategoriesFile = read_json(&root.join("categories.json"));
+        let element_attribute_matrix: ElementAttributeMatrixFile =
+            read_json(&root.join("element_attribute_matrix.json"));
+        let exceptions: ExceptionsFile = read_json(&root.join("exceptions.json"));
+
+        let mut provenance_sources: Vec<(&'static str, &FactProvenance)> = Vec::new();
+        for element in &elements {
+            for provenance in &element.provenance {
+                provenance_sources.push(("elements.json", provenance));
+            }
+        }
+        for attribute in &attributes {
+            for provenance in &attribute.provenance {
+                provenance_sources.push(("attributes.json", provenance));
+            }
+        }
+        for grammar in &grammars.grammars {
+            for provenance in &grammar.provenance {
+                provenance_sources.push(("grammars.json", provenance));
+            }
+        }
+        for membership in &categories.element_categories {
+            for provenance in &membership.provenance {
+                provenance_sources.push(("categories.json", provenance));
+            }
+        }
+        for membership in &categories.attribute_categories {
+            for provenance in &membership.provenance {
+                provenance_sources.push(("categories.json", provenance));
+            }
+        }
+        for edge in &element_attribute_matrix.edges {
+            for provenance in &edge.provenance {
+                provenance_sources.push(("element_attribute_matrix.json", provenance));
+            }
+        }
+        for exception in &exceptions.exceptions {
+            for provenance in &exception.provenance {
+                provenance_sources.push(("exceptions.json", provenance));
+            }
+        }
+
+        for (file_name, provenance) in provenance_sources {
+            assert!(
+                allowed.contains(&provenance.source_id),
+                "{}: {} references source_id {:?} that is not pinned in snapshot.json (allowed: {:?})",
+                snapshot.as_str(),
+                file_name,
+                provenance.source_id,
+                allowed,
+            );
+        }
     }
 }
 

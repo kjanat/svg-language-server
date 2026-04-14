@@ -97,6 +97,8 @@ pub struct MembershipDelta {
 pub enum DeriveError {
     /// One or more canonical snapshots were missing from the input set.
     MissingSnapshots(Vec<SpecSnapshotId>),
+    /// The same canonical snapshot id was supplied more than once.
+    DuplicateSnapshot(SpecSnapshotId),
     /// A snapshot review still contains unresolved issues.
     SnapshotReviewNotClean {
         /// Snapshot that failed the review gate.
@@ -117,6 +119,11 @@ impl std::fmt::Display for DeriveError {
                     .map(|snapshot| snapshot.as_str())
                     .collect::<Vec<_>>()
                     .join(", ")
+            ),
+            Self::DuplicateSnapshot(snapshot) => write!(
+                f,
+                "duplicate reviewed snapshot input: {}",
+                snapshot.as_str()
             ),
             Self::SnapshotReviewNotClean {
                 snapshot,
@@ -141,10 +148,13 @@ pub fn build_membership_artifacts(
     inputs: &[ReviewedSnapshotMembershipInput<'_>],
 ) -> Result<MembershipArtifacts, DeriveError> {
     let canonical_snapshots = spec_snapshots();
-    let input_by_snapshot: HashMap<SpecSnapshotId, ReviewedSnapshotMembershipInput<'_>> = inputs
-        .iter()
-        .map(|input| (input.snapshot, *input))
-        .collect();
+    let mut input_by_snapshot: HashMap<SpecSnapshotId, ReviewedSnapshotMembershipInput<'_>> =
+        HashMap::with_capacity(inputs.len());
+    for input in inputs {
+        if input_by_snapshot.insert(input.snapshot, *input).is_some() {
+            return Err(DeriveError::DuplicateSnapshot(input.snapshot));
+        }
+    }
 
     let missing_snapshots: Vec<SpecSnapshotId> = canonical_snapshots
         .iter()
@@ -379,5 +389,23 @@ mod tests {
 
         assert_eq!(snapshot, SpecSnapshotId::Svg11Rec20030114);
         assert_eq!(unresolved, 1);
+    }
+
+    #[test]
+    fn derivation_rejects_duplicate_snapshot_inputs() {
+        let review = clean_review();
+        let dup = ReviewedSnapshotMembershipInput {
+            snapshot: SpecSnapshotId::Svg11Rec20030114,
+            elements: &[] as &[SnapshotElementRecord],
+            attributes: &[] as &[SnapshotAttributeRecord],
+            review: &review,
+        };
+        let inputs = [dup, dup];
+
+        let Err(DeriveError::DuplicateSnapshot(snapshot)) = build_membership_artifacts(&inputs)
+        else {
+            panic!("expected duplicate snapshot error");
+        };
+        assert_eq!(snapshot, SpecSnapshotId::Svg11Rec20030114);
     }
 }

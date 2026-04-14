@@ -55,13 +55,11 @@ struct ExistingReviewNotes {
 }
 
 fn parse_snapshot_id(value: &str) -> Result<SpecSnapshotId, Box<dyn Error>> {
-    match value {
-        "Svg11Rec20030114" => Ok(SpecSnapshotId::Svg11Rec20030114),
-        "Svg11Rec20110816" => Ok(SpecSnapshotId::Svg11Rec20110816),
-        "Svg2Cr20181004" => Ok(SpecSnapshotId::Svg2Cr20181004),
-        "Svg2EditorsDraft20250914" => Ok(SpecSnapshotId::Svg2EditorsDraft20250914),
-        _ => Err(format!("snapshot review generator does not support {value}").into()),
-    }
+    svg_data::spec_snapshots()
+        .iter()
+        .copied()
+        .find(|snapshot| snapshot.as_str() == value)
+        .ok_or_else(|| format!("snapshot review generator does not support {value}").into())
 }
 
 fn read_json<T>(path: &Path) -> Result<T, Box<dyn Error>>

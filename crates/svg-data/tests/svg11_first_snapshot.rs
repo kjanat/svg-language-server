@@ -27,8 +27,8 @@ fn svg2_cr_snapshot_matches_profile_seed() {
     assert_svg2_snapshot_matches_profile_seed(
         SpecSnapshotId::Svg2Cr20181004,
         "2018-10-04",
-        12,
-        "foreign grammar and module references",
+        13,
+        "foreign references (svg-animations",
     );
 }
 
@@ -37,7 +37,7 @@ fn svg2_editors_draft_snapshot_matches_profile_seed() {
     assert_svg2_snapshot_matches_profile_seed(
         SpecSnapshotId::Svg2EditorsDraft20250914,
         "2025-09-14",
-        12,
+        13,
         "pinned svgwg commit and `definitions.xml`",
     );
 }
@@ -396,6 +396,7 @@ const fn expected_foreign_ref_source_ids() -> &'static [&'static str] {
         "compositing-1",
         "css-values-3",
         "css-color-4",
+        "wai-aria-1.1",
     ]
 }
 

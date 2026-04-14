@@ -25,37 +25,43 @@ cache_subdir       = "spec-sources/svg2-cr-20181004"
 allow_live_refresh = true
 
 [[inputs]]
-id      = "tr-root"
-kind    = "html"
-locator = "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-role    = "normative-root"
+id        = "tr-root"
+kind      = "html"
+locator   = "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+role      = "normative-root"
+authority = "primary"
 
 [[inputs]]
-id      = "single-page"
-kind    = "html"
-locator = "https://www.w3.org/TR/2018/CR-SVG2-20181004/single-page.html"
-role    = "cross-chapter extraction fallback"
+id        = "single-page"
+kind      = "html"
+locator   = "https://www.w3.org/TR/2018/CR-SVG2-20181004/single-page.html"
+role      = "cross-chapter extraction fallback"
+authority = "supporting"
 
 [[inputs]]
-id      = "element-index"
-kind    = "html"
-locator = "https://www.w3.org/TR/2018/CR-SVG2-20181004/eltindex.html"
-role    = "element inventory"
+id        = "element-index"
+kind      = "html"
+locator   = "https://www.w3.org/TR/2018/CR-SVG2-20181004/eltindex.html"
+role      = "element inventory"
+authority = "primary"
 
 [[inputs]]
-id      = "attribute-index"
-kind    = "html"
-locator = "https://www.w3.org/TR/2018/CR-SVG2-20181004/attindex.html"
-role    = "attribute inventory"
+id        = "attribute-index"
+kind      = "html"
+locator   = "https://www.w3.org/TR/2018/CR-SVG2-20181004/attindex.html"
+role      = "attribute inventory"
+authority = "primary"
 
 [[inputs]]
-id      = "property-index"
-kind    = "html"
-locator = "https://www.w3.org/TR/2018/CR-SVG2-20181004/propidx.html"
-role    = "property inventory"
+id        = "property-index"
+kind      = "html"
+locator   = "https://www.w3.org/TR/2018/CR-SVG2-20181004/propidx.html"
+role      = "property inventory"
+authority = "primary"
 
 [[inputs]]
-id      = "editors-draft-reference"
-kind    = "reference-only"
-locator = "https://github.com/w3c/svgwg/"
-role    = "non-authoritative extraction aid only"
+id        = "editors-draft-reference"
+kind      = "reference-only"
+locator   = "https://github.com/w3c/svgwg/tree/19482daf4094e72becde92b38c6a1c0d384b56a9"
+role      = "non-authoritative extraction aid only"
+authority = "supporting"

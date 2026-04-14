@@ -25,31 +25,36 @@ cache_subdir       = "spec-sources/svg11-rec-20110816"
 allow_live_refresh = true
 
 [[inputs]]
-id      = "tr-root"
-kind    = "html"
-locator = "https://www.w3.org/TR/2011/REC-SVG11-20110816/"
-role    = "normative-root"
+id        = "tr-root"
+kind      = "html"
+locator   = "https://www.w3.org/TR/2011/REC-SVG11-20110816/"
+role      = "normative-root"
+authority = "primary"
 
 [[inputs]]
-id      = "element-index"
-kind    = "html"
-locator = "https://www.w3.org/TR/2011/REC-SVG11-20110816/eltindex.html"
-role    = "element inventory"
+id        = "element-index"
+kind      = "html"
+locator   = "https://www.w3.org/TR/2011/REC-SVG11-20110816/eltindex.html"
+role      = "element inventory"
+authority = "primary"
 
 [[inputs]]
-id      = "attribute-index"
-kind    = "html"
-locator = "https://www.w3.org/TR/2011/REC-SVG11-20110816/attindex.html"
-role    = "attribute inventory"
+id        = "attribute-index"
+kind      = "html"
+locator   = "https://www.w3.org/TR/2011/REC-SVG11-20110816/attindex.html"
+role      = "attribute inventory"
+authority = "primary"
 
 [[inputs]]
-id      = "flattened-dtd"
-kind    = "dtd"
-locator = "https://www.w3.org/TR/2011/REC-SVG11-20110816/DTD/svg11-flat.dtd"
-role    = "structure fallback and grammar extraction"
+id        = "flattened-dtd"
+kind      = "dtd"
+locator   = "https://www.w3.org/TR/2011/REC-SVG11-20110816/DTD/svg11-flat.dtd"
+role      = "structure fallback and grammar extraction"
+authority = "primary"
 
 [[inputs]]
-id      = "html-archive-link"
-kind    = "linked-archive"
-locator = "zip archive linked from the TR landing page"
-role    = "offline HTML bundle cross-check"
+id        = "html-archive-link"
+kind      = "linked-archive"
+locator   = "zip archive linked from the TR landing page"
+role      = "offline HTML bundle cross-check"
+authority = "supporting"

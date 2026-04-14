@@ -1,6 +1,6 @@
 //! Regenerate checked-in union membership and adjacent snapshot overlays.
 
-use std::{error::Error, fs, path::Path};
+use std::{collections::BTreeSet, error::Error, fs, path::Path};
 
 use svg_data::{
     derived::{
@@ -62,18 +62,42 @@ fn write_artifacts(artifacts: &MembershipArtifacts) -> Result<(), Box<dyn Error>
     let root = derived_root();
     write_json(&root.join("union/elements.json"), &artifacts.elements)?;
     write_json(&root.join("union/attributes.json"), &artifacts.attributes)?;
+
+    // Remove stale overlay files that the current snapshot order no longer
+    // produces, so the checked-in derived tree always matches the generator's
+    // output exactly.
+    let overlays_dir = root.join("overlays");
+    let expected: BTreeSet<String> = artifacts.overlays.iter().map(overlay_base_name).collect();
+    if overlays_dir.exists() {
+        for entry in fs::read_dir(&overlays_dir)? {
+            let entry = entry?;
+            if !entry.file_type()?.is_file() {
+                continue;
+            }
+            let name = entry.file_name();
+            let name_str = name.to_string_lossy();
+            if !expected.contains(name_str.as_ref()) {
+                fs::remove_file(entry.path())?;
+            }
+        }
+    }
+
     for overlay in &artifacts.overlays {
         write_json(&root.join(overlay_file_name(overlay)), overlay)?;
     }
     Ok(())
 }
 
-fn overlay_file_name(overlay: &SnapshotOverlayFile) -> String {
+fn overlay_base_name(overlay: &SnapshotOverlayFile) -> String {
     format!(
-        "overlays/{}__{}.json",
+        "{}__{}.json",
         overlay.from_snapshot.as_str(),
         overlay.to_snapshot.as_str()
     )
+}
+
+fn overlay_file_name(overlay: &SnapshotOverlayFile) -> String {
+    format!("overlays/{}", overlay_base_name(overlay))
 }
 
 fn read_json<T>(path: &Path) -> Result<T, Box<dyn Error>>

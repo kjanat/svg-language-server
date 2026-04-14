@@ -92,18 +92,27 @@ fn load_worker_json(cache_path: &Path, offline: bool) -> Result<Option<String>, 
         && !offline
         && let Some(worker_dir) = local_worker_dir()
     {
-        match run_local_worker_cli(&worker_dir, cache_path) {
+        let temp_path = cache_path.with_extension("tmp");
+        match run_local_worker_cli(&worker_dir, &temp_path) {
             Ok(()) => {
-                println!(
-                    "svg-data: using local svg-compat CLI {}",
-                    worker_dir.display()
-                );
-                return read_json_file(cache_path, "local svg-compat CLI output").map(Some);
+                if let Err(error) = fs::rename(&temp_path, cache_path) {
+                    println!(
+                        "cargo::warning=compat: local svg-compat CLI failed to rename: {error}; falling back to remote cache"
+                    );
+                    let _ = fs::remove_file(&temp_path);
+                } else {
+                    println!(
+                        "svg-data: using local svg-compat CLI {}",
+                        worker_dir.display()
+                    );
+                    return read_json_file(cache_path, "local svg-compat CLI output").map(Some);
+                }
             }
             Err(error) => {
                 println!(
                     "cargo::warning=compat: local svg-compat CLI failed: {error}; falling back to remote cache"
                 );
+                let _ = fs::remove_file(&temp_path);
             }
         }
     }

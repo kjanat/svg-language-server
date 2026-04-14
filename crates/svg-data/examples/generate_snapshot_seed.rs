@@ -430,6 +430,13 @@ fn normalize_value_syntax(
         return Ok(value_syntax);
     }
 
+    // Prefer the snapshot-specific value list when the union builder
+    // detected divergence between snapshots (see
+    // `build.rs::build_union_attributes`). Falls back to the union default
+    // baked into `AttributeDef::values` when the snapshot matches the
+    // base.
+    let values = svg_data::attribute_values_for_profile(snapshot, attribute_name).unwrap_or(values);
+
     match values {
         AttributeValues::Enum(values) => Ok(value_syntax_from_grammar_id(registry.attribute_enum(
             attribute_name,
@@ -500,6 +507,7 @@ fn normalize_value_syntax(
             meet_or_slice,
         } => Ok(preserve_aspect_ratio_value_syntax(
             registry,
+            snapshot,
             alignments,
             meet_or_slice,
             provenance,
@@ -624,22 +632,36 @@ const fn value_syntax_from_grammar_id(grammar_id: String) -> ValueSyntax {
 
 fn preserve_aspect_ratio_value_syntax(
     registry: &mut SeedGrammarRegistry,
+    snapshot: SpecSnapshotId,
     alignments: &[&str],
     meet_or_slice: &[&str],
     provenance: &[FactProvenance],
 ) -> ValueSyntax {
+    // SVG 1.1 (both editions) defines the attribute as
+    // `[defer] <align> [<meetOrSlice>]`. SVG 2 (CR + ED) dropped the
+    // `defer` prefix entirely — see coords.html §7.8 / §8.7. Emit the
+    // `defer` branch only for the SVG 1.1 snapshots.
+    let supports_defer = matches!(
+        snapshot,
+        SpecSnapshotId::Svg11Rec20030114 | SpecSnapshotId::Svg11Rec20110816
+    );
+    let mut items = Vec::with_capacity(3);
+    if supports_defer {
+        items.push(GrammarNode::Optional {
+            item: Box::new(GrammarNode::Keyword {
+                value: String::from("defer"),
+            }),
+        });
+    }
+    items.push(grammar_choice_from_keywords(alignments));
+    items.push(GrammarNode::Optional {
+        item: Box::new(grammar_choice_from_keywords(meet_or_slice)),
+    });
     value_syntax_from_shared_grammar(
         registry,
         "preserve-aspect-ratio",
         "preserveAspectRatio value",
-        GrammarNode::Sequence {
-            items: vec![
-                grammar_choice_from_keywords(alignments),
-                GrammarNode::Optional {
-                    item: Box::new(grammar_choice_from_keywords(meet_or_slice)),
-                },
-            ],
-        },
+        GrammarNode::Sequence { items },
         provenance,
     )
 }
@@ -669,7 +691,7 @@ fn points_value_syntax(
         registry,
         "points",
         "Point list",
-        GrammarNode::SpaceSeparated {
+        GrammarNode::CommaWspSeparated {
             item: Box::new(GrammarNode::GrammarRef {
                 name: coordinate_pair,
             }),
@@ -748,7 +770,7 @@ impl SeedGrammarRegistry {
             return self.shared(
                 "transform-list",
                 "Transform list",
-                GrammarNode::SpaceSeparated {
+                GrammarNode::CommaWspSeparated {
                     item: Box::new(GrammarNode::DatatypeRef {
                         name: String::from("transform-function"),
                     }),
@@ -767,7 +789,7 @@ impl SeedGrammarRegistry {
         self.shared(
             &grammar_id,
             &title,
-            GrammarNode::SpaceSeparated {
+            GrammarNode::CommaWspSeparated {
                 item: Box::new(GrammarNode::Choice {
                     options: functions
                         .iter()

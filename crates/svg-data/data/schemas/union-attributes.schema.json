@@ -47,6 +47,7 @@
 					}
 				}
 			},
+			"additionalProperties": false,
 			"required": [
 				"name",
 				"present_in"

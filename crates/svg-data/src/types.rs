@@ -293,7 +293,9 @@ pub enum ElementCategory {
 }
 
 /// Canonical SVG spec snapshot identifiers supported by profile-aware lookups.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
+#[derive(
+    Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, JsonSchema,
+)]
 pub enum SpecSnapshotId {
     /// SVG 1.1 Recommendation (2003-01-14).
     Svg11Rec20030114,

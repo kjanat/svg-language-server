@@ -40,7 +40,8 @@ use std::{collections::HashMap, sync::LazyLock};
 
 use catalog::{
     ATTRIBUTES, ELEMENTS, generated_attribute_names_for_profile,
-    generated_known_attribute_snapshots, generated_known_element_snapshots,
+    generated_attribute_values_for_profile, generated_known_attribute_snapshots,
+    generated_known_element_snapshots,
 };
 pub use types::{
     AttributeDef, AttributeValues, BaselineQualifier, BaselineStatus, BrowserFlag, BrowserSupport,
@@ -226,6 +227,22 @@ pub fn attribute_for_profile(
         return ProfileLookup::Unknown;
     };
     lookup_for_profile(profile, attribute, known_in)
+}
+
+/// Return the snapshot-specific value description for an attribute when
+/// the spec text genuinely diverges between snapshots.
+///
+/// Returns `Some` only for `(snapshot, name)` pairs whose value list
+/// differs from the union default baked into [`AttributeDef::values`].
+/// Callers should fall back to `attribute_for_profile(..).value.values`
+/// when this returns `None`.
+#[must_use]
+pub fn attribute_values_for_profile(
+    profile: SpecSnapshotId,
+    name: &str,
+) -> Option<&'static AttributeValues> {
+    let canonical = attribute(name).map(|attribute| attribute.name)?;
+    generated_attribute_values_for_profile(profile, canonical)
 }
 
 /// Return all SVG elements available in the selected profile.

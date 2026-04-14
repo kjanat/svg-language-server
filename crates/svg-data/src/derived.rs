@@ -40,8 +40,10 @@ pub struct MembershipArtifacts {
 
 /// Typed payload for `data/derived/union/elements.json`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[schemars(deny_unknown_fields)]
 pub struct ElementMembershipFile {
     /// Schema version for this derived payload.
+    #[schemars(range(min = 0, max = 4_294_967_295u32))]
     pub schema_version: u32,
     /// Canonical snapshot order used to derive membership.
     pub snapshots: Vec<SpecSnapshotId>,
@@ -62,6 +64,7 @@ pub struct AttributeMembershipFile {
 
 /// Canonical union membership for one named feature.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[schemars(deny_unknown_fields)]
 pub struct FeatureMembershipRecord {
     /// Element or attribute name.
     pub name: String,

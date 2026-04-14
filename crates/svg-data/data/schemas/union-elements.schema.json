@@ -15,6 +15,7 @@
 			"description": "Schema version for this derived payload.",
 			"type": "integer",
 			"format": "uint32",
+			"maximum": 4294967295,
 			"minimum": 0
 		},
 		"snapshots": {
@@ -25,6 +26,7 @@
 			}
 		}
 	},
+	"additionalProperties": false,
 	"required": [
 		"schema_version",
 		"snapshots",
@@ -47,6 +49,7 @@
 					}
 				}
 			},
+			"additionalProperties": false,
 			"required": [
 				"name",
 				"present_in"

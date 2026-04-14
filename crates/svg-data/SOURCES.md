@@ -122,6 +122,26 @@ cargo run -p svg-data --example generate_derived_membership
 
 ---
 
+## Offline Build Mode
+
+Set `SVG_DATA_OFFLINE=1` when building to skip fetching remote BCD compat data:
+
+```sh
+SVG_DATA_OFFLINE=1 cargo build -p svg-data
+```
+
+When offline mode is enabled:
+
+- `build.rs` skips the local svg-compat worker CLI attempt
+- `build.rs` skips the remote fetch to `svg-compat.kjanat.com`
+- If cached compat data exists locally (`OUT_DIR/svg-compat-data.json`), it is reused
+- If no cache exists, the build continues without compat data (prints warning)
+- The snapshot seed generators and examples are unaffected (they read only local checked-in files)
+
+This is useful in CI/CD environments with no network access or when reproducibility from cached sources is required.
+
+---
+
 ## Foreign Specs
 
 SVG 2 defers some attribute definitions to external specifications.

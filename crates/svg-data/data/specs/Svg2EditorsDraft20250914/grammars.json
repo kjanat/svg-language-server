@@ -868,7 +868,7 @@
 			"id": "points",
 			"title": "Point list",
 			"root": {
-				"kind": "space_separated",
+				"kind": "comma_wsp_separated",
 				"item": {
 					"kind": "grammar_ref",
 					"name": "coordinate-pair"
@@ -985,7 +985,7 @@
 			"id": "transform-list-translate-rotate-scale-skewx-skewy-matrix",
 			"title": "Transform list (translate, rotate, scale, skewX, skewY, matrix)",
 			"root": {
-				"kind": "space_separated",
+				"kind": "comma_wsp_separated",
 				"item": {
 					"kind": "choice",
 					"options": [

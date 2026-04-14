@@ -215,6 +215,9 @@ enum GrammarNode {
     SpaceSeparated {
         item: Box<Self>,
     },
+    CommaWspSeparated {
+        item: Box<Self>,
+    },
     Repeat {
         item: Box<Self>,
         min: u16,
@@ -305,11 +308,16 @@ struct UnionAttribute {
     mdn_url: String,
     spec_lifecycle: &'static str,
     values: UnionValues,
+    /// Per-snapshot value overrides for attributes whose spec-defined value
+    /// list genuinely differs between snapshots. Only populated for
+    /// divergent snapshots — snapshots matching `values` are omitted and
+    /// callers fall back to the union default.
+    per_snapshot_value_overrides: BTreeMap<SpecSnapshotId, UnionValues>,
     elements: Vec<String>,
     known_in: Vec<SpecSnapshotId>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 enum UnionValues {
     Enum {
         values: Vec<String>,
@@ -444,6 +452,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         &attribute_idents,
     )?;
     write_profile_attribute_lookup(&mut out, &inputs.profile_attributes)?;
+    write_attribute_values_profile_lookup(&mut out, &inputs.attributes, &attribute_idents)?;
 
     fs::write(&inputs.out_path, out)?;
     Ok(())
@@ -672,6 +681,33 @@ fn build_union_attributes(
             .cloned()
             .unwrap_or_default();
 
+        let base_values = union_values_from_syntax(&attribute.value_syntax, &data.grammars);
+
+        // Detect per-snapshot value divergence: compute union_values for
+        // every snapshot where the attribute is present and keep only
+        // entries whose value list differs from the latest-snapshot base.
+        // See `examples/generate_snapshot_seed.rs` for the consumer that
+        // relies on snapshot-specific values (e.g. SVG 1.1
+        // `dominant-baseline` keywords differ from SVG 2 / CSS Inline 3).
+        let mut per_snapshot_value_overrides: BTreeMap<SpecSnapshotId, UnionValues> =
+            BTreeMap::new();
+        for present_snapshot in &feature.present_in {
+            if *present_snapshot == snapshot {
+                continue;
+            }
+            let Some(snap_data) = snapshot_data.get(present_snapshot) else {
+                continue;
+            };
+            let Some(snap_attribute) = snap_data.attributes.get(&feature.name) else {
+                continue;
+            };
+            let snap_values =
+                union_values_from_syntax(&snap_attribute.value_syntax, &snap_data.grammars);
+            if snap_values != base_values {
+                per_snapshot_value_overrides.insert(*present_snapshot, snap_values);
+            }
+        }
+
         attributes.push(UnionAttribute {
             name: attribute.name.clone(),
             description: attribute.title.clone(),
@@ -680,7 +716,8 @@ fn build_union_attributes(
                 attribute.name
             ),
             spec_lifecycle: union_lifecycle_expr(&feature.present_in),
-            values: union_values_from_syntax(&attribute.value_syntax, &data.grammars),
+            values: base_values,
+            per_snapshot_value_overrides,
             elements,
             known_in: feature.present_in.clone(),
         });
@@ -875,7 +912,23 @@ fn preserve_aspect_ratio_values(root: &GrammarNode) -> Option<(Vec<String>, Vec<
     let GrammarNode::Sequence { items } = root else {
         return None;
     };
-    let [alignments, meet_or_slice] = items.as_slice() else {
+    // SVG 1.1 uses `[defer] <align> [<meetOrSlice>]` — a 3-item sequence
+    // starting with an optional `defer` keyword. SVG 2 dropped `defer`
+    // and uses `<align> [<meetOrSlice>]`. Strip the optional defer prefix
+    // when present so both shapes parse into the same
+    // (alignments, meet_or_slice) tuple.
+    let rest = match items.as_slice() {
+        [GrammarNode::Optional { item }, rest @ ..]
+            if matches!(
+                item.as_ref(),
+                GrammarNode::Keyword { value } if value == "defer"
+            ) =>
+        {
+            rest
+        }
+        items => items,
+    };
+    let [alignments, meet_or_slice] = rest else {
         return None;
     };
     let alignments = enum_values(alignments)?;
@@ -887,7 +940,11 @@ fn preserve_aspect_ratio_values(root: &GrammarNode) -> Option<(Vec<String>, Vec<
 }
 
 fn transform_functions(root: &GrammarNode) -> Option<Vec<String>> {
-    let GrammarNode::SpaceSeparated { item } = root else {
+    // Transform lists use `comma-wsp` separators per the SVG BNF. Older seed
+    // data used `space_separated`, so we still accept that form to avoid
+    // breaking any ungenerated snapshots.
+    let (GrammarNode::CommaWspSeparated { item } | GrammarNode::SpaceSeparated { item }) = root
+    else {
         return None;
     };
     let GrammarNode::Choice { options } = item.as_ref() else {
@@ -1020,10 +1077,113 @@ fn write_attribute_statics(
             | UnionValues::Points
             | UnionValues::PathData => {}
         }
+        for (snapshot, override_values) in &attribute.per_snapshot_value_overrides {
+            let static_name = format!(
+                "ATTR_{id}_VALUES_OVERRIDE_{}",
+                snapshot.as_str().to_uppercase()
+            );
+            write_attribute_values_static(out, &static_name, override_values)?;
+        }
         writeln!(out)?;
     }
 
     Ok(())
+}
+
+fn write_attribute_values_static(
+    out: &mut String,
+    name: &str,
+    values: &UnionValues,
+) -> std::fmt::Result {
+    write!(out, "static {name}: AttributeValues = ")?;
+    match values {
+        UnionValues::Enum { values } => {
+            out.push_str("AttributeValues::Enum(&[");
+            for (index, value) in values.iter().enumerate() {
+                if index > 0 {
+                    out.push_str(", ");
+                }
+                write!(out, "\"{}\"", escape(value))?;
+            }
+            writeln!(out, "]);")
+        }
+        UnionValues::FreeText => writeln!(out, "AttributeValues::FreeText;"),
+        UnionValues::Color => writeln!(out, "AttributeValues::Color;"),
+        UnionValues::Length => writeln!(out, "AttributeValues::Length;"),
+        UnionValues::Url => writeln!(out, "AttributeValues::Url;"),
+        UnionValues::NumberOrPercentage => writeln!(out, "AttributeValues::NumberOrPercentage;"),
+        UnionValues::Transform { functions } => {
+            out.push_str("AttributeValues::Transform(&[");
+            for (index, function) in functions.iter().enumerate() {
+                if index > 0 {
+                    out.push_str(", ");
+                }
+                write!(out, "\"{}\"", escape(function))?;
+            }
+            writeln!(out, "]);")
+        }
+        UnionValues::ViewBox => writeln!(out, "AttributeValues::ViewBox;"),
+        UnionValues::PreserveAspectRatio {
+            alignments,
+            meet_or_slice,
+        } => {
+            out.push_str("AttributeValues::PreserveAspectRatio { alignments: &[");
+            for (index, alignment) in alignments.iter().enumerate() {
+                if index > 0 {
+                    out.push_str(", ");
+                }
+                write!(out, "\"{}\"", escape(alignment))?;
+            }
+            out.push_str("], meet_or_slice: &[");
+            for (index, keyword) in meet_or_slice.iter().enumerate() {
+                if index > 0 {
+                    out.push_str(", ");
+                }
+                write!(out, "\"{}\"", escape(keyword))?;
+            }
+            writeln!(out, "] }};")
+        }
+        UnionValues::Points => writeln!(out, "AttributeValues::Points;"),
+        UnionValues::PathData => writeln!(out, "AttributeValues::PathData;"),
+    }
+}
+
+fn write_attribute_values_profile_lookup(
+    out: &mut String,
+    attributes: &[UnionAttribute],
+    attribute_idents: &HashMap<&str, String>,
+) -> std::fmt::Result {
+    writeln!(out, "#[allow(clippy::too_many_lines)]")?;
+    writeln!(
+        out,
+        "pub fn generated_attribute_values_for_profile(snapshot: SpecSnapshotId, name: &str) -> Option<&'static AttributeValues> {{"
+    )?;
+    writeln!(out, "    match name {{")?;
+    for attribute in attributes {
+        if attribute.per_snapshot_value_overrides.is_empty() {
+            continue;
+        }
+        let id = &attribute_idents[attribute.name.as_str()];
+        writeln!(
+            out,
+            "        \"{}\" => match snapshot {{",
+            escape(&attribute.name)
+        )?;
+        for snapshot in attribute.per_snapshot_value_overrides.keys() {
+            let snapshot_id = snapshot.as_str();
+            let snapshot_upper = snapshot_id.to_uppercase();
+            writeln!(
+                out,
+                "            SpecSnapshotId::{snapshot_id} => Some(&ATTR_{id}_VALUES_OVERRIDE_{snapshot_upper}),",
+            )?;
+        }
+        writeln!(out, "            _ => None,")?;
+        writeln!(out, "        }},")?;
+    }
+    writeln!(out, "        _ => None,")?;
+    writeln!(out, "    }}")?;
+    writeln!(out, "}}")?;
+    writeln!(out)
 }
 
 fn write_elements_array(

@@ -292,11 +292,15 @@
 					},
 					{
 						"kind": "keyword",
-						"value": "text-bottom"
+						"value": "use-script"
 					},
 					{
 						"kind": "keyword",
-						"value": "alphabetic"
+						"value": "no-change"
+					},
+					{
+						"kind": "keyword",
+						"value": "reset-size"
 					},
 					{
 						"kind": "keyword",
@@ -304,15 +308,7 @@
 					},
 					{
 						"kind": "keyword",
-						"value": "middle"
-					},
-					{
-						"kind": "keyword",
-						"value": "central"
-					},
-					{
-						"kind": "keyword",
-						"value": "mathematical"
+						"value": "alphabetic"
 					},
 					{
 						"kind": "keyword",
@@ -320,7 +316,23 @@
 					},
 					{
 						"kind": "keyword",
-						"value": "text-top"
+						"value": "mathematical"
+					},
+					{
+						"kind": "keyword",
+						"value": "central"
+					},
+					{
+						"kind": "keyword",
+						"value": "middle"
+					},
+					{
+						"kind": "keyword",
+						"value": "text-after-edge"
+					},
+					{
+						"kind": "keyword",
+						"value": "text-before-edge"
 					}
 				]
 			},
@@ -1208,7 +1220,7 @@
 			"id": "points",
 			"title": "Point list",
 			"root": {
-				"kind": "space_separated",
+				"kind": "comma_wsp_separated",
 				"item": {
 					"kind": "grammar_ref",
 					"name": "coordinate-pair"
@@ -1250,6 +1262,13 @@
 			"root": {
 				"kind": "sequence",
 				"items": [
+					{
+						"kind": "optional",
+						"item": {
+							"kind": "keyword",
+							"value": "defer"
+						}
+					},
 					{
 						"kind": "choice",
 						"options": [
@@ -1347,7 +1366,7 @@
 			"id": "transform-list-translate-rotate-scale-skewx-skewy-matrix",
 			"title": "Transform list (translate, rotate, scale, skewX, skewY, matrix)",
 			"root": {
-				"kind": "space_separated",
+				"kind": "comma_wsp_separated",
 				"item": {
 					"kind": "choice",
 					"options": [

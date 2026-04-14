@@ -90,8 +90,8 @@ including:
 ### Build And Test
 
 ```sh
-just build
-just ci
+just build-debug
+just verify
 ```
 
 ### Run The Language Server
@@ -103,8 +103,8 @@ just run-lsp
 ### Install Local Binaries
 
 ```sh
-just install
-just install-format
+just install-lsp
+just install-svg-format
 ```
 
 ### Install Published Binaries With npm
@@ -142,12 +142,12 @@ samples/                manual fixtures and examples
 ## Development Commands
 
 ```sh
-just check
+just format-check
 just format
 just lint
 just typecheck
 just test
-just ci
+just verify
 ```
 
 ## Editor Setup
@@ -221,5 +221,5 @@ https://github.com/kjanat/dprint-plugin-svg
 
 - Git tags publish both binaries to one GitHub Release.
 - npm packages `svg-language-server` and `svg-format` are published from GitHub Actions.
-- Run `just release-prepare <version>` to bump versions, run CI, commit, and create the local `v<version>` tag. This requires `bun` locally. Pushing that tag triggers publication.
+- Run `just release-local <version>` to bump versions, run `just verify`, commit, and create the local `v<version>` tag. This requires `bun` locally. Pushing that tag triggers publication.
 - See `docs/releasing.md` for the bootstrap and trusted-publisher details.

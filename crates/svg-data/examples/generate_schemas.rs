@@ -22,8 +22,8 @@ use svg_data::{
 };
 
 /// Published base URL for the schema files. `fileMatch` consumers that honor
-/// the catalog (SchemaStore-aware tools, `check-jsonschema --catalog`) fetch
-/// each schema from this location. The SchemaStore catalog meta-schema
+/// the catalog (`SchemaStore`-aware tools, `check-jsonschema --catalog`) fetch
+/// each schema from this location. The `SchemaStore` catalog meta-schema
 /// requires `format: uri` for `url`, so relative paths are not valid here.
 /// Local-development LSP uses the relative paths in `.zed/settings.json`.
 const RAW_SCHEMA_BASE_URL: &str = "https://raw.githubusercontent.com/kjanat/svg-language-server/master/crates/svg-data/data/schemas";
@@ -68,7 +68,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     // Catalog: maps file-glob patterns → schema URLs. Entries follow the
-    // SchemaStore catalog format — `fileMatch` globs are matched against
+    // `SchemaStore` catalog format — `fileMatch` globs are matched against
     // workspace-root-relative paths, and `url` MUST be an absolute URI.
     // Tools: VS Code JSON language server, check-jsonschema --catalog, etc.
     // Local-development LSP uses relative paths in `.zed/settings.json` so

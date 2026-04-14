@@ -55,7 +55,7 @@ if (updatedCargoToml.workspace?.package?.version !== version) {
 await write(cargoTomlPath, cargoToml);
 
 await $`cargo check --workspace`;
-await $`just ci`;
+await $`just verify`;
 await $`git add Cargo.toml Cargo.lock`;
 await $`git commit -m ${`chore(release): ${tag}`}`;
 await $`git tag -a ${tag} -m ${tag}`;

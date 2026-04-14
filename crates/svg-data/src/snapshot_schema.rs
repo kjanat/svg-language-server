@@ -291,6 +291,39 @@ pub enum GrammarNode {
         /// Repeated child.
         item: Box<Self>,
     },
+    /// Repeated child separated by `comma-wsp` per the SVG BNF:
+    /// > items may be separated by whitespace, an optional comma surrounded by whitespace,
+    /// > or a comma followed by optional whitespace.
+    /// > Used for transform lists and point lists; `translate(1,2),scale(2)` and
+    /// > `translate(1 2) scale(2)` are equally valid.
+    ///
+    /// The BNF for the separator is:
+    ///
+    /// ```bnf
+    /// comma-wsp ::= (wsp+ comma? wsp*) | (comma wsp*)
+    /// ```
+    ///
+    /// Applies across SVG 1.1 FE/SE and SVG 2 (CR + ED) alike:
+    ///
+    /// - **SVG 1.1**: defined directly in the [Transform attribute BNF][svg11-transform].
+    /// - **SVG 2**: [§8.5][svg2-transform] delegates `transform` /
+    ///   `patternTransform` / `gradientTransform` to [CSS Transforms 1][css-transforms],
+    ///   which [§7.2][css-transforms-svg] explicitly carves these
+    ///   *attributes* out of the CSS property syntax and defines back-compat
+    ///   attribute parsing using the SVG 1.1 BNF verbatim:\
+    ///   `transforms ::= transform | transform comma-wsp transforms`.
+    /// - **`points`**: SVG 2 defines the value as `[<number>+]#`, whose
+    ///   CSS Values `#` multiplier is itself comma-wsp separated — matching
+    ///   the SVG 1.1 `list-of-points` production.
+    ///
+    /// [svg11-transform]: https://www.w3.org/TR/SVG11/coords.html#TransformAttribute
+    /// [svg2-transform]: https://svgwg.org/svg2-draft/coords.html#TransformProperty
+    /// [css-transforms]: https://www.w3.org/TR/css-transforms-1/
+    /// [css-transforms-svg]: https://www.w3.org/TR/css-transforms-1/#svg-syntax
+    CommaWspSeparated {
+        /// Repeated child.
+        item: Box<Self>,
+    },
     /// Explicit bounded repetition.
     Repeat {
         /// Repeated child.

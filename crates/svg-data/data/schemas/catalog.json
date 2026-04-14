@@ -1,0 +1,74 @@
+{
+	"$schema": "https://json.schemastore.org/schema-catalog.json",
+	"schemas": [
+		{
+			"fileMatch": [
+				"**/specs/*/snapshot.json"
+			],
+			"name": "SVG Spec Snapshot Metadata",
+			"url": "snapshot.schema.json"
+		},
+		{
+			"description": "Per-snapshot and union element records. Top-level array — no inline $schema possible.",
+			"fileMatch": [
+				"**/specs/*/elements.json",
+				"**/derived/union/elements.json"
+			],
+			"name": "SVG Spec Elements",
+			"url": "elements.schema.json"
+		},
+		{
+			"description": "Per-snapshot and union attribute records. Top-level array — no inline $schema possible.",
+			"fileMatch": [
+				"**/specs/*/attributes.json",
+				"**/derived/union/attributes.json"
+			],
+			"name": "SVG Spec Attributes",
+			"url": "attributes.schema.json"
+		},
+		{
+			"fileMatch": [
+				"**/specs/*/grammars.json"
+			],
+			"name": "SVG Spec Grammars",
+			"url": "grammars.schema.json"
+		},
+		{
+			"fileMatch": [
+				"**/specs/*/categories.json"
+			],
+			"name": "SVG Spec Categories",
+			"url": "categories.schema.json"
+		},
+		{
+			"fileMatch": [
+				"**/specs/*/element_attribute_matrix.json"
+			],
+			"name": "SVG Element–Attribute Matrix",
+			"url": "element_attribute_matrix.schema.json"
+		},
+		{
+			"fileMatch": [
+				"**/specs/*/exceptions.json"
+			],
+			"name": "SVG Spec Exceptions",
+			"url": "exceptions.schema.json"
+		},
+		{
+			"fileMatch": [
+				"**/specs/*/review.json"
+			],
+			"name": "SVG Spec Review",
+			"url": "review.schema.json"
+		},
+		{
+			"description": "TOML source manifests already carry a #:schema comment; this entry covers JSON-tool consumers.",
+			"fileMatch": [
+				"**/sources/*.toml"
+			],
+			"name": "SVG Source Manifest",
+			"url": "source-manifest.schema.json"
+		}
+	],
+	"version": 1
+}

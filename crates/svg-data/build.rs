@@ -13,6 +13,8 @@
 mod bcd;
 #[path = "build/codegen.rs"]
 mod codegen;
+#[path = "build/reconcile.rs"]
+mod reconcile;
 #[path = "src/types.rs"]
 mod types;
 #[path = "build/verdict.rs"]
@@ -429,6 +431,40 @@ fn main() -> Result<(), Box<dyn Error>> {
     emit_rerun_if_changed(&svg_compat_dir.join("deno.json"))?;
 
     let inputs = load_build_inputs()?;
+
+    // BCD ↔ spec reconciliation: fail the build early if any feature is
+    // BCD-deprecated AND still present in the latest spec snapshot
+    // without a documented exception. Runs before any code emission so
+    // a failure short-circuits before generating a stale catalog.
+    if !inputs.compat.elements.is_empty() || !inputs.compat.attributes.is_empty() {
+        let element_facts: Vec<reconcile::UnionElementFacts> = inputs
+            .elements
+            .iter()
+            .map(|el| reconcile::UnionElementFacts {
+                name: el.name.clone(),
+                present_in: el.known_in.clone(),
+            })
+            .collect();
+        let attribute_facts: Vec<reconcile::UnionAttributeFacts> = inputs
+            .attributes
+            .iter()
+            .map(|attr| reconcile::UnionAttributeFacts {
+                name: attr.name.clone(),
+                present_in: attr.known_in.clone(),
+                elements: attr.elements.clone(),
+            })
+            .collect();
+        reconcile::run(
+            manifest_dir,
+            &inputs.compat,
+            &element_facts,
+            &attribute_facts,
+            LATEST_SNAPSHOT,
+            &inputs.compat.bcd_version,
+        )
+        .map_err(|e| -> Box<dyn Error> { e.into() })?;
+    }
+
     let mut out = String::with_capacity(64 * 1024);
     let element_idents = element_idents(&inputs.elements);
     let attribute_idents = attribute_idents(&inputs.attributes);

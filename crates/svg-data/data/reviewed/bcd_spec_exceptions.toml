@@ -1,0 +1,45 @@
+# Allowlist of tolerated BCD ↔ spec-membership disagreements.
+#
+# The build-time `reconcile_bcd_spec()` check in `crates/svg-data/build.rs`
+# errors when BCD marks a feature `deprecated: true` AND the SVG 2 spec
+# snapshot still lists the feature as present (→ `SpecLifecycle::Stable`).
+# That is usually a real bug in one of the data sources — see the
+# `baseProfile` / `version` / `clip` / `zoomAndPan` cases fixed in the
+# data audit.
+#
+# But some disagreements are legitimate: the spec formally retains a
+# feature while marking it obsolete, yet every browser still ships it.
+# Both sources are correct from their own frame. Those entries live
+# here, documented with:
+#
+#   - `name`         — attribute / element name
+#   - `element`      — element scope (`*` = global; a specific tag name
+#                       constrains the exception to one element)
+#   - `bcd_says`     — the literal BCD stance that triggered the conflict
+#   - `spec_says`    — the literal spec stance that triggered the conflict
+#   - `reason`       — one-sentence human explanation for future maintainers
+#   - `added`        — ISO date the exception was recorded (for rot audits)
+#   - `upstream_ref` — URL to primary source so the claim can be verified
+#
+# The check also SELF-PRUNES: any entry here that does NOT match a
+# current conflict is itself a build-time error. When the spec catches
+# up and resolves a disagreement, the corresponding exception must be
+# removed in the same commit.
+
+[[attribute]]
+name         = "glyph-orientation-horizontal"
+element      = "*"
+bcd_says     = "deprecated"
+spec_says    = "obsoleted-but-defined"
+reason       = "SVG 2 text chapter §11.10.1.2 still defines the attribute but the body calls it obsoleted; CSS text-orientation is the modern replacement. BCD is correct to flag deprecation; spec membership is correct to retain it. Accept until snapshot data can track an explicit spec-deprecated flag."
+added        = "2026-04-15"
+upstream_ref = "https://svgwg.org/svg2-draft/text.html"
+
+[[attribute]]
+name         = "glyph-orientation-vertical"
+element      = "*"
+bcd_says     = "deprecated"
+spec_says    = "obsoleted-but-defined"
+reason       = "SVG 2 text chapter §11.10.1.3 still defines the attribute but calls it obsoleted. Same rationale as glyph-orientation-horizontal."
+added        = "2026-04-15"
+upstream_ref = "https://svgwg.org/svg2-draft/text.html"

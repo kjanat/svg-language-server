@@ -25,6 +25,10 @@ pub struct CompatData {
     pub elements: HashMap<String, CompatEntry>,
     /// Attributes from the worker (global + element-specific, pre-merged).
     pub attributes: HashMap<String, BcdAttribute>,
+    /// BCD package version the worker was built against, for
+    /// reconciliation error messages. Falls back to `"unknown"` when
+    /// the worker JSON didn't include source metadata.
+    pub bcd_version: String,
 }
 
 /// Fetch pre-processed compat data from the svg-compat worker.
@@ -36,6 +40,7 @@ pub fn fetch_compat_data(out_dir: &Path) -> CompatData {
     let empty = CompatData {
         elements: HashMap::new(),
         attributes: HashMap::new(),
+        bcd_version: "unknown".to_string(),
     };
 
     let raw = match load_worker_json(&cache_path, offline) {
@@ -76,9 +81,24 @@ pub fn fetch_compat_data(out_dir: &Path) -> CompatData {
         attributes.len()
     );
 
+    // Parse the BCD package version out of the worker's `sources.bcd.resolved`
+    // field. Plain JSON lookup — we don't want to extend `worker_schema.rs`
+    // just for an error-message nicety.
+    let bcd_version = serde_json::from_str::<serde_json::Value>(&raw)
+        .ok()
+        .and_then(|v| {
+            v.get("sources")?
+                .get("bcd")?
+                .get("resolved")?
+                .as_str()
+                .map(ToOwned::to_owned)
+        })
+        .unwrap_or_else(|| "unknown".to_string());
+
     CompatData {
         elements,
         attributes,
+        bcd_version,
     }
 }
 

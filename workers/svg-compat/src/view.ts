@@ -188,6 +188,10 @@ export function buildPageModel(
 		(entry) => entry.baseline?.status === "limited",
 	);
 	const origin = requestUrl.origin;
+	const jsonUrl = new URL("/data.json", requestUrl);
+	// Keep the exact active source selection in the JSON endpoint link so
+	// the exported payload matches the versions currently shown in the UI.
+	jsonUrl.search = requestUrl.search;
 	const signalCounts = countBrowserSignals([...elements, ...attributes]);
 
 	return {
@@ -208,7 +212,7 @@ export function buildPageModel(
 		deprecatedElements,
 		limitedAttributes,
 		urls: {
-			json: `${origin}/data.json`,
+			json: jsonUrl.toString(),
 			schema: `${origin}/schema.json`,
 			latestHtml: `${origin}/?source=latest`,
 			latestJson: `${origin}/data.json?source=latest`,

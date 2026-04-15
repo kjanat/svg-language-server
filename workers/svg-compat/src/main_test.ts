@@ -171,6 +171,89 @@ Deno.test("renderHtml includes baseline badge classes", () => {
 	assertEquals(html.includes("class=\"badge badge-limited\""), true);
 });
 
+Deno.test("renderHtml docs links include MDN and W3C spec links", () => {
+	const output: SvgCompatOutput = {
+		generated_at: "2026-01-01T00:00:00.000Z",
+		sources: {
+			bcd: {
+				package: "@mdn/browser-compat-data",
+				requested: "7.3.11",
+				resolved: "7.3.11",
+				mode: "default",
+				source_url: "https://example.com/bcd",
+			},
+			web_features: {
+				package: "web-features",
+				requested: "3.23.0",
+				resolved: "3.23.0",
+				mode: "default",
+				source_url: "https://example.com/wf",
+			},
+		},
+		elements: {},
+		attributes: {
+			"xlink:href": {
+				deprecated: true,
+				experimental: false,
+				standard_track: true,
+				mdn_url: "https://developer.mozilla.org/docs/Web/SVG/Reference/Attribute/xlink:href",
+				spec_url: [
+					"https://svgwg.org/svg2-draft/linking.html#XLinkHrefAttribute",
+					"https://www.w3.org/TR/SVG11/filters.html#FilterElementHrefAttribute",
+				],
+				elements: ["use"],
+			},
+			"ping": {
+				deprecated: false,
+				experimental: true,
+				standard_track: true,
+				spec_url: ["https://svgwg.org/svg2-draft/linking.html#AElementPingAttribute"],
+				elements: ["a"],
+			},
+		},
+	};
+	const html = renderHtml(output, new URL("http://localhost/"));
+	assertEquals(html.includes(">MDN<"), true);
+	assertEquals(html.includes(">W3C<"), true);
+	assertEquals(html.includes("docs-flag-deprecated"), true);
+});
+
+Deno.test("renderHtml keeps active source selection in Open JSON endpoint link", () => {
+	const output: SvgCompatOutput = {
+		generated_at: "2026-01-01T00:00:00.000Z",
+		sources: {
+			bcd: {
+				package: "@mdn/browser-compat-data",
+				requested: "7.3.10",
+				resolved: "7.3.10",
+				mode: "override",
+				source_url: "https://example.com/bcd-7.3.10",
+			},
+			web_features: {
+				package: "web-features",
+				requested: "3.23.1-dev-20260414145202-958736b",
+				resolved: "3.23.1-dev-20260414145202-958736b",
+				mode: "override",
+				source_url: "https://example.com/wf-dev",
+			},
+		},
+		elements: {},
+		attributes: {},
+	};
+	const html = renderHtml(
+		output,
+		new URL(
+			"http://localhost/?source=latest&bcd=7.3.10&wf=3.23.1-dev-20260414145202-958736b",
+		),
+	);
+	assertEquals(
+		html.includes(
+			"href=\"http://localhost/data.json?source=latest&amp;bcd=7.3.10&amp;wf=3.23.1-dev-20260414145202-958736b\"",
+		),
+		true,
+	);
+});
+
 Deno.test("renderHtml uses masked browser status glyphs", () => {
 	const output: SvgCompatOutput = {
 		generated_at: "2026-01-01T00:00:00.000Z",
@@ -413,6 +496,15 @@ Deno.test("root asset routes serve static assets", async () => {
 	assertEquals(badge.headers.get("x-content-type-options"), "nosniff");
 	assertEquals(badge.headers.get("content-type"), "image/svg+xml");
 	await badge.arrayBuffer();
+});
+
+Deno.test("version picker script clears empty override params", async () => {
+	const res = await server.fetch(new Request("http://localhost/version-picker.mjs"));
+	assertEquals(res.status, 200);
+	const script = await res.text();
+	assertEquals(script.includes("params.delete(alias);"), true);
+	assertEquals(script.includes("web_features"), true);
+	assertEquals(script.includes("if (changed) location.search = params.toString();"), true);
 });
 
 Deno.test("legacy /static asset routes redirect to root asset paths", async () => {

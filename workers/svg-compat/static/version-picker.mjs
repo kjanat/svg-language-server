@@ -1,22 +1,52 @@
 /** @type {NodeListOf<HTMLInputElement>} */
 const inputs = document.querySelectorAll("input.ver[data-pkg]");
 const searchParams = new URLSearchParams(location.search);
+
+/** @param {string} key */
+function paramAliases(key) {
+	if (key === "wf") return ["wf", "web_features"];
+	return [key];
+}
+
 for (const input of inputs) {
-	const v = searchParams.get(input.dataset.param);
+	const key = input.dataset.param;
+	if (!key) continue;
+	const v = paramAliases(key)
+		.map((name) => searchParams.get(name))
+		.find((value) => value && value.length > 0);
 	if (v) input.value = v;
 }
 
 function navigate() {
 	const params = new URLSearchParams(location.search);
-	let any = false;
+	let changed = false;
 	for (const input of inputs) {
+		const key = input.dataset.param;
+		if (!key) continue;
+		const aliases = paramAliases(key);
 		const v = input.value.trim();
 		if (v) {
-			params.set(input.dataset.param, v);
-			any = true;
+			if (params.get(key) !== v) {
+				params.set(key, v);
+				changed = true;
+			}
+			for (const alias of aliases) {
+				if (alias === key) continue;
+				if (params.has(alias)) {
+					params.delete(alias);
+					changed = true;
+				}
+			}
+		} else {
+			for (const alias of aliases) {
+				if (params.has(alias)) {
+					params.delete(alias);
+					changed = true;
+				}
+			}
 		}
 	}
-	if (any) location.search = params.toString();
+	if (changed) location.search = params.toString();
 }
 
 for (const input of inputs) {

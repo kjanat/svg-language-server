@@ -386,6 +386,21 @@ tbody tr.table-empty td {
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
+.docs-links {
+	display: inline-flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+.docs-flag {
+	font-size: 0.68rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+.docs-flag-deprecated {
+	color: var(--badge-limited-fg);
+}
 
 /* ── code ────────────────────────────── */
 code {

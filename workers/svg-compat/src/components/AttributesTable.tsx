@@ -1,6 +1,7 @@
 import { attributeSearchTokens, type NamedAttributeEntry } from "../view.ts";
 import { BaselineBadge } from "./BaselineBadge.tsx";
 import { BrowserSupport } from "./BrowserSupport.tsx";
+import { DocsLinks } from "./DocsLinks.tsx";
 
 interface Props {
 	rows: NamedAttributeEntry[];
@@ -38,7 +39,11 @@ export function AttributesTable({ rows }: Props) {
 								<BrowserSupport support={entry.browser_support} />
 							</td>
 							<td>
-								{entry.mdn_url ? <a href={entry.mdn_url}>MDN</a> : <span class="muted">-</span>}
+								<DocsLinks
+									mdnUrl={entry.mdn_url}
+									specUrls={entry.spec_url}
+									deprecated={entry.deprecated}
+								/>
 							</td>
 						</tr>
 					))}

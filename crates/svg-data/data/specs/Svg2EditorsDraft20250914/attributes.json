@@ -308,37 +308,6 @@
 		]
 	},
 	{
-		"name": "baseProfile",
-		"title": "The baseProfile SVG attribute.",
-		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "definitions",
-				"source_kind": "definitions_xml",
-				"pin": {
-					"kind": "git_commit",
-					"repository": "https://github.com/w3c/svgwg",
-					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-					"path": "master/definitions.xml"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "definitions.xml",
-					"id": "baseProfile"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
 		"name": "baseline-shift",
 		"title": "The baseline-shift SVG attribute.",
 		"value_syntax": {
@@ -532,37 +501,6 @@
 					"kind": "definition",
 					"file": "definitions.xml",
 					"id": "class"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "clip",
-		"title": "The clip SVG attribute.",
-		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "definitions",
-				"source_kind": "definitions_xml",
-				"pin": {
-					"kind": "git_commit",
-					"repository": "https://github.com/w3c/svgwg",
-					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-					"path": "master/definitions.xml"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "definitions.xml",
-					"id": "clip"
 				},
 				"confidence": "derived"
 			}
@@ -6048,37 +5986,6 @@
 		]
 	},
 	{
-		"name": "version",
-		"title": "The version SVG attribute.",
-		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "definitions",
-				"source_kind": "definitions_xml",
-				"pin": {
-					"kind": "git_commit",
-					"repository": "https://github.com/w3c/svgwg",
-					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-					"path": "master/definitions.xml"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "definitions.xml",
-					"id": "version"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
 		"name": "viewBox",
 		"title": "Defines the SVG viewport coordinates.",
 		"value_syntax": {
@@ -6627,37 +6534,6 @@
 					"kind": "definition",
 					"file": "definitions.xml",
 					"id": "z"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "zoomAndPan",
-		"title": "The zoomAndPan SVG attribute.",
-		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "definitions",
-				"source_kind": "definitions_xml",
-				"pin": {
-					"kind": "git_commit",
-					"repository": "https://github.com/w3c/svgwg",
-					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-					"path": "master/definitions.xml"
-				},
-				"locator": {
-					"kind": "definition",
-					"file": "definitions.xml",
-					"id": "zoomAndPan"
 				},
 				"confidence": "derived"
 			}

@@ -221,6 +221,19 @@ a:hover {
 	text-transform: lowercase;
 	letter-spacing: 0.02em;
 }
+/*
+ * Secondary-tier stats (partial/removed/flagged/unsupported) are
+ * muted so the structural counts stay the primary eye-magnet while
+ * the new signal inventory is still glanceable.
+ */
+.stat-secondary {
+	background: transparent;
+	border-style: dashed;
+}
+.stat-secondary strong {
+	font-size: 1.8rem;
+	color: var(--text-muted);
+}
 
 /* ── sections ────────────────────────── */
 section {
@@ -606,6 +619,55 @@ code {
 	color: var(--text-muted);
 	background: transparent;
 	opacity: 0.75;
+}
+
+/*
+ * Chip state variants — each BrowserVersion signal we preserved in the
+ * pipeline gets a visually-distinct treatment. The rich `title` attribute
+ * carries the full hover text; this is the "at a glance" layer.
+ *
+ * Colour tokens follow the existing badge palette (--badge-limited-*, etc.)
+ * rather than introducing fresh primitives — consistency trumps novelty.
+ */
+.chip-unsupported {
+	color: var(--badge-limited-fg);
+	background: var(--badge-limited-bg);
+	border-color: var(--badge-limited-fg);
+	opacity: 0.85;
+}
+.chip-removed {
+	color: var(--badge-limited-fg);
+	background: var(--badge-limited-bg);
+	border-color: var(--badge-limited-fg);
+	text-decoration: line-through;
+	text-decoration-color: color-mix(
+		in oklab,
+		var(--badge-limited-fg) 70%,
+		transparent
+	);
+	opacity: 0.9;
+}
+.chip-partial {
+	color: var(--accent);
+	background: color-mix(in oklab, var(--accent) 12%, var(--chip-bg));
+	border-color: color-mix(in oklab, var(--accent) 45%, var(--chip-border));
+}
+.chip-flagged {
+	color: var(--link);
+	background: color-mix(in oklab, var(--link) 10%, var(--chip-bg));
+	border-color: color-mix(in oklab, var(--link) 45%, var(--chip-border));
+	font-style: italic;
+}
+.chip-prefixed {
+	color: var(--link);
+	background: color-mix(in oklab, var(--link) 8%, var(--chip-bg));
+	border-color: color-mix(in oklab, var(--link) 35%, var(--chip-border));
+}
+.chip-prefixed .chip-version::after {
+	content: " \002022";
+	color: var(--link);
+	opacity: 0.75;
+	margin-left: 0.1em;
 }
 
 /* ── error page ──────────────────────── */

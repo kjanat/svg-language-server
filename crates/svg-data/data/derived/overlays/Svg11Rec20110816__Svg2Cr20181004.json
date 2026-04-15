@@ -14,10 +14,14 @@
 			"method"
 		],
 		"removed": [
+			"baseProfile",
+			"clip",
+			"version",
 			"xlink:actuate",
 			"xlink:href",
 			"xlink:show",
-			"xlink:title"
+			"xlink:title",
+			"zoomAndPan"
 		]
 	}
 }

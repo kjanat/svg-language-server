@@ -408,47 +408,6 @@
 		]
 	},
 	{
-		"name": "baseProfile",
-		"title": "The baseProfile SVG attribute.",
-		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "baseProfile"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "tr-root",
-				"source_kind": "html",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "baseProfile"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
 		"name": "baseline-shift",
 		"title": "The baseline-shift SVG attribute.",
 		"value_syntax": {
@@ -702,47 +661,6 @@
 				"locator": {
 					"kind": "fragment",
 					"anchor": "class"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "clip",
-		"title": "The clip SVG attribute.",
-		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "clip"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "tr-root",
-				"source_kind": "html",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "clip"
 				},
 				"confidence": "derived"
 			}
@@ -7868,47 +7786,6 @@
 		]
 	},
 	{
-		"name": "version",
-		"title": "The version SVG attribute.",
-		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "version"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "tr-root",
-				"source_kind": "html",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "version"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
 		"name": "viewBox",
 		"title": "Defines the SVG viewport coordinates.",
 		"value_syntax": {
@@ -8607,47 +8484,6 @@
 				"locator": {
 					"kind": "fragment",
 					"anchor": "z"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
-		"name": "zoomAndPan",
-		"title": "The zoomAndPan SVG attribute.",
-		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "zoomAndPan"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "tr-root",
-				"source_kind": "html",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "zoomAndPan"
 				},
 				"confidence": "derived"
 			}

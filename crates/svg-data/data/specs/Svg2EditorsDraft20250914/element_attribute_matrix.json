@@ -96,29 +96,6 @@
 		},
 		{
 			"element": "a",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "a@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "a",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -2028,29 +2005,6 @@
 		},
 		{
 			"element": "animate",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "animate@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "animate",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -3930,29 +3884,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "animateMotion@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "animateMotion",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "animateMotion@clip"
 					},
 					"confidence": "derived"
 				}
@@ -5961,29 +5892,6 @@
 		},
 		{
 			"element": "animateTransform",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "animateTransform@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "animateTransform",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -7778,29 +7686,6 @@
 		},
 		{
 			"element": "circle",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "circle@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "circle",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -9411,29 +9296,6 @@
 		},
 		{
 			"element": "clipPath",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "clipPath@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "clipPath",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -10998,29 +10860,6 @@
 		},
 		{
 			"element": "defs",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "defs@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "defs",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -12562,29 +12401,6 @@
 		},
 		{
 			"element": "desc",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "desc@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "desc",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -14096,29 +13912,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "ellipse@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "ellipse",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "ellipse@clip"
 					},
 					"confidence": "derived"
 				}
@@ -15759,29 +15552,6 @@
 		},
 		{
 			"element": "feBlend",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feBlend@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feBlend",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -17385,29 +17155,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "feColorMatrix@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feColorMatrix",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feColorMatrix@clip"
 					},
 					"confidence": "derived"
 				}
@@ -19025,29 +18772,6 @@
 		},
 		{
 			"element": "feComponentTransfer",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feComponentTransfer@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feComponentTransfer",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -20605,29 +20329,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "feComposite@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feComposite",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feComposite@clip"
 					},
 					"confidence": "derived"
 				}
@@ -22353,29 +22054,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "feConvolveMatrix@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feConvolveMatrix",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feConvolveMatrix@clip"
 					},
 					"confidence": "derived"
 				}
@@ -24131,29 +23809,6 @@
 		},
 		{
 			"element": "feDiffuseLighting",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feDiffuseLighting@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feDiffuseLighting",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -25780,29 +25435,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "feDisplacementMap@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feDisplacementMap",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feDisplacementMap@clip"
 					},
 					"confidence": "derived"
 				}
@@ -27489,29 +27121,6 @@
 		},
 		{
 			"element": "feDistantLight",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feDistantLight@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feDistantLight",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -29046,29 +28655,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "feDropShadow@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feDropShadow",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feDropShadow@clip"
 					},
 					"confidence": "derived"
 				}
@@ -30640,29 +30226,6 @@
 		},
 		{
 			"element": "feFlood",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feFlood@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feFlood",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -32220,29 +31783,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "feFuncA@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feFuncA",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feFuncA@clip"
 					},
 					"confidence": "derived"
 				}
@@ -33929,29 +33469,6 @@
 		},
 		{
 			"element": "feFuncB",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feFuncB@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feFuncB",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -35624,29 +35141,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "feFuncG@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feFuncG",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feFuncG@clip"
 					},
 					"confidence": "derived"
 				}
@@ -37333,29 +36827,6 @@
 		},
 		{
 			"element": "feFuncR",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feFuncR@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feFuncR",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -39012,29 +38483,6 @@
 		},
 		{
 			"element": "feGaussianBlur",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feGaussianBlur@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feGaussianBlur",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -40638,29 +40086,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "feImage@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feImage",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feImage@clip"
 					},
 					"confidence": "derived"
 				}
@@ -42301,29 +41726,6 @@
 		},
 		{
 			"element": "feMerge",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feMerge@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feMerge",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -43865,29 +43267,6 @@
 		},
 		{
 			"element": "feMergeNode",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feMergeNode@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feMergeNode",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -45422,29 +44801,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "feMorphology@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feMorphology",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feMorphology@clip"
 					},
 					"confidence": "derived"
 				}
@@ -47062,29 +46418,6 @@
 		},
 		{
 			"element": "feOffset",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feOffset@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feOffset",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -48695,29 +48028,6 @@
 		},
 		{
 			"element": "fePointLight",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "fePointLight@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "fePointLight",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -50298,29 +49608,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "feSpecularLighting@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feSpecularLighting",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feSpecularLighting@clip"
 					},
 					"confidence": "derived"
 				}
@@ -51977,29 +51264,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "feSpotLight@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feSpotLight",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feSpotLight@clip"
 					},
 					"confidence": "derived"
 				}
@@ -53709,29 +52973,6 @@
 		},
 		{
 			"element": "feTile",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feTile@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feTile",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -55312,29 +54553,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "feTurbulence@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feTurbulence",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feTurbulence@clip"
 					},
 					"confidence": "derived"
 				}
@@ -56968,29 +56186,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "filter@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "filter",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "filter@clip"
 					},
 					"confidence": "derived"
 				}
@@ -58654,29 +57849,6 @@
 		},
 		{
 			"element": "foreignObject",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "foreignObject@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "foreignObject",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -60310,29 +59482,6 @@
 		},
 		{
 			"element": "g",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "g@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "g",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -61867,29 +61016,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "image@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "image",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "image@clip"
 					},
 					"confidence": "derived"
 				}
@@ -63645,29 +62771,6 @@
 		},
 		{
 			"element": "line",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "line@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "line",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -65294,29 +64397,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "linearGradient@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "linearGradient",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "linearGradient@clip"
 					},
 					"confidence": "derived"
 				}
@@ -67026,29 +66106,6 @@
 		},
 		{
 			"element": "marker",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "marker@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "marker",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -68751,29 +67808,6 @@
 		},
 		{
 			"element": "mask",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "mask@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "mask",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -70453,29 +69487,6 @@
 		},
 		{
 			"element": "metadata",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "metadata@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "metadata",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -71987,29 +70998,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "mpath@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "mpath",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "mpath@clip"
 					},
 					"confidence": "derived"
 				}
@@ -73551,29 +72539,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "path@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "path",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "path@clip"
 					},
 					"confidence": "derived"
 				}
@@ -75138,29 +74103,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "pattern@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "pattern",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "pattern@clip"
 					},
 					"confidence": "derived"
 				}
@@ -76939,29 +75881,6 @@
 		},
 		{
 			"element": "polygon",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "polygon@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "polygon",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -78526,29 +77445,6 @@
 		},
 		{
 			"element": "polyline",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "polyline@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "polyline",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -80106,29 +79002,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "radialGradient@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "radialGradient",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "radialGradient@clip"
 					},
 					"confidence": "derived"
 				}
@@ -81884,29 +80757,6 @@
 		},
 		{
 			"element": "rect",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "rect@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "rect",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -83609,29 +82459,6 @@
 		},
 		{
 			"element": "script",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "script@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "script",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -85281,29 +84108,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "set@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "set",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "set@clip"
 					},
 					"confidence": "derived"
 				}
@@ -86967,29 +85771,6 @@
 		},
 		{
 			"element": "stop",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "stop@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "stop",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -88577,29 +87358,6 @@
 		},
 		{
 			"element": "style",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "style@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "style",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -90141,29 +88899,6 @@
 		},
 		{
 			"element": "svg",
-			"attribute": "baseProfile",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "svg@baseProfile"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "svg",
 			"attribute": "baseline-shift",
 			"requirement": "optional",
 			"provenance": [
@@ -90203,29 +88938,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "svg@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "svg",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "svg@clip"
 					},
 					"confidence": "derived"
 				}
@@ -91636,29 +90348,6 @@
 		},
 		{
 			"element": "svg",
-			"attribute": "version",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "svg@version"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "svg",
 			"attribute": "viewBox",
 			"requirement": "optional",
 			"provenance": [
@@ -91842,29 +90531,6 @@
 			]
 		},
 		{
-			"element": "svg",
-			"attribute": "zoomAndPan",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "svg@zoomAndPan"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
 			"element": "switch",
 			"attribute": "alignment-baseline",
 			"requirement": "optional",
@@ -91951,29 +90617,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "switch@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "switch",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "switch@clip"
 					},
 					"confidence": "derived"
 				}
@@ -93515,29 +92158,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "symbol@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "symbol",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "symbol@clip"
 					},
 					"confidence": "derived"
 				}
@@ -95102,29 +93722,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "text@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "text",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "text@clip"
 					},
 					"confidence": "derived"
 				}
@@ -96834,29 +95431,6 @@
 		},
 		{
 			"element": "textPath",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "textPath@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "textPath",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -98559,29 +97133,6 @@
 		},
 		{
 			"element": "title",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "title@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "title",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -100093,29 +98644,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "tspan@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "tspan",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "tspan@clip"
 					},
 					"confidence": "derived"
 				}
@@ -101825,29 +100353,6 @@
 		},
 		{
 			"element": "use",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "use@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "use",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -103504,29 +102009,6 @@
 		},
 		{
 			"element": "view",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "view@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "view",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -104946,29 +103428,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "view@writing-mode"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "view",
-			"attribute": "zoomAndPan",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "view@zoomAndPan"
 					},
 					"confidence": "derived"
 				}

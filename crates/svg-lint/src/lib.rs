@@ -572,7 +572,11 @@ mod tests {
 
     #[test]
     fn compat_deprecated_attribute_emits_diagnostic() {
-        let src = br#"<svg><text clip="rect(0,100,100,0)">deprecated</text></svg>"#;
+        // `glyph-orientation-horizontal` is BCD-deprecated but still
+        // defined in the SVG 2 Editor's Draft (marked obsoleted-but-defined).
+        // This distinguishes it from `clip`/`baseProfile`/etc which were
+        // removed from SVG 2 entirely and surface as `UnsupportedInProfile`.
+        let src = br#"<svg><text glyph-orientation-horizontal="0">deprecated</text></svg>"#;
         let diags = lint(src);
 
         assert!(

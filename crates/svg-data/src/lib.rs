@@ -45,8 +45,9 @@ use catalog::{
 };
 pub use types::{
     AttributeDef, AttributeValues, BaselineQualifier, BaselineStatus, BrowserFlag, BrowserSupport,
-    BrowserVersion, ContentModel, ElementCategory, ElementDef, ProfileLookup, ProfiledAttribute,
-    ProfiledElement, RawVersionAdded, SpecLifecycle, SpecSnapshotId, SpecSnapshotMetadata,
+    BrowserVersion, CompatVerdict, ContentModel, ElementCategory, ElementDef, ProfileLookup,
+    ProfiledAttribute, ProfiledElement, RawVersionAdded, SpecLifecycle, SpecSnapshotId,
+    SpecSnapshotMetadata, VerdictReason, VerdictRecommendation,
 };
 
 const SVG11_REC_20030114_ALIASES: &[&str] = &[
@@ -612,6 +613,7 @@ mod tests {
             spec_url: None,
             baseline: None,
             browser_support: None,
+            verdicts: &[],
             values: AttributeValues::FreeText,
             elements: &[],
         };

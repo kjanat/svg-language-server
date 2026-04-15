@@ -101,9 +101,7 @@
 			"name": "baseProfile",
 			"present_in": [
 				"Svg11Rec20030114",
-				"Svg11Rec20110816",
-				"Svg2Cr20181004",
-				"Svg2EditorsDraft20250914"
+				"Svg11Rec20110816"
 			]
 		},
 		{
@@ -164,9 +162,7 @@
 			"name": "clip",
 			"present_in": [
 				"Svg11Rec20030114",
-				"Svg11Rec20110816",
-				"Svg2Cr20181004",
-				"Svg2EditorsDraft20250914"
+				"Svg11Rec20110816"
 			]
 		},
 		{
@@ -1645,9 +1641,7 @@
 			"name": "version",
 			"present_in": [
 				"Svg11Rec20030114",
-				"Svg11Rec20110816",
-				"Svg2Cr20181004",
-				"Svg2EditorsDraft20250914"
+				"Svg11Rec20110816"
 			]
 		},
 		{
@@ -1817,9 +1811,7 @@
 			"name": "zoomAndPan",
 			"present_in": [
 				"Svg11Rec20030114",
-				"Svg11Rec20110816",
-				"Svg2Cr20181004",
-				"Svg2EditorsDraft20250914"
+				"Svg11Rec20110816"
 			]
 		}
 	]

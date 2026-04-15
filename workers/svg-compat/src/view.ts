@@ -36,10 +36,22 @@ export interface NamedAttributeEntry extends AttributeEntry {
 
 /** Count of each data bucket shown in the hero stats grid. */
 export interface PageStats {
+	/** Total element count. */
 	elements: number;
+	/** Total attribute count. */
 	attributes: number;
+	/** Count of deprecated elements (BCD `deprecated: true`). */
 	deprecated: number;
+	/** Count of attributes with `baseline: "limited"`. */
 	limited: number;
+	/** Count of entries where at least one browser has `partial_implementation`. */
+	partial: number;
+	/** Count of entries where at least one browser carries a `version_removed` value. */
+	removed: number;
+	/** Count of entries with any `flags` gating the feature in a browser. */
+	flagged: number;
+	/** Count of entries with at least one explicit `supported: false`. */
+	unsupportedSomewhere: number;
 }
 
 /** URLs surfaced in the hero pill buttons. */
@@ -123,6 +135,48 @@ function computeBrowserMaxChars(elements: NamedCompatEntry[]): BrowserMaxChars {
  * request URL. Preserves the bcd→web_features iteration order so the
  * Upstream Sources table matches the legacy render.
  */
+/**
+ * Single pass over elements + attributes counting per-entry signal
+ * presence. An entry contributes to a counter once if *any* browser
+ * carries the signal — we're measuring the blast radius of the
+ * underlying upstream fact, not the total number of per-browser
+ * occurrences.
+ */
+function countBrowserSignals(
+	entries: CompatEntry[],
+): {
+	partial: number;
+	removed: number;
+	flagged: number;
+	unsupportedSomewhere: number;
+} {
+	let partial = 0;
+	let removed = 0;
+	let flagged = 0;
+	let unsupportedSomewhere = 0;
+	for (const entry of entries) {
+		const support = entry.browser_support;
+		if (!support) continue;
+		let hasPartial = false;
+		let hasRemoved = false;
+		let hasFlagged = false;
+		let hasUnsupported = false;
+		for (const key of BROWSER_KEYS) {
+			const v = support[key];
+			if (v === undefined) continue;
+			if (v.partial_implementation) hasPartial = true;
+			if (v.version_removed !== undefined) hasRemoved = true;
+			if (v.flags !== undefined) hasFlagged = true;
+			if (v.supported === false) hasUnsupported = true;
+		}
+		if (hasPartial) partial++;
+		if (hasRemoved) removed++;
+		if (hasFlagged) flagged++;
+		if (hasUnsupported) unsupportedSomewhere++;
+	}
+	return { partial, removed, flagged, unsupportedSomewhere };
+}
+
 export function buildPageModel(
 	output: SvgCompatOutput,
 	requestUrl: URL,
@@ -134,6 +188,7 @@ export function buildPageModel(
 		(entry) => entry.baseline?.status === "limited",
 	);
 	const origin = requestUrl.origin;
+	const signalCounts = countBrowserSignals([...elements, ...attributes]);
 
 	return {
 		generatedAt: output.generated_at,
@@ -142,6 +197,10 @@ export function buildPageModel(
 			attributes: attributes.length,
 			deprecated: deprecatedElements.length,
 			limited: limitedAttributes.length,
+			partial: signalCounts.partial,
+			removed: signalCounts.removed,
+			flagged: signalCounts.flagged,
+			unsupportedSomewhere: signalCounts.unsupportedSomewhere,
 		},
 		sources: Object.values(output.sources),
 		elements,

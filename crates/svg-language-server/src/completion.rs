@@ -746,6 +746,7 @@ mod tests {
         spec_url: None,
         baseline: None,
         browser_support: None,
+        verdicts: &[],
         content_model: ContentModel::Void,
         required_attrs: &[],
         attrs: &[],
@@ -762,6 +763,7 @@ mod tests {
         spec_url: None,
         baseline: None,
         browser_support: None,
+        verdicts: &[],
         values: AttributeValues::FreeText,
         elements: &["*"],
     };

@@ -15,6 +15,8 @@ mod bcd;
 mod codegen;
 #[path = "src/types.rs"]
 mod types;
+#[path = "build/verdict.rs"]
+mod verdict;
 #[path = "src/worker_schema.rs"]
 mod worker_schema;
 
@@ -802,6 +804,72 @@ fn union_lifecycle_expr(present_in: &[SpecSnapshotId]) -> &'static str {
     }
 }
 
+/// Enum variant companion to [`union_lifecycle_expr`]. Used by the verdict
+/// builder, which needs a real [`SpecLifecycle`] value (not its emitted
+/// source form) to drive rule branches.
+fn union_lifecycle_enum(present_in: &[SpecSnapshotId]) -> types::SpecLifecycle {
+    if !present_in.contains(&LATEST_SNAPSHOT) {
+        types::SpecLifecycle::Obsolete
+    } else if present_in == [LATEST_SNAPSHOT] {
+        types::SpecLifecycle::Experimental
+    } else {
+        types::SpecLifecycle::Stable
+    }
+}
+
+/// Build the [`verdict::SpecFacts`] for an entry in a specific profile.
+///
+/// Returns `None` when the feature is absent from the given profile (caller
+/// still emits a Forbid verdict via the Obsolete branch below). Otherwise
+/// returns facts suitable for `verdict::compute`.
+fn spec_facts_for_profile(
+    present_in: &[SpecSnapshotId],
+    profile: SpecSnapshotId,
+) -> verdict::SpecFacts {
+    if present_in.contains(&profile) {
+        // Feature is defined in this profile: lifecycle is Stable unless
+        // the feature only exists in the latest experimental snapshot.
+        let lifecycle = if present_in == [LATEST_SNAPSHOT] && profile == LATEST_SNAPSHOT {
+            types::SpecLifecycle::Experimental
+        } else {
+            types::SpecLifecycle::Stable
+        };
+        verdict::SpecFacts {
+            lifecycle,
+            last_seen: None,
+        }
+    } else {
+        // Not present in this profile: obsolete. `last_seen` is the most
+        // recent snapshot in which the feature was still defined.
+        let last_seen = latest_present_snapshot(present_in).map(|snap| snap.as_str().to_string());
+        verdict::SpecFacts {
+            lifecycle: types::SpecLifecycle::Obsolete,
+            last_seen,
+        }
+    }
+}
+
+/// Compute one [`verdict::Verdict`] per canonical snapshot.
+///
+/// Returned as tuples of `(snapshot_ident, verdict)` suitable for
+/// `verdict::format_verdicts_slice`. Snapshots where the feature is
+/// tracked-but-removed (e.g. `xlink:href` in SVG 2) get an Obsolete
+/// verdict; snapshots where the feature is defined get a verdict whose
+/// priority reflects BCD/browser signals.
+fn verdicts_for_all_profiles(
+    compat: Option<&CompatEntry>,
+    present_in: &[SpecSnapshotId],
+) -> Vec<(&'static str, verdict::Verdict)> {
+    canonical_snapshots()
+        .into_iter()
+        .map(|profile| {
+            let facts = spec_facts_for_profile(present_in, profile);
+            let verdict = verdict::compute(compat, facts);
+            (profile.as_str(), verdict)
+        })
+        .collect()
+}
+
 fn map_category_name(value: &str) -> Result<String, Box<dyn Error>> {
     let category = match value {
         "container" => "Container",
@@ -1208,8 +1276,9 @@ fn write_elements_array(
             }
             ElementContentModelJson::ForeignNamespace => "ContentModel::Foreign".to_string(),
         };
+        let compat_entry = compat.elements.get(&element.name);
         let (deprecated, experimental, spec_url_str, baseline_str, browser_support_str) =
-            compat.elements.get(&element.name).map_or_else(
+            compat_entry.map_or_else(
                 || {
                     (
                         false,
@@ -1229,6 +1298,8 @@ fn write_elements_array(
                     )
                 },
             );
+        let profile_verdicts = verdicts_for_all_profiles(compat_entry, &element.known_in);
+        let verdicts_str = verdict::format_verdicts_slice(&profile_verdicts);
         let name = escape(&element.name);
         let description = escape(&element.description);
         let mdn_url = escape(&element.mdn_url);
@@ -1245,6 +1316,7 @@ fn write_elements_array(
         spec_url: {spec_url_str},
         baseline: {baseline_str},
         browser_support: {browser_support_str},
+        verdicts: {verdicts_str},
         content_model: {content_model},
         required_attrs: EL_{id}_REQUIRED_ATTRS,
         attrs: EL_{id}_ATTRS,
@@ -1270,8 +1342,9 @@ fn write_attributes_array(
     for attribute in attributes {
         let id = &attribute_idents[attribute.name.as_str()];
         let values = attribute_values_expr(id, &attribute.values);
+        let bcd_compat_entry = compat.attributes.get(&attribute.name).map(|a| &a.compat);
         let (deprecated, experimental, spec_url_str, baseline_str, browser_support_str) =
-            compat.attributes.get(&attribute.name).map_or_else(
+            bcd_compat_entry.map_or_else(
                 || {
                     (
                         false,
@@ -1281,16 +1354,18 @@ fn write_attributes_array(
                         "None".to_string(),
                     )
                 },
-                |bcd_attribute| {
+                |entry| {
                     (
-                        bcd_attribute.compat.deprecated,
-                        bcd_attribute.compat.experimental,
-                        format_option_str(bcd_attribute.compat.spec_url.as_deref()),
-                        format_baseline(bcd_attribute.compat.baseline.as_ref()),
-                        format_browser_support(bcd_attribute.compat.browser_support.as_ref()),
+                        entry.deprecated,
+                        entry.experimental,
+                        format_option_str(entry.spec_url.as_deref()),
+                        format_baseline(entry.baseline.as_ref()),
+                        format_browser_support(entry.browser_support.as_ref()),
                     )
                 },
             );
+        let profile_verdicts = verdicts_for_all_profiles(bcd_compat_entry, &attribute.known_in);
+        let verdicts_str = verdict::format_verdicts_slice(&profile_verdicts);
         let name = escape(&attribute.name);
         let description = escape(&attribute.description);
         let mdn_url = escape(&attribute.mdn_url);
@@ -1307,6 +1382,7 @@ fn write_attributes_array(
         spec_url: {spec_url_str},
         baseline: {baseline_str},
         browser_support: {browser_support_str},
+        verdicts: {verdicts_str},
         values: {values},
         elements: ATTR_{id}_ELEMENTS,
     }},

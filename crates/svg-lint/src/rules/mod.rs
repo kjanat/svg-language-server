@@ -538,6 +538,19 @@ fn emit_lifecycle_diag_in_tag(
             codes.deprecated,
             format!("{subject} is deprecated"),
         ),
+        SpecLifecycle::Obsolete => push_diag_in_tag(
+            diagnostics,
+            suppressions,
+            node,
+            tag_start,
+            Severity::Warning,
+            // Reuse the deprecated code but with a stronger message —
+            // the feature is not just deprecated, it's gone from the
+            // current SVG profile. A dedicated `ObsoleteElement`/
+            // `ObsoleteAttribute` code is a follow-up.
+            codes.deprecated,
+            format!("{subject} is no longer defined in the current SVG profile"),
+        ),
         SpecLifecycle::Experimental => push_diag_in_tag(
             diagnostics,
             suppressions,
@@ -547,7 +560,7 @@ fn emit_lifecycle_diag_in_tag(
             codes.experimental,
             format!("{subject} is experimental"),
         ),
-        SpecLifecycle::Stable | SpecLifecycle::Obsolete => {}
+        SpecLifecycle::Stable => {}
     }
 }
 

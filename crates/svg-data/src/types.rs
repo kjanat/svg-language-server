@@ -22,6 +22,12 @@ pub struct ElementDef {
     pub baseline: Option<BaselineStatus>,
     /// Per-browser desktop support data when known.
     pub browser_support: Option<BrowserSupport>,
+    /// Pre-computed compat verdicts per spec snapshot. One entry per
+    /// snapshot the element is tracked in; empty slice when no verdict
+    /// could be derived (defensive — shouldn't happen for covered
+    /// snapshots). Consumers look up the verdict for the active profile
+    /// with [`crate::compat_verdict_for_element`].
+    pub verdicts: &'static [(SpecSnapshotId, CompatVerdict)],
     /// Structural child-content model for the element.
     pub content_model: ContentModel,
     /// Attributes that must be present for valid usage.
@@ -73,6 +79,11 @@ pub struct AttributeDef {
     pub baseline: Option<BaselineStatus>,
     /// Per-browser desktop support data when known.
     pub browser_support: Option<BrowserSupport>,
+    /// Pre-computed compat verdicts per spec snapshot. One entry per
+    /// snapshot the attribute is tracked in; empty slice when no verdict
+    /// could be derived. Consumers look up the verdict for the active
+    /// profile with [`crate::compat_verdict_for_attribute`].
+    pub verdicts: &'static [(SpecSnapshotId, CompatVerdict)],
     /// High-level value-shape description for completion and hover logic.
     pub values: AttributeValues,
     /// Elements the attribute applies to; `*` means global applicability.
@@ -240,6 +251,106 @@ pub struct BrowserSupport {
     pub firefox: Option<BrowserVersion>,
     /// Safari desktop support data.
     pub safari: Option<BrowserVersion>,
+}
+
+/// Recommendation level for a compat verdict.
+///
+/// Forms a total order `Safe < Caution < Avoid < Forbid` so that a
+/// reason at a higher tier always overrides one at a lower tier. Maps
+/// 1:1 to an LSP diagnostic severity so a lint rule and a hover badge
+/// can't disagree on how urgent a compat issue is.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum VerdictRecommendation {
+    /// Safe to use today. Wide baseline, not deprecated, no partial
+    /// implementation or vendor prefix required.
+    Safe,
+    /// Use with care: partial implementation, prefix needed, flag
+    /// required, or non-Baseline status. Behaviour may differ from
+    /// the spec in at least one tracked engine.
+    Caution,
+    /// Avoid in new work: deprecated in BCD or in the selected spec
+    /// profile, but still functional.
+    Avoid,
+    /// Do not use: explicitly removed from the current spec, or
+    /// explicitly unsupported in every tracked engine.
+    Forbid,
+}
+
+/// A single reason contributing to a compat verdict.
+///
+/// Renderers consume these as glyphs, bullet points, or diagnostic
+/// messages. Multiple reasons at the same tier can co-exist — the
+/// final recommendation is the max tier across all collected reasons,
+/// but all reasons are preserved for display.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum VerdictReason {
+    /// BCD marks the feature `deprecated: true`.
+    BcdDeprecated,
+    /// BCD marks the feature `experimental: true`.
+    BcdExperimental,
+    /// The feature is absent from the currently-selected spec snapshot.
+    /// `last_seen` is the most recent snapshot it was still defined in.
+    ProfileObsolete {
+        /// Most recent snapshot in which the feature was still defined.
+        last_seen: SpecSnapshotId,
+    },
+    /// The feature is experimental (draft-only) in the current profile.
+    ProfileExperimental,
+    /// Baseline `"limited"` across major browsers.
+    BaselineLimited,
+    /// Baseline `"newly available"` — supported in every engine but not
+    /// long enough to qualify as widely available.
+    BaselineNewly {
+        /// Year the feature reached newly-available baseline.
+        since: u16,
+        /// Qualifier when the upstream date was inexact.
+        qualifier: Option<BaselineQualifier>,
+    },
+    /// Some tracked browser ships a partial implementation.
+    PartialImplementationIn(&'static str),
+    /// Some tracked browser needs a vendor prefix.
+    PrefixRequiredIn {
+        /// Browser identifier (`"chrome"`, `"edge"`, `"firefox"`, `"safari"`).
+        browser: &'static str,
+        /// Prefix literal the browser requires (e.g. `"-webkit-"`).
+        prefix: &'static str,
+    },
+    /// Some tracked browser gates the feature behind a preference or runtime flag.
+    BehindFlagIn(&'static str),
+    /// Some tracked browser explicitly reports no support.
+    UnsupportedIn(&'static str),
+    /// Some tracked browser removed support at a specific version.
+    RemovedIn {
+        /// Browser identifier.
+        browser: &'static str,
+        /// Version in which support was removed.
+        version: &'static str,
+        /// Qualifier on the removal version when upstream was inexact.
+        qualifier: Option<BaselineQualifier>,
+    },
+}
+
+/// A fully-reconciled compatibility verdict.
+///
+/// Both the LSP hover and the lint diagnostic paths consume this
+/// struct — they never inspect raw `deprecated` / `baseline` /
+/// `browser_support` fields directly. This guarantees the two
+/// surfaces cannot disagree on urgency or phrasing.
+///
+/// `Copy` because `headline_template` is a static string key (not a
+/// rendered message) and `reasons` is a `&'static` slice pointer.
+/// Actual human-readable text interpolation happens in a non-Copy
+/// formatter at the call site.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct CompatVerdict {
+    /// Highest-tier recommendation across all collected reasons.
+    pub recommendation: VerdictRecommendation,
+    /// Static template key for the hover headline (e.g. `"removed from SVG 2"`).
+    /// Renderer interpolates the feature name separately.
+    pub headline_template: &'static str,
+    /// Contributing reasons, sorted by tier descending then by
+    /// collection order for tie-breaking.
+    pub reasons: &'static [VerdictReason],
 }
 
 /// Spec lifecycle for a known SVG element or attribute.

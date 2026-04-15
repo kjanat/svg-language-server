@@ -84,26 +84,6 @@
 		},
 		{
 			"element": "a",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "a@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "a",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -1764,26 +1744,6 @@
 		},
 		{
 			"element": "animate",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "animate@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "animate",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -3417,26 +3377,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "animateMotion@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "animateMotion",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "animateMotion@clip"
 					},
 					"confidence": "derived"
 				}
@@ -5184,26 +5124,6 @@
 		},
 		{
 			"element": "animateTransform",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "animateTransform@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "animateTransform",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -6764,26 +6684,6 @@
 		},
 		{
 			"element": "circle",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "circle@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "circle",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -8184,26 +8084,6 @@
 		},
 		{
 			"element": "clipPath",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "clipPath@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "clipPath",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -9564,26 +9444,6 @@
 		},
 		{
 			"element": "defs",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "defs@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "defs",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -10924,26 +10784,6 @@
 		},
 		{
 			"element": "desc",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "desc@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "desc",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -12257,26 +12097,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "ellipse@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "ellipse",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "ellipse@clip"
 					},
 					"confidence": "derived"
 				}
@@ -13704,26 +13524,6 @@
 		},
 		{
 			"element": "feBlend",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "feBlend@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feBlend",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -15117,26 +14917,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "feColorMatrix@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feColorMatrix",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "feColorMatrix@clip"
 					},
 					"confidence": "derived"
 				}
@@ -16544,26 +16324,6 @@
 		},
 		{
 			"element": "feComponentTransfer",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "feComponentTransfer@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feComponentTransfer",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -17917,26 +17677,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "feComposite@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feComposite",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "feComposite@clip"
 					},
 					"confidence": "derived"
 				}
@@ -19437,26 +19177,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "feConvolveMatrix@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feConvolveMatrix",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "feConvolveMatrix@clip"
 					},
 					"confidence": "derived"
 				}
@@ -20984,26 +20704,6 @@
 		},
 		{
 			"element": "feDiffuseLighting",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "feDiffuseLighting@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feDiffuseLighting",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -22417,26 +22117,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "feDisplacementMap@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feDisplacementMap",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "feDisplacementMap@clip"
 					},
 					"confidence": "derived"
 				}
@@ -23904,26 +23584,6 @@
 		},
 		{
 			"element": "feDistantLight",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "feDistantLight@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feDistantLight",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -25257,26 +24917,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "feDropShadow@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feDropShadow",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "feDropShadow@clip"
 					},
 					"confidence": "derived"
 				}
@@ -26644,26 +26284,6 @@
 		},
 		{
 			"element": "feFlood",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "feFlood@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feFlood",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -28017,26 +27637,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "feFuncA@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feFuncA",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "feFuncA@clip"
 					},
 					"confidence": "derived"
 				}
@@ -29504,26 +29104,6 @@
 		},
 		{
 			"element": "feFuncB",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "feFuncB@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feFuncB",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -30977,26 +30557,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "feFuncG@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feFuncG",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "feFuncG@clip"
 					},
 					"confidence": "derived"
 				}
@@ -32464,26 +32024,6 @@
 		},
 		{
 			"element": "feFuncR",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "feFuncR@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feFuncR",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -33924,26 +33464,6 @@
 		},
 		{
 			"element": "feGaussianBlur",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "feGaussianBlur@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feGaussianBlur",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -35337,26 +34857,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "feImage@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feImage",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "feImage@clip"
 					},
 					"confidence": "derived"
 				}
@@ -36784,26 +36284,6 @@
 		},
 		{
 			"element": "feMerge",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "feMerge@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feMerge",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -38144,26 +37624,6 @@
 		},
 		{
 			"element": "feMergeNode",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "feMergeNode@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feMergeNode",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -39497,26 +38957,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "feMorphology@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feMorphology",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "feMorphology@clip"
 					},
 					"confidence": "derived"
 				}
@@ -40924,26 +40364,6 @@
 		},
 		{
 			"element": "feOffset",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "feOffset@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feOffset",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -42344,26 +41764,6 @@
 		},
 		{
 			"element": "fePointLight",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "fePointLight@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "fePointLight",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -43737,26 +43137,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "feSpecularLighting@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feSpecularLighting",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "feSpecularLighting@clip"
 					},
 					"confidence": "derived"
 				}
@@ -45197,26 +44577,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "feSpotLight@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feSpotLight",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "feSpotLight@clip"
 					},
 					"confidence": "derived"
 				}
@@ -46704,26 +46064,6 @@
 		},
 		{
 			"element": "feTile",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "feTile@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feTile",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -48097,26 +47437,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "feTurbulence@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feTurbulence",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "feTurbulence@clip"
 					},
 					"confidence": "derived"
 				}
@@ -49537,26 +48857,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "filter@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "filter",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "filter@clip"
 					},
 					"confidence": "derived"
 				}
@@ -51004,26 +50304,6 @@
 		},
 		{
 			"element": "foreignObject",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "foreignObject@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "foreignObject",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -52444,26 +51724,6 @@
 		},
 		{
 			"element": "g",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "g@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "g",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -53797,26 +53057,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "image@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "image",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "image@clip"
 					},
 					"confidence": "derived"
 				}
@@ -55344,26 +54584,6 @@
 		},
 		{
 			"element": "line",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "line@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "line",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -56777,26 +55997,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "linearGradient@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "linearGradient",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "linearGradient@clip"
 					},
 					"confidence": "derived"
 				}
@@ -58284,26 +57484,6 @@
 		},
 		{
 			"element": "marker",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "marker@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "marker",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -59784,26 +58964,6 @@
 		},
 		{
 			"element": "mask",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "mask@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "mask",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -61264,26 +60424,6 @@
 		},
 		{
 			"element": "metadata",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "metadata@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "metadata",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -62597,26 +61737,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "mpath@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "mpath",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "mpath@clip"
 					},
 					"confidence": "derived"
 				}
@@ -63957,26 +63077,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "path@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "path",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "path@clip"
 					},
 					"confidence": "derived"
 				}
@@ -65337,26 +64437,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "pattern@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "pattern",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "pattern@clip"
 					},
 					"confidence": "derived"
 				}
@@ -66904,26 +65984,6 @@
 		},
 		{
 			"element": "polygon",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "polygon@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "polygon",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -68284,26 +67344,6 @@
 		},
 		{
 			"element": "polyline",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "polyline@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "polyline",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -69657,26 +68697,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "radialGradient@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "radialGradient",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "radialGradient@clip"
 					},
 					"confidence": "derived"
 				}
@@ -71204,26 +70224,6 @@
 		},
 		{
 			"element": "rect",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "rect@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "rect",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -72704,26 +71704,6 @@
 		},
 		{
 			"element": "script",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "script@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "script",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -74157,26 +73137,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "set@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "set",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "set@clip"
 					},
 					"confidence": "derived"
 				}
@@ -75624,26 +74584,6 @@
 		},
 		{
 			"element": "stop",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "stop@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "stop",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -77024,26 +75964,6 @@
 		},
 		{
 			"element": "style",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "style@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "style",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -78384,26 +77304,6 @@
 		},
 		{
 			"element": "svg",
-			"attribute": "baseProfile",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "svg@baseProfile"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "svg",
 			"attribute": "baseline-shift",
 			"requirement": "optional",
 			"provenance": [
@@ -78437,26 +77337,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "svg@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "svg",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "svg@clip"
 					},
 					"confidence": "derived"
 				}
@@ -79684,26 +78564,6 @@
 		},
 		{
 			"element": "svg",
-			"attribute": "version",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "svg@version"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "svg",
 			"attribute": "viewBox",
 			"requirement": "optional",
 			"provenance": [
@@ -79863,26 +78723,6 @@
 			]
 		},
 		{
-			"element": "svg",
-			"attribute": "zoomAndPan",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "svg@zoomAndPan"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
 			"element": "switch",
 			"attribute": "alignment-baseline",
 			"requirement": "optional",
@@ -79957,26 +78797,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "switch@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "switch",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "switch@clip"
 					},
 					"confidence": "derived"
 				}
@@ -81317,26 +80137,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "symbol@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "symbol",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "symbol@clip"
 					},
 					"confidence": "derived"
 				}
@@ -82697,26 +81497,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "text@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "text",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "text@clip"
 					},
 					"confidence": "derived"
 				}
@@ -84204,26 +82984,6 @@
 		},
 		{
 			"element": "textPath",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "textPath@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "textPath",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -85704,26 +84464,6 @@
 		},
 		{
 			"element": "title",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "title@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "title",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -87037,26 +85777,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "tspan@class"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "tspan",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "tspan@clip"
 					},
 					"confidence": "derived"
 				}
@@ -88544,26 +87264,6 @@
 		},
 		{
 			"element": "use",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "use@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "use",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -90004,26 +88704,6 @@
 		},
 		{
 			"element": "view",
-			"attribute": "clip",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "view@clip"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "view",
 			"attribute": "clip-path",
 			"requirement": "optional",
 			"provenance": [
@@ -91257,26 +89937,6 @@
 					"locator": {
 						"kind": "fragment",
 						"anchor": "view@writing-mode"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "view",
-			"attribute": "zoomAndPan",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "tr-root",
-					"source_kind": "html",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "view@zoomAndPan"
 					},
 					"confidence": "derived"
 				}

@@ -121,7 +121,16 @@ fn overlays_match_adjacent_snapshot_diffs() {
     assert_eq!(overlay_2011_to_2018.attributes.added, ["href", "method"]);
     assert_eq!(
         overlay_2011_to_2018.attributes.removed,
-        ["xlink:actuate", "xlink:href", "xlink:show", "xlink:title"]
+        [
+            "baseProfile",
+            "clip",
+            "version",
+            "xlink:actuate",
+            "xlink:href",
+            "xlink:show",
+            "xlink:title",
+            "zoomAndPan"
+        ]
     );
 
     for (overlay, pair) in derived.overlays.iter().zip(owned_inputs.windows(2)) {

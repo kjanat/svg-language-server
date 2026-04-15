@@ -247,6 +247,119 @@ fn typed_attribute_hover_resolves_catalog() -> TestResult {
 }
 
 #[test]
+fn hover_renders_per_browser_partial_note_for_color_interpolation() -> TestResult {
+    // Regression guard for the per-browser sub-bullet rendering path.
+    // `color-interpolation` is chosen because live BCD data has:
+    //
+    // - Chrome `≤80` + partial_implementation + note "Only the default sRGB"
+    // - Edge `≤80`   + partial_implementation + same note
+    // - Firefox `≤72`
+    // - Safari `≤13.1` + partial_implementation + same note
+    //
+    // This exercises version qualifier rendering, the partial-implementation
+    // sub-bullet path, and the notes pipe from BCD through the catalog.
+    let mut server = TestServer::start()?;
+    let svg = r#"<svg><rect color-interpolation="sRGB" /></svg>"#;
+    server.open("file:///ci.svg", svg)?;
+
+    let col = u32::try_from(svg.find("color-interpolation").ok_or("attr present")?)? + 1;
+    let resp = server.request(
+        "textDocument/hover",
+        &json!({
+            "textDocument": { "uri": "file:///ci.svg" },
+            "position": { "line": 0, "character": col }
+        }),
+    )?;
+    let value = resp["result"]["contents"]["value"]
+        .as_str()
+        .ok_or("color-interpolation hover markdown")?;
+
+    // Qualifier glyph must appear in the chip row — NOT a bare "Chrome 80".
+    assert!(
+        value.contains("Chrome ≤80"),
+        "chip row must render ≤ qualifier: {value}"
+    );
+    assert!(
+        value.contains("Safari ≤13.1"),
+        "chip row must render ≤ qualifier on Safari: {value}"
+    );
+    // Per-browser sub-bullet surfaces the partial-implementation note.
+    assert!(
+        value.contains("- Chrome: partial"),
+        "expected per-browser partial sub-bullet for Chrome: {value}"
+    );
+    assert!(
+        value.contains("sRGB"),
+        "partial note text must flow through from BCD notes: {value}"
+    );
+
+    server.shutdown_and_exit()?;
+    Ok(())
+}
+
+#[test]
+fn hover_baseprofile_verdict_is_forbid_in_svg2_profile() -> TestResult {
+    // Flagship regression guard for the reconciled-verdict hover path:
+    // baseProfile was removed from SVG 2. The old hover contradicted itself
+    // by showing both `**Deprecated**` (BCD) and `**Stable in
+    // Svg2EditorsDraft20250914**` (snapshot data). After the fix:
+    //
+    // - data audit removed baseProfile from the SVG 2 snapshot files;
+    // - union lifecycle now returns Obsolete;
+    // - verdict layer emits Forbid + ProfileObsolete + BcdDeprecated;
+    // - hover renders a single coherent `✗ removed from the current SVG
+    //   profile` blockquote with a consolidated Status line.
+    //
+    // This test fails loudly if ANY of those layers regress.
+    let mut server = TestServer::start()?;
+    let svg = r#"<svg baseProfile="full"></svg>"#;
+    server.open("file:///bp.svg", svg)?;
+
+    let col = u32::try_from(svg.find("baseProfile").ok_or("baseProfile present")?)? + 1;
+    let resp = server.request(
+        "textDocument/hover",
+        &json!({
+            "textDocument": { "uri": "file:///bp.svg" },
+            "position": { "line": 0, "character": col }
+        }),
+    )?;
+    let value = resp["result"]["contents"]["value"]
+        .as_str()
+        .ok_or("baseProfile hover markdown")?;
+
+    // Verdict headline must be Forbid (✗) with "removed from the current SVG profile".
+    assert!(
+        value.contains("\u{2717}") && value.contains("baseProfile"),
+        "expected ✗ verdict headline for baseProfile: {value}"
+    );
+    assert!(
+        value.contains("removed from the current SVG profile"),
+        "expected 'removed from the current SVG profile' template: {value}"
+    );
+    // Status line must consolidate all three reasons.
+    assert!(
+        value.contains("**Status:**") && value.contains("removed after"),
+        "expected Status line with 'removed after': {value}"
+    );
+    assert!(
+        value.contains("deprecated"),
+        "Status line must include `deprecated` reason: {value}"
+    );
+    // The old contradictory lines must NOT appear.
+    assert!(
+        !value.contains("**Stable in"),
+        "hover must not show 'Stable in ...' for a forbid-verdict attribute: {value}"
+    );
+    assert!(
+        !value.contains("~~The baseProfile"),
+        "hover no longer uses strikethrough description — verdict headline replaces it: {value}"
+    );
+
+    server.shutdown_and_exit()?;
+    Ok(())
+}
+
+#[test]
 fn hover_renders_baseline_qualifier_for_fegaussianblur() -> TestResult {
     // Regression guard for the `≤` qualifier propagation pipeline:
     // BCD → web-features (`baseline_high_date: "≤2021-04-02"`) → worker
@@ -346,9 +459,18 @@ fn hover_shows_profile_lifecycle_separately_from_browser_support() -> TestResult
     let svg11_hover_value = svg11_hover["result"]["contents"]["value"]
         .as_str()
         .ok_or("SVG 1.1 hover markdown")?;
+    // In SVG 1.1 profile, xlink:href is defined but BCD-deprecated. The
+    // verdict-driven hover shows ⊘ deprecated (not Forbid/removed) because
+    // the attribute is still present in the active profile.
     assert!(
-        svg11_hover_value.contains("**Obsolete in Svg11Rec20110816**"),
-        "SVG 1.1 hover should show the selected profile lifecycle: {svg11_hover}"
+        svg11_hover_value.contains("\u{2298}")
+            && svg11_hover_value.contains("xlink:href")
+            && svg11_hover_value.contains("deprecated"),
+        "SVG 1.1 hover for xlink:href should display ⊘ deprecated verdict: {svg11_hover_value}"
+    );
+    assert!(
+        !svg11_hover_value.contains("removed after"),
+        "SVG 1.1 verdict must not report xlink:href as removed — it's still defined there: {svg11_hover_value}"
     );
     assert!(
         svg11_hover_value.contains("Chrome"),
@@ -372,9 +494,15 @@ fn hover_shows_profile_lifecycle_separately_from_browser_support() -> TestResult
     let svg2_hover_value = svg2_hover["result"]["contents"]["value"]
         .as_str()
         .ok_or("SVG 2 hover markdown")?;
+    // In SVG 2 profile, xlink:href is no longer defined — verdict escalates
+    // to ✗ Forbid with "removed after `Svg11Rec20110816`" in the Status line.
     assert!(
-        svg2_hover_value.contains("**Obsolete after Svg11Rec20110816**"),
-        "SVG 2 hover should show obsolete lifecycle separately from compat: {svg2_hover}"
+        svg2_hover_value.contains("\u{2717}") && svg2_hover_value.contains("xlink:href"),
+        "SVG 2 hover for xlink:href should display ✗ Forbid verdict: {svg2_hover_value}"
+    );
+    assert!(
+        svg2_hover_value.contains("removed after `Svg11Rec20110816`"),
+        "SVG 2 hover should surface the removal point in the Status line: {svg2_hover_value}"
     );
     assert!(
         svg2_hover_value.contains("Chrome"),

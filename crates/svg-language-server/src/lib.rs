@@ -378,13 +378,19 @@ fn build_element_hover_markdown(
                 runtime_compat.and_then(|runtime| runtime.elements.get(node_text));
 
             match lookup {
-                svg_data::ProfileLookup::Present { value, .. } => Some(
-                    format_element_hover_with_profile(value, profile_lifecycle, runtime_override),
-                ),
+                svg_data::ProfileLookup::Present { value, .. } => {
+                    Some(format_element_hover_with_profile(
+                        value,
+                        profile,
+                        profile_lifecycle,
+                        runtime_override,
+                    ))
+                }
                 svg_data::ProfileLookup::UnsupportedInProfile { .. } => {
                     svg_data::element(node_text).map(|element| {
                         format_element_hover_with_profile(
                             element,
+                            profile,
                             profile_lifecycle,
                             runtime_override,
                         )
@@ -410,12 +416,22 @@ fn build_attribute_hover_markdown(
     let runtime_override = runtime_compat.and_then(|runtime| runtime.attributes.get(node_text));
 
     match lookup {
-        svg_data::ProfileLookup::Present { value, .. } => Some(
-            format_attribute_hover_with_profile(value, profile_lifecycle, runtime_override),
-        ),
+        svg_data::ProfileLookup::Present { value, .. } => {
+            Some(format_attribute_hover_with_profile(
+                value,
+                profile,
+                profile_lifecycle,
+                runtime_override,
+            ))
+        }
         svg_data::ProfileLookup::UnsupportedInProfile { .. } => {
             svg_data::attribute(node_text).map(|attribute| {
-                format_attribute_hover_with_profile(attribute, profile_lifecycle, runtime_override)
+                format_attribute_hover_with_profile(
+                    attribute,
+                    profile,
+                    profile_lifecycle,
+                    runtime_override,
+                )
             })
         }
         svg_data::ProfileLookup::Unknown => external_attribute_hover(kind, node_text),

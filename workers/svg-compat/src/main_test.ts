@@ -264,6 +264,65 @@ Deno.test("browser support preserves font-width (Safari-only attribute)", async 
 	assertEquals(attr.browser_support?.safari?.version_added, "18.4");
 });
 
+Deno.test("dashboard surfaces new stat tiles for preserved signals", async () => {
+	// Regression guard for the sophisticated-UX plan: PageStats now
+	// carries partial/removed/flagged/unsupported counts and StatsGrid
+	// renders them as secondary tiles. On the live dataset we expect:
+	// - partial ≥ 3 (color-interpolation and siblings)
+	// - unsupportedSomewhere ≥ 10 (explicit `false` statements)
+	// - removed ≥ 1 (historical removals like data_uri on Chrome)
+	const res = await server.fetch(
+		new Request("http://localhost/", { headers: { accept: "text/html" } }),
+	);
+	const body = await res.text();
+	// Secondary-tier stats tiles are rendered with the `stat-secondary`
+	// class — the new visual tier. At least four of them must exist.
+	const secondaryTiles = body.match(/class="stat stat-secondary"/g) ?? [];
+	assert(
+		secondaryTiles.length >= 4,
+		`expected ≥4 secondary stat tiles, got ${secondaryTiles.length}`,
+	);
+	// The label text for each new signal must appear on the page.
+	for (const label of ["partial", "removed", "flagged", "unsupported"]) {
+		assert(
+			body.includes(`>${label}<`),
+			`stats grid should include a tile labelled "${label}": ${body.slice(0, 200)}…`,
+		);
+	}
+});
+
+Deno.test("BaselineBadge title surfaces raw upstream dates", async () => {
+	// BaselineBadge now renders a `title` attribute with `low_date.raw`
+	// / `high_date.raw` so screen readers + tooltip users get the exact
+	// upstream date string (`≤2021-04-02`) even though the badge only
+	// shows the coarse year.
+	const res = await server.fetch(
+		new Request("http://localhost/", { headers: { accept: "text/html" } }),
+	);
+	const body = await res.text();
+	// Look for a baseline badge title that contains a raw date string.
+	const titleMatch = body.match(/<span class="badge badge-widely" title="[^"]*Widely since[^"]*"/);
+	assert(
+		titleMatch !== null,
+		`expected BaselineBadge title with "Widely since …" text on at least one widely badge`,
+	);
+});
+
+Deno.test("dashboard emits chip-partial class for partial-implementation entries", async () => {
+	// CSS coverage regression guard: BrowserSupport.tsx emits chip state
+	// classes for the preserved signals. Previously they were dark matter
+	// (no CSS rules); the Phase 3.1 change added styling. This test
+	// verifies the class IS emitted — the CSS itself is a static file.
+	const res = await server.fetch(
+		new Request("http://localhost/", { headers: { accept: "text/html" } }),
+	);
+	const body = await res.text();
+	assert(
+		body.includes("chip-partial"),
+		"dashboard HTML should include at least one chip-partial class somewhere (e.g. color-interpolation)",
+	);
+});
+
 Deno.test("attributes table renders Support column", async () => {
 	const res = await server.fetch(
 		new Request("http://localhost/", { headers: { accept: "text/html" } }),

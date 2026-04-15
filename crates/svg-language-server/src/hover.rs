@@ -214,6 +214,155 @@ fn verdict_for(
         .map(|(_, v)| *v)
 }
 
+/// Typed sections of a compatibility hover payload. Each variant renders
+/// to its own self-contained block of markdown; [`CompatMarkdownBuilder`]
+/// joins them with exactly one blank line between each, so sections never
+/// need to push their own leading/trailing whitespace.
+///
+/// The enum replaces the loose `parts.push(String::new())` pattern: the
+/// blank-line discipline is encoded once in `build()` rather than repeated
+/// at every call site, and the set of legal sections is closed, so future
+/// additions must land here (visible to every reviewer) rather than as
+/// ad-hoc string pushes.
+enum HoverSection {
+    /// Blockquote-quoted verdict headline. Rendered markdown looks
+    /// like `> ✗ baseProfile — removed from the current SVG profile`.
+    Headline(String),
+    /// Plain-text MDN-style description. First prose block.
+    Description(String),
+    /// Consolidated `**Status:** reason · reason` line, or legacy profile-lifecycle fallback.
+    Status(String),
+    /// Attribute value constraints (`Values: ...`, `Functions: ...`, or paired `Alignments:`/`Scaling:`).
+    /// Rendered as consecutive lines with NO blank between them.
+    ValueConstraints(Vec<String>),
+    /// Pre-rendered baseline row with icon data-URI.
+    Baseline(String),
+    /// Single-line `Chrome ≤80 · Edge ≤80 · Firefox ✗ · Safari ≤13.1` chip row.
+    BrowserChips(String),
+    /// Per-browser sub-bullets for partial/prefix/flags/notes caveats.
+    /// Rendered as consecutive lines with NO blank between them.
+    BrowserNotes(Vec<String>),
+    /// Footer links (MDN · Spec), joined with ` · ` into a single line.
+    Links(Vec<String>),
+}
+
+/// Structured builder for compatibility-hover markdown. Call sites push
+/// [`HoverSection`]s in display order; [`Self::build`] renders each
+/// section and joins with `\n\n`.
+///
+/// The builder is deliberately thin — it owns *ordering* and *spacing*,
+/// not section content. Each `push_*` helper only accepts a pre-formatted
+/// payload so that the heavy formatting (verdict glyphs, baseline icons,
+/// per-browser notes) stays in its dedicated function and can be unit-
+/// tested in isolation.
+struct CompatMarkdownBuilder {
+    sections: Vec<HoverSection>,
+}
+
+impl CompatMarkdownBuilder {
+    const fn new() -> Self {
+        Self {
+            sections: Vec::new(),
+        }
+    }
+
+    fn headline(&mut self, line: String) -> &mut Self {
+        self.sections.push(HoverSection::Headline(line));
+        self
+    }
+
+    fn description(&mut self, line: String) -> &mut Self {
+        self.sections.push(HoverSection::Description(line));
+        self
+    }
+
+    fn status(&mut self, line: String) -> &mut Self {
+        self.sections.push(HoverSection::Status(line));
+        self
+    }
+
+    fn value_constraints(&mut self, lines: Vec<String>) -> &mut Self {
+        if !lines.is_empty() {
+            self.sections.push(HoverSection::ValueConstraints(lines));
+        }
+        self
+    }
+
+    fn baseline(&mut self, line: String) -> &mut Self {
+        self.sections.push(HoverSection::Baseline(line));
+        self
+    }
+
+    fn browser_chips(&mut self, line: String) -> &mut Self {
+        self.sections.push(HoverSection::BrowserChips(line));
+        self
+    }
+
+    fn browser_notes(&mut self, lines: Vec<String>) -> &mut Self {
+        if !lines.is_empty() {
+            self.sections.push(HoverSection::BrowserNotes(lines));
+        }
+        self
+    }
+
+    fn links(&mut self, lines: Vec<String>) -> &mut Self {
+        if !lines.is_empty() {
+            self.sections.push(HoverSection::Links(lines));
+        }
+        self
+    }
+
+    fn build(self) -> String {
+        let rendered: Vec<String> = self
+            .sections
+            .into_iter()
+            .map(|section| match section {
+                HoverSection::Headline(line)
+                | HoverSection::Description(line)
+                | HoverSection::Status(line)
+                | HoverSection::Baseline(line)
+                | HoverSection::BrowserChips(line) => line,
+                HoverSection::ValueConstraints(lines) | HoverSection::BrowserNotes(lines) => {
+                    lines.join("\n")
+                }
+                HoverSection::Links(lines) => lines.join(" · "),
+            })
+            .collect();
+        rendered.join("\n\n")
+    }
+}
+
+/// Build the `[MDN Reference](…) · [Spec](…)` link list. Keeps both call
+/// sites from duplicating the tiny `spec_url` fallback.
+fn hover_link_list(mdn_url: &str, spec_url: Option<&str>) -> Vec<String> {
+    let mut links = vec![format!("[MDN Reference]({mdn_url})")];
+    if let Some(spec_url) = spec_url {
+        links.push(format!("[Spec]({spec_url})"));
+    }
+    links
+}
+
+/// Render the attribute value-constraint block as zero, one, or two lines
+/// depending on which [`AttributeValues`] variant is present.
+fn value_constraints_lines(values: &svg_data::AttributeValues) -> Vec<String> {
+    match values {
+        svg_data::AttributeValues::Enum(vals) => {
+            vec![format!("Values: `{}`", vals.join("` | `"))]
+        }
+        svg_data::AttributeValues::Transform(funcs) => {
+            vec![format!("Functions: `{}`", funcs.join("` | `"))]
+        }
+        svg_data::AttributeValues::PreserveAspectRatio {
+            alignments,
+            meet_or_slice,
+        } => vec![
+            format!("Alignments: `{}`", alignments.join("` | `")),
+            format!("Scaling: `{}`", meet_or_slice.join("` | `")),
+        ],
+        _ => Vec::new(),
+    }
+}
+
 pub fn format_element_hover_with_profile(
     el: &svg_data::ElementDef,
     profile: SpecSnapshotId,
@@ -227,51 +376,40 @@ pub fn format_element_hover_with_profile(
     // headline + status.
     let verdict = verdict_for(el.verdicts, profile);
 
-    let mut parts = Vec::new();
+    let mut builder = CompatMarkdownBuilder::new();
 
     if let Some(v) = verdict {
-        parts.push(format_verdict_headline(v, el.name));
-        parts.push(String::new());
+        builder.headline(format_verdict_headline(v, el.name));
     }
-    parts.push(el.description.to_owned());
+    builder.description(el.description.to_owned());
 
     if let Some(v) = verdict
         && let Some(status) = format_verdict_status(v)
     {
-        parts.push(String::new());
-        parts.push(status);
+        builder.status(status);
     } else if let Some(profile_lifecycle) = profile_lifecycle {
         // Only fall back to the legacy profile lifecycle line when the
         // verdict layer has nothing to say — avoids contradictions like
         // "**Deprecated**" + "**Stable in Svg2EditorsDraft20250914**".
-        parts.push(String::new());
-        parts.push(profile_lifecycle);
+        builder.status(profile_lifecycle);
     }
 
     if let Some(baseline) = baseline {
-        parts.push(String::new());
-        parts.push(format_baseline(*baseline));
+        builder.baseline(format_baseline(*baseline));
     }
 
-    parts.push(String::new());
-    parts.push(format_browser_support_line(
+    builder.browser_chips(format_browser_support_line(
         el.browser_support.as_ref(),
         rt.and_then(|r| r.browser_support.as_ref()),
     ));
 
     if let Some(notes) = format_browser_notes_list(el.browser_support.as_ref()) {
-        parts.push(String::new());
-        parts.extend(notes);
+        builder.browser_notes(notes);
     }
 
-    parts.push(String::new());
-    let mut links = vec![format!("[MDN Reference]({})", el.mdn_url)];
-    if let Some(spec_url) = el.spec_url {
-        links.push(format!("[Spec]({spec_url})"));
-    }
-    parts.push(links.join(" · "));
+    builder.links(hover_link_list(el.mdn_url, el.spec_url));
 
-    parts.join("\n")
+    builder.build()
 }
 
 pub fn format_attribute_hover_with_profile(
@@ -285,68 +423,39 @@ pub fn format_attribute_hover_with_profile(
         .or(attr.baseline.as_ref());
     let verdict = verdict_for(attr.verdicts, profile);
 
-    let mut parts = Vec::new();
+    let mut builder = CompatMarkdownBuilder::new();
 
     if let Some(v) = verdict {
-        parts.push(format_verdict_headline(v, attr.name));
-        parts.push(String::new());
+        builder.headline(format_verdict_headline(v, attr.name));
     }
-    parts.push(attr.description.to_owned());
+    builder.description(attr.description.to_owned());
 
     if let Some(v) = verdict
         && let Some(status) = format_verdict_status(v)
     {
-        parts.push(String::new());
-        parts.push(status);
+        builder.status(status);
     } else if let Some(profile_lifecycle) = profile_lifecycle {
-        parts.push(String::new());
-        parts.push(profile_lifecycle);
+        builder.status(profile_lifecycle);
     }
 
-    match &attr.values {
-        svg_data::AttributeValues::Enum(vals) => {
-            parts.push(String::new());
-            parts.push(format!("Values: `{}`", vals.join("` | `")));
-        }
-        svg_data::AttributeValues::Transform(funcs) => {
-            parts.push(String::new());
-            parts.push(format!("Functions: `{}`", funcs.join("` | `")));
-        }
-        svg_data::AttributeValues::PreserveAspectRatio {
-            alignments,
-            meet_or_slice,
-        } => {
-            parts.push(String::new());
-            parts.push(format!("Alignments: `{}`", alignments.join("` | `")));
-            parts.push(format!("Scaling: `{}`", meet_or_slice.join("` | `")));
-        }
-        _ => {}
-    }
+    builder.value_constraints(value_constraints_lines(&attr.values));
 
     if let Some(baseline) = baseline {
-        parts.push(String::new());
-        parts.push(format_baseline(*baseline));
+        builder.baseline(format_baseline(*baseline));
     }
 
-    parts.push(String::new());
-    parts.push(format_browser_support_line(
+    builder.browser_chips(format_browser_support_line(
         attr.browser_support.as_ref(),
         rt.and_then(|r| r.browser_support.as_ref()),
     ));
 
     if let Some(notes) = format_browser_notes_list(attr.browser_support.as_ref()) {
-        parts.push(String::new());
-        parts.extend(notes);
+        builder.browser_notes(notes);
     }
 
-    parts.push(String::new());
-    let mut links = vec![format!("[MDN Reference]({})", attr.mdn_url)];
-    if let Some(spec_url) = attr.spec_url {
-        links.push(format!("[Spec]({spec_url})"));
-    }
-    parts.push(links.join(" · "));
+    builder.links(hover_link_list(attr.mdn_url, attr.spec_url));
 
-    parts.join("\n")
+    builder.build()
 }
 
 pub fn profile_lifecycle_hover_line<T>(

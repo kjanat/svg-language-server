@@ -118,13 +118,15 @@ export const schemaCommand = command("schema")
  * SVG 2 defines, removes, or obsoletes. The output is the third signal
  * source for the Rust `reconcile_bcd_spec` build check.
  *
- * Runs entirely offline — no network, no caching. The maintainer runs
- * this once per spec bump to regenerate
- * `crates/svg-data/data/reviewed/spec_removals.json`.
+ * **Self-bootstrapping**: when `--svgwg-path` doesn't exist, the command
+ * shallow-clones `https://github.com/w3c/svgwg.git` into that path
+ * automatically (one-time, ~30s on first run, resumed across runs).
+ * The clone is git-ignored at the repo root — it never enters the
+ * project's history. The maintainer runs this once per spec bump to
+ * regenerate `crates/svg-data/data/reviewed/spec_removals.json`.
  *
- * The `--svgwg-path` must point at a local git checkout; the scanner
- * derives the commit hash via `git rev-parse HEAD` in that directory
- * so the output records the exact revision scanned.
+ * Pin the output via the commit hash recorded in `source_pin.commit` —
+ * `git rev-parse HEAD` inside the clone is the source of truth.
  */
 export const scanSpecCommand = command("scan-spec")
 	.description("Scan a local svgwg checkout for SVG 2 feature removals.")
@@ -132,7 +134,13 @@ export const scanSpecCommand = command("scan-spec")
 		"svgwg-path",
 		flag.string()
 			.default("./svgwg")
-			.describe("Path to a local clone of https://github.com/w3c/svgwg"),
+			.describe("Path to a local clone of https://github.com/w3c/svgwg (auto-cloned if missing)"),
+	)
+	.flag(
+		"no-bootstrap",
+		flag.boolean()
+			.default(false)
+			.describe("Fail instead of auto-cloning when the svgwg path is missing"),
 	)
 	.flag(
 		"out",
@@ -140,6 +148,7 @@ export const scanSpecCommand = command("scan-spec")
 	)
 	.action(async ({ flags, out }) => {
 		const svgwgRoot = flags["svgwg-path"];
+		await ensureSvgwgClone(out, svgwgRoot, flags["no-bootstrap"]);
 		const { commit, commitDate } = await readSvgwgCommit(svgwgRoot);
 		const report = await scanSvg2Spec({ svgwgRoot, commit, commitDate });
 
@@ -175,6 +184,56 @@ export const scanSpecCommand = command("scan-spec")
 		out.log("");
 		out.log("(pass --json or pipe stdout for the full JSON report)");
 	});
+
+const SVGWG_REMOTE = "https://github.com/w3c/svgwg.git";
+
+/**
+ * Ensure an svgwg working tree exists at `svgwgRoot`. If absent and
+ * bootstrapping is allowed, shallow-clone from the W3C repo (depth 1
+ * for speed — the scanner only reads `master/`, so deep history is
+ * useless). If `noBootstrap` is set, fail with a clear instruction
+ * instead.
+ *
+ * The clone path is git-ignored at the project root — it never enters
+ * project history. Re-runs reuse the existing clone; the maintainer
+ * is expected to `git pull` inside the clone manually when they want
+ * a newer revision (rare, since spec bumps are infrequent).
+ */
+async function ensureSvgwgClone(
+	out: Out,
+	svgwgRoot: string,
+	noBootstrap: boolean,
+): Promise<void> {
+	const masterDir = `${svgwgRoot.replace(/\/$/, "")}/master`;
+	try {
+		const stat = await Deno.stat(masterDir);
+		if (stat.isDirectory) return;
+	} catch (error) {
+		if (!(error instanceof Deno.errors.NotFound)) throw error;
+	}
+
+	if (noBootstrap) {
+		throw new Error(
+			`svg-compat scan-spec: ${svgwgRoot} is missing and --no-bootstrap was set.\n`
+				+ `Clone manually with:\n  git clone --depth=1 ${SVGWG_REMOTE} ${svgwgRoot}`,
+		);
+	}
+
+	out.log(`svg-compat scan-spec: bootstrapping svgwg clone at ${svgwgRoot}`);
+	out.log(`  git clone --depth=1 ${SVGWG_REMOTE} ${svgwgRoot}`);
+
+	const cloneResult = await new Deno.Command("git", {
+		args: ["clone", "--depth=1", SVGWG_REMOTE, svgwgRoot],
+		stdout: "inherit",
+		stderr: "inherit",
+	}).output();
+	if (!cloneResult.success) {
+		throw new Error(
+			`svg-compat scan-spec: failed to clone ${SVGWG_REMOTE} into ${svgwgRoot} `
+				+ `(exit ${cloneResult.code}). Check network access or clone manually.`,
+		);
+	}
+}
 
 /**
  * Run `git rev-parse HEAD` + `git log -1` inside the svgwg checkout to

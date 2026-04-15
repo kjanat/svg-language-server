@@ -350,8 +350,8 @@ thead th {
 .col-resize-handle {
 	position: absolute;
 	top: 0;
-	right: -4px;
-	width: 8px;
+	right: -12px;
+	width: 24px;
 	height: 100%;
 	cursor: col-resize;
 	touch-action: none;
@@ -362,7 +362,7 @@ thead th {
 	position: absolute;
 	top: 22%;
 	bottom: 22%;
-	left: 3px;
+	left: calc(50% - 0.5px);
 	width: 1px;
 	background: color-mix(in srgb, var(--border) 75%, var(--link));
 	opacity: 0;

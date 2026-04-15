@@ -9,6 +9,7 @@
  */
 
 const DEFAULT_MIN_COL_WIDTH = 96;
+const RESIZE_HOTZONE_PX = 44;
 const BROWSER_CHIPS_MODE_TWO = "browser-chips--two";
 const BROWSER_CHIPS_MODE_FOUR = "browser-chips--four";
 
@@ -146,6 +147,69 @@ function initializeWidths(table) {
  * @param {HTMLTableElement} table
  * @param {HTMLTableCellElement} th
  */
+function startColumnResize(table, th, startX, pointerId) {
+	const colIndex = getColumnIndex(table, th);
+	if (colIndex < 0) return;
+
+	const cols = ensureColgroup(table);
+	if (!cols) return;
+
+	const col = cols[colIndex];
+	const min = Number.parseFloat(th.dataset.colMinWidth ?? "") || DEFAULT_MIN_COL_WIDTH;
+	const startWidth = col.getBoundingClientRect().width;
+	const wasDraggable = th.draggable;
+
+	document.body.classList.add("is-col-resizing");
+	th.classList.add("is-resizing");
+	th.draggable = false;
+	if (pointerId !== undefined) {
+		try {
+			th.setPointerCapture(pointerId);
+		} catch {
+			// Ignore browsers that reject capture for this pointer target.
+		}
+	}
+
+	/** @param {PointerEvent} moveEvent */
+	const onMove = (moveEvent) => {
+		const nextWidth = Math.max(min, startWidth + (moveEvent.clientX - startX));
+		col.style.width = `${Math.round(nextWidth)}px`;
+		col.style.minWidth = `${min}px`;
+		syncBrowserChipLayouts(table);
+	};
+
+	const onUp = () => {
+		document.body.classList.remove("is-col-resizing");
+		th.classList.remove("is-resizing");
+		th.draggable = wasDraggable;
+		if (pointerId !== undefined) {
+			try {
+				th.releasePointerCapture(pointerId);
+			} catch {
+				// Pointer might already be released.
+			}
+		}
+		window.removeEventListener("pointermove", onMove);
+		window.removeEventListener("pointerup", onUp);
+	};
+
+	window.addEventListener("pointermove", onMove);
+	window.addEventListener("pointerup", onUp);
+}
+
+/**
+ * @param {HTMLTableCellElement} th
+ * @param {PointerEvent} event
+ */
+function inResizeHotzone(th, event) {
+	const rect = th.getBoundingClientRect();
+	return rect.right - event.clientX <= RESIZE_HOTZONE_PX;
+}
+
+/**
+ * @param {HTMLTableElement} table
+ * @param {HTMLTableCellElement} th
+ */
 function attachResizeHandle(table, th) {
 	const handle = document.createElement("span");
 	handle.className = "col-resize-handle";
@@ -155,38 +219,15 @@ function attachResizeHandle(table, th) {
 	handle.addEventListener("pointerdown", (event) => {
 		event.preventDefault();
 		event.stopPropagation();
+		startColumnResize(table, th, event.clientX, event.pointerId);
+	});
 
-		const colIndex = getColumnIndex(table, th);
-		if (colIndex < 0) return;
-
-		const cols = ensureColgroup(table);
-		if (!cols) return;
-
-		const col = cols[colIndex];
-		const min = Number.parseFloat(th.dataset.colMinWidth ?? "") || DEFAULT_MIN_COL_WIDTH;
-		const startX = event.clientX;
-		const startWidth = col.getBoundingClientRect().width;
-
-		document.body.classList.add("is-col-resizing");
-		th.classList.add("is-resizing");
-
-		/** @param {PointerEvent} moveEvent */
-		const onMove = (moveEvent) => {
-			const nextWidth = Math.max(min, startWidth + (moveEvent.clientX - startX));
-			col.style.width = `${Math.round(nextWidth)}px`;
-			col.style.minWidth = `${min}px`;
-			syncBrowserChipLayouts(table);
-		};
-
-		const onUp = () => {
-			document.body.classList.remove("is-col-resizing");
-			th.classList.remove("is-resizing");
-			window.removeEventListener("pointermove", onMove);
-			window.removeEventListener("pointerup", onUp);
-		};
-
-		window.addEventListener("pointermove", onMove);
-		window.addEventListener("pointerup", onUp);
+	th.addEventListener("pointerdown", (event) => {
+		if (!event.isPrimary || event.button !== 0) return;
+		if (!inResizeHotzone(th, event)) return;
+		event.preventDefault();
+		event.stopPropagation();
+		startColumnResize(table, th, event.clientX, event.pointerId);
 	});
 }
 
@@ -207,7 +248,11 @@ function enhanceTable(table) {
 		attachResizeHandle(table, th);
 
 		th.addEventListener("dragstart", (event) => {
-			if (event.target instanceof Element && event.target.classList.contains("col-resize-handle")) {
+			if (
+				(event.target instanceof Element && event.target.classList.contains("col-resize-handle"))
+				|| th.classList.contains("is-resizing")
+				|| document.body.classList.contains("is-col-resizing")
+			) {
 				event.preventDefault();
 				return;
 			}

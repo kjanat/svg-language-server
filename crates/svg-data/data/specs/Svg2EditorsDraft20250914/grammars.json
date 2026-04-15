@@ -225,11 +225,12 @@
 						"kind": "git_commit",
 						"repository": "https://github.com/w3c/svgwg",
 						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/render.html"
+						"path": null
 					},
 					"locator": {
-						"kind": "fragment",
-						"anchor": "VisibilityControl"
+						"kind": "definition",
+						"file": "render.html",
+						"id": "VisibilityControl"
 					},
 					"confidence": "manual"
 				}

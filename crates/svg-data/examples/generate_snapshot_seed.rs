@@ -234,7 +234,7 @@ fn build_seed_attributes(
     bindings: &SeedSourceBindings,
     attributes_with_profile: &[&svg_data::AttributeDef],
 ) -> svg_data::extraction::Result<SeedAttributeData> {
-    let mut registry = SeedGrammarRegistry::default();
+    let mut registry = SeedGrammarRegistry::new(snapshot, manifest);
     let attributes = attributes_with_profile
         .iter()
         .map(|attribute| {
@@ -438,11 +438,9 @@ fn normalize_value_syntax(
     let values = svg_data::attribute_values_for_profile(snapshot, attribute_name).unwrap_or(values);
 
     match values {
-        AttributeValues::Enum(values) => Ok(value_syntax_from_grammar_id(registry.attribute_enum(
-            attribute_name,
-            values,
-            provenance,
-        ))),
+        AttributeValues::Enum(values) => Ok(value_syntax_from_grammar_id(
+            registry.attribute_enum(attribute_name, values, provenance)?,
+        )),
         AttributeValues::FreeText => Ok(ValueSyntax::Opaque {
             display: attribute_value_display(values),
             reason: String::from("free-form text stays explicit until a typed text model exists"),
@@ -717,12 +715,74 @@ fn grammar_choice_from_keywords(values: &[&str]) -> GrammarNode {
     }
 }
 
-#[derive(Default)]
-struct SeedGrammarRegistry {
-    definitions: BTreeMap<String, GrammarDefinition>,
+/// Grammar IDs whose value lists were manually curated by reading spec
+/// prose, not derived from the flattened DTD or `definitions.xml`.
+/// Listed here so the seed generator emits `manual_review` provenance
+/// for them on regen, preserving commit a703058's fix across round-trips
+/// (previously the fix was a time bomb — values survived the round-trip
+/// but provenance reverted to the standard derived chain on every regen).
+const MANUALLY_CURATED_GRAMMARS: &[&str] = &["enum-display"];
+
+/// Look up manual-review provenance for a grammar ID, keyed by snapshot.
+/// Returns `Some` when the grammar is in the curated allowlist; `None`
+/// falls back to the standard derived chain the caller built.
+///
+/// The pin (URL or git commit) is resolved from the manifest's
+/// `pinned_sources[input_id]` entry. Page specificity lives in the
+/// locator via `SourceLocator::Definition { file, id }`, matching the
+/// sibling pattern used by the derived DTD-backed grammars (e.g.
+/// `enum-clip-rule` pairs its `flattened-dtd` entry with a
+/// `Definition { file: "DTD/svg11-flat.dtd", id: "clip-rule" }`
+/// locator). Using `Definition` keeps the pin at the manifest's
+/// declared input URL/commit and encodes the specific HTML file +
+/// anchor fragment in the locator.
+fn manual_review_provenance_for(
+    snapshot: SpecSnapshotId,
+    grammar_id: &str,
+    manifest: &SourceManifest,
+) -> svg_data::extraction::Result<Option<Vec<FactProvenance>>> {
+    if !MANUALLY_CURATED_GRAMMARS.contains(&grammar_id) {
+        return Ok(None);
+    }
+    let (input_id, file, id) = match (snapshot, grammar_id) {
+        (SpecSnapshotId::Svg11Rec20030114 | SpecSnapshotId::Svg11Rec20110816, "enum-display") => {
+            ("tr-root", "painting.html", "VisibilityControl")
+        }
+        (SpecSnapshotId::Svg2Cr20181004, "enum-display") => {
+            ("tr-root", "render.html", "VisibilityControl")
+        }
+        (SpecSnapshotId::Svg2EditorsDraft20250914, "enum-display") => {
+            ("chapter-html", "render.html", "VisibilityControl")
+        }
+        _ => return Ok(None),
+    };
+    let entry = manifest.fact_provenance(
+        input_id,
+        ProvenanceSourceKind::ManualReview,
+        SourceLocator::Definition {
+            file: file.to_string(),
+            id: id.to_string(),
+        },
+        ExtractionConfidence::Manual,
+    )?;
+    Ok(Some(vec![entry]))
 }
 
-impl SeedGrammarRegistry {
+struct SeedGrammarRegistry<'a> {
+    definitions: BTreeMap<String, GrammarDefinition>,
+    snapshot: SpecSnapshotId,
+    manifest: &'a SourceManifest,
+}
+
+impl<'a> SeedGrammarRegistry<'a> {
+    const fn new(snapshot: SpecSnapshotId, manifest: &'a SourceManifest) -> Self {
+        Self {
+            definitions: BTreeMap::new(),
+            snapshot,
+            manifest,
+        }
+    }
+
     fn finish(self) -> GrammarFile {
         GrammarFile {
             schema_version: SNAPSHOT_SCHEMA_VERSION,
@@ -754,15 +814,23 @@ impl SeedGrammarRegistry {
         attribute_name: &str,
         values: &[&str],
         provenance: &[FactProvenance],
-    ) -> String {
+    ) -> svg_data::extraction::Result<String> {
         let grammar_id = format!("enum-{}", stable_id_fragment(attribute_name));
         let title = format!("{attribute_name} keywords");
-        self.shared(
+        // Manually-curated grammars get single-entry `manual_review`
+        // provenance pinned at the spec page the human read, overriding
+        // whatever derived chain the caller passed in. Everything else
+        // uses the caller's provenance verbatim.
+        let override_prov =
+            manual_review_provenance_for(self.snapshot, &grammar_id, self.manifest)?;
+        let effective: &[FactProvenance] =
+            override_prov.as_deref().map_or(provenance, |slice| slice);
+        Ok(self.shared(
             &grammar_id,
             &title,
             grammar_choice_from_keywords(values),
-            provenance,
-        )
+            effective,
+        ))
     }
 
     fn transform_list(&mut self, functions: &[&str], provenance: &[FactProvenance]) -> String {

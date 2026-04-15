@@ -263,11 +263,12 @@
 					"source_kind": "manual_review",
 					"pin": {
 						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/render.html"
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
 					},
 					"locator": {
-						"kind": "fragment",
-						"anchor": "VisibilityControl"
+						"kind": "definition",
+						"file": "render.html",
+						"id": "VisibilityControl"
 					},
 					"confidence": "manual"
 				}

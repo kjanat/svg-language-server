@@ -312,11 +312,12 @@
 					"source_kind": "manual_review",
 					"pin": {
 						"kind": "url",
-						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/painting.html"
+						"url": "https://www.w3.org/TR/2003/REC-SVG11-20030114/"
 					},
 					"locator": {
-						"kind": "fragment",
-						"anchor": "VisibilityControl"
+						"kind": "definition",
+						"file": "painting.html",
+						"id": "VisibilityControl"
 					},
 					"confidence": "manual"
 				}

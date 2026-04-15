@@ -277,7 +277,7 @@ pub fn run(
         return Ok(());
     }
 
-    let message = render_error(&conflicts, &dead, bcd_version);
+    let message = render_error(&conflicts, &dead, bcd_version, latest_snapshot);
     // Single batched emission — one cargo::error containing every
     // problem so developers see the whole picture at once.
     println!("cargo::error={}", message.replace('\n', "%0A"));
@@ -508,17 +508,27 @@ fn find_matching_exception(
 /// Render the fix-it block for a [`ConflictRule::SpecRemovedButSnapshotPresent`]
 /// conflict. The spec scanner's provenance line (`file:line — quoted prose`)
 /// is the headline evidence; the fix is always a snapshot surgery.
-fn render_spec_removed_fix(out: &mut String, conflict: &Conflict) {
+///
+/// Both the snapshot name and the list of files to edit are derived
+/// from the `latest_snapshot` parameter + the conflict's kind so a
+/// snapshot bump or element-vs-attribute difference doesn't rot the
+/// error text.
+fn render_spec_removed_fix(out: &mut String, conflict: &Conflict, latest_snapshot: SpecSnapshotId) {
     use std::fmt::Write as _;
     let evidence = conflict
         .spec_evidence
         .as_deref()
         .unwrap_or("(no provenance)");
+    let snapshot = latest_snapshot.as_str();
+    // Pick the record-file basename + union file basename by conflict
+    // kind — "attributes.json (or elements.json)" was misleading when
+    // the conflict was on an element.
+    let (record_file, union_file) = match conflict.kind {
+        Kind::Attribute => ("attributes.json", "attributes.json"),
+        Kind::Element => ("elements.json", "elements.json"),
+    };
     let _ = writeln!(out, "  Spec scanner: REMOVED at {evidence}");
-    let _ = writeln!(
-        out,
-        "  Snapshot:     present in Svg2EditorsDraft20250914 → Stable"
-    );
+    let _ = writeln!(out, "  Snapshot:     present in {snapshot} → Stable");
     out.push('\n');
     out.push_str("  Fix: remove this feature from the SVG 2 snapshot data.\n");
     out.push_str("  The spec scanner (svgwg text.html / changes.html) is the\n");
@@ -526,10 +536,13 @@ fn render_spec_removed_fix(out: &mut String, conflict: &Conflict) {
     out.push_str("  Run `deno run -A workers/svg-compat/src/cli.ts scan-spec` to\n");
     out.push_str("  regenerate spec_removals.json after a svgwg bump.\n");
     out.push_str("  Edit these files to delete the feature:\n");
-    out.push_str("    data/specs/Svg2EditorsDraft20250914/attributes.json (or elements.json)\n");
-    out.push_str("    data/specs/Svg2EditorsDraft20250914/element_attribute_matrix.json\n");
+    let _ = writeln!(out, "    data/specs/{snapshot}/{record_file}");
+    let _ = writeln!(
+        out,
+        "    data/specs/{snapshot}/element_attribute_matrix.json"
+    );
     out.push_str("    data/specs/Svg2Cr20181004/ (same three files, if also removed at CR)\n");
-    out.push_str("    data/derived/union/attributes.json (membership list)\n");
+    let _ = writeln!(out, "    data/derived/union/{union_file} (membership list)");
     out.push_str("  Then bump the per-snapshot review.json counts + the overlay file.\n");
     out.push('\n');
 }
@@ -569,7 +582,12 @@ fn render_bcd_deprecated_fix(
     out.push('\n');
 }
 
-fn render_error(conflicts: &[Conflict], dead: &[(Kind, &Exception)], bcd_version: &str) -> String {
+fn render_error(
+    conflicts: &[Conflict],
+    dead: &[(Kind, &Exception)],
+    bcd_version: &str,
+    latest_snapshot: SpecSnapshotId,
+) -> String {
     use std::fmt::Write as _;
     let mut out = String::new();
     let _ = writeln!(
@@ -594,7 +612,7 @@ fn render_error(conflicts: &[Conflict], dead: &[(Kind, &Exception)], bcd_version
         );
         match conflict.rule {
             ConflictRule::SpecRemovedButSnapshotPresent => {
-                render_spec_removed_fix(&mut out, conflict);
+                render_spec_removed_fix(&mut out, conflict, latest_snapshot);
             }
             ConflictRule::BcdDeprecatedButSnapshotStable => {
                 render_bcd_deprecated_fix(&mut out, conflict, header, bcd_version);

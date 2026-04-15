@@ -67,22 +67,21 @@ Each entry has one of four verdicts:
 
 `crates/svg-data/data/reviewed/bcd_spec_exceptions.toml`:
 
-```toml
-[[attribute]]
-name         = "glyph-orientation-horizontal"
-element      = "*"
-bcd_says     = "deprecated"
-spec_says    = "obsoleted-but-defined"
-reason       = "SVG 2 text chapter §11.10.1.2 defines the attribute but calls it obsoleted. BCD is correct to flag deprecation; spec membership is correct to retain it. Accept the split until snapshot data can track an explicit spec-deprecated flag."
-added        = "2026-04-15"
-upstream_ref = "https://svgwg.org/svg2-draft/text.html"
+> **Note (post-audit revision):** This section originally seeded *two*
+> exceptions — one for `glyph-orientation-horizontal` and one for
+> `glyph-orientation-vertical`. The parser-driven re-read of `text.html`
+> later reclassified `glyph-orientation-horizontal` as **Removed**
+> (see the table above, `text.html:5197`) so only the vertical sibling
+> remains a legitimate spec disagreement. The seed shown here reflects
+> the final committed state, not the original two-entry proposal.
 
+```toml
 [[attribute]]
 name         = "glyph-orientation-vertical"
 element      = "*"
 bcd_says     = "deprecated"
 spec_says    = "obsoleted-but-defined"
-reason       = "SVG 2 text chapter §11.10.1.3 defines the attribute but calls it obsoleted. Same rationale as glyph-orientation-horizontal."
+reason       = "SVG 2 text chapter §11.10.1.3 still defines the glyph-orientation-vertical attribute but calls it obsoleted for vertical text. BCD is correct to flag deprecation; the spec membership is correct to retain it. Accept the split until snapshot data can track an explicit spec-deprecated flag."
 added        = "2026-04-15"
 upstream_ref = "https://svgwg.org/svg2-draft/text.html"
 ```

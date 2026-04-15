@@ -21,7 +21,8 @@
 use std::fmt::Write as _;
 
 use super::{
-    BaselineValue, BrowserSupportValue, BrowserVersionValue, CompatEntry, types::SpecLifecycle,
+    BaselineQualifierValue, BaselineValue, BrowserSupportValue, BrowserVersionValue, CompatEntry,
+    types::SpecLifecycle,
 };
 
 const BROWSERS: [&str; 4] = ["chrome", "edge", "firefox", "safari"];
@@ -50,6 +51,10 @@ pub enum Reason {
     BaselineLimited,
     BaselineNewly {
         since: u16,
+        /// Qualifier on the year when the upstream date was inexact
+        /// (e.g. `≤2021-04-02`). Preserves the `≤`/`≥`/`~` glyph
+        /// end-to-end from BCD → verdict → hover rendering.
+        qualifier: Option<BaselineQualifierValue>,
     },
     PartialImplementationIn(&'static str),
     PrefixRequiredIn {
@@ -61,6 +66,9 @@ pub enum Reason {
     RemovedIn {
         browser: &'static str,
         version: String,
+        /// Qualifier on the removal version when upstream was inexact.
+        /// Mirrors `BrowserVersionValue::version_removed_qualifier`.
+        qualifier: Option<BaselineQualifierValue>,
     },
 }
 
@@ -111,6 +119,17 @@ pub fn compute(compat: Option<&CompatEntry>, spec: SpecFacts) -> Verdict {
         reasons.push(Reason::ProfileObsolete { last_seen });
     }
 
+    // Rule 1b: profile-experimental (draft-only membership).
+    //
+    // Previously this branch was missing — a feature that was in the
+    // Editor's Draft but not in the stable base would get `Tier::Safe`
+    // from the rest of the pipeline, contradicting the LSP
+    // `SpecLifecycle::Experimental` → Information diagnostic. Now the
+    // verdict layer surfaces the same signal so hover and lint agree.
+    if spec.lifecycle == SpecLifecycle::Experimental {
+        reasons.push(Reason::ProfileExperimental);
+    }
+
     // Rule 2 (deferred): "every tracked browser unsupported" collapses to
     // Forbid after the per-browser scan, below. Marked here for clarity.
     let mut all_unsupported = true;
@@ -156,6 +175,7 @@ pub fn compute(compat: Option<&CompatEntry>, spec: SpecFacts) -> Verdict {
                             reasons.push(Reason::RemovedIn {
                                 browser,
                                 version: removed.clone(),
+                                qualifier: v.version_removed_qualifier,
                             });
                         }
                         if !this_browser_unsupported {
@@ -172,8 +192,11 @@ pub fn compute(compat: Option<&CompatEntry>, spec: SpecFacts) -> Verdict {
         // Rule 7: baseline tier.
         match &compat_entry.baseline {
             Some(BaselineValue::Limited) => reasons.push(Reason::BaselineLimited),
-            Some(BaselineValue::Newly { since, .. }) => {
-                reasons.push(Reason::BaselineNewly { since: *since });
+            Some(BaselineValue::Newly { since, qualifier }) => {
+                reasons.push(Reason::BaselineNewly {
+                    since: *since,
+                    qualifier: *qualifier,
+                });
             }
             _ => {}
         }
@@ -282,8 +305,11 @@ fn format_reason(r: &Reason) -> String {
         }
         Reason::ProfileExperimental => "VerdictReason::ProfileExperimental".to_string(),
         Reason::BaselineLimited => "VerdictReason::BaselineLimited".to_string(),
-        Reason::BaselineNewly { since } => {
-            format!("VerdictReason::BaselineNewly {{ since: {since}, qualifier: None }}")
+        Reason::BaselineNewly { since, qualifier } => {
+            format!(
+                "VerdictReason::BaselineNewly {{ since: {since}, qualifier: {} }}",
+                format_qualifier_literal(*qualifier)
+            )
         }
         Reason::PartialImplementationIn(browser) => {
             format!("VerdictReason::PartialImplementationIn(\"{browser}\")")
@@ -300,12 +326,30 @@ fn format_reason(r: &Reason) -> String {
         Reason::UnsupportedIn(browser) => {
             format!("VerdictReason::UnsupportedIn(\"{browser}\")")
         }
-        Reason::RemovedIn { browser, version } => {
+        Reason::RemovedIn {
+            browser,
+            version,
+            qualifier,
+        } => {
             format!(
-                "VerdictReason::RemovedIn {{ browser: \"{browser}\", version: \"{}\", qualifier: None }}",
-                escape(version)
+                "VerdictReason::RemovedIn {{ browser: \"{browser}\", version: \"{}\", qualifier: {} }}",
+                escape(version),
+                format_qualifier_literal(*qualifier)
             )
         }
+    }
+}
+
+/// Render a build-time [`BaselineQualifierValue`] as its runtime
+/// `Option<BaselineQualifier>` literal form. Used by [`format_reason`]
+/// so the baked verdicts preserve `≤`/`≥`/`~` prefixes end-to-end from
+/// BCD through to LSP hover output.
+const fn format_qualifier_literal(qualifier: Option<BaselineQualifierValue>) -> &'static str {
+    match qualifier {
+        None => "None",
+        Some(BaselineQualifierValue::Before) => "Some(BaselineQualifier::Before)",
+        Some(BaselineQualifierValue::After) => "Some(BaselineQualifier::After)",
+        Some(BaselineQualifierValue::Approximately) => "Some(BaselineQualifier::Approximately)",
     }
 }
 

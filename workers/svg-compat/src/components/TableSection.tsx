@@ -43,6 +43,7 @@ export function TableSection(
 			</header>
 			{children}
 			<script type="module" src="/table-filter.mjs"></script>
+			<script type="module" src="/table-columns.mjs"></script>
 		</section>
 	);
 }

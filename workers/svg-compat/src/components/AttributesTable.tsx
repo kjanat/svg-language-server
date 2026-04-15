@@ -19,7 +19,7 @@ export function AttributesTable({ rows }: Props) {
 				<thead>
 					<tr>
 						<th scope="col">Name</th>
-						<th scope="col">Elements</th>
+						<th scope="col" data-col-min-width="260">Elements</th>
 						<th scope="col">Baseline</th>
 						<th scope="col">Support</th>
 						<th scope="col">Docs</th>
@@ -36,7 +36,7 @@ export function AttributesTable({ rows }: Props) {
 								<BaselineBadge baseline={entry.baseline} />
 							</td>
 							<td>
-								<BrowserSupport support={entry.browser_support} />
+								<BrowserSupport support={entry.browser_support} baselineStatus={entry.baseline?.status} />
 							</td>
 							<td>
 								<DocsLinks

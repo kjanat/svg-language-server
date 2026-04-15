@@ -29,7 +29,7 @@ export function ElementsTable({ rows }: Props) {
 								<BaselineBadge baseline={entry.baseline} />
 							</td>
 							<td>
-								<BrowserSupport support={entry.browser_support} />
+								<BrowserSupport support={entry.browser_support} baselineStatus={entry.baseline?.status} />
 							</td>
 							<td>
 								<DocsLinks

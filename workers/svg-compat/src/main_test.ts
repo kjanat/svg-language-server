@@ -117,6 +117,7 @@ Deno.test("browser gets HTML explorer", async () => {
 	assertEquals(body.includes("Open JSON endpoint"), true);
 	assertEquals(body.includes("Browser face. Dynamic source knobs."), true);
 	assertEquals(body.includes("Upstream sources"), true);
+	assertEquals(body.includes("/table-columns.mjs"), true);
 });
 
 Deno.test("renderHtml includes baseline badge classes", () => {
@@ -292,6 +293,43 @@ Deno.test("renderHtml uses masked browser status glyphs", () => {
 	assertEquals(html.includes("/browsers/check.svg"), true);
 	assertEquals(html.includes("/browsers/cross.svg"), true);
 	assertEquals(html.includes("<img class=\"chip-status\""), false);
+});
+
+Deno.test("renderHtml uses blue check tone for newly baseline", () => {
+	const output: SvgCompatOutput = {
+		generated_at: "2026-01-01T00:00:00.000Z",
+		sources: {
+			bcd: {
+				package: "@mdn/browser-compat-data",
+				requested: "7.3.11",
+				resolved: "7.3.11",
+				mode: "default",
+				source_url: "https://example.com/bcd",
+			},
+			web_features: {
+				package: "web-features",
+				requested: "3.23.0",
+				resolved: "3.23.0",
+				mode: "default",
+				source_url: "https://example.com/wf",
+			},
+		},
+		elements: {
+			"font-size-adjust": {
+				deprecated: false,
+				experimental: false,
+				standard_track: true,
+				spec_url: [],
+				baseline: { status: "newly", since: 2024 },
+				browser_support: {
+					chrome: { raw_value_added: "127", version_added: "127" },
+				},
+			},
+		},
+		attributes: {},
+	};
+	const html = renderHtml(output, new URL("http://localhost/"));
+	assertEquals(html.includes("chip-status--newly"), true);
 });
 
 Deno.test("baseline parser preserves ≤ qualifier on real feGaussianBlur entry", async () => {
@@ -490,6 +528,12 @@ Deno.test("root asset routes serve static assets", async () => {
 	assertEquals(js.headers.get("x-content-type-options"), "nosniff");
 	assertEquals(js.headers.get("content-type")?.startsWith("text/javascript"), true);
 	await js.arrayBuffer();
+
+	const tableJs = await server.fetch(new Request("http://localhost/table-columns.mjs"));
+	assertEquals(tableJs.status, 200);
+	assertEquals(tableJs.headers.get("x-content-type-options"), "nosniff");
+	assertEquals(tableJs.headers.get("content-type")?.startsWith("text/javascript"), true);
+	await tableJs.arrayBuffer();
 
 	const badge = await server.fetch(new Request("http://localhost/badges/baseline-newly.svg"));
 	assertEquals(badge.status, 200);

@@ -21,6 +21,7 @@
 	--badge-limited-fg: #92400e;
 	--baseline-cross: #ea8600;
 	--chip-supported: #1e8e3e;
+	--chip-supported-newly: #1a73e8;
 	--chip-bg: rgba(0, 0, 0, 0.035);
 	--chip-border: rgba(0, 0, 0, 0.06);
 	--radius: 8px;
@@ -74,6 +75,7 @@
 		--badge-limited-bg: #3f2a0a;
 		--badge-limited-fg: #fbbf24;
 		--chip-supported: #7ae1a2;
+		--chip-supported-newly: #8db4ff;
 		--chip-bg: rgba(255, 255, 255, 0.04);
 		--chip-border: rgba(255, 255, 255, 0.08);
 	}
@@ -328,6 +330,54 @@ thead th {
 	z-index: 2;
 	box-shadow: 0 1px 0 var(--border);
 }
+
+.table-col-header {
+	position: sticky;
+	cursor: grab;
+	user-select: none;
+}
+.table-col-header:active {
+	cursor: grabbing;
+}
+.table-col-header.is-dragging {
+	opacity: 0.55;
+}
+.table-col-header.is-drop-target {
+	outline: 2px solid color-mix(in srgb, var(--link) 65%, transparent);
+	outline-offset: -2px;
+}
+
+.col-resize-handle {
+	position: absolute;
+	top: 0;
+	right: -4px;
+	width: 8px;
+	height: 100%;
+	cursor: col-resize;
+	touch-action: none;
+	z-index: 3;
+}
+.col-resize-handle::after {
+	content: "";
+	position: absolute;
+	top: 22%;
+	bottom: 22%;
+	left: 3px;
+	width: 1px;
+	background: color-mix(in srgb, var(--border) 75%, var(--link));
+	opacity: 0;
+	transition: opacity 120ms ease;
+}
+.table-col-header:hover .col-resize-handle::after,
+.table-col-header.is-resizing .col-resize-handle::after {
+	opacity: 1;
+}
+
+body.is-col-resizing,
+body.is-col-resizing * {
+	cursor: col-resize !important;
+	user-select: none !important;
+}
 thead th:first-child {
 	padding-left: 26px;
 }
@@ -382,9 +432,36 @@ tbody tr.table-empty td {
 	font-size: 0.82rem;
 	color: var(--text-muted);
 	max-width: 32ch;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+	white-space: normal;
+	overflow-wrap: normal;
+	word-break: normal;
+	line-height: 1.35;
+}
+
+/*
+ * In the full Attributes table, long element-scope cells can starve the
+ * Support column and prevent the intended 2x2 chip wrap at constrained widths.
+ * Cap scope width and nudge support-column width only for #attributes.
+ */
+#attributes th:nth-child(2),
+#attributes td:nth-child(2) {
+	min-width: 16rem;
+}
+#attributes .scope-cell {
+	max-width: 20ch;
+}
+#attributes th:nth-child(4),
+#attributes td:nth-child(4) {
+	width: 16rem;
+}
+@media (max-width: 960px) {
+	#attributes .scope-cell {
+		max-width: 14ch;
+	}
+	#attributes th:nth-child(4),
+	#attributes td:nth-child(4) {
+		width: 14rem;
+	}
 }
 .docs-links {
 	display: inline-flex;
@@ -527,11 +604,15 @@ code {
 /* ── browser chips ───────────────────── */
 .browser-chips {
 	display: flex;
-	flex-wrap: wrap;
+	flex-wrap: nowrap;
 	gap: 4px;
 	list-style: none;
 	margin: 0;
 	padding: 0;
+}
+.browser-chips.browser-chips--two {
+	display: grid;
+	grid-template-columns: repeat(2, max-content);
 }
 .chip {
 	display: inline-flex;
@@ -575,6 +656,9 @@ code {
 }
 .chip-status--supported {
 	color: var(--chip-supported);
+}
+.chip-status--newly {
+	color: var(--chip-supported-newly);
 }
 .chip-status--missing {
 	color: var(--baseline-cross);

@@ -1,8 +1,9 @@
-import type { BrowserSupport as BrowserSupportData, BrowserVersion } from "../main.ts";
+import type { Baseline, BrowserSupport as BrowserSupportData, BrowserVersion } from "../main.ts";
 import { browserVersionChipLabel } from "../view.ts";
 
 interface Props {
 	support: BrowserSupportData | undefined;
+	baselineStatus: Baseline["status"] | undefined;
 }
 
 interface BrowserSpec {
@@ -83,7 +84,7 @@ function chipTitle(label: string, version: BrowserVersion | undefined): string {
 	return parts.length > 0 ? `${label} — ${parts.join("; ")}` : label;
 }
 
-export function BrowserSupport({ support }: Props) {
+export function BrowserSupport({ support, baselineStatus }: Props) {
 	return (
 		<ul class="browser-chips" aria-label="Minimum browser versions">
 			{BROWSERS.map(({ key, label, src }) => {
@@ -92,6 +93,9 @@ export function BrowserSupport({ support }: Props) {
 				const classes = `chip chip-${key}${stateClass ? ` ${stateClass}` : ""}`;
 				const hasData = version !== undefined && version.supported !== false;
 				const statusClass = hasData ? "chip-status--supported" : "chip-status--missing";
+				const statusToneClass = hasData && baselineStatus === "newly"
+					? " chip-status--newly"
+					: "";
 				const statusMask = hasData ? STATUS_SUPPORTED : STATUS_MISSING;
 				const chipText = version !== undefined ? browserVersionChipLabel(version) : "—";
 				return (
@@ -99,7 +103,7 @@ export function BrowserSupport({ support }: Props) {
 						<span class="chip-badge">
 							<img class="chip-logo" src={src} alt="" width="18" height="18" />
 							<span
-								class={`chip-status ${statusClass}`}
+								class={`chip-status ${statusClass}${statusToneClass}`}
 								style={`--chip-status-mask: url('${statusMask}')`}
 								aria-hidden="true"
 							/>

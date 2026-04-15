@@ -168,6 +168,7 @@ const server: Server = {
 			url.pathname === "/style.css"
 			|| url.pathname === "/version-picker.mjs"
 			|| url.pathname === "/table-filter.mjs"
+			|| url.pathname === "/table-columns.mjs"
 			|| url.pathname.startsWith("/badges/")
 			|| url.pathname.startsWith("/browsers/")
 		) {

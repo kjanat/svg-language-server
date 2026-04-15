@@ -4,3 +4,4 @@ target/
 bun.lock
 node_modules/
 .playwright-*/
+svgwg/

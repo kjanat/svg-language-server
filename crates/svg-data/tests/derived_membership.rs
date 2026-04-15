@@ -124,6 +124,7 @@ fn overlays_match_adjacent_snapshot_diffs() {
         [
             "baseProfile",
             "clip",
+            "glyph-orientation-horizontal",
             "version",
             "xlink:actuate",
             "xlink:href",

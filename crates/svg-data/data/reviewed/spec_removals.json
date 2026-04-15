@@ -1,0 +1,4351 @@
+{
+	"schema_version": 1,
+	"source_pin": {
+		"repository": "https://github.com/w3c/svgwg",
+		"commit": "bd0b7819e8ce69d06e08b4710a18d46ac7252787",
+		"commit_date": "2026-04-03T16:20:13+09:00",
+		"generated_at": "2026-04-15T01:04:05.200Z"
+	},
+	"defined_elements": [
+		{
+			"name": "a",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 12,
+				"text": "<element\n      name='a'"
+			}
+		},
+		{
+			"name": "circle",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 28,
+				"text": "<element\n      name='circle'"
+			}
+		},
+		{
+			"name": "clipPath",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-masking.xml",
+				"line": 25,
+				"text": "<element\n      name='clipPath'"
+			}
+		},
+		{
+			"name": "defs",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 40,
+				"text": "<element\n    name='defs'"
+			}
+		},
+		{
+			"name": "desc",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 49,
+				"text": "<element\n    name='desc'"
+			}
+		},
+		{
+			"name": "ellipse",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 56,
+				"text": "<element\n      name='ellipse'"
+			}
+		},
+		{
+			"name": "feBlend",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 9,
+				"text": "<element\n      name='feBlend'"
+			}
+		},
+		{
+			"name": "feColorMatrix",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 21,
+				"text": "<element\n      name='feColorMatrix'"
+			}
+		},
+		{
+			"name": "feComponentTransfer",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 33,
+				"text": "<element\n    name='feComponentTransfer'"
+			}
+		},
+		{
+			"name": "feComposite",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 42,
+				"text": "<element\n      name='feComposite'"
+			}
+		},
+		{
+			"name": "feConvolveMatrix",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 58,
+				"text": "<element\n      name='feConvolveMatrix'"
+			}
+		},
+		{
+			"name": "feDiffuseLighting",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 77,
+				"text": "<element\n      name='feDiffuseLighting'"
+			}
+		},
+		{
+			"name": "feDisplacementMap",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 90,
+				"text": "<element\n      name='feDisplacementMap'"
+			}
+		},
+		{
+			"name": "feDistantLight",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 104,
+				"text": "<element\n      name='feDistantLight'"
+			}
+		},
+		{
+			"name": "feDropShadow",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 115,
+				"text": "<element\n      name='feDropShadow'"
+			}
+		},
+		{
+			"name": "feFlood",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 128,
+				"text": "<element\n    name='feFlood'"
+			}
+		},
+		{
+			"name": "feFuncA",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 160,
+				"text": "<element\n    name='feFuncA'"
+			}
+		},
+		{
+			"name": "feFuncB",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 152,
+				"text": "<element\n    name='feFuncB'"
+			}
+		},
+		{
+			"name": "feFuncG",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 144,
+				"text": "<element\n    name='feFuncG'"
+			}
+		},
+		{
+			"name": "feFuncR",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 136,
+				"text": "<element\n    name='feFuncR'"
+			}
+		},
+		{
+			"name": "feGaussianBlur",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 168,
+				"text": "<element\n      name='feGaussianBlur'"
+			}
+		},
+		{
+			"name": "feImage",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 180,
+				"text": "<element\n      name='feImage'"
+			}
+		},
+		{
+			"name": "feMerge",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 193,
+				"text": "<element\n    name='feMerge'"
+			}
+		},
+		{
+			"name": "feMergeNode",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 201,
+				"text": "<element\n      name='feMergeNode'"
+			}
+		},
+		{
+			"name": "feMorphology",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 210,
+				"text": "<element\n      name='feMorphology'"
+			}
+		},
+		{
+			"name": "feOffset",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 222,
+				"text": "<element\n      name='feOffset'"
+			}
+		},
+		{
+			"name": "fePointLight",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 234,
+				"text": "<element\n      name='fePointLight'"
+			}
+		},
+		{
+			"name": "feSpecularLighting",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 246,
+				"text": "<element\n      name='feSpecularLighting'"
+			}
+		},
+		{
+			"name": "feSpotLight",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 260,
+				"text": "<element\n      name='feSpotLight'"
+			}
+		},
+		{
+			"name": "feTile",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 277,
+				"text": "<element\n    name='feTile'"
+			}
+		},
+		{
+			"name": "feTurbulence",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 286,
+				"text": "<element\n      name='feTurbulence'"
+			}
+		},
+		{
+			"name": "filter",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 300,
+				"text": "<element\n      name='filter'"
+			}
+		},
+		{
+			"name": "foreignObject",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 68,
+				"text": "<element\n      name='foreignObject'"
+			}
+		},
+		{
+			"name": "g",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 77,
+				"text": "<element\n    name='g'"
+			}
+		},
+		{
+			"name": "image",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 86,
+				"text": "<element\n      name='image'"
+			}
+		},
+		{
+			"name": "line",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 100,
+				"text": "<element\n      name='line'"
+			}
+		},
+		{
+			"name": "linearGradient",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 115,
+				"text": "<element\n      name='linearGradient'"
+			}
+		},
+		{
+			"name": "marker",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 133,
+				"text": "<element\n      name='marker'"
+			}
+		},
+		{
+			"name": "mask",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-masking.xml",
+				"line": 9,
+				"text": "<element\n      name='mask'"
+			}
+		},
+		{
+			"name": "metadata",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 150,
+				"text": "<element\n    name='metadata'"
+			}
+		},
+		{
+			"name": "path",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 157,
+				"text": "<element\n      name='path'"
+			}
+		},
+		{
+			"name": "pattern",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 169,
+				"text": "<element\n      name='pattern'"
+			}
+		},
+		{
+			"name": "polygon",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 188,
+				"text": "<element\n      name='polygon'"
+			}
+		},
+		{
+			"name": "polyline",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 200,
+				"text": "<element\n      name='polyline'"
+			}
+		},
+		{
+			"name": "radialGradient",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 212,
+				"text": "<element\n      name='radialGradient'"
+			}
+		},
+		{
+			"name": "rect",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 232,
+				"text": "<element\n      name='rect'"
+			}
+		},
+		{
+			"name": "script",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 244,
+				"text": "<element\n      name='script'"
+			}
+		},
+		{
+			"name": "stop",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 256,
+				"text": "<element\n      name='stop'"
+			}
+		},
+		{
+			"name": "style",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 266,
+				"text": "<element\n      name='style'"
+			}
+		},
+		{
+			"name": "svg",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 277,
+				"text": "<element\n      name='svg'"
+			}
+		},
+		{
+			"name": "switch",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 290,
+				"text": "<element\n    name='switch'"
+			}
+		},
+		{
+			"name": "symbol",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 300,
+				"text": "<element\n    name='symbol'"
+			}
+		},
+		{
+			"name": "text",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 314,
+				"text": "<element\n      name='text'"
+			}
+		},
+		{
+			"name": "textPath",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 331,
+				"text": "<element\n      name='textPath'"
+			}
+		},
+		{
+			"name": "title",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 348,
+				"text": "<element\n    name='title'"
+			}
+		},
+		{
+			"name": "tspan",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 355,
+				"text": "<element\n    name='tspan'"
+			}
+		},
+		{
+			"name": "use",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 366,
+				"text": "<element\n      name='use'"
+			}
+		},
+		{
+			"name": "view",
+			"kind": "element",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 378,
+				"text": "<element\n      name='view'"
+			}
+		}
+	],
+	"defined_attributes": [
+		{
+			"name": "amplitude",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 352,
+				"text": "<attribute name='amplitude'"
+			}
+		},
+		{
+			"name": "aria-activedescendant",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 435,
+				"text": "<attribute name='aria-activedescendant'"
+			}
+		},
+		{
+			"name": "aria-atomic",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 436,
+				"text": "<attribute name='aria-atomic'"
+			}
+		},
+		{
+			"name": "aria-autocomplete",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 437,
+				"text": "<attribute name='aria-autocomplete'"
+			}
+		},
+		{
+			"name": "aria-busy",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 438,
+				"text": "<attribute name='aria-busy'"
+			}
+		},
+		{
+			"name": "aria-checked",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 439,
+				"text": "<attribute name='aria-checked'"
+			}
+		},
+		{
+			"name": "aria-colcount",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 440,
+				"text": "<attribute name='aria-colcount'"
+			}
+		},
+		{
+			"name": "aria-colindex",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 441,
+				"text": "<attribute name='aria-colindex'"
+			}
+		},
+		{
+			"name": "aria-colspan",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 442,
+				"text": "<attribute name='aria-colspan'"
+			}
+		},
+		{
+			"name": "aria-controls",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 443,
+				"text": "<attribute name='aria-controls'"
+			}
+		},
+		{
+			"name": "aria-current",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 444,
+				"text": "<attribute name='aria-current'"
+			}
+		},
+		{
+			"name": "aria-describedby",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 445,
+				"text": "<attribute name='aria-describedby'"
+			}
+		},
+		{
+			"name": "aria-details",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 446,
+				"text": "<attribute name='aria-details'"
+			}
+		},
+		{
+			"name": "aria-disabled",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 447,
+				"text": "<attribute name='aria-disabled'"
+			}
+		},
+		{
+			"name": "aria-dropeffect",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 448,
+				"text": "<attribute name='aria-dropeffect'"
+			}
+		},
+		{
+			"name": "aria-errormessage",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 449,
+				"text": "<attribute name='aria-errormessage'"
+			}
+		},
+		{
+			"name": "aria-expanded",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 450,
+				"text": "<attribute name='aria-expanded'"
+			}
+		},
+		{
+			"name": "aria-flowto",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 451,
+				"text": "<attribute name='aria-flowto'"
+			}
+		},
+		{
+			"name": "aria-grabbed",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 452,
+				"text": "<attribute name='aria-grabbed'"
+			}
+		},
+		{
+			"name": "aria-haspopup",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 453,
+				"text": "<attribute name='aria-haspopup'"
+			}
+		},
+		{
+			"name": "aria-hidden",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 454,
+				"text": "<attribute name='aria-hidden'"
+			}
+		},
+		{
+			"name": "aria-invalid",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 455,
+				"text": "<attribute name='aria-invalid'"
+			}
+		},
+		{
+			"name": "aria-keyshortcuts",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 456,
+				"text": "<attribute name='aria-keyshortcuts'"
+			}
+		},
+		{
+			"name": "aria-label",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 457,
+				"text": "<attribute name='aria-label'"
+			}
+		},
+		{
+			"name": "aria-labelledby",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 458,
+				"text": "<attribute name='aria-labelledby'"
+			}
+		},
+		{
+			"name": "aria-level",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 459,
+				"text": "<attribute name='aria-level'"
+			}
+		},
+		{
+			"name": "aria-live",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 460,
+				"text": "<attribute name='aria-live'"
+			}
+		},
+		{
+			"name": "aria-modal",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 461,
+				"text": "<attribute name='aria-modal'"
+			}
+		},
+		{
+			"name": "aria-multiline",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 462,
+				"text": "<attribute name='aria-multiline'"
+			}
+		},
+		{
+			"name": "aria-multiselectable",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 463,
+				"text": "<attribute name='aria-multiselectable'"
+			}
+		},
+		{
+			"name": "aria-orientation",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 464,
+				"text": "<attribute name='aria-orientation'"
+			}
+		},
+		{
+			"name": "aria-owns",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 465,
+				"text": "<attribute name='aria-owns'"
+			}
+		},
+		{
+			"name": "aria-placeholder",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 466,
+				"text": "<attribute name='aria-placeholder'"
+			}
+		},
+		{
+			"name": "aria-posinset",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 467,
+				"text": "<attribute name='aria-posinset'"
+			}
+		},
+		{
+			"name": "aria-pressed",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 468,
+				"text": "<attribute name='aria-pressed'"
+			}
+		},
+		{
+			"name": "aria-readonly",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 469,
+				"text": "<attribute name='aria-readonly'"
+			}
+		},
+		{
+			"name": "aria-relevant",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 470,
+				"text": "<attribute name='aria-relevant'"
+			}
+		},
+		{
+			"name": "aria-required",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 471,
+				"text": "<attribute name='aria-required'"
+			}
+		},
+		{
+			"name": "aria-roledescription",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 472,
+				"text": "<attribute name='aria-roledescription'"
+			}
+		},
+		{
+			"name": "aria-rowcount",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 473,
+				"text": "<attribute name='aria-rowcount'"
+			}
+		},
+		{
+			"name": "aria-rowindex",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 474,
+				"text": "<attribute name='aria-rowindex'"
+			}
+		},
+		{
+			"name": "aria-rowspan",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 475,
+				"text": "<attribute name='aria-rowspan'"
+			}
+		},
+		{
+			"name": "aria-selected",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 476,
+				"text": "<attribute name='aria-selected'"
+			}
+		},
+		{
+			"name": "aria-setsize",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 477,
+				"text": "<attribute name='aria-setsize'"
+			}
+		},
+		{
+			"name": "aria-sort",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 478,
+				"text": "<attribute name='aria-sort'"
+			}
+		},
+		{
+			"name": "aria-valuemax",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 479,
+				"text": "<attribute name='aria-valuemax'"
+			}
+		},
+		{
+			"name": "aria-valuemin",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 480,
+				"text": "<attribute name='aria-valuemin'"
+			}
+		},
+		{
+			"name": "aria-valuenow",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 481,
+				"text": "<attribute name='aria-valuenow'"
+			}
+		},
+		{
+			"name": "aria-valuetext",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 482,
+				"text": "<attribute name='aria-valuetext'"
+			}
+		},
+		{
+			"name": "autofocus",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 497,
+				"text": "<attribute name='autofocus'"
+			}
+		},
+		{
+			"name": "azimuth",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 111,
+				"text": "<attribute name='azimuth'"
+			}
+		},
+		{
+			"name": "baseFrequency",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 293,
+				"text": "<attribute name='baseFrequency'"
+			}
+		},
+		{
+			"name": "bias",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 69,
+				"text": "<attribute name='bias'"
+			}
+		},
+		{
+			"name": "class",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 500,
+				"text": "<attribute name='class'"
+			}
+		},
+		{
+			"name": "clipPathUnits",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-masking.xml",
+				"line": 34,
+				"text": "<attribute name='clipPathUnits'"
+			}
+		},
+		{
+			"name": "crossorigin",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 97,
+				"text": "<attribute name='crossorigin'"
+			}
+		},
+		{
+			"name": "cx",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 220,
+				"text": "<attribute name='cx'"
+			}
+		},
+		{
+			"name": "cy",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 221,
+				"text": "<attribute name='cy'"
+			}
+		},
+		{
+			"name": "diffuseConstant",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 86,
+				"text": "<attribute name='diffuseConstant'"
+			}
+		},
+		{
+			"name": "divisor",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 68,
+				"text": "<attribute name='divisor'"
+			}
+		},
+		{
+			"name": "download",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 20,
+				"text": "<attribute name='download'"
+			}
+		},
+		{
+			"name": "dx",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 325,
+				"text": "<attribute name='dx'"
+			}
+		},
+		{
+			"name": "dy",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 326,
+				"text": "<attribute name='dy'"
+			}
+		},
+		{
+			"name": "edgeMode",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 72,
+				"text": "<attribute name='edgeMode'"
+			}
+		},
+		{
+			"name": "elevation",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 112,
+				"text": "<attribute name='elevation'"
+			}
+		},
+		{
+			"name": "exponent",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 353,
+				"text": "<attribute name='exponent'"
+			}
+		},
+		{
+			"name": "filterUnits",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 313,
+				"text": "<attribute name='filterUnits'"
+			}
+		},
+		{
+			"name": "fr",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 225,
+				"text": "<attribute name='fr'"
+			}
+		},
+		{
+			"name": "fx",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 223,
+				"text": "<attribute name='fx'"
+			}
+		},
+		{
+			"name": "fy",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 224,
+				"text": "<attribute name='fy'"
+			}
+		},
+		{
+			"name": "gradientTransform",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 128,
+				"text": "<attribute name='gradientTransform'"
+			}
+		},
+		{
+			"name": "gradientUnits",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 127,
+				"text": "<attribute name='gradientUnits'"
+			}
+		},
+		{
+			"name": "height",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 181,
+				"text": "<attribute name='height'"
+			}
+		},
+		{
+			"name": "href",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 18,
+				"text": "<attribute name='href'"
+			}
+		},
+		{
+			"name": "hreflang",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 23,
+				"text": "<attribute name='hreflang'"
+			}
+		},
+		{
+			"name": "id",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 495,
+				"text": "<attribute name='id'"
+			}
+		},
+		{
+			"name": "in",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 326,
+				"text": "<attribute name='in'"
+			}
+		},
+		{
+			"name": "in2",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 17,
+				"text": "<attribute name='in2'"
+			}
+		},
+		{
+			"name": "intercept",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 351,
+				"text": "<attribute name='intercept'"
+			}
+		},
+		{
+			"name": "k1",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 52,
+				"text": "<attribute name='k1'"
+			}
+		},
+		{
+			"name": "k2",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 53,
+				"text": "<attribute name='k2'"
+			}
+		},
+		{
+			"name": "k3",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 54,
+				"text": "<attribute name='k3'"
+			}
+		},
+		{
+			"name": "k4",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 55,
+				"text": "<attribute name='k4'"
+			}
+		},
+		{
+			"name": "kernelMatrix",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 67,
+				"text": "<attribute name='kernelMatrix'"
+			}
+		},
+		{
+			"name": "kernelUnitLength",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 73,
+				"text": "<attribute name='kernelUnitLength'"
+			}
+		},
+		{
+			"name": "lang",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 498,
+				"text": "<attribute name='lang'"
+			}
+		},
+		{
+			"name": "lengthAdjust",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 420,
+				"text": "<attribute name='lengthAdjust'"
+			}
+		},
+		{
+			"name": "limitingConeAngle",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 274,
+				"text": "<attribute name='limitingConeAngle'"
+			}
+		},
+		{
+			"name": "markerHeight",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 146,
+				"text": "<attribute name='markerHeight'"
+			}
+		},
+		{
+			"name": "markerUnits",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 144,
+				"text": "<attribute name='markerUnits'"
+			}
+		},
+		{
+			"name": "markerWidth",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 145,
+				"text": "<attribute name='markerWidth'"
+			}
+		},
+		{
+			"name": "maskContentUnits",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-masking.xml",
+				"line": 22,
+				"text": "<attribute name='maskContentUnits'"
+			}
+		},
+		{
+			"name": "maskUnits",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-masking.xml",
+				"line": 21,
+				"text": "<attribute name='maskUnits'"
+			}
+		},
+		{
+			"name": "media",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 273,
+				"text": "<attribute name='media'"
+			}
+		},
+		{
+			"name": "method",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 343,
+				"text": "<attribute name='method'"
+			}
+		},
+		{
+			"name": "mode",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 18,
+				"text": "<attribute name='mode'"
+			}
+		},
+		{
+			"name": "numOctaves",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 294,
+				"text": "<attribute name='numOctaves'"
+			}
+		},
+		{
+			"name": "offset",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 263,
+				"text": "<attribute name='offset'"
+			}
+		},
+		{
+			"name": "onabort",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 513,
+				"text": "<attribute name='onabort'"
+			}
+		},
+		{
+			"name": "onafterprint",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 522,
+				"text": "<attribute name='onafterprint'"
+			}
+		},
+		{
+			"name": "onbeforeprint",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 523,
+				"text": "<attribute name='onbeforeprint'"
+			}
+		},
+		{
+			"name": "oncancel",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 538,
+				"text": "<attribute name='oncancel'"
+			}
+		},
+		{
+			"name": "oncanplay",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 539,
+				"text": "<attribute name='oncanplay'"
+			}
+		},
+		{
+			"name": "oncanplaythrough",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 540,
+				"text": "<attribute name='oncanplaythrough'"
+			}
+		},
+		{
+			"name": "onchange",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 541,
+				"text": "<attribute name='onchange'"
+			}
+		},
+		{
+			"name": "onclick",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 542,
+				"text": "<attribute name='onclick'"
+			}
+		},
+		{
+			"name": "onclose",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 543,
+				"text": "<attribute name='onclose'"
+			}
+		},
+		{
+			"name": "oncopy",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 544,
+				"text": "<attribute name='oncopy'"
+			}
+		},
+		{
+			"name": "oncuechange",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 545,
+				"text": "<attribute name='oncuechange'"
+			}
+		},
+		{
+			"name": "oncut",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 546,
+				"text": "<attribute name='oncut'"
+			}
+		},
+		{
+			"name": "ondblclick",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 547,
+				"text": "<attribute name='ondblclick'"
+			}
+		},
+		{
+			"name": "ondrag",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 548,
+				"text": "<attribute name='ondrag'"
+			}
+		},
+		{
+			"name": "ondragend",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 549,
+				"text": "<attribute name='ondragend'"
+			}
+		},
+		{
+			"name": "ondragenter",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 550,
+				"text": "<attribute name='ondragenter'"
+			}
+		},
+		{
+			"name": "ondragexit",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 551,
+				"text": "<attribute name='ondragexit'"
+			}
+		},
+		{
+			"name": "ondragleave",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 552,
+				"text": "<attribute name='ondragleave'"
+			}
+		},
+		{
+			"name": "ondragover",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 553,
+				"text": "<attribute name='ondragover'"
+			}
+		},
+		{
+			"name": "ondragstart",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 554,
+				"text": "<attribute name='ondragstart'"
+			}
+		},
+		{
+			"name": "ondrop",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 555,
+				"text": "<attribute name='ondrop'"
+			}
+		},
+		{
+			"name": "ondurationchange",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 556,
+				"text": "<attribute name='ondurationchange'"
+			}
+		},
+		{
+			"name": "onemptied",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 557,
+				"text": "<attribute name='onemptied'"
+			}
+		},
+		{
+			"name": "onended",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 558,
+				"text": "<attribute name='onended'"
+			}
+		},
+		{
+			"name": "onerror",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 514,
+				"text": "<attribute name='onerror'"
+			}
+		},
+		{
+			"name": "onfocus",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 560,
+				"text": "<attribute name='onfocus'"
+			}
+		},
+		{
+			"name": "onhashchange",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 524,
+				"text": "<attribute name='onhashchange'"
+			}
+		},
+		{
+			"name": "oninput",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 561,
+				"text": "<attribute name='oninput'"
+			}
+		},
+		{
+			"name": "oninvalid",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 562,
+				"text": "<attribute name='oninvalid'"
+			}
+		},
+		{
+			"name": "onkeydown",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 563,
+				"text": "<attribute name='onkeydown'"
+			}
+		},
+		{
+			"name": "onkeypress",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 564,
+				"text": "<attribute name='onkeypress'"
+			}
+		},
+		{
+			"name": "onkeyup",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 565,
+				"text": "<attribute name='onkeyup'"
+			}
+		},
+		{
+			"name": "onload",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 566,
+				"text": "<attribute name='onload'"
+			}
+		},
+		{
+			"name": "onloadeddata",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 567,
+				"text": "<attribute name='onloadeddata'"
+			}
+		},
+		{
+			"name": "onloadedmetadata",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 568,
+				"text": "<attribute name='onloadedmetadata'"
+			}
+		},
+		{
+			"name": "onloadstart",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 569,
+				"text": "<attribute name='onloadstart'"
+			}
+		},
+		{
+			"name": "onmessage",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 525,
+				"text": "<attribute name='onmessage'"
+			}
+		},
+		{
+			"name": "onmousedown",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 570,
+				"text": "<attribute name='onmousedown'"
+			}
+		},
+		{
+			"name": "onmouseenter",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 571,
+				"text": "<attribute name='onmouseenter'"
+			}
+		},
+		{
+			"name": "onmouseleave",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 572,
+				"text": "<attribute name='onmouseleave'"
+			}
+		},
+		{
+			"name": "onmousemove",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 573,
+				"text": "<attribute name='onmousemove'"
+			}
+		},
+		{
+			"name": "onmouseout",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 574,
+				"text": "<attribute name='onmouseout'"
+			}
+		},
+		{
+			"name": "onmouseover",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 575,
+				"text": "<attribute name='onmouseover'"
+			}
+		},
+		{
+			"name": "onmouseup",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 576,
+				"text": "<attribute name='onmouseup'"
+			}
+		},
+		{
+			"name": "onoffline",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 526,
+				"text": "<attribute name='onoffline'"
+			}
+		},
+		{
+			"name": "ononline",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 527,
+				"text": "<attribute name='ononline'"
+			}
+		},
+		{
+			"name": "onpagehide",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 528,
+				"text": "<attribute name='onpagehide'"
+			}
+		},
+		{
+			"name": "onpageshow",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 529,
+				"text": "<attribute name='onpageshow'"
+			}
+		},
+		{
+			"name": "onpaste",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 577,
+				"text": "<attribute name='onpaste'"
+			}
+		},
+		{
+			"name": "onpause",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 578,
+				"text": "<attribute name='onpause'"
+			}
+		},
+		{
+			"name": "onplay",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 579,
+				"text": "<attribute name='onplay'"
+			}
+		},
+		{
+			"name": "onplaying",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 580,
+				"text": "<attribute name='onplaying'"
+			}
+		},
+		{
+			"name": "onpopstate",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 530,
+				"text": "<attribute name='onpopstate'"
+			}
+		},
+		{
+			"name": "onprogress",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 581,
+				"text": "<attribute name='onprogress'"
+			}
+		},
+		{
+			"name": "onratechange",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 582,
+				"text": "<attribute name='onratechange'"
+			}
+		},
+		{
+			"name": "onreset",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 583,
+				"text": "<attribute name='onreset'"
+			}
+		},
+		{
+			"name": "onresize",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 515,
+				"text": "<attribute name='onresize'"
+			}
+		},
+		{
+			"name": "onscroll",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 516,
+				"text": "<attribute name='onscroll'"
+			}
+		},
+		{
+			"name": "onseeked",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 586,
+				"text": "<attribute name='onseeked'"
+			}
+		},
+		{
+			"name": "onseeking",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 587,
+				"text": "<attribute name='onseeking'"
+			}
+		},
+		{
+			"name": "onselect",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 588,
+				"text": "<attribute name='onselect'"
+			}
+		},
+		{
+			"name": "onshow",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 589,
+				"text": "<attribute name='onshow'"
+			}
+		},
+		{
+			"name": "onstalled",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 590,
+				"text": "<attribute name='onstalled'"
+			}
+		},
+		{
+			"name": "onstorage",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 531,
+				"text": "<attribute name='onstorage'"
+			}
+		},
+		{
+			"name": "onsubmit",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 591,
+				"text": "<attribute name='onsubmit'"
+			}
+		},
+		{
+			"name": "onsuspend",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 592,
+				"text": "<attribute name='onsuspend'"
+			}
+		},
+		{
+			"name": "ontimeupdate",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 593,
+				"text": "<attribute name='ontimeupdate'"
+			}
+		},
+		{
+			"name": "ontoggle",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 594,
+				"text": "<attribute name='ontoggle'"
+			}
+		},
+		{
+			"name": "onunload",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 512,
+				"text": "<attribute name='onunload'"
+			}
+		},
+		{
+			"name": "onvolumechange",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 595,
+				"text": "<attribute name='onvolumechange'"
+			}
+		},
+		{
+			"name": "onwaiting",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 596,
+				"text": "<attribute name='onwaiting'"
+			}
+		},
+		{
+			"name": "onwheel",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 597,
+				"text": "<attribute name='onwheel'"
+			}
+		},
+		{
+			"name": "operator",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 51,
+				"text": "<attribute name='operator'"
+			}
+		},
+		{
+			"name": "order",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 66,
+				"text": "<attribute name='order'"
+			}
+		},
+		{
+			"name": "orient",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 147,
+				"text": "<attribute name='orient'"
+			}
+		},
+		{
+			"name": "path",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 340,
+				"text": "<attribute name='path'"
+			}
+		},
+		{
+			"name": "pathLength",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 429,
+				"text": "<attribute name='pathLength'"
+			}
+		},
+		{
+			"name": "patternContentUnits",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 183,
+				"text": "<attribute name='patternContentUnits'"
+			}
+		},
+		{
+			"name": "patternTransform",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 184,
+				"text": "<attribute name='patternTransform'"
+			}
+		},
+		{
+			"name": "patternUnits",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 182,
+				"text": "<attribute name='patternUnits'"
+			}
+		},
+		{
+			"name": "ping",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 21,
+				"text": "<attribute name='ping'"
+			}
+		},
+		{
+			"name": "points",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 197,
+				"text": "<attribute name='points'"
+			}
+		},
+		{
+			"name": "pointsAtX",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 270,
+				"text": "<attribute name='pointsAtX'"
+			}
+		},
+		{
+			"name": "pointsAtY",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 271,
+				"text": "<attribute name='pointsAtY'"
+			}
+		},
+		{
+			"name": "pointsAtZ",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 272,
+				"text": "<attribute name='pointsAtZ'"
+			}
+		},
+		{
+			"name": "preserveAlpha",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 74,
+				"text": "<attribute name='preserveAlpha'"
+			}
+		},
+		{
+			"name": "preserveAspectRatio",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 427,
+				"text": "<attribute name='preserveAspectRatio'"
+			}
+		},
+		{
+			"name": "primitiveUnits",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 314,
+				"text": "<attribute name='primitiveUnits'"
+			}
+		},
+		{
+			"name": "r",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 222,
+				"text": "<attribute name='r'"
+			}
+		},
+		{
+			"name": "radius",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 219,
+				"text": "<attribute name='radius'"
+			}
+		},
+		{
+			"name": "referrerpolicy",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 25,
+				"text": "<attribute name='referrerpolicy'"
+			}
+		},
+		{
+			"name": "refX",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 142,
+				"text": "<attribute name='refX'"
+			}
+		},
+		{
+			"name": "refY",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 143,
+				"text": "<attribute name='refY'"
+			}
+		},
+		{
+			"name": "rel",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 22,
+				"text": "<attribute name='rel'"
+			}
+		},
+		{
+			"name": "requiredExtensions",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 488,
+				"text": "<attribute name='requiredExtensions'"
+			}
+		},
+		{
+			"name": "result",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 342,
+				"text": "<attribute name='result'"
+			}
+		},
+		{
+			"name": "role",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 483,
+				"text": "<attribute name='role'"
+			}
+		},
+		{
+			"name": "rotate",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 327,
+				"text": "<attribute name='rotate'"
+			}
+		},
+		{
+			"name": "scale",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 99,
+				"text": "<attribute name='scale'"
+			}
+		},
+		{
+			"name": "seed",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 295,
+				"text": "<attribute name='seed'"
+			}
+		},
+		{
+			"name": "side",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 345,
+				"text": "<attribute name='side'"
+			}
+		},
+		{
+			"name": "slope",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 350,
+				"text": "<attribute name='slope'"
+			}
+		},
+		{
+			"name": "spacing",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 344,
+				"text": "<attribute name='spacing'"
+			}
+		},
+		{
+			"name": "specularConstant",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 255,
+				"text": "<attribute name='specularConstant'"
+			}
+		},
+		{
+			"name": "specularExponent",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 256,
+				"text": "<attribute name='specularExponent'"
+			}
+		},
+		{
+			"name": "spreadMethod",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 129,
+				"text": "<attribute name='spreadMethod'"
+			}
+		},
+		{
+			"name": "startOffset",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 342,
+				"text": "<attribute name='startOffset'"
+			}
+		},
+		{
+			"name": "stdDeviation",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 123,
+				"text": "<attribute name='stdDeviation'"
+			}
+		},
+		{
+			"name": "stitchTiles",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 296,
+				"text": "<attribute name='stitchTiles'"
+			}
+		},
+		{
+			"name": "style",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 501,
+				"text": "<attribute name='style'"
+			}
+		},
+		{
+			"name": "surfaceScale",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 85,
+				"text": "<attribute name='surfaceScale'"
+			}
+		},
+		{
+			"name": "systemLanguage",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 489,
+				"text": "<attribute name='systemLanguage'"
+			}
+		},
+		{
+			"name": "tabindex",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 496,
+				"text": "<attribute name='tabindex'"
+			}
+		},
+		{
+			"name": "tableValues",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 349,
+				"text": "<attribute name='tableValues'"
+			}
+		},
+		{
+			"name": "target",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 19,
+				"text": "<attribute name='target'"
+			}
+		},
+		{
+			"name": "targetX",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 70,
+				"text": "<attribute name='targetX'"
+			}
+		},
+		{
+			"name": "targetY",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 71,
+				"text": "<attribute name='targetY'"
+			}
+		},
+		{
+			"name": "textLength",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 328,
+				"text": "<attribute name='textLength'"
+			}
+		},
+		{
+			"name": "title",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 274,
+				"text": "<attribute name='title'"
+			}
+		},
+		{
+			"name": "transform",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 287,
+				"text": "<attribute name='transform'"
+			}
+		},
+		{
+			"name": "type",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 24,
+				"text": "<attribute name='type'"
+			}
+		},
+		{
+			"name": "values",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 30,
+				"text": "<attribute name='values'"
+			}
+		},
+		{
+			"name": "viewBox",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 426,
+				"text": "<attribute name='viewBox'"
+			}
+		},
+		{
+			"name": "width",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 180,
+				"text": "<attribute name='width'"
+			}
+		},
+		{
+			"name": "x",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 178,
+				"text": "<attribute name='x'"
+			}
+		},
+		{
+			"name": "x1",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 109,
+				"text": "<attribute name='x1'"
+			}
+		},
+		{
+			"name": "x2",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 111,
+				"text": "<attribute name='x2'"
+			}
+		},
+		{
+			"name": "xChannelSelector",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 100,
+				"text": "<attribute name='xChannelSelector'"
+			}
+		},
+		{
+			"name": "xlink:href",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 603,
+				"text": "<attribute name='xlink:href'"
+			}
+		},
+		{
+			"name": "xlink:title",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 604,
+				"text": "<attribute name='xlink:title'"
+			}
+		},
+		{
+			"name": "xml:space",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 499,
+				"text": "<attribute name='xml:space'"
+			}
+		},
+		{
+			"name": "y",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 179,
+				"text": "<attribute name='y'"
+			}
+		},
+		{
+			"name": "y1",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 110,
+				"text": "<attribute name='y1'"
+			}
+		},
+		{
+			"name": "y2",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 112,
+				"text": "<attribute name='y2'"
+			}
+		},
+		{
+			"name": "yChannelSelector",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 101,
+				"text": "<attribute name='yChannelSelector'"
+			}
+		},
+		{
+			"name": "z",
+			"kind": "attribute",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 243,
+				"text": "<attribute name='z'"
+			}
+		}
+	],
+	"defined_properties": [
+		{
+			"name": "alignment-baseline",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 609,
+				"text": "<property name='alignment-baseline'"
+			}
+		},
+		{
+			"name": "background",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 1235,
+				"text": "<property name='background'"
+			}
+		},
+		{
+			"name": "baseline-shift",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 610,
+				"text": "<property name='baseline-shift'"
+			}
+		},
+		{
+			"name": "block-size",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 1238,
+				"text": "<property name='block-size'"
+			}
+		},
+		{
+			"name": "border-style",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 1227,
+				"text": "<property name='border-style'"
+			}
+		},
+		{
+			"name": "border-top-style",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 1226,
+				"text": "<property name='border-top-style'"
+			}
+		},
+		{
+			"name": "clip",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-masking.xml",
+				"line": 43,
+				"text": "<property name='clip'"
+			}
+		},
+		{
+			"name": "clip-path",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-masking.xml",
+				"line": 44,
+				"text": "<property name='clip-path'"
+			}
+		},
+		{
+			"name": "clip-rule",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-masking.xml",
+				"line": 45,
+				"text": "<property name='clip-rule'"
+			}
+		},
+		{
+			"name": "color",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 611,
+				"text": "<property name='color'"
+			}
+		},
+		{
+			"name": "color-interpolation",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 612,
+				"text": "<property name='color-interpolation'"
+			}
+		},
+		{
+			"name": "color-interpolation-filters",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 359,
+				"text": "<property name='color-interpolation-filters'"
+			}
+		},
+		{
+			"name": "content",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 1231,
+				"text": "<property name='content'"
+			}
+		},
+		{
+			"name": "cursor",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 613,
+				"text": "<property name='cursor'"
+			}
+		},
+		{
+			"name": "cx",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 646,
+				"text": "<property name='cx'"
+			}
+		},
+		{
+			"name": "cy",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 647,
+				"text": "<property name='cy'"
+			}
+		},
+		{
+			"name": "d",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 651,
+				"text": "<property name='d'"
+			}
+		},
+		{
+			"name": "direction",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 704,
+				"text": "<property name='direction'"
+			}
+		},
+		{
+			"name": "display",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 655,
+				"text": "<property name='display'"
+			}
+		},
+		{
+			"name": "dominant-baseline",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 614,
+				"text": "<property name='dominant-baseline'"
+			}
+		},
+		{
+			"name": "fill",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 615,
+				"text": "<property name='fill'"
+			}
+		},
+		{
+			"name": "fill-opacity",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 616,
+				"text": "<property name='fill-opacity'"
+			}
+		},
+		{
+			"name": "fill-rule",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 617,
+				"text": "<property name='fill-rule'"
+			}
+		},
+		{
+			"name": "filter",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 361,
+				"text": "<property name='filter'"
+			}
+		},
+		{
+			"name": "float",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 1229,
+				"text": "<property name='float'"
+			}
+		},
+		{
+			"name": "flood-color",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 362,
+				"text": "<property name='flood-color'"
+			}
+		},
+		{
+			"name": "flood-opacity",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 363,
+				"text": "<property name='flood-opacity'"
+			}
+		},
+		{
+			"name": "font",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 672,
+				"text": "<property name='font'"
+			}
+		},
+		{
+			"name": "font-family",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 673,
+				"text": "<property name='font-family'"
+			}
+		},
+		{
+			"name": "font-feature-settings",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 674,
+				"text": "<property name='font-feature-settings'"
+			}
+		},
+		{
+			"name": "font-kerning",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 671,
+				"text": "<property name='font-kerning'"
+			}
+		},
+		{
+			"name": "font-size",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 675,
+				"text": "<property name='font-size'"
+			}
+		},
+		{
+			"name": "font-size-adjust",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 676,
+				"text": "<property name='font-size-adjust'"
+			}
+		},
+		{
+			"name": "font-stretch",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 677,
+				"text": "<property name='font-stretch'"
+			}
+		},
+		{
+			"name": "font-style",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 678,
+				"text": "<property name='font-style'"
+			}
+		},
+		{
+			"name": "font-variant",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 679,
+				"text": "<property name='font-variant'"
+			}
+		},
+		{
+			"name": "font-variant-ligatures",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 680,
+				"text": "<property name='font-variant-ligatures'"
+			}
+		},
+		{
+			"name": "font-weight",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 681,
+				"text": "<property name='font-weight'"
+			}
+		},
+		{
+			"name": "glyph-orientation-horizontal",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 618,
+				"text": "<property name='glyph-orientation-horizontal'"
+			}
+		},
+		{
+			"name": "glyph-orientation-vertical",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 619,
+				"text": "<property name='glyph-orientation-vertical'"
+			}
+		},
+		{
+			"name": "hanging-punctuation",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 684,
+				"text": "<property name='hanging-punctuation'"
+			}
+		},
+		{
+			"name": "height",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 658,
+				"text": "<property name='height'"
+			}
+		},
+		{
+			"name": "hyphens",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 685,
+				"text": "<property name='hyphens'"
+			}
+		},
+		{
+			"name": "image-rendering",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 620,
+				"text": "<property name='image-rendering'"
+			}
+		},
+		{
+			"name": "inline-size",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 621,
+				"text": "<property name='inline-size'"
+			}
+		},
+		{
+			"name": "isolation",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 360,
+				"text": "<property name='isolation'"
+			}
+		},
+		{
+			"name": "letter-spacing",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 686,
+				"text": "<property name='letter-spacing'"
+			}
+		},
+		{
+			"name": "lighting-color",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-filters.xml",
+				"line": 364,
+				"text": "<property name='lighting-color'"
+			}
+		},
+		{
+			"name": "line-break",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 687,
+				"text": "<property name='line-break'"
+			}
+		},
+		{
+			"name": "line-height",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 662,
+				"text": "<property name='line-height'"
+			}
+		},
+		{
+			"name": "margin-top",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 1230,
+				"text": "<property name='margin-top'"
+			}
+		},
+		{
+			"name": "marker",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 622,
+				"text": "<property name='marker'"
+			}
+		},
+		{
+			"name": "marker-end",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 623,
+				"text": "<property name='marker-end'"
+			}
+		},
+		{
+			"name": "marker-mid",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 624,
+				"text": "<property name='marker-mid'"
+			}
+		},
+		{
+			"name": "marker-start",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 625,
+				"text": "<property name='marker-start'"
+			}
+		},
+		{
+			"name": "mask",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-masking.xml",
+				"line": 41,
+				"text": "<property name='mask'"
+			}
+		},
+		{
+			"name": "mask-type",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions-masking.xml",
+				"line": 42,
+				"text": "<property name='mask-type'"
+			}
+		},
+		{
+			"name": "max-width",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 1237,
+				"text": "<property name='max-width'"
+			}
+		},
+		{
+			"name": "min-width",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 1236,
+				"text": "<property name='min-width'"
+			}
+		},
+		{
+			"name": "object-fit",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 717,
+				"text": "<property name='object-fit'"
+			}
+		},
+		{
+			"name": "object-position",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 718,
+				"text": "<property name='object-position'"
+			}
+		},
+		{
+			"name": "opacity",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 656,
+				"text": "<property name='opacity'"
+			}
+		},
+		{
+			"name": "outline",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 1223,
+				"text": "<property name='outline'"
+			}
+		},
+		{
+			"name": "overflow",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 626,
+				"text": "<property name='overflow'"
+			}
+		},
+		{
+			"name": "overflow-wrap",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 688,
+				"text": "<property name='overflow-wrap'"
+			}
+		},
+		{
+			"name": "paint-order",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 627,
+				"text": "<property name='paint-order'"
+			}
+		},
+		{
+			"name": "pointer-events",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 628,
+				"text": "<property name='pointer-events'"
+			}
+		},
+		{
+			"name": "position",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 1224,
+				"text": "<property name='position'"
+			}
+		},
+		{
+			"name": "r",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 648,
+				"text": "<property name='r'"
+			}
+		},
+		{
+			"name": "rx",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 649,
+				"text": "<property name='rx'"
+			}
+		},
+		{
+			"name": "ry",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 650,
+				"text": "<property name='ry'"
+			}
+		},
+		{
+			"name": "shape-image-threshold",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 663,
+				"text": "<property name='shape-image-threshold'"
+			}
+		},
+		{
+			"name": "shape-inside",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 664,
+				"text": "<property name='shape-inside'"
+			}
+		},
+		{
+			"name": "shape-margin",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 665,
+				"text": "<property name='shape-margin'"
+			}
+		},
+		{
+			"name": "shape-outside",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 1239,
+				"text": "<property name='shape-outside'"
+			}
+		},
+		{
+			"name": "shape-padding",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 667,
+				"text": "<property name='shape-padding'"
+			}
+		},
+		{
+			"name": "shape-rendering",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 629,
+				"text": "<property name='shape-rendering'"
+			}
+		},
+		{
+			"name": "shape-subtract",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 666,
+				"text": "<property name='shape-subtract'"
+			}
+		},
+		{
+			"name": "stop-color",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 630,
+				"text": "<property name='stop-color'"
+			}
+		},
+		{
+			"name": "stop-opacity",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 631,
+				"text": "<property name='stop-opacity'"
+			}
+		},
+		{
+			"name": "stroke",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 632,
+				"text": "<property name='stroke'"
+			}
+		},
+		{
+			"name": "stroke-dasharray",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 633,
+				"text": "<property name='stroke-dasharray'"
+			}
+		},
+		{
+			"name": "stroke-dashoffset",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 634,
+				"text": "<property name='stroke-dashoffset'"
+			}
+		},
+		{
+			"name": "stroke-linecap",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 635,
+				"text": "<property name='stroke-linecap'"
+			}
+		},
+		{
+			"name": "stroke-linejoin",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 636,
+				"text": "<property name='stroke-linejoin'"
+			}
+		},
+		{
+			"name": "stroke-miterlimit",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 637,
+				"text": "<property name='stroke-miterlimit'"
+			}
+		},
+		{
+			"name": "stroke-opacity",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 638,
+				"text": "<property name='stroke-opacity'"
+			}
+		},
+		{
+			"name": "stroke-width",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 639,
+				"text": "<property name='stroke-width'"
+			}
+		},
+		{
+			"name": "tab-size",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 689,
+				"text": "<property name='tab-size'"
+			}
+		},
+		{
+			"name": "text-align",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 690,
+				"text": "<property name='text-align'"
+			}
+		},
+		{
+			"name": "text-align-last",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 691,
+				"text": "<property name='text-align-last'"
+			}
+		},
+		{
+			"name": "text-anchor",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 640,
+				"text": "<property name='text-anchor'"
+			}
+		},
+		{
+			"name": "text-combine-upright",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 708,
+				"text": "<property name='text-combine-upright'"
+			}
+		},
+		{
+			"name": "text-decoration",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 711,
+				"text": "<property name='text-decoration'"
+			}
+		},
+		{
+			"name": "text-decoration-color",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 714,
+				"text": "<property name='text-decoration-color'"
+			}
+		},
+		{
+			"name": "text-decoration-line",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 712,
+				"text": "<property name='text-decoration-line'"
+			}
+		},
+		{
+			"name": "text-decoration-style",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 713,
+				"text": "<property name='text-decoration-style'"
+			}
+		},
+		{
+			"name": "text-indent",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 692,
+				"text": "<property name='text-indent'"
+			}
+		},
+		{
+			"name": "text-justify",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 693,
+				"text": "<property name='text-justify'"
+			}
+		},
+		{
+			"name": "text-orientation",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 707,
+				"text": "<property name='text-orientation'"
+			}
+		},
+		{
+			"name": "text-overflow",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 668,
+				"text": "<property name='text-overflow'"
+			}
+		},
+		{
+			"name": "text-rendering",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 641,
+				"text": "<property name='text-rendering'"
+			}
+		},
+		{
+			"name": "text-transform",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 694,
+				"text": "<property name='text-transform'"
+			}
+		},
+		{
+			"name": "transform",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 642,
+				"text": "<property name='transform'"
+			}
+		},
+		{
+			"name": "transform-box",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 1232,
+				"text": "<property name='transform-box'"
+			}
+		},
+		{
+			"name": "transform-origin",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 1108,
+				"text": "<property name='transform-origin'"
+			}
+		},
+		{
+			"name": "unicode-bidi",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 705,
+				"text": "<property name='unicode-bidi'"
+			}
+		},
+		{
+			"name": "vector-effect",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 643,
+				"text": "<property name='vector-effect'"
+			}
+		},
+		{
+			"name": "vertical-align",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 701,
+				"text": "<property name='vertical-align'"
+			}
+		},
+		{
+			"name": "visibility",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 657,
+				"text": "<property name='visibility'"
+			}
+		},
+		{
+			"name": "white-space",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 695,
+				"text": "<property name='white-space'"
+			}
+		},
+		{
+			"name": "width",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 659,
+				"text": "<property name='width'"
+			}
+		},
+		{
+			"name": "will-change",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 1234,
+				"text": "<property name='will-change'"
+			}
+		},
+		{
+			"name": "word-break",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 696,
+				"text": "<property name='word-break'"
+			}
+		},
+		{
+			"name": "word-spacing",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 697,
+				"text": "<property name='word-spacing'"
+			}
+		},
+		{
+			"name": "word-wrap",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 698,
+				"text": "<property name='word-wrap'"
+			}
+		},
+		{
+			"name": "writing-mode",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 706,
+				"text": "<property name='writing-mode'"
+			}
+		},
+		{
+			"name": "x",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 644,
+				"text": "<property name='x'"
+			}
+		},
+		{
+			"name": "y",
+			"kind": "property",
+			"status": "defined",
+			"provenance": {
+				"file": "definitions.xml",
+				"line": 645,
+				"text": "<property name='y'"
+			}
+		}
+	],
+	"removed_properties": [
+		{
+			"name": "glyph-orientation-horizontal",
+			"kind": "property",
+			"status": "removed",
+			"provenance": {
+				"file": "text.html",
+				"line": 5196,
+				"text": "This property has been removed in SVG 2."
+			}
+		},
+		{
+			"name": "kerning",
+			"kind": "property",
+			"status": "removed",
+			"provenance": {
+				"file": "text.html",
+				"line": 5232,
+				"text": "The 'kerning' property has been removed in SVG 2."
+			}
+		}
+	],
+	"obsoleted_properties": [
+		{
+			"name": "glyph-orientation-vertical",
+			"kind": "property",
+			"status": "obsoleted",
+			"provenance": {
+				"file": "text.html",
+				"line": 5202,
+				"text": "This property applies only to vertical text. It has been obsoleted in SVG 2 and partially replaced by the 'text-orientation' property of CSS Writing Modes Level 3. The following SVG 1.1 values must still be supported by aliasing the property as a shorthand to 'text-orientation' as follows:"
+			}
+		}
+	],
+	"changelog_removals": [
+		{
+			"name": "baseProfile",
+			"kind": "attribute",
+			"status": "removed",
+			"provenance": {
+				"file": "changes.html",
+				"line": 334,
+				"text": "baseProfile and version attributes from the 'svg' element."
+			}
+		},
+		{
+			"name": "contentScriptType",
+			"kind": "attribute",
+			"status": "removed",
+			"provenance": {
+				"file": "changes.html",
+				"line": 1043,
+				"text": "'contentScriptType' attribute."
+			}
+		},
+		{
+			"name": "contentStyleType",
+			"kind": "attribute",
+			"status": "removed",
+			"provenance": {
+				"file": "changes.html",
+				"line": 464,
+				"text": "'contentStyleType' attribute."
+			}
+		},
+		{
+			"name": "externalResourcesRequired",
+			"kind": "attribute",
+			"status": "removed",
+			"provenance": {
+				"file": "changes.html",
+				"line": 306,
+				"text": "'externalResourcesRequired' attribute."
+			}
+		},
+		{
+			"name": "requiredFeatures",
+			"kind": "attribute",
+			"status": "removed",
+			"provenance": {
+				"file": "changes.html",
+				"line": 347,
+				"text": "requiredFeatures attribute."
+			}
+		},
+		{
+			"name": "version",
+			"kind": "attribute",
+			"status": "removed",
+			"provenance": {
+				"file": "changes.html",
+				"line": 334,
+				"text": "baseProfile and version attributes from the 'svg' element."
+			}
+		},
+		{
+			"name": "viewTarget",
+			"kind": "attribute",
+			"status": "removed",
+			"provenance": {
+				"file": "changes.html",
+				"line": 1010,
+				"text": "'viewTarget' attribute on the 'view' element and the corresponding SVG view fragment parameter."
+			}
+		},
+		{
+			"name": "xlink:actuate",
+			"kind": "attribute",
+			"status": "removed",
+			"provenance": {
+				"file": "changes.html",
+				"line": 995,
+				"text": "'xlink:type', 'xlink:role', 'xlink:arcrole', 'xlink:show' and 'xlink:actuate' attributes."
+			}
+		},
+		{
+			"name": "xlink:arcrole",
+			"kind": "attribute",
+			"status": "removed",
+			"provenance": {
+				"file": "changes.html",
+				"line": 995,
+				"text": "'xlink:type', 'xlink:role', 'xlink:arcrole', 'xlink:show' and 'xlink:actuate' attributes."
+			}
+		},
+		{
+			"name": "xlink:role",
+			"kind": "attribute",
+			"status": "removed",
+			"provenance": {
+				"file": "changes.html",
+				"line": 995,
+				"text": "'xlink:type', 'xlink:role', 'xlink:arcrole', 'xlink:show' and 'xlink:actuate' attributes."
+			}
+		},
+		{
+			"name": "xlink:show",
+			"kind": "attribute",
+			"status": "removed",
+			"provenance": {
+				"file": "changes.html",
+				"line": 995,
+				"text": "'xlink:type', 'xlink:role', 'xlink:arcrole', 'xlink:show' and 'xlink:actuate' attributes."
+			}
+		},
+		{
+			"name": "xlink:type",
+			"kind": "attribute",
+			"status": "removed",
+			"provenance": {
+				"file": "changes.html",
+				"line": 995,
+				"text": "'xlink:type', 'xlink:role', 'xlink:arcrole', 'xlink:show' and 'xlink:actuate' attributes."
+			}
+		},
+		{
+			"name": "xml:base",
+			"kind": "attribute",
+			"status": "removed",
+			"provenance": {
+				"file": "changes.html",
+				"line": 360,
+				"text": "xml:base attribute."
+			}
+		},
+		{
+			"name": "altGlyph",
+			"kind": "element",
+			"status": "removed",
+			"provenance": {
+				"file": "changes.html",
+				"line": 666,
+				"text": "'altGlyph', 'altGlyphDef', 'altGlyphItem' and 'glyphRef' elements."
+			}
+		},
+		{
+			"name": "altGlyphDef",
+			"kind": "element",
+			"status": "removed",
+			"provenance": {
+				"file": "changes.html",
+				"line": 666,
+				"text": "'altGlyph', 'altGlyphDef', 'altGlyphItem' and 'glyphRef' elements."
+			}
+		},
+		{
+			"name": "altGlyphItem",
+			"kind": "element",
+			"status": "removed",
+			"provenance": {
+				"file": "changes.html",
+				"line": 666,
+				"text": "'altGlyph', 'altGlyphDef', 'altGlyphItem' and 'glyphRef' elements."
+			}
+		},
+		{
+			"name": "glyphRef",
+			"kind": "element",
+			"status": "removed",
+			"provenance": {
+				"file": "changes.html",
+				"line": 666,
+				"text": "'altGlyph', 'altGlyphDef', 'altGlyphItem' and 'glyphRef' elements."
+			}
+		},
+		{
+			"name": "tref",
+			"kind": "element",
+			"status": "removed",
+			"provenance": {
+				"file": "changes.html",
+				"line": 664,
+				"text": "'tref' element."
+			}
+		},
+		{
+			"name": "kerning",
+			"kind": "property",
+			"status": "removed",
+			"provenance": {
+				"file": "changes.html",
+				"line": 647,
+				"text": "'kerning' property."
+			}
+		}
+	]
+}

@@ -648,29 +648,6 @@
 		},
 		{
 			"element": "a",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "a@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "a",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -2603,29 +2580,6 @@
 		},
 		{
 			"element": "animate",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "animate@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "animate",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -4482,29 +4436,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "animateMotion@from"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "animateMotion",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "animateMotion@glyph-orientation-horizontal"
 					},
 					"confidence": "derived"
 				}
@@ -6490,29 +6421,6 @@
 		},
 		{
 			"element": "animateTransform",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "animateTransform@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "animateTransform",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -8261,29 +8169,6 @@
 		},
 		{
 			"element": "circle",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "circle@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "circle",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -9848,29 +9733,6 @@
 		},
 		{
 			"element": "clipPath",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "clipPath@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "clipPath",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -11389,29 +11251,6 @@
 		},
 		{
 			"element": "defs",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "defs@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "defs",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -12923,29 +12762,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "desc@font-width"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "desc",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "desc@glyph-orientation-horizontal"
 					},
 					"confidence": "derived"
 				}
@@ -14487,29 +14303,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "ellipse@font-width"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "ellipse",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "ellipse@glyph-orientation-horizontal"
 					},
 					"confidence": "derived"
 				}
@@ -16074,29 +15867,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "feBlend@font-width"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feBlend",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feBlend@glyph-orientation-horizontal"
 					},
 					"confidence": "derived"
 				}
@@ -17691,29 +17461,6 @@
 		},
 		{
 			"element": "feColorMatrix",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feColorMatrix@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feColorMatrix",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -19301,29 +19048,6 @@
 		},
 		{
 			"element": "feComponentTransfer",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feComponentTransfer@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feComponentTransfer",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -20858,29 +20582,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "feComposite@font-width"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feComposite",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feComposite@glyph-orientation-horizontal"
 					},
 					"confidence": "derived"
 				}
@@ -22636,29 +22337,6 @@
 		},
 		{
 			"element": "feConvolveMatrix",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feConvolveMatrix@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feConvolveMatrix",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -24361,29 +24039,6 @@
 		},
 		{
 			"element": "feDiffuseLighting",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feDiffuseLighting@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feDiffuseLighting",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -25964,29 +25619,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "feDisplacementMap@font-width"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feDisplacementMap",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feDisplacementMap@glyph-orientation-horizontal"
 					},
 					"confidence": "derived"
 				}
@@ -27673,29 +27305,6 @@
 		},
 		{
 			"element": "feDistantLight",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feDistantLight@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feDistantLight",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -29237,29 +28846,6 @@
 		},
 		{
 			"element": "feDropShadow",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feDropShadow@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feDropShadow",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -30748,29 +30334,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "feFlood@font-width"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feFlood",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feFlood@glyph-orientation-horizontal"
 					},
 					"confidence": "derived"
 				}
@@ -32335,29 +31898,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "feFuncA@font-width"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feFuncA",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feFuncA@glyph-orientation-horizontal"
 					},
 					"confidence": "derived"
 				}
@@ -34021,29 +33561,6 @@
 		},
 		{
 			"element": "feFuncB",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feFuncB@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feFuncB",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -35693,29 +35210,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "feFuncG@font-width"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feFuncG",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feFuncG@glyph-orientation-horizontal"
 					},
 					"confidence": "derived"
 				}
@@ -37379,29 +36873,6 @@
 		},
 		{
 			"element": "feFuncR",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feFuncR@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feFuncR",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -39035,29 +38506,6 @@
 		},
 		{
 			"element": "feGaussianBlur",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feGaussianBlur@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feGaussianBlur",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -40668,29 +40116,6 @@
 		},
 		{
 			"element": "feImage",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feImage@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feImage",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -42255,29 +41680,6 @@
 		},
 		{
 			"element": "feMerge",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feMerge@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feMerge",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -43796,29 +43198,6 @@
 		},
 		{
 			"element": "feMergeNode",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feMergeNode@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feMergeNode",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -45330,29 +44709,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "feMorphology@font-width"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feMorphology",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feMorphology@glyph-orientation-horizontal"
 					},
 					"confidence": "derived"
 				}
@@ -46993,29 +46349,6 @@
 		},
 		{
 			"element": "feOffset",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feOffset@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feOffset",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -48550,29 +47883,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "fePointLight@font-width"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "fePointLight",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "fePointLight@glyph-orientation-horizontal"
 					},
 					"confidence": "derived"
 				}
@@ -50137,29 +49447,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "feSpecularLighting@font-width"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feSpecularLighting",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feSpecularLighting@glyph-orientation-horizontal"
 					},
 					"confidence": "derived"
 				}
@@ -51793,29 +51080,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "feSpotLight@font-width"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feSpotLight",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feSpotLight@glyph-orientation-horizontal"
 					},
 					"confidence": "derived"
 				}
@@ -53502,29 +52766,6 @@
 		},
 		{
 			"element": "feTile",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feTile@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feTile",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -55082,29 +54323,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "feTurbulence@font-width"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "feTurbulence",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "feTurbulence@glyph-orientation-horizontal"
 					},
 					"confidence": "derived"
 				}
@@ -56745,29 +55963,6 @@
 		},
 		{
 			"element": "filter",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "filter@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "filter",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -58371,29 +57566,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "foreignObject@font-width"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "foreignObject",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "foreignObject@glyph-orientation-horizontal"
 					},
 					"confidence": "derived"
 				}
@@ -60011,29 +59183,6 @@
 		},
 		{
 			"element": "g",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "g@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "g",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -61614,29 +60763,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "image@font-width"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "image",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "image@glyph-orientation-horizontal"
 					},
 					"confidence": "derived"
 				}
@@ -63300,29 +62426,6 @@
 		},
 		{
 			"element": "line",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "line@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "line",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -64926,29 +64029,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "linearGradient@font-width"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "linearGradient",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "linearGradient@glyph-orientation-horizontal"
 					},
 					"confidence": "derived"
 				}
@@ -66635,29 +65715,6 @@
 		},
 		{
 			"element": "marker",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "marker@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "marker",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -68337,29 +67394,6 @@
 		},
 		{
 			"element": "mask",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "mask@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "mask",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -70016,29 +69050,6 @@
 		},
 		{
 			"element": "metadata",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "metadata@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "metadata",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -71527,29 +70538,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "mpath@font-width"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "mpath",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "mpath@glyph-orientation-horizontal"
 					},
 					"confidence": "derived"
 				}
@@ -73098,29 +72086,6 @@
 		},
 		{
 			"element": "path",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "path@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "path",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -74632,29 +73597,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "pattern@font-width"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "pattern",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "pattern@glyph-orientation-horizontal"
 					},
 					"confidence": "derived"
 				}
@@ -76410,29 +75352,6 @@
 		},
 		{
 			"element": "polygon",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "polygon@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "polygon",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -77967,29 +76886,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "polyline@font-width"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "polyline",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "polyline@glyph-orientation-horizontal"
 					},
 					"confidence": "derived"
 				}
@@ -79653,29 +78549,6 @@
 		},
 		{
 			"element": "radialGradient",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "radialGradient@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "radialGradient",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -81279,29 +80152,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "rect@font-width"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "rect",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "rect@glyph-orientation-horizontal"
 					},
 					"confidence": "derived"
 				}
@@ -83034,29 +81884,6 @@
 		},
 		{
 			"element": "script",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "script@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "script",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -84690,29 +83517,6 @@
 		},
 		{
 			"element": "set",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "set@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "set",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -86300,29 +85104,6 @@
 		},
 		{
 			"element": "stop",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "stop@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "stop",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -87887,29 +86668,6 @@
 		},
 		{
 			"element": "style",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "style@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "style",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -89467,29 +88225,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "svg@font-width"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "svg",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "svg@glyph-orientation-horizontal"
 					},
 					"confidence": "derived"
 				}
@@ -91153,29 +89888,6 @@
 		},
 		{
 			"element": "switch",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "switch@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "switch",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -92687,29 +91399,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "symbol@font-width"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "symbol",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "symbol@glyph-orientation-horizontal"
 					},
 					"confidence": "derived"
 				}
@@ -94297,29 +92986,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "text@font-width"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "text",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "text@glyph-orientation-horizontal"
 					},
 					"confidence": "derived"
 				}
@@ -95953,29 +94619,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "textPath@font-width"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "textPath",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "textPath@glyph-orientation-horizontal"
 					},
 					"confidence": "derived"
 				}
@@ -97662,29 +96305,6 @@
 		},
 		{
 			"element": "title",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "title@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "title",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -99219,29 +97839,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "tspan@font-width"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "tspan",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "tspan@glyph-orientation-horizontal"
 					},
 					"confidence": "derived"
 				}
@@ -100882,29 +99479,6 @@
 		},
 		{
 			"element": "use",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "use@glyph-orientation-horizontal"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "use",
 			"attribute": "glyph-orientation-vertical",
 			"requirement": "optional",
 			"provenance": [
@@ -102531,29 +101105,6 @@
 						"kind": "definition",
 						"file": "definitions.xml",
 						"id": "view@font-width"
-					},
-					"confidence": "derived"
-				}
-			]
-		},
-		{
-			"element": "view",
-			"attribute": "glyph-orientation-horizontal",
-			"requirement": "optional",
-			"provenance": [
-				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
-					"pin": {
-						"kind": "git_commit",
-						"repository": "https://github.com/w3c/svgwg",
-						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "view@glyph-orientation-horizontal"
 					},
 					"confidence": "derived"
 				}

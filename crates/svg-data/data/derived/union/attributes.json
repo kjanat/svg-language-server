@@ -583,9 +583,7 @@
 			"name": "glyph-orientation-horizontal",
 			"present_in": [
 				"Svg11Rec20030114",
-				"Svg11Rec20110816",
-				"Svg2Cr20181004",
-				"Svg2EditorsDraft20250914"
+				"Svg11Rec20110816"
 			]
 		},
 		{

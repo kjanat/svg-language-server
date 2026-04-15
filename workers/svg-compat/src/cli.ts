@@ -32,6 +32,7 @@ import { cli, command, flag, group, type Out } from "@kjanat/dreamcli";
 import { renderDataSummary, renderSchemaSummary } from "./cli_render.ts";
 import { buildOutput, buildSnapshot, SVG_COMPAT_SCHEMA } from "./lib/mod.ts";
 import { defaultSourceSelection, loadSourceDataForSelection } from "./sources.ts";
+import { scanSvg2Spec } from "./spec_scan.ts";
 
 const FILE_INDENT = 2;
 
@@ -109,6 +110,108 @@ export const schemaCommand = command("schema")
 		renderSchemaSummary(out, SVG_COMPAT_SCHEMA);
 	});
 
+/**
+ * `scan-spec` — authoritative SVG 2 spec-source scanner.
+ *
+ * Reads a local checkout of the W3C svgwg repository and emits a
+ * machine-readable JSON report of which elements/attributes/properties
+ * SVG 2 defines, removes, or obsoletes. The output is the third signal
+ * source for the Rust `reconcile_bcd_spec` build check.
+ *
+ * Runs entirely offline — no network, no caching. The maintainer runs
+ * this once per spec bump to regenerate
+ * `crates/svg-data/data/reviewed/spec_removals.json`.
+ *
+ * The `--svgwg-path` must point at a local git checkout; the scanner
+ * derives the commit hash via `git rev-parse HEAD` in that directory
+ * so the output records the exact revision scanned.
+ */
+export const scanSpecCommand = command("scan-spec")
+	.description("Scan a local svgwg checkout for SVG 2 feature removals.")
+	.flag(
+		"svgwg-path",
+		flag.string()
+			.default("./svgwg")
+			.describe("Path to a local clone of https://github.com/w3c/svgwg"),
+	)
+	.flag(
+		"out",
+		flag.string().describe("Also write pretty JSON to this file path"),
+	)
+	.action(async ({ flags, out }) => {
+		const svgwgRoot = flags["svgwg-path"];
+		const { commit, commitDate } = await readSvgwgCommit(svgwgRoot);
+		const report = await scanSvg2Spec({ svgwgRoot, commit, commitDate });
+
+		if (flags.out) await writePrettyJsonFile(out, flags.out, report);
+
+		if (out.jsonMode) {
+			out.json(report);
+			return;
+		}
+
+		out.log(`svg-compat spec-scan · ${report.source_pin.repository}@${commit.slice(0, 10)}`);
+		out.log("");
+		out.log(`  defined elements   : ${report.defined_elements.length}`);
+		out.log(`  defined attributes : ${report.defined_attributes.length}`);
+		out.log(`  defined properties : ${report.defined_properties.length}`);
+		out.log(`  removed properties : ${report.removed_properties.length}`);
+		out.log(`  obsoleted properties: ${report.obsoleted_properties.length}`);
+		out.log(`  changelog removals : ${report.changelog_removals.length}`);
+		if (report.removed_properties.length > 0) {
+			out.log("");
+			out.log("removed properties (from text.html `has been removed in SVG 2`):");
+			for (const fact of report.removed_properties) {
+				out.log(`  - ${fact.name}  [${fact.provenance.file}:${fact.provenance.line}]`);
+			}
+		}
+		if (report.obsoleted_properties.length > 0) {
+			out.log("");
+			out.log("obsoleted properties (from text.html `has been obsoleted`):");
+			for (const fact of report.obsoleted_properties) {
+				out.log(`  - ${fact.name}  [${fact.provenance.file}:${fact.provenance.line}]`);
+			}
+		}
+		out.log("");
+		out.log("(pass --json or pipe stdout for the full JSON report)");
+	});
+
+/**
+ * Run `git rev-parse HEAD` + `git log -1` inside the svgwg checkout to
+ * pin the scanner output to a specific commit. Fatal if git fails —
+ * the output MUST carry a commit hash so future reviewers can map
+ * findings back to the source revision.
+ */
+async function readSvgwgCommit(
+	svgwgRoot: string,
+): Promise<{ commit: string; commitDate: string | undefined }> {
+	const commitResult = await new Deno.Command("git", {
+		args: ["rev-parse", "HEAD"],
+		cwd: svgwgRoot,
+		stdout: "piped",
+		stderr: "piped",
+	}).output();
+	if (!commitResult.success) {
+		const stderr = new TextDecoder().decode(commitResult.stderr);
+		throw new Error(
+			`svg-compat scan-spec: failed to read HEAD in ${svgwgRoot}: ${stderr.trim()}`,
+		);
+	}
+	const commit = new TextDecoder().decode(commitResult.stdout).trim();
+
+	const dateResult = await new Deno.Command("git", {
+		args: ["log", "-1", "--format=%cI", "HEAD"],
+		cwd: svgwgRoot,
+		stdout: "piped",
+		stderr: "piped",
+	}).output();
+	const commitDate = dateResult.success
+		? new TextDecoder().decode(dateResult.stdout).trim() || undefined
+		: undefined;
+
+	return { commit, commitDate };
+}
+
 export const emitGroup = group("emit")
 	.description("Emit data or schema as JSON (or a human summary on a TTY)")
 	.command(dataCommand)
@@ -118,6 +221,7 @@ export const app = cli("svg-compat")
 	.version("1.0.0")
 	.description("Inspect and dump SVG browser compatibility data.")
 	.command(emitGroup)
+	.command(scanSpecCommand)
 	.completions();
 
 if (import.meta.main) {

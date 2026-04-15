@@ -16,6 +16,7 @@
 		"removed": [
 			"baseProfile",
 			"clip",
+			"glyph-orientation-horizontal",
 			"version",
 			"xlink:actuate",
 			"xlink:href",

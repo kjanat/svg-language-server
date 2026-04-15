@@ -2689,47 +2689,6 @@
 		]
 	},
 	{
-		"name": "glyph-orientation-horizontal",
-		"title": "The glyph-orientation-horizontal SVG attribute.",
-		"value_syntax": {
-			"kind": "opaque",
-			"display": "text",
-			"reason": "free-form text stays explicit until a typed text model exists"
-		},
-		"default_value": {
-			"kind": "none"
-		},
-		"animatable": "unspecified",
-		"provenance": [
-			{
-				"source_id": "attribute-index",
-				"source_kind": "index",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "glyph-orientation-horizontal"
-				},
-				"confidence": "derived"
-			},
-			{
-				"source_id": "tr-root",
-				"source_kind": "html",
-				"pin": {
-					"kind": "url",
-					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-				},
-				"locator": {
-					"kind": "fragment",
-					"anchor": "glyph-orientation-horizontal"
-				},
-				"confidence": "derived"
-			}
-		]
-	},
-	{
 		"name": "glyph-orientation-vertical",
 		"title": "The glyph-orientation-vertical SVG attribute.",
 		"value_syntax": {

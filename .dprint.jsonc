@@ -16,7 +16,7 @@
 			{ "command": "just --dump --justfile {{file_path}}", "fileNames": ["justfile"] },
 		],
 	},
-	"excludes": ["**/*.lock", "**/node_modules", "**/target", ".github/workflows/release.yml"],
+	"excludes": ["**/*.lock", "**/node_modules", "**/target", "**/svgwg", ".github/workflows/release.yml"],
 	"plugins": [
 		"https://plugins.dprint.dev/json-0.21.3.wasm",
 		"https://plugins.dprint.dev/markdown-0.21.1.wasm",

@@ -27,15 +27,6 @@
 # removed in the same commit.
 
 [[attribute]]
-name         = "glyph-orientation-horizontal"
-element      = "*"
-bcd_says     = "deprecated"
-spec_says    = "obsoleted-but-defined"
-reason       = "SVG 2 text chapter §11.10.1.2 still defines the attribute but the body calls it obsoleted; CSS text-orientation is the modern replacement. BCD is correct to flag deprecation; spec membership is correct to retain it. Accept until snapshot data can track an explicit spec-deprecated flag."
-added        = "2026-04-15"
-upstream_ref = "https://svgwg.org/svg2-draft/text.html"
-
-[[attribute]]
 name         = "glyph-orientation-vertical"
 element      = "*"
 bcd_says     = "deprecated"

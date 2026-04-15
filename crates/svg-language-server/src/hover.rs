@@ -200,20 +200,6 @@ fn line_text_at(source: &str, row: usize) -> String {
         .to_owned()
 }
 
-/// Look up the pre-computed verdict for the currently-active profile,
-/// falling back to the first entry in `verdicts` when the active profile
-/// isn't tracked. Returns `None` when `verdicts` is empty.
-fn verdict_for(
-    verdicts: &'static [(SpecSnapshotId, svg_data::CompatVerdict)],
-    profile: SpecSnapshotId,
-) -> Option<svg_data::CompatVerdict> {
-    verdicts
-        .iter()
-        .find(|(snap, _)| *snap == profile)
-        .or_else(|| verdicts.first())
-        .map(|(_, v)| *v)
-}
-
 /// Typed sections of a compatibility hover payload. Each variant renders
 /// to its own self-contained block of markdown; [`CompatMarkdownBuilder`]
 /// joins them with exactly one blank line between each, so sections never
@@ -374,7 +360,7 @@ pub fn format_element_hover_with_profile(
         .or(el.baseline.as_ref());
     // The pre-computed verdict is the single source of truth for
     // headline + status.
-    let verdict = verdict_for(el.verdicts, profile);
+    let verdict = svg_data::compat_verdict_for_element(el, profile);
 
     let mut builder = CompatMarkdownBuilder::new();
 
@@ -421,7 +407,7 @@ pub fn format_attribute_hover_with_profile(
     let baseline = rt
         .and_then(|r| r.baseline.as_ref())
         .or(attr.baseline.as_ref());
-    let verdict = verdict_for(attr.verdicts, profile);
+    let verdict = svg_data::compat_verdict_for_attribute(attr, profile);
 
     let mut builder = CompatMarkdownBuilder::new();
 

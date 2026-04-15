@@ -6,7 +6,7 @@ use std::{
 };
 
 use suppressions::Suppressions;
-use svg_data::{ProfileLookup, SpecLifecycle};
+use svg_data::{CompatVerdict, ProfileLookup, SpecLifecycle, VerdictReason};
 use svg_tree::{is_attribute_name_kind, walk_tree};
 use tree_sitter::{Node, Tree};
 
@@ -15,11 +15,42 @@ use crate::{
     types::{CompatFlags, DiagnosticCode, LintOptions, LintOverrides, Severity, SvgDiagnostic},
 };
 
+/// Element-vs-attribute specific diagnostic codes for lifecycle-driven
+/// rules. Shared advisory codes (partial/prefix/flag) are not in here
+/// because they don't split by kind.
 #[derive(Clone, Copy)]
 struct LifecycleCodes {
     deprecated: DiagnosticCode,
+    obsolete: DiagnosticCode,
     experimental: DiagnosticCode,
 }
+
+/// Bundled input for a single lifecycle-driven diagnostic emission.
+///
+/// Grouping these four fields keeps [`emit_lifecycle_diag_in_tag`]
+/// under the arg-count budget and lets callers read as `emit(.., diag)`
+/// rather than `emit(.., lifecycle, verdict, codes, subject)`.
+#[derive(Clone, Copy)]
+struct LifecycleDiagnostic<'a> {
+    lifecycle: SpecLifecycle,
+    /// Pre-computed verdict for richer messages. `None` when the catalog
+    /// doesn't carry verdicts (e.g. in unit-test fixtures).
+    verdict: Option<CompatVerdict>,
+    codes: LifecycleCodes,
+    subject: &'a str,
+}
+
+const ELEMENT_LIFECYCLE_CODES: LifecycleCodes = LifecycleCodes {
+    deprecated: DiagnosticCode::DeprecatedElement,
+    obsolete: DiagnosticCode::ObsoleteElement,
+    experimental: DiagnosticCode::ExperimentalElement,
+};
+
+const ATTRIBUTE_LIFECYCLE_CODES: LifecycleCodes = LifecycleCodes {
+    deprecated: DiagnosticCode::DeprecatedAttribute,
+    obsolete: DiagnosticCode::ObsoleteAttribute,
+    experimental: DiagnosticCode::ExperimentalAttribute,
+};
 
 struct LintContext<'a> {
     source: &'a [u8],
@@ -102,17 +133,7 @@ fn check_element<'a>(
         ProfileLookup::Present { value, lifecycle } => {
             let lifecycle =
                 element_diagnostic_lifecycle(ctx, expanded_name.local_name, value, lifecycle);
-            emit_lifecycle_diag(
-                &mut ctx.diagnostics,
-                &mut ctx.suppressions,
-                name_node,
-                lifecycle,
-                LifecycleCodes {
-                    deprecated: DiagnosticCode::DeprecatedElement,
-                    experimental: DiagnosticCode::ExperimentalElement,
-                },
-                &format!("<{}>", value.name),
-            );
+            emit_element_compat_diags(ctx, name_node, value, lifecycle);
             value
         }
         ProfileLookup::UnsupportedInProfile { .. } => {
@@ -213,16 +234,25 @@ fn check_attributes(ctx: &mut LintContext<'_>, tag: Node, scope: &NamespaceScope
             ProfileLookup::Present { value, lifecycle } => {
                 let lifecycle =
                     attribute_diagnostic_lifecycle(ctx, lookup_name.as_ref(), value, lifecycle);
+                let verdict = svg_data::compat_verdict_for_attribute(value, ctx.options.profile);
                 emit_lifecycle_diag_in_tag(
                     &mut ctx.diagnostics,
                     &mut ctx.suppressions,
                     name_node,
                     Some(tag_start),
-                    lifecycle,
-                    LifecycleCodes {
-                        deprecated: DiagnosticCode::DeprecatedAttribute,
-                        experimental: DiagnosticCode::ExperimentalAttribute,
+                    LifecycleDiagnostic {
+                        lifecycle,
+                        verdict,
+                        codes: ATTRIBUTE_LIFECYCLE_CODES,
+                        subject: value.name,
                     },
+                );
+                emit_verdict_hints(
+                    &mut ctx.diagnostics,
+                    &mut ctx.suppressions,
+                    name_node,
+                    Some(tag_start),
+                    verdict,
                     value.name,
                 );
             }
@@ -461,18 +491,41 @@ fn emit_lifecycle_diag(
     diagnostics: &mut Vec<SvgDiagnostic>,
     suppressions: &mut Suppressions,
     node: Node,
-    lifecycle: SpecLifecycle,
-    codes: LifecycleCodes,
-    subject: &str,
+    lifecycle_diag: LifecycleDiagnostic<'_>,
 ) {
-    emit_lifecycle_diag_in_tag(
-        diagnostics,
-        suppressions,
-        node,
+    emit_lifecycle_diag_in_tag(diagnostics, suppressions, node, None, lifecycle_diag);
+}
+
+/// Emit lifecycle + advisory diagnostics for an element matched as
+/// present in the selected profile. Extracted so [`check_element`]
+/// stays under the function-length budget without losing the
+/// end-to-end flow (lifecycle → verdict → hints) at a single site.
+fn emit_element_compat_diags(
+    ctx: &mut LintContext<'_>,
+    name_node: Node<'_>,
+    value: &'static svg_data::ElementDef,
+    lifecycle: SpecLifecycle,
+) {
+    let verdict = svg_data::compat_verdict_for_element(value, ctx.options.profile);
+    let subject = format!("<{}>", value.name);
+    emit_lifecycle_diag(
+        &mut ctx.diagnostics,
+        &mut ctx.suppressions,
+        name_node,
+        LifecycleDiagnostic {
+            lifecycle,
+            verdict,
+            codes: ELEMENT_LIFECYCLE_CODES,
+            subject: &subject,
+        },
+    );
+    emit_verdict_hints(
+        &mut ctx.diagnostics,
+        &mut ctx.suppressions,
+        name_node,
         None,
-        lifecycle,
-        codes,
-        subject,
+        verdict,
+        &subject,
     );
 }
 
@@ -524,10 +577,14 @@ fn emit_lifecycle_diag_in_tag(
     suppressions: &mut Suppressions,
     node: Node,
     tag_start: Option<usize>,
-    lifecycle: SpecLifecycle,
-    codes: LifecycleCodes,
-    subject: &str,
+    lifecycle_diag: LifecycleDiagnostic<'_>,
 ) {
+    let LifecycleDiagnostic {
+        lifecycle,
+        verdict,
+        codes,
+        subject,
+    } = lifecycle_diag;
     match lifecycle {
         SpecLifecycle::Deprecated => push_diag_in_tag(
             diagnostics,
@@ -536,7 +593,7 @@ fn emit_lifecycle_diag_in_tag(
             tag_start,
             Severity::Warning,
             codes.deprecated,
-            format!("{subject} is deprecated"),
+            format_deprecated_message(verdict, subject),
         ),
         SpecLifecycle::Obsolete => push_diag_in_tag(
             diagnostics,
@@ -544,12 +601,8 @@ fn emit_lifecycle_diag_in_tag(
             node,
             tag_start,
             Severity::Warning,
-            // Reuse the deprecated code but with a stronger message —
-            // the feature is not just deprecated, it's gone from the
-            // current SVG profile. A dedicated `ObsoleteElement`/
-            // `ObsoleteAttribute` code is a follow-up.
-            codes.deprecated,
-            format!("{subject} is no longer defined in the current SVG profile"),
+            codes.obsolete,
+            format_obsolete_message(verdict, subject),
         ),
         SpecLifecycle::Experimental => push_diag_in_tag(
             diagnostics,
@@ -561,6 +614,122 @@ fn emit_lifecycle_diag_in_tag(
             format!("{subject} is experimental"),
         ),
         SpecLifecycle::Stable => {}
+    }
+}
+
+/// Compose a deprecated-rule message that matches the hover `Status:`
+/// line. When the verdict names `BcdDeprecated`, we say so explicitly;
+/// otherwise we fall back to the terse legacy message. Both surfaces
+/// read from the same verdict, so they cannot drift.
+fn format_deprecated_message(verdict: Option<CompatVerdict>, subject: &str) -> String {
+    if let Some(v) = verdict
+        && v.reasons
+            .iter()
+            .any(|r| matches!(r, VerdictReason::BcdDeprecated))
+    {
+        return format!("{subject} is deprecated (BCD-deprecated)");
+    }
+    format!("{subject} is deprecated")
+}
+
+/// Compose an obsolete-rule message. This branch only fires when the
+/// feature is still in the selected profile's membership but its union
+/// lifecycle is marked `Obsolete` — otherwise the walk would have
+/// taken the `UnsupportedInProfile` path and never reached here.
+///
+/// `VerdictReason::ProfileObsolete` can never coexist with this branch
+/// (it's emitted only for membership-absent features), so we reinforce
+/// with `BcdDeprecated` when present to mirror the hover Status line.
+fn format_obsolete_message(verdict: Option<CompatVerdict>, subject: &str) -> String {
+    let also_bcd = verdict.is_some_and(|v| {
+        v.reasons
+            .iter()
+            .any(|r| matches!(r, VerdictReason::BcdDeprecated))
+    });
+    if also_bcd {
+        format!("{subject} is obsolete in the current SVG profile (also BCD-deprecated)")
+    } else {
+        format!("{subject} is obsolete in the current SVG profile")
+    }
+}
+
+/// Emit info-severity advisory diagnostics for compat caveats that
+/// aren't deprecation (partial implementation, vendor prefix, runtime
+/// flag). These read directly from [`CompatVerdict::reasons`] so they
+/// stay in lockstep with the hover status line.
+///
+/// Duplicate reasons (e.g. `PartialImplementationIn` for both Chrome
+/// and Edge on `color-interpolation`) collapse into a single bullet-
+/// separated diagnostic per rule code — the LSP's "problems" panel is
+/// noisy enough without four near-identical entries per attribute.
+fn emit_verdict_hints(
+    diagnostics: &mut Vec<SvgDiagnostic>,
+    suppressions: &mut Suppressions,
+    node: Node,
+    tag_start: Option<usize>,
+    verdict: Option<CompatVerdict>,
+    subject: &str,
+) {
+    let Some(verdict) = verdict else { return };
+
+    let mut partial = Vec::new();
+    let mut prefix = Vec::new();
+    let mut flagged = Vec::new();
+
+    for reason in verdict.reasons {
+        match reason {
+            VerdictReason::PartialImplementationIn(browser) => partial.push(*browser),
+            VerdictReason::PrefixRequiredIn { browser, prefix: p } => {
+                prefix.push(format!("{browser} (`{p}`)"));
+            }
+            VerdictReason::BehindFlagIn(browser) => flagged.push(*browser),
+            _ => {}
+        }
+    }
+
+    if !partial.is_empty() {
+        push_diag_in_tag(
+            diagnostics,
+            suppressions,
+            node,
+            tag_start,
+            Severity::Information,
+            DiagnosticCode::PartialImplementation,
+            format!(
+                "{subject} has a partial implementation in {}",
+                partial.join(", ")
+            ),
+        );
+    }
+
+    if !prefix.is_empty() {
+        push_diag_in_tag(
+            diagnostics,
+            suppressions,
+            node,
+            tag_start,
+            Severity::Information,
+            DiagnosticCode::PrefixRequired,
+            format!(
+                "{subject} requires a vendor prefix in {}",
+                prefix.join(", ")
+            ),
+        );
+    }
+
+    if !flagged.is_empty() {
+        push_diag_in_tag(
+            diagnostics,
+            suppressions,
+            node,
+            tag_start,
+            Severity::Information,
+            DiagnosticCode::BehindFlag,
+            format!(
+                "{subject} is only available behind a flag in {}",
+                flagged.join(", ")
+            ),
+        );
     }
 }
 
@@ -802,12 +971,12 @@ mod tests {
             &mut diagnostics,
             &mut suppressions,
             name,
-            SpecLifecycle::Experimental,
-            LifecycleCodes {
-                deprecated: DiagnosticCode::DeprecatedElement,
-                experimental: DiagnosticCode::ExperimentalElement,
+            LifecycleDiagnostic {
+                lifecycle: SpecLifecycle::Experimental,
+                verdict: None,
+                codes: ELEMENT_LIFECYCLE_CODES,
+                subject: "<svg>",
             },
-            "<svg>",
         );
 
         assert_eq!(diagnostics.len(), 1, "expected one lifecycle diagnostic");

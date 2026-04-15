@@ -88,6 +88,10 @@ pub enum DiagnosticCode {
     DeprecatedElement,
     /// Deprecated attribute usage.
     DeprecatedAttribute,
+    /// Element removed from the current SVG profile (stronger than deprecated).
+    ObsoleteElement,
+    /// Attribute removed from the current SVG profile (stronger than deprecated).
+    ObsoleteAttribute,
     /// Experimental element usage.
     ExperimentalElement,
     /// Experimental attribute usage.
@@ -102,6 +106,15 @@ pub enum DiagnosticCode {
     DuplicateId,
     /// Reference target such as `url(#id)` is missing a definition.
     MissingReferenceDefinition,
+    /// A tracked browser ships a partial implementation of this feature.
+    /// Shared across elements and attributes — the element/attribute
+    /// distinction isn't a meaningful axis for this advisory signal.
+    PartialImplementation,
+    /// A tracked browser requires a vendor prefix for this feature.
+    PrefixRequired,
+    /// A tracked browser only exposes this feature behind a preference or
+    /// runtime flag.
+    BehindFlag,
     /// A suppression directive did not suppress anything.
     UnusedSuppression,
 }
@@ -113,6 +126,8 @@ impl DiagnosticCode {
         Self::MissingRequiredAttr,
         Self::DeprecatedElement,
         Self::DeprecatedAttribute,
+        Self::ObsoleteElement,
+        Self::ObsoleteAttribute,
         Self::ExperimentalElement,
         Self::ExperimentalAttribute,
         Self::UnknownElement,
@@ -120,6 +135,9 @@ impl DiagnosticCode {
         Self::UnknownAttribute,
         Self::DuplicateId,
         Self::MissingReferenceDefinition,
+        Self::PartialImplementation,
+        Self::PrefixRequired,
+        Self::BehindFlag,
         Self::UnusedSuppression,
     ];
 
@@ -131,6 +149,8 @@ impl DiagnosticCode {
             Self::MissingRequiredAttr => "MissingRequiredAttr",
             Self::DeprecatedElement => "DeprecatedElement",
             Self::DeprecatedAttribute => "DeprecatedAttribute",
+            Self::ObsoleteElement => "ObsoleteElement",
+            Self::ObsoleteAttribute => "ObsoleteAttribute",
             Self::ExperimentalElement => "ExperimentalElement",
             Self::ExperimentalAttribute => "ExperimentalAttribute",
             Self::UnknownElement => "UnknownElement",
@@ -138,6 +158,9 @@ impl DiagnosticCode {
             Self::UnknownAttribute => "UnknownAttribute",
             Self::DuplicateId => "DuplicateId",
             Self::MissingReferenceDefinition => "MissingReferenceDefinition",
+            Self::PartialImplementation => "PartialImplementation",
+            Self::PrefixRequired => "PrefixRequired",
+            Self::BehindFlag => "BehindFlag",
             Self::UnusedSuppression => "UnusedSuppression",
         }
     }
@@ -152,6 +175,8 @@ impl FromStr for DiagnosticCode {
             "MissingRequiredAttr" => Ok(Self::MissingRequiredAttr),
             "DeprecatedElement" => Ok(Self::DeprecatedElement),
             "DeprecatedAttribute" => Ok(Self::DeprecatedAttribute),
+            "ObsoleteElement" => Ok(Self::ObsoleteElement),
+            "ObsoleteAttribute" => Ok(Self::ObsoleteAttribute),
             "ExperimentalElement" => Ok(Self::ExperimentalElement),
             "ExperimentalAttribute" => Ok(Self::ExperimentalAttribute),
             "UnknownElement" => Ok(Self::UnknownElement),
@@ -159,6 +184,9 @@ impl FromStr for DiagnosticCode {
             "UnknownAttribute" => Ok(Self::UnknownAttribute),
             "DuplicateId" => Ok(Self::DuplicateId),
             "MissingReferenceDefinition" => Ok(Self::MissingReferenceDefinition),
+            "PartialImplementation" => Ok(Self::PartialImplementation),
+            "PrefixRequired" => Ok(Self::PrefixRequired),
+            "BehindFlag" => Ok(Self::BehindFlag),
             "UnusedSuppression" => Ok(Self::UnusedSuppression),
             _ => Err(()),
         }

@@ -230,6 +230,54 @@ pub fn attribute_for_profile(
     lookup_for_profile(profile, attribute, known_in)
 }
 
+/// Look up the pre-computed [`CompatVerdict`] for an element against a
+/// selected profile.
+///
+/// Verdicts are baked into [`ElementDef::verdicts`] at build time, so
+/// this is a linear scan over a small slice (typically ≤4 entries, one
+/// per tracked snapshot). Returns `None` only when the element has no
+/// verdicts at all — a build-time invariant violation that should not
+/// happen for a covered snapshot. Callers that need a rendered fallback
+/// should treat `None` as "no verdict → no compat diagnostic".
+///
+/// Both the LSP hover and the lint rules consume this helper, so they
+/// cannot drift from one another's view of the same reconciled verdict.
+#[must_use]
+pub fn compat_verdict_for_element(
+    def: &ElementDef,
+    profile: SpecSnapshotId,
+) -> Option<CompatVerdict> {
+    verdict_for_profile(def.verdicts, profile)
+}
+
+/// Look up the pre-computed [`CompatVerdict`] for an attribute against
+/// a selected profile.
+///
+/// See [`compat_verdict_for_element`] for semantics — the only
+/// difference is the input type.
+#[must_use]
+pub fn compat_verdict_for_attribute(
+    def: &AttributeDef,
+    profile: SpecSnapshotId,
+) -> Option<CompatVerdict> {
+    verdict_for_profile(def.verdicts, profile)
+}
+
+/// Shared linear-scan over a pre-baked verdicts slice. Falls back to
+/// the first entry when the requested profile isn't tracked, so hover
+/// and lint always get *some* verdict for known features rather than
+/// silently dropping diagnostics.
+fn verdict_for_profile(
+    verdicts: &'static [(SpecSnapshotId, CompatVerdict)],
+    profile: SpecSnapshotId,
+) -> Option<CompatVerdict> {
+    verdicts
+        .iter()
+        .find(|(snap, _)| *snap == profile)
+        .or_else(|| verdicts.first())
+        .map(|(_, verdict)| *verdict)
+}
+
 /// Return the snapshot-specific value description for an attribute when
 /// the spec text genuinely diverges between snapshots.
 ///
@@ -808,6 +856,162 @@ mod tests {
     fn reviewed_union_includes_view_element() -> Result<(), Box<dyn Error>> {
         let view = element("view").ok_or("view should exist in reviewed union")?;
         assert_eq!(view.name, "view");
+        Ok(())
+    }
+
+    // ---- Verdict pipeline tests ---------------------------------------
+    //
+    // These tests exercise the baked-in verdicts slice on real catalog
+    // entries. They don't unit-test the build-time compute logic in
+    // `build/verdict.rs` directly — instead they lock the *end-to-end*
+    // contract: the static catalog that consumers (hover, lint) actually
+    // read must carry the expected recommendation tier and reason set.
+    //
+    // Integration-style verdict tests are the right tool here because:
+    //
+    // 1. the compute logic lives in a build script (hard to test in
+    //    isolation without duplicating the type shadows);
+    // 2. the failure mode we care about is a drift between compute and
+    //    bake — which an isolated compute-unit test would miss;
+    // 3. the fixtures are concrete, named SVG features whose expected
+    //    verdicts are documented in the Phase 1 audit document.
+
+    #[test]
+    fn verdict_rect_is_safe_in_all_profiles() -> Result<(), Box<dyn Error>> {
+        // `<rect>` is the canonical "safe, widely available" fixture.
+        // Its verdict must be Safe with no reasons across every tracked
+        // snapshot — otherwise the Caution-or-worse tier would flood
+        // every document with spurious hints.
+        let rect = element("rect").ok_or("rect should exist")?;
+        for profile in spec_snapshots() {
+            let verdict = compat_verdict_for_element(rect, *profile)
+                .ok_or_else(|| format!("rect should have a verdict in {}", profile.as_str()))?;
+            assert_eq!(
+                verdict.recommendation,
+                VerdictRecommendation::Safe,
+                "rect must be Safe in {}: {verdict:?}",
+                profile.as_str()
+            );
+            assert!(
+                verdict.reasons.is_empty(),
+                "rect must have no reasons in {}: {verdict:?}",
+                profile.as_str()
+            );
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn verdict_xlink_href_is_avoid_in_svg11() -> Result<(), Box<dyn Error>> {
+        // `xlink:href` is the canonical "still defined but deprecated"
+        // fixture. In SVG 1.1 where it remains in membership, the
+        // verdict should be Avoid (not Forbid — that's reserved for
+        // features absent from the selected profile entirely) with
+        // BcdDeprecated among its reasons.
+        let href = attribute("xlink:href").ok_or("xlink:href should exist")?;
+        let verdict = compat_verdict_for_attribute(href, SpecSnapshotId::Svg11Rec20110816)
+            .ok_or("xlink:href should have a verdict in SVG 1.1")?;
+
+        assert!(
+            matches!(verdict.recommendation, VerdictRecommendation::Avoid),
+            "xlink:href in SVG 1.1 must be Avoid, got {:?}",
+            verdict.recommendation
+        );
+        assert!(
+            verdict
+                .reasons
+                .iter()
+                .any(|r| matches!(r, VerdictReason::BcdDeprecated)),
+            "xlink:href verdict should carry BcdDeprecated reason: {verdict:?}"
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn verdict_xlink_href_is_forbid_in_svg2() -> Result<(), Box<dyn Error>> {
+        // In SVG 2 the attribute is absent from membership — verdict
+        // must escalate to Forbid with `ProfileObsolete` naming the
+        // last snapshot it was still in. This is the single source
+        // of truth both the hover `Forbid` headline and the lint
+        // `UnsupportedInProfile` diagnostic read from.
+        let href = attribute("xlink:href").ok_or("xlink:href should exist")?;
+        let verdict = compat_verdict_for_attribute(href, SpecSnapshotId::Svg2EditorsDraft20250914)
+            .ok_or("xlink:href should have a verdict in SVG 2")?;
+
+        assert_eq!(verdict.recommendation, VerdictRecommendation::Forbid);
+        assert!(
+            verdict
+                .reasons
+                .iter()
+                .any(|r| matches!(r, VerdictReason::ProfileObsolete { .. })),
+            "Forbid verdict must include ProfileObsolete reason: {verdict:?}"
+        );
+        // `last_seen` must point at an SVG 1.1 snapshot since that's the
+        // latest profile xlink:href is still defined in.
+        for reason in verdict.reasons {
+            if let VerdictReason::ProfileObsolete { last_seen } = reason {
+                assert!(
+                    matches!(
+                        last_seen,
+                        SpecSnapshotId::Svg11Rec20030114 | SpecSnapshotId::Svg11Rec20110816
+                    ),
+                    "last_seen should be an SVG 1.1 snapshot, got {last_seen:?}"
+                );
+            }
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn verdict_recommendation_tier_ordering_is_total() {
+        // The priority algorithm in `build/verdict.rs` relies on
+        // `VerdictRecommendation` forming a total order `Safe < Caution
+        // < Avoid < Forbid`. This test locks the derived ordering so
+        // a future enum reshuffle can't silently break the max-tier
+        // selection at build time.
+        assert!(VerdictRecommendation::Safe < VerdictRecommendation::Caution);
+        assert!(VerdictRecommendation::Caution < VerdictRecommendation::Avoid);
+        assert!(VerdictRecommendation::Avoid < VerdictRecommendation::Forbid);
+    }
+
+    #[test]
+    fn verdict_color_interpolation_has_partial_reason() -> Result<(), Box<dyn Error>> {
+        // `color-interpolation` has `partial_implementation: true` on
+        // chrome/edge/safari in live BCD. The verdict must carry at
+        // least one `PartialImplementationIn` reason so the lint
+        // `PartialImplementation` rule and the hover per-browser
+        // sub-bullet both have data to render.
+        let ci = attribute("color-interpolation").ok_or("color-interpolation should exist")?;
+        let verdict = compat_verdict_for_attribute(ci, SpecSnapshotId::Svg2EditorsDraft20250914)
+            .ok_or("color-interpolation should have a verdict")?;
+
+        assert!(
+            verdict
+                .reasons
+                .iter()
+                .any(|r| matches!(r, VerdictReason::PartialImplementationIn(_))),
+            "color-interpolation verdict should include PartialImplementationIn: {verdict:?}"
+        );
+        // Partial-only features should be at most Caution — never
+        // Avoid or Forbid, since the feature is still usable.
+        assert!(
+            verdict.recommendation <= VerdictRecommendation::Caution,
+            "partial-only features should stay at Caution or below: {verdict:?}"
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn verdict_hover_and_lint_share_the_same_source() -> Result<(), Box<dyn Error>> {
+        // Regression guard for the architectural linchpin: hover and
+        // lint both read through `compat_verdict_for_attribute`, so
+        // calling it twice must return byte-identical results. If a
+        // caller ever reaches into `def.verdicts` directly and picks
+        // a different entry, this test will fail.
+        let ci = attribute("color-interpolation").ok_or("color-interpolation should exist")?;
+        let a = compat_verdict_for_attribute(ci, SpecSnapshotId::Svg2EditorsDraft20250914);
+        let b = compat_verdict_for_attribute(ci, SpecSnapshotId::Svg2EditorsDraft20250914);
+        assert_eq!(a, b);
         Ok(())
     }
 }

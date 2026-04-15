@@ -622,6 +622,156 @@ mod tests {
     }
 
     #[test]
+    fn baseprofile_in_svg2_fires_unsupported_not_obsolete() {
+        // Post-Phase-1 data audit: baseProfile was removed from the SVG 2
+        // snapshot membership entirely, so lookups against an SVG 2 profile
+        // return `UnsupportedInProfile` (Error severity), NOT a Present+
+        // Obsolete lifecycle. This test locks in the audit result — if
+        // baseProfile ever reappears in SVG 2 membership, this test will
+        // fail and force a review.
+        let src = br#"<svg baseProfile="full"></svg>"#;
+        let diags = lint_with_options(
+            src,
+            LintOptions {
+                profile: svg_data::SpecSnapshotId::Svg2EditorsDraft20250914,
+            },
+        );
+
+        assert!(
+            diags
+                .iter()
+                .any(|d| d.code == DiagnosticCode::UnsupportedInProfile
+                    && d.message.contains("baseProfile")),
+            "baseProfile must fire UnsupportedInProfile in SVG 2: {diags:?}"
+        );
+        assert!(
+            !diags
+                .iter()
+                .any(|d| d.code == DiagnosticCode::ObsoleteAttribute),
+            "UnsupportedInProfile and ObsoleteAttribute are disjoint branches — \
+             only one should fire: {diags:?}"
+        );
+    }
+
+    #[test]
+    fn obsolete_attribute_fires_with_dedicated_code_for_xlink_href_in_svg11() {
+        // `xlink:href` is the legitimate fixture for the ObsoleteAttribute
+        // code: still present in SVG 1.1 membership, but its union lifecycle
+        // is `Obsolete` (BCD says deprecated, the exceptions allowlist
+        // confirms this is an intentional state). The lint path should use
+        // the new dedicated `ObsoleteAttribute` code rather than reusing
+        // `DeprecatedAttribute` — this gives users a separate suppression
+        // knob for the stronger signal.
+        let src =
+            br##"<svg xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="#icon"/></svg>"##;
+        let diags = lint_with_options(
+            src,
+            LintOptions {
+                profile: svg_data::SpecSnapshotId::Svg11Rec20110816,
+            },
+        );
+
+        let obsolete = diags
+            .iter()
+            .find(|d| d.code == DiagnosticCode::ObsoleteAttribute);
+        assert!(
+            obsolete.is_some(),
+            "xlink:href must fire ObsoleteAttribute in SVG 1.1: {diags:?}"
+        );
+        assert!(
+            obsolete.is_some_and(|d| d.message.contains("obsolete")),
+            "obsolete message should name the state: {diags:?}"
+        );
+        // The verdict for xlink:href carries `BcdDeprecated` — the message
+        // should mirror the hover Status line by surfacing it.
+        assert!(
+            obsolete.is_some_and(|d| d.message.contains("BCD-deprecated")),
+            "obsolete message should reinforce with BCD origin from verdict: {diags:?}"
+        );
+        assert!(
+            !diags
+                .iter()
+                .any(|d| d.code == DiagnosticCode::DeprecatedAttribute),
+            "ObsoleteAttribute should not also emit DeprecatedAttribute: {diags:?}"
+        );
+    }
+
+    #[test]
+    fn deprecated_attribute_message_surfaces_bcd_origin_from_verdict() {
+        // When the verdict's reasons include `BcdDeprecated`, the lint
+        // message should match the hover Status line by surfacing the
+        // BCD origin. Uses `glyph-orientation-vertical` in SVG 1.1 where
+        // the attribute is still defined but BCD-deprecated, so only the
+        // DeprecatedAttribute rule (not ObsoleteAttribute) fires.
+        let src = br#"<svg><text glyph-orientation-vertical="0">x</text></svg>"#;
+        let diags = lint_with_options(
+            src,
+            LintOptions {
+                profile: svg_data::SpecSnapshotId::Svg11Rec20110816,
+            },
+        );
+
+        let dep = diags
+            .iter()
+            .find(|d| d.code == DiagnosticCode::DeprecatedAttribute);
+        assert!(
+            dep.is_some_and(|d| d.message.contains("BCD-deprecated")),
+            "deprecated message should read from verdict reasons: {diags:?}"
+        );
+    }
+
+    #[test]
+    fn partial_implementation_fires_as_info_on_color_interpolation() {
+        // `color-interpolation` ships with `partial_implementation: true`
+        // on chrome/edge/safari in live BCD. The PartialImplementation
+        // advisory must fire at Information severity without blocking
+        // the document.
+        let src = br#"<svg><rect color-interpolation="sRGB"/></svg>"#;
+        let diags = lint(src);
+
+        let partial = diags
+            .iter()
+            .find(|d| d.code == DiagnosticCode::PartialImplementation);
+        assert!(
+            partial.is_some(),
+            "color-interpolation should fire PartialImplementation: {diags:?}"
+        );
+        assert_eq!(
+            partial.map(|d| d.severity),
+            Some(Severity::Information),
+            "PartialImplementation must be advisory (Information severity): {diags:?}"
+        );
+        assert!(
+            partial.is_some_and(|d| d.message.contains("color-interpolation")
+                && d.message.contains("partial implementation")),
+            "message should name the attribute + state: {diags:?}"
+        );
+    }
+
+    #[test]
+    fn stable_feature_emits_no_compat_hints() {
+        // Regression guard: a fully-Safe verdict (e.g. `<rect x y width
+        // height>`) must not trigger any of the new advisory codes.
+        // Otherwise the problems panel would be flooded with noise on
+        // every document.
+        let src = br#"<svg><rect x="0" y="0" width="10" height="10"/></svg>"#;
+        let diags = lint(src);
+
+        for code in [
+            DiagnosticCode::PartialImplementation,
+            DiagnosticCode::PrefixRequired,
+            DiagnosticCode::BehindFlag,
+            DiagnosticCode::ObsoleteAttribute,
+            DiagnosticCode::ObsoleteElement,
+        ] {
+            assert!(
+                !diags.iter().any(|d| d.code == code),
+                "stable feature should not fire {code:?}: {diags:?}"
+            );
+        }
+    }
+
+    #[test]
     fn overrides_can_mark_stable_elements_experimental() -> Result<(), Box<dyn std::error::Error>> {
         let src = br"<svg><rect/></svg>";
 

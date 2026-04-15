@@ -246,37 +246,79 @@
 					},
 					{
 						"kind": "keyword",
+						"value": "list-item"
+					},
+					{
+						"kind": "keyword",
+						"value": "run-in"
+					},
+					{
+						"kind": "keyword",
+						"value": "compact"
+					},
+					{
+						"kind": "keyword",
+						"value": "marker"
+					},
+					{
+						"kind": "keyword",
+						"value": "table"
+					},
+					{
+						"kind": "keyword",
+						"value": "inline-table"
+					},
+					{
+						"kind": "keyword",
+						"value": "table-row-group"
+					},
+					{
+						"kind": "keyword",
+						"value": "table-header-group"
+					},
+					{
+						"kind": "keyword",
+						"value": "table-footer-group"
+					},
+					{
+						"kind": "keyword",
+						"value": "table-row"
+					},
+					{
+						"kind": "keyword",
+						"value": "table-column-group"
+					},
+					{
+						"kind": "keyword",
+						"value": "table-column"
+					},
+					{
+						"kind": "keyword",
+						"value": "table-cell"
+					},
+					{
+						"kind": "keyword",
+						"value": "table-caption"
+					},
+					{
+						"kind": "keyword",
 						"value": "none"
 					}
 				]
 			},
 			"provenance": [
 				{
-					"source_id": "attribute-index",
-					"source_kind": "index",
+					"source_id": "tr-root",
+					"source_kind": "manual_review",
 					"pin": {
 						"kind": "url",
-						"url": "https://www.w3.org/TR/2011/REC-SVG11-20110816/"
+						"url": "https://www.w3.org/TR/2011/REC-SVG11-20110816/painting.html"
 					},
 					"locator": {
 						"kind": "fragment",
-						"anchor": "display"
+						"anchor": "VisibilityControl"
 					},
-					"confidence": "derived"
-				},
-				{
-					"source_id": "flattened-dtd",
-					"source_kind": "dtd",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2011/REC-SVG11-20110816/"
-					},
-					"locator": {
-						"kind": "definition",
-						"file": "DTD/svg11-flat.dtd",
-						"id": "display"
-					},
-					"confidence": "derived"
+					"confidence": "manual"
 				}
 			]
 		},

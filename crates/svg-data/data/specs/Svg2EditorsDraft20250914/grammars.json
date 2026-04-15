@@ -165,26 +165,73 @@
 					},
 					{
 						"kind": "keyword",
+						"value": "list-item"
+					},
+					{
+						"kind": "keyword",
+						"value": "inline-block"
+					},
+					{
+						"kind": "keyword",
+						"value": "table"
+					},
+					{
+						"kind": "keyword",
+						"value": "inline-table"
+					},
+					{
+						"kind": "keyword",
+						"value": "table-row-group"
+					},
+					{
+						"kind": "keyword",
+						"value": "table-header-group"
+					},
+					{
+						"kind": "keyword",
+						"value": "table-footer-group"
+					},
+					{
+						"kind": "keyword",
+						"value": "table-row"
+					},
+					{
+						"kind": "keyword",
+						"value": "table-column-group"
+					},
+					{
+						"kind": "keyword",
+						"value": "table-column"
+					},
+					{
+						"kind": "keyword",
+						"value": "table-cell"
+					},
+					{
+						"kind": "keyword",
+						"value": "table-caption"
+					},
+					{
+						"kind": "keyword",
 						"value": "none"
 					}
 				]
 			},
 			"provenance": [
 				{
-					"source_id": "definitions",
-					"source_kind": "definitions_xml",
+					"source_id": "chapter-html",
+					"source_kind": "manual_review",
 					"pin": {
 						"kind": "git_commit",
 						"repository": "https://github.com/w3c/svgwg",
 						"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
-						"path": "master/definitions.xml"
+						"path": "master/render.html"
 					},
 					"locator": {
-						"kind": "definition",
-						"file": "definitions.xml",
-						"id": "display"
+						"kind": "fragment",
+						"anchor": "VisibilityControl"
 					},
-					"confidence": "derived"
+					"confidence": "manual"
 				}
 			]
 		},

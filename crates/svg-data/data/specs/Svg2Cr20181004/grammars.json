@@ -205,36 +205,71 @@
 					},
 					{
 						"kind": "keyword",
+						"value": "list-item"
+					},
+					{
+						"kind": "keyword",
+						"value": "inline-block"
+					},
+					{
+						"kind": "keyword",
+						"value": "table"
+					},
+					{
+						"kind": "keyword",
+						"value": "inline-table"
+					},
+					{
+						"kind": "keyword",
+						"value": "table-row-group"
+					},
+					{
+						"kind": "keyword",
+						"value": "table-header-group"
+					},
+					{
+						"kind": "keyword",
+						"value": "table-footer-group"
+					},
+					{
+						"kind": "keyword",
+						"value": "table-row"
+					},
+					{
+						"kind": "keyword",
+						"value": "table-column-group"
+					},
+					{
+						"kind": "keyword",
+						"value": "table-column"
+					},
+					{
+						"kind": "keyword",
+						"value": "table-cell"
+					},
+					{
+						"kind": "keyword",
+						"value": "table-caption"
+					},
+					{
+						"kind": "keyword",
 						"value": "none"
 					}
 				]
 			},
 			"provenance": [
 				{
-					"source_id": "attribute-index",
-					"source_kind": "index",
-					"pin": {
-						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
-					},
-					"locator": {
-						"kind": "fragment",
-						"anchor": "display"
-					},
-					"confidence": "derived"
-				},
-				{
 					"source_id": "tr-root",
-					"source_kind": "html",
+					"source_kind": "manual_review",
 					"pin": {
 						"kind": "url",
-						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+						"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/render.html"
 					},
 					"locator": {
 						"kind": "fragment",
-						"anchor": "display"
+						"anchor": "VisibilityControl"
 					},
-					"confidence": "derived"
+					"confidence": "manual"
 				}
 			]
 		},

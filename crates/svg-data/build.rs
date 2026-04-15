@@ -13,6 +13,8 @@
 mod bcd;
 #[path = "build/codegen.rs"]
 mod codegen;
+#[path = "build/provenance_gate.rs"]
+mod provenance_gate;
 #[path = "build/reconcile.rs"]
 mod reconcile;
 #[path = "src/types.rs"]
@@ -429,6 +431,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo::rerun-if-env-changed=SVG_COMPAT_URL");
     emit_rerun_if_changed(&svg_compat_dir.join("src"))?;
     emit_rerun_if_changed(&svg_compat_dir.join("deno.json"))?;
+
+    // Provenance referential-integrity gate: fail the build early if any
+    // `source_id` in the checked-in snapshot data doesn't resolve to a
+    // `pinned_sources[].input_id` in the same snapshot's `snapshot.json`.
+    // Runs before `load_build_inputs()` so a bad snapshot edit surfaces
+    // before we even try to deserialize the catalog-building structures.
+    provenance_gate::run(manifest_dir, &canonical_snapshots())
+        .map_err(|e| -> Box<dyn Error> { e.into() })?;
 
     let inputs = load_build_inputs()?;
 

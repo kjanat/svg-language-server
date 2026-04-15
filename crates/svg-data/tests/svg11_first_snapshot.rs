@@ -6,7 +6,7 @@ use svg_data::{
     ProfileLookup, attribute_for_profile, attributes as catalog_attributes,
     attributes_for_with_profile, elements_with_profile,
     snapshot_schema::{
-        CategoriesFile, ElementAttributeMatrixFile, GrammarFile, ReviewFile,
+        CategoriesFile, ElementAttributeMatrixFile, GrammarFile, GrammarNode, ReviewFile,
         SnapshotAttributeRecord, SnapshotElementRecord, SnapshotMetadataFile, ValueSyntax,
     },
     types::{AttributeValues, SpecSnapshotId},
@@ -458,4 +458,126 @@ where
         .unwrap_or_else(|error| panic!("failed to read {}: {error}", path.display()));
     serde_json::from_str(&text)
         .unwrap_or_else(|error| panic!("failed to parse {}: {error}", path.display()))
+}
+
+/// The 17 `display` keywords defined by CSS 2.0, which SVG 1.1 §11.5
+/// and §11.5.1 normatively reference. The list must match the spec
+/// verbatim — dropping `run-in` / `compact` / `marker` would regress the
+/// known bug fixed in 2026-04 where the under-reported grammar only
+/// exposed `inline | block | none`.
+const SVG11_DISPLAY_VALUES: &[&str] = &[
+    "inline",
+    "block",
+    "list-item",
+    "run-in",
+    "compact",
+    "marker",
+    "table",
+    "inline-table",
+    "table-row-group",
+    "table-header-group",
+    "table-footer-group",
+    "table-row",
+    "table-column-group",
+    "table-column",
+    "table-cell",
+    "table-caption",
+    "none",
+];
+
+/// The 15 `display` keywords defined by CSS 2.1, which SVG 2
+/// `render.html#VisibilityControl` defers to. CSS 2.1 dropped CSS 2.0's
+/// `run-in` / `compact` / `marker` and added `inline-block`; the SVG 2
+/// snapshots must track that change.
+const SVG2_DISPLAY_VALUES: &[&str] = &[
+    "inline",
+    "block",
+    "list-item",
+    "inline-block",
+    "table",
+    "inline-table",
+    "table-row-group",
+    "table-header-group",
+    "table-footer-group",
+    "table-row",
+    "table-column-group",
+    "table-column",
+    "table-cell",
+    "table-caption",
+    "none",
+];
+
+#[test]
+fn enum_display_grammar_carries_full_css_set_in_every_snapshot() {
+    // Pin each snapshot to the exact value list its referenced CSS
+    // profile defines. Hand-written on purpose: the round-trip tests
+    // above verify the seed generator preserves the checked-in data,
+    // but the seed generator itself has no independent source for
+    // these keywords — the snapshot JSON is the ground truth. A
+    // dedicated regression guard here makes sure the ground truth
+    // doesn't silently slip back to `inline | block | none`.
+    for (snapshot, expected) in [
+        (SpecSnapshotId::Svg11Rec20030114, SVG11_DISPLAY_VALUES),
+        (SpecSnapshotId::Svg11Rec20110816, SVG11_DISPLAY_VALUES),
+        (SpecSnapshotId::Svg2Cr20181004, SVG2_DISPLAY_VALUES),
+        (
+            SpecSnapshotId::Svg2EditorsDraft20250914,
+            SVG2_DISPLAY_VALUES,
+        ),
+    ] {
+        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("data/specs")
+            .join(snapshot.as_str())
+            .join("grammars.json");
+        let grammars: GrammarFile = read_json(&path);
+        let grammar = grammars
+            .grammars
+            .iter()
+            .find(|g| g.id == "enum-display")
+            .unwrap_or_else(|| panic!("enum-display grammar missing in {}", snapshot.as_str()));
+
+        let GrammarNode::Choice { options } = &grammar.root else {
+            panic!(
+                "enum-display root is not a choice in {}: {:?}",
+                snapshot.as_str(),
+                grammar.root,
+            );
+        };
+        let actual: Vec<&str> = options
+            .iter()
+            .map(|option| match option {
+                GrammarNode::Keyword { value } => value.as_str(),
+                other => panic!(
+                    "enum-display option is not a keyword in {}: {:?}",
+                    snapshot.as_str(),
+                    other,
+                ),
+            })
+            .collect();
+
+        assert_eq!(
+            actual,
+            expected,
+            "enum-display keyword list drifted from the spec for {}. \
+             SVG 1.1 §11.5 inherits CSS 2.0 ({} values); SVG 2 defers to \
+             CSS 2.1 ({} values). Regressing to `inline | block | none` \
+             under-reports valid values and breaks completion + validation.",
+            snapshot.as_str(),
+            SVG11_DISPLAY_VALUES.len(),
+            SVG2_DISPLAY_VALUES.len(),
+        );
+
+        // Provenance must be manually curated — the `display` value list
+        // comes from hand-reading the spec prose, not from any structured
+        // extractor. If a future regen path ever re-derives this entry,
+        // it should carry a `manual_review` confidence trail.
+        assert!(
+            grammar.provenance.iter().any(|p| matches!(
+                p.source_kind,
+                svg_data::snapshot_schema::ProvenanceSourceKind::ManualReview
+            )),
+            "enum-display in {} lost its manual_review provenance tag",
+            snapshot.as_str(),
+        );
+    }
 }

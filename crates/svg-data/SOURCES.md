@@ -70,7 +70,7 @@ These manifests drive provenance metadata embedded in every snapshot record.
 | `Svg2Cr20181004`           | SVG 2 Candidate Recommendation (2018-10-04)    |
 | `Svg2EditorsDraft20250914` | SVG 2 Editor's Draft (svgwg commit `19482daf`) |
 
-Each snapshot directory contains seven files:
+Each snapshot directory contains eight files:
 
 | File                            | Contents                                                                               |
 | ------------------------------- | -------------------------------------------------------------------------------------- |
@@ -83,8 +83,11 @@ Each snapshot directory contains seven files:
 | `exceptions.json`               | Hand-curated exceptions overriding derived data                                        |
 | `review.json`                   | Derived audit report (regenerated automatically; check-in tracks drift)                |
 
-**Authoritative source for the build pipeline.** `build.rs` reads these files
-(not `data/elements.json`) to generate the compiled catalog.
+**Authoritative source for the build pipeline.** `build.rs` reads these
+snapshot files as the primary inputs for the compiled catalog. It also
+consults `data/elements.json` (Layer 0) for curated element→attribute
+augmentation when building per-profile attribute mappings — the snapshots
+remain authoritative for everything else.
 
 #### Bootstrap constraint
 

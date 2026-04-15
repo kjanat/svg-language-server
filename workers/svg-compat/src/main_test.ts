@@ -219,6 +219,25 @@ Deno.test("renderHtml docs links include MDN and W3C spec links", () => {
 	assertEquals(html.includes("docs-flag-deprecated"), true);
 });
 
+Deno.test("path attribute includes fallback docs links", async () => {
+	const res = await fetchJson();
+	const data: SvgCompatOutput = await res.json();
+	const pathAttr = data.attributes.path;
+	assertExists(pathAttr);
+	assertEquals(
+		pathAttr.mdn_url,
+		"https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/path",
+	);
+	assertEquals(
+		pathAttr.spec_url.includes("https://svgwg.org/svg2-draft/text.html#TextPathElementPathAttribute"),
+		true,
+	);
+	assertEquals(
+		pathAttr.spec_url.includes("https://svgwg.org/specs/animations/#AnimateMotionElementPathAttribute"),
+		true,
+	);
+});
+
 Deno.test("renderHtml keeps active source selection in Open JSON endpoint link", () => {
 	const output: SvgCompatOutput = {
 		generated_at: "2026-01-01T00:00:00.000Z",
@@ -549,6 +568,15 @@ Deno.test("version picker script clears empty override params", async () => {
 	assertEquals(script.includes("params.delete(alias);"), true);
 	assertEquals(script.includes("web_features"), true);
 	assertEquals(script.includes("if (changed) location.search = params.toString();"), true);
+});
+
+Deno.test("styles force 2x2 support-chip layout on mobile widths", async () => {
+	const res = await server.fetch(new Request("http://localhost/style.css"));
+	assertEquals(res.status, 200);
+	const css = await res.text();
+	assertEquals(css.includes("@media (max-width: 800px)"), true);
+	assertEquals(css.includes(".browser-chips"), true);
+	assertEquals(css.includes("grid-template-columns: repeat(2, max-content);"), true);
 });
 
 Deno.test("legacy /static asset routes redirect to root asset paths", async () => {

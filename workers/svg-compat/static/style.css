@@ -614,6 +614,12 @@ code {
 	display: grid;
 	grid-template-columns: repeat(2, max-content);
 }
+@media (max-width: 800px) {
+	.browser-chips {
+		display: grid;
+		grid-template-columns: repeat(2, max-content);
+	}
+}
 .chip {
 	display: inline-flex;
 	align-items: center;

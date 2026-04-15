@@ -30,6 +30,25 @@ import type {
  */
 const NAMESPACE_UNDERSCORE = /^(xlink|xml)_(\w+)$/;
 
+interface DocsFallback {
+	mdn_url?: string;
+	spec_url: string[];
+}
+
+/**
+ * Known upstream gaps where BCD omits docs links entirely.
+ * Keep this narrowly scoped and data-backed.
+ */
+const ATTRIBUTE_DOCS_FALLBACKS: Record<string, DocsFallback> = {
+	path: {
+		mdn_url: "https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/path",
+		spec_url: [
+			"https://svgwg.org/svg2-draft/text.html#TextPathElementPathAttribute",
+			"https://svgwg.org/specs/animations/#AnimateMotionElementPathAttribute",
+		],
+	},
+};
+
 function canonicalAttributeName(name: string): string {
 	const match = name.match(NAMESPACE_UNDERSCORE);
 	return match ? `${match[1]}:${match[2]}` : name;
@@ -172,6 +191,15 @@ function mergeAttributeEntry(
 	}
 }
 
+function applyAttributeDocsFallback(attributeName: string, entry: AttributeEntry): void {
+	const fallback = ATTRIBUTE_DOCS_FALLBACKS[attributeName];
+	if (!fallback) return;
+	if (!entry.mdn_url && fallback.mdn_url) entry.mdn_url = fallback.mdn_url;
+	for (const url of fallback.spec_url) {
+		if (!entry.spec_url.includes(url)) entry.spec_url.push(url);
+	}
+}
+
 /** Walks `bcd.svg.elements`, extracts `__compat` for each, returns sorted record. */
 function collectElements(
 	svgElements: JsonRecord,
@@ -228,6 +256,10 @@ function collectAttributes(
 				mergeAttributeEntry(attributes, canonicalName, elementName, entry);
 			}
 		}
+	}
+
+	for (const [name, entry] of attributes.entries()) {
+		applyAttributeDocsFallback(name, entry);
 	}
 
 	return Object.fromEntries(

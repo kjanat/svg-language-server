@@ -33,22 +33,30 @@ pub fn reorder_attributes(attributes: &mut [ParsedAttribute], mode: AttributeSor
 fn canonical_attribute_sort_key(name: &str) -> (u8, u16, String) {
     let lowered = name.to_ascii_lowercase();
 
-    if lowered == "xmlns" {
+    // Group layout matches the W3 SVG reference samples' convention:
+    //   id → class → geometry/presentation → other → xmlns* → version
+    // `xmlns` and `version` trail at the end because they describe the
+    // document envelope, not per-element structure; the W3 spec examples
+    // put them last on the root `<svg>` tag for readability.
+    if lowered == "id" {
         return (0, 0, lowered);
     }
-    if lowered.starts_with("xmlns:") {
+    if lowered == "class" {
         return (0, 1, lowered);
     }
-    if lowered == "id" {
-        return (1, 0, lowered);
-    }
-    if lowered == "class" {
-        return (1, 1, lowered);
-    }
     if let Some(order) = canonical_geometry_order(&lowered) {
-        return (2, order, lowered);
+        return (1, order, lowered);
     }
-    (3, u16::MAX, lowered)
+    if lowered == "version" {
+        return (4, 0, lowered);
+    }
+    if lowered == "xmlns" {
+        return (3, 0, lowered);
+    }
+    if lowered.starts_with("xmlns:") {
+        return (3, 1, lowered);
+    }
+    (2, u16::MAX, lowered)
 }
 
 fn canonical_geometry_order(name: &str) -> Option<u16> {

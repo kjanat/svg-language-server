@@ -118,6 +118,10 @@ fn space_before_self_close_false_removes_spacing() {
 
 #[test]
 fn wrapped_attribute_indent_align_to_tag_name() {
+    // Under AlignToTagName, the first attribute sits on the tag line
+    // and subsequent attributes wrap aligned under it. The column where
+    // the first attribute lands inline (`<tag ` wide) equals the wrapped
+    // prefix width, so continuation lines line up visually.
     let input = r#"<svg><linearGradient id="sky" x1="0%" y1="0%"></linearGradient></svg>"#;
     let options = FormatOptions {
         attribute_layout: AttributeLayout::MultiLine,
@@ -126,8 +130,66 @@ fn wrapped_attribute_indent_align_to_tag_name() {
     };
     let aligned = format!("\t{}", " ".repeat("linearGradient".len() + 2));
     let expected = format!(
-        "<svg>\n\t<linearGradient\n{aligned}id=\"sky\"\n{aligned}x1=\"0%\"\n{aligned}y1=\"0%\">\n\t</linearGradient>\n</svg>"
+        "<svg>\n\t<linearGradient id=\"sky\"\n{aligned}x1=\"0%\"\n{aligned}y1=\"0%\">\n\t</linearGradient>\n</svg>"
     );
+    assert_eq!(format_with_options(input, options), expected);
+}
+
+#[test]
+fn canonical_sort_xmlns_trails_before_version() {
+    // W3 SVG convention: geometry attrs, then xmlns, then version at the
+    // very end of the root <svg> tag.
+    let input =
+        r#"<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="10" height="10"></svg>"#;
+    let expected = "<svg width=\"10\" height=\"10\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">\n</svg>";
+    assert_eq!(format(input), expected);
+}
+
+#[test]
+fn canonical_sort_xmlns_xlink_sibling_keeps_plain_xmlns_first() {
+    // Plain `xmlns` before `xmlns:*` within the namespace group, version
+    // strictly last. Two-level group key (3, 0) vs (3, 1) orders them.
+    let input = r#"<svg version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"></svg>"#;
+    let expected = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.1\">\n</svg>";
+    assert_eq!(format(input), expected);
+}
+
+#[test]
+fn align_to_tag_name_keeps_first_attribute_inline_with_tag() {
+    // Input has 6 attributes; at the default max_inline_tag_width this
+    // wraps to multiline. Under AlignToTagName the first attribute
+    // (`id="box"` after canonical sort) stays inline with `<rect`, and
+    // subsequent attrs align under it.
+    let input = r#"<svg><rect id="box" x="10" y="20" width="100" height="50" fill="red"/></svg>"#;
+    let options = FormatOptions {
+        attribute_layout: AttributeLayout::MultiLine,
+        wrapped_attribute_indent: WrappedAttributeIndent::AlignToTagName,
+        ..Default::default()
+    };
+    let aligned = format!("\t{}", " ".repeat("rect".len() + 2));
+    let expected = format!(
+        "<svg>\n\t<rect id=\"box\"\n{aligned}x=\"10\"\n{aligned}y=\"20\"\n{aligned}width=\"100\"\n{aligned}height=\"50\"\n{aligned}fill=\"red\" />\n</svg>"
+    );
+    assert_eq!(format_with_options(input, options), expected);
+}
+
+#[test]
+fn align_to_tag_name_with_multiline_value_continues_under_quote() {
+    // The d attribute has an embedded newline. Under AlignToTagName, the
+    // path stays inline with `<path`, its continuation aligns under the
+    // opening quote (column of `d="` plus 1), and `fill` wraps under `d`.
+    let input = "<svg><path d=\"M0 0\n     L1 1\" fill=\"red\" /></svg>";
+    let options = FormatOptions {
+        attribute_layout: AttributeLayout::MultiLine,
+        wrapped_attribute_indent: WrappedAttributeIndent::AlignToTagName,
+        ..Default::default()
+    };
+    // wrapped_prefix = "\t      " (tab + 6 spaces for "<path ").
+    // Continuation pad = wrapped_prefix + 3 spaces for `d="`.
+    let aligned = format!("\t{}", " ".repeat("path".len() + 2));
+    let cont = format!("{aligned}   "); // + 3 spaces for `d="`.
+    let expected =
+        format!("<svg>\n\t<path d=\"M0 0\n{cont}L1 1\"\n{aligned}fill=\"red\" />\n</svg>");
     assert_eq!(format_with_options(input, options), expected);
 }
 

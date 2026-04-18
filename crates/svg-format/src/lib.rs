@@ -543,8 +543,8 @@ impl<'a> Formatter<'a> {
             return;
         }
 
-        self.write_line(depth, &format!("<{}", tag.name));
         if rendered_attributes.is_empty() {
+            self.write_line(depth, &format!("<{}", tag.name));
             if self_closing {
                 self.write_line(depth, self.self_closing_suffix());
             } else {
@@ -568,6 +568,53 @@ impl<'a> Formatter<'a> {
         } else {
             self.options.attributes_per_line.max(1)
         };
+
+        // AlignToTagName pairs naturally with "first attribute inline on
+        // the tag line": the wrapped-prefix width equals the column
+        // where the first attribute would sit inline (indent + "<tag "),
+        // so `render_attribute_aligned` produces correct continuation
+        // alignment for the first attr's multi-line values *and* the
+        // same prefix aligns subsequent wrapped attrs under the first.
+        // OneLevel cannot do this cleanly — its column math differs —
+        // so we keep the existing "<tag alone on line 1" layout there.
+        let first_inline = matches!(
+            self.options.wrapped_attribute_indent,
+            WrappedAttributeIndent::AlignToTagName,
+        );
+
+        let closer = if self_closing {
+            self.self_closing_suffix()
+        } else {
+            ">"
+        };
+
+        if first_inline {
+            let first_rendered = self.render_attribute_aligned(&tag.attributes[0], &wrapped_prefix);
+            let rest = &tag.attributes[1..];
+            let rest_chunks: Vec<&[ParsedAttribute]> = rest.chunks(per_line).collect();
+            let is_last_on_tag_line = rest_chunks.is_empty();
+            let mut tag_line = format!("{}<{} {first_rendered}", self.indent(depth), tag.name);
+            if is_last_on_tag_line {
+                tag_line.push_str(closer);
+            }
+            tag_line.push('\n');
+            self.out.push_str(&tag_line);
+
+            for (index, chunk) in rest_chunks.iter().enumerate() {
+                let rendered: Vec<String> = chunk
+                    .iter()
+                    .map(|a| self.render_attribute_aligned(a, &wrapped_prefix))
+                    .collect();
+                let mut line = rendered.join(" ");
+                if index == rest_chunks.len() - 1 {
+                    line.push_str(closer);
+                }
+                self.write_prefixed_line(&wrapped_prefix, &line);
+            }
+            return;
+        }
+
+        self.write_line(depth, &format!("<{}", tag.name));
         let chunks: Vec<&[ParsedAttribute]> = tag.attributes.chunks(per_line).collect();
         for (index, chunk) in chunks.iter().enumerate() {
             let rendered: Vec<String> = chunk
@@ -576,11 +623,7 @@ impl<'a> Formatter<'a> {
                 .collect();
             let mut line = rendered.join(" ");
             if index == chunks.len() - 1 {
-                if self_closing {
-                    line.push_str(self.self_closing_suffix());
-                } else {
-                    line.push('>');
-                }
+                line.push_str(closer);
             }
             self.write_prefixed_line(&wrapped_prefix, &line);
         }

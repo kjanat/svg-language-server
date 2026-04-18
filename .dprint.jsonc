@@ -15,6 +15,7 @@
 			{ "command": "rustfmt --edition 2024", "exts": ["rs"] },
 			{ "command": "just --dump --justfile {{file_path}}", "fileNames": ["justfile"] },
 			{ "command": "cargo run --bin=svg-format", "exts": ["svg"] },
+			// { "command": "svg-format", "exts": ["svg"] },
 		],
 	},
 	"excludes": [

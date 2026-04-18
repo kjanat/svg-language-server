@@ -15,9 +15,11 @@ mod namespaces;
 mod rules;
 /// Public diagnostic data structures returned by the linter.
 pub mod types;
+mod version;
 
 use tree_sitter::Parser;
 pub use types::{CompatFlags, DiagnosticCode, LintOptions, LintOverrides, Severity, SvgDiagnostic};
+pub use version::{effective_profile, extract_declared_version};
 
 /// Parse source and lint.
 ///

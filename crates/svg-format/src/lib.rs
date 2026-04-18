@@ -559,11 +559,10 @@ impl<'a> Formatter<'a> {
         // continuation-alignment logic in `render_attribute_aligned`
         // assumes a known start column for the attribute name; packing
         // multiple such attributes per wrapped line would break that.
-        let has_multiline_value = tag.attributes.iter().any(|a| {
-            a.value
-                .as_ref()
-                .is_some_and(|v| v.raw.contains('\n'))
-        });
+        let has_multiline_value = tag
+            .attributes
+            .iter()
+            .any(|a| a.value.as_ref().is_some_and(|v| v.raw.contains('\n')));
         let per_line = if has_multiline_value {
             1
         } else {
@@ -632,20 +631,12 @@ impl<'a> Formatter<'a> {
     /// each continuation line's original leading whitespace and re-indents
     /// it, matching W3 SVG sample style where `<path d="M … " ` wrapping
     /// preserves logical path-command groupings under a stable column.
-    fn render_attribute_aligned(
-        &self,
-        attribute: &ParsedAttribute,
-        prefix: &str,
-    ) -> String {
+    fn render_attribute_aligned(&self, attribute: &ParsedAttribute, prefix: &str) -> String {
         let Some(value) = attribute.value.as_ref() else {
             return attribute.name.clone();
         };
         if !value.raw.contains('\n') {
-            return format!(
-                "{}={}",
-                attribute.name,
-                self.render_attribute_value(value)
-            );
+            return format!("{}={}", attribute.name, self.render_attribute_value(value));
         }
 
         let quote = match self.options.quote_style {

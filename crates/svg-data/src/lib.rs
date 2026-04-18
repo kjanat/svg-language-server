@@ -188,6 +188,27 @@ pub fn resolve_profile_id(input: &str) -> Option<SpecSnapshotId> {
         .find(|snapshot| profile_key_matches(*snapshot, &normalized_input))
 }
 
+/// Map the literal string from an SVG root `version` attribute to the
+/// closest catalogued snapshot.
+///
+/// `"1.0"` and `"1.1"` collapse to the SVG 1.1 Second Edition; `"2"` /
+/// `"2.0"` resolve to the current SVG 2 editor's draft. Any other value
+/// (including SVG Tiny `"1.2"`, empty, or garbage) returns `None` so
+/// callers fall back to the configured profile.
+///
+/// Intentionally narrower than [`resolve_profile_id`]: version attribute
+/// values live in their own enumerated space, and treating bare `"1.1"`
+/// as a general profile alias would be ambiguous when the user sets it
+/// as a config value.
+#[must_use]
+pub fn snapshot_for_svg_version_attr(value: &str) -> Option<SpecSnapshotId> {
+    match value.trim() {
+        "1.0" | "1.1" => Some(SpecSnapshotId::Svg11Rec20110816),
+        "2" | "2.0" => Some(SpecSnapshotId::Svg2EditorsDraft20250914),
+        _ => None,
+    }
+}
+
 /// Return the full generated SVG element catalog.
 #[must_use]
 pub fn elements() -> &'static [ElementDef] {
@@ -728,6 +749,42 @@ mod tests {
             resolve_profile_id("Svg2Draft"),
             Some(SpecSnapshotId::Svg2EditorsDraft20250914)
         );
+    }
+
+    #[test]
+    fn svg_version_attr_maps_known_literals() {
+        assert_eq!(
+            snapshot_for_svg_version_attr("1.0"),
+            Some(SpecSnapshotId::Svg11Rec20110816)
+        );
+        assert_eq!(
+            snapshot_for_svg_version_attr("1.1"),
+            Some(SpecSnapshotId::Svg11Rec20110816)
+        );
+        assert_eq!(
+            snapshot_for_svg_version_attr("2"),
+            Some(SpecSnapshotId::Svg2EditorsDraft20250914)
+        );
+        assert_eq!(
+            snapshot_for_svg_version_attr("2.0"),
+            Some(SpecSnapshotId::Svg2EditorsDraft20250914)
+        );
+    }
+
+    #[test]
+    fn svg_version_attr_trims_whitespace() {
+        assert_eq!(
+            snapshot_for_svg_version_attr("  1.1 \n"),
+            Some(SpecSnapshotId::Svg11Rec20110816)
+        );
+    }
+
+    #[test]
+    fn svg_version_attr_returns_none_for_unknown_values() {
+        assert!(snapshot_for_svg_version_attr("").is_none());
+        assert!(snapshot_for_svg_version_attr("1.2").is_none());
+        assert!(snapshot_for_svg_version_attr("garbage").is_none());
+        assert!(snapshot_for_svg_version_attr("3.0").is_none());
     }
 
     #[test]

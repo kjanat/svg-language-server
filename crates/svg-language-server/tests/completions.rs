@@ -302,3 +302,38 @@ fn completions_follow_selected_profile() -> TestResult {
     svg2_server.shutdown_and_exit()?;
     Ok(())
 }
+
+#[test]
+fn completions_follow_document_version_attribute() -> TestResult {
+    // Default server profile is SVG 2. A document declaring
+    // `version="1.1"` must auto-swap, so completions for `<use>` show
+    // `xlink:href` (SVG 1.1-only) instead of `href` (SVG 2-only).
+    let mut server = TestServer::start()?;
+
+    let doc = r#"<svg version="1.1" xmlns="http://www.w3.org/2000/svg"><use height="32" /></svg>"#;
+    server.open("file:///doc-driven-completion.svg", doc)?;
+
+    // Cursor positioned inside the `<use ...>` tag after `height="32" `.
+    // Column 71 is just after the closing quote of height and the space,
+    // before `/`. Completion should offer attribute names valid for the
+    // active (now SVG 1.1) profile.
+    let resp = server.request(
+        "textDocument/completion",
+        &json!({
+            "textDocument": { "uri": "file:///doc-driven-completion.svg" },
+            "position": { "line": 0, "character": 71 }
+        }),
+    )?;
+    let items = resp["result"]
+        .as_array()
+        .ok_or("completion result should be an array")?;
+    assert!(
+        items
+            .iter()
+            .any(|item| item["label"].as_str() == Some("xlink:href")),
+        "doc-driven SVG 1.1 profile should expose xlink:href in completions: {resp}"
+    );
+
+    server.shutdown_and_exit()?;
+    Ok(())
+}

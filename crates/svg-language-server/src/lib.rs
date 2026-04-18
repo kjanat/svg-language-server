@@ -95,6 +95,10 @@ const COPY_DATA_URI_ACTION_TITLE: &str = "Copy SVG as data URI";
 struct ProfileConfig {
     requested: Option<&'static str>,
     resolved: svg_data::SpecSnapshotId,
+    /// When true, `resolved` is used verbatim for every document; the
+    /// root `<svg version="X">` attribute is ignored. Lets users pin a
+    /// profile for workspaces that mix legacy and modern SVGs.
+    force: bool,
 }
 
 impl Default for ProfileConfig {
@@ -102,15 +106,20 @@ impl Default for ProfileConfig {
         Self {
             requested: None,
             resolved: svg_lint::LintOptions::default().profile,
+            force: false,
         }
     }
 }
 
 impl ProfileConfig {
-    const fn lint_options(self) -> svg_lint::LintOptions {
+    fn lint_options_for(self, doc: &DocumentState) -> svg_lint::LintOptions {
         svg_lint::LintOptions {
-            profile: self.resolved,
+            profile: self.effective_profile_for(doc),
         }
+    }
+
+    fn effective_profile_for(self, doc: &DocumentState) -> svg_data::SpecSnapshotId {
+        svg_lint::effective_profile(&doc.tree, doc.source.as_bytes(), self.resolved, self.force)
     }
 }
 
@@ -122,9 +131,25 @@ fn configured_profile(config: &Value) -> Option<&str> {
         .and_then(Value::as_str)
 }
 
+fn configured_force_profile(config: &Value) -> bool {
+    config
+        .get("svg")
+        .and_then(Value::as_object)
+        .and_then(|svg| svg.get("force_profile"))
+        .and_then(Value::as_bool)
+        .unwrap_or(false)
+}
+
 fn resolve_profile_config(config: &Value) -> (ProfileConfig, Option<String>) {
+    let force = configured_force_profile(config);
     let Some(requested) = configured_profile(config) else {
-        return (ProfileConfig::default(), None);
+        return (
+            ProfileConfig {
+                force,
+                ..ProfileConfig::default()
+            },
+            None,
+        );
     };
 
     if let Some(resolved) = svg_data::resolve_profile_id(requested) {
@@ -132,13 +157,17 @@ fn resolve_profile_config(config: &Value) -> (ProfileConfig, Option<String>) {
             ProfileConfig {
                 requested: Some(resolved.as_str()),
                 resolved,
+                force,
             },
             None,
         );
     }
 
     (
-        ProfileConfig::default(),
+        ProfileConfig {
+            force,
+            ..ProfileConfig::default()
+        },
         Some(format!(
             "Unknown SVG profile `{requested}`; falling back to {}.",
             svg_lint::LintOptions::default().profile.as_str()
@@ -474,8 +503,9 @@ impl SvgLanguageServer {
         docs.get(uri).cloned()
     }
 
-    async fn current_lint_inputs(
+    async fn current_lint_inputs_for(
         &self,
+        doc: &DocumentState,
     ) -> (svg_lint::LintOptions, Option<svg_lint::LintOverrides>) {
         let profile = *self.profile_config.read().await;
         let overrides = self
@@ -484,11 +514,21 @@ impl SvgLanguageServer {
             .await
             .as_ref()
             .map(RuntimeCompat::to_lint_overrides);
-        (profile.lint_options(), overrides)
+        (profile.lint_options_for(doc), overrides)
+    }
+
+    async fn effective_profile_for_doc(&self, doc: &DocumentState) -> svg_data::SpecSnapshotId {
+        self.profile_config.read().await.effective_profile_for(doc)
     }
 
     async fn relint_open_documents(&self) {
-        let (lint_options, overrides) = self.current_lint_inputs().await;
+        let profile_config = *self.profile_config.read().await;
+        let overrides = self
+            .runtime_compat
+            .read()
+            .await
+            .as_ref()
+            .map(RuntimeCompat::to_lint_overrides);
         let snapshot: Vec<_> = {
             let docs = self.documents.read().await;
             docs.iter()
@@ -498,6 +538,7 @@ impl SvgLanguageServer {
 
         for (uri, doc) in snapshot {
             let source_bytes = doc.source.as_bytes();
+            let lint_options = profile_config.lint_options_for(&doc);
             let lint_diags = svg_lint::lint_tree_with_options(
                 source_bytes,
                 &doc.tree,
@@ -558,7 +599,7 @@ impl SvgLanguageServer {
             tree,
         });
         let source_bytes = state.source.as_bytes();
-        let (lint_options, overrides) = self.current_lint_inputs().await;
+        let (lint_options, overrides) = self.current_lint_inputs_for(&state).await;
         let lint_diags = svg_lint::lint_tree_with_options(
             source_bytes,
             &state.tree,
@@ -804,7 +845,7 @@ impl LanguageServer for SvgLanguageServer {
             class_hover,
             property_hover,
         } = {
-            let profile = self.profile_config.read().await.resolved;
+            let profile = self.effective_profile_for_doc(&doc).await;
             let runtime_compat = self.runtime_compat.read().await;
             build_hover_context(uri, pos, &doc, profile, runtime_compat.as_ref())
         };
@@ -1042,7 +1083,7 @@ impl LanguageServer for SvgLanguageServer {
         }
 
         let response = {
-            let profile = self.profile_config.read().await.resolved;
+            let profile = self.effective_profile_for_doc(&doc).await;
             completion_from_context(source, &doc.tree, node, profile)
         };
         Ok(response)

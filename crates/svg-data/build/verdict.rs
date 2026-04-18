@@ -102,6 +102,14 @@ pub struct SpecFacts {
     /// When `lifecycle == Obsolete`, the most recent snapshot in which the
     /// feature was still defined. Used for `ProfileObsolete.last_seen`.
     pub last_seen: Option<String>,
+    /// Whether the caller's profile is the latest catalogued snapshot
+    /// (currently SVG 2 Editor's Draft). Under a non-latest profile,
+    /// BCD's `deprecated`/`experimental` flags are latest-era advice that
+    /// doesn't apply to the older era the user is targeting, so we skip
+    /// the matching verdict reasons. This mirrors the runtime lint
+    /// behaviour in `effective_catalog_flags` — both layers agree that
+    /// BCD advice is scoped to the latest profile.
+    pub is_latest_profile: bool,
 }
 
 /// Compute the verdict for a single entry × profile.
@@ -137,11 +145,17 @@ pub fn compute(compat: Option<&CompatEntry>, spec: SpecFacts) -> Verdict {
 
     if let Some(compat_entry) = compat {
         // Rule 3: BCD deprecated → Avoid.
-        if compat_entry.deprecated {
+        //
+        // Only surface under the latest profile. BCD deprecation is
+        // forward-looking advice ("don't use this in new web work") that
+        // doesn't apply when the caller explicitly selected an older
+        // profile — e.g. xlink:href was canonical in SVG 1.1 and only
+        // "deprecated" from SVG 2's perspective.
+        if compat_entry.deprecated && spec.is_latest_profile {
             reasons.push(Reason::BcdDeprecated);
         }
-        // Rule 4: BCD experimental → Avoid.
-        if compat_entry.experimental {
+        // Rule 4: BCD experimental → Avoid. Same scoping as Rule 3.
+        if compat_entry.experimental && spec.is_latest_profile {
             reasons.push(Reason::BcdExperimental);
         }
 

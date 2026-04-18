@@ -430,7 +430,7 @@ fn profile_key_matches(snapshot: SpecSnapshotId, normalized_input: &str) -> bool
             .any(|alias| normalize_profile_key(alias) == normalized_input)
 }
 
-fn lookup_for_profile<T: Copy + HasSpecLifecycle>(
+fn lookup_for_profile<T: Copy>(
     profile: SpecSnapshotId,
     value: T,
     known_in: &'static [SpecSnapshotId],
@@ -441,44 +441,53 @@ fn lookup_for_profile<T: Copy + HasSpecLifecycle>(
 
     ProfileLookup::Present {
         value,
-        lifecycle: lifecycle_for_profile(profile, known_in, value.spec_lifecycle()),
+        lifecycle: lifecycle_for_profile(profile, known_in),
     }
 }
 
+/// Tip of the catalogued snapshot timeline. The union `spec_lifecycle`
+/// baked onto each catalog entry is "latest-relative" — e.g. an
+/// attribute present in SVG 1.1 but removed from this snapshot gets
+/// stamped [`SpecLifecycle::Obsolete`]. That stamp is misleading when a
+/// caller selects an older profile in which the attribute is still
+/// defined, so `lifecycle_for_profile` ignores it and recomputes from
+/// per-profile membership.
+const LATEST_SNAPSHOT: SpecSnapshotId = SpecSnapshotId::Svg2EditorsDraft20250914;
+
+/// Compute the lifecycle signal for `profile` given the membership list.
+///
+/// Precondition: `profile` is in `known_in` (callers hit the
+/// `UnsupportedInProfile` branch otherwise). The function picks
+/// [`SpecLifecycle::Experimental`] when the feature lives only in an
+/// unstable tip (`LATEST_SNAPSHOT`-only or draft-not-yet-in-stable-base),
+/// and [`SpecLifecycle::Stable`] everywhere else.
+///
+/// Mirrors `spec_facts_for_profile` in `build.rs`, which drives the
+/// hover verdict builder. Keeping the two definitions aligned prevents
+/// lint diagnostics and hover verdicts from disagreeing about whether a
+/// feature is obsolete in a given profile.
 fn lifecycle_for_profile(
     profile: SpecSnapshotId,
     known_in: &'static [SpecSnapshotId],
-    union_lifecycle: SpecLifecycle,
 ) -> SpecLifecycle {
-    if union_lifecycle != SpecLifecycle::Stable {
-        return union_lifecycle;
+    debug_assert!(
+        known_in.contains(&profile),
+        "lifecycle_for_profile called for profile absent from known_in"
+    );
+
+    // Latest-only membership = experimental in the tip.
+    if profile == LATEST_SNAPSHOT && known_in == [LATEST_SNAPSHOT] {
+        return SpecLifecycle::Experimental;
     }
 
-    let Some(stable_base) = snapshot_metadata(profile).stable_base else {
-        return SpecLifecycle::Stable;
-    };
-
-    if known_in.contains(&stable_base) {
-        SpecLifecycle::Stable
-    } else {
-        SpecLifecycle::Experimental
+    // Draft profile whose feature hasn't landed in the stable base yet.
+    if let Some(stable_base) = snapshot_metadata(profile).stable_base
+        && !known_in.contains(&stable_base)
+    {
+        return SpecLifecycle::Experimental;
     }
-}
 
-trait HasSpecLifecycle {
-    fn spec_lifecycle(self) -> SpecLifecycle;
-}
-
-impl HasSpecLifecycle for &'static ElementDef {
-    fn spec_lifecycle(self) -> SpecLifecycle {
-        self.spec_lifecycle
-    }
-}
-
-impl HasSpecLifecycle for &'static AttributeDef {
-    fn spec_lifecycle(self) -> SpecLifecycle {
-        self.spec_lifecycle
-    }
+    SpecLifecycle::Stable
 }
 
 fn normalize_profile_key(input: &str) -> String {
@@ -804,9 +813,27 @@ mod tests {
             lifecycle_for_profile(
                 SpecSnapshotId::Svg2EditorsDraft20250914,
                 &[SpecSnapshotId::Svg2EditorsDraft20250914],
-                SpecLifecycle::Stable,
             ),
             SpecLifecycle::Experimental
+        );
+    }
+
+    #[test]
+    fn non_latest_profile_with_membership_is_stable_regardless_of_union() {
+        // Before the profile-aware fix, this would have returned Obsolete
+        // because the attribute isn't in the LATEST snapshot. Now the
+        // function consults per-profile membership directly: if you ask
+        // about SVG 1.1 for an attribute that exists in SVG 1.1, you get
+        // Stable.
+        assert_eq!(
+            lifecycle_for_profile(
+                SpecSnapshotId::Svg11Rec20110816,
+                &[
+                    SpecSnapshotId::Svg11Rec20030114,
+                    SpecSnapshotId::Svg11Rec20110816,
+                ],
+            ),
+            SpecLifecycle::Stable
         );
     }
 
@@ -959,27 +986,31 @@ mod tests {
     }
 
     #[test]
-    fn verdict_xlink_href_is_avoid_in_svg11() -> Result<(), Box<dyn Error>> {
-        // `xlink:href` is the canonical "still defined but deprecated"
-        // fixture. In SVG 1.1 where it remains in membership, the
-        // verdict should be Avoid (not Forbid — that's reserved for
-        // features absent from the selected profile entirely) with
-        // BcdDeprecated among its reasons.
+    fn verdict_xlink_href_under_declared_svg11_profile_omits_bcd_reasons()
+    -> Result<(), Box<dyn Error>> {
+        // xlink:href was the canonical SVG 1.1 linking attribute; its BCD
+        // `deprecated` flag only reflects its SVG 2 replacement by `href`.
+        // Under the user-declared SVG 1.1 profile, that latest-era advice
+        // is stripped: the verdict must NOT carry BcdDeprecated, and the
+        // hover tier must not escalate to Avoid from BCD alone. Caution
+        // tier signals from browser-support baseline remain legitimate.
         let href = attribute("xlink:href").ok_or("xlink:href should exist")?;
         let verdict = compat_verdict_for_attribute(href, SpecSnapshotId::Svg11Rec20110816)
             .ok_or("xlink:href should have a verdict in SVG 1.1")?;
 
         assert!(
-            matches!(verdict.recommendation, VerdictRecommendation::Avoid),
-            "xlink:href in SVG 1.1 must be Avoid, got {:?}",
-            verdict.recommendation
-        );
-        assert!(
-            verdict
+            !verdict
                 .reasons
                 .iter()
                 .any(|r| matches!(r, VerdictReason::BcdDeprecated)),
-            "xlink:href verdict should carry BcdDeprecated reason: {verdict:?}"
+            "xlink:href in SVG 1.1 must not carry BcdDeprecated: {verdict:?}"
+        );
+        assert!(
+            !matches!(
+                verdict.recommendation,
+                VerdictRecommendation::Avoid | VerdictRecommendation::Forbid
+            ),
+            "xlink:href in SVG 1.1 must not escalate to Avoid/Forbid from BCD: {verdict:?}"
         );
         Ok(())
     }

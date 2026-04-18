@@ -872,6 +872,7 @@ fn spec_facts_for_profile(
     present_in: &[SpecSnapshotId],
     profile: SpecSnapshotId,
 ) -> verdict::SpecFacts {
+    let is_latest_profile = profile == LATEST_SNAPSHOT;
     if present_in.contains(&profile) {
         // Feature is defined in this profile: lifecycle is Stable unless
         // the feature only exists in the latest experimental snapshot.
@@ -883,6 +884,7 @@ fn spec_facts_for_profile(
         verdict::SpecFacts {
             lifecycle,
             last_seen: None,
+            is_latest_profile,
         }
     } else {
         // Not present in this profile: obsolete. `last_seen` is the most
@@ -891,6 +893,7 @@ fn spec_facts_for_profile(
         verdict::SpecFacts {
             lifecycle: types::SpecLifecycle::Obsolete,
             last_seen,
+            is_latest_profile,
         }
     }
 }

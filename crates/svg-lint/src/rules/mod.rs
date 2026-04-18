@@ -537,10 +537,7 @@ fn element_diagnostic_lifecycle(
 ) -> SpecLifecycle {
     diagnostic_lifecycle(
         lifecycle,
-        CompatFlags {
-            deprecated: value.deprecated,
-            experimental: value.experimental,
-        },
+        effective_catalog_flags(ctx.options.profile, value.deprecated, value.experimental),
         ctx.overrides
             .and_then(|overrides| overrides.elements.get(element_name)),
     )
@@ -554,13 +551,38 @@ fn attribute_diagnostic_lifecycle(
 ) -> SpecLifecycle {
     diagnostic_lifecycle(
         lifecycle,
-        CompatFlags {
-            deprecated: value.deprecated,
-            experimental: value.experimental,
-        },
+        effective_catalog_flags(ctx.options.profile, value.deprecated, value.experimental),
         ctx.overrides
             .and_then(|overrides| overrides.attributes.get(attribute_name)),
     )
+}
+
+/// The catalog's baked `deprecated` / `experimental` flags come from BCD,
+/// which encodes latest-era advice — "don't use this in new web work".
+/// When the caller selected a non-latest profile they are deliberately
+/// targeting an older spec where those flags don't apply (the canonical
+/// example: `xlink:href` was the standard linking attribute in SVG 1.1;
+/// BCD's deprecation reflects its SVG 2 removal). Zero the flags in that
+/// case so diagnostic promotion only fires under the latest profile.
+///
+/// Runtime overrides are applied downstream and are unaffected — they're
+/// intentional user-set signals, not catalog-baked ones.
+fn effective_catalog_flags(
+    profile: svg_data::SpecSnapshotId,
+    deprecated: bool,
+    experimental: bool,
+) -> CompatFlags {
+    if profile == svg_data::SpecSnapshotId::Svg2EditorsDraft20250914 {
+        CompatFlags {
+            deprecated,
+            experimental,
+        }
+    } else {
+        CompatFlags {
+            deprecated: false,
+            experimental: false,
+        }
+    }
 }
 
 fn unknown_element_message(name: &str) -> String {

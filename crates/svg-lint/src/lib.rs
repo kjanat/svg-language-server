@@ -656,60 +656,43 @@ mod tests {
     }
 
     #[test]
-    fn obsolete_attribute_fires_with_dedicated_code_for_xlink_href_in_svg11() {
-        // `xlink:href` is the legitimate fixture for the ObsoleteAttribute
-        // code: still present in SVG 1.1 membership, but its union lifecycle
-        // is `Obsolete` (BCD says deprecated, the exceptions allowlist
-        // confirms this is an intentional state). The lint path should use
-        // the new dedicated `ObsoleteAttribute` code rather than reusing
-        // `DeprecatedAttribute` — this gives users a separate suppression
-        // knob for the stronger signal.
+    fn xlink_href_is_clean_under_declared_svg11_profile() {
+        // xlink:href was the canonical linking attribute in SVG 1.1; its
+        // "deprecated" status in BCD reflects SVG 2's replacement by
+        // `href`, not any SVG-1.1-era deprecation. When the caller has
+        // explicitly selected the SVG 1.1 profile, they are working in
+        // the era where xlink:href was standard — latest-era BCD advice
+        // is noise. No lifecycle diagnostic should fire.
         let src =
-            br##"<svg xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="#icon"/></svg>"##;
+            br##"<svg xmlns:xlink="http://www.w3.org/1999/xlink"><defs><g id="icon"/></defs><use xlink:href="#icon"/></svg>"##;
         let diags = lint_with_options(
             src,
             LintOptions {
                 profile: svg_data::SpecSnapshotId::Svg11Rec20110816,
             },
         );
-
-        let obsolete = diags
-            .iter()
-            .find(|d| d.code == DiagnosticCode::ObsoleteAttribute);
-        assert!(
-            obsolete.is_some(),
-            "xlink:href must fire ObsoleteAttribute in SVG 1.1: {diags:?}"
-        );
-        assert!(
-            obsolete.is_some_and(|d| d.message.contains("obsolete")),
-            "obsolete message should name the state: {diags:?}"
-        );
-        // The verdict for xlink:href carries `BcdDeprecated` — the message
-        // should mirror the hover Status line by surfacing it.
-        assert!(
-            obsolete.is_some_and(|d| d.message.contains("BCD-deprecated")),
-            "obsolete message should reinforce with BCD origin from verdict: {diags:?}"
-        );
         assert!(
             !diags
                 .iter()
-                .any(|d| d.code == DiagnosticCode::DeprecatedAttribute),
-            "ObsoleteAttribute should not also emit DeprecatedAttribute: {diags:?}"
+                .any(|d| d.code == DiagnosticCode::ObsoleteAttribute
+                    || d.code == DiagnosticCode::DeprecatedAttribute),
+            "xlink:href must be clean under SVG 1.1 profile: {diags:?}"
         );
     }
 
     #[test]
-    fn deprecated_attribute_message_surfaces_bcd_origin_from_verdict() {
-        // When the verdict's reasons include `BcdDeprecated`, the lint
-        // message should match the hover Status line by surfacing the
-        // BCD origin. Uses `glyph-orientation-vertical` in SVG 1.1 where
-        // the attribute is still defined but BCD-deprecated, so only the
-        // DeprecatedAttribute rule (not ObsoleteAttribute) fires.
+    fn deprecated_attribute_message_surfaces_bcd_origin_under_latest_profile() {
+        // Under the latest profile (SVG 2 Editor's Draft), BCD deprecation
+        // is honoured. `glyph-orientation-vertical` is defined in SVG 2
+        // (via the obsolescence exception allowlist) so lookup succeeds,
+        // lifecycle resolves Stable, and the BCD `deprecated: true` flag
+        // promotes the diagnostic to DeprecatedAttribute with the
+        // verdict-derived BCD message.
         let src = br#"<svg><text glyph-orientation-vertical="0">x</text></svg>"#;
         let diags = lint_with_options(
             src,
             LintOptions {
-                profile: svg_data::SpecSnapshotId::Svg11Rec20110816,
+                profile: svg_data::SpecSnapshotId::Svg2EditorsDraft20250914,
             },
         );
 
@@ -718,7 +701,27 @@ mod tests {
             .find(|d| d.code == DiagnosticCode::DeprecatedAttribute);
         assert!(
             dep.is_some_and(|d| d.message.contains("BCD-deprecated")),
-            "deprecated message should read from verdict reasons: {diags:?}"
+            "deprecated message should read from verdict reasons under latest: {diags:?}"
+        );
+    }
+
+    #[test]
+    fn glyph_orientation_vertical_is_clean_under_declared_svg11_profile() {
+        // Symmetry with xlink:href: under the user-declared SVG 1.1
+        // profile, BCD-deprecated is latest-era advice that doesn't apply.
+        let src = br#"<svg><text glyph-orientation-vertical="0">x</text></svg>"#;
+        let diags = lint_with_options(
+            src,
+            LintOptions {
+                profile: svg_data::SpecSnapshotId::Svg11Rec20110816,
+            },
+        );
+        assert!(
+            !diags
+                .iter()
+                .any(|d| d.code == DiagnosticCode::ObsoleteAttribute
+                    || d.code == DiagnosticCode::DeprecatedAttribute),
+            "glyph-orientation-vertical must be clean under SVG 1.1: {diags:?}"
         );
     }
 
@@ -802,5 +805,25 @@ mod tests {
             "runtime overrides should add experimental element diagnostics: {diags:?}"
         );
         Ok(())
+    }
+
+    #[test]
+    fn spec_declarator_attributes_clean_under_declared_profile() {
+        // `version` and `baseProfile` were the SVG 1.1 way to declare the
+        // profile a document targets. Under the SVG 1.1 profile they must
+        // be silent — any diagnostic is noise on the document's own
+        // profile-declaration tags. This is the end-state the doc-driven
+        // profile swap has been building toward.
+        let src = br#"<svg version="1.1" baseProfile="full" xmlns="http://www.w3.org/2000/svg"/>"#;
+        let diags = lint_with_options(
+            src,
+            LintOptions {
+                profile: svg_data::SpecSnapshotId::Svg11Rec20110816,
+            },
+        );
+        assert!(
+            diags.is_empty(),
+            "version/baseProfile must not diagnose under their own declared profile: {diags:?}"
+        );
     }
 }

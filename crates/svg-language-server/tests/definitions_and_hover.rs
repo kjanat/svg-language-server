@@ -459,14 +459,23 @@ fn hover_shows_profile_lifecycle_separately_from_browser_support() -> TestResult
     let svg11_hover_value = svg11_hover["result"]["contents"]["value"]
         .as_str()
         .ok_or("SVG 1.1 hover markdown")?;
-    // In SVG 1.1 profile, xlink:href is defined but BCD-deprecated. The
-    // verdict-driven hover shows ⊘ deprecated (not Forbid/removed) because
-    // the attribute is still present in the active profile.
+    // Under the user-declared SVG 1.1 profile, xlink:href was the canonical
+    // linking attribute. BCD's "deprecated" flag reflects its SVG 2
+    // replacement by `href` — latest-era advice that must NOT surface
+    // under a non-latest profile. The hover must not show ⊘ Avoid /
+    // ✗ Forbid nor any "deprecated"/"removed" wording. Baseline signals
+    // (Caution tier) are profile-independent and may still surface.
     assert!(
-        svg11_hover_value.contains("\u{2298}")
-            && svg11_hover_value.contains("xlink:href")
-            && svg11_hover_value.contains("deprecated"),
-        "SVG 1.1 hover for xlink:href should display ⊘ deprecated verdict: {svg11_hover_value}"
+        svg11_hover_value.contains("xlink:href"),
+        "SVG 1.1 hover should still identify xlink:href: {svg11_hover_value}"
+    );
+    assert!(
+        !svg11_hover_value.contains("\u{2298}") && !svg11_hover_value.contains("\u{2717}"),
+        "SVG 1.1 hover for xlink:href must not show Avoid/Forbid glyphs: {svg11_hover_value}"
+    );
+    assert!(
+        !svg11_hover_value.to_lowercase().contains("deprecated"),
+        "SVG 1.1 verdict must not mention deprecation for the profile's canonical attribute: {svg11_hover_value}"
     );
     assert!(
         !svg11_hover_value.contains("removed after"),

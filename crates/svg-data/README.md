@@ -29,3 +29,13 @@ Each entry includes description, MDN URL, deprecation flag, baseline browser sup
 [MDN browser-compat-data]: https://github.com/mdn/browser-compat-data
 [web-features]: https://github.com/nicedoc/web-features
 [svg-language-server]: https://github.com/kjanat/svg-language-server
+
+## TODO
+
+- [ ] **MDN BCD per-file lookups (LSP runtime overlay):** `@mdn/browser-compat-data` ships
+      individual JSON files per feature (e.g. `svg/elements/circle.json`), accessible via
+      jsdelivr. The svg-compat worker already processes the full BCD bundle at build time;
+      the LSP could additionally lazy-fetch individual per-feature files at runtime for
+      fresher overrides, complementing the existing `RuntimeCompat` startup fetch. Any
+      network access must remain opt-in so offline builds continue to work.
+  - [ ] Eval. if we want to implement this in the first place.

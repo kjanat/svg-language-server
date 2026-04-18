@@ -1,0 +1,6511 @@
+[
+	{
+		"name": "accumulate",
+		"title": "Controls whether an animation is cumulative.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-accumulate"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "accumulate"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "additive",
+		"title": "Controls whether an animation is additive.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-additive"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "additive"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "alignment-baseline",
+		"title": "The alignment-baseline SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "alignment-baseline"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "amplitude",
+		"title": "Defines the amplitude of the gamma transfer function.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "amplitude"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "async",
+		"title": "The async SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "async"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "attributeName",
+		"title": "The attributeName SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "attributeName"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "attributeType",
+		"title": "The attributeType SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "attributeType"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "autofocus",
+		"title": "The autofocus SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "autofocus"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "azimuth",
+		"title": "The azimuth SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "azimuth"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "baseFrequency",
+		"title": "The baseFrequency SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "baseFrequency"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "baseline-shift",
+		"title": "The baseline-shift SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "baseline-shift"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "begin",
+		"title": "Defines when an animation element should begin.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "svg-animations",
+			"target": "begin"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "begin"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "svg-animations",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://svgwg.org/specs/animations/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "begin"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "bias",
+		"title": "The bias SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "bias"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "by",
+		"title": "The by SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "by"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "calcMode",
+		"title": "The calcMode SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "calcMode"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "class",
+		"title": "Assigns CSS class names.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "class"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "clip-path",
+		"title": "Defines a clipping path.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-masking-1",
+			"target": "clip-path"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "clip-path"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-masking-1",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://drafts.fxtf.org/css-masking-1/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "clip-path"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "clip-rule",
+		"title": "Defines the clipping algorithm.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-clip-rule"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "clip-rule"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "clipPathUnits",
+		"title": "The clipPathUnits SVG attribute.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-masking-1",
+			"target": "clipPathUnits"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "clipPathUnits"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-masking-1",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://drafts.fxtf.org/css-masking-1/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "clipPathUnits"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "color",
+		"title": "Defines the value for the currentColor keyword.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-color-4",
+			"target": "<color>"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "color"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-color-4",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://drafts.csswg.org/css-color-4/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "<color>"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "color-interpolation",
+		"title": "The color-interpolation SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "color-interpolation"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "color-interpolation-filters",
+		"title": "The color-interpolation-filters SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "color-interpolation-filters"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "crossorigin",
+		"title": "The crossorigin SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "crossorigin"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "cursor",
+		"title": "The cursor SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "cursor"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "cx",
+		"title": "Defines the x coordinate of the center.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-values-3",
+			"target": "<length>"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "cx"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-values-3",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/css-values-3/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "<length>"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "cy",
+		"title": "Defines the y coordinate of the center.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-values-3",
+			"target": "<length>"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "cy"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-values-3",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/css-values-3/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "<length>"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "d",
+		"title": "Defines a path to be drawn.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "path-data"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "d"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "decoding",
+		"title": "The decoding SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "decoding"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "defer",
+		"title": "The defer SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "defer"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "diffuseConstant",
+		"title": "The diffuseConstant SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "diffuseConstant"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "direction",
+		"title": "The direction SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "direction"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "display",
+		"title": "Controls whether an element is rendered.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-display"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "display"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "divisor",
+		"title": "The divisor SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "divisor"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "dominant-baseline",
+		"title": "Defines the dominant baseline.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-dominant-baseline"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "dominant-baseline"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "download",
+		"title": "The download SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "download"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "dur",
+		"title": "The dur SVG attribute.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "svg-animations",
+			"target": "dur"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "dur"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "svg-animations",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://svgwg.org/specs/animations/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "dur"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "dx",
+		"title": "The dx SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "dx"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "dy",
+		"title": "The dy SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "dy"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "edgeMode",
+		"title": "The edgeMode SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "edgeMode"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "elevation",
+		"title": "The elevation SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "elevation"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "end",
+		"title": "Defines an end value for an animation element.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "svg-animations",
+			"target": "end"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "end"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "svg-animations",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://svgwg.org/specs/animations/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "end"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "exponent",
+		"title": "Defines the exponent of the gamma transfer function.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "exponent"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "fetchpriority",
+		"title": "The fetchpriority SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "fetchpriority"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "fill",
+		"title": "Defines the color used to paint the interior of the element.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-color-4",
+			"target": "<color>"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "fill"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-color-4",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://drafts.csswg.org/css-color-4/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "<color>"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "fill-opacity",
+		"title": "Defines the opacity of the fill.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-values-3",
+			"target": "<number-or-percentage>"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "fill-opacity"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-values-3",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/css-values-3/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "<number-or-percentage>"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "fill-rule",
+		"title": "Defines the algorithm for determining the interior of a shape.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-fill-rule"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "fill-rule"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "filter",
+		"title": "Defines a filter effect.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "filter-effects-1",
+			"target": "filter"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "filter"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "filter-effects-1",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://drafts.fxtf.org/filter-effects/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "filter"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "filterUnits",
+		"title": "The filterUnits SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "filterUnits"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "flood-color",
+		"title": "The flood-color SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "flood-color"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "flood-opacity",
+		"title": "The flood-opacity SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "flood-opacity"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "font-family",
+		"title": "Specifies the font family.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "font-family"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "font-size",
+		"title": "Specifies the size of the font.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-values-3",
+			"target": "<length>"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "font-size"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-values-3",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/css-values-3/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "<length>"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "font-size-adjust",
+		"title": "The font-size-adjust SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "font-size-adjust"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "font-stretch",
+		"title": "The font-stretch SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "font-stretch"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "font-style",
+		"title": "Specifies the style of the font.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-font-style"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "font-style"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "font-variant",
+		"title": "The font-variant SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "font-variant"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "font-weight",
+		"title": "Specifies the weight of the font.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-font-weight"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "font-weight"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "font-width",
+		"title": "The font-width SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "font-width"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "fr",
+		"title": "The fr SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "fr"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "from",
+		"title": "The from SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "from"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "fx",
+		"title": "The fx SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "fx"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "fy",
+		"title": "The fy SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "fy"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "glyph-orientation-vertical",
+		"title": "The glyph-orientation-vertical SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "glyph-orientation-vertical"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "gradientTransform",
+		"title": "Defines a transformation for the gradient.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "transform-list-translate-rotate-scale-skewx-skewy-matrix"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "gradientTransform"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "gradientUnits",
+		"title": "Defines the coordinate system for gradient attributes.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-gradientunits"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "gradientUnits"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "height",
+		"title": "Defines the height.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-values-3",
+			"target": "<length>"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "height"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-values-3",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/css-values-3/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "<length>"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "href",
+		"title": "References another element or resource.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "url-reference"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "href"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "hreflang",
+		"title": "The hreflang SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "hreflang"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "id",
+		"title": "Defines a unique identifier.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "id"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "image-rendering",
+		"title": "The image-rendering SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "image-rendering"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "in",
+		"title": "Identifies the input for the filter primitive.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-in"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "in"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "in2",
+		"title": "The in2 SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "in2"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "intercept",
+		"title": "Defines the intercept of the linear transfer function.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "intercept"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "interestfor",
+		"title": "The interestfor SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "interestfor"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "k1",
+		"title": "The k1 SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "k1"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "k2",
+		"title": "The k2 SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "k2"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "k3",
+		"title": "The k3 SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "k3"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "k4",
+		"title": "The k4 SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "k4"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "kernelMatrix",
+		"title": "The kernelMatrix SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "kernelMatrix"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "kernelUnitLength",
+		"title": "The kernelUnitLength SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "kernelUnitLength"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "keyPoints",
+		"title": "The keyPoints SVG attribute.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "svg-animations",
+			"target": "keyPoints"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "keyPoints"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "svg-animations",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://svgwg.org/specs/animations/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "keyPoints"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "keySplines",
+		"title": "Defines a set of Bezier control points associated with the keyTimes list.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "svg-animations",
+			"target": "keySplines"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "keySplines"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "svg-animations",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://svgwg.org/specs/animations/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "keySplines"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "keyTimes",
+		"title": "Specifies a semicolon-separated list of time values used to control the pacing of the animation.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "svg-animations",
+			"target": "keyTimes"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "keyTimes"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "svg-animations",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://svgwg.org/specs/animations/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "keyTimes"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "lang",
+		"title": "The lang SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "lang"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "lengthAdjust",
+		"title": "The lengthAdjust SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "lengthAdjust"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "letter-spacing",
+		"title": "The letter-spacing SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "letter-spacing"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "lighting-color",
+		"title": "The lighting-color SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "lighting-color"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "limitingConeAngle",
+		"title": "The limitingConeAngle SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "limitingConeAngle"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "marker-end",
+		"title": "The marker-end SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "marker-end"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "marker-mid",
+		"title": "The marker-mid SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "marker-mid"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "marker-start",
+		"title": "The marker-start SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "marker-start"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "markerHeight",
+		"title": "The markerHeight SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "markerHeight"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "markerUnits",
+		"title": "The markerUnits SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "markerUnits"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "markerWidth",
+		"title": "The markerWidth SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "markerWidth"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "mask",
+		"title": "Defines a mask.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-masking-1",
+			"target": "mask"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "mask"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-masking-1",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://drafts.fxtf.org/css-masking-1/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "mask"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "maskContentUnits",
+		"title": "The maskContentUnits SVG attribute.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-masking-1",
+			"target": "maskContentUnits"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "maskContentUnits"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-masking-1",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://drafts.fxtf.org/css-masking-1/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "maskContentUnits"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "maskUnits",
+		"title": "The maskUnits SVG attribute.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-masking-1",
+			"target": "maskUnits"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "maskUnits"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-masking-1",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://drafts.fxtf.org/css-masking-1/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "maskUnits"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "media",
+		"title": "The media SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "media"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "method",
+		"title": "Specifies the rendering of text along a path; align or stretch.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "method"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "mode",
+		"title": "The mode SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "mode"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "numOctaves",
+		"title": "The numOctaves SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "numOctaves"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "offset",
+		"title": "Defines the position of a gradient stop.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-values-3",
+			"target": "<number-or-percentage>"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "offset"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-values-3",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/css-values-3/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "<number-or-percentage>"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "opacity",
+		"title": "Defines the transparency of the element.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-values-3",
+			"target": "<number-or-percentage>"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "opacity"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-values-3",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/css-values-3/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "<number-or-percentage>"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "operator",
+		"title": "The operator SVG attribute.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "compositing-1",
+			"target": "operator"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "operator"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "compositing-1",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2015/CR-compositing-1-20150113/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "operator"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "order",
+		"title": "The order SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "order"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "orient",
+		"title": "The orient SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "orient"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "origin",
+		"title": "The origin SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "origin"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "overflow",
+		"title": "Controls overflow behavior.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-overflow"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "overflow"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "paint-order",
+		"title": "The paint-order SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "paint-order"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "path",
+		"title": "The path SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "path"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "patternContentUnits",
+		"title": "The patternContentUnits SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "patternContentUnits"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "patternTransform",
+		"title": "The patternTransform SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "patternTransform"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "patternUnits",
+		"title": "The patternUnits SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "patternUnits"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "ping",
+		"title": "The ping SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "ping"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "pointer-events",
+		"title": "Controls when the element responds to pointer events.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-pointer-events"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "pointer-events"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "points",
+		"title": "Defines the list of points.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "points"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "points"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "pointsAtX",
+		"title": "The pointsAtX SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "pointsAtX"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "pointsAtY",
+		"title": "The pointsAtY SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "pointsAtY"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "pointsAtZ",
+		"title": "The pointsAtZ SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "pointsAtZ"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "preserveAlpha",
+		"title": "The preserveAlpha SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "preserveAlpha"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "preserveAspectRatio",
+		"title": "Defines how the viewBox scales to fit the viewport.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "preserve-aspect-ratio"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "preserveAspectRatio"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "primitiveUnits",
+		"title": "The primitiveUnits SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "primitiveUnits"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "r",
+		"title": "Defines the radius.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-values-3",
+			"target": "<length>"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "r"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-values-3",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/css-values-3/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "<length>"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "radius",
+		"title": "The radius SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "radius"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "refX",
+		"title": "The refX SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "refX"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "refY",
+		"title": "The refY SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "refY"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "referrerpolicy",
+		"title": "The referrerpolicy SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "referrerpolicy"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "rel",
+		"title": "The rel SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "rel"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "repeatCount",
+		"title": "The repeatCount SVG attribute.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "svg-animations",
+			"target": "repeatCount"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "repeatCount"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "svg-animations",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://svgwg.org/specs/animations/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "repeatCount"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "repeatDur",
+		"title": "Specifies the total duration for repeating an animation.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "svg-animations",
+			"target": "repeatDur"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "repeatDur"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "svg-animations",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://svgwg.org/specs/animations/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "repeatDur"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "requiredExtensions",
+		"title": "The requiredExtensions SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "requiredExtensions"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "restart",
+		"title": "Controls the circumstances under which an animation can be restarted.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "svg-animations",
+			"target": "restart"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "restart"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "svg-animations",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://svgwg.org/specs/animations/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "restart"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "result",
+		"title": "Assigns a name to a filter primitive output for use by subsequent filter primitives.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "result"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "rotate",
+		"title": "The rotate SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "rotate"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "rx",
+		"title": "Defines the horizontal radius.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-values-3",
+			"target": "<length>"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "rx"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-values-3",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/css-values-3/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "<length>"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "ry",
+		"title": "Defines the vertical radius.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-values-3",
+			"target": "<length>"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "ry"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-values-3",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/css-values-3/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "<length>"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "scale",
+		"title": "The scale SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "scale"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "seed",
+		"title": "The seed SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "seed"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "shape-rendering",
+		"title": "The shape-rendering SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "shape-rendering"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "side",
+		"title": "The side SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "side"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "slope",
+		"title": "Defines the slope of the linear transfer function.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "slope"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "spacing",
+		"title": "The spacing SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "spacing"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "specularConstant",
+		"title": "The specularConstant SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "specularConstant"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "specularExponent",
+		"title": "The specularExponent SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "specularExponent"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "spreadMethod",
+		"title": "Defines how the gradient spreads beyond its bounds.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-spreadmethod"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "spreadMethod"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "startOffset",
+		"title": "The startOffset SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "startOffset"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "stdDeviation",
+		"title": "Defines the standard deviation for the blur.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "stdDeviation"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "stitchTiles",
+		"title": "The stitchTiles SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "stitchTiles"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "stop-color",
+		"title": "Defines the color of a gradient stop.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-color-4",
+			"target": "<color>"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "stop-color"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-color-4",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://drafts.csswg.org/css-color-4/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "<color>"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "stop-opacity",
+		"title": "Defines the opacity of a gradient stop.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-values-3",
+			"target": "<number-or-percentage>"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "stop-opacity"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-values-3",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/css-values-3/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "<number-or-percentage>"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "stroke",
+		"title": "Defines the color used to paint the outline of the element.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-color-4",
+			"target": "<color>"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "stroke"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-color-4",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://drafts.csswg.org/css-color-4/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "<color>"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "stroke-dasharray",
+		"title": "Defines the pattern of dashes and gaps for a stroke.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "stroke-dasharray"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "stroke-dashoffset",
+		"title": "The stroke-dashoffset SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "stroke-dashoffset"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "stroke-linecap",
+		"title": "Defines the shape at the end of open subpaths.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-stroke-linecap"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "stroke-linecap"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "stroke-linejoin",
+		"title": "Defines the shape at the corners of stroked paths.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-stroke-linejoin"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "stroke-linejoin"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "stroke-miterlimit",
+		"title": "The stroke-miterlimit SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "stroke-miterlimit"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "stroke-opacity",
+		"title": "Defines the opacity of the stroke.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-values-3",
+			"target": "<number-or-percentage>"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "stroke-opacity"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-values-3",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/css-values-3/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "<number-or-percentage>"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "stroke-width",
+		"title": "Defines the width of the stroke.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-values-3",
+			"target": "<length>"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "stroke-width"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-values-3",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/css-values-3/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "<length>"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "style",
+		"title": "Defines inline CSS styles.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "style"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "surfaceScale",
+		"title": "The surfaceScale SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "surfaceScale"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "systemLanguage",
+		"title": "The systemLanguage SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "systemLanguage"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "tabindex",
+		"title": "The tabindex SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "tabindex"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "tableValues",
+		"title": "Defines the lookup table for a component transfer function.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "tableValues"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "target",
+		"title": "The target SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "target"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "targetX",
+		"title": "The targetX SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "targetX"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "targetY",
+		"title": "The targetY SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "targetY"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "text-anchor",
+		"title": "Defines the alignment of text.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-text-anchor"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "text-anchor"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "text-decoration",
+		"title": "Specifies text decoration.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-text-decoration"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "text-decoration"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "text-overflow",
+		"title": "The text-overflow SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "text-overflow"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "text-rendering",
+		"title": "The text-rendering SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "text-rendering"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "textLength",
+		"title": "The textLength SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "textLength"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "title",
+		"title": "The title SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "title"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "to",
+		"title": "The to SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "to"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "transform",
+		"title": "Defines a transformation.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "transform-list-translate-rotate-scale-skewx-skewy-matrix"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "transform"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "transform-origin",
+		"title": "The transform-origin SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "transform-origin"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "type",
+		"title": "The type SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "type"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "unicode-bidi",
+		"title": "The unicode-bidi SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "unicode-bidi"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "values",
+		"title": "The values SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "values"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "vector-effect",
+		"title": "The vector-effect SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "vector-effect"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "viewBox",
+		"title": "Defines the SVG viewport coordinates.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "view-box"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "viewBox"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "visibility",
+		"title": "Controls the visibility of an element.",
+		"value_syntax": {
+			"kind": "grammar_ref",
+			"grammar_id": "enum-visibility"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "visibility"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "white-space",
+		"title": "The white-space SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "white-space"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "width",
+		"title": "Defines the width.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-values-3",
+			"target": "<length>"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "width"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-values-3",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/css-values-3/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "<length>"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "word-spacing",
+		"title": "The word-spacing SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "word-spacing"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "writing-mode",
+		"title": "The writing-mode SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "writing-mode"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "x",
+		"title": "Defines the x coordinate.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-values-3",
+			"target": "<length>"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "x"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-values-3",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/css-values-3/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "<length>"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "x1",
+		"title": "Defines the first x coordinate.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-values-3",
+			"target": "<length>"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "x1"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-values-3",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/css-values-3/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "<length>"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "x2",
+		"title": "Defines the second x coordinate.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-values-3",
+			"target": "<length>"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "x2"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-values-3",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/css-values-3/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "<length>"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "xChannelSelector",
+		"title": "The xChannelSelector SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "xChannelSelector"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "y",
+		"title": "Defines the y coordinate.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-values-3",
+			"target": "<length>"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "y"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-values-3",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/css-values-3/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "<length>"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "y1",
+		"title": "Defines the first y coordinate.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-values-3",
+			"target": "<length>"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "y1"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-values-3",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/css-values-3/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "<length>"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "y2",
+		"title": "Defines the second y coordinate.",
+		"value_syntax": {
+			"kind": "foreign_ref",
+			"spec": "css-values-3",
+			"target": "<length>"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "y2"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "css-values-3",
+				"source_kind": "manual_review",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/css-values-3/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "<length>"
+				},
+				"confidence": "manual"
+			}
+		]
+	},
+	{
+		"name": "yChannelSelector",
+		"title": "The yChannelSelector SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "yChannelSelector"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "z",
+		"title": "The z SVG attribute.",
+		"value_syntax": {
+			"kind": "opaque",
+			"display": "text",
+			"reason": "free-form text stays explicit until a typed text model exists"
+		},
+		"default_value": {
+			"kind": "none"
+		},
+		"animatable": "unspecified",
+		"provenance": [
+			{
+				"source_id": "definitions",
+				"source_kind": "definitions_xml",
+				"pin": {
+					"kind": "git_commit",
+					"repository": "https://github.com/w3c/svgwg",
+					"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+					"path": "master/definitions.xml"
+				},
+				"locator": {
+					"kind": "definition",
+					"file": "definitions.xml",
+					"id": "z"
+				},
+				"confidence": "derived"
+			}
+		]
+	}
+]

@@ -25,6 +25,17 @@ pub fn allowed_children(parent: &str) -> Vec<&'static str> {
             names.dedup();
             names
         }
+        ContentModel::ChildrenSet(names) => {
+            let mut names: Vec<&'static str> = (*names).to_vec();
+            names.sort_unstable();
+            names.dedup();
+            names
+        }
+        ContentModel::AnySvg => {
+            let mut names: Vec<&'static str> = ELEMENTS.iter().map(|e| e.name).collect();
+            names.sort_unstable();
+            names
+        }
         ContentModel::Foreign | ContentModel::Void | ContentModel::Text => Vec::new(),
     }
 }

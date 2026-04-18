@@ -1,0 +1,581 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "GrammarFile",
+	"description": "Typed payload for `grammars.json`.",
+	"type": "object",
+	"properties": {
+		"grammars": {
+			"description": "Grammar definitions keyed by stable id.",
+			"type": "array",
+			"items": {
+				"$ref": "#/$defs/GrammarDefinition"
+			}
+		},
+		"schema_version": {
+			"description": "Schema version for the grammar payload.",
+			"type": "integer",
+			"format": "uint32",
+			"minimum": 0
+		}
+	},
+	"required": [
+		"schema_version",
+		"grammars"
+	],
+	"$defs": {
+		"ExtractionConfidence": {
+			"description": "Confidence attached to an extracted fact.",
+			"oneOf": [
+				{
+					"description": "Parsed from a structured authoritative source.",
+					"type": "string",
+					"const": "exact"
+				},
+				{
+					"description": "Derived from a reliable but indirect source.",
+					"type": "string",
+					"const": "derived"
+				},
+				{
+					"description": "Human-curated fallback.",
+					"type": "string",
+					"const": "manual"
+				}
+			]
+		},
+		"FactProvenance": {
+			"description": "Provenance attached to a normalized fact.",
+			"type": "object",
+			"properties": {
+				"confidence": {
+					"description": "Extraction confidence classification.",
+					"$ref": "#/$defs/ExtractionConfidence"
+				},
+				"locator": {
+					"description": "Concrete source locator within the pinned input.",
+					"$ref": "#/$defs/SourceLocator"
+				},
+				"pin": {
+					"description": "Exact pinned location for the source.",
+					"$ref": "#/$defs/SourcePin"
+				},
+				"source_id": {
+					"description": "Source input id from the pinned manifest.",
+					"type": "string"
+				},
+				"source_kind": {
+					"description": "Kind of source material used for extraction.",
+					"$ref": "#/$defs/ProvenanceSourceKind"
+				}
+			},
+			"required": [
+				"source_id",
+				"source_kind",
+				"pin",
+				"locator",
+				"confidence"
+			]
+		},
+		"GrammarDefinition": {
+			"description": "Named grammar definition for a snapshot.",
+			"type": "object",
+			"properties": {
+				"id": {
+					"description": "Stable grammar id.",
+					"type": "string"
+				},
+				"provenance": {
+					"description": "Provenance for the grammar definition.",
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/FactProvenance"
+					}
+				},
+				"root": {
+					"description": "Structured grammar tree.",
+					"$ref": "#/$defs/GrammarNode"
+				},
+				"title": {
+					"description": "Human-readable title.",
+					"type": "string"
+				}
+			},
+			"required": [
+				"id",
+				"title",
+				"root",
+				"provenance"
+			]
+		},
+		"GrammarNode": {
+			"description": "Structured grammar AST node.",
+			"oneOf": [
+				{
+					"description": "Exact keyword token.",
+					"type": "object",
+					"properties": {
+						"kind": {
+							"type": "string",
+							"const": "keyword"
+						},
+						"value": {
+							"description": "Keyword text.",
+							"type": "string"
+						}
+					},
+					"required": [
+						"kind",
+						"value"
+					]
+				},
+				{
+					"description": "Built-in datatype reference.",
+					"type": "object",
+					"properties": {
+						"kind": {
+							"type": "string",
+							"const": "datatype_ref"
+						},
+						"name": {
+							"description": "Datatype id.",
+							"type": "string"
+						}
+					},
+					"required": [
+						"kind",
+						"name"
+					]
+				},
+				{
+					"description": "Reference to another grammar in the same snapshot.",
+					"type": "object",
+					"properties": {
+						"kind": {
+							"type": "string",
+							"const": "grammar_ref"
+						},
+						"name": {
+							"description": "Grammar id.",
+							"type": "string"
+						}
+					},
+					"required": [
+						"kind",
+						"name"
+					]
+				},
+				{
+					"description": "Ordered sequence of nodes.",
+					"type": "object",
+					"properties": {
+						"items": {
+							"description": "Child nodes in order.",
+							"type": "array",
+							"items": {
+								"$ref": "#/$defs/GrammarNode"
+							}
+						},
+						"kind": {
+							"type": "string",
+							"const": "sequence"
+						}
+					},
+					"required": [
+						"kind",
+						"items"
+					]
+				},
+				{
+					"description": "One of many alternatives.",
+					"type": "object",
+					"properties": {
+						"kind": {
+							"type": "string",
+							"const": "choice"
+						},
+						"options": {
+							"description": "Alternative branches.",
+							"type": "array",
+							"items": {
+								"$ref": "#/$defs/GrammarNode"
+							}
+						}
+					},
+					"required": [
+						"kind",
+						"options"
+					]
+				},
+				{
+					"description": "Optional child node.",
+					"type": "object",
+					"properties": {
+						"item": {
+							"description": "Optional child.",
+							"$ref": "#/$defs/GrammarNode"
+						},
+						"kind": {
+							"type": "string",
+							"const": "optional"
+						}
+					},
+					"required": [
+						"kind",
+						"item"
+					]
+				},
+				{
+					"description": "Zero or more repetitions.",
+					"type": "object",
+					"properties": {
+						"item": {
+							"description": "Repeated child.",
+							"$ref": "#/$defs/GrammarNode"
+						},
+						"kind": {
+							"type": "string",
+							"const": "zero_or_more"
+						}
+					},
+					"required": [
+						"kind",
+						"item"
+					]
+				},
+				{
+					"description": "One or more repetitions.",
+					"type": "object",
+					"properties": {
+						"item": {
+							"description": "Repeated child.",
+							"$ref": "#/$defs/GrammarNode"
+						},
+						"kind": {
+							"type": "string",
+							"const": "one_or_more"
+						}
+					},
+					"required": [
+						"kind",
+						"item"
+					]
+				},
+				{
+					"description": "Comma-separated repeated child.",
+					"type": "object",
+					"properties": {
+						"item": {
+							"description": "Repeated child.",
+							"$ref": "#/$defs/GrammarNode"
+						},
+						"kind": {
+							"type": "string",
+							"const": "comma_separated"
+						}
+					},
+					"required": [
+						"kind",
+						"item"
+					]
+				},
+				{
+					"description": "Space-separated repeated child.",
+					"type": "object",
+					"properties": {
+						"item": {
+							"description": "Repeated child.",
+							"$ref": "#/$defs/GrammarNode"
+						},
+						"kind": {
+							"type": "string",
+							"const": "space_separated"
+						}
+					},
+					"required": [
+						"kind",
+						"item"
+					]
+				},
+				{
+					"description": "Repeated child separated by `comma-wsp` per the SVG BNF:\n> items may be separated by whitespace, an optional comma surrounded by whitespace,\n> or a comma followed by optional whitespace.\n> Used for transform lists and point lists; `translate(1,2),scale(2)` and\n> `translate(1 2) scale(2)` are equally valid.\n\nThe BNF for the separator is:\n\n```bnf\ncomma-wsp ::= (wsp+ comma? wsp*) | (comma wsp*)\n```\n\nApplies across SVG 1.1 FE/SE and SVG 2 (CR + ED) alike:\n\n- **SVG 1.1**: defined directly in the [Transform attribute BNF][svg11-transform].\n- **SVG 2**: [§8.5][svg2-transform] delegates `transform` /\n  `patternTransform` / `gradientTransform` to [CSS Transforms 1][css-transforms],\n  which [§7.2][css-transforms-svg] explicitly carves these\n  *attributes* out of the CSS property syntax and defines back-compat\n  attribute parsing using the SVG 1.1 BNF verbatim:\\\n  `transforms ::= transform | transform comma-wsp transforms`.\n- **`points`**: SVG 2 defines the value as `[<number>+]#`, whose\n  CSS Values `#` multiplier is itself comma-wsp separated — matching\n  the SVG 1.1 `list-of-points` production.\n\n[svg11-transform]: https://www.w3.org/TR/SVG11/coords.html#TransformAttribute\n[svg2-transform]: https://svgwg.org/svg2-draft/coords.html#TransformProperty\n[css-transforms]: https://www.w3.org/TR/css-transforms-1/\n[css-transforms-svg]: https://www.w3.org/TR/css-transforms-1/#svg-syntax",
+					"type": "object",
+					"properties": {
+						"item": {
+							"description": "Repeated child.",
+							"$ref": "#/$defs/GrammarNode"
+						},
+						"kind": {
+							"type": "string",
+							"const": "comma_wsp_separated"
+						}
+					},
+					"required": [
+						"kind",
+						"item"
+					]
+				},
+				{
+					"description": "Explicit bounded repetition.",
+					"type": "object",
+					"properties": {
+						"item": {
+							"description": "Repeated child.",
+							"$ref": "#/$defs/GrammarNode"
+						},
+						"kind": {
+							"type": "string",
+							"const": "repeat"
+						},
+						"max": {
+							"description": "Maximum count if bounded.",
+							"type": [
+								"integer",
+								"null"
+							],
+							"format": "uint16",
+							"maximum": 65535,
+							"minimum": 0
+						},
+						"min": {
+							"description": "Minimum count.",
+							"type": "integer",
+							"format": "uint16",
+							"maximum": 65535,
+							"minimum": 0
+						}
+					},
+					"required": [
+						"kind",
+						"item",
+						"min"
+					]
+				},
+				{
+					"description": "Fixed literal token.",
+					"type": "object",
+					"properties": {
+						"kind": {
+							"type": "string",
+							"const": "literal"
+						},
+						"value": {
+							"description": "Literal token.",
+							"type": "string"
+						}
+					},
+					"required": [
+						"kind",
+						"value"
+					]
+				},
+				{
+					"description": "Temporary opaque syntax escape hatch.",
+					"type": "object",
+					"properties": {
+						"display": {
+							"description": "Human-readable display form.",
+							"type": "string"
+						},
+						"kind": {
+							"type": "string",
+							"const": "opaque"
+						},
+						"reason": {
+							"description": "Why the syntax is still opaque.",
+							"type": "string"
+						}
+					},
+					"required": [
+						"kind",
+						"display",
+						"reason"
+					]
+				},
+				{
+					"description": "Reference into a pinned external grammar.",
+					"type": "object",
+					"properties": {
+						"kind": {
+							"type": "string",
+							"const": "foreign_ref"
+						},
+						"spec": {
+							"description": "External spec or module id.",
+							"type": "string"
+						},
+						"target": {
+							"description": "Target id within the foreign spec.",
+							"type": "string"
+						}
+					},
+					"required": [
+						"kind",
+						"spec",
+						"target"
+					]
+				}
+			]
+		},
+		"ProvenanceSourceKind": {
+			"description": "Source material used for a normalized fact.",
+			"oneOf": [
+				{
+					"description": "W3C TR or editor's draft chapter HTML.",
+					"type": "string",
+					"const": "html"
+				},
+				{
+					"description": "Element or attribute index page.",
+					"type": "string",
+					"const": "index"
+				},
+				{
+					"description": "Flattened DTD or DTD-derived source.",
+					"type": "string",
+					"const": "dtd"
+				},
+				{
+					"description": "`definitions.xml` or companion definitions file.",
+					"type": "string",
+					"const": "definitions_xml"
+				},
+				{
+					"description": "Manual curated note.",
+					"type": "string",
+					"const": "manual_review"
+				}
+			]
+		},
+		"SourceLocator": {
+			"description": "Exact location inside a pinned source.",
+			"oneOf": [
+				{
+					"description": "HTML fragment id.",
+					"type": "object",
+					"properties": {
+						"anchor": {
+							"description": "Fragment id or anchor name.",
+							"type": "string"
+						},
+						"kind": {
+							"type": "string",
+							"const": "fragment"
+						}
+					},
+					"required": [
+						"kind",
+						"anchor"
+					]
+				},
+				{
+					"description": "Structured definition in a file.",
+					"type": "object",
+					"properties": {
+						"file": {
+							"description": "File path relative to the pinned source root.",
+							"type": "string"
+						},
+						"id": {
+							"description": "Definition id within the file.",
+							"type": "string"
+						},
+						"kind": {
+							"type": "string",
+							"const": "definition"
+						}
+					},
+					"required": [
+						"kind",
+						"file",
+						"id"
+					]
+				},
+				{
+					"description": "Specific line range in a text file.",
+					"type": "object",
+					"properties": {
+						"end_line": {
+							"description": "Inclusive ending 1-based line number.",
+							"type": "integer",
+							"format": "uint32",
+							"minimum": 1
+						},
+						"file": {
+							"description": "File path relative to the pinned source root.",
+							"type": "string"
+						},
+						"kind": {
+							"type": "string",
+							"const": "line_range"
+						},
+						"start_line": {
+							"description": "Starting 1-based line number.",
+							"type": "integer",
+							"format": "uint32",
+							"minimum": 1
+						}
+					},
+					"required": [
+						"kind",
+						"file",
+						"start_line",
+						"end_line"
+					]
+				}
+			]
+		},
+		"SourcePin": {
+			"description": "Exact pin used to make source fetching reproducible.",
+			"oneOf": [
+				{
+					"description": "Pinned absolute URL.",
+					"type": "object",
+					"properties": {
+						"kind": {
+							"type": "string",
+							"const": "url"
+						},
+						"url": {
+							"description": "Canonical source URL.",
+							"type": "string"
+						}
+					},
+					"required": [
+						"kind",
+						"url"
+					]
+				},
+				{
+					"description": "Pinned repository commit and optional path.",
+					"type": "object",
+					"properties": {
+						"commit": {
+							"description": "Exact commit hash.",
+							"type": "string"
+						},
+						"kind": {
+							"type": "string",
+							"const": "git_commit"
+						},
+						"path": {
+							"description": "Optional path within the repo.",
+							"type": [
+								"string",
+								"null"
+							]
+						},
+						"repository": {
+							"description": "Repository URL.",
+							"type": "string"
+						}
+					},
+					"required": [
+						"kind",
+						"repository",
+						"commit"
+					]
+				}
+			]
+		}
+	}
+}

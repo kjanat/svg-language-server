@@ -1,0 +1,216 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "SnapshotMetadataFile",
+	"description": "Typed payload for `snapshot.json`.",
+	"type": "object",
+	"properties": {
+		"date": {
+			"description": "Publication date in `YYYY-MM-DD` form.",
+			"type": "string"
+		},
+		"ingestion": {
+			"description": "Ingestion metadata for deterministic rebuilds.",
+			"$ref": "#/$defs/IngestionMetadata"
+		},
+		"pinned_sources": {
+			"description": "Pinned source inputs used to derive the normalized facts.",
+			"type": "array",
+			"items": {
+				"$ref": "#/$defs/SnapshotSourceRef"
+			}
+		},
+		"schema_version": {
+			"description": "Schema version for this checked-in snapshot payload.",
+			"type": "integer",
+			"format": "uint32",
+			"minimum": 0
+		},
+		"snapshot": {
+			"description": "Canonical SVG snapshot id.",
+			"$ref": "#/$defs/SpecSnapshotId"
+		},
+		"status": {
+			"description": "Publication lifecycle of the snapshot.",
+			"$ref": "#/$defs/SnapshotStatus"
+		},
+		"title": {
+			"description": "Human-readable title for review and generated reports.",
+			"type": "string"
+		}
+	},
+	"required": [
+		"schema_version",
+		"snapshot",
+		"title",
+		"date",
+		"status",
+		"pinned_sources",
+		"ingestion"
+	],
+	"$defs": {
+		"IngestionMetadata": {
+			"description": "Deterministic ingestion metadata for a snapshot dataset.",
+			"type": "object",
+			"properties": {
+				"extractor_version": {
+					"description": "Version of the extractor pipeline that wrote the dataset.",
+					"type": "string"
+				},
+				"normalized_at": {
+					"description": "UTC date on which the snapshot was normalized.",
+					"type": "string"
+				}
+			},
+			"required": [
+				"extractor_version",
+				"normalized_at"
+			]
+		},
+		"SnapshotSourceRef": {
+			"description": "Pinned source reference used during extraction.",
+			"type": "object",
+			"properties": {
+				"authority": {
+					"description": "Source authority classification.",
+					"$ref": "#/$defs/SourceAuthority"
+				},
+				"input_id": {
+					"description": "Input id within the manifest.",
+					"type": "string"
+				},
+				"manifest_id": {
+					"description": "Checked-in manifest id under `data/sources/`.",
+					"type": "string"
+				},
+				"pin": {
+					"description": "Exact pin used for reproducible fetch.",
+					"$ref": "#/$defs/SourcePin"
+				}
+			},
+			"required": [
+				"manifest_id",
+				"input_id",
+				"authority",
+				"pin"
+			]
+		},
+		"SnapshotStatus": {
+			"description": "Publication lifecycle of a tracked snapshot.",
+			"oneOf": [
+				{
+					"description": "W3C Recommendation snapshot.",
+					"type": "string",
+					"const": "recommendation"
+				},
+				{
+					"description": "W3C Candidate Recommendation snapshot.",
+					"type": "string",
+					"const": "candidate_recommendation"
+				},
+				{
+					"description": "Pinned editor's draft snapshot.",
+					"type": "string",
+					"const": "editors_draft"
+				}
+			]
+		},
+		"SourceAuthority": {
+			"description": "Whether an input is authoritative, assistive, or external.",
+			"oneOf": [
+				{
+					"description": "Normative source for the fact set.",
+					"type": "string",
+					"const": "primary"
+				},
+				{
+					"description": "Helpful extraction source that does not override authority.",
+					"type": "string",
+					"const": "supporting"
+				},
+				{
+					"description": "Explicit reference into another spec ecosystem.",
+					"type": "string",
+					"const": "foreign_reference"
+				}
+			]
+		},
+		"SourcePin": {
+			"description": "Exact pin used to make source fetching reproducible.",
+			"oneOf": [
+				{
+					"description": "Pinned absolute URL.",
+					"type": "object",
+					"properties": {
+						"kind": {
+							"type": "string",
+							"const": "url"
+						},
+						"url": {
+							"description": "Canonical source URL.",
+							"type": "string"
+						}
+					},
+					"required": [
+						"kind",
+						"url"
+					]
+				},
+				{
+					"description": "Pinned repository commit and optional path.",
+					"type": "object",
+					"properties": {
+						"commit": {
+							"description": "Exact commit hash.",
+							"type": "string"
+						},
+						"kind": {
+							"type": "string",
+							"const": "git_commit"
+						},
+						"path": {
+							"description": "Optional path within the repo.",
+							"type": [
+								"string",
+								"null"
+							]
+						},
+						"repository": {
+							"description": "Repository URL.",
+							"type": "string"
+						}
+					},
+					"required": [
+						"kind",
+						"repository",
+						"commit"
+					]
+				}
+			]
+		},
+		"SpecSnapshotId": {
+			"description": "Canonical SVG spec snapshot identifiers supported by profile-aware lookups.",
+			"oneOf": [
+				{
+					"description": "SVG 1.1 Recommendation (2003-01-14).",
+					"type": "string",
+					"const": "Svg11Rec20030114"
+				},
+				{
+					"description": "SVG 1.1 Second Edition Recommendation (2011-08-16).",
+					"type": "string",
+					"const": "Svg11Rec20110816"
+				},
+				{
+					"description": "SVG 2 Candidate Recommendation (2018-10-04).",
+					"type": "string",
+					"const": "Svg2Cr20181004"
+				},
+				{
+					"description": "Pinned SVG 2 Editor's Draft snapshot (2025-09-14).",
+					"type": "string",
+					"const": "Svg2EditorsDraft20250914"
+				}
+			]
+		}
+	}
+}

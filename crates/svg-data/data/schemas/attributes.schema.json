@@ -1,0 +1,403 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "Array_of_SnapshotAttributeRecord",
+	"type": "array",
+	"items": {
+		"$ref": "#/$defs/SnapshotAttributeRecord"
+	},
+	"$defs": {
+		"AnimationBehavior": {
+			"description": "Whether an attribute is animatable.",
+			"oneOf": [
+				{
+					"description": "The spec marks the attribute animatable.",
+					"type": "string",
+					"const": "animatable"
+				},
+				{
+					"description": "The spec marks the attribute non-animatable.",
+					"type": "string",
+					"const": "not_animatable"
+				},
+				{
+					"description": "The source does not say clearly enough yet.",
+					"type": "string",
+					"const": "unspecified"
+				}
+			]
+		},
+		"AttributeDefaultValue": {
+			"description": "Default-value representation for attributes.",
+			"oneOf": [
+				{
+					"description": "No default value is defined.",
+					"type": "object",
+					"properties": {
+						"kind": {
+							"type": "string",
+							"const": "none"
+						}
+					},
+					"required": [
+						"kind"
+					]
+				},
+				{
+					"description": "Concrete literal default value.",
+					"type": "object",
+					"properties": {
+						"kind": {
+							"type": "string",
+							"const": "literal"
+						},
+						"value": {
+							"description": "Serialized default value.",
+							"type": "string"
+						}
+					},
+					"required": [
+						"kind",
+						"value"
+					]
+				},
+				{
+					"description": "Inherits from the parent element or cascade.",
+					"type": "object",
+					"properties": {
+						"kind": {
+							"type": "string",
+							"const": "inherit"
+						}
+					},
+					"required": [
+						"kind"
+					]
+				}
+			]
+		},
+		"ExtractionConfidence": {
+			"description": "Confidence attached to an extracted fact.",
+			"oneOf": [
+				{
+					"description": "Parsed from a structured authoritative source.",
+					"type": "string",
+					"const": "exact"
+				},
+				{
+					"description": "Derived from a reliable but indirect source.",
+					"type": "string",
+					"const": "derived"
+				},
+				{
+					"description": "Human-curated fallback.",
+					"type": "string",
+					"const": "manual"
+				}
+			]
+		},
+		"FactProvenance": {
+			"description": "Provenance attached to a normalized fact.",
+			"type": "object",
+			"properties": {
+				"confidence": {
+					"description": "Extraction confidence classification.",
+					"$ref": "#/$defs/ExtractionConfidence"
+				},
+				"locator": {
+					"description": "Concrete source locator within the pinned input.",
+					"$ref": "#/$defs/SourceLocator"
+				},
+				"pin": {
+					"description": "Exact pinned location for the source.",
+					"$ref": "#/$defs/SourcePin"
+				},
+				"source_id": {
+					"description": "Source input id from the pinned manifest.",
+					"type": "string"
+				},
+				"source_kind": {
+					"description": "Kind of source material used for extraction.",
+					"$ref": "#/$defs/ProvenanceSourceKind"
+				}
+			},
+			"required": [
+				"source_id",
+				"source_kind",
+				"pin",
+				"locator",
+				"confidence"
+			]
+		},
+		"ProvenanceSourceKind": {
+			"description": "Source material used for a normalized fact.",
+			"oneOf": [
+				{
+					"description": "W3C TR or editor's draft chapter HTML.",
+					"type": "string",
+					"const": "html"
+				},
+				{
+					"description": "Element or attribute index page.",
+					"type": "string",
+					"const": "index"
+				},
+				{
+					"description": "Flattened DTD or DTD-derived source.",
+					"type": "string",
+					"const": "dtd"
+				},
+				{
+					"description": "`definitions.xml` or companion definitions file.",
+					"type": "string",
+					"const": "definitions_xml"
+				},
+				{
+					"description": "Manual curated note.",
+					"type": "string",
+					"const": "manual_review"
+				}
+			]
+		},
+		"SnapshotAttributeRecord": {
+			"description": "Typed payload for `attributes.json`.",
+			"type": "object",
+			"properties": {
+				"animatable": {
+					"description": "Whether the attribute is animatable.",
+					"$ref": "#/$defs/AnimationBehavior"
+				},
+				"default_value": {
+					"description": "Defaulting behavior in the snapshot.",
+					"$ref": "#/$defs/AttributeDefaultValue"
+				},
+				"name": {
+					"description": "Attribute name.",
+					"type": "string"
+				},
+				"provenance": {
+					"description": "Source-backed provenance for this fact set.",
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/FactProvenance"
+					}
+				},
+				"title": {
+					"description": "Human-readable title or description.",
+					"type": "string"
+				},
+				"value_syntax": {
+					"description": "Structured value syntax owned by SVG or a foreign spec.",
+					"$ref": "#/$defs/ValueSyntax"
+				}
+			},
+			"required": [
+				"name",
+				"title",
+				"value_syntax",
+				"default_value",
+				"animatable",
+				"provenance"
+			]
+		},
+		"SourceLocator": {
+			"description": "Exact location inside a pinned source.",
+			"oneOf": [
+				{
+					"description": "HTML fragment id.",
+					"type": "object",
+					"properties": {
+						"anchor": {
+							"description": "Fragment id or anchor name.",
+							"type": "string"
+						},
+						"kind": {
+							"type": "string",
+							"const": "fragment"
+						}
+					},
+					"required": [
+						"kind",
+						"anchor"
+					]
+				},
+				{
+					"description": "Structured definition in a file.",
+					"type": "object",
+					"properties": {
+						"file": {
+							"description": "File path relative to the pinned source root.",
+							"type": "string"
+						},
+						"id": {
+							"description": "Definition id within the file.",
+							"type": "string"
+						},
+						"kind": {
+							"type": "string",
+							"const": "definition"
+						}
+					},
+					"required": [
+						"kind",
+						"file",
+						"id"
+					]
+				},
+				{
+					"description": "Specific line range in a text file.",
+					"type": "object",
+					"properties": {
+						"end_line": {
+							"description": "Inclusive ending 1-based line number.",
+							"type": "integer",
+							"format": "uint32",
+							"minimum": 1
+						},
+						"file": {
+							"description": "File path relative to the pinned source root.",
+							"type": "string"
+						},
+						"kind": {
+							"type": "string",
+							"const": "line_range"
+						},
+						"start_line": {
+							"description": "Starting 1-based line number.",
+							"type": "integer",
+							"format": "uint32",
+							"minimum": 1
+						}
+					},
+					"required": [
+						"kind",
+						"file",
+						"start_line",
+						"end_line"
+					]
+				}
+			]
+		},
+		"SourcePin": {
+			"description": "Exact pin used to make source fetching reproducible.",
+			"oneOf": [
+				{
+					"description": "Pinned absolute URL.",
+					"type": "object",
+					"properties": {
+						"kind": {
+							"type": "string",
+							"const": "url"
+						},
+						"url": {
+							"description": "Canonical source URL.",
+							"type": "string"
+						}
+					},
+					"required": [
+						"kind",
+						"url"
+					]
+				},
+				{
+					"description": "Pinned repository commit and optional path.",
+					"type": "object",
+					"properties": {
+						"commit": {
+							"description": "Exact commit hash.",
+							"type": "string"
+						},
+						"kind": {
+							"type": "string",
+							"const": "git_commit"
+						},
+						"path": {
+							"description": "Optional path within the repo.",
+							"type": [
+								"string",
+								"null"
+							]
+						},
+						"repository": {
+							"description": "Repository URL.",
+							"type": "string"
+						}
+					},
+					"required": [
+						"kind",
+						"repository",
+						"commit"
+					]
+				}
+			]
+		},
+		"ValueSyntax": {
+			"description": "Structured value syntax reference.",
+			"oneOf": [
+				{
+					"description": "Value grammar is defined in `grammars.json`.",
+					"type": "object",
+					"properties": {
+						"grammar_id": {
+							"description": "Grammar id in the same snapshot.",
+							"type": "string"
+						},
+						"kind": {
+							"type": "string",
+							"const": "grammar_ref"
+						}
+					},
+					"required": [
+						"kind",
+						"grammar_id"
+					]
+				},
+				{
+					"description": "Value syntax is defined in another pinned specification.",
+					"type": "object",
+					"properties": {
+						"kind": {
+							"type": "string",
+							"const": "foreign_ref"
+						},
+						"spec": {
+							"description": "External spec or module id.",
+							"type": "string"
+						},
+						"target": {
+							"description": "Target id within that spec.",
+							"type": "string"
+						}
+					},
+					"required": [
+						"kind",
+						"spec",
+						"target"
+					]
+				},
+				{
+					"description": "Temporary escape hatch for not-yet-normalized syntax.",
+					"type": "object",
+					"properties": {
+						"display": {
+							"description": "Human-readable display form.",
+							"type": "string"
+						},
+						"kind": {
+							"type": "string",
+							"const": "opaque"
+						},
+						"reason": {
+							"description": "Why structured normalization is not available yet.",
+							"type": "string"
+						}
+					},
+					"required": [
+						"kind",
+						"display",
+						"reason"
+					]
+				}
+			]
+		}
+	}
+}

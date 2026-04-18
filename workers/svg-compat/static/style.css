@@ -1,0 +1,834 @@
+:root {
+	color-scheme: light dark;
+	--bg: #f4f4f7;
+	--surface: #fff;
+	--surface-raised: #f0f0f4;
+	--border: #d8d8e0;
+	--border-subtle: #e4e4ec;
+	--zebra: rgba(0, 0, 0, 0.025);
+	--text: #1a1a2e;
+	--text-muted: #6e6e82;
+	--accent: #c4792a;
+	--link: #1a7ec5;
+	--code: #5a7a1a;
+	--hover-bg: rgba(0, 0, 0, 0.03);
+	--shadow-dropdown: rgba(0, 0, 0, 0.12);
+	--badge-widely-bg: #e6f4ea;
+	--badge-widely-fg: #0a6b34;
+	--badge-newly-bg: #e0ecff;
+	--badge-newly-fg: #1d4ed8;
+	--badge-limited-bg: #fef3c7;
+	--badge-limited-fg: #92400e;
+	--baseline-cross: #ea8600;
+	--chip-supported: #1e8e3e;
+	--chip-supported-newly: #1a73e8;
+	--chip-bg: rgba(0, 0, 0, 0.035);
+	--chip-border: rgba(0, 0, 0, 0.06);
+	--radius: 8px;
+	/*
+	 * Row-height tokens. Quantise .table-scroll max-height so the
+	 * scroll always ends on a row boundary — no half-rows clipped at
+	 * the bottom. --row-h must accommodate the tallest cell content
+	 * (browser chip badge ≈ 24px) plus breathing room.
+	 */
+	--row-h: 48px;
+	--head-h: 40px;
+	--rows-visible: 14;
+	--font-display:
+		"Avenir Next",
+		"Segoe UI",
+		"Helvetica Neue",
+		system-ui,
+		sans-serif;
+	--font-body:
+		"Segoe UI",
+		"Helvetica Neue",
+		system-ui,
+		-apple-system,
+		sans-serif;
+	--font-mono:
+		"SFMono-Regular",
+		"Cascadia Mono",
+		"Fira Code",
+		ui-monospace,
+		monospace;
+}
+@media (prefers-color-scheme: dark) {
+	:root {
+		--bg: #0c0c0f;
+		--surface: #15151a;
+		--surface-raised: #1b1b22;
+		--border: #28283a;
+		--border-subtle: #20202c;
+		--zebra: rgba(255, 255, 255, 0.022);
+		--text: #e8e8f0;
+		--text-muted: #7e7e96;
+		--accent: #eba55a;
+		--link: #6cc0f0;
+		--code: #b5d26a;
+		--hover-bg: rgba(255, 255, 255, 0.03);
+		--shadow-dropdown: rgba(0, 0, 0, 0.4);
+		--badge-widely-bg: #0e2a14;
+		--badge-widely-fg: #7ae1a2;
+		--badge-newly-bg: #0f1a3a;
+		--badge-newly-fg: #8db4ff;
+		--badge-limited-bg: #3f2a0a;
+		--badge-limited-fg: #fbbf24;
+		--chip-supported: #7ae1a2;
+		--chip-supported-newly: #8db4ff;
+		--chip-bg: rgba(255, 255, 255, 0.04);
+		--chip-border: rgba(255, 255, 255, 0.08);
+	}
+}
+* {
+	box-sizing: border-box;
+	margin: 0;
+}
+body {
+	background: var(--bg);
+	color: var(--text);
+	font-family: var(--font-body);
+	line-height: 1.6;
+	-webkit-font-smoothing: antialiased;
+}
+main {
+	max-width: 1180px;
+	margin: 0 auto;
+	padding: 56px 24px 96px;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+/* ── typography ──────────────────────── */
+h1,
+h2,
+h3 {
+	font-family: var(--font-display);
+	font-weight: 700;
+	letter-spacing: -0.025em;
+}
+h1 {
+	font-size: 2.4rem;
+	line-height: 1.08;
+	letter-spacing: -0.03em;
+}
+h2 {
+	font-size: 1.35rem;
+	line-height: 1.2;
+}
+p {
+	margin-top: 0;
+}
+a {
+	color: var(--link);
+	text-decoration: none;
+	transition: opacity 0.15s;
+}
+a:hover {
+	opacity: 0.75;
+}
+.eyebrow {
+	font-family: var(--font-body);
+	font-size: 0.72rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.12em;
+	color: var(--text-muted);
+	margin-bottom: 10px;
+}
+
+/* ── hero ────────────────────────────── */
+.hero {
+	padding: 36px 36px 32px;
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	background: var(--surface);
+	position: relative;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	gap: 28px;
+}
+.hero::before {
+	content: "";
+	position: absolute;
+	inset: 0 0 auto;
+	height: 3px;
+	background: linear-gradient(
+		90deg,
+		var(--badge-limited-fg),
+		var(--badge-newly-fg),
+		var(--badge-widely-fg)
+	);
+}
+.hero-main {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+.hero-description {
+	font-size: 0.92rem;
+	max-width: 64ch;
+}
+.hero-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-top: 4px;
+}
+@media (min-width: 760px) {
+	.hero {
+		flex-direction: row;
+		align-items: flex-start;
+		gap: 48px;
+	}
+	.hero-main {
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+	.hero > .stats {
+		flex: 0 0 300px;
+		margin: 0;
+	}
+}
+
+/* ── stats ───────────────────────────── */
+.stats {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 10px;
+}
+.stat {
+	padding: 16px 18px;
+	border: 1px solid var(--border-subtle);
+	border-radius: var(--radius);
+	background: var(--surface-raised);
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+.stat strong {
+	font-family: var(--font-display);
+	font-size: 2.4rem;
+	font-weight: 700;
+	color: var(--text);
+	letter-spacing: -0.04em;
+	line-height: 1.05;
+	font-variant-numeric: tabular-nums;
+}
+.stat-label {
+	font-size: 0.78rem;
+	color: var(--text-muted);
+	text-transform: lowercase;
+	letter-spacing: 0.02em;
+}
+/*
+ * Secondary-tier stats (partial/removed/flagged/unsupported) are
+ * muted so the structural counts stay the primary eye-magnet while
+ * the new signal inventory is still glanceable.
+ */
+.stat-secondary {
+	background: transparent;
+	border-style: dashed;
+}
+.stat-secondary strong {
+	font-size: 1.8rem;
+	color: var(--text-muted);
+}
+
+/* ── sections ────────────────────────── */
+section {
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	background: var(--surface);
+	overflow: hidden;
+}
+.section-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 14px;
+	padding: 22px 26px 16px;
+}
+.section-head > div {
+	min-width: 0;
+	flex: 1 1 auto;
+}
+.section-head h2 {
+	margin-bottom: 2px;
+}
+.section-head .muted {
+	font-size: 0.85rem;
+}
+
+/* ── table search input ──────────────── */
+.table-search {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	flex: 0 0 auto;
+}
+.table-search input {
+	font-family: var(--font-body);
+	font-size: 0.85rem;
+	padding: 6px 10px;
+	border: 1px solid var(--border);
+	border-radius: 6px;
+	background: var(--surface-raised);
+	color: var(--text);
+	width: 14rem;
+	transition: border-color 0.15s, box-shadow 0.15s;
+}
+.table-search input:focus {
+	outline: none;
+	border-color: var(--link);
+	box-shadow: 0 0 0 2px color-mix(in srgb, var(--link) 18%, transparent);
+}
+.table-search input::placeholder {
+	color: var(--text-muted);
+}
+.table-search-count {
+	font-family: var(--font-mono);
+	font-size: 0.72rem;
+	color: var(--text-muted);
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+/* ── tables ──────────────────────────── */
+.table-scroll {
+	overflow-x: auto;
+	overflow-y: auto;
+	/* Quantised max-height: --rows-visible whole rows + sticky head.
+	 * Capped at viewport so very small screens still scroll naturally. */
+	max-height: min(
+		78vh,
+		calc(var(--head-h) + var(--row-h) * var(--rows-visible))
+	);
+	border-top: 1px solid var(--border-subtle);
+	scroll-padding-top: var(--head-h);
+}
+table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.88rem;
+}
+thead th {
+	text-align: left;
+	padding: 0 14px;
+	height: var(--head-h);
+	color: var(--text-muted);
+	font-weight: 600;
+	font-size: 0.68rem;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	background: var(--surface);
+	position: sticky;
+	top: 0;
+	z-index: 2;
+	box-shadow: 0 1px 0 var(--border);
+}
+
+.table-col-header {
+	position: sticky;
+	cursor: grab;
+	user-select: none;
+}
+.table-col-header:active {
+	cursor: grabbing;
+}
+.table-col-header.is-dragging {
+	opacity: 0.55;
+}
+.table-col-header.is-drop-target {
+	outline: 2px solid color-mix(in srgb, var(--link) 65%, transparent);
+	outline-offset: -2px;
+}
+
+.col-resize-handle {
+	position: absolute;
+	top: 0;
+	right: -12px;
+	width: 24px;
+	height: 100%;
+	cursor: col-resize;
+	touch-action: none;
+	z-index: 3;
+}
+.col-resize-handle::after {
+	content: "";
+	position: absolute;
+	top: 22%;
+	bottom: 22%;
+	left: calc(50% - 0.5px);
+	width: 1px;
+	background: color-mix(in srgb, var(--border) 75%, var(--link));
+	opacity: 0;
+	transition: opacity 120ms ease;
+}
+.table-col-header:hover .col-resize-handle::after,
+.table-col-header.is-resizing .col-resize-handle::after {
+	opacity: 1;
+}
+
+body.is-col-resizing,
+body.is-col-resizing * {
+	cursor: col-resize !important;
+	user-select: none !important;
+}
+thead th:first-child {
+	padding-left: 26px;
+}
+thead th:last-child {
+	padding-right: 26px;
+}
+td,
+tbody th {
+	text-align: left;
+	padding: 0 14px;
+	height: var(--row-h);
+	border-top: 1px solid var(--border-subtle);
+	vertical-align: middle;
+	font-weight: normal;
+}
+tbody tr:first-child td,
+tbody tr:first-child th {
+	border-top: none;
+}
+tbody th:first-child,
+tbody td:first-child {
+	padding-left: 26px;
+}
+tbody td:last-child,
+tbody th:last-child {
+	padding-right: 26px;
+}
+tbody th[scope="row"] {
+	width: 1%;
+	white-space: nowrap;
+	border-right: 1px solid var(--border-subtle);
+}
+tbody tr:nth-child(even) {
+	background: var(--zebra);
+}
+tbody tr {
+	transition: background 0.1s;
+}
+tbody tr:hover {
+	background: var(--hover-bg);
+}
+tbody tr.table-empty {
+	background: transparent;
+	color: var(--text-muted);
+	font-style: italic;
+}
+tbody tr.table-empty td {
+	text-align: center;
+	padding: 20px;
+}
+.scope-cell {
+	font-size: 0.82rem;
+	color: var(--text-muted);
+	max-width: 32ch;
+	white-space: normal;
+	overflow-wrap: normal;
+	word-break: normal;
+	line-height: 1.35;
+}
+
+/*
+ * In the full Attributes table, long element-scope cells can starve the
+ * Support column and prevent the intended 2x2 chip wrap at constrained widths.
+ * Cap scope width and nudge support-column width only for #attributes.
+ */
+#attributes th:nth-child(2),
+#attributes td:nth-child(2) {
+	min-width: 16rem;
+}
+#attributes .scope-cell {
+	max-width: 20ch;
+}
+#attributes th:nth-child(4),
+#attributes td:nth-child(4) {
+	width: 16rem;
+}
+@media (max-width: 960px) {
+	#attributes .scope-cell {
+		max-width: 14ch;
+	}
+	#attributes th:nth-child(4),
+	#attributes td:nth-child(4) {
+		width: 14rem;
+	}
+}
+.docs-links {
+	display: inline-flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+.docs-flag {
+	font-size: 0.68rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+.docs-flag-deprecated {
+	color: var(--badge-limited-fg);
+}
+
+/* ── code ────────────────────────────── */
+code {
+	font-family: var(--font-mono);
+	font-size: 0.86em;
+	color: var(--code);
+}
+
+/* ── muted ───────────────────────────── */
+.muted {
+	color: var(--text-muted);
+	font-size: 0.9rem;
+}
+
+/* ── version inputs ──────────────────── */
+.ver-wrap {
+	position: relative;
+	display: inline-block;
+}
+.ver {
+	background: none;
+	border: none;
+	border-bottom: 1px dashed var(--accent);
+	color: var(--accent);
+	font-family: var(--font-mono);
+	font-size: 0.84em;
+	padding: 0 2px;
+	width: 10ch;
+	outline: none;
+	transition: border-color 0.15s;
+}
+.ver::placeholder {
+	color: var(--text-muted);
+	opacity: 0.6;
+	font-family: var(--font-body);
+}
+.ver:focus {
+	border-bottom-style: solid;
+	border-color: var(--link);
+}
+.ver-list {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	margin: 4px 0 0;
+	padding: 4px 0;
+	list-style: none;
+	background: var(--surface-raised);
+	border: 1px solid var(--border);
+	border-radius: 6px;
+	width: max-content;
+	max-height: min(400px, 60vh);
+	overflow-y: auto;
+	z-index: 10;
+	box-shadow: 0 8px 24px var(--shadow-dropdown);
+}
+.ver-list[hidden],
+.ver-list:empty {
+	display: none;
+}
+.ver-list li {
+	padding: 4px 12px;
+	font-family: var(--font-mono);
+	font-size: 0.8rem;
+	color: var(--text);
+	cursor: pointer;
+}
+.ver-list li:hover,
+.ver-list li.active {
+	background: var(--hover-bg);
+	color: var(--accent);
+}
+
+/* ── pills ───────────────────────────── */
+.pill {
+	display: inline-block;
+	padding: 4px 12px;
+	border-radius: 999px;
+	border: 1px solid var(--border);
+	color: var(--text);
+	font-size: 0.78rem;
+	text-decoration: none;
+	transition: border-color 0.15s, background 0.15s;
+}
+.pill:hover {
+	border-color: var(--accent);
+	background: var(--hover-bg);
+	opacity: 1;
+}
+
+/* ── baseline badges ─────────────────── */
+.badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 2px 8px;
+	border-radius: 3px;
+	font-size: 0.68rem;
+	font-weight: 700;
+	font-family: var(--font-body);
+	line-height: 1.2;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	white-space: nowrap;
+}
+.badge-icon {
+	width: 18px;
+	height: 10px;
+	flex: none;
+}
+.badge-widely {
+	background: var(--badge-widely-bg);
+	color: var(--badge-widely-fg);
+}
+.badge-newly {
+	background: var(--badge-newly-bg);
+	color: var(--badge-newly-fg);
+}
+.badge-limited {
+	background: var(--badge-limited-bg);
+	color: var(--badge-limited-fg);
+}
+
+/* ── browser chips ───────────────────── */
+.browser-chips {
+	display: flex;
+	flex-wrap: nowrap;
+	gap: 4px;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.browser-chips.browser-chips--two {
+	display: grid;
+	grid-template-columns: repeat(2, max-content);
+}
+@media (max-width: 800px) {
+	.browser-chips {
+		display: grid;
+		grid-template-columns: repeat(2, max-content);
+	}
+}
+.chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 2px 7px 2px 5px;
+	border-radius: 4px;
+	background: var(--chip-bg);
+	border: 1px solid var(--chip-border);
+	font-size: 0.72rem;
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+	color: var(--text);
+}
+.chip-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 1px;
+	flex: none;
+}
+.chip-logo {
+	width: 18px;
+	height: 18px;
+	flex: none;
+	display: block;
+}
+.chip-status {
+	width: 14px;
+	height: 18px;
+	flex: none;
+	display: block;
+	background-color: currentColor;
+	mask-image: var(--chip-status-mask);
+	mask-position: center;
+	mask-repeat: no-repeat;
+	mask-size: contain;
+	-webkit-mask-image: var(--chip-status-mask);
+	-webkit-mask-position: center;
+	-webkit-mask-repeat: no-repeat;
+	-webkit-mask-size: contain;
+}
+.chip-status--supported {
+	color: var(--chip-supported);
+}
+.chip-status--newly {
+	color: var(--chip-supported-newly);
+}
+.chip-status--missing {
+	color: var(--baseline-cross);
+}
+.chip-version {
+	display: none;
+}
+/*
+ * Version column widths are driven by data, not hardcoded. render.tsx
+ * computes the longest version string length per browser across all
+ * elements and sets `--chip-chars-{key}` on <main> via inline style.
+ * This rule then uses those counts to reserve exactly enough room for
+ * the widest value currently in the dataset. If Chrome ever grows to
+ * "100" (3 chars), the Chrome column widens on the next render — no
+ * stylesheet edit required. Fallback 3 keeps things sane if the vars
+ * are missing.
+ */
+.chip-version {
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+}
+.chip-chrome .chip-version {
+	min-width: calc(var(--chip-chars-chrome, 3) * 1ch);
+}
+.chip-edge .chip-version {
+	min-width: calc(var(--chip-chars-edge, 3) * 1ch);
+}
+.chip-firefox .chip-version {
+	min-width: calc(var(--chip-chars-firefox, 3) * 1ch);
+}
+.chip-safari .chip-version {
+	min-width: calc(var(--chip-chars-safari, 3) * 1ch);
+}
+/*
+ * Wrapping override: at narrow viewports the Support cell is no
+ * longer wide enough to hold all 4 chips on one row. Snap every
+ * chip to the global max width so the wrapped rows form a tidy
+ * grid instead of a ragged layout. Threshold picked empirically
+ * by measurement: at 800px viewport the support cell is ~341px,
+ * just barely fitting the 293px-wide per-browser layout. Below
+ * 800px the cell narrows past the wrap point.
+ *
+ * Container queries would be more precise (per-cell), but putting
+ * `container-type` on the cell or the chip list breaks table
+ * auto-layout (size containment kills the cell's content-driven
+ * width). A viewport @media is the pragmatic fallback.
+ */
+@media (max-width: 800px) {
+	.chip-chrome .chip-version,
+	.chip-edge .chip-version,
+	.chip-firefox .chip-version,
+	.chip-safari .chip-version {
+		min-width: calc(var(--chip-chars-max, 3) * 1ch);
+	}
+}
+.chip-missing {
+	color: var(--text-muted);
+	background: transparent;
+	opacity: 0.75;
+}
+
+/*
+ * Chip state variants — each BrowserVersion signal we preserved in the
+ * pipeline gets a visually-distinct treatment. The rich `title` attribute
+ * carries the full hover text; this is the "at a glance" layer.
+ *
+ * Colour tokens follow the existing badge palette (--badge-limited-*, etc.)
+ * rather than introducing fresh primitives — consistency trumps novelty.
+ */
+.chip-unsupported {
+	color: var(--badge-limited-fg);
+	background: var(--badge-limited-bg);
+	border-color: var(--badge-limited-fg);
+	opacity: 0.85;
+}
+.chip-removed {
+	color: var(--badge-limited-fg);
+	background: var(--badge-limited-bg);
+	border-color: var(--badge-limited-fg);
+	text-decoration: line-through;
+	text-decoration-color: color-mix(
+		in oklab,
+		var(--badge-limited-fg) 70%,
+		transparent
+	);
+	opacity: 0.9;
+}
+.chip-partial {
+	color: var(--accent);
+	background: color-mix(in oklab, var(--accent) 12%, var(--chip-bg));
+	border-color: color-mix(in oklab, var(--accent) 45%, var(--chip-border));
+}
+.chip-flagged {
+	color: var(--link);
+	background: color-mix(in oklab, var(--link) 10%, var(--chip-bg));
+	border-color: color-mix(in oklab, var(--link) 45%, var(--chip-border));
+	font-style: italic;
+}
+.chip-prefixed {
+	color: var(--link);
+	background: color-mix(in oklab, var(--link) 8%, var(--chip-bg));
+	border-color: color-mix(in oklab, var(--link) 35%, var(--chip-border));
+}
+.chip-prefixed .chip-version::after {
+	content: " \002022";
+	color: var(--link);
+	opacity: 0.75;
+	margin-left: 0.1em;
+}
+
+/* ── error page ──────────────────────── */
+.error-page {
+	min-height: 100vh;
+	display: grid;
+	place-items: center;
+	padding: 24px;
+}
+.error-page article {
+	max-width: 560px;
+	padding: 36px;
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	background: var(--surface);
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+.error-page article h1 {
+	font-size: 2rem;
+}
+
+/* ── responsive ──────────────────────── */
+@media (max-width: 600px) {
+	main {
+		padding: 28px 14px 56px;
+		gap: 14px;
+	}
+	.hero {
+		padding: 24px 22px 22px;
+		gap: 20px;
+	}
+	h1 {
+		font-size: 1.85rem;
+	}
+	.stat strong {
+		font-size: 1.8rem;
+	}
+	.section-head {
+		padding: 18px 18px 12px;
+	}
+	.section-head .table-search {
+		width: 100%;
+	}
+	.table-search input {
+		width: 100%;
+	}
+	thead th:first-child,
+	tbody th:first-child,
+	tbody td:first-child {
+		padding-left: 18px;
+	}
+	thead th:last-child,
+	tbody th:last-child,
+	tbody td:last-child {
+		padding-right: 18px;
+	}
+}

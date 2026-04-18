@@ -1,0 +1,7112 @@
+[
+	{
+		"name": "a",
+		"title": "SVG provides an 'a' element, to indicate links (also known as hyperlinks or Web links). An 'a' element forms a link if it has a 'href' or 'xlink:href' attribute; without these attributes the 'a' element is an inactive placeholder for a link.",
+		"categories": [
+			"container"
+		],
+		"content_model": {
+			"kind": "category_set",
+			"categories": [
+				"container",
+				"shape",
+				"text",
+				"gradient",
+				"filter",
+				"descriptive",
+				"structural",
+				"animation",
+				"paint_server",
+				"clip_mask",
+				"never_rendered"
+			]
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"download",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"href",
+			"hreflang",
+			"id",
+			"image-rendering",
+			"interestfor",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"ping",
+			"pointer-events",
+			"referrerpolicy",
+			"rel",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"systemLanguage",
+			"tabindex",
+			"target",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"type",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "a"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "a"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "animate",
+		"title": "The 'animate' element is used to animate a single attribute or property over time.",
+		"categories": [
+			"animation"
+		],
+		"content_model": {
+			"kind": "category_set",
+			"categories": [
+				"descriptive"
+			]
+		},
+		"attributes": [
+			"accumulate",
+			"additive",
+			"alignment-baseline",
+			"attributeName",
+			"attributeType",
+			"autofocus",
+			"baseline-shift",
+			"begin",
+			"by",
+			"calcMode",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"dur",
+			"end",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"from",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"keySplines",
+			"keyTimes",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"repeatCount",
+			"repeatDur",
+			"requiredExtensions",
+			"restart",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"systemLanguage",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"to",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"values",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "animate"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "animate"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "animateMotion",
+		"title": "The 'animateMotion' element causes a referenced element to move along a motion path.",
+		"categories": [
+			"animation"
+		],
+		"content_model": {
+			"kind": "category_set",
+			"categories": [
+				"motion_path",
+				"descriptive"
+			]
+		},
+		"attributes": [
+			"accumulate",
+			"additive",
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"begin",
+			"by",
+			"calcMode",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"dur",
+			"end",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"from",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"keyPoints",
+			"keySplines",
+			"keyTimes",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"origin",
+			"overflow",
+			"paint-order",
+			"path",
+			"pointer-events",
+			"repeatCount",
+			"repeatDur",
+			"requiredExtensions",
+			"restart",
+			"rotate",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"systemLanguage",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"to",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"values",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "animateMotion"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "animateMotion"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "animateTransform",
+		"title": "The 'animateTransform' element animates a transformation attribute on a target element, thereby allowing animations to control translation, scaling, rotation and/or skewing.",
+		"categories": [
+			"animation"
+		],
+		"content_model": {
+			"kind": "category_set",
+			"categories": [
+				"descriptive"
+			]
+		},
+		"attributes": [
+			"accumulate",
+			"additive",
+			"alignment-baseline",
+			"attributeName",
+			"autofocus",
+			"baseline-shift",
+			"begin",
+			"by",
+			"calcMode",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"dur",
+			"end",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"from",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"keySplines",
+			"keyTimes",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"repeatCount",
+			"repeatDur",
+			"requiredExtensions",
+			"restart",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"systemLanguage",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"to",
+			"transform",
+			"transform-origin",
+			"type",
+			"unicode-bidi",
+			"values",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "animateTransform"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "animateTransform"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "circle",
+		"title": "The 'circle' element defines a circle based on a center point and a radius.",
+		"categories": [
+			"shape"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"cx",
+			"cy",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"r",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"systemLanguage",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "circle"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "circle"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "clipPath",
+		"title": "The clipPath element defines a clipping path that can be applied to other elements via the clip-path property.",
+		"categories": [
+			"clip_mask"
+		],
+		"content_model": {
+			"kind": "category_set",
+			"categories": [
+				"shape",
+				"text",
+				"descriptive"
+			]
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"clipPathUnits",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"systemLanguage",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "clipPath"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "clipPath"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "defs",
+		"title": "The 'defs' element is a container element for referenced elements. For understandability and accessibility reasons, it is recommended that, whenever possible, referenced elements be defined inside of a 'defs'.",
+		"categories": [
+			"container"
+		],
+		"content_model": {
+			"kind": "category_set",
+			"categories": [
+				"container",
+				"shape",
+				"text",
+				"gradient",
+				"filter",
+				"descriptive",
+				"structural",
+				"animation",
+				"paint_server",
+				"clip_mask",
+				"never_rendered"
+			]
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"systemLanguage",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "defs"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "defs"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "desc",
+		"title": "The desc element provides an accessible, long-text description of any SVG container element or graphics element.",
+		"categories": [
+			"descriptive"
+		],
+		"content_model": {
+			"kind": "text_only"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "desc"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "desc"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "ellipse",
+		"title": "The 'ellipse' element defines an ellipse which is axis-aligned with the current user coordinate system based on a center point and two radii.",
+		"categories": [
+			"shape"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"cx",
+			"cy",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"rx",
+			"ry",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"systemLanguage",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "ellipse"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "ellipse"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "feBlend",
+		"title": "The feBlend filter primitive composites two objects together by the specified blending mode.",
+		"categories": [
+			"filter_primitive"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"in",
+			"in2",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"mode",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"result",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feBlend"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feBlend"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "feColorMatrix",
+		"title": "The feColorMatrix filter primitive applies a matrix transformation on color values.",
+		"categories": [
+			"filter_primitive"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"in",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"result",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"type",
+			"unicode-bidi",
+			"values",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feColorMatrix"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feColorMatrix"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "feComponentTransfer",
+		"title": "The feComponentTransfer filter primitive allows component-wise remapping of the input image.",
+		"categories": [
+			"filter_primitive"
+		],
+		"content_model": {
+			"kind": "category_set",
+			"categories": [
+				"transfer_function"
+			]
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"in",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"result",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feComponentTransfer"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feComponentTransfer"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "feComposite",
+		"title": "The feComposite filter primitive performs combination of images using Porter-Duff compositing operations.",
+		"categories": [
+			"filter_primitive"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"in",
+			"in2",
+			"k1",
+			"k2",
+			"k3",
+			"k4",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"operator",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"result",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feComposite"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feComposite"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "feConvolveMatrix",
+		"title": "The feConvolveMatrix filter primitive applies a matrix convolution filter effect.",
+		"categories": [
+			"filter_primitive"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"bias",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"divisor",
+			"dominant-baseline",
+			"edgeMode",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"in",
+			"kernelMatrix",
+			"kernelUnitLength",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"order",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"preserveAlpha",
+			"requiredExtensions",
+			"result",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"targetX",
+			"targetY",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feConvolveMatrix"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feConvolveMatrix"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "feDiffuseLighting",
+		"title": "The feDiffuseLighting filter primitive lights an image using its alpha channel as a bump map.",
+		"categories": [
+			"filter_primitive"
+		],
+		"content_model": {
+			"kind": "category_set",
+			"categories": [
+				"light_source"
+			]
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"diffuseConstant",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"in",
+			"kernelUnitLength",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"result",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"surfaceScale",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feDiffuseLighting"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feDiffuseLighting"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "feDisplacementMap",
+		"title": "The feDisplacementMap filter primitive uses pixel values from the second input to spatially displace the first input.",
+		"categories": [
+			"filter_primitive"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"in",
+			"in2",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"result",
+			"scale",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode",
+			"xChannelSelector",
+			"yChannelSelector"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feDisplacementMap"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feDisplacementMap"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "feDistantLight",
+		"title": "The feDistantLight filter primitive defines a distant light source that can be used within a lighting filter primitive.",
+		"categories": [
+			"light_source"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"azimuth",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"elevation",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feDistantLight"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feDistantLight"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "feDropShadow",
+		"title": "The feDropShadow SVG element.",
+		"categories": [],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"dx",
+			"dy",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feDropShadow"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feDropShadow"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "feFlood",
+		"title": "The feFlood filter primitive fills the subregion with a single color and opacity.",
+		"categories": [
+			"filter_primitive"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"result",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feFlood"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feFlood"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "feFuncA",
+		"title": "The feFuncA element defines the transfer function for the alpha component.",
+		"categories": [
+			"transfer_function"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"amplitude",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"exponent",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"intercept",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"offset",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"shape-rendering",
+			"slope",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"tableValues",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"type",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feFuncA"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feFuncA"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "feFuncB",
+		"title": "The feFuncB element defines the transfer function for the blue component.",
+		"categories": [
+			"transfer_function"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"amplitude",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"exponent",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"intercept",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"offset",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"shape-rendering",
+			"slope",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"tableValues",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"type",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feFuncB"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feFuncB"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "feFuncG",
+		"title": "The feFuncG element defines the transfer function for the green component.",
+		"categories": [
+			"transfer_function"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"amplitude",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"exponent",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"intercept",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"offset",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"shape-rendering",
+			"slope",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"tableValues",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"type",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feFuncG"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feFuncG"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "feFuncR",
+		"title": "The feFuncR element defines the transfer function for the red component.",
+		"categories": [
+			"transfer_function"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"amplitude",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"exponent",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"intercept",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"offset",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"shape-rendering",
+			"slope",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"tableValues",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"type",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feFuncR"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feFuncR"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "feGaussianBlur",
+		"title": "The feGaussianBlur filter primitive performs a Gaussian blur on the input image.",
+		"categories": [
+			"filter_primitive"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"edgeMode",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"in",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"result",
+			"shape-rendering",
+			"stdDeviation",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feGaussianBlur"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feGaussianBlur"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "feImage",
+		"title": "The feImage filter primitive fetches image data from an external source and provides the pixel data as output.",
+		"categories": [
+			"filter_primitive"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"crossorigin",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fetchpriority",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"href",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"preserveAspectRatio",
+			"requiredExtensions",
+			"result",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feImage"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feImage"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "feMerge",
+		"title": "The feMerge filter primitive composites input image layers on top of each other.",
+		"categories": [
+			"filter_primitive"
+		],
+		"content_model": {
+			"kind": "category_set",
+			"categories": [
+				"merge_node"
+			]
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"result",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feMerge"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feMerge"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "feMergeNode",
+		"title": "The feMergeNode element represents one input layer within a feMerge composition.",
+		"categories": [
+			"merge_node"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"in",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feMergeNode"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feMergeNode"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "feMorphology",
+		"title": "The feMorphology filter primitive thins or fattens the input image.",
+		"categories": [
+			"filter_primitive"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"in",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"operator",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"radius",
+			"requiredExtensions",
+			"result",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feMorphology"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feMorphology"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "feOffset",
+		"title": "The feOffset filter primitive offsets the input image.",
+		"categories": [
+			"filter_primitive"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"dx",
+			"dy",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"in",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"result",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feOffset"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feOffset"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "fePointLight",
+		"title": "The fePointLight filter primitive defines a point light source that can be used within a lighting filter primitive.",
+		"categories": [
+			"light_source"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode",
+			"x",
+			"y",
+			"z"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "fePointLight"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "fePointLight"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "feSpecularLighting",
+		"title": "The feSpecularLighting filter primitive lights a source graphic using its alpha channel as a bump map, producing a specular reflection.",
+		"categories": [
+			"filter_primitive"
+		],
+		"content_model": {
+			"kind": "category_set",
+			"categories": [
+				"light_source"
+			]
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"in",
+			"kernelUnitLength",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"result",
+			"shape-rendering",
+			"specularConstant",
+			"specularExponent",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"surfaceScale",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feSpecularLighting"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feSpecularLighting"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "feSpotLight",
+		"title": "The feSpotLight filter primitive defines a spot light source that can be used within a lighting filter primitive.",
+		"categories": [
+			"light_source"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"limitingConeAngle",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"pointsAtX",
+			"pointsAtY",
+			"pointsAtZ",
+			"requiredExtensions",
+			"shape-rendering",
+			"specularExponent",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode",
+			"x",
+			"y",
+			"z"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feSpotLight"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feSpotLight"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "feTile",
+		"title": "The feTile filter primitive fills a target rectangle with a repeated, tiled pattern of an input image.",
+		"categories": [
+			"filter_primitive"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"in",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"result",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feTile"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feTile"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "feTurbulence",
+		"title": "The feTurbulence filter primitive creates an image using the Perlin turbulence function.",
+		"categories": [
+			"filter_primitive"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseFrequency",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"numOctaves",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"result",
+			"seed",
+			"shape-rendering",
+			"stitchTiles",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"type",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feTurbulence"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "feTurbulence"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "filter",
+		"title": "The filter element serves as container for atomic filter operations, defined by filter primitives.",
+		"categories": [
+			"filter"
+		],
+		"content_model": {
+			"kind": "category_set",
+			"categories": [
+				"filter_primitive",
+				"descriptive"
+			]
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"filterUnits",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"height",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"primitiveUnits",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"width",
+			"word-spacing",
+			"writing-mode",
+			"x",
+			"y"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "filter"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "filter"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "foreignObject",
+		"title": "SVG is designed to be compatible with other XML languages for describing and rendering other types of content. The 'foreignObject' element allows for inclusion of elements in a non-SVG namespace which is rendered within a region of the SVG graphic using other user agent processes.",
+		"categories": [
+			"structural"
+		],
+		"content_model": {
+			"kind": "foreign_namespace"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"height",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"systemLanguage",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"width",
+			"word-spacing",
+			"writing-mode",
+			"x",
+			"y"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "foreignObject"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "foreignObject"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "g",
+		"title": "The g element is a container used to group other SVG elements.",
+		"categories": [
+			"container"
+		],
+		"content_model": {
+			"kind": "category_set",
+			"categories": [
+				"container",
+				"shape",
+				"text",
+				"gradient",
+				"filter",
+				"descriptive",
+				"structural",
+				"animation",
+				"paint_server",
+				"clip_mask",
+				"never_rendered"
+			]
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"systemLanguage",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "g"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "g"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "image",
+		"title": "The 'image' element indicates that the contents of a complete file are to be rendered into a given rectangle within the current user coordinate system. The 'image' element can refer to raster image files such as PNG or JPEG or to files with MIME type of \"image/svg+xml\".",
+		"categories": [
+			"structural"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"crossorigin",
+			"cursor",
+			"decoding",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fetchpriority",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"height",
+			"href",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"preserveAspectRatio",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"systemLanguage",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"width",
+			"word-spacing",
+			"writing-mode",
+			"x",
+			"y"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "image"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "image"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "line",
+		"title": "The 'line' element defines a line segment that starts at one point and ends at another.",
+		"categories": [
+			"shape"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"systemLanguage",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode",
+			"x1",
+			"x2",
+			"y1",
+			"y2"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "line"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "line"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "linearGradient",
+		"title": "Linear gradients are defined by a 'linearGradient' element.",
+		"categories": [
+			"gradient"
+		],
+		"content_model": {
+			"kind": "category_set",
+			"categories": [
+				"gradient",
+				"descriptive",
+				"animation"
+			]
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"gradientTransform",
+			"gradientUnits",
+			"href",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"shape-rendering",
+			"spreadMethod",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode",
+			"x1",
+			"x2",
+			"y1",
+			"y2"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "linearGradient"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "linearGradient"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "marker",
+		"title": "The 'marker element' element defines the graphics that are to be used for drawing markers on a shape.",
+		"categories": [
+			"container"
+		],
+		"content_model": {
+			"kind": "category_set",
+			"categories": [
+				"shape",
+				"text",
+				"gradient",
+				"filter",
+				"descriptive",
+				"animation",
+				"paint_server",
+				"clip_mask"
+			]
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"markerHeight",
+			"markerUnits",
+			"markerWidth",
+			"mask",
+			"opacity",
+			"orient",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"preserveAspectRatio",
+			"refX",
+			"refY",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"viewBox",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "marker"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "marker"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "mask",
+		"title": "The mask element defines an alpha mask for compositing the current object into the background.",
+		"categories": [
+			"clip_mask"
+		],
+		"content_model": {
+			"kind": "category_set",
+			"categories": [
+				"container",
+				"shape",
+				"text",
+				"gradient",
+				"descriptive",
+				"structural",
+				"never_rendered"
+			]
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"height",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"maskContentUnits",
+			"maskUnits",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"systemLanguage",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"width",
+			"word-spacing",
+			"writing-mode",
+			"x",
+			"y"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "mask"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "mask"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "metadata",
+		"title": "Metadata which is included with SVG content should be specified within 'metadata' elements. The contents of the 'metadata' should be elements from other XML namespaces, with these elements from these namespaces expressed in a manner conforming with the Namespaces in XML Recommendation [xml-names].",
+		"categories": [
+			"descriptive"
+		],
+		"content_model": {
+			"kind": "text_only"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "metadata"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "metadata"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "mpath",
+		"title": "The mpath element provides the ability to reference an external path as the definition of a motion path for animateMotion.",
+		"categories": [
+			"motion_path"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"href",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "mpath"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "mpath"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "path",
+		"title": "A path represents the outline of a shape which can be filled or stroked. A path can also be used as a clipping path, to describe animation, or position text.",
+		"categories": [
+			"shape"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"d",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"systemLanguage",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "path"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "path"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "pattern",
+		"title": "The pattern element defines a graphics object which can be redrawn at repeated x- and y-coordinate intervals to cover an area.",
+		"categories": [
+			"paint_server"
+		],
+		"content_model": {
+			"kind": "category_set",
+			"categories": [
+				"container",
+				"shape",
+				"text",
+				"gradient",
+				"filter",
+				"descriptive",
+				"structural",
+				"animation",
+				"paint_server",
+				"clip_mask",
+				"never_rendered"
+			]
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"height",
+			"href",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"patternContentUnits",
+			"patternTransform",
+			"patternUnits",
+			"pointer-events",
+			"preserveAspectRatio",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"systemLanguage",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"viewBox",
+			"visibility",
+			"white-space",
+			"width",
+			"word-spacing",
+			"writing-mode",
+			"x",
+			"y"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "pattern"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "pattern"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "polygon",
+		"title": "The 'polygon' element defines a closed shape consisting of a set of connected straight line segments.",
+		"categories": [
+			"shape"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"points",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"systemLanguage",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "polygon"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "polygon"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "polyline",
+		"title": "The 'polyline' element defines a set of connected straight line segments. Typically, 'polyline' elements define open shapes.",
+		"categories": [
+			"shape"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"points",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"systemLanguage",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "polyline"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "polyline"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "radialGradient",
+		"title": "Radial gradients are defined by a 'radialGradient' element.",
+		"categories": [
+			"gradient"
+		],
+		"content_model": {
+			"kind": "category_set",
+			"categories": [
+				"gradient",
+				"descriptive",
+				"animation"
+			]
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"cx",
+			"cy",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"fr",
+			"fx",
+			"fy",
+			"glyph-orientation-vertical",
+			"gradientTransform",
+			"gradientUnits",
+			"href",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"r",
+			"requiredExtensions",
+			"shape-rendering",
+			"spreadMethod",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "radialGradient"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "radialGradient"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "rect",
+		"title": "The 'rect' element defines a rectangle which is axis-aligned with the current user coordinate system. Rounded rectangles can be achieved by setting non-zero values for the 'rx' and 'ry' geometric properties.",
+		"categories": [
+			"shape"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"height",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"rx",
+			"ry",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"systemLanguage",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"width",
+			"word-spacing",
+			"writing-mode",
+			"x",
+			"y"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "rect"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "rect"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "script",
+		"title": "A 'script' element is equivalent to the 'script' element in HTML and thus is the place for scripts (e.g., ECMAScript). Any functions defined within any 'script' element have a \"global\" scope across the entire current document.",
+		"categories": [
+			"never_rendered"
+		],
+		"content_model": {
+			"kind": "text_only"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"async",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"defer",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fetchpriority",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"href",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"type",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "script"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "script"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "set",
+		"title": "The 'set' element provides a simple means of just setting the value of an attribute for a specified duration. It supports all attribute types, including those that cannot reasonably be interpolated, such as string and boolean values.",
+		"categories": [
+			"animation"
+		],
+		"content_model": {
+			"kind": "category_set",
+			"categories": [
+				"descriptive"
+			]
+		},
+		"attributes": [
+			"alignment-baseline",
+			"attributeName",
+			"autofocus",
+			"baseline-shift",
+			"begin",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"dur",
+			"end",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"repeatDur",
+			"requiredExtensions",
+			"restart",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"systemLanguage",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"to",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "set"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "set"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "stop",
+		"title": "The vector of colors to use in a gradient is defined by the 'stop' elements that are child elements to a 'linearGradient', or 'radialGradient' element.",
+		"categories": [
+			"gradient"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"offset",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"shape-rendering",
+			"stop-color",
+			"stop-opacity",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "stop"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "stop"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "style",
+		"title": "The style element allows style sheets to be embedded directly within SVG content.",
+		"categories": [
+			"never_rendered"
+		],
+		"content_model": {
+			"kind": "text_only"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"media",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"title",
+			"transform",
+			"transform-origin",
+			"type",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "style"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "style"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "svg",
+		"title": "An SVG document fragment consists of any number of SVG elements contained within an 'svg' element.",
+		"categories": [
+			"container"
+		],
+		"content_model": {
+			"kind": "category_set",
+			"categories": [
+				"container",
+				"shape",
+				"text",
+				"gradient",
+				"filter",
+				"descriptive",
+				"structural",
+				"animation",
+				"paint_server",
+				"clip_mask",
+				"never_rendered"
+			]
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"height",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"preserveAspectRatio",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"systemLanguage",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"viewBox",
+			"visibility",
+			"white-space",
+			"width",
+			"word-spacing",
+			"writing-mode",
+			"x",
+			"y"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "svg"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "svg"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "switch",
+		"title": "The 'switch' element evaluates the 'requiredExtensions' and 'systemLanguage' attributes on its direct child elements in order, and then processes and renders the first child for which these attributes evaluate to true. All others will be bypassed and therefore not rendered.",
+		"categories": [
+			"structural"
+		],
+		"content_model": {
+			"kind": "category_set",
+			"categories": [
+				"container",
+				"shape",
+				"text",
+				"structural",
+				"animation"
+			]
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"systemLanguage",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "switch"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "switch"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "symbol",
+		"title": "The 'symbol' element is used to define graphical templates which can be instantiated by a 'use' element but which are not rendered directly.",
+		"categories": [
+			"container"
+		],
+		"content_model": {
+			"kind": "category_set",
+			"categories": [
+				"container",
+				"shape",
+				"text",
+				"gradient",
+				"filter",
+				"descriptive",
+				"structural",
+				"animation",
+				"paint_server",
+				"clip_mask",
+				"never_rendered"
+			]
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"preserveAspectRatio",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"viewBox",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "symbol"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "symbol"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "text",
+		"title": "The 'text' element defines a graphics element consisting of text. The 'tspan' element within a 'text' or another 'tspan' element, allows one to switch the style and/or adjust the position of the rendered text inside the 'tspan' element relative to the parent element.",
+		"categories": [
+			"text"
+		],
+		"content_model": {
+			"kind": "category_set",
+			"categories": [
+				"text",
+				"descriptive"
+			]
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"dx",
+			"dy",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"lang",
+			"lengthAdjust",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"rotate",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"systemLanguage",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"textLength",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode",
+			"x",
+			"y"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "text"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "text"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "textPath",
+		"title": "SVG can place text along a path defined either by a 'path element' element or the path equivalent of a basic shape. This is specified by including text within a 'textPath' element that has either an 'href' attribute with an URL reference pointing to a 'path element' element or basic shape, or by specifying a value for the 'path' attribute that specifies the path data directly.",
+		"categories": [
+			"text"
+		],
+		"content_model": {
+			"kind": "category_set",
+			"categories": [
+				"text",
+				"descriptive"
+			]
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"href",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"method",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"path",
+			"pointer-events",
+			"requiredExtensions",
+			"shape-rendering",
+			"side",
+			"spacing",
+			"startOffset",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"systemLanguage",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"textLength",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "textPath"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "textPath"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "title",
+		"title": "The title element provides an accessible, short-text description of any SVG container element or graphics element.",
+		"categories": [
+			"descriptive"
+		],
+		"content_model": {
+			"kind": "text_only"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "title"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "title"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "tspan",
+		"title": "The tspan element defines a subtext within a text element or another tspan element.",
+		"categories": [
+			"text"
+		],
+		"content_model": {
+			"kind": "category_set",
+			"categories": [
+				"text",
+				"descriptive"
+			]
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"dx",
+			"dy",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"lang",
+			"lengthAdjust",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"rotate",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"systemLanguage",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"textLength",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode",
+			"x",
+			"y"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "tspan"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "tspan"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "use",
+		"title": "The 'use' element references another element, a copy of which is rendered in place of the 'use' in the document. The referenced element may be a container element, in which case a copy of the complete SVG document subtree rooted at that element is used.",
+		"categories": [
+			"structural"
+		],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"height",
+			"href",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"systemLanguage",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"width",
+			"word-spacing",
+			"writing-mode",
+			"x",
+			"y"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "use"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "use"
+				},
+				"confidence": "derived"
+			}
+		]
+	},
+	{
+		"name": "view",
+		"title": "The 'view' element is defined as follows:",
+		"categories": [],
+		"content_model": {
+			"kind": "empty"
+		},
+		"attributes": [
+			"alignment-baseline",
+			"autofocus",
+			"baseline-shift",
+			"class",
+			"clip-path",
+			"clip-rule",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"cursor",
+			"direction",
+			"display",
+			"dominant-baseline",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"font-width",
+			"glyph-orientation-vertical",
+			"id",
+			"image-rendering",
+			"lang",
+			"letter-spacing",
+			"lighting-color",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"mask",
+			"opacity",
+			"overflow",
+			"paint-order",
+			"pointer-events",
+			"requiredExtensions",
+			"shape-rendering",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"tabindex",
+			"text-anchor",
+			"text-decoration",
+			"text-overflow",
+			"text-rendering",
+			"transform",
+			"transform-origin",
+			"unicode-bidi",
+			"vector-effect",
+			"visibility",
+			"white-space",
+			"word-spacing",
+			"writing-mode"
+		],
+		"provenance": [
+			{
+				"source_id": "element-index",
+				"source_kind": "index",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "view"
+				},
+				"confidence": "derived"
+			},
+			{
+				"source_id": "tr-root",
+				"source_kind": "html",
+				"pin": {
+					"kind": "url",
+					"url": "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+				},
+				"locator": {
+					"kind": "fragment",
+					"anchor": "view"
+				},
+				"confidence": "derived"
+			}
+		]
+	}
+]

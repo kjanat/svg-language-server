@@ -1,0 +1,87 @@
+# Progress Log
+
+PRD: spec-definitions.md
+Spec: spec-definitions.md
+Started: 2026-04-09
+
+## Codebase Patterns
+
+- For profile-aware LSP suggestions, use `svg-data` profiled lookup APIs as the source of truth and carry the returned lifecycle through to user-facing labels instead of inferring from compat booleans.
+- Keep `svg-data` public profile metadata in `src/lib.rs` + `src/types.rs` first when it is small and static; save build-script churn for later profile-specific catalog overlays.
+- Normalize user-facing identifiers by stripping punctuation and folding ASCII case when config should accept canonical ids, aliases, and human-written long-form names.
+- Keep spec lifecycle as its own field on `svg-data` defs; compat booleans stay a separate axis so later lint/LSP code can switch without re-plumbing catalog generation again.
+- When profile deltas are sparse, keep the catalog as a union and layer snapshot membership tables in `svg-data::lib`; that gives lint/LSP profile-aware lookups without forcing generated catalog churn yet.
+- Namespace-aware SVG lint needs XML rules, not string prefix guesses: element names inherit default namespaces, but unprefixed attributes stay in no namespace and should only map back to SVG/XLink when their resolved namespace allows it.
+- In the LSP, keep profile selection as a tiny shared state object and funnel every diagnostics refresh through one `relint_open_documents` helper, so init/config/runtime-compat changes cannot drift.
+- For profile-aware hover, resolve `ProfileLookup` once in `lib.rs`, keep rendering in `hover.rs`, and show spec lifecycle as a separate line from runtime/browser compat so obsolete historical attrs like `xlink:href` still explain why they fail in newer profiles.
+- For profile E2E coverage, use lowercase aliases like `svg11` and `svg2draft`; one test then covers alias handling, case folding, and the real relint/completion path at once.
+
+---
+
+## Task - snapshot-metadata
+
+- Added `SpecSnapshotId` and `SpecSnapshotMetadata` to `crates/svg-data/src/types.rs`
+- Added `svg_data::spec_snapshots()`, `snapshot_metadata()`, and `resolve_profile_id()` in `crates/svg-data/src/lib.rs`
+- Pinned metadata now covers source URL, snapshot date, stable base, errata folding, plus friendly aliases and long-form synonyms for all four target snapshots
+- Added regression tests for alias resolution, case-insensitive parsing, long-form synonym parsing, and metadata invariants
+- Files changed: `crates/svg-data/src/lib.rs`, `crates/svg-data/src/types.rs`, `.opencode/state/spec-definitions.md/prd.json`, `.opencode/state/spec-definitions.md/progress.txt`
+- **Learnings:** this repo has no existing `.opencode/state` entry for `spec-definitions.md`, so the workflow state had to be bootstrapped from the checked-in spec before the task could be tracked
+
+## Task - spec-lifecycle
+
+- Added a dedicated `SpecLifecycle` enum and `spec_lifecycle` field on `ElementDef` and `AttributeDef`
+- Updated `svg-data` codegen so spec lifecycle comes only from pinned spec metadata while existing `deprecated` and `experimental` flags remain browser/runtime compat signals
+- Added a regression test proving `xlink:href` stays `SpecLifecycle::Stable` even though compat marks it deprecated
+- Files changed: `crates/svg-data/build.rs`, `crates/svg-data/src/catalog.rs`, `crates/svg-data/src/lib.rs`, `crates/svg-data/src/types.rs`, `.opencode/state/spec-definitions.md/prd.json`, `.opencode/state/spec-definitions.md/progress.txt`
+- **Learnings:** `svg-data` catalog codegen already centralizes field wiring, so separating lifecycle semantics was a one-pass change once the shared type lived in `src/types.rs`
+
+## Task - profile-lookups
+
+- Added `ProfileLookup`, `ProfiledElement`, and `ProfiledAttribute` in `crates/svg-data/src/types.rs`
+- Added `element_for_profile`, `attribute_for_profile`, `elements_with_profile`, `allowed_children_with_profile`, and `attributes_for_with_profile` in `crates/svg-data/src/lib.rs`
+- Kept the current catalog as a union and layered explicit snapshot membership tables for `href` vs `xlink:*`, so SVG 1.1 and SVG 2 profiles now resolve the right attribute surface without build-script churn
+- Added regression tests for present vs unsupported vs unknown lookups and for `use` switching between `xlink:href` and `href` by profile
+- Files changed: `crates/svg-data/src/lib.rs`, `crates/svg-data/src/types.rs`, `.opencode/state/spec-definitions.md/prd.json`, `.opencode/state/spec-definitions.md/progress.txt`
+- **Learnings:** filtering profile-aware attribute lists at lookup time is enough for the current dataset because child policies and most union entries are unchanged across snapshots; only the sparse membership deltas need explicit overlays
+
+## Task - namespace-lint-core
+
+- Added `LintOptions`, `lint_with_options`, `lint_tree_with_options`, and the new `UnsupportedInProfile` diagnostic so lint can run against a selected spec snapshot without breaking the old entrypoints.
+- Added `crates/svg-lint/src/namespaces.rs` and rewired lint traversal to resolve XML namespaces per element, implicitly treat bare root `<svg>` fixtures as SVG, skip non-SVG subtrees, and re-enter SVG validation for nested SVG islands.
+- Switched lint lifecycle diagnostics to `svg-data` profile lookups, so deprecated and experimental warnings come from pinned spec lifecycle rather than runtime compat booleans; unknown stays distinct from unsupported.
+- Made child and attribute checks profile-aware, including `href` vs `xlink:href` unsupported diagnostics, namespace-aware attribute filtering, and multiline suppression coverage for the new diagnostic path.
+- Updated downstream LSP diagnostics/code-action coverage to assert multiline suppression insertion for `UnsupportedInProfile`.
+- Files changed: `crates/svg-lint/src/lib.rs`, `crates/svg-lint/src/namespaces.rs`, `crates/svg-lint/src/rules/mod.rs`, `crates/svg-lint/src/types.rs`, `crates/svg-language-server/tests/diagnostics_and_actions.rs`, `.opencode/state/spec-definitions.md/prd.json`, `.opencode/state/spec-definitions.md/progress.txt`
+- **Learnings:** the parser already exposes enough structure to resolve namespace declarations locally from tag attributes; the sharp edge is XML semantics, where default namespaces apply to elements but never to unprefixed attributes.
+
+## Task - lsp-profile-config
+
+- Added `ProfileConfig` state in `crates/svg-language-server/src/lib.rs` and wired `initialize` plus `didChangeConfiguration` to parse `svg.profile`, resolve aliases case-insensitively, warn on invalid ids, and fall back to the default draft snapshot.
+- Reworked LSP diagnostics refresh to use a shared `relint_open_documents` helper, so document opens, runtime compat refresh, and config changes all lint with the currently selected profile.
+- Extended the integration test harness with custom initialize options and config-change helpers, then added an end-to-end test proving SVG 1.1 init config accepts `xlink:href` and a later config change to `Svg2Draft` re-lints the open doc with `UnsupportedInProfile`.
+- Files changed: `crates/svg-language-server/src/lib.rs`, `crates/svg-language-server/tests/diagnostics_and_actions.rs`, `crates/svg-language-server/tests/support/mod.rs`, `.opencode/state/spec-definitions.md/prd.json`, `.opencode/state/spec-definitions.md/progress.txt`
+- **Learnings:** using the exact same config shape for initialize and `workspace/didChangeConfiguration` keeps the parser trivial; the only real edge is storing a resolved canonical snapshot once and reusing it everywhere lint needs to run.
+
+## Task - completion-lifecycle
+
+- Switched completion element and attribute candidate lookup to the selected SVG profile, so unsupported items are filtered out before the LSP response is built.
+- Added lifecycle-aware completion detail strings plus deprecated tags for deprecated and obsolete element suggestions.
+- Added protocol coverage proving `xlink:href` appears for SVG 1.1 but is hidden for `Svg2Draft`, plus unit coverage for experimental and deprecated lifecycle annotations on completion items.
+- Files changed: `crates/svg-language-server/src/completion.rs`, `crates/svg-language-server/src/lib.rs`, `crates/svg-language-server/tests/completions.rs`, `.opencode/state/spec-definitions.md/prd.json`, `.opencode/state/spec-definitions.md/progress.txt`
+- **Learnings:** completion filtering belongs at the profile lookup boundary; once candidates arrive as profiled defs, the LSP layer only needs to preserve lifecycle metadata when building `CompletionItem`s.
+
+## Task - hover-lifecycle
+
+- Switched hover lookup in `crates/svg-language-server/src/lib.rs` to use profile-aware `svg-data` lookups for both elements and attributes, including known-but-unsupported features.
+- Added lifecycle line helpers in `crates/svg-language-server/src/hover.rs`, so hover now renders spec lifecycle separately from browser support and reports obsolete historical attrs like `xlink:href` as `Obsolete after Svg11Rec20110816` in SVG 2 profiles.
+- Added unit coverage for lifecycle line formatting and an end-to-end hover test that checks SVG 1.1 vs SVG 2 profile behavior for `xlink:href`.
+- Files changed: `crates/svg-language-server/src/lib.rs`, `crates/svg-language-server/src/hover.rs`, `crates/svg-language-server/tests/definitions_and_hover.rs`, `.opencode/state/spec-definitions.md/prd.json`, `.opencode/state/spec-definitions.md/progress.txt`
+- **Learnings:** hover can keep rendering from the union catalog even when a feature is unsupported in the selected profile, as long as the profile lookup result drives the lifecycle line and the browser compat section stays independent.
+
+## Task - profile-regression-tests
+
+- Added `svg-data` regression coverage for exact friendly alias mappings and diff-derived draft lifecycle promotion via `lifecycle_for_profile`.
+- Added `svg-lint` regression coverage proving prefixed `svg:` elements still flow through SVG namespace validation.
+- Tightened LSP integration coverage so lowercase profile aliases are accepted during initialize and config change, and open documents still re-lint against the resolved profile.
+- Files changed: `crates/svg-data/src/lib.rs`, `crates/svg-lint/src/lib.rs`, `crates/svg-language-server/tests/completions.rs`, `crates/svg-language-server/tests/diagnostics_and_actions.rs`, `.opencode/state/spec-definitions.md/prd.json`, `.opencode/state/spec-definitions.md/progress.txt`
+- **Learnings:** regression tests that hit lowercase aliases are cheap but high-signal because they exercise the full config parsing path instead of only the pure resolver helper.

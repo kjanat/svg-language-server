@@ -1,0 +1,315 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "ReviewFile",
+	"description": "Typed payload for `review.json`.",
+	"type": "object",
+	"properties": {
+		"applicability": {
+			"description": "Applicability-matrix coverage summary.",
+			"$ref": "#/$defs/ApplicabilityCoverage"
+		},
+		"counts": {
+			"description": "Aggregate counts for the normalized dataset.",
+			"$ref": "#/$defs/ReviewCounts"
+		},
+		"exception_inventory": {
+			"description": "Manual exception inventory summary.",
+			"$ref": "#/$defs/ExceptionInventory"
+		},
+		"manual_notes": {
+			"description": "Free-form review notes for humans.",
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		},
+		"provenance": {
+			"description": "Provenance coverage across checked-in fact files.",
+			"$ref": "#/$defs/ProvenanceCoverage"
+		},
+		"schema_version": {
+			"description": "Schema version for the review payload.",
+			"type": "integer",
+			"format": "uint32",
+			"minimum": 0
+		},
+		"unresolved": {
+			"description": "Remaining unresolved items.",
+			"type": "array",
+			"items": {
+				"$ref": "#/$defs/ReviewIssue"
+			}
+		}
+	},
+	"required": [
+		"schema_version",
+		"counts",
+		"applicability",
+		"provenance",
+		"exception_inventory",
+		"unresolved",
+		"manual_notes"
+	],
+	"$defs": {
+		"ApplicabilityCoverage": {
+			"description": "Applicability-matrix coverage derived from checked-in facts.",
+			"type": "object",
+			"properties": {
+				"elements_missing_matrix_entries": {
+					"description": "Elements whose declared attribute list has no matrix coverage.",
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"elements_requiring_matrix_entries": {
+					"description": "Elements with one or more declared attributes.",
+					"type": "integer",
+					"format": "uint",
+					"minimum": 0
+				},
+				"elements_with_matrix_entries": {
+					"description": "Elements with one or more matrix entries.",
+					"type": "integer",
+					"format": "uint",
+					"minimum": 0
+				}
+			},
+			"required": [
+				"elements_requiring_matrix_entries",
+				"elements_with_matrix_entries",
+				"elements_missing_matrix_entries"
+			]
+		},
+		"ExceptionInventory": {
+			"description": "Manual exception inventory derived from `exceptions.json`.",
+			"type": "object",
+			"properties": {
+				"attribute_scoped": {
+					"description": "Attribute-scoped exceptions.",
+					"type": "integer",
+					"format": "uint",
+					"minimum": 0
+				},
+				"corrected": {
+					"description": "Corrected exceptions.",
+					"type": "integer",
+					"format": "uint",
+					"minimum": 0
+				},
+				"deferred": {
+					"description": "Deferred exceptions.",
+					"type": "integer",
+					"format": "uint",
+					"minimum": 0
+				},
+				"element_attribute_scoped": {
+					"description": "Element-attribute-scoped exceptions.",
+					"type": "integer",
+					"format": "uint",
+					"minimum": 0
+				},
+				"element_scoped": {
+					"description": "Element-scoped exceptions.",
+					"type": "integer",
+					"format": "uint",
+					"minimum": 0
+				},
+				"grammar_scoped": {
+					"description": "Grammar-scoped exceptions.",
+					"type": "integer",
+					"format": "uint",
+					"minimum": 0
+				},
+				"ids": {
+					"description": "Stable ids for human review.",
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"snapshot_scoped": {
+					"description": "Snapshot-scoped exceptions.",
+					"type": "integer",
+					"format": "uint",
+					"minimum": 0
+				},
+				"total": {
+					"description": "Total exception count.",
+					"type": "integer",
+					"format": "uint",
+					"minimum": 0
+				}
+			},
+			"required": [
+				"total",
+				"corrected",
+				"deferred",
+				"snapshot_scoped",
+				"element_scoped",
+				"attribute_scoped",
+				"element_attribute_scoped",
+				"grammar_scoped",
+				"ids"
+			]
+		},
+		"ProvenanceCoverage": {
+			"description": "Provenance coverage across the normalized snapshot payloads.",
+			"type": "object",
+			"properties": {
+				"applicability_edges": {
+					"description": "Applicability-edge fact coverage.",
+					"$ref": "#/$defs/ProvenanceCoverageCount"
+				},
+				"attribute_categories": {
+					"description": "Attribute-category fact coverage.",
+					"$ref": "#/$defs/ProvenanceCoverageCount"
+				},
+				"attributes": {
+					"description": "Attribute fact coverage.",
+					"$ref": "#/$defs/ProvenanceCoverageCount"
+				},
+				"element_categories": {
+					"description": "Element-category fact coverage.",
+					"$ref": "#/$defs/ProvenanceCoverageCount"
+				},
+				"elements": {
+					"description": "Element fact coverage.",
+					"$ref": "#/$defs/ProvenanceCoverageCount"
+				},
+				"exceptions": {
+					"description": "Exception fact coverage.",
+					"$ref": "#/$defs/ProvenanceCoverageCount"
+				},
+				"grammars": {
+					"description": "Grammar fact coverage.",
+					"$ref": "#/$defs/ProvenanceCoverageCount"
+				}
+			},
+			"required": [
+				"elements",
+				"attributes",
+				"grammars",
+				"element_categories",
+				"attribute_categories",
+				"applicability_edges",
+				"exceptions"
+			]
+		},
+		"ProvenanceCoverageCount": {
+			"description": "Provenance coverage counts for one fact collection.",
+			"type": "object",
+			"properties": {
+				"covered": {
+					"description": "Records with at least one provenance entry.",
+					"type": "integer",
+					"format": "uint",
+					"minimum": 0
+				},
+				"missing": {
+					"description": "Records still missing provenance.",
+					"type": "integer",
+					"format": "uint",
+					"minimum": 0
+				},
+				"total": {
+					"description": "Total records in the collection.",
+					"type": "integer",
+					"format": "uint",
+					"minimum": 0
+				}
+			},
+			"required": [
+				"total",
+				"covered",
+				"missing"
+			]
+		},
+		"ReviewCounts": {
+			"description": "Aggregate snapshot counts used during review.",
+			"type": "object",
+			"properties": {
+				"applicability_edges": {
+					"description": "Number of applicability edges.",
+					"type": "integer",
+					"format": "uint",
+					"minimum": 0
+				},
+				"attributes": {
+					"description": "Number of normalized attributes.",
+					"type": "integer",
+					"format": "uint",
+					"minimum": 0
+				},
+				"elements": {
+					"description": "Number of normalized elements.",
+					"type": "integer",
+					"format": "uint",
+					"minimum": 0
+				},
+				"exceptions": {
+					"description": "Number of exceptions.",
+					"type": "integer",
+					"format": "uint",
+					"minimum": 0
+				},
+				"grammars": {
+					"description": "Number of grammar definitions.",
+					"type": "integer",
+					"format": "uint",
+					"minimum": 0
+				}
+			},
+			"required": [
+				"elements",
+				"attributes",
+				"grammars",
+				"applicability_edges",
+				"exceptions"
+			]
+		},
+		"ReviewIssue": {
+			"description": "Review finding that still needs action.",
+			"type": "object",
+			"properties": {
+				"id": {
+					"description": "Stable issue id.",
+					"type": "string"
+				},
+				"severity": {
+					"description": "Severity for release gating.",
+					"$ref": "#/$defs/ReviewSeverity"
+				},
+				"summary": {
+					"description": "Human-readable summary.",
+					"type": "string"
+				}
+			},
+			"required": [
+				"id",
+				"severity",
+				"summary"
+			]
+		},
+		"ReviewSeverity": {
+			"description": "Severity for a snapshot review issue.",
+			"oneOf": [
+				{
+					"description": "Blocks review completion.",
+					"type": "string",
+					"const": "error"
+				},
+				{
+					"description": "Needs follow-up but does not block all work.",
+					"type": "string",
+					"const": "warning"
+				},
+				{
+					"description": "Informational review note.",
+					"type": "string",
+					"const": "info"
+				}
+			]
+		}
+	}
+}

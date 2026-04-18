@@ -63,7 +63,7 @@ Rust workspace for SVG tooling. Main product is `svg-language-server` (LSP), wit
 
 ## CONVENTIONS
 
-- Use `just` targets as source of truth for dev flow; `just ci` is the local preflight.
+- Use `just` targets as source of truth for dev flow; `just verify` is the local preflight.
 - Formatting is `dprint` first; Rust/TOML/justfile formatting is delegated through exec plugins.
 - Tree-sitter parse-once reuse pattern in LSP: document state stores source + tree; leaf crates consume shared trees where possible.
 - Workspace split is intentional: LSP crate integrates; leaf crates own domain logic and stay free of transport types.
@@ -90,16 +90,16 @@ Rust workspace for SVG tooling. Main product is `svg-language-server` (LSP), wit
 
 ```bash
 just format
-just check
+just format-check
 just lint
 just test
-just ci
+just verify
 just run-lsp
 ```
 
 ## NOTES
 
-- No hosted CI config is checked in; `just ci` is the effective repo preflight.
+- No hosted CI config is checked in; `just verify` is the effective repo preflight.
 - `samples/` is excluded from dprint; treat it as fixtures/examples only.
 - Compat parsing logic exists both build-time (`svg-data`) and runtime (`svg-language-server`); keep behavior aligned when touched.
 - `scripts/` is small and release-focused; command truth still lives in `justfile` and `docs/releasing.md`.

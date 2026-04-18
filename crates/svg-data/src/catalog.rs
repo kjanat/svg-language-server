@@ -1,6 +1,7 @@
 use crate::types::{
-    AttributeDef, AttributeValues, BaselineStatus, BrowserSupport, BrowserVersion, ContentModel,
-    ElementCategory, ElementDef,
+    AttributeDef, AttributeValues, BaselineQualifier, BaselineStatus, BrowserSupport,
+    BrowserVersion, CompatVerdict, ContentModel, ElementCategory, ElementDef, RawVersionAdded,
+    SpecLifecycle, SpecSnapshotId, VerdictReason, VerdictRecommendation,
 };
 
 include!(concat!(env!("OUT_DIR"), "/catalog.rs"));

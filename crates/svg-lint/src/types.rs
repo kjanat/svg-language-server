@@ -1,5 +1,7 @@
 use std::{collections::HashMap, ops::Range, str::FromStr};
 
+use svg_data::SpecSnapshotId;
+
 /// Runtime override flags for deprecated/experimental status.
 ///
 /// When present in a [`LintOverrides`] map, these override the baked-in
@@ -14,8 +16,10 @@ pub struct CompatFlags {
 
 /// Runtime compat overrides for lint checks.
 ///
-/// Maps element/attribute names to their override flags. Names absent from
-/// the maps use the baked-in catalog values.
+/// Maps element/attribute names to runtime compat flags that replace the
+/// baked-in compat deprecation/experimental values used for diagnostics.
+/// Names absent from the maps use the baked-in catalog flags. These overrides
+/// do not change profile membership or spec lifecycle.
 #[derive(Debug, Clone, Default)]
 pub struct LintOverrides {
     /// Element name → override flags.
@@ -45,6 +49,21 @@ pub struct SvgDiagnostic {
     pub message: String,
 }
 
+/// Options controlling profile-aware lint behavior.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct LintOptions {
+    /// Selected pinned SVG snapshot.
+    pub profile: SpecSnapshotId,
+}
+
+impl Default for LintOptions {
+    fn default() -> Self {
+        Self {
+            profile: SpecSnapshotId::Svg2EditorsDraft20250914,
+        }
+    }
+}
+
 /// Diagnostic severity levels (mirrors LSP).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Severity {
@@ -69,18 +88,33 @@ pub enum DiagnosticCode {
     DeprecatedElement,
     /// Deprecated attribute usage.
     DeprecatedAttribute,
+    /// Element removed from the current SVG profile (stronger than deprecated).
+    ObsoleteElement,
+    /// Attribute removed from the current SVG profile (stronger than deprecated).
+    ObsoleteAttribute,
     /// Experimental element usage.
     ExperimentalElement,
     /// Experimental attribute usage.
     ExperimentalAttribute,
     /// Unknown element name.
     UnknownElement,
+    /// Known SVG feature absent from the selected profile.
+    UnsupportedInProfile,
     /// Unknown attribute name.
     UnknownAttribute,
     /// Duplicate `id` value.
     DuplicateId,
     /// Reference target such as `url(#id)` is missing a definition.
     MissingReferenceDefinition,
+    /// A tracked browser ships a partial implementation of this feature.
+    /// Shared across elements and attributes — the element/attribute
+    /// distinction isn't a meaningful axis for this advisory signal.
+    PartialImplementation,
+    /// A tracked browser requires a vendor prefix for this feature.
+    PrefixRequired,
+    /// A tracked browser only exposes this feature behind a preference or
+    /// runtime flag.
+    BehindFlag,
     /// A suppression directive did not suppress anything.
     UnusedSuppression,
 }
@@ -92,12 +126,18 @@ impl DiagnosticCode {
         Self::MissingRequiredAttr,
         Self::DeprecatedElement,
         Self::DeprecatedAttribute,
+        Self::ObsoleteElement,
+        Self::ObsoleteAttribute,
         Self::ExperimentalElement,
         Self::ExperimentalAttribute,
         Self::UnknownElement,
+        Self::UnsupportedInProfile,
         Self::UnknownAttribute,
         Self::DuplicateId,
         Self::MissingReferenceDefinition,
+        Self::PartialImplementation,
+        Self::PrefixRequired,
+        Self::BehindFlag,
         Self::UnusedSuppression,
     ];
 
@@ -109,12 +149,18 @@ impl DiagnosticCode {
             Self::MissingRequiredAttr => "MissingRequiredAttr",
             Self::DeprecatedElement => "DeprecatedElement",
             Self::DeprecatedAttribute => "DeprecatedAttribute",
+            Self::ObsoleteElement => "ObsoleteElement",
+            Self::ObsoleteAttribute => "ObsoleteAttribute",
             Self::ExperimentalElement => "ExperimentalElement",
             Self::ExperimentalAttribute => "ExperimentalAttribute",
             Self::UnknownElement => "UnknownElement",
+            Self::UnsupportedInProfile => "UnsupportedInProfile",
             Self::UnknownAttribute => "UnknownAttribute",
             Self::DuplicateId => "DuplicateId",
             Self::MissingReferenceDefinition => "MissingReferenceDefinition",
+            Self::PartialImplementation => "PartialImplementation",
+            Self::PrefixRequired => "PrefixRequired",
+            Self::BehindFlag => "BehindFlag",
             Self::UnusedSuppression => "UnusedSuppression",
         }
     }
@@ -129,12 +175,18 @@ impl FromStr for DiagnosticCode {
             "MissingRequiredAttr" => Ok(Self::MissingRequiredAttr),
             "DeprecatedElement" => Ok(Self::DeprecatedElement),
             "DeprecatedAttribute" => Ok(Self::DeprecatedAttribute),
+            "ObsoleteElement" => Ok(Self::ObsoleteElement),
+            "ObsoleteAttribute" => Ok(Self::ObsoleteAttribute),
             "ExperimentalElement" => Ok(Self::ExperimentalElement),
             "ExperimentalAttribute" => Ok(Self::ExperimentalAttribute),
             "UnknownElement" => Ok(Self::UnknownElement),
+            "UnsupportedInProfile" => Ok(Self::UnsupportedInProfile),
             "UnknownAttribute" => Ok(Self::UnknownAttribute),
             "DuplicateId" => Ok(Self::DuplicateId),
             "MissingReferenceDefinition" => Ok(Self::MissingReferenceDefinition),
+            "PartialImplementation" => Ok(Self::PartialImplementation),
+            "PrefixRequired" => Ok(Self::PrefixRequired),
+            "BehindFlag" => Ok(Self::BehindFlag),
             "UnusedSuppression" => Ok(Self::UnusedSuppression),
             _ => Err(()),
         }

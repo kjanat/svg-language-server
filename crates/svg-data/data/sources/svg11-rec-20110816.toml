@@ -1,0 +1,62 @@
+#:schema ../schemas/source-manifest.schema.json
+
+schema_version   = 1
+manifest_id      = "svg11-rec-20110816"
+snapshot         = "Svg11Rec20110816"
+title            = "SVG 1.1 Second Edition"
+status           = "REC"
+authority_policy = "tr-first"
+
+[authority]
+kind  = "w3c-tr"
+title = "Scalable Vector Graphics (SVG) 1.1 (Second Edition)"
+url   = "https://www.w3.org/TR/2011/REC-SVG11-20110816/"
+
+[pin]
+kind  = "dated-url"
+value = "https://www.w3.org/TR/2011/REC-SVG11-20110816/"
+date  = "2011-08-16"
+
+[checksum]
+strategy = "sha256-per-input"
+note     = "Hash fetched response bodies after HTTP normalization."
+
+[fetch]
+policy             = "cache-network-with-offline-fallback"
+cache_subdir       = "spec-sources/svg11-rec-20110816"
+allow_live_refresh = true
+
+[[inputs]]
+id        = "tr-root"
+kind      = "html"
+locator   = "https://www.w3.org/TR/2011/REC-SVG11-20110816/"
+role      = "normative-root"
+authority = "primary"
+
+[[inputs]]
+id        = "element-index"
+kind      = "html"
+locator   = "https://www.w3.org/TR/2011/REC-SVG11-20110816/eltindex.html"
+role      = "element inventory"
+authority = "primary"
+
+[[inputs]]
+id        = "attribute-index"
+kind      = "html"
+locator   = "https://www.w3.org/TR/2011/REC-SVG11-20110816/attindex.html"
+role      = "attribute inventory"
+authority = "primary"
+
+[[inputs]]
+id        = "flattened-dtd"
+kind      = "dtd"
+locator   = "https://www.w3.org/TR/2011/REC-SVG11-20110816/DTD/svg11-flat.dtd"
+role      = "structure fallback and grammar extraction"
+authority = "primary"
+
+[[inputs]]
+id        = "html-archive-link"
+kind      = "linked-archive"
+locator   = "zip archive linked from the TR landing page"
+role      = "offline HTML bundle cross-check"
+authority = "supporting"

@@ -95,7 +95,12 @@ fn try_extract_svg(node: tree_sitter::Node<'_>, source: &[u8]) -> Option<ColorIn
             (r, g, b, a, ColorKind::Hex)
         }
         "functional_color" => {
-            let (r, g, b, a) = parse::functional(text)?;
+            // Delegate to the CSS-aware resolver so `color-mix(...)` with
+            // literal operands works in attribute values, matching how the
+            // grammar now structurally recognizes CSS Color 4/5 functions.
+            // Custom-property refs (`var(--x)`) intentionally fail here —
+            // they only resolve inside `<style>` with a full property map.
+            let (r, g, b, a, _) = resolve::resolve_literal_color(text)?;
             (r, g, b, a, ColorKind::Functional)
         }
         "named_color" => resolve::parse_named_color(text)?,
@@ -337,6 +342,22 @@ mod tests {
         let colors = extract_colors(src);
         assert_eq!(colors.len(), 1);
         assert_eq!(colors[0].kind, ColorKind::Functional);
+    }
+
+    #[test]
+    fn color_mix_in_attribute_with_literal_operands() {
+        // CSS Color 5 color-mix() directly in an SVG attribute. Both operands
+        // are literal colors (no `var()` refs), so no custom-property context
+        // is needed. The underlying grammar parses this as a single
+        // functional_color node since 85121c6.
+        let src = b"<svg><rect fill=\"color-mix(in srgb, red, blue)\"/></svg>";
+        let colors = extract_colors(src);
+        assert_eq!(colors.len(), 1, "expected 1 color, got {colors:?}");
+        assert_eq!(colors[0].kind, ColorKind::Functional);
+        // 50/50 mix of red and blue in sRGB is (0.5, 0, 0.5).
+        assert!((colors[0].r - 0.5).abs() < 1e-3);
+        assert!(colors[0].g.abs() < 1e-3);
+        assert!((colors[0].b - 0.5).abs() < 1e-3);
     }
 
     #[test]

@@ -32,3 +32,13 @@ Build-script generated SVG catalog crate. Produces baked metadata used by lint +
 ## NOTES
 
 - Changes here ripple into lint diagnostics and LSP docs/completions; verify both after edits.
+
+## TODO
+
+- [ ] **MDN BCD per-file lookups (LSP runtime overlay):** `@mdn/browser-compat-data` ships
+      individual JSON files per feature (e.g. `svg/elements/circle.json`), accessible via
+      jsdelivr. The svg-compat worker already processes the full BCD bundle at build time;
+      the LSP could additionally lazy-fetch individual per-feature files at runtime for
+      fresher overrides, complementing the existing `RuntimeCompat` startup fetch. Any
+      network access must remain opt-in so offline builds continue to work.
+  - [ ] Eval. if we want to implement this in the first place.

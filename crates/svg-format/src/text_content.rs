@@ -247,6 +247,31 @@ pub fn decode_xml_entities(text: String) -> String {
     result
 }
 
+/// If `text` is a single CDATA section surrounded only by whitespace,
+/// return the inner payload and strip the `<![CDATA[` / `]]>` markers.
+///
+/// Used to peel the wrapper off `<style>` / `<script>` raw text before
+/// delegating to a host formatter — the host's grammar (CSS, JS) does not
+/// understand CDATA markers as content and rejects them as syntax errors.
+/// The caller is responsible for restoring the wrapper on output.
+///
+/// Returns `None` if the text contains anything other than a single CDATA
+/// section (multiple sections, surrounding non-whitespace characters, or
+/// embedded `]]>` terminators that would prevent a clean round-trip).
+pub fn strip_cdata_wrapper(text: &str) -> Option<&str> {
+    let trimmed = text.trim();
+    let inner = trimmed
+        .strip_prefix("<![CDATA[")
+        .and_then(|s| s.strip_suffix("]]>"))?;
+    // Reject payloads that contain further CDATA markers — we cannot
+    // safely round-trip nested or concatenated sections through a host
+    // formatter. SVG stylesheets in the wild use a single section.
+    if inner.contains("<![CDATA[") || inner.contains("]]>") {
+        return None;
+    }
+    Some(inner)
+}
+
 /// Encode characters that are invalid in XML text content as entity
 /// references.
 ///

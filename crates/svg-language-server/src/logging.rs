@@ -7,7 +7,33 @@ pub struct LoggingGuards {
     pub _stderr_guard: tracing_appender::non_blocking::WorkerGuard,
 }
 
-fn default_log_dir() -> PathBuf {
+#[cfg(target_os = "windows")]
+fn resolve_log_dir() -> PathBuf {
+    if let Some(path) = std::env::var_os("SVG_LS_LOG_DIR") {
+        return PathBuf::from(path);
+    }
+    if let Some(path) = std::env::var_os("LOCALAPPDATA") {
+        return PathBuf::from(path).join("svg-language-server");
+    }
+    std::env::temp_dir().join("svg-language-server")
+}
+
+#[cfg(target_os = "macos")]
+fn resolve_log_dir() -> PathBuf {
+    if let Some(path) = std::env::var_os("SVG_LS_LOG_DIR") {
+        return PathBuf::from(path);
+    }
+    if let Some(path) = std::env::var_os("HOME") {
+        return PathBuf::from(path)
+            .join("Library")
+            .join("Caches")
+            .join("svg-language-server");
+    }
+    std::env::temp_dir().join("svg-language-server")
+}
+
+#[cfg(all(unix, not(target_os = "macos")))]
+fn resolve_log_dir() -> PathBuf {
     if let Some(path) = std::env::var_os("SVG_LS_LOG_DIR") {
         return PathBuf::from(path);
     }
@@ -15,22 +41,17 @@ fn default_log_dir() -> PathBuf {
         return PathBuf::from(path).join("svg-language-server");
     }
     if let Some(path) = std::env::var_os("HOME") {
-        #[cfg(target_os = "macos")]
-        {
-            return PathBuf::from(path)
-                .join("Library")
-                .join("Caches")
-                .join("svg-language-server");
-        }
-        #[cfg(all(unix, not(target_os = "macos")))]
-        {
-            return PathBuf::from(path)
-                .join(".cache")
-                .join("svg-language-server");
-        }
+        return PathBuf::from(path)
+            .join(".cache")
+            .join("svg-language-server");
     }
-    if let Some(path) = std::env::var_os("LOCALAPPDATA") {
-        return PathBuf::from(path).join("svg-language-server");
+    std::env::temp_dir().join("svg-language-server")
+}
+
+#[cfg(not(any(target_os = "windows", target_os = "macos", unix)))]
+fn resolve_log_dir() -> PathBuf {
+    if let Some(path) = std::env::var_os("SVG_LS_LOG_DIR") {
+        return PathBuf::from(path);
     }
     std::env::temp_dir().join("svg-language-server")
 }
@@ -64,7 +85,7 @@ fn install_panic_hook() {
 
 #[must_use = "dropping LoggingGuards will stop log flushing"]
 pub fn init_logging() -> LoggingGuards {
-    let log_dir = default_log_dir();
+    let log_dir = resolve_log_dir();
     let (stderr_writer, stderr_guard) = tracing_appender::non_blocking(std::io::stderr());
     let stderr_layer = tracing_subscriber::fmt::layer()
         .with_writer(stderr_writer)

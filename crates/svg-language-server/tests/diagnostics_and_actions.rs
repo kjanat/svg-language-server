@@ -148,9 +148,8 @@ fn missing_reference_diagnostics_and_code_actions() -> TestResult {
 fn multiline_tag_suppression_inserts_before_opening_tag() -> TestResult {
     let mut server = TestServer::start()?;
 
-    // Multiline tag with deprecated attribute on a later line
-    let svg =
-        "<svg>\n<text x=\"10\" y=\"260\"\n\tclip=\"rect(0,100,100,0)\">deprecated</text>\n</svg>";
+    // Multiline tag with profile-unsupported attribute on a later line
+    let svg = "<svg>\n<use\n\txlink:href=\"#icon\"/>\n</svg>";
     server.open("file:///multiline.svg", svg)?;
 
     let diag_msg = wait_for_notification(&mut server, "textDocument/publishDiagnostics", |msg| {
@@ -160,11 +159,11 @@ fn multiline_tag_suppression_inserts_before_opening_tag() -> TestResult {
         .as_array()
         .ok_or("diagnostics should be array")?;
 
-    // Verify there's a DeprecatedAttribute diagnostic on row 2 (the `clip` line)
+    // Verify there's an UnsupportedInProfile diagnostic on row 2 (the `xlink:href` line)
     let deprecated_diag = diag_list
         .iter()
-        .find(|d| d["code"].as_str() == Some("DeprecatedAttribute"))
-        .ok_or("expected DeprecatedAttribute diagnostic")?;
+        .find(|d| d["code"].as_str() == Some("UnsupportedInProfile"))
+        .ok_or("expected UnsupportedInProfile diagnostic")?;
     assert_eq!(
         deprecated_diag["range"]["start"]["line"].as_u64(),
         Some(2),
@@ -203,6 +202,55 @@ fn multiline_tag_suppression_inserts_before_opening_tag() -> TestResult {
         edit_range["start"]["line"].as_u64(),
         Some(1),
         "suppression comment should be inserted at the tag's start line (row 1), not the attr line (row 2): {line_action}"
+    );
+
+    server.shutdown_and_exit()?;
+    Ok(())
+}
+
+#[test]
+fn profile_config_applies_on_init_and_relints_open_documents() -> TestResult {
+    let mut server = TestServer::start_with_initialize_options(&json!({
+        "svg": {
+            "profile": "svg11"
+        }
+    }))?;
+
+    let svg =
+        r##"<svg xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="#icon"/></svg>"##;
+    server.open("file:///profile-config.svg", svg)?;
+
+    let initial = wait_for_notification(&mut server, "textDocument/publishDiagnostics", |msg| {
+        msg["params"]["uri"].as_str() == Some("file:///profile-config.svg")
+    });
+    let initial_diags = initial["params"]["diagnostics"]
+        .as_array()
+        .ok_or("diagnostics should be array")?;
+    assert!(
+        initial_diags
+            .iter()
+            .all(|diag| diag["code"].as_str() != Some("UnsupportedInProfile")),
+        "svg11 init config should accept xlink:href: {initial}"
+    );
+
+    drain_notifications(&mut server);
+    server.change_configuration(&json!({
+        "svg": {
+            "profile": "svg2draft"
+        }
+    }))?;
+
+    let relinted = wait_for_notification(&mut server, "textDocument/publishDiagnostics", |msg| {
+        msg["params"]["uri"].as_str() == Some("file:///profile-config.svg")
+    });
+    let relinted_diags = relinted["params"]["diagnostics"]
+        .as_array()
+        .ok_or("diagnostics should be array")?;
+    assert!(
+        relinted_diags
+            .iter()
+            .any(|diag| diag["code"].as_str() == Some("UnsupportedInProfile")),
+        "config change should re-lint open docs with the new profile: {relinted}"
     );
 
     server.shutdown_and_exit()?;
@@ -304,6 +352,101 @@ fn diagnostics_version_tracks_document_changes() -> TestResult {
     assert!(
         diags.is_empty(),
         "updated valid document should clear diagnostics at version 2: {second}"
+    );
+
+    server.shutdown_and_exit()?;
+    Ok(())
+}
+
+fn diagnostics_slice(notification: &Value) -> &[Value] {
+    notification["params"]["diagnostics"]
+        .as_array()
+        .map(Vec::as_slice)
+        .unwrap_or_default()
+}
+
+#[test]
+fn lint_respects_document_version_attribute() -> TestResult {
+    // `version` and `baseProfile` are SVG 1.1-only. With the server on
+    // its default SVG 2 profile, a document declaring `version="1.1"`
+    // must auto-swap to SVG 1.1 so neither attribute errors.
+    let mut server = TestServer::start()?;
+
+    let svg = r#"<svg version="1.1" baseProfile="full" xmlns="http://www.w3.org/2000/svg"/>"#;
+    server.open("file:///doc-driven.svg", svg)?;
+
+    let notif = wait_for_notification(&mut server, "textDocument/publishDiagnostics", |msg| {
+        msg["params"]["uri"].as_str() == Some("file:///doc-driven.svg")
+    });
+    let diags = diagnostics_slice(&notif);
+    assert!(
+        !diags.iter().any(|d| {
+            d["code"].as_str() == Some("UnsupportedInProfile")
+                && d["message"]
+                    .as_str()
+                    .is_some_and(|m| m.contains("version") || m.contains("baseProfile"))
+        }),
+        "SVG 1.1 document should not error on version/baseProfile: {notif}"
+    );
+
+    server.shutdown_and_exit()?;
+    Ok(())
+}
+
+#[test]
+fn lint_force_profile_ignores_document_version() -> TestResult {
+    // Same document, but the user has pinned the profile to SVG 2 via
+    // `svg.force_profile: true`. The doc's `version="1.1"` must be
+    // ignored, so `version` fires `UnsupportedInProfile` again.
+    let mut server = TestServer::start_with_initialize_options(&json!({
+        "svg": {
+            "profile": "Svg2EditorsDraft20250914",
+            "force_profile": true,
+        }
+    }))?;
+
+    let svg = r#"<svg version="1.1" xmlns="http://www.w3.org/2000/svg"/>"#;
+    server.open("file:///forced.svg", svg)?;
+
+    let notif = wait_for_notification(&mut server, "textDocument/publishDiagnostics", |msg| {
+        msg["params"]["uri"].as_str() == Some("file:///forced.svg")
+    });
+    let diags = diagnostics_slice(&notif);
+    assert!(
+        diags.iter().any(|d| {
+            d["code"].as_str() == Some("UnsupportedInProfile")
+                && d["message"].as_str().is_some_and(|m| m.contains("version"))
+        }),
+        "force_profile should suppress doc-driven swap and error on version: {notif}"
+    );
+
+    server.shutdown_and_exit()?;
+    Ok(())
+}
+
+#[test]
+fn lint_on_svg_2_attribute_in_svg_1_1_document() -> TestResult {
+    // Prove the swap is real, not just silencing: `href` is catalogued
+    // in SVG 2 but absent from SVG 1.1 (which uses `xlink:href` instead).
+    // When the document declares `version="1.1"`, `href` on `<use>` must
+    // fire `UnsupportedInProfile`, confirming the linter is consulting
+    // the SVG 1.1 catalog rather than silently silencing all diagnostics.
+    let mut server = TestServer::start()?;
+
+    let svg =
+        r##"<svg version="1.1" xmlns="http://www.w3.org/2000/svg"><use href="#icon"/></svg>"##;
+    server.open("file:///mixed.svg", svg)?;
+
+    let notif = wait_for_notification(&mut server, "textDocument/publishDiagnostics", |msg| {
+        msg["params"]["uri"].as_str() == Some("file:///mixed.svg")
+    });
+    let diags = diagnostics_slice(&notif);
+    assert!(
+        diags.iter().any(|d| {
+            d["code"].as_str() == Some("UnsupportedInProfile")
+                && d["message"].as_str().is_some_and(|m| m.contains("href"))
+        }),
+        "SVG 2-only href must error inside a version=1.1 document: {notif}"
     );
 
     server.shutdown_and_exit()?;

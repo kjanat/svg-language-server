@@ -3,6 +3,16 @@ use std::collections::HashSet;
 use super::{ColorStop, CustomProperties, ResolvedColor};
 use crate::{named_colors, parse, types::ColorKind};
 
+/// Resolve a literal CSS color with no custom-property context.
+///
+/// Used when a functional color appears directly in an SVG attribute (not
+/// inside `<style>`), where `var(--name)` references cannot resolve. Handles
+/// every form `resolve_css_color` does except `var()`, including nested
+/// `color-mix(...)` whose operands are themselves literal.
+pub(super) fn resolve_literal_color(text: &str) -> Option<ResolvedColor> {
+    resolve_css_color(text, &CustomProperties::new(), &mut HashSet::new())
+}
+
 pub(super) fn resolve_css_color(
     text: &str,
     custom_properties: &CustomProperties,

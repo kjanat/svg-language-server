@@ -1,0 +1,59 @@
+{
+	"$schema": "../../schemas/snapshot.schema.json",
+	"schema_version": 1,
+	"snapshot": "Svg11Rec20110816",
+	"title": "SVG 1.1 Second Edition",
+	"date": "2011-08-16",
+	"status": "recommendation",
+	"pinned_sources": [
+		{
+			"manifest_id": "svg11-rec-20110816",
+			"input_id": "tr-root",
+			"authority": "primary",
+			"pin": {
+				"kind": "url",
+				"url": "https://www.w3.org/TR/2011/REC-SVG11-20110816/"
+			}
+		},
+		{
+			"manifest_id": "svg11-rec-20110816",
+			"input_id": "element-index",
+			"authority": "primary",
+			"pin": {
+				"kind": "url",
+				"url": "https://www.w3.org/TR/2011/REC-SVG11-20110816/"
+			}
+		},
+		{
+			"manifest_id": "svg11-rec-20110816",
+			"input_id": "attribute-index",
+			"authority": "primary",
+			"pin": {
+				"kind": "url",
+				"url": "https://www.w3.org/TR/2011/REC-SVG11-20110816/"
+			}
+		},
+		{
+			"manifest_id": "svg11-rec-20110816",
+			"input_id": "flattened-dtd",
+			"authority": "primary",
+			"pin": {
+				"kind": "url",
+				"url": "https://www.w3.org/TR/2011/REC-SVG11-20110816/"
+			}
+		},
+		{
+			"manifest_id": "svg11-rec-20110816",
+			"input_id": "html-archive-link",
+			"authority": "supporting",
+			"pin": {
+				"kind": "url",
+				"url": "https://www.w3.org/TR/2011/REC-SVG11-20110816/"
+			}
+		}
+	],
+	"ingestion": {
+		"extractor_version": "snapshot-seed-v1",
+		"normalized_at": "2026-04-09"
+	}
+}

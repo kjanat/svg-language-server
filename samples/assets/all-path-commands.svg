@@ -1,161 +1,122 @@
-<svg
-	xmlns="http://www.w3.org/2000/svg"
-	viewBox="0 0 640 420"
-	aria-labelledby="title desc"
-	role="img">
-	<title id="title">
-		All SVG Path Commands
-	</title>
-	<desc id="desc">
-		A scenic travel-poster style SVG that visibly uses every SVG path command: M m L l H h V v C c S s Q q T t A a Z z.
-	</desc>
+<svg viewBox="0 0 640 420"
+     aria-labelledby="title desc" role="img"
+     xmlns="http://www.w3.org/2000/svg">
+  <title id="title">
+    All SVG Path Commands
+  </title>
+  <desc id="desc">
+    A scenic travel-poster style SVG that visibly uses every SVG path command: M m L l H h V v C c S s Q q T t A a Z z.
+  </desc>
 
-	<defs>
-		<linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%">
-			<stop offset="0%" stop-color="#10253f" />
-			<stop offset="55%" stop-color="#35608d" />
-			<stop offset="100%" stop-color="#f3c483" />
-		</linearGradient>
+  <defs>
+    <linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#10253f" />
+      <stop offset="55%" stop-color="#35608d" />
+      <stop offset="100%" stop-color="#f3c483" />
+    </linearGradient>
 
-		<linearGradient id="sun" x1="0%" y1="0%" x2="100%" y2="100%">
-			<stop offset="0%" stop-color="#fff3b0" />
-			<stop offset="100%" stop-color="#f4a261" />
-		</linearGradient>
+    <linearGradient id="sun" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff3b0" />
+      <stop offset="100%" stop-color="#f4a261" />
+    </linearGradient>
 
-		<linearGradient id="mountain" x1="0%" y1="0%" x2="0%" y2="100%">
-			<stop offset="0%" stop-color="#27445d" />
-			<stop offset="100%" stop-color="#142838" />
-		</linearGradient>
+    <linearGradient id="mountain" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#27445d" />
+      <stop offset="100%" stop-color="#142838" />
+    </linearGradient>
 
-		<linearGradient id="ridge" x1="0%" y1="0%" x2="0%" y2="100%">
-			<stop offset="0%" stop-color="#637a9a" />
-			<stop offset="100%" stop-color="#425870" />
-		</linearGradient>
+    <linearGradient id="ridge" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#637a9a" />
+      <stop offset="100%" stop-color="#425870" />
+    </linearGradient>
 
-		<linearGradient id="river" x1="0%" y1="0%" x2="100%" y2="100%">
-			<stop offset="0%" stop-color="#8bd3ff" />
-			<stop offset="100%" stop-color="#3477b6" />
-		</linearGradient>
+    <linearGradient id="river" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8bd3ff" />
+      <stop offset="100%" stop-color="#3477b6" />
+    </linearGradient>
 
-		<linearGradient id="road" x1="0%" y1="0%" x2="100%" y2="0%">
-			<stop offset="0%" stop-color="#e0b27a" />
-			<stop offset="100%" stop-color="#f7d299" />
-		</linearGradient>
+    <linearGradient id="road" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#e0b27a" />
+      <stop offset="100%" stop-color="#f7d299" />
+    </linearGradient>
 
-		<filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-			<feGaussianBlur stdDeviation="8" />
-		</filter>
-	</defs>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" />
+    </filter>
+  </defs>
 
-	<rect width="640" height="420" fill="url(#sky)" />
+  <rect width="640" height="420" fill="url(#sky)" />
 
-	<!-- A / a / Z: sun disk  -->
-	<path
-		d="M520 92 A 42 42 0 1 1 436 92 a 42 42 0 1 1 84 0 Z"
-		fill="url(#sun)"
-		filter="url(#glow)"
-		opacity="0.95" />
+  <!-- A / a / Z: sun disk  -->
+  <path d="M520 92 A 42 42 0 1 1 436 92 a 42 42 0 1 1 84 0 Z"
+        fill="url(#sun)" opacity="0.95"
+        filter="url(#glow)" />
 
-	<!-- c / s / H / Z: cloud -->
-	<path
-		d="M110 92 c18 -26 56 -31 79 -10 s43 24 59 8 c18 -11 44 -6 52 14 s-10 35 -37 34 H128 c-23 1 -35 -19 -18 -46 Z"
-		fill="#f6fbff"
-		opacity="0.9" />
+  <!-- c / s / H / Z: cloud -->
+  <path d="M110 92 c18 -26 56 -31 79 -10 s43 24 59 8 c18 -11 44 -6 52 14 s-10 35 -37 34 H128
+           c-23 1 -35 -19 -18 -46 Z"
+        fill="#f6fbff"
+        opacity="0.9" />
 
-	<!-- Q / T / V / H / Z: distant ridge -->
-	<path
-		d="M0 286 Q 94 248 188 274 T 372 268 T 640 252 V420 H0 Z"
-		fill="url(#ridge)"
-		opacity="0.9" />
+  <!-- Q / T / V / H / Z: distant ridge -->
+  <path d="M0 286 Q 94 248 188 274 T 372 268 T 640 252 V420 H0 Z"
+        fill="url(#ridge)" opacity="0.9" />
 
-	<!-- M / L / l / H / V / Z: foreground mountains -->
-	<path
-		d="M0 320 L88 226 l58 72 L228 154 l82 112 H640 V420 H0 Z"
-		fill="url(#mountain)" />
+  <!-- M / L / l / H / V / Z: foreground mountains -->
+  <path d="M0 320 L88 226 l58 72 L228 154 l82 112 H640 V420 H0 Z"
+        fill="url(#mountain)" />
 
-	<!-- C / S / L / Z: river -->
-	<path
-		d="M-10 300 C 126 244 214 352 330 308 S 524 224 650 292 L650 420 L-10 420 Z"
-		fill="url(#river)"
-		opacity="0.9" />
+  <!-- C / S / L / Z: river -->
+  <path d="M-10 300 C 126 244 214 352 330 308 S 524 224 650 292 L650 420 L-10 420 Z"
+        fill="url(#river)" opacity="0.9" />
 
-	<!-- q / t: winding road highlight -->
-	<path
-		d="M124 420 q72 -55 128 -18 t118 -10 t124 -48 t138 -18"
-		fill="none"
-		stroke="url(#road)"
-		stroke-width="18"
-		stroke-linecap="round"
-		stroke-opacity="0.85" />
+  <!-- q / t: winding road highlight -->
+  <path d="M124 420 q72 -55 128 -18 t118 -10 t124 -48 t138 -18"
+        fill="none"
+        stroke="url(#road)"
+        stroke-width="18"
+        stroke-linecap="round"
+        stroke-opacity="0.85" />
 
-	<!-- q / t: dashed center line -->
-	<path
-		d="M124 420 q72 -55 128 -18 t118 -10 t124 -48 t138 -18"
-		fill="none"
-		stroke="#fff3d6"
-		stroke-width="4"
-		opacity="0.9"
-		stroke-dasharray="12 18"
-		stroke-linecap="round" />
+  <!-- q / t: dashed center line -->
+  <path d="M124 420 q72 -55 128 -18 t118 -10 t124 -48 t138 -18"
+        fill="none"
+        stroke="#fff3d6"
+        stroke-width="4"
+        opacity="0.9"
+        stroke-dasharray="12 18"
+        stroke-linecap="round" />
 
-	<!-- h / v / z: wooden sign -->
-	<path
-		d="M66 344 h94 v34 h-94 z"
-		fill="#eac48a"
-		stroke="#5e3a22"
-		stroke-width="3" />
-	<path
-		d="M113 378 v36"
-		fill="none"
-		stroke="#5e3a22"
-		stroke-width="8"
-		stroke-linecap="round" />
+  <!-- h / v / z: wooden sign -->
+  <path d="M66 344 h94 v34 h-94 z"
+        fill="#eac48a" stroke="#5e3a22" stroke-width="3" />
+  <path d="M113 378 v36"
+        fill="none" stroke="#5e3a22" stroke-width="8" stroke-linecap="round" />
 
-	<!-- H / l / M: arrow on the sign -->
-	<path
-		d="M82 361 H134 l-12 -10 M134 361 l-12 10"
-		fill="none"
-		stroke="#5e3a22"
-		stroke-width="4"
-		stroke-linecap="round"
-		stroke-linejoin="round" />
+  <!-- H / l / M: arrow on the sign -->
+  <path d="M82 361 H134 l-12 -10 M134 361 l-12 10"
+        fill="none" stroke="#5e3a22" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
 
-	<!-- m / l / z: tent -->
-	<path
-		d="M504 332 m-34 56 l18 -42 22 24 24 -52 28 70 z"
-		fill="#f7d299"
-		stroke="#402819"
-		stroke-width="3"
-		stroke-linejoin="round" />
+  <!-- m / l / z: tent -->
+  <path d="M504 332 m-34 56 l18 -42 22 24 24 -52 28 70 z"
+        fill="#f7d299" stroke="#402819" stroke-width="3" stroke-linejoin="round" />
 
-	<!-- m / h / v / z: tent flap -->
-	<path
-		d="M504 332 m-4 32 h19 v26 h-19 z"
-		fill="#c96f44"
-		opacity="0.9" />
+  <!-- m / h / v / z: tent flap -->
+  <path d="M504 332 m-4 32 h19 v26 h-19 z"
+        fill="#c96f44" opacity="0.9" />
 
-	<!-- C / S: bird silhouette -->
-	<path
-		d="M386 128 C 400 114 413 114 426 128 S 452 142 466 126"
-		fill="none"
-		stroke="#12263a"
-		stroke-width="4"
-		opacity="0.8"
-		stroke-linecap="round" />
+  <!-- C / S: bird silhouette -->
+  <path d="M386 128 C 400 114 413 114 426 128 S 452 142 466 126"
+        fill="none" stroke="#12263a" stroke-width="4" opacity="0.8" stroke-linecap="round" />
 
-	<!-- Q / T: hillside foreground -->
-	<path
-		d="M0 346 Q 104 330 184 346 T 356 350 T 640 338"
-		fill="none"
-		stroke="#b9d08b"
-		stroke-width="8"
-		opacity="0.55"
-		stroke-linecap="round" />
+  <!-- Q / T: hillside foreground -->
+  <path d="M0 346 Q 104 330 184 346 T 356 350 T 640 338"
+        fill="none" stroke="#b9d08b" stroke-width="8" opacity="0.55" stroke-linecap="round" />
 
-	<text x="26" y="42" fill="#fff7df" font-family="Georgia, serif" font-size="28" letter-spacing="2">
-		ALL PATH COMMANDS
-	</text>
-	<text x="28" y="66" fill="#f8e3c3" font-family="ui-monospace, monospace" font-size="12">
-		M m L l H h V v C c S s Q q T t A a Z z
-	</text>
+  <text x="26" y="42" fill="#fff7df" font-family="Georgia, serif" font-size="28" letter-spacing="2">
+    ALL PATH COMMANDS
+  </text>
+  <text x="28" y="66" fill="#f8e3c3" font-family="ui-monospace, monospace" font-size="12">
+    M m L l H h V v C c S s Q q T t A a Z z
+  </text>
 </svg>

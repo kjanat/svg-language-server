@@ -1,0 +1,84 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "ElementMembershipFile",
+	"description": "Typed payload for `data/derived/union/elements.json`.",
+	"type": "object",
+	"properties": {
+		"elements": {
+			"description": "Union element names and the snapshots where they exist.",
+			"type": "array",
+			"items": {
+				"$ref": "#/$defs/FeatureMembershipRecord"
+			}
+		},
+		"schema_version": {
+			"description": "Schema version for this derived payload.",
+			"type": "integer",
+			"format": "uint32",
+			"maximum": 4294967295,
+			"minimum": 0
+		},
+		"snapshots": {
+			"description": "Canonical snapshot order used to derive membership.",
+			"type": "array",
+			"items": {
+				"$ref": "#/$defs/SpecSnapshotId"
+			}
+		}
+	},
+	"additionalProperties": false,
+	"required": [
+		"schema_version",
+		"snapshots",
+		"elements"
+	],
+	"$defs": {
+		"FeatureMembershipRecord": {
+			"description": "Canonical union membership for one named feature.",
+			"type": "object",
+			"properties": {
+				"name": {
+					"description": "Element or attribute name.",
+					"type": "string"
+				},
+				"present_in": {
+					"description": "Snapshots where the feature exists.",
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/SpecSnapshotId"
+					}
+				}
+			},
+			"additionalProperties": false,
+			"required": [
+				"name",
+				"present_in"
+			]
+		},
+		"SpecSnapshotId": {
+			"description": "Canonical SVG spec snapshot identifiers supported by profile-aware lookups.",
+			"oneOf": [
+				{
+					"description": "SVG 1.1 Recommendation (2003-01-14).",
+					"type": "string",
+					"const": "Svg11Rec20030114"
+				},
+				{
+					"description": "SVG 1.1 Second Edition Recommendation (2011-08-16).",
+					"type": "string",
+					"const": "Svg11Rec20110816"
+				},
+				{
+					"description": "SVG 2 Candidate Recommendation (2018-10-04).",
+					"type": "string",
+					"const": "Svg2Cr20181004"
+				},
+				{
+					"description": "Pinned SVG 2 Editor's Draft snapshot (2025-09-14).",
+					"type": "string",
+					"const": "Svg2EditorsDraft20250914"
+				}
+			]
+		}
+	}
+}

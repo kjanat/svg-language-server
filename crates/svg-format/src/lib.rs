@@ -11,10 +11,13 @@
 mod tag_parse;
 mod text_content;
 
-use tag_parse::{ParsedAttribute, ParsedAttributeValue, parse_tag, reorder_attributes};
+use tag_parse::{
+    ParsedAttribute, ParsedAttributeValue, ParsedTag, canonical_group_key, parse_tag,
+    reorder_attributes,
+};
 use text_content::{
     collapse_whitespace, decode_xml_entities, dedent_block, encode_xml_entities,
-    is_text_content_element, normalize_text_content_with_entities,
+    is_text_content_element, normalize_text_content_with_entities, strip_cdata_wrapper,
 };
 use tree_sitter::{Node, Parser};
 
@@ -66,9 +69,9 @@ pub enum QuoteStyle {
 #[cfg_attr(feature = "cli", value(rename_all = "kebab-case"))]
 pub enum WrappedAttributeIndent {
     /// Add one normal indentation unit.
-    #[default]
     OneLevel,
     /// Align to the column after `<tag ` so wrapped attributes line up visually.
+    #[default]
     AlignToTagName,
 }
 
@@ -163,14 +166,14 @@ impl Default for FormatOptions {
     fn default() -> Self {
         Self {
             indent_width: 2,
-            insert_spaces: false,
+            insert_spaces: true,
             max_inline_tag_width: 100,
             attribute_sort: AttributeSort::Canonical,
             attribute_layout: AttributeLayout::Auto,
             attributes_per_line: 1,
             space_before_self_close: true,
             quote_style: QuoteStyle::Preserve,
-            wrapped_attribute_indent: WrappedAttributeIndent::OneLevel,
+            wrapped_attribute_indent: WrappedAttributeIndent::AlignToTagName,
             text_content: TextContentMode::Maintain,
             blank_lines: BlankLines::Truncate,
             ignore_prefixes: vec!["svg-format".to_string()],
@@ -206,15 +209,15 @@ pub fn format_with_host(
         .set_language(&tree_sitter_svg::LANGUAGE.into())
         .is_err()
     {
-        return source.to_owned();
+        return normalize_line_endings(source);
     }
 
     let Some(tree) = parser.parse(source.as_bytes(), None) else {
-        return source.to_owned();
+        return normalize_line_endings(source);
     };
 
     if tree.root_node().has_error() {
-        return source.to_owned();
+        return normalize_line_endings(source);
     }
 
     // Check for ignore-file directive in actual comment nodes only.
@@ -223,12 +226,24 @@ pub fn format_with_host(
         source.as_bytes(),
         &options.ignore_prefixes,
     ) {
-        return source.to_owned();
+        return normalize_line_endings(source);
     }
 
     let mut formatter = Formatter::new(source.as_bytes(), options);
     formatter.format_node(tree.root_node(), 0, format_embedded);
     formatter.finish(source)
+}
+
+/// Normalize CRLF and bare CR to LF.
+///
+/// [`format_with_host`] guarantees pure-LF output so callers can safely
+/// translate line endings with a blanket `replace('\n', target)` without
+/// double-counting CRs that the source happened to contain.
+fn normalize_line_endings(source: &str) -> String {
+    if !source.contains('\r') {
+        return source.to_owned();
+    }
+    source.replace("\r\n", "\n").replace('\r', "\n")
 }
 
 /// Walk the AST looking for `<!-- {prefix}-ignore-file -->` in comment nodes.
@@ -245,6 +260,304 @@ fn has_ignore_file_comment(node: Node<'_>, source: &[u8], prefixes: &[String]) -
     let mut cursor = node.walk();
     node.named_children(&mut cursor)
         .any(|child| has_ignore_file_comment(child, source, prefixes))
+}
+
+/// Greedily pack SVG path-data segments (or `points` coordinate pairs)
+/// onto wrapped lines separated by `\n`, breaking at segment or pair
+/// boundaries so the value fits within `budget` characters per line
+/// when possible. Returns `Some(value)` with embedded newlines for the
+/// caller to re-emit under continuation alignment, or `None` if the
+/// value fits as-is, is empty, or can't be parsed.
+///
+/// The formatter never reformats minified path-data on its own merit;
+/// `wrap_path_data` is only invoked when the tag would otherwise
+/// overflow `max_inline_tag_width` and we're choosing to break at
+/// semantic boundaries instead of leaving a 12kB single-line blob.
+fn wrap_path_data(name: &str, raw: &str, budget: usize) -> Option<String> {
+    if budget == 0 || raw.chars().count() <= budget {
+        return None;
+    }
+    if raw.trim().is_empty() {
+        return None;
+    }
+    if raw.contains('\n') {
+        // Source-preserved embedded newlines take the existing
+        // continuation path — don't re-wrap.
+        return None;
+    }
+    match name {
+        "d" => wrap_d_value(raw, budget),
+        "points" => wrap_points_value(raw, budget),
+        _ => None,
+    }
+}
+
+fn wrap_d_value(raw: &str, budget: usize) -> Option<String> {
+    // Wrap in a synthetic `<svg><path d="..."/></svg>` so the grammar's
+    // path-data scanner recognizes the attribute value as structured
+    // segments (the grammar only activates for attributes inside an
+    // SVG tag). Path data never contains `"`, so the quoting is
+    // unambiguous; parse errors mean we leave the value untouched.
+    const PREFIX: &str = "<svg><path d=\"";
+    const SUFFIX: &str = "\"/></svg>";
+    let wrapper = format!("{PREFIX}{raw}{SUFFIX}");
+    let mut parser = Parser::new();
+    parser
+        .set_language(&tree_sitter_svg::LANGUAGE.into())
+        .ok()?;
+    let tree = parser.parse(wrapper.as_bytes(), None)?;
+    if tree.root_node().has_error() {
+        return None;
+    }
+
+    let mut segments: Vec<(usize, usize, &str)> = Vec::new();
+    collect_path_segments(tree.root_node(), wrapper.as_bytes(), &mut segments);
+    if segments.is_empty() {
+        return None;
+    }
+
+    let prefix_len = PREFIX.len();
+    let segment_strs: Vec<&str> = segments
+        .iter()
+        .map(|&(start, end, _kind)| &raw[start - prefix_len..end - prefix_len])
+        .collect();
+    let segment_kinds: Vec<&str> = segments.iter().map(|&(_, _, kind)| kind).collect();
+
+    pack_segments(&segment_strs, &segment_kinds, budget, true)
+}
+
+fn wrap_points_value(raw: &str, budget: usize) -> Option<String> {
+    // `<polyline/polygon points="…">` has no grammar children for the
+    // coordinate pairs — split on whitespace into pairs manually. A pair
+    // is an `x,y` (comma-separated) or two whitespace-separated numbers;
+    // this implementation preserves the inter-pair separator style the
+    // source uses by splitting only on runs of whitespace between pairs.
+    let tokens: Vec<&str> = raw.split_ascii_whitespace().collect();
+    if tokens.is_empty() {
+        return None;
+    }
+    // Re-group tokens into pairs. If a token already contains a comma
+    // (e.g. `10,20`) it's a full pair; otherwise two consecutive tokens
+    // form a pair.
+    let mut pairs: Vec<String> = Vec::new();
+    let mut i = 0;
+    while i < tokens.len() {
+        let t = tokens[i];
+        if t.contains(',') {
+            pairs.push(t.to_string());
+            i += 1;
+        } else if i + 1 < tokens.len() {
+            pairs.push(format!("{t},{}", tokens[i + 1]));
+            i += 2;
+        } else {
+            pairs.push(t.to_string());
+            i += 1;
+        }
+    }
+    if pairs.len() <= 1 {
+        return None;
+    }
+    let pair_refs: Vec<&str> = pairs.iter().map(String::as_str).collect();
+    let kinds = vec!["pair"; pair_refs.len()];
+    pack_segments(&pair_refs, &kinds, budget, false)
+}
+
+/// Greedy packer: emit segments separated by single spaces, wrapping
+/// to a new line at `\n` when adding the next segment would exceed
+/// `budget`. When `prefer_subpath_breaks` is set, a `moveto_segment`
+/// forces a new line if the current line is already half full — this
+/// keeps `M...` subpath starts from dangling at the end of a line.
+fn pack_segments(
+    segments: &[&str],
+    kinds: &[&str],
+    budget: usize,
+    prefer_subpath_breaks: bool,
+) -> Option<String> {
+    if segments.is_empty() {
+        return None;
+    }
+    let mut out = String::with_capacity(segments.iter().map(|s| s.len() + 1).sum::<usize>());
+    let mut line_width = 0usize;
+    let half_budget = budget / 2;
+    for (i, seg) in segments.iter().enumerate() {
+        let w = seg.chars().count();
+        let is_moveto_split = prefer_subpath_breaks
+            && i > 0
+            && kinds[i] == "moveto_segment"
+            && line_width >= half_budget;
+        if line_width == 0 {
+            out.push_str(seg);
+            line_width = w;
+        } else if !is_moveto_split && line_width + 1 + w <= budget {
+            out.push(' ');
+            out.push_str(seg);
+            line_width += 1 + w;
+        } else {
+            out.push('\n');
+            out.push_str(seg);
+            line_width = w;
+        }
+    }
+    if out.contains('\n') { Some(out) } else { None }
+}
+
+fn collect_path_segments(
+    node: Node<'_>,
+    source: &[u8],
+    segments: &mut Vec<(usize, usize, &'static str)>,
+) {
+    const SEGMENT_KINDS: &[&str] = &[
+        "moveto_segment",
+        "lineto_segment",
+        "closepath_segment",
+        "curveto_segment",
+        "smooth_curveto_segment",
+        "quadratic_bezier_curveto_segment",
+        "smooth_quadratic_bezier_curveto_segment",
+        "elliptical_arc_segment",
+        "horizontal_lineto_segment",
+        "vertical_lineto_segment",
+        "implicit_lineto_segment",
+    ];
+    let kind = node.kind();
+    if let Some(&matched) = SEGMENT_KINDS.iter().find(|k| **k == kind) {
+        let range = node.byte_range();
+        // Use the raw slice to drop any trailing whitespace captured
+        // inside the segment — keeps packed output compact.
+        let text = std::str::from_utf8(&source[range.clone()])
+            .unwrap_or("")
+            .trim_end();
+        let end = range.start + text.len();
+        segments.push((range.start, end, matched));
+        return;
+    }
+    let mut cursor = node.walk();
+    for child in node.named_children(&mut cursor) {
+        collect_path_segments(child, source, segments);
+    }
+}
+
+/// Partition attributes into contiguous runs sharing the same canonical
+/// group key. Returned as lists of indices into the input slice so the
+/// caller can emit them without reallocating attribute data.
+fn partition_by_canonical_group(attributes: &[ParsedAttribute]) -> Vec<Vec<usize>> {
+    if attributes.is_empty() {
+        return Vec::new();
+    }
+    let mut groups: Vec<Vec<usize>> = Vec::new();
+    let mut current: Vec<usize> = vec![0];
+    let mut current_key = canonical_group_key(&attributes[0].name);
+    for (i, attr) in attributes.iter().enumerate().skip(1) {
+        let key = canonical_group_key(&attr.name);
+        if key == current_key {
+            current.push(i);
+        } else {
+            groups.push(std::mem::take(&mut current));
+            current.push(i);
+            current_key = key;
+        }
+    }
+    if !current.is_empty() {
+        groups.push(current);
+    }
+    groups
+}
+
+/// If a group's rendered width on a single wrapped line would exceed
+/// `budget`, fall back to one attribute per line within that group.
+/// Otherwise emit the group as a single chunk.
+///
+/// Rendered width here uses the raw `<name>=<quoted-value>` form with a
+/// single space separator. This is an approximation of the final
+/// `render_attribute_aligned` output for single-line values — exact
+/// enough to decide overflow since quote style doesn't change column
+/// width.
+fn split_group_if_overflow(
+    attributes: &[ParsedAttribute],
+    group: Vec<usize>,
+    budget: usize,
+) -> Vec<Vec<usize>> {
+    let width: usize = group
+        .iter()
+        .map(|&i| approximate_attribute_width(&attributes[i]))
+        .sum::<usize>()
+        + group.len().saturating_sub(1);
+    if width <= budget || group.len() <= 1 {
+        vec![group]
+    } else {
+        group.into_iter().map(|i| vec![i]).collect()
+    }
+}
+
+/// Rough column width of `name=(quote)value(quote)`. `value` and quotes
+/// contribute their literal `chars().count()`; a bare attribute has
+/// just the name width.
+fn approximate_attribute_width(attribute: &ParsedAttribute) -> usize {
+    let name_width = attribute.name.chars().count();
+    attribute.value.as_ref().map_or(name_width, |v| {
+        let quote_width = if v.original_quote.is_some() { 2 } else { 0 };
+        name_width + 1 + quote_width + v.raw.chars().count()
+    })
+}
+
+/// Decide which attributes ride the tag line and which become the head
+/// of the wrapped remainder. Pops trailing attributes off the first
+/// chunk until it fits within `line_budget`, with a hard minimum of one
+/// attribute on the tag line (per W3 sample style).
+///
+/// `tag_line_prefix_width` is the column count consumed by `<tagname `
+/// plus leading indent — i.e. everything before the first attribute.
+/// Returns `(first_chunk_indices, rest_chunks)` where `rest_chunks`
+/// contains any popped attrs as a new chunk prepended to the remaining
+/// wrapped lines.
+fn split_first_chunk_for_tag_line(
+    attributes: &[ParsedAttribute],
+    chunks: &mut Vec<Vec<usize>>,
+    tag_line_prefix_width: usize,
+    line_budget: usize,
+    mut render: impl FnMut(&ParsedAttribute) -> String,
+) -> (Vec<usize>, Vec<Vec<usize>>) {
+    if chunks.is_empty() {
+        return (Vec::new(), Vec::new());
+    }
+    let first = chunks.remove(0);
+    let mut kept: Vec<usize> = Vec::with_capacity(first.len());
+    let mut popped: Vec<usize> = Vec::new();
+    for &idx in &first {
+        let candidate = render(&attributes[idx]);
+        let tentative = if kept.is_empty() {
+            tag_line_prefix_width + candidate.chars().count()
+        } else {
+            // existing width + space separator + new attr
+            let existing: usize = tag_line_prefix_width
+                + kept
+                    .iter()
+                    .map(|&i| render(&attributes[i]).chars().count() + 1)
+                    .sum::<usize>()
+                - 1;
+            existing + 1 + candidate.chars().count()
+        };
+        if !kept.is_empty() && tentative > line_budget {
+            popped.push(idx);
+        } else {
+            kept.push(idx);
+        }
+    }
+    // Once we start popping, any later attrs in this group also get
+    // pushed into the remainder — preserve source order by appending.
+    for &idx in &first {
+        if !kept.contains(&idx) && !popped.contains(&idx) {
+            popped.push(idx);
+        }
+    }
+    let rest: Vec<Vec<usize>> = if popped.is_empty() {
+        std::mem::take(chunks)
+    } else {
+        std::iter::once(popped)
+            .chain(std::mem::take(chunks))
+            .collect()
+    };
+    (kept, rest)
 }
 
 struct Formatter<'a> {
@@ -507,8 +820,29 @@ impl<'a> Formatter<'a> {
             .iter()
             .map(|attribute| self.render_attribute(attribute))
             .collect();
+        let inline = self.render_inline_tag(&tag.name, &rendered_attributes, self_closing);
 
-        let mut inline = format!("<{}", tag.name);
+        if !self.should_break_into_multiline(&raw, &inline, &rendered_attributes) {
+            self.write_line(depth, &inline);
+            return;
+        }
+        if rendered_attributes.is_empty() {
+            self.emit_attributeless_multiline(depth, &tag.name, self_closing);
+            return;
+        }
+        self.emit_multiline_tag(depth, &mut tag, self_closing);
+    }
+
+    /// Build the one-line rendering of a tag with all attributes inline.
+    /// Used as the candidate both for the Auto-layout width check and as
+    /// the direct output when no wrapping is needed.
+    fn render_inline_tag(
+        &self,
+        name: &str,
+        rendered_attributes: &[String],
+        self_closing: bool,
+    ) -> String {
+        let mut inline = format!("<{name}");
         if !rendered_attributes.is_empty() {
             inline.push(' ');
             inline.push_str(&rendered_attributes.join(" "));
@@ -518,42 +852,221 @@ impl<'a> Formatter<'a> {
         } else {
             inline.push('>');
         }
+        inline
+    }
 
-        let multiline = match self.options.attribute_layout {
+    /// Decide whether the attribute layout forces (or permits) breaking
+    /// a tag across multiple lines. `SingleLine` never breaks;
+    /// `MultiLine` always does when any attributes exist; `Auto` breaks
+    /// on source-side newlines or inline-width overflow.
+    fn should_break_into_multiline(
+        &self,
+        raw: &str,
+        inline: &str,
+        rendered_attributes: &[String],
+    ) -> bool {
+        match self.options.attribute_layout {
             AttributeLayout::SingleLine => false,
             AttributeLayout::MultiLine => !rendered_attributes.is_empty(),
             AttributeLayout::Auto => {
                 raw.contains('\n') || inline.len() > self.options.max_inline_tag_width
             }
-        };
-        if !multiline {
-            self.write_line(depth, &inline);
-            return;
         }
+    }
 
-        self.write_line(depth, &format!("<{}", tag.name));
-        if rendered_attributes.is_empty() {
-            if self_closing {
-                self.write_line(depth, self.self_closing_suffix());
-            } else {
-                self.write_line(depth, ">");
-            }
-            return;
+    /// Emit an attributeless tag that still needs breaking onto its own
+    /// line (e.g. forced by `MultiLine` layout). The open bracket goes
+    /// on one line, closer on the next — mirrors the W3 convention.
+    fn emit_attributeless_multiline(&mut self, depth: usize, tag_name: &str, self_closing: bool) {
+        self.write_line(depth, &format!("<{tag_name}"));
+        if self_closing {
+            self.write_line(depth, self.self_closing_suffix());
+        } else {
+            self.write_line(depth, ">");
         }
+    }
 
-        let per_line = self.options.attributes_per_line.max(1);
+    /// Full multi-line tag emission: apply the path-data auto-wrap pass,
+    /// choose a chunking strategy (canonical groups vs fixed chunks),
+    /// then either ride the first chunk on the tag line
+    /// (`AlignToTagName`) or place the opening bracket alone on line 1
+    /// (`OneLevel`) and emit each remaining chunk on its own wrapped
+    /// line.
+    fn emit_multiline_tag(&mut self, depth: usize, tag: &mut ParsedTag, self_closing: bool) {
         let wrapped_prefix = self.wrapped_attribute_prefix(depth, &tag.name);
-        let chunks = rendered_attributes.chunks(per_line).collect::<Vec<_>>();
-        for (index, chunk) in chunks.iter().enumerate() {
-            let mut line = chunk.join(" ");
-            if index == chunks.len() - 1 {
-                if self_closing {
-                    line.push_str(self.self_closing_suffix());
-                } else {
-                    line.push('>');
-                }
+        self.auto_wrap_path_data_values(&mut tag.attributes, &wrapped_prefix);
+
+        // Force one-attribute-per-line when any value carries internal
+        // newlines (typical of `d="..."` path data in W3 samples). The
+        // continuation-alignment logic in `render_attribute_aligned`
+        // assumes a known start column for the attribute name; packing
+        // multiple such attributes per wrapped line would break that.
+        let has_multiline_value = tag
+            .attributes
+            .iter()
+            .any(|a| a.value.as_ref().is_some_and(|v| v.raw.contains('\n')));
+
+        // AlignToTagName pairs naturally with "first attribute inline on
+        // the tag line": the wrapped-prefix width equals the column
+        // where the first attribute would sit inline (indent + "<tag "),
+        // so `render_attribute_aligned` produces correct continuation
+        // alignment for the first attr's multi-line values *and* the
+        // same prefix aligns subsequent wrapped attrs under the first.
+        // OneLevel cannot do this cleanly — its column math differs —
+        // so we keep the existing "<tag alone on line 1" layout there.
+        let first_inline = matches!(
+            self.options.wrapped_attribute_indent,
+            WrappedAttributeIndent::AlignToTagName,
+        );
+        let closer = if self_closing {
+            self.self_closing_suffix()
+        } else {
+            ">"
+        };
+
+        let chunks = self.build_wrap_chunks(&tag.attributes, &wrapped_prefix, has_multiline_value);
+
+        if first_inline {
+            self.emit_first_inline_layout(depth, tag, chunks, &wrapped_prefix, closer);
+        } else {
+            self.emit_one_level_layout(depth, tag, &chunks, &wrapped_prefix, closer);
+        }
+    }
+
+    /// Auto-wrap minified `d="…"` path data and `<polyline/polygon>
+    /// points="…"` values at semantic boundaries (M/L/C segments,
+    /// coordinate pairs) when a single inline line would overflow
+    /// `max_inline_tag_width`. Values that already carry source
+    /// newlines skip this pass and keep their preserved layout.
+    fn auto_wrap_path_data_values(&self, attributes: &mut [ParsedAttribute], wrapped_prefix: &str) {
+        for attribute in attributes {
+            let Some(value) = attribute.value.as_mut() else {
+                continue;
+            };
+            let name_width = attribute.name.chars().count();
+            let available = self
+                .options
+                .max_inline_tag_width
+                .saturating_sub(wrapped_prefix.len() + name_width + 2);
+            if let Some(wrapped) = wrap_path_data(&attribute.name, &value.raw, available) {
+                value.raw = wrapped;
             }
-            self.write_prefixed_line(&wrapped_prefix, &line);
+        }
+    }
+
+    /// Partition attributes into chunks that will each occupy one
+    /// wrapped line.
+    ///
+    /// - Canonical sort + no multiline values: one wrapped line per
+    ///   canonical group (identity / geometry / drawing / refs /
+    ///   presentation / other / namespaces / version). If a group's
+    ///   rendered width exceeds budget, fall back to one-per-line
+    ///   within that group.
+    /// - Otherwise: chunks of `attributes_per_line` (existing
+    ///   behavior; multiline values already force `per_line=1` because
+    ///   the continuation-alignment helper assumes a known column).
+    fn build_wrap_chunks(
+        &self,
+        attributes: &[ParsedAttribute],
+        wrapped_prefix: &str,
+        has_multiline_value: bool,
+    ) -> Vec<Vec<usize>> {
+        let budget = self
+            .options
+            .max_inline_tag_width
+            .saturating_sub(wrapped_prefix.len());
+        if matches!(self.options.attribute_sort, AttributeSort::Canonical) && !has_multiline_value {
+            partition_by_canonical_group(attributes)
+                .into_iter()
+                .flat_map(|group| split_group_if_overflow(attributes, group, budget))
+                .collect()
+        } else {
+            let per_line = if has_multiline_value {
+                1
+            } else {
+                self.options.attributes_per_line.max(1)
+            };
+            (0..attributes.len())
+                .collect::<Vec<_>>()
+                .chunks(per_line)
+                .map(<[usize]>::to_vec)
+                .collect()
+        }
+    }
+
+    /// `AlignToTagName` layout: the first chunk rides the tag line
+    /// with `<tag ` prefix. If it would overflow the budget, pop
+    /// attributes off its tail until it fits; popped attrs become a
+    /// new wrapped chunk at the front of the rest. At minimum the
+    /// first attribute stays on the tag line — matching W3 SVG sample
+    /// style.
+    fn emit_first_inline_layout(
+        &mut self,
+        depth: usize,
+        tag: &ParsedTag,
+        mut chunks: Vec<Vec<usize>>,
+        wrapped_prefix: &str,
+        closer: &str,
+    ) {
+        let (first_chunk_indices, rest_chunks) = split_first_chunk_for_tag_line(
+            &tag.attributes,
+            &mut chunks,
+            self.indent(depth).len() + tag.name.chars().count() + 2, // "<" + name + " "
+            self.options.max_inline_tag_width,
+            |attr| self.render_attribute_aligned(attr, wrapped_prefix),
+        );
+        let first_rendered: Vec<String> = first_chunk_indices
+            .iter()
+            .map(|&i| self.render_attribute_aligned(&tag.attributes[i], wrapped_prefix))
+            .collect();
+        let mut tag_line = format!(
+            "{}<{} {}",
+            self.indent(depth),
+            tag.name,
+            first_rendered.join(" ")
+        );
+        if rest_chunks.is_empty() {
+            tag_line.push_str(closer);
+        }
+        tag_line.push('\n');
+        self.out.push_str(&tag_line);
+        self.emit_wrapped_chunks(tag, &rest_chunks, wrapped_prefix, closer);
+    }
+
+    /// `OneLevel` layout: the opening bracket sits alone on line 1 at
+    /// `depth` indent; every chunk wraps onto its own line at
+    /// `depth + 1` indent (the `wrapped_prefix`).
+    fn emit_one_level_layout(
+        &mut self,
+        depth: usize,
+        tag: &ParsedTag,
+        chunks: &[Vec<usize>],
+        wrapped_prefix: &str,
+        closer: &str,
+    ) {
+        self.write_line(depth, &format!("<{}", tag.name));
+        self.emit_wrapped_chunks(tag, chunks, wrapped_prefix, closer);
+    }
+
+    /// Emit pre-computed chunks one-per-line at `wrapped_prefix`,
+    /// appending `closer` to the final chunk's line.
+    fn emit_wrapped_chunks(
+        &mut self,
+        tag: &ParsedTag,
+        chunks: &[Vec<usize>],
+        wrapped_prefix: &str,
+        closer: &str,
+    ) {
+        for (index, chunk) in chunks.iter().enumerate() {
+            let rendered: Vec<String> = chunk
+                .iter()
+                .map(|&i| self.render_attribute_aligned(&tag.attributes[i], wrapped_prefix))
+                .collect();
+            let mut line = rendered.join(" ");
+            if index == chunks.len() - 1 {
+                line.push_str(closer);
+            }
+            self.write_prefixed_line(wrapped_prefix, &line);
         }
     }
 
@@ -583,6 +1096,61 @@ impl<'a> Formatter<'a> {
             QuoteStyle::Double => format!("\"{}\"", value.raw.replace('"', "&quot;")),
             QuoteStyle::Single => format!("'{}'", value.raw.replace('\'', "&apos;")),
         }
+    }
+
+    /// Render an attribute, aligning any continuation lines of a multi-line
+    /// value to the column directly under the first value character (i.e.
+    /// just after the opening quote).
+    ///
+    /// `prefix` is the whitespace string that will precede this attribute
+    /// on its line (the wrapped-attribute indent, which may mix tabs and
+    /// spaces). Continuation lines are emitted as `prefix` plus spaces
+    /// spanning `name=` and the opening quote, so the visual alignment
+    /// holds regardless of the caller's tab-width setting — mixing pure
+    /// spaces with a tab-indented prefix would misalign at any tab width
+    /// other than one.
+    ///
+    /// For values without embedded newlines this delegates to
+    /// [`Self::render_attribute_value`]; for multi-line values it strips
+    /// each continuation line's original leading whitespace and re-indents
+    /// it, matching W3 SVG sample style where `<path d="M … " ` wrapping
+    /// preserves logical path-command groupings under a stable column.
+    fn render_attribute_aligned(&self, attribute: &ParsedAttribute, prefix: &str) -> String {
+        let Some(value) = attribute.value.as_ref() else {
+            return attribute.name.clone();
+        };
+        if !value.raw.contains('\n') {
+            return format!("{}={}", attribute.name, self.render_attribute_value(value));
+        }
+
+        let quote = match self.options.quote_style {
+            QuoteStyle::Preserve => value.original_quote.unwrap_or('"'),
+            QuoteStyle::Double => '"',
+            QuoteStyle::Single => '\'',
+        };
+        let name_width = attribute.name.chars().count();
+        let mut pad = String::with_capacity(prefix.len() + name_width + 2);
+        pad.push_str(prefix);
+        // `name=` + opening quote → name_width + 2 spaces of alignment.
+        for _ in 0..name_width + 2 {
+            pad.push(' ');
+        }
+
+        let mut result = String::with_capacity(value.raw.len() + pad.len() * 2 + 8);
+        let mut lines = value.raw.split('\n');
+        if let Some(first) = lines.next() {
+            result.push_str(&attribute.name);
+            result.push('=');
+            result.push(quote);
+            result.push_str(first);
+        }
+        for line in lines {
+            result.push('\n');
+            result.push_str(&pad);
+            result.push_str(line.trim_start());
+        }
+        result.push(quote);
+        result
     }
 
     fn wrapped_attribute_prefix(&self, depth: usize, tag_name: &str) -> String {
@@ -712,6 +1280,14 @@ impl<'a> Formatter<'a> {
 
     /// Try to format embedded text (style/script `raw_text`) via the callback.
     /// Returns `true` if the callback produced a result.
+    ///
+    /// Handles CDATA-wrapped payloads specially: the `<![CDATA[`/`]]>` markers
+    /// are stripped before the host formatter sees the content (the CSS/JS
+    /// parsers reject them at column 0 as syntax errors — see W3 SVG path
+    /// samples). When CDATA was present, XML entity decoding/encoding is
+    /// skipped — inside a CDATA section, `&amp;` is literal, not escaped —
+    /// and the wrapper is re-emitted on output to preserve the XML-safety
+    /// semantics the author chose.
     fn try_format_embedded_text(
         &mut self,
         node: Node<'_>,
@@ -720,20 +1296,39 @@ impl<'a> Formatter<'a> {
         fmt: &mut dyn FnMut(EmbeddedContent<'_>) -> Option<String>,
     ) -> bool {
         let raw = self.node_text(node).to_string();
-        let content = decode_xml_entities(dedent_block(&raw));
-        if content.is_empty() {
+        let (payload, cdata_wrapped) = strip_cdata_wrapper(&raw).map_or_else(
+            || (decode_xml_entities(dedent_block(&raw)), false),
+            |inner| (dedent_block(inner), true),
+        );
+        if payload.is_empty() {
             return false;
         }
         let req = EmbeddedContent {
             language,
-            content: &content,
+            content: &payload,
             indent_depth: depth,
         };
         fmt(req).is_some_and(|formatted| {
-            let encoded = encode_xml_entities(&formatted);
-            self.write_indented_block(&encoded, depth);
+            if cdata_wrapped {
+                self.write_cdata_block(&formatted, depth);
+            } else {
+                let encoded = encode_xml_entities(&formatted);
+                self.write_indented_block(&encoded, depth);
+            }
             true
         })
+    }
+
+    /// Write a formatted host block wrapped in a CDATA section.
+    ///
+    /// The opening `<![CDATA[` sits at `depth`, payload lines are indented
+    /// at `depth + 1` via [`Self::write_indented_block`], and the closing
+    /// `]]>` returns to `depth`. Matches the nested-tag indentation scheme
+    /// used by surrounding element children.
+    fn write_cdata_block(&mut self, text: &str, depth: usize) {
+        self.write_line(depth, "<![CDATA[");
+        self.write_indented_block(text, depth + 1);
+        self.write_line(depth, "]]>");
     }
 
     /// Try to format `foreignObject` inner content via the callback.

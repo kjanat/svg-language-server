@@ -1,4 +1,7 @@
 target/
 /_*.md
+/*.png
 bun.lock
-node_modules
+node_modules/
+.playwright-*/
+svgwg/

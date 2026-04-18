@@ -18,12 +18,12 @@ use tower_lsp_server::{
         CodeActionParams, CodeActionProviderCapability, CodeActionResponse, Color,
         ColorInformation, ColorPresentation, ColorPresentationParams, ColorProviderCapability,
         CompletionItem, CompletionOptions, CompletionParams, CompletionResponse,
-        DidChangeTextDocumentParams, DidCloseTextDocumentParams, DidOpenTextDocumentParams,
-        DocumentColorParams, DocumentFormattingParams, ExecuteCommandOptions, ExecuteCommandParams,
-        GotoDefinitionParams, GotoDefinitionResponse, Hover, HoverContents, HoverParams,
-        HoverProviderCapability, InitializeParams, InitializeResult, MarkupContent, MarkupKind,
-        MessageType, OneOf, Position, Range, ServerCapabilities, TextDocumentSyncCapability,
-        TextDocumentSyncKind, TextEdit, Uri,
+        DidChangeConfigurationParams, DidChangeTextDocumentParams, DidCloseTextDocumentParams,
+        DidOpenTextDocumentParams, DocumentColorParams, DocumentFormattingParams,
+        ExecuteCommandOptions, ExecuteCommandParams, GotoDefinitionParams, GotoDefinitionResponse,
+        Hover, HoverContents, HoverParams, HoverProviderCapability, InitializeParams,
+        InitializeResult, MarkupContent, MarkupKind, MessageType, OneOf, Position, Range,
+        ServerCapabilities, TextDocumentSyncCapability, TextDocumentSyncKind, TextEdit, Uri,
     },
 };
 use url::Url;
@@ -54,8 +54,8 @@ use completion::{
 use definition::{DefinitionContext, build_definition_context, stylesheet_definition_locations};
 use diagnostics::publish_lint_diagnostics;
 use hover::{
-    external_attribute_hover, format_attribute_hover, format_class_hover,
-    format_custom_property_hover, format_element_hover,
+    external_attribute_hover, format_attribute_hover_with_profile, format_class_hover,
+    format_custom_property_hover, format_element_hover_with_profile, profile_lifecycle_hover_line,
 };
 use logging::init_logging;
 use positions::{byte_col_to_utf16, byte_offset_for_position, end_position_utf16, u32_from_usize};
@@ -90,6 +90,90 @@ pub(crate) type StylesheetCache =
     Arc<StdRwLock<HashMap<String, Arc<OnceLock<Option<CachedStylesheet>>>>>>;
 const COPY_DATA_URI_COMMAND: &str = "svg.copyDataUri";
 const COPY_DATA_URI_ACTION_TITLE: &str = "Copy SVG as data URI";
+
+#[derive(Clone, Copy)]
+struct ProfileConfig {
+    requested: Option<&'static str>,
+    resolved: svg_data::SpecSnapshotId,
+    /// When true, `resolved` is used verbatim for every document; the
+    /// root `<svg version="X">` attribute is ignored. Lets users pin a
+    /// profile for workspaces that mix legacy and modern SVGs.
+    force: bool,
+}
+
+impl Default for ProfileConfig {
+    fn default() -> Self {
+        Self {
+            requested: None,
+            resolved: svg_lint::LintOptions::default().profile,
+            force: false,
+        }
+    }
+}
+
+impl ProfileConfig {
+    fn lint_options_for(self, doc: &DocumentState) -> svg_lint::LintOptions {
+        svg_lint::LintOptions {
+            profile: self.effective_profile_for(doc),
+        }
+    }
+
+    fn effective_profile_for(self, doc: &DocumentState) -> svg_data::SpecSnapshotId {
+        svg_lint::effective_profile(&doc.tree, doc.source.as_bytes(), self.resolved, self.force)
+    }
+}
+
+fn configured_profile(config: &Value) -> Option<&str> {
+    config
+        .get("svg")
+        .and_then(Value::as_object)
+        .and_then(|svg| svg.get("profile"))
+        .and_then(Value::as_str)
+}
+
+fn configured_force_profile(config: &Value) -> bool {
+    config
+        .get("svg")
+        .and_then(Value::as_object)
+        .and_then(|svg| svg.get("force_profile"))
+        .and_then(Value::as_bool)
+        .unwrap_or(false)
+}
+
+fn resolve_profile_config(config: &Value) -> (ProfileConfig, Option<String>) {
+    let force = configured_force_profile(config);
+    let Some(requested) = configured_profile(config) else {
+        return (
+            ProfileConfig {
+                force,
+                ..ProfileConfig::default()
+            },
+            None,
+        );
+    };
+
+    if let Some(resolved) = svg_data::resolve_profile_id(requested) {
+        return (
+            ProfileConfig {
+                requested: Some(resolved.as_str()),
+                resolved,
+                force,
+            },
+            None,
+        );
+    }
+
+    (
+        ProfileConfig {
+            force,
+            ..ProfileConfig::default()
+        },
+        Some(format!(
+            "Unknown SVG profile `{requested}`; falling back to {}.",
+            svg_lint::LintOptions::default().profile.as_str()
+        )),
+    )
+}
 
 fn server_capabilities() -> ServerCapabilities {
     ServerCapabilities {
@@ -146,7 +230,7 @@ fn completion_from_context(
     source: &[u8],
     tree: &tree_sitter::Tree,
     node: tree_sitter::Node<'_>,
-    runtime_compat: Option<&RuntimeCompat>,
+    profile: svg_data::SpecSnapshotId,
 ) -> Option<CompletionResponse> {
     let mut cursor = node;
     loop {
@@ -168,21 +252,17 @@ fn completion_from_context(
         if kind == "start_tag" || kind == "self_closing_tag" {
             let elem_name = tag_element_name(cursor, source).unwrap_or("");
             let existing = existing_attribute_names(cursor, source);
-            return completion_response(attribute_completion_items(
-                elem_name,
-                &existing,
-                runtime_compat,
-            ));
+            return completion_response(attribute_completion_items(elem_name, &existing, profile));
         }
 
         if kind == "element" || kind == "svg_root_element" {
             let elem_name = enclosing_element_name(cursor, source).unwrap_or("");
             svg_data::element(elem_name)?;
-            return completion_response(child_element_completion_items(elem_name, runtime_compat));
+            return completion_response(child_element_completion_items(elem_name, profile));
         }
 
         if kind == "document" {
-            return completion_response(root_element_completion_items());
+            return completion_response(root_element_completion_items(profile));
         }
 
         cursor = cursor.parent()?;
@@ -228,6 +308,7 @@ fn build_hover_context(
     uri: &Uri,
     pos: Position,
     doc: &DocumentState,
+    profile: svg_data::SpecSnapshotId,
     runtime_compat: Option<&RuntimeCompat>,
 ) -> HoverContext {
     let source = doc.source.as_bytes();
@@ -241,35 +322,9 @@ fn build_hover_context(
     let kind = node.kind().to_owned();
     let node_text = node.utf8_text(source).unwrap_or("").to_owned();
 
-    let element_markdown = if kind == "name" {
-        node.parent()
-            .filter(|parent| matches!(parent.kind(), "start_tag" | "self_closing_tag" | "end_tag"))
-            .and_then(|_| {
-                svg_data::element(&node_text).map(|element| {
-                    let runtime_override =
-                        runtime_compat.and_then(|runtime| runtime.elements.get(&node_text));
-                    format_element_hover(element, runtime_override)
-                })
-            })
-    } else {
-        None
-    };
-
-    let attribute_markdown = if is_attribute_name_kind(&kind) {
-        svg_data::attribute(&node_text).map_or_else(
-            || external_attribute_hover(&kind, &node_text),
-            |attribute| {
-                if attribute.name.starts_with("xlink:") {
-                    return external_attribute_hover(&kind, attribute.name);
-                }
-                let runtime_override =
-                    runtime_compat.and_then(|runtime| runtime.attributes.get(&node_text));
-                Some(format_attribute_hover(attribute, runtime_override))
-            },
-        )
-    } else {
-        None
-    };
+    let element_markdown = build_element_hover_markdown(node, &node_text, profile, runtime_compat);
+    let attribute_markdown =
+        build_attribute_hover_markdown(&kind, &node_text, profile, runtime_compat);
 
     let definition_target = svg_references::definition_target_at(source, &doc.tree, byte_offset);
     let stylesheet_hrefs = svg_references::extract_xml_stylesheet_hrefs(source);
@@ -333,6 +388,86 @@ fn build_hover_context(
     }
 }
 
+fn build_element_hover_markdown(
+    node: tree_sitter::Node<'_>,
+    node_text: &str,
+    profile: svg_data::SpecSnapshotId,
+    runtime_compat: Option<&RuntimeCompat>,
+) -> Option<String> {
+    if node.kind() != "name" {
+        return None;
+    }
+
+    node.parent()
+        .filter(|parent| matches!(parent.kind(), "start_tag" | "self_closing_tag" | "end_tag"))
+        .and_then(|_| {
+            let lookup = svg_data::element_for_profile(profile, node_text);
+            let profile_lifecycle = profile_lifecycle_hover_line(profile, &lookup);
+            let runtime_override =
+                runtime_compat.and_then(|runtime| runtime.elements.get(node_text));
+
+            match lookup {
+                svg_data::ProfileLookup::Present { value, .. } => {
+                    Some(format_element_hover_with_profile(
+                        value,
+                        profile,
+                        profile_lifecycle,
+                        runtime_override,
+                    ))
+                }
+                svg_data::ProfileLookup::UnsupportedInProfile { .. } => {
+                    svg_data::element(node_text).map(|element| {
+                        format_element_hover_with_profile(
+                            element,
+                            profile,
+                            profile_lifecycle,
+                            runtime_override,
+                        )
+                    })
+                }
+                svg_data::ProfileLookup::Unknown => None,
+            }
+        })
+}
+
+fn build_attribute_hover_markdown(
+    kind: &str,
+    node_text: &str,
+    profile: svg_data::SpecSnapshotId,
+    runtime_compat: Option<&RuntimeCompat>,
+) -> Option<String> {
+    if !is_attribute_name_kind(kind) {
+        return None;
+    }
+
+    let lookup = svg_data::attribute_for_profile(profile, node_text);
+    let profile_lifecycle = profile_lifecycle_hover_line(profile, &lookup);
+    let runtime_override = runtime_compat.and_then(|runtime| runtime.attributes.get(node_text));
+
+    match lookup {
+        svg_data::ProfileLookup::Present { value, .. } => {
+            Some(format_attribute_hover_with_profile(
+                value,
+                profile,
+                profile_lifecycle,
+                runtime_override,
+            ))
+        }
+        svg_data::ProfileLookup::UnsupportedInProfile { .. } => {
+            svg_data::attribute(node_text).map(|attribute| {
+                format_attribute_hover_with_profile(
+                    attribute,
+                    profile,
+                    profile_lifecycle,
+                    runtime_override,
+                )
+            })
+        }
+        svg_data::ProfileLookup::Unknown => external_attribute_hover(kind, node_text),
+    }
+}
+
+#[derive(Clone)]
 struct SvgLanguageServer {
     client: Client,
     documents: Arc<RwLock<HashMap<Uri, Arc<DocumentState>>>>,
@@ -340,6 +475,7 @@ struct SvgLanguageServer {
     color_kinds: ColorKindCache,
     stylesheet_cache: StylesheetCache,
     runtime_compat: Arc<RwLock<Option<RuntimeCompat>>>,
+    profile_config: Arc<RwLock<ProfileConfig>>,
 }
 
 impl SvgLanguageServer {
@@ -358,12 +494,91 @@ impl SvgLanguageServer {
             color_kinds: Arc::new(RwLock::new(HashMap::new())),
             stylesheet_cache: Arc::new(StdRwLock::new(HashMap::new())),
             runtime_compat: Arc::new(RwLock::new(None)),
+            profile_config: Arc::new(RwLock::new(ProfileConfig::default())),
         }
     }
 
     async fn document_state(&self, uri: &Uri) -> Option<Arc<DocumentState>> {
         let docs = self.documents.read().await;
         docs.get(uri).cloned()
+    }
+
+    async fn current_lint_inputs_for(
+        &self,
+        doc: &DocumentState,
+    ) -> (svg_lint::LintOptions, Option<svg_lint::LintOverrides>) {
+        let profile = *self.profile_config.read().await;
+        let overrides = self
+            .runtime_compat
+            .read()
+            .await
+            .as_ref()
+            .map(RuntimeCompat::to_lint_overrides);
+        (profile.lint_options_for(doc), overrides)
+    }
+
+    async fn effective_profile_for_doc(&self, doc: &DocumentState) -> svg_data::SpecSnapshotId {
+        self.profile_config.read().await.effective_profile_for(doc)
+    }
+
+    async fn relint_open_documents(&self) {
+        let profile_config = *self.profile_config.read().await;
+        let overrides = self
+            .runtime_compat
+            .read()
+            .await
+            .as_ref()
+            .map(RuntimeCompat::to_lint_overrides);
+        let snapshot: Vec<_> = {
+            let docs = self.documents.read().await;
+            docs.iter()
+                .map(|(uri, doc)| (uri.clone(), doc.clone()))
+                .collect()
+        };
+
+        for (uri, doc) in snapshot {
+            let source_bytes = doc.source.as_bytes();
+            let lint_options = profile_config.lint_options_for(&doc);
+            let lint_diags = svg_lint::lint_tree_with_options(
+                source_bytes,
+                &doc.tree,
+                lint_options,
+                overrides.as_ref(),
+            );
+            // A document can change after this check and before publish. That
+            // brief stale-diagnostics window is acceptable here; holding the
+            // read lock through publish would be worse than eventual consistency.
+            let is_current = {
+                let docs = self.documents.read().await;
+                docs.get(&uri).is_some_and(|current| {
+                    current.version == doc.version && current.source == doc.source
+                })
+            };
+            if is_current {
+                publish_lint_diagnostics(
+                    &self.client,
+                    uri,
+                    source_bytes,
+                    lint_diags,
+                    Some(doc.version),
+                )
+                .await;
+            }
+        }
+    }
+
+    async fn apply_profile_config(&self, config: &Value) {
+        let (resolved, warning) = resolve_profile_config(config);
+        tracing::debug!(
+            requested_profile = resolved.requested.unwrap_or(resolved.resolved.as_str()),
+            resolved_profile = resolved.resolved.as_str(),
+            "applied SVG profile config"
+        );
+        *self.profile_config.write().await = resolved;
+
+        if let Some(message) = warning {
+            self.client.log_message(MessageType::WARNING, message).await;
+        }
     }
 
     /// Parse source, run linter, publish diagnostics, store document state.
@@ -384,11 +599,13 @@ impl SvgLanguageServer {
             tree,
         });
         let source_bytes = state.source.as_bytes();
-        let overrides = {
-            let compat = self.runtime_compat.read().await;
-            compat.as_ref().map(RuntimeCompat::to_lint_overrides)
-        };
-        let lint_diags = svg_lint::lint_tree(source_bytes, &state.tree, overrides.as_ref());
+        let (lint_options, overrides) = self.current_lint_inputs_for(&state).await;
+        let lint_diags = svg_lint::lint_tree_with_options(
+            source_bytes,
+            &state.tree,
+            lint_options,
+            overrides.as_ref(),
+        );
         self.documents
             .write()
             .await
@@ -423,13 +640,16 @@ impl SvgLanguageServer {
 }
 
 impl LanguageServer for SvgLanguageServer {
-    async fn initialize(&self, _params: InitializeParams) -> Result<InitializeResult> {
+    async fn initialize(&self, params: InitializeParams) -> Result<InitializeResult> {
         tracing::info!("initialize");
+
+        if let Some(config) = params.initialization_options.as_ref() {
+            self.apply_profile_config(config).await;
+        }
 
         // Spawn background compat data refresh
         let compat = self.runtime_compat.clone();
-        let client = self.client.clone();
-        let documents = self.documents.clone();
+        let server = self.clone();
         tokio::spawn(async move {
             let result = tokio::task::spawn_blocking(fetch_runtime_compat).await;
             match result {
@@ -442,38 +662,7 @@ impl LanguageServer for SvgLanguageServer {
                         attributes = attr_count,
                         "runtime compat data loaded"
                     );
-                    // Re-lint open documents with fresh compat overrides.
-                    let overrides = {
-                        let c = compat.read().await;
-                        c.as_ref().map(RuntimeCompat::to_lint_overrides)
-                    };
-                    let snapshot: Vec<_> = {
-                        let docs = documents.read().await;
-                        docs.iter()
-                            .map(|(uri, doc)| (uri.clone(), doc.clone()))
-                            .collect()
-                    };
-                    for (uri, doc) in snapshot {
-                        let source_bytes = doc.source.as_bytes();
-                        let lint_diags =
-                            svg_lint::lint_tree(source_bytes, &doc.tree, overrides.as_ref());
-                        let is_current = {
-                            let docs = documents.read().await;
-                            docs.get(&uri).is_some_and(|current| {
-                                current.version == doc.version && current.source == doc.source
-                            })
-                        };
-                        if is_current {
-                            publish_lint_diagnostics(
-                                &client,
-                                uri,
-                                source_bytes,
-                                lint_diags,
-                                Some(doc.version),
-                            )
-                            .await;
-                        }
-                    }
+                    server.relint_open_documents().await;
                 }
                 Ok(None) => {
                     tracing::info!("runtime compat fetch returned no data (offline?)");
@@ -515,6 +704,12 @@ impl LanguageServer for SvgLanguageServer {
             )
             .await;
         }
+    }
+
+    async fn did_change_configuration(&self, params: DidChangeConfigurationParams) {
+        tracing::debug!("did_change_configuration");
+        self.apply_profile_config(&params.settings).await;
+        self.relint_open_documents().await;
     }
 
     async fn did_close(&self, params: DidCloseTextDocumentParams) {
@@ -650,8 +845,9 @@ impl LanguageServer for SvgLanguageServer {
             class_hover,
             property_hover,
         } = {
+            let profile = self.effective_profile_for_doc(&doc).await;
             let runtime_compat = self.runtime_compat.read().await;
-            build_hover_context(uri, pos, &doc, runtime_compat.as_ref())
+            build_hover_context(uri, pos, &doc, profile, runtime_compat.as_ref())
         };
 
         if let Some(markdown) = element_markdown {
@@ -887,8 +1083,8 @@ impl LanguageServer for SvgLanguageServer {
         }
 
         let response = {
-            let runtime_compat = self.runtime_compat.read().await;
-            completion_from_context(source, &doc.tree, node, runtime_compat.as_ref())
+            let profile = self.effective_profile_for_doc(&doc).await;
+            completion_from_context(source, &doc.tree, node, profile)
         };
         Ok(response)
     }

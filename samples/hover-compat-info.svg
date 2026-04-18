@@ -5,9 +5,9 @@
      - "Experimental" badge
 -->
 <svg
+	viewBox="0 0 400 400"
 	xmlns="http://www.w3.org/2000/svg"
-	xmlns:xlink="http://www.w3.org/1999/xlink"
-	viewBox="0 0 400 400">
+	xmlns:xlink="http://www.w3.org/1999/xlink">
 	<!-- Hover <svg>: Widely available, shows [MDN Reference] | [Spec] links -->
 	<!-- Hover <rect>: Widely available, spec link to SVG2 shapes -->
 	<rect

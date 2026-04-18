@@ -1,6 +1,6 @@
 <!-- Colors in this sample come from the <style> block, not presentation attributes. -->
 <!-- Use it to verify document colors inside embedded CSS rules. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 840">
+<svg viewBox="0 0 800 840" xmlns="http://www.w3.org/2000/svg">
 	<style>
 		:root {
 			--base: oklch(22.84% 0.038 283);

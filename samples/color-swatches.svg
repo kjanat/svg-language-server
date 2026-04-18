@@ -1,6 +1,6 @@
 <!-- Color swatches should appear next to each color value -->
 <!-- Click a swatch to open the color picker with format alternatives -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
 	<!-- Hex colors: 6-digit, 3-digit, 8-digit with alpha -->
 	<rect x="10" y="10" width="80" height="40" fill="#ff6b35" />
 	<rect x="100" y="10" width="80" height="40" fill="#f00" />

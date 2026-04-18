@@ -1,12 +1,12 @@
 <!-- Deprecated attributes — each triggers a DeprecatedAttribute warning -->
 <!-- In editors, deprecated names render with ~~strikethrough~~ (DiagnosticTag::DEPRECATED) -->
 <svg
-	xmlns="http://www.w3.org/2000/svg"
-	xmlns:xlink="http://www.w3.org/1999/xlink"
 	viewBox="0 0 400 300"
 	baseProfile="full"
-	version="1.1"
-	zoomAndPan="magnify">
+	zoomAndPan="magnify"
+	xmlns="http://www.w3.org/2000/svg"
+	xmlns:xlink="http://www.w3.org/1999/xlink"
+	version="1.1">
 	<!-- DEPRECATED: clip (replaced by clip-path) -->
 	<rect
 		x="10"

@@ -1,8 +1,8 @@
 <svg
-	xmlns="http://www.w3.org/2000/svg"
 	viewBox="0 0 640 420"
 	aria-labelledby="title desc"
-	role="img">
+	role="img"
+	xmlns="http://www.w3.org/2000/svg">
 	<title id="title">
 		All SVG Path Commands
 	</title>

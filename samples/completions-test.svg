@@ -1,7 +1,7 @@
 <!-- Type < after each comment to test element completions -->
 <!-- Type attribute names inside tags to test attribute completions -->
 <!-- Type attribute values inside quotes to test value completions -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
 	<!-- Place cursor after < here and trigger completions (Ctrl+Space) -->
 	<!-- Expected: rect, circle, g, path, text, defs, etc. -->
 

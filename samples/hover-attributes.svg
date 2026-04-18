@@ -1,5 +1,5 @@
 <!-- Hover each attribute name to see description + values + MDN link -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
 	<!-- Hover "viewBox": defines the SVG viewport coordinates -->
 	<!-- Hover "fill": color for the interior -->
 	<!-- Hover "stroke": color for the outline -->

@@ -1,7 +1,7 @@
 <!-- Experimental attributes — each triggers an ExperimentalAttribute hint -->
 <!-- In editors, experimental names render with a subtle fade (DiagnosticTag::UNNECESSARY) -->
 <!-- Hover any experimental attribute to see the "Experimental" badge -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
 	<!-- EXPERIMENTAL: fetchpriority (resource loading priority) -->
 	<image
 		x="10"

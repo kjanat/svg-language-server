@@ -1,5 +1,5 @@
 <!-- Icon set using symbol + use — tests hover on symbol, use, and path -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120">
+<svg viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg">
 	<defs>
 		<symbol id="icon-home" viewBox="0 0 24 24">
 			<path

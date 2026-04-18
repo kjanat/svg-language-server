@@ -572,7 +572,7 @@ fn effective_catalog_flags(
     deprecated: bool,
     experimental: bool,
 ) -> CompatFlags {
-    if profile == svg_data::SpecSnapshotId::Svg2EditorsDraft20250914 {
+    if profile == svg_data::SpecSnapshotId::LATEST {
         CompatFlags {
             deprecated,
             experimental,

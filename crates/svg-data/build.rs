@@ -543,10 +543,11 @@ fn load_build_inputs() -> Result<BuildInputs, Box<dyn Error>> {
     })
 }
 
-/// The most recent snapshot in [`canonical_snapshots`]. Features present only
-/// here are `Experimental`; features absent here are `Obsolete`. Bump this and
-/// append to `canonical_snapshots` together when a new snapshot lands.
-const LATEST_SNAPSHOT: SpecSnapshotId = SpecSnapshotId::Svg2EditorsDraft20250914;
+/// Build-script alias for [`SpecSnapshotId::LATEST`], the single source
+/// of truth for the tip of the catalogued snapshot timeline. Bump
+/// [`SpecSnapshotId::LATEST`] and append to `canonical_snapshots`
+/// together when a new snapshot lands.
+const LATEST_SNAPSHOT: SpecSnapshotId = SpecSnapshotId::LATEST;
 
 fn canonical_snapshots() -> Vec<SpecSnapshotId> {
     vec![

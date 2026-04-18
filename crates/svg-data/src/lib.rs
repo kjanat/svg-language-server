@@ -445,22 +445,19 @@ fn lookup_for_profile<T: Copy>(
     }
 }
 
-/// Tip of the catalogued snapshot timeline. The union `spec_lifecycle`
-/// baked onto each catalog entry is "latest-relative" — e.g. an
-/// attribute present in SVG 1.1 but removed from this snapshot gets
-/// stamped [`SpecLifecycle::Obsolete`]. That stamp is misleading when a
-/// caller selects an older profile in which the attribute is still
-/// defined, so `lifecycle_for_profile` ignores it and recomputes from
-/// per-profile membership.
-const LATEST_SNAPSHOT: SpecSnapshotId = SpecSnapshotId::Svg2EditorsDraft20250914;
-
 /// Compute the lifecycle signal for `profile` given the membership list.
 ///
 /// Precondition: `profile` is in `known_in` (callers hit the
 /// `UnsupportedInProfile` branch otherwise). The function picks
 /// [`SpecLifecycle::Experimental`] when the feature lives only in an
-/// unstable tip (`LATEST_SNAPSHOT`-only or draft-not-yet-in-stable-base),
-/// and [`SpecLifecycle::Stable`] everywhere else.
+/// unstable tip ([`SpecSnapshotId::LATEST`]-only or
+/// draft-not-yet-in-stable-base), and [`SpecLifecycle::Stable`]
+/// everywhere else.
+///
+/// The union `spec_lifecycle` baked onto each catalog entry is
+/// "latest-relative" (`Obsolete` = absent from [`SpecSnapshotId::LATEST`]),
+/// which misreads older profiles in which a feature is still defined.
+/// Consulting per-profile membership directly avoids that asymmetry.
 ///
 /// Mirrors `spec_facts_for_profile` in `build.rs`, which drives the
 /// hover verdict builder. Keeping the two definitions aligned prevents
@@ -476,7 +473,7 @@ fn lifecycle_for_profile(
     );
 
     // Latest-only membership = experimental in the tip.
-    if profile == LATEST_SNAPSHOT && known_in == [LATEST_SNAPSHOT] {
+    if profile == SpecSnapshotId::LATEST && known_in == [SpecSnapshotId::LATEST] {
         return SpecLifecycle::Experimental;
     }
 

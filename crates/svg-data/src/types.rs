@@ -419,6 +419,13 @@ pub enum SpecSnapshotId {
 }
 
 impl SpecSnapshotId {
+    /// Tip of the catalogued snapshot timeline. Single source of truth for
+    /// "is this the latest profile?" checks — shared between the build
+    /// script (verdict synthesis), the runtime catalog (`lifecycle_for_profile`)
+    /// and downstream lint rules (BCD-advice scoping). When a new snapshot
+    /// lands, update this one constant.
+    pub const LATEST: Self = Self::Svg2EditorsDraft20250914;
+
     /// Return the canonical stable string id used in config and diagnostics.
     #[must_use]
     pub const fn as_str(self) -> &'static str {

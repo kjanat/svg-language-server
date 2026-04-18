@@ -218,6 +218,52 @@ fn format_with_host_delegates_style_content() {
 }
 
 #[test]
+fn format_with_host_unwraps_cdata_style_before_delegating() {
+    // W3 path samples wrap stylesheets in CDATA so CSS `>` / `&` can't
+    // confuse the XML parser. The host CSS formatter rejects `<![CDATA[`
+    // at column 0 as a syntax error — we must peel the markers before
+    // handing content off, and re-wrap on the way out.
+    let css = ".a{fill:red}";
+    let input = format!("<svg><style><![CDATA[{css}]]></style></svg>");
+    let mut received = None;
+    let result = format_with_host(&input, FormatOptions::default(), &mut |req| {
+        received = Some(req.content.to_string());
+        Some(".a {\n  fill: red;\n}".to_string())
+    });
+
+    assert_eq!(
+        received.as_deref(),
+        Some(css),
+        "host formatter must see CSS only — no CDATA markers",
+    );
+    assert_eq!(
+        result,
+        "<svg>\n\t<style>\n\t\t<![CDATA[\n\t\t\t.a {\n\t\t\t  fill: red;\n\t\t\t}\n\t\t]]>\n\t</style>\n</svg>",
+        "CDATA wrapper must be preserved in the output",
+    );
+}
+
+#[test]
+fn format_with_host_preserves_ampersand_inside_cdata() {
+    // Entities inside CDATA are literal, not escaped. Without CDATA, `&`
+    // must be emitted as `&amp;`; inside CDATA, it stays raw. The fix
+    // skips `decode_xml_entities`/`encode_xml_entities` when CDATA is
+    // detected so we don't mangle content like `content: "a & b"`.
+    let input = r#"<svg><style><![CDATA[.a::before{content:"a & b"}]]></style></svg>"#;
+    let result = format_with_host(input, FormatOptions::default(), &mut |req| {
+        Some(req.content.to_string())
+    });
+    assert!(
+        result.contains("a & b"),
+        "raw ampersand must survive round-trip inside CDATA, got: {result}"
+    );
+    assert!(
+        !result.contains("&amp;"),
+        "must not re-encode `&` inside CDATA: {result}"
+    );
+}
+
+#[test]
 fn format_with_host_falls_back_when_callback_returns_none() {
     let input = "<svg><style>.a { fill: red; }</style></svg>";
     let result = format_with_host(input, FormatOptions::default(), &mut |_| None);

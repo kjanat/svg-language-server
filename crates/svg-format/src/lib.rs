@@ -14,7 +14,7 @@ mod text_content;
 use tag_parse::{ParsedAttribute, ParsedAttributeValue, parse_tag, reorder_attributes};
 use text_content::{
     collapse_whitespace, decode_xml_entities, dedent_block, encode_xml_entities,
-    is_text_content_element, normalize_text_content_with_entities,
+    is_text_content_element, normalize_text_content_with_entities, strip_cdata_wrapper,
 };
 use tree_sitter::{Node, Parser};
 
@@ -724,6 +724,14 @@ impl<'a> Formatter<'a> {
 
     /// Try to format embedded text (style/script `raw_text`) via the callback.
     /// Returns `true` if the callback produced a result.
+    ///
+    /// Handles CDATA-wrapped payloads specially: the `<![CDATA[`/`]]>` markers
+    /// are stripped before the host formatter sees the content (the CSS/JS
+    /// parsers reject them at column 0 as syntax errors — see W3 SVG path
+    /// samples). When CDATA was present, XML entity decoding/encoding is
+    /// skipped — inside a CDATA section, `&amp;` is literal, not escaped —
+    /// and the wrapper is re-emitted on output to preserve the XML-safety
+    /// semantics the author chose.
     fn try_format_embedded_text(
         &mut self,
         node: Node<'_>,
@@ -732,20 +740,39 @@ impl<'a> Formatter<'a> {
         fmt: &mut dyn FnMut(EmbeddedContent<'_>) -> Option<String>,
     ) -> bool {
         let raw = self.node_text(node).to_string();
-        let content = decode_xml_entities(dedent_block(&raw));
-        if content.is_empty() {
+        let (payload, cdata_wrapped) = strip_cdata_wrapper(&raw).map_or_else(
+            || (decode_xml_entities(dedent_block(&raw)), false),
+            |inner| (dedent_block(inner), true),
+        );
+        if payload.is_empty() {
             return false;
         }
         let req = EmbeddedContent {
             language,
-            content: &content,
+            content: &payload,
             indent_depth: depth,
         };
         fmt(req).is_some_and(|formatted| {
-            let encoded = encode_xml_entities(&formatted);
-            self.write_indented_block(&encoded, depth);
+            if cdata_wrapped {
+                self.write_cdata_block(&formatted, depth);
+            } else {
+                let encoded = encode_xml_entities(&formatted);
+                self.write_indented_block(&encoded, depth);
+            }
             true
         })
+    }
+
+    /// Write a formatted host block wrapped in a CDATA section.
+    ///
+    /// The opening `<![CDATA[` sits at `depth`, payload lines are indented
+    /// at `depth + 1` via [`Self::write_indented_block`], and the closing
+    /// `]]>` returns to `depth`. Matches the nested-tag indentation scheme
+    /// used by surrounding element children.
+    fn write_cdata_block(&mut self, text: &str, depth: usize) {
+        self.write_line(depth, "<![CDATA[");
+        self.write_indented_block(text, depth + 1);
+        self.write_line(depth, "]]>");
     }
 
     /// Try to format `foreignObject` inner content via the callback.

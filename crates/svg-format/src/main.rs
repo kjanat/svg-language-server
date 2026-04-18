@@ -17,78 +17,106 @@ use svg_format::{
 #[command(
     name = "svg-format",
     version,
-    about = "Structural formatter for SVG documents"
+    about = "Structural formatter for SVG documents",
+    long_about = "Deterministic, opinionated formatter for SVG documents.\n\
+Reads SVG from FILE or stdin and writes the formatted result to stdout.\n\
+Defaults mirror the W3 SVG reference style: 2-space indent, canonical\n\
+attribute order, multi-line wrapping aligned under the tag name."
 )]
 struct Cli {
+    /// SVG file to format. Reads stdin when omitted.
     #[arg(value_name = "FILE", conflicts_with = "stdin")]
     path: Option<PathBuf>,
 
+    /// I/O mode selectors (in-place, check, stdin).
     #[command(flatten)]
     io: IoArgs,
 
-    #[arg(long, default_value_t = 2)]
+    /// Spaces per indentation level (used when not in tab mode).
+    #[arg(long, default_value_t = FormatOptions::default().indent_width)]
     indent_width: usize,
 
+    /// Indent character selector (tabs vs spaces).
     #[command(flatten)]
     indent_style: IndentStyleArgs,
 
-    #[arg(long, default_value_t = 100)]
+    /// Maximum inline tag width before switching to multi-line layout.
+    #[arg(long, default_value_t = FormatOptions::default().max_inline_tag_width)]
     max_inline_tag_width: usize,
 
-    #[arg(long, value_enum, default_value_t = AttributeSort::Canonical)]
+    /// Attribute ordering mode.
+    #[arg(long, value_enum, default_value_t = FormatOptions::default().attribute_sort)]
     attribute_sort: AttributeSort,
 
-    #[arg(long, value_enum, default_value_t = AttributeLayout::Auto)]
+    /// Attribute wrapping mode.
+    #[arg(long, value_enum, default_value_t = FormatOptions::default().attribute_layout)]
     attribute_layout: AttributeLayout,
 
-    #[arg(long, default_value_t = 1)]
+    /// Maximum attributes emitted per wrapped line.
+    #[arg(long, default_value_t = FormatOptions::default().attributes_per_line)]
     attributes_per_line: usize,
 
+    /// Self-closing tag spacing toggle.
     #[command(flatten)]
     self_close: SelfCloseArgs,
 
-    #[arg(long, value_enum, default_value_t = QuoteStyle::Preserve)]
+    /// Preferred quote style for attribute values.
+    #[arg(long, value_enum, default_value_t = FormatOptions::default().quote_style)]
     quote_style: QuoteStyle,
 
-    #[arg(long, value_enum, default_value_t = WrappedAttributeIndent::OneLevel)]
+    /// Indentation style for wrapped attribute lines.
+    #[arg(long, value_enum, default_value_t = FormatOptions::default().wrapped_attribute_indent)]
     wrapped_attribute_indent: WrappedAttributeIndent,
 
-    #[arg(long, value_enum, default_value_t = TextContentMode::Maintain)]
+    /// How whitespace inside text nodes is handled.
+    #[arg(long, value_enum, default_value_t = FormatOptions::default().text_content)]
     text_content: TextContentMode,
 
-    #[arg(long, value_enum, default_value_t = BlankLines::Truncate)]
+    /// How blank lines between sibling elements are handled.
+    #[arg(long, value_enum, default_value_t = FormatOptions::default().blank_lines)]
     blank_lines: BlankLines,
 
+    /// Comment prefix that triggers ignore directives (repeatable).
     #[arg(long = "ignore-prefix", value_name = "PREFIX")]
     ignore_prefixes: Vec<String>,
 }
 
+/// Input/output mode flags: rewrite in place, check-only, or read stdin.
 #[derive(Args, Debug)]
 struct IoArgs {
+    /// Rewrite FILE in place instead of writing to stdout.
     #[arg(short = 'i', long, requires = "path")]
     in_place: bool,
 
+    /// Exit non-zero if FILE is not already formatted; do not write.
     #[arg(long)]
     check: bool,
 
+    /// Read SVG from stdin. Conflicts with FILE.
     #[arg(long, conflicts_with = "path")]
     stdin: bool,
 }
 
+/// Mutually exclusive indent-character selector. Unset → use library default.
 #[derive(Args, Debug)]
 struct IndentStyleArgs {
+    /// Use a tab character per indentation level.
     #[arg(long, conflicts_with = "use_spaces")]
     use_tabs: bool,
 
+    /// Use `--indent-width` spaces per indentation level.
     #[arg(long, conflicts_with = "use_tabs")]
     use_spaces: bool,
 }
 
+/// Mutually exclusive `/>` spacing toggle. Unset → use library default.
 #[derive(Args, Debug)]
 struct SelfCloseArgs {
+    /// Emit a space before `/>` in self-closing tags.
     #[arg(long, conflicts_with = "no_space_before_self_close")]
     space_before_self_close: bool,
 
+    /// Omit the space before `/>` in self-closing tags.
     #[arg(long, conflicts_with = "space_before_self_close")]
     no_space_before_self_close: bool,
 }

@@ -45,8 +45,7 @@ enum CanonicalGroup {
     Version = 7,
 }
 
-#[allow(dead_code)]
-pub(crate) fn canonical_group_key(name: &str) -> u8 {
+pub fn canonical_group_key(name: &str) -> u8 {
     let lowered = name.to_ascii_lowercase();
     canonical_attribute_sort_key(&lowered).0
 }

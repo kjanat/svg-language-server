@@ -5,10 +5,10 @@ use svg_format::{
     TextContentMode, WrappedAttributeIndent, format_with_host, format_with_options,
 };
 
-/// Pre-v0.4.0 defaults: tab indent + OneLevel wrapped-attribute indent.
+/// Pre-v0.4.0 defaults: tab indent + `OneLevel` wrapped-attribute indent.
 /// Existing assertions were authored against these, so they continue to
 /// use this helper while new tests exercise the canonical spaces /
-/// AlignToTagName defaults.
+/// `AlignToTagName` defaults.
 fn legacy_tab_options() -> FormatOptions {
     FormatOptions {
         insert_spaces: false,

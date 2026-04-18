@@ -63,7 +63,7 @@ features = ["fmt"]
 [workspace.dependencies.tree-sitter-svg]
 package = "tree-sitter-svg"
 git     = "https://github.com/kjanat/tree-sitter-svg"
-rev     = "8ef7d70591529b85624439337e1e9b3c38b47b14"
+rev     = "85121c62f9122c6d74f7c779370ebd7780419447"
 
 [workspace.lints.clippy]
 expect_used                        = "deny"

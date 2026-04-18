@@ -88,12 +88,14 @@ fn hover_source_link(uri: &Uri, start_row: usize) -> HoverSourceLink {
 
     match url.scheme() {
         "file" => {
-            let Ok(path) = url.to_file_path() else {
-                return direct_hover_source_link(uri, line);
-            };
-
             let target = format!("{url}#L{line}");
-            if let Ok(cwd) = std::env::current_dir()
+
+            // Prefer a cwd-relative label when the URL can be resolved to a
+            // filesystem path. `url::Url::to_file_path` requires a drive letter
+            // on Windows, so this optimization only kicks in for well-formed
+            // absolute URIs on the current platform.
+            if let Ok(path) = url.to_file_path()
+                && let Ok(cwd) = std::env::current_dir()
                 && let Ok(relative) = path.strip_prefix(&cwd)
             {
                 return HoverSourceLink {
@@ -102,15 +104,14 @@ fn hover_source_link(uri: &Uri, start_row: usize) -> HoverSourceLink {
                 };
             }
 
-            if let Some(file_name) = path.file_name() {
-                return HoverSourceLink {
-                    label: format!("{}:{line}", file_name.to_string_lossy()),
-                    target,
-                };
-            }
-
+            // Otherwise fall back to the URL path's final segment. Works on
+            // every platform, including Windows `file:///foo.svg` URIs without
+            // a drive letter (where `to_file_path()` returns Err).
+            let url_path = url.path();
+            let basename = url_path.rsplit('/').find(|seg| !seg.is_empty());
+            let label = basename.map_or_else(|| url_path.to_owned(), ToOwned::to_owned);
             HoverSourceLink {
-                label: format!("{}:{line}", path.display()),
+                label: format!("{label}:{line}"),
                 target,
             }
         }

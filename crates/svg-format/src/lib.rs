@@ -206,15 +206,15 @@ pub fn format_with_host(
         .set_language(&tree_sitter_svg::LANGUAGE.into())
         .is_err()
     {
-        return source.to_owned();
+        return normalize_line_endings(source);
     }
 
     let Some(tree) = parser.parse(source.as_bytes(), None) else {
-        return source.to_owned();
+        return normalize_line_endings(source);
     };
 
     if tree.root_node().has_error() {
-        return source.to_owned();
+        return normalize_line_endings(source);
     }
 
     // Check for ignore-file directive in actual comment nodes only.
@@ -223,12 +223,24 @@ pub fn format_with_host(
         source.as_bytes(),
         &options.ignore_prefixes,
     ) {
-        return source.to_owned();
+        return normalize_line_endings(source);
     }
 
     let mut formatter = Formatter::new(source.as_bytes(), options);
     formatter.format_node(tree.root_node(), 0, format_embedded);
     formatter.finish(source)
+}
+
+/// Normalize CRLF and bare CR to LF.
+///
+/// [`format_with_host`] guarantees pure-LF output so callers can safely
+/// translate line endings with a blanket `replace('\n', target)` without
+/// double-counting CRs that the source happened to contain.
+fn normalize_line_endings(source: &str) -> String {
+    if !source.contains('\r') {
+        return source.to_owned();
+    }
+    source.replace("\r\n", "\n").replace('\r', "\n")
 }
 
 /// Walk the AST looking for `<!-- {prefix}-ignore-file -->` in comment nodes.

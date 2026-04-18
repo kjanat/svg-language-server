@@ -6,7 +6,6 @@
  */
 
 import bcd from "@mdn/browser-compat-data" with { type: "json" };
-import { fromFileUrl } from "@std/path";
 import { features } from "web-features";
 
 const BCD_PACKAGE = "@mdn/browser-compat-data";
@@ -122,8 +121,7 @@ export function versionFromLocation(
 	packageName: string,
 ): string | undefined {
 	const url = new URL(location);
-	const path = url.protocol === "file:" ? fromFileUrl(url) : url.pathname;
-	const decoded = decodeURIComponent(path);
+	const decoded = decodeURIComponent(url.pathname);
 	const escaped = escapeRegExp(packageName);
 	const match = decoded.match(new RegExp(`(?:^|/)${escaped}@([^/]+)(?:/|$)`));
 	if (match?.[1]) return match[1];

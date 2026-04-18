@@ -29,7 +29,7 @@ crates/
   svg-tree/             shared tree-sitter traversal helpers
 ```
 
-See the dependency graph in [`README.md`](README.md).
+See the dependency graph in [`README.md`](./README.md).
 
 ## Code standards
 

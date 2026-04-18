@@ -851,3 +851,25 @@ fn text_content_maintain_with_entities_still_normalizes() {
         "<svg>\n\t<text>Embedded &lt;style&gt; colors</text>\n</svg>"
     );
 }
+
+#[test]
+fn output_is_pure_lf_when_parse_fails() {
+    // Tree-sitter-svg cannot parse this malformed fragment, so the formatter
+    // falls back to the passthrough path. The output must still be pure LF
+    // (no \r) so downstream callers that translate newlines can't double-up
+    // CRs that the source happened to contain.
+    let crlf = "<svg>\r\n<unclosed \r\n</svg>\r\n";
+    let out = format(crlf);
+    assert!(!out.contains('\r'), "expected pure LF, got: {out:?}");
+    assert_eq!(out, "<svg>\n<unclosed \n</svg>\n");
+}
+
+#[test]
+fn output_is_pure_lf_on_ignore_file() {
+    // With an ignore-file directive the formatter returns source verbatim.
+    // Same invariant applies — normalize CRLF to LF before handing back.
+    let crlf = "<!-- svg-format-ignore-file -->\r\n<svg><rect/></svg>\r\n";
+    let out = format(crlf);
+    assert!(!out.contains('\r'), "expected pure LF, got: {out:?}");
+    assert_eq!(out, "<!-- svg-format-ignore-file -->\n<svg><rect/></svg>\n");
+}

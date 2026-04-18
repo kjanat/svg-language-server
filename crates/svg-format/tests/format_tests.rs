@@ -218,6 +218,53 @@ fn format_with_host_delegates_style_content() {
 }
 
 #[test]
+fn multiline_path_value_continuation_aligns_under_opening_quote() {
+    // W3 SVG path samples break long `d="..."` values across lines to keep
+    // logical path-command groups visible. Each continuation line aligns
+    // to the column directly after `d="`, not to the attribute-wrap indent.
+    // Before this fix, svg-format preserved the raw newlines but left each
+    // continuation at its original source indentation, so the output
+    // depended on how the author happened to pad the source.
+    let input = "<svg><path d=\"M100,200 C100,100 250,100 250,200\n                              S400,300 400,200\" /></svg>";
+    let result = format(input);
+    let expected = concat!(
+        "<svg>\n",
+        "\t<path\n",
+        "\t\td=\"M100,200 C100,100 250,100 250,200\n",
+        "\t\t   S400,300 400,200\" />\n",
+        "</svg>",
+    );
+    assert_eq!(result, expected);
+}
+
+#[test]
+fn multiline_value_continuation_respects_wrapped_prefix_column() {
+    // AlignToTagName wrap puts the attribute name at column = indent + "<tag ".
+    // Continuation of a multi-line value must still align under the opening
+    // quote — i.e. at (wrapped_prefix + name + 2), independent of which
+    // wrap style is chosen.
+    let input = r#"<svg><path d="M 0 0
+         L 10 10" fill="red" /></svg>"#;
+    let options = FormatOptions {
+        wrapped_attribute_indent: WrappedAttributeIndent::AlignToTagName,
+        ..Default::default()
+    };
+    let result = format_with_options(input, options);
+    // Under AlignToTagName at depth=1, wrapped_prefix = "\t      " (1 tab +
+    // 6 spaces for "<path "). Continuation pad = prefix + spaces for
+    // `d=` + opening quote = 1 tab + 6 spaces + 3 spaces = 1 tab + 9 spaces.
+    let lines: Vec<&str> = result.lines().collect();
+    let Some(cont) = lines.iter().find(|l| l.contains("L 10 10")) else {
+        panic!("no continuation line found in:\n{result}");
+    };
+    let leading: String = cont.chars().take_while(|c| c.is_whitespace()).collect();
+    assert_eq!(
+        leading, "\t         ",
+        "continuation must mirror wrapped_prefix's indent style and extend to the opening-quote column, got: {cont:?}"
+    );
+}
+
+#[test]
 fn format_with_host_unwraps_cdata_style_before_delegating() {
     // W3 path samples wrap stylesheets in CDATA so CSS `>` / `&` can't
     // confuse the XML parser. The host CSS formatter rejects `<![CDATA[`

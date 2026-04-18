@@ -553,11 +553,29 @@ impl<'a> Formatter<'a> {
             return;
         }
 
-        let per_line = self.options.attributes_per_line.max(1);
         let wrapped_prefix = self.wrapped_attribute_prefix(depth, &tag.name);
-        let chunks = rendered_attributes.chunks(per_line).collect::<Vec<_>>();
+        // Force one-attribute-per-line when any value carries internal
+        // newlines (typical of `d="..."` path data in W3 samples). The
+        // continuation-alignment logic in `render_attribute_aligned`
+        // assumes a known start column for the attribute name; packing
+        // multiple such attributes per wrapped line would break that.
+        let has_multiline_value = tag.attributes.iter().any(|a| {
+            a.value
+                .as_ref()
+                .is_some_and(|v| v.raw.contains('\n'))
+        });
+        let per_line = if has_multiline_value {
+            1
+        } else {
+            self.options.attributes_per_line.max(1)
+        };
+        let chunks: Vec<&[ParsedAttribute]> = tag.attributes.chunks(per_line).collect();
         for (index, chunk) in chunks.iter().enumerate() {
-            let mut line = chunk.join(" ");
+            let rendered: Vec<String> = chunk
+                .iter()
+                .map(|a| self.render_attribute_aligned(a, &wrapped_prefix))
+                .collect();
+            let mut line = rendered.join(" ");
             if index == chunks.len() - 1 {
                 if self_closing {
                     line.push_str(self.self_closing_suffix());
@@ -595,6 +613,69 @@ impl<'a> Formatter<'a> {
             QuoteStyle::Double => format!("\"{}\"", value.raw.replace('"', "&quot;")),
             QuoteStyle::Single => format!("'{}'", value.raw.replace('\'', "&apos;")),
         }
+    }
+
+    /// Render an attribute, aligning any continuation lines of a multi-line
+    /// value to the column directly under the first value character (i.e.
+    /// just after the opening quote).
+    ///
+    /// `prefix` is the whitespace string that will precede this attribute
+    /// on its line (the wrapped-attribute indent, which may mix tabs and
+    /// spaces). Continuation lines are emitted as `prefix` plus spaces
+    /// spanning `name=` and the opening quote, so the visual alignment
+    /// holds regardless of the caller's tab-width setting — mixing pure
+    /// spaces with a tab-indented prefix would misalign at any tab width
+    /// other than one.
+    ///
+    /// For values without embedded newlines this delegates to
+    /// [`Self::render_attribute_value`]; for multi-line values it strips
+    /// each continuation line's original leading whitespace and re-indents
+    /// it, matching W3 SVG sample style where `<path d="M … " ` wrapping
+    /// preserves logical path-command groupings under a stable column.
+    fn render_attribute_aligned(
+        &self,
+        attribute: &ParsedAttribute,
+        prefix: &str,
+    ) -> String {
+        let Some(value) = attribute.value.as_ref() else {
+            return attribute.name.clone();
+        };
+        if !value.raw.contains('\n') {
+            return format!(
+                "{}={}",
+                attribute.name,
+                self.render_attribute_value(value)
+            );
+        }
+
+        let quote = match self.options.quote_style {
+            QuoteStyle::Preserve => value.original_quote.unwrap_or('"'),
+            QuoteStyle::Double => '"',
+            QuoteStyle::Single => '\'',
+        };
+        let name_width = attribute.name.chars().count();
+        let mut pad = String::with_capacity(prefix.len() + name_width + 2);
+        pad.push_str(prefix);
+        // `name=` + opening quote → name_width + 2 spaces of alignment.
+        for _ in 0..name_width + 2 {
+            pad.push(' ');
+        }
+
+        let mut result = String::with_capacity(value.raw.len() + pad.len() * 2 + 8);
+        let mut lines = value.raw.split('\n');
+        if let Some(first) = lines.next() {
+            result.push_str(&attribute.name);
+            result.push('=');
+            result.push(quote);
+            result.push_str(first);
+        }
+        for line in lines {
+            result.push('\n');
+            result.push_str(&pad);
+            result.push_str(line.trim_start());
+        }
+        result.push(quote);
+        result
     }
 
     fn wrapped_attribute_prefix(&self, depth: usize, tag_name: &str) -> String {

@@ -30,37 +30,66 @@ pub fn reorder_attributes(attributes: &mut [ParsedAttribute], mode: AttributeSor
     }
 }
 
+/// Canonical attribute ordering groups. Members of the same group are a
+/// contiguous run in the output; the multi-line wrap algorithm breaks at
+/// boundaries between these groups. Order here is authoritative.
+#[repr(u8)]
+enum CanonicalGroup {
+    Identity = 0,
+    Geometry = 1,
+    Drawing = 2,
+    Reference = 3,
+    Presentation = 4,
+    Other = 5,
+    Namespace = 6,
+    Version = 7,
+}
+
+#[allow(dead_code)]
+pub(crate) fn canonical_group_key(name: &str) -> u8 {
+    let lowered = name.to_ascii_lowercase();
+    canonical_attribute_sort_key(&lowered).0
+}
+
 fn canonical_attribute_sort_key(name: &str) -> (u8, u16, String) {
     let lowered = name.to_ascii_lowercase();
 
     // Group layout matches the W3 SVG reference samples' convention:
-    //   id → class → geometry/presentation → other → xmlns* → version
+    //   id/class → geometry → drawing → refs → presentation → other → xmlns* → version
     // `xmlns` and `version` trail at the end because they describe the
     // document envelope, not per-element structure; the W3 spec examples
     // put them last on the root `<svg>` tag for readability.
     if lowered == "id" {
-        return (0, 0, lowered);
+        return (CanonicalGroup::Identity as u8, 0, lowered);
     }
     if lowered == "class" {
-        return (0, 1, lowered);
+        return (CanonicalGroup::Identity as u8, 1, lowered);
     }
     if let Some(order) = canonical_geometry_order(&lowered) {
-        return (1, order, lowered);
+        return (CanonicalGroup::Geometry as u8, order, lowered);
+    }
+    if let Some(order) = canonical_drawing_order(&lowered) {
+        return (CanonicalGroup::Drawing as u8, order, lowered);
+    }
+    if let Some(order) = canonical_reference_order(&lowered) {
+        return (CanonicalGroup::Reference as u8, order, lowered);
+    }
+    if let Some(order) = canonical_presentation_order(&lowered) {
+        return (CanonicalGroup::Presentation as u8, order, lowered);
     }
     if lowered == "version" {
-        return (4, 0, lowered);
+        return (CanonicalGroup::Version as u8, 0, lowered);
     }
     if lowered == "xmlns" {
-        return (3, 0, lowered);
+        return (CanonicalGroup::Namespace as u8, 0, lowered);
     }
     if lowered.starts_with("xmlns:") {
-        return (3, 1, lowered);
+        return (CanonicalGroup::Namespace as u8, 1, lowered);
     }
-    (2, u16::MAX, lowered)
+    (CanonicalGroup::Other as u8, u16::MAX, lowered)
 }
 
 fn canonical_geometry_order(name: &str) -> Option<u16> {
-    // Common SVG geometry/presentation progression before fallback alphabetical ordering.
     let order = [
         "x",
         "y",
@@ -77,20 +106,58 @@ fn canonical_geometry_order(name: &str) -> Option<u16> {
         "height",
         "viewbox",
         "preserveaspectratio",
-        "href",
-        "xlink:href",
-        "d",
-        "points",
-        "transform",
-        "fill",
-        "stroke",
-        "stroke-width",
-        "style",
     ];
     order
         .iter()
         .position(|candidate| *candidate == name)
         .and_then(|i| u16::try_from(i).ok())
+}
+
+fn canonical_drawing_order(name: &str) -> Option<u16> {
+    let order = ["d", "points", "transform"];
+    order
+        .iter()
+        .position(|candidate| *candidate == name)
+        .and_then(|i| u16::try_from(i).ok())
+}
+
+fn canonical_reference_order(name: &str) -> Option<u16> {
+    let order = ["href", "xlink:href"];
+    order
+        .iter()
+        .position(|candidate| *candidate == name)
+        .and_then(|i| u16::try_from(i).ok())
+}
+
+fn canonical_presentation_order(name: &str) -> Option<u16> {
+    // Fixed-order anchors for the most common SVG presentation attributes.
+    // Anything else matching the `stroke-*` prefix or a known presentation
+    // property falls through to an alphabetical slot after the anchors.
+    let anchors = ["fill", "stroke", "stroke-width", "opacity", "style"];
+    if let Some(i) = anchors.iter().position(|candidate| *candidate == name) {
+        return u16::try_from(i).ok();
+    }
+    if name.starts_with("stroke-")
+        || matches!(
+            name,
+            "fill-opacity"
+                | "fill-rule"
+                | "stroke-opacity"
+                | "color"
+                | "visibility"
+                | "display"
+                | "paint-order"
+                | "vector-effect"
+                | "shape-rendering"
+                | "image-rendering"
+                | "text-rendering"
+                | "color-interpolation"
+                | "color-interpolation-filters"
+        )
+    {
+        return Some(u16::MAX - 1);
+    }
+    None
 }
 
 pub fn parse_tag(raw: &str, self_closing: bool) -> Option<ParsedTag> {

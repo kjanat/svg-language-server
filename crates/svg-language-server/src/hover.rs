@@ -425,7 +425,8 @@ pub fn format_attribute_hover_with_profile(
         builder.status(profile_lifecycle);
     }
 
-    builder.value_constraints(value_constraints_lines(&attr.values));
+    let values = svg_data::attribute_values_for_profile(profile, attr.name).unwrap_or(&attr.values);
+    builder.value_constraints(value_constraints_lines(values));
 
     if let Some(baseline) = baseline {
         builder.baseline(format_baseline(*baseline));

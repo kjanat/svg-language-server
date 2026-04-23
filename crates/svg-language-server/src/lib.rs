@@ -241,7 +241,7 @@ fn completion_from_context(
                 find_ancestor_any(cursor, &["generic_attribute", "attribute"])
                 && let Some(attr_name) = first_attribute_name_text(attr_wrapper, source)
             {
-                let items = value_completions(&attr_name, source, tree, cursor);
+                let items = value_completions(&attr_name, source, tree, cursor, profile);
                 if let Some(response) = completion_response(items) {
                     return Some(response);
                 }

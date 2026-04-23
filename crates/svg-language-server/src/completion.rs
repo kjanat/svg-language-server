@@ -1,6 +1,9 @@
 use std::collections::HashSet;
 
-use svg_data::{AttributeValues, ContentModel, ProfiledAttribute, ProfiledElement, SpecLifecycle};
+use svg_data::{
+    AttributeValues, ContentModel, ProfiledAttribute, ProfiledElement, SpecLifecycle,
+    SpecSnapshotId,
+};
 use svg_tree::{find_ancestor_any, is_attribute_name_kind};
 use tower_lsp_server::ls_types::{
     CompletionItem, CompletionItemKind, CompletionItemTag, CompletionTextEdit, InsertTextFormat,
@@ -470,6 +473,7 @@ pub fn value_completions(
     source: &[u8],
     tree: &tree_sitter::Tree,
     value_node: tree_sitter::Node<'_>,
+    profile: SpecSnapshotId,
 ) -> Vec<CompletionItem> {
     // Grammar-typed attribute values: dispatch on the tree node kind produced by
     // tree-sitter-svg rather than re-deriving the type from the catalog.
@@ -501,7 +505,9 @@ pub fn value_completions(
     let Some(attr_def) = svg_data::attribute(attr_name) else {
         return Vec::new();
     };
-    match &attr_def.values {
+    let values = svg_data::attribute_values_for_profile(profile, attr_name)
+        .unwrap_or(&attr_def.values);
+    match values {
         AttributeValues::Enum(values) => values
             .iter()
             .map(|value| completion_item(value.to_string(), CompletionItemKind::VALUE))

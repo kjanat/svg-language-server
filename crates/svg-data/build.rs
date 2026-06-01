@@ -910,8 +910,9 @@ fn spec_facts_for_profile(
         }
     } else {
         // Not present in this profile: obsolete. `last_seen` is the most
-        // recent snapshot in which the feature was still defined.
-        let last_seen = latest_present_snapshot(present_in).map(|snap| snap.as_str().to_string());
+        // recent snapshot in which the feature was still defined (typed as
+        // `SpecSnapshotId` so codegen can't emit a malformed variant).
+        let last_seen = latest_present_snapshot(present_in);
         verdict::SpecFacts {
             lifecycle: types::SpecLifecycle::Obsolete,
             last_seen,

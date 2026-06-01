@@ -22,7 +22,7 @@ use std::fmt::Write as _;
 
 use super::{
     BaselineQualifierValue, BaselineValue, BrowserSupportValue, BrowserVersionValue, CompatEntry,
-    types::SpecLifecycle,
+    types::{SpecLifecycle, SpecSnapshotId},
 };
 
 /// Fallback `last_seen` snapshot for an obsolete feature whose
@@ -31,10 +31,9 @@ use super::{
 /// `last_seen` is normally `Some` for obsolete features (the pipeline
 /// records the last snapshot a feature was defined in). This defensive
 /// fallback — the earliest catalogued snapshot — only applies to the
-/// `None` case. It must name a real `SpecSnapshotId` variant, since it is
-/// emitted verbatim as `SpecSnapshotId::{last_seen}`; update it if the
-/// earliest snapshot is ever renamed or removed.
-const OBSOLETE_LAST_SEEN_FALLBACK: &str = "Svg11Rec20110816";
+/// `None` case. Typed as `SpecSnapshotId` so a malformed id can't be
+/// emitted; update it if the earliest snapshot is ever renamed or removed.
+const OBSOLETE_LAST_SEEN_FALLBACK: SpecSnapshotId = SpecSnapshotId::Svg11Rec20110816;
 
 /// The four recommendation tiers, in ascending severity.
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -54,7 +53,7 @@ pub enum Reason {
     BcdDeprecated,
     BcdExperimental,
     ProfileObsolete {
-        last_seen: String,
+        last_seen: SpecSnapshotId,
     },
     ProfileExperimental,
     BaselineLimited,
@@ -106,11 +105,12 @@ pub struct Verdict {
 
 /// Extra spec-derived facts the verdict rules need but which live outside
 /// `CompatEntry`. Populated by the caller from the union membership data.
+#[derive(Clone, Copy)]
 pub struct SpecFacts {
     pub lifecycle: SpecLifecycle,
     /// When `lifecycle == Obsolete`, the most recent snapshot in which the
     /// feature was still defined. Used for `ProfileObsolete.last_seen`.
-    pub last_seen: Option<String>,
+    pub last_seen: Option<SpecSnapshotId>,
     /// Whether the caller's profile is the latest catalogued snapshot
     /// (currently SVG 2 Editor's Draft). Under a non-latest profile,
     /// BCD's `deprecated`/`experimental` flags are latest-era advice that
@@ -132,7 +132,7 @@ pub fn compute(compat: Option<&CompatEntry>, spec: SpecFacts) -> Verdict {
     if spec.lifecycle == SpecLifecycle::Obsolete {
         let last_seen = spec
             .last_seen
-            .unwrap_or_else(|| OBSOLETE_LAST_SEEN_FALLBACK.to_string());
+            .unwrap_or(OBSOLETE_LAST_SEEN_FALLBACK);
         reasons.push(Reason::ProfileObsolete { last_seen });
     }
 
@@ -330,7 +330,10 @@ fn format_reason(r: &Reason) -> String {
         Reason::BcdDeprecated => "VerdictReason::BcdDeprecated".to_string(),
         Reason::BcdExperimental => "VerdictReason::BcdExperimental".to_string(),
         Reason::ProfileObsolete { last_seen } => {
-            format!("VerdictReason::ProfileObsolete {{ last_seen: SpecSnapshotId::{last_seen} }}")
+            format!(
+                "VerdictReason::ProfileObsolete {{ last_seen: SpecSnapshotId::{} }}",
+                last_seen.as_str()
+            )
         }
         Reason::ProfileExperimental => "VerdictReason::ProfileExperimental".to_string(),
         Reason::BaselineLimited => "VerdictReason::BaselineLimited".to_string(),

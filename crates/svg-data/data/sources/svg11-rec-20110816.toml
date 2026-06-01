@@ -57,6 +57,6 @@ authority = "primary"
 [[inputs]]
 id        = "html-archive-link"
 kind      = "linked-archive"
-locator   = "zip archive linked from the TR landing page"
+locator   = "https://www.w3.org/TR/2011/REC-SVG11-20110816/REC-SVG11-20110816.zip"
 role      = "offline HTML bundle cross-check"
 authority = "supporting"

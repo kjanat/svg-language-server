@@ -41,7 +41,7 @@ flows top-down:
    `svg_lint::effective_profile`, which can downgrade to SVG 1.1 when the
    document's root `<svg version="1.1">` says so (unless `force` is set).
 3. The effective `SpecSnapshotId` is threaded into `completion_from_context`
-   and `hover_for_position`, which forward it into:
+   and `hover_for_position`, which forward them into:
    - `attribute_completion_items`, `child_element_completion_items`,
      `root_element_completion_items` → filter via `attribute_for_profile` /
      `element_for_profile` so attributes/elements unsupported in the active

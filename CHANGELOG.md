@@ -57,6 +57,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   nested `map_or_else` closures
 - `tag_parse` canonical ordering uses `u16::try_from(i).ok()` instead of
   `i as u16` with lint suppression
+- Build fails fast on malformed snapshot data: `pinned_sources` is required,
+  element-attribute matrix edges must reference known elements/attributes, and
+  a missing `spec_removals.json` halts reconciliation (opt-out:
+  `SVG_DATA_ALLOW_MISSING_SPEC_REMOVALS`)
+- `verdict` `last_seen` is typed as `SpecSnapshotId` so codegen cannot emit a
+  malformed snapshot identifier
 
 ### Fixed
 
@@ -78,3 +84,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - `color_kinds` cache evicted on `did_close` to prevent stale entries
 - `BrowserSupportValue` returns `None` when all browser fields are `None`,
   preventing overwrites during merge
+- SVG 1.1 value grammars: `pointer-events` no longer lists the invalid `auto`
+  keyword and `text-decoration` now includes `blink`, cross-checked against
+  the SVG 1.1 property index

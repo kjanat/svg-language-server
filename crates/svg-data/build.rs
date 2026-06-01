@@ -573,6 +573,10 @@ fn load_snapshot_build_data(
         .iter()
         .map(|element| element.name.clone())
         .collect();
+    let attribute_names: HashSet<String> = attributes
+        .iter()
+        .map(|attribute| attribute.name.clone())
+        .collect();
     let mut element_attributes: BTreeMap<String, Vec<AttributeEdgeRecord>> = BTreeMap::new();
     let mut attribute_elements: BTreeMap<String, Vec<String>> = BTreeMap::new();
     let mut attribute_counts: HashMap<String, usize> = HashMap::new();
@@ -581,6 +585,23 @@ fn load_snapshot_build_data(
         if is_placeholder_attribute_name(&edge.attribute) {
             continue;
         }
+        // Referential integrity: every non-placeholder edge must name a real
+        // element and attribute from this snapshot. A dangling edge would
+        // otherwise silently seed a phantom catalog entry — fail the build.
+        assert!(
+            element_names.contains(&edge.element),
+            "matrix edge references unknown element <{}> (attribute `{}`) in snapshot {}",
+            edge.element,
+            edge.attribute,
+            snapshot.as_str(),
+        );
+        assert!(
+            attribute_names.contains(&edge.attribute),
+            "matrix edge references unknown attribute `{}` (on element <{}>) in snapshot {}",
+            edge.attribute,
+            edge.element,
+            snapshot.as_str(),
+        );
         element_attributes
             .entry(edge.element.clone())
             .or_default()

@@ -35,7 +35,10 @@ const SPECS_DIR: &str = "data/specs";
 /// — everything else is ignored via serde's default unknown-field handling.
 #[derive(Debug, Deserialize)]
 struct SnapshotMetadataFile {
-    #[serde(default)]
+    // Required (no `#[serde(default)]`): the canonical schema in
+    // `snapshot_schema.rs` mandates `pinned_sources`, so a missing or typo'd
+    // key should fail the parse rather than silently deserialize to an empty
+    // list and let the provenance gate pass vacuously.
     pinned_sources: Vec<PinnedSource>,
 }
 

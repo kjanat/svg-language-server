@@ -160,6 +160,7 @@ impl StdError for Error {
 
 /// Checked-in manifest describing one snapshot or external pin set.
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct SourceManifest {
     /// Schema version for the manifest file.
     pub schema_version: u32,
@@ -305,6 +306,7 @@ impl SourceManifest {
 
 /// Top-level source status classification.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub enum SourceManifestStatus {
     /// Recommendation-class snapshot.
     #[serde(rename = "REC")]
@@ -333,6 +335,7 @@ impl fmt::Display for SourceManifestStatus {
 
 /// Authority precedence policy for a source manifest.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub enum SourceAuthorityPolicy {
     /// Prefer the dated W3C TR snapshot.
     #[serde(rename = "tr-first")]
@@ -347,6 +350,7 @@ pub enum SourceAuthorityPolicy {
 
 /// Top-level authority metadata for a manifest.
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct ManifestAuthority {
     /// Authority kind.
     pub kind: String,
@@ -358,6 +362,7 @@ pub struct ManifestAuthority {
 
 /// Top-level manifest pin.
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct ManifestPin {
     /// Pin kind.
     pub kind: ManifestPinKind,
@@ -369,6 +374,7 @@ pub struct ManifestPin {
 
 /// Manifest pin kind.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub enum ManifestPinKind {
     /// Pinned absolute URL.
     #[serde(rename = "dated-url")]
@@ -380,6 +386,7 @@ pub enum ManifestPinKind {
 
 /// Checksum policy declared by a manifest.
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct ManifestChecksum {
     /// Checksum strategy name.
     pub strategy: String,
@@ -389,6 +396,7 @@ pub struct ManifestChecksum {
 
 /// Fetch policy declared by a manifest.
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct ManifestFetch {
     /// Fetch policy name.
     pub policy: String,
@@ -400,6 +408,7 @@ pub struct ManifestFetch {
 
 /// One manifest input, either snapshot-native or foreign-reference-only.
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 #[serde(untagged)]
 pub enum SourceManifestInput {
     /// Snapshot-native input.
@@ -455,6 +464,7 @@ impl SourceManifestInput {
 
 /// Snapshot-native manifest input.
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct SnapshotManifestInput {
     /// Stable input id.
     pub id: String,
@@ -476,6 +486,7 @@ pub struct SnapshotManifestInput {
 
 /// Authority classification for a snapshot-native manifest input.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 #[serde(rename_all = "snake_case")]
 pub enum SnapshotInputAuthority {
     /// Normative or canonical-inventory source.
@@ -495,6 +506,7 @@ impl SnapshotInputAuthority {
 
 /// Foreign pinned reference declared as an input.
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct ForeignManifestInput {
     /// Stable input id.
     pub id: String,

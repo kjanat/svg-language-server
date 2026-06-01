@@ -41,6 +41,7 @@ pub struct SnapshotMetadataFile {
 
 /// Publication lifecycle of a tracked snapshot.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 #[serde(rename_all = "snake_case")]
 pub enum SnapshotStatus {
     /// W3C Recommendation snapshot.
@@ -53,6 +54,7 @@ pub enum SnapshotStatus {
 
 /// Pinned source reference used during extraction.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct SnapshotSourceRef {
     /// Checked-in manifest id under `data/sources/`.
     pub manifest_id: String,
@@ -66,6 +68,7 @@ pub struct SnapshotSourceRef {
 
 /// Whether an input is authoritative, assistive, or external.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 #[serde(rename_all = "snake_case")]
 pub enum SourceAuthority {
     /// Normative source for the fact set.
@@ -78,6 +81,7 @@ pub enum SourceAuthority {
 
 /// Exact pin used to make source fetching reproducible.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum SourcePin {
     /// Pinned absolute URL.
@@ -98,6 +102,7 @@ pub enum SourcePin {
 
 /// Deterministic ingestion metadata for a snapshot dataset.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct IngestionMetadata {
     /// Version of the extractor pipeline that wrote the dataset.
     pub extractor_version: String,
@@ -107,6 +112,7 @@ pub struct IngestionMetadata {
 
 /// Typed payload for `elements.json`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct SnapshotElementRecord {
     /// Element tag name.
     pub name: String,
@@ -124,6 +130,7 @@ pub struct SnapshotElementRecord {
 
 /// Typed payload for `attributes.json`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct SnapshotAttributeRecord {
     /// Attribute name.
     pub name: String,
@@ -141,6 +148,7 @@ pub struct SnapshotAttributeRecord {
 
 /// Structured element content model.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum ElementContentModel {
     /// Element must be empty.
@@ -165,6 +173,7 @@ pub enum ElementContentModel {
 
 /// Structured value syntax reference.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum ValueSyntax {
     /// Value grammar is defined in `grammars.json`.
@@ -190,6 +199,7 @@ pub enum ValueSyntax {
 
 /// Default-value representation for attributes.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum AttributeDefaultValue {
     /// No default value is defined.
@@ -205,6 +215,7 @@ pub enum AttributeDefaultValue {
 
 /// Whether an attribute is animatable.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 #[serde(rename_all = "snake_case")]
 pub enum AnimationBehavior {
     /// The spec marks the attribute animatable.
@@ -226,6 +237,7 @@ pub struct GrammarFile {
 
 /// Named grammar definition for a snapshot.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct GrammarDefinition {
     /// Stable grammar id.
     pub id: String,
@@ -239,6 +251,7 @@ pub struct GrammarDefinition {
 
 /// Structured grammar AST node.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum GrammarNode {
     /// Exact keyword token.
@@ -367,6 +380,7 @@ pub struct CategoriesFile {
 
 /// Category membership for one element.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct ElementCategoryMembership {
     /// Element name.
     pub element: String,
@@ -378,6 +392,7 @@ pub struct ElementCategoryMembership {
 
 /// Category membership for one attribute.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct AttributeCategoryMembership {
     /// Attribute name.
     pub attribute: String,
@@ -398,6 +413,7 @@ pub struct ElementAttributeMatrixFile {
 
 /// One explicit element-to-attribute applicability edge.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct ElementAttributeEdge {
     /// Element name.
     pub element: String,
@@ -411,6 +427,7 @@ pub struct ElementAttributeEdge {
 
 /// Requiredness of an applicability edge.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 #[serde(rename_all = "snake_case")]
 pub enum AttributeRequirement {
     /// Attribute is required for valid use.
@@ -430,6 +447,7 @@ pub struct ExceptionsFile {
 
 /// Curated exception attached to a snapshot fact.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct SnapshotException {
     /// Stable exception id.
     pub id: String,
@@ -445,6 +463,7 @@ pub struct SnapshotException {
 
 /// Scope of a curated exception.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum ExceptionScope {
     /// Exception applies to snapshot metadata.
@@ -475,6 +494,7 @@ pub enum ExceptionScope {
 
 /// Reviewer-approved action for an exception.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 #[serde(rename_all = "snake_case")]
 pub enum ExceptionDisposition {
     /// Override extracted data with the curated fix.
@@ -504,6 +524,7 @@ pub struct ReviewFile {
 
 /// Applicability-matrix coverage derived from checked-in facts.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct ApplicabilityCoverage {
     /// Elements with one or more declared attributes.
     pub elements_requiring_matrix_entries: usize,
@@ -515,6 +536,7 @@ pub struct ApplicabilityCoverage {
 
 /// Aggregate snapshot counts used during review.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct ReviewCounts {
     /// Number of normalized elements.
     pub elements: usize,
@@ -530,6 +552,7 @@ pub struct ReviewCounts {
 
 /// Provenance coverage counts for one fact collection.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct ProvenanceCoverageCount {
     /// Total records in the collection.
     pub total: usize,
@@ -541,6 +564,7 @@ pub struct ProvenanceCoverageCount {
 
 /// Provenance coverage across the normalized snapshot payloads.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct ProvenanceCoverage {
     /// Element fact coverage.
     pub elements: ProvenanceCoverageCount,
@@ -560,6 +584,7 @@ pub struct ProvenanceCoverage {
 
 /// Manual exception inventory derived from `exceptions.json`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct ExceptionInventory {
     /// Total exception count.
     pub total: usize,
@@ -583,6 +608,7 @@ pub struct ExceptionInventory {
 
 /// Review finding that still needs action.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct ReviewIssue {
     /// Stable issue id.
     pub id: String,
@@ -594,6 +620,7 @@ pub struct ReviewIssue {
 
 /// Severity for a snapshot review issue.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 #[serde(rename_all = "snake_case")]
 pub enum ReviewSeverity {
     /// Blocks review completion.
@@ -606,6 +633,7 @@ pub enum ReviewSeverity {
 
 /// Provenance attached to a normalized fact.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct FactProvenance {
     /// Source input id from the pinned manifest.
     pub source_id: String,
@@ -621,6 +649,7 @@ pub struct FactProvenance {
 
 /// Source material used for a normalized fact.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 #[serde(rename_all = "snake_case")]
 pub enum ProvenanceSourceKind {
     /// W3C TR or editor's draft chapter HTML.
@@ -637,6 +666,7 @@ pub enum ProvenanceSourceKind {
 
 /// Exact location inside a pinned source.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum SourceLocator {
     /// HTML fragment id.
@@ -666,6 +696,7 @@ pub enum SourceLocator {
 
 /// Confidence attached to an extracted fact.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 #[serde(rename_all = "snake_case")]
 pub enum ExtractionConfidence {
     /// Parsed from a structured authoritative source.

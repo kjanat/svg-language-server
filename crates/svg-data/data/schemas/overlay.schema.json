@@ -27,6 +27,7 @@
 			"$ref": "#/$defs/SpecSnapshotId"
 		}
 	},
+	"additionalProperties": false,
 	"required": [
 		"schema_version",
 		"from_snapshot",
@@ -54,6 +55,7 @@
 					}
 				}
 			},
+			"additionalProperties": false,
 			"required": [
 				"added",
 				"removed"

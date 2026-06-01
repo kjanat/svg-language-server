@@ -68,6 +68,7 @@
 					"$ref": "#/$defs/ProvenanceSourceKind"
 				}
 			},
+			"additionalProperties": false,
 			"required": [
 				"source_id",
 				"source_kind",
@@ -100,6 +101,7 @@
 					"type": "string"
 				}
 			},
+			"additionalProperties": false,
 			"required": [
 				"id",
 				"title",
@@ -123,6 +125,7 @@
 							"type": "string"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"value"
@@ -141,6 +144,7 @@
 							"type": "string"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"name"
@@ -159,6 +163,7 @@
 							"type": "string"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"name"
@@ -180,6 +185,7 @@
 							"const": "sequence"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"items"
@@ -201,6 +207,7 @@
 							}
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"options"
@@ -219,6 +226,7 @@
 							"const": "optional"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"item"
@@ -237,6 +245,7 @@
 							"const": "zero_or_more"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"item"
@@ -255,6 +264,7 @@
 							"const": "one_or_more"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"item"
@@ -273,6 +283,7 @@
 							"const": "comma_separated"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"item"
@@ -291,6 +302,7 @@
 							"const": "space_separated"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"item"
@@ -309,6 +321,7 @@
 							"const": "comma_wsp_separated"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"item"
@@ -344,6 +357,7 @@
 							"minimum": 0
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"item",
@@ -363,6 +377,7 @@
 							"type": "string"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"value"
@@ -385,6 +400,7 @@
 							"type": "string"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"display",
@@ -408,6 +424,7 @@
 							"type": "string"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"spec",
@@ -462,6 +479,7 @@
 							"const": "fragment"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"anchor"
@@ -484,6 +502,7 @@
 							"const": "definition"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"file",
@@ -515,6 +534,7 @@
 							"minimum": 1
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"file",
@@ -540,6 +560,7 @@
 							"type": "string"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"url"
@@ -569,6 +590,7 @@
 							"type": "string"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"repository",

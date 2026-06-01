@@ -78,6 +78,7 @@
 			"type": "string"
 		}
 	},
+	"additionalProperties": false,
 	"required": [
 		"schema_version",
 		"manifest_id",
@@ -118,6 +119,7 @@
 					"type": "string"
 				}
 			},
+			"additionalProperties": false,
 			"required": [
 				"id",
 				"authority",
@@ -144,6 +146,7 @@
 					"type": "string"
 				}
 			},
+			"additionalProperties": false,
 			"required": [
 				"kind",
 				"title",
@@ -163,6 +166,7 @@
 					"type": "string"
 				}
 			},
+			"additionalProperties": false,
 			"required": [
 				"strategy",
 				"note"
@@ -185,6 +189,7 @@
 					"type": "string"
 				}
 			},
+			"additionalProperties": false,
 			"required": [
 				"policy",
 				"cache_subdir",
@@ -208,6 +213,7 @@
 					"type": "string"
 				}
 			},
+			"additionalProperties": false,
 			"required": [
 				"kind",
 				"value",
@@ -277,6 +283,7 @@
 					"type": "string"
 				}
 			},
+			"additionalProperties": false,
 			"required": [
 				"id",
 				"kind",

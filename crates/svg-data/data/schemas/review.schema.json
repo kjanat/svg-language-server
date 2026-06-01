@@ -75,6 +75,7 @@
 					"minimum": 0
 				}
 			},
+			"additionalProperties": false,
 			"required": [
 				"elements_requiring_matrix_entries",
 				"elements_with_matrix_entries",
@@ -141,6 +142,7 @@
 					"minimum": 0
 				}
 			},
+			"additionalProperties": false,
 			"required": [
 				"total",
 				"corrected",
@@ -186,6 +188,7 @@
 					"$ref": "#/$defs/ProvenanceCoverageCount"
 				}
 			},
+			"additionalProperties": false,
 			"required": [
 				"elements",
 				"attributes",
@@ -219,6 +222,7 @@
 					"minimum": 0
 				}
 			},
+			"additionalProperties": false,
 			"required": [
 				"total",
 				"covered",
@@ -260,6 +264,7 @@
 					"minimum": 0
 				}
 			},
+			"additionalProperties": false,
 			"required": [
 				"elements",
 				"attributes",
@@ -285,6 +290,7 @@
 					"type": "string"
 				}
 			},
+			"additionalProperties": false,
 			"required": [
 				"id",
 				"severity",

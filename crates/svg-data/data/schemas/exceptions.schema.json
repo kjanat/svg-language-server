@@ -50,6 +50,7 @@
 							"const": "snapshot"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind"
 					]
@@ -67,6 +68,7 @@
 							"type": "string"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"name"
@@ -85,6 +87,7 @@
 							"type": "string"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"name"
@@ -107,6 +110,7 @@
 							"const": "element_attribute"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"element",
@@ -126,6 +130,7 @@
 							"const": "grammar"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"grammar_id"
@@ -178,6 +183,7 @@
 					"$ref": "#/$defs/ProvenanceSourceKind"
 				}
 			},
+			"additionalProperties": false,
 			"required": [
 				"source_id",
 				"source_kind",
@@ -244,6 +250,7 @@
 					"$ref": "#/$defs/ExceptionScope"
 				}
 			},
+			"additionalProperties": false,
 			"required": [
 				"id",
 				"scope",
@@ -268,6 +275,7 @@
 							"const": "fragment"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"anchor"
@@ -290,6 +298,7 @@
 							"const": "definition"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"file",
@@ -321,6 +330,7 @@
 							"minimum": 1
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"file",
@@ -346,6 +356,7 @@
 							"type": "string"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"url"
@@ -375,6 +386,7 @@
 							"type": "string"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"repository",

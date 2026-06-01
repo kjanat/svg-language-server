@@ -25,6 +25,7 @@
 			}
 		}
 	},
+	"additionalProperties": false,
 	"required": [
 		"schema_version",
 		"snapshots",

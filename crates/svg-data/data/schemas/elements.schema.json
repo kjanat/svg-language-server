@@ -18,6 +18,7 @@
 							"const": "empty"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind"
 					]
@@ -31,6 +32,7 @@
 							"const": "text_only"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind"
 					]
@@ -44,6 +46,7 @@
 							"const": "any_svg"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind"
 					]
@@ -64,6 +67,7 @@
 							"const": "category_set"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"categories"
@@ -85,6 +89,7 @@
 							"const": "element_set"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"elements"
@@ -99,6 +104,7 @@
 							"const": "foreign_namespace"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind"
 					]
@@ -150,6 +156,7 @@
 					"$ref": "#/$defs/ProvenanceSourceKind"
 				}
 			},
+			"additionalProperties": false,
 			"required": [
 				"source_id",
 				"source_kind",
@@ -226,6 +233,7 @@
 					"type": "string"
 				}
 			},
+			"additionalProperties": false,
 			"required": [
 				"name",
 				"title",
@@ -251,6 +259,7 @@
 							"const": "fragment"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"anchor"
@@ -273,6 +282,7 @@
 							"const": "definition"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"file",
@@ -304,6 +314,7 @@
 							"minimum": 1
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"file",
@@ -329,6 +340,7 @@
 							"type": "string"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"url"
@@ -358,6 +370,7 @@
 							"type": "string"
 						}
 					},
+					"additionalProperties": false,
 					"required": [
 						"kind",
 						"repository",

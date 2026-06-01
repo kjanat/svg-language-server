@@ -1,0 +1,32 @@
+#:schema https://gist.githubusercontent.com/kjanat/1172d9d2d6dbe7c6d9983aaabef2eea5/raw/cargo-config.bundle.json
+
+# Cargo configuration for the svg-language-server workspace.
+# See: https://doc.rust-lang.org/cargo/reference/config.html
+
+[alias]
+# Release flavours.
+br = "build --release"
+
+# Workspace shortcuts (built-in single-letter aliases b/c/d/t/r/rm
+# can't be redefined per the alias schema, so the workspace flavours
+# get short two-letter names).
+bw  = "build --workspace"
+bwa = "build --workspace --all-targets"
+cw  = "check --workspace --all-targets"
+dw  = "doc --workspace --no-deps"
+dwn = "--config .cargo/nightly.toml doc"
+rr  = "run --release"
+tw  = "test --workspace"
+twa = "test --workspace --all-targets --all-features"
+
+# Lints. Not aliased as `clippy` because that's an existing subcommand.
+lint      = "clippy --workspace --all-targets --all-features -- -D warnings -D clippy::all"
+fmt-check = "fmt --check"
+
+# Run the workspace CLI binaries.
+sls = "run --release -q -p svg-language-server --"
+fmt-svg = "run --release -q -p svg-format --"
+
+# Install the workspace CLI binaries locally.
+slsi    = "install --path=crates/svg-language-server --bin=svg-language-server --force"
+fmtsvgi = "install --path=crates/svg-format --bin=svg-format --force"

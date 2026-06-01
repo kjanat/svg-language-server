@@ -580,6 +580,7 @@ fn load_snapshot_build_data(
     let mut element_attributes: BTreeMap<String, Vec<AttributeEdgeRecord>> = BTreeMap::new();
     let mut attribute_elements: BTreeMap<String, Vec<String>> = BTreeMap::new();
     let mut attribute_counts: HashMap<String, usize> = HashMap::new();
+    let mut seen_edges: HashSet<(String, String)> = HashSet::new();
 
     for edge in matrix.edges {
         if is_placeholder_attribute_name(&edge.attribute) {
@@ -602,6 +603,15 @@ fn load_snapshot_build_data(
             edge.element,
             snapshot.as_str(),
         );
+        if !seen_edges.insert((edge.element.clone(), edge.attribute.clone())) {
+            return Err(format!(
+                "duplicate matrix edge <{}> ↔ `{}` in snapshot {}",
+                edge.element,
+                edge.attribute,
+                snapshot.as_str(),
+            )
+            .into());
+        }
         element_attributes
             .entry(edge.element.clone())
             .or_default()
@@ -630,23 +640,39 @@ fn load_snapshot_build_data(
         .collect();
 
     Ok(SnapshotBuildData {
-        elements: elements
-            .into_iter()
-            .map(|element| (element.name.clone(), element))
-            .collect(),
-        attributes: attributes
-            .into_iter()
-            .map(|attribute| (attribute.name.clone(), attribute))
-            .collect(),
-        grammars: grammars
-            .grammars
-            .into_iter()
-            .map(|grammar| (grammar.id.clone(), grammar))
-            .collect(),
+        elements: collect_unique(elements, |element| element.name.clone(), "element", snapshot)?,
+        attributes: collect_unique(
+            attributes,
+            |attribute| attribute.name.clone(),
+            "attribute",
+            snapshot,
+        )?,
+        grammars: collect_unique(grammars.grammars, |grammar| grammar.id.clone(), "grammar", snapshot)?,
         element_attributes,
         attribute_elements,
         global_attributes,
     })
+}
+
+/// Collect items into a map keyed by `key`, failing the build on a duplicate
+/// key instead of silently overwriting. The current data has no duplicates, so
+/// this only guards against future data-entry mistakes.
+fn collect_unique<T>(
+    items: impl IntoIterator<Item = T>,
+    key: impl Fn(&T) -> String,
+    kind: &str,
+    snapshot: SpecSnapshotId,
+) -> Result<HashMap<String, T>, Box<dyn Error>> {
+    let mut map = HashMap::new();
+    for item in items {
+        let name = key(&item);
+        if map.insert(name.clone(), item).is_some() {
+            return Err(
+                format!("duplicate {kind} `{name}` in snapshot {}", snapshot.as_str()).into(),
+            );
+        }
+    }
+    Ok(map)
 }
 
 fn build_union_elements(

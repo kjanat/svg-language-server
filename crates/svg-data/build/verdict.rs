@@ -25,7 +25,16 @@ use super::{
     types::SpecLifecycle,
 };
 
-const BROWSERS: [&str; 4] = ["chrome", "edge", "firefox", "safari"];
+/// Fallback `last_seen` snapshot for an obsolete feature whose
+/// [`SpecFacts::last_seen`] wasn't populated by the snapshot pipeline.
+///
+/// `last_seen` is normally `Some` for obsolete features (the pipeline
+/// records the last snapshot a feature was defined in). This defensive
+/// fallback — the earliest catalogued snapshot — only applies to the
+/// `None` case. It must name a real `SpecSnapshotId` variant, since it is
+/// emitted verbatim as `SpecSnapshotId::{last_seen}`; update it if the
+/// earliest snapshot is ever renamed or removed.
+const OBSOLETE_LAST_SEEN_FALLBACK: &str = "Svg11Rec20110816";
 
 /// The four recommendation tiers, in ascending severity.
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -123,7 +132,7 @@ pub fn compute(compat: Option<&CompatEntry>, spec: SpecFacts) -> Verdict {
     if spec.lifecycle == SpecLifecycle::Obsolete {
         let last_seen = spec
             .last_seen
-            .unwrap_or_else(|| "Svg11Rec20110816".to_string());
+            .unwrap_or_else(|| OBSOLETE_LAST_SEEN_FALLBACK.to_string());
         reasons.push(Reason::ProfileObsolete { last_seen });
     }
 

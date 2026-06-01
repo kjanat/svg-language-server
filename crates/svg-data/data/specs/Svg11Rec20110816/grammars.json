@@ -1042,20 +1042,28 @@
 						"value": "none"
 					},
 					{
-						"kind": "keyword",
-						"value": "underline"
-					},
-					{
-						"kind": "keyword",
-						"value": "overline"
-					},
-					{
-						"kind": "keyword",
-						"value": "line-through"
-					},
-					{
-						"kind": "keyword",
-						"value": "blink"
+						"kind": "one_or_more",
+						"item": {
+							"kind": "choice",
+							"options": [
+								{
+									"kind": "keyword",
+									"value": "underline"
+								},
+								{
+									"kind": "keyword",
+									"value": "overline"
+								},
+								{
+									"kind": "keyword",
+									"value": "line-through"
+								},
+								{
+									"kind": "keyword",
+									"value": "blink"
+								}
+							]
+						}
 					}
 				]
 			},

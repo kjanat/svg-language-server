@@ -387,6 +387,7 @@ pub struct ElementCategoryMembership {
     /// Category id.
     pub category: String,
     /// Supporting provenance.
+    #[schemars(length(min = 1))]
     pub provenance: Vec<FactProvenance>,
 }
 
@@ -399,6 +400,7 @@ pub struct AttributeCategoryMembership {
     /// Category id.
     pub category: String,
     /// Supporting provenance.
+    #[schemars(length(min = 1))]
     pub provenance: Vec<FactProvenance>,
 }
 

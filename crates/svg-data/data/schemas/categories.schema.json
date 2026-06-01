@@ -48,7 +48,8 @@
 					"type": "array",
 					"items": {
 						"$ref": "#/$defs/FactProvenance"
-					}
+					},
+					"minItems": 1
 				}
 			},
 			"additionalProperties": false,
@@ -75,7 +76,8 @@
 					"type": "array",
 					"items": {
 						"$ref": "#/$defs/FactProvenance"
-					}
+					},
+					"minItems": 1
 				}
 			},
 			"additionalProperties": false,

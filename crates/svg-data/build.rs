@@ -1065,13 +1065,35 @@ fn enum_values(root: &GrammarNode) -> Option<Vec<String>> {
     let GrammarNode::Choice { options } = root else {
         return None;
     };
-    options
-        .iter()
-        .map(|option| match option {
-            GrammarNode::Keyword { value } => Some(value.clone()),
-            _ => None,
-        })
-        .collect()
+    let mut values = Vec::new();
+    for option in options {
+        collect_enum_keywords(option, &mut values)?;
+    }
+    Some(values)
+}
+
+/// Flatten a keyword-only choice branch into its keyword tokens.
+///
+/// Handles `text-decoration`-style `none | [ underline || overline ||
+/// line-through || blink ]` shapes, where the combinable keywords live under a
+/// `one_or_more` wrapping a nested `choice`. Returns `None` for any branch that
+/// is not purely keywords (datatype/grammar refs, sequences, literals), so
+/// non-enum grammars still fall through to their specialised handlers.
+fn collect_enum_keywords(node: &GrammarNode, out: &mut Vec<String>) -> Option<()> {
+    match node {
+        GrammarNode::Keyword { value } => {
+            out.push(value.clone());
+            Some(())
+        }
+        GrammarNode::Choice { options } => {
+            for option in options {
+                collect_enum_keywords(option, out)?;
+            }
+            Some(())
+        }
+        GrammarNode::OneOrMore { item } => collect_enum_keywords(item, out),
+        _ => None,
+    }
 }
 
 fn preserve_aspect_ratio_values(root: &GrammarNode) -> Option<(Vec<String>, Vec<String>)> {

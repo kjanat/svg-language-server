@@ -186,6 +186,7 @@ pub struct SourceManifest {
     /// Fetch policy.
     pub fetch: ManifestFetch,
     /// Inputs consumed by the extractor.
+    #[schemars(length(min = 1))]
     pub inputs: Vec<SourceManifestInput>,
 }
 

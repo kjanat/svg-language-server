@@ -765,10 +765,6 @@
 				"options": [
 					{
 						"kind": "keyword",
-						"value": "auto"
-					},
-					{
-						"kind": "keyword",
 						"value": "none"
 					},
 					{
@@ -1056,6 +1052,10 @@
 					{
 						"kind": "keyword",
 						"value": "line-through"
+					},
+					{
+						"kind": "keyword",
+						"value": "blink"
 					}
 				]
 			},

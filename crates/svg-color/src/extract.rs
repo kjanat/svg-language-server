@@ -2,6 +2,7 @@ mod property;
 mod resolve;
 
 use std::{
+    borrow::Cow,
     collections::{HashMap, HashSet},
     ops::Range,
 };
@@ -15,9 +16,16 @@ use crate::{
 };
 
 type CustomProperties = HashMap<String, String>;
+type CustomPropertyScopes = HashMap<CssScopeKey, CustomProperties>;
 type Rgba = (f32, f32, f32, f32);
 type ResolvedColor = (f32, f32, f32, f32, ColorKind);
 type ColorStop = (Rgba, Option<f64>);
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+enum CssScopeKey {
+    Root,
+    Block(usize),
+}
 
 /// Extract all colors from SVG source text.
 ///
@@ -152,7 +160,7 @@ fn walk_css(
     css_source: &[u8],
     base_byte: usize,
     base_start: Point,
-    custom_properties: &CustomProperties,
+    custom_properties: &CustomPropertyScopes,
     out: &mut Vec<ColorInfo>,
 ) {
     loop {
@@ -230,7 +238,7 @@ fn try_extract_css_declaration(
     css_source: &[u8],
     base_byte: usize,
     base_start: Point,
-    custom_properties: &CustomProperties,
+    custom_properties: &CustomPropertyScopes,
 ) -> Option<ColorInfo> {
     if node.kind() != "declaration" {
         return None;
@@ -243,8 +251,23 @@ fn try_extract_css_declaration(
 
     let value_node = property::declaration_primary_value_node(node)?;
     let value_text = property::declaration_value_text(node, css_source)?;
+    let scope = css_scope_key(node);
+    let empty = CustomProperties::new();
+    let scoped_properties = custom_properties.get(&scope).unwrap_or(&empty);
+    let root_properties = custom_properties
+        .get(&CssScopeKey::Root)
+        .unwrap_or(&empty);
+    let merged_properties = if scope == CssScopeKey::Root || root_properties.is_empty() {
+        Cow::Borrowed(scoped_properties)
+    } else if scoped_properties.is_empty() {
+        Cow::Borrowed(root_properties)
+    } else {
+        let mut merged = root_properties.clone();
+        merged.extend(scoped_properties.clone());
+        Cow::Owned(merged)
+    };
     let (r, g, b, a, kind) =
-        resolve::resolve_css_color(value_text, custom_properties, &mut HashSet::new())?;
+        resolve::resolve_css_color(value_text, &merged_properties, &mut HashSet::new())?;
 
     Some(build_color_info(
         (r, g, b, a),
@@ -255,7 +278,7 @@ fn try_extract_css_declaration(
     ))
 }
 
-fn collect_css_custom_properties(css_source: &[u8], tree: &Tree) -> CustomProperties {
+fn collect_css_custom_properties(css_source: &[u8], tree: &Tree) -> CustomPropertyScopes {
     let mut properties = HashMap::new();
     let mut cursor = tree.root_node().walk();
     walk_tree(&mut cursor, &mut |node| {
@@ -271,9 +294,64 @@ fn collect_css_custom_properties(css_source: &[u8], tree: &Tree) -> CustomProper
         let Some(value_text) = property::declaration_value_text(node, css_source) else {
             return;
         };
-        properties.insert(prop_name.to_owned(), value_text.to_owned());
+        let scope = css_scope_key(node);
+        properties
+            .entry(scope)
+            .or_insert_with(CustomProperties::new)
+            .insert(prop_name.to_owned(), value_text.to_owned());
+        if scope != CssScopeKey::Root
+            && let Some(block) = css_scope_block(node)
+            && block_is_root(block, css_source)
+        {
+            properties
+                .entry(CssScopeKey::Root)
+                .or_insert_with(CustomProperties::new)
+                .insert(prop_name.to_owned(), value_text.to_owned());
+        }
     });
     properties
+}
+
+fn css_scope_key(node: tree_sitter::Node<'_>) -> CssScopeKey {
+    css_scope_block(node)
+        .map_or(CssScopeKey::Root, |block| CssScopeKey::Block(block.start_byte()))
+}
+
+fn css_scope_block(node: tree_sitter::Node<'_>) -> Option<tree_sitter::Node<'_>> {
+    let mut current = Some(node);
+    while let Some(node) = current {
+        if node.kind() == "block" {
+            return Some(node);
+        }
+        current = node.parent();
+    }
+    None
+}
+
+fn block_is_root(block: tree_sitter::Node<'_>, css_source: &[u8]) -> bool {
+    let Some(parent) = block.parent() else {
+        return false;
+    };
+    if parent.kind() != "rule_set" {
+        return false;
+    }
+    let mut cursor = parent.walk();
+    if !cursor.goto_first_child() {
+        return false;
+    }
+    loop {
+        let child = cursor.node();
+        if child.kind() == "selectors" {
+            let Ok(text) = std::str::from_utf8(&css_source[child.byte_range()]) else {
+                return false;
+            };
+            return text.to_ascii_lowercase().contains(":root");
+        }
+        if !cursor.goto_next_sibling() {
+            break;
+        }
+    }
+    false
 }
 
 const fn build_color_info(
@@ -523,6 +601,35 @@ mod tests {
         assert!((stroke_ref.g - base.1).abs() < 0.02);
         assert!((stroke_ref.b - base.2).abs() < 0.02);
         Ok(())
+    }
+
+    #[test]
+    fn css_custom_properties_are_scoped_by_rule() {
+        let src = br"<svg><style>.a { --color: red; fill: var(--color); } .b { --color: blue; fill: var(--color); }</style></svg>";
+        let colors = extract_colors(src);
+
+        let mut var_refs: Vec<_> = colors
+            .iter()
+            .filter(|color| {
+                std::str::from_utf8(&src[color.byte_range.clone()])
+                    .ok()
+                    .is_some_and(|text| text == "var(--color)")
+            })
+            .collect();
+        var_refs.sort_by_key(|color| color.byte_range.start);
+        assert_eq!(var_refs.len(), 2);
+
+        let first = var_refs[0];
+        assert!((first.r - 1.0).abs() < f32::EPSILON);
+        assert!(first.g.abs() < f32::EPSILON);
+        assert!(first.b.abs() < f32::EPSILON);
+        assert_eq!(first.kind, ColorKind::Named);
+
+        let second = var_refs[1];
+        assert!(second.r.abs() < f32::EPSILON);
+        assert!(second.g.abs() < f32::EPSILON);
+        assert!((second.b - 1.0).abs() < f32::EPSILON);
+        assert_eq!(second.kind, ColorKind::Named);
     }
 
     #[test]

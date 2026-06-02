@@ -95,22 +95,27 @@ impl Kind {
     }
 }
 
-/// Unique identity of an exception entry for the self-pruning pass.
-/// Two exceptions with the same `(kind, name, element)` refer to the
-/// same conflict.
+/// Unique identity of an exception entry for live-match and self-pruning.
+/// Stance strings are part of the key so a superseded exception with the
+/// same feature but different `bcd_says` / `spec_says` is not treated as
+/// still live when a newer entry matches the current conflict.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 struct ExceptionId {
     kind: Kind,
     name: String,
     element: String,
+    bcd_says: String,
+    spec_says: String,
 }
 
 impl ExceptionId {
-    const fn new(kind: Kind, name: String, element: String) -> Self {
+    fn new(kind: Kind, name: String, element: String, bcd_says: String, spec_says: String) -> Self {
         Self {
             kind,
             name,
             element,
+            bcd_says,
+            spec_says,
         }
     }
 }
@@ -124,6 +129,11 @@ struct Conflict {
     /// Element scope for attribute conflicts; `"*"` for elements and
     /// globally-applicable attributes.
     element: String,
+    /// Literal BCD stance for exception matching (`"deprecated"` today).
+    bcd_says: String,
+    /// Literal spec stance for exception matching (`"stable"` or
+    /// `"obsoleted-but-defined"` when the scanner flagged obsoletion).
+    spec_says: String,
     /// Which rule fired.
     rule: ConflictRule,
     /// Source-scanner provenance when the conflict was flagged by the
@@ -263,6 +273,7 @@ pub fn run(
         union_attributes,
         union_elements,
         latest_snapshot,
+        &spec_report,
         &all_exceptions,
         &mut conflicts,
         &mut matched,
@@ -272,7 +283,13 @@ pub fn run(
     let dead: Vec<(Kind, &Exception)> = all_exceptions
         .iter()
         .filter_map(|(kind, exception)| {
-            let id = ExceptionId::new(*kind, exception.name.clone(), exception.element.clone());
+            let id = ExceptionId::new(
+                *kind,
+                exception.name.clone(),
+                exception.element.clone(),
+                exception.bcd_says.clone(),
+                exception.spec_says.clone(),
+            );
             (!matched.contains(&id)).then_some((*kind, *exception))
         })
         .collect();
@@ -331,6 +348,8 @@ fn detect_spec_removed_conflicts(
             kind: Kind::Attribute,
             name: facts.name.clone(),
             element: attribute_scope(&facts.elements),
+            bcd_says: String::new(),
+            spec_says: String::new(),
             rule: ConflictRule::SpecRemovedButSnapshotPresent,
             spec_evidence: Some(evidence),
         });
@@ -347,6 +366,8 @@ fn detect_spec_removed_conflicts(
             kind: Kind::Element,
             name: facts.name.clone(),
             element: "*".to_string(),
+            bcd_says: String::new(),
+            spec_says: String::new(),
             rule: ConflictRule::SpecRemovedButSnapshotPresent,
             spec_evidence: Some(evidence),
         });
@@ -357,11 +378,34 @@ fn detect_spec_removed_conflicts(
 /// rule (BCD says deprecated, snapshot says stable, spec scanner didn't
 /// flag it as removed). Skips entries already flagged by
 /// [`detect_spec_removed_conflicts`] — that rule dominates.
+/// Stance labels for a live [`ConflictRule::BcdDeprecatedButSnapshotStable`]
+/// conflict, used to match the paste-ready fields in the exception file.
+fn bcd_deprecated_stances(
+    kind: Kind,
+    name: &str,
+    spec_report: &SpecReport,
+) -> (&'static str, &'static str) {
+    let obsoleted = spec_report.obsoleted_properties.iter().any(|fact| {
+        fact.name == name
+            && match kind {
+                Kind::Attribute => fact.kind == "attribute" || fact.kind == "property",
+                Kind::Element => fact.kind == "element",
+            }
+    });
+    let spec_says = if obsoleted {
+        "obsoleted-but-defined"
+    } else {
+        "stable"
+    };
+    ("deprecated", spec_says)
+}
+
 fn detect_bcd_deprecated_conflicts<'exc>(
     compat: &bcd::CompatData,
     union_attributes: &[UnionAttributeFacts],
     union_elements: &[UnionElementFacts],
     latest_snapshot: SpecSnapshotId,
+    spec_report: &SpecReport,
     all_exceptions: &'exc [(Kind, &'exc Exception)],
     conflicts: &mut Vec<Conflict>,
     matched: &mut HashSet<ExceptionId>,
@@ -382,10 +426,14 @@ fn detect_bcd_deprecated_conflicts<'exc>(
         if !facts.present_in.contains(&latest_snapshot) {
             continue;
         }
+        let (bcd_says, spec_says) =
+            bcd_deprecated_stances(Kind::Attribute, &facts.name, spec_report);
         let conflict = Conflict {
             kind: Kind::Attribute,
             name: facts.name.clone(),
             element: attribute_scope(&facts.elements),
+            bcd_says: bcd_says.to_string(),
+            spec_says: spec_says.to_string(),
             rule: ConflictRule::BcdDeprecatedButSnapshotStable,
             spec_evidence: None,
         };
@@ -410,10 +458,13 @@ fn detect_bcd_deprecated_conflicts<'exc>(
         if !facts.present_in.contains(&latest_snapshot) {
             continue;
         }
+        let (bcd_says, spec_says) = bcd_deprecated_stances(Kind::Element, &facts.name, spec_report);
         let conflict = Conflict {
             kind: Kind::Element,
             name: facts.name.clone(),
             element: "*".to_string(),
+            bcd_says: bcd_says.to_string(),
+            spec_says: spec_says.to_string(),
             rule: ConflictRule::BcdDeprecatedButSnapshotStable,
             spec_evidence: None,
         };
@@ -510,10 +561,20 @@ fn find_matching_exception(
     let mut specific: Option<ExceptionId> = None;
     let mut wildcard: Option<ExceptionId> = None;
     for (kind, exception) in exceptions {
-        if *kind != conflict.kind || exception.name != conflict.name {
+        if *kind != conflict.kind
+            || exception.name != conflict.name
+            || exception.bcd_says != conflict.bcd_says
+            || exception.spec_says != conflict.spec_says
+        {
             continue;
         }
-        let id = ExceptionId::new(*kind, exception.name.clone(), exception.element.clone());
+        let id = ExceptionId::new(
+            *kind,
+            exception.name.clone(),
+            exception.element.clone(),
+            exception.bcd_says.clone(),
+            exception.spec_says.clone(),
+        );
         if exception.element == conflict.element {
             specific = Some(id);
         } else if exception.element == "*" {
@@ -592,8 +653,8 @@ fn render_bcd_deprecated_fix(
     let _ = writeln!(out, "       [[{header}]]");
     let _ = writeln!(out, "       name = \"{}\"", conflict.name);
     let _ = writeln!(out, "       element = \"{}\"", conflict.element);
-    out.push_str("       bcd_says = \"deprecated\"\n");
-    out.push_str("       spec_says = \"stable\"\n");
+    let _ = writeln!(out, "       bcd_says = \"{}\"", conflict.bcd_says);
+    let _ = writeln!(out, "       spec_says = \"{}\"", conflict.spec_says);
     out.push_str("       reason = \"<WHY — one sentence>\"\n");
     out.push_str("       added = \"2026-04-15\"\n");
     out.push_str("       upstream_ref = \"<URL to primary source>\"\n");

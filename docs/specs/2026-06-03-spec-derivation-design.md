@@ -140,6 +140,40 @@ from **vendored** dated artifacts (the API may be used offline-gated at *capture
 time to resolve URLs + record `status`/`date` per snapshot); the **LSP** hits the
 API (opt-in) only for the runtime freshness signal.
 
+#### What the API actually returns (payload + scope)
+
+> **Scope: bibliographic metadata ONLY — no spec content.** The W3C API carries
+> *publication* metadata (versions, dates, status, editors, groups) and at most a
+> one-paragraph abstract per series (`description`). It contains **zero** technical
+> spec data — no elements, attributes, properties, value grammars, or content
+> models. All of that still comes from parsing the **vendored spec documents**
+> (propidx.html, `definitions*.xml`, DTD, chapter HTML). The API is purely the
+> *edition-index + freshness* layer, never a content source.
+
+Format: **HAL+JSON** — every response is a pagination envelope
+`{ page, limit, pages, total, _links, _embedded }`; related resources are linked
+(`_links`) or inlined (`_embedded`) per `?embed=1`. Payloads are tiny:
+
+| Request                                             | Bytes                         |
+| --------------------------------------------------- | ----------------------------- |
+| `/specifications/{SVG,SVG11,SVG2}/versions?embed=1` | ~17–21 KB each (~55 KB total) |
+| same, no `embed` (links only)                       | ~2.3 KB each                  |
+| single version detail                               | ~1.1 KB                       |
+| series root `/specifications/SVG2`                  | ~1.2 KB                       |
+
+Per-version object (11 typed fields, all the index/freshness layer needs):
+`status`, `rec-track` (bool), `editor-draft` (ED URL), `uri` (dated TR URL —
+**the vendor target**), `date` (ISO 8601), `implementation-feedback-due`,
+`informative` (bool), `title`, `shortlink` (the `/TR/SVG2/` latest pointer),
+`process-rules`, plus `_links` (self/editors/deliverers/specification/
+predecessor-version). `…/versions/latest` is a **302 redirect** to the latest
+dated version resource — latest-published date with one HEAD, no body parse.
+
+The whole SVG edition universe is ~55 KB of structured JSON over 3 GETs → cheap to
+**vendor as a static edition index** and refresh occasionally; a Rust struct over
+`_embedded.version-history[]` (`serde_json`, ignore `_links`) is all the build
+needs.
+
 ### How editions get populated
 
 Each frozen edition's snapshot data is **derived by the pipeline** (vendor the TR

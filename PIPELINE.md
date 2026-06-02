@@ -24,7 +24,7 @@ flowchart TD
         reviewed["data/reviewed/<br/>spec_removals.json · bcd_spec_exceptions.toml"]
         curated["data/elements.json · data/attributes.json<br/>placeholder_attribute_names.txt"]
         bcd_up["@mdn/browser-compat-data + web-features<br/>(npm, live)"]
-        svgwg["svgwg/ submodule<br/>incl. propidx.html"]
+        svgwg["svgwg/ gitignored local clone<br/>incl. propidx.html"]
     end
 
     subgraph proc["② Processing"]
@@ -81,7 +81,7 @@ cached) at build time.
 | `crates/svg-data/data/placeholder_attribute_names.txt`                                             | text        | manual blocklist           | BCD/web-features IDs that aren't real SVG attribute names                                                                             |
 | `crates/svg-data/data/schemas/*.schema.json`                                                       | JSON Schema | manual                     | Validation shapes for all snapshot data                                                                                               |
 | `@mdn/browser-compat-data` + `web-features`                                                        | JSON (npm)  | MDN / web-features         | Browser support tables, baseline status — fetched via the svg-compat worker                                                           |
-| `svgwg/` submodule (incl. `master/propidx.html`)                                                   | HTML/XML    | W3C SVGWG                  | Upstream spec source; reference today (scanned for descriptions/removals, see notes)                                                  |
+| `svgwg/` gitignored local clone (incl. `master/propidx.html`)                                      | HTML/XML    | W3C SVGWG                  | Upstream spec source; **untracked discovery clone**, not committed (scanned for descriptions/removals, see notes)                     |
 
 ---
 
@@ -217,7 +217,7 @@ targets the **enum extraction** stage.
 - **Target**: derive property value enums directly from the spec's
   `propidx.html` (property index), eliminating hand-curated grammar enums.
 - **Current state**: `propidx.html` exists only at `svgwg/master/propidx.html`
-  (submodule) and is **declared but unconsumed** — its only reference is
+  (gitignored local clone) and is **declared but unconsumed** — its only reference is
   [`data/sources/svg2-cr-20181004.toml:58-61`](crates/svg-data/data/sources/svg2-cr-20181004.toml)
   (`id = "property-index"`, `role = "property inventory"`). No code reads it.
 - **The seam to touch**: a new parser (likely in `workers/svg-compat/` or a new

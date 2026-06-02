@@ -6,12 +6,12 @@ Build-script internals for compat fetch/cache, spec scraping, and deterministic 
 
 ## WHERE TO LOOK
 
-| Task                      | Location      | Notes                                               |
-| ------------------------- | ------------- | --------------------------------------------------- |
-| Fetch + merge compat data | `bcd.rs`      | BCD + web-features cache/read/merge pipeline        |
-| Fetch spec descriptions   | `spec.rs`     | Raw svgwg HTML fetch + paragraph extraction         |
-| Emit Rust source          | `codegen.rs`  | String escaping + stable Rust literal generation    |
-| See orchestration entry   | `../build.rs` | Wires curated JSON + compat + spec text into output |
+| Task                      | Location      | Notes                                                                                                                                                                 |
+| ------------------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fetch + merge compat data | `bcd.rs`      | BCD + web-features cache/read/merge pipeline                                                                                                                          |
+| Fetch spec descriptions   | `spec.rs`     | **ORPHANED** — not declared via `mod spec` in `../build.rs`; dead today, slated to revive for P3 descriptions (see `docs/specs/2026-06-03-spec-derivation-design.md`) |
+| Emit Rust source          | `codegen.rs`  | String escaping + stable Rust literal generation                                                                                                                      |
+| See orchestration entry   | `../build.rs` | Wires curated JSON + compat + spec text into output                                                                                                                   |
 
 ## CONVENTIONS
 
@@ -29,5 +29,6 @@ Build-script internals for compat fetch/cache, spec scraping, and deterministic 
 
 ## NOTES
 
-- `spec.rs` strips HTML with simple text heuristics, not a full HTML parser.
+- `spec.rs` is currently **orphaned** (no `mod spec;` in `../build.rs`); when revived
+  it strips HTML with simple text heuristics, not a full HTML parser.
 - `bcd.rs` merges deprecation/experimental/spec-url/baseline/browser-support signals conservatively across sources.

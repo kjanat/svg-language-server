@@ -4,6 +4,7 @@ mod resolve;
 use std::{
     collections::{HashMap, HashSet},
     ops::Range,
+    sync::OnceLock,
 };
 
 use svg_tree::walk_tree;
@@ -254,6 +255,11 @@ fn try_extract_css_leaf(
     ))
 }
 
+/// Shared empty property map for declarations whose scope (and `:root`) carry no
+/// custom properties. Initialized at most once; avoids allocating a throwaway
+/// `HashMap` on every color declaration.
+static EMPTY_CUSTOM_PROPERTIES: OnceLock<CustomProperties> = OnceLock::new();
+
 fn try_extract_css_declaration(
     node: tree_sitter::Node<'_>,
     css_source: &[u8],
@@ -278,11 +284,10 @@ fn try_extract_css_declaration(
     // this is a single borrow with no per-declaration cloning. A block that
     // declares no custom properties of its own is absent from the map; it still
     // sees `:root` globals by falling back to the `:root` scope's map.
-    let empty = CustomProperties::new();
     let scoped_properties = resolved_scopes
         .get(&scope)
         .or_else(|| resolved_scopes.get(&CssScopeKey::Root))
-        .unwrap_or(&empty);
+        .unwrap_or_else(|| EMPTY_CUSTOM_PROPERTIES.get_or_init(CustomProperties::new));
     let (r, g, b, a, kind) =
         resolve::resolve_css_color(value_text, scoped_properties, &mut HashSet::new())?;
 

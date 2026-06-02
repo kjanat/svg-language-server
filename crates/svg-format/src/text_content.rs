@@ -28,6 +28,10 @@ pub fn dedent_block_with_offset(text: &str) -> (String, Option<usize>) {
     };
 
     let block = &lines[start..=end];
+    // Common indent is measured in whitespace *characters* so the per-line
+    // byte cut always lands on a UTF-8 boundary. Every non-blank line has at
+    // least `min_indent` leading whitespace chars, so `cut_indent_bytes`
+    // never slices through a multi-byte character.
     let min_indent = block
         .iter()
         .filter(|l| !l.trim().is_empty())
@@ -41,21 +45,25 @@ pub fn dedent_block_with_offset(text: &str) -> (String, Option<usize>) {
             if l.trim().is_empty() {
                 ""
             } else {
-                let skip: usize = l.chars().take(min_indent).map(char::len_utf8).sum();
-                &l[skip..]
+                &l[cut_indent_bytes(l, min_indent)..]
             }
         })
         .collect::<Vec<_>>()
         .join("\n");
 
-    let line_start = starts[start];
-    let skip: usize = lines[start]
-        .chars()
-        .take(min_indent)
-        .map(char::len_utf8)
-        .sum();
-    let content_offset = line_start + skip;
+    // The dedented content begins on `lines[start]`, after the same byte cut
+    // that `dedented` applies to it — so the file offset reuses
+    // `cut_indent_bytes` for an exact match with the slicing above.
+    let content_offset = starts[start] + cut_indent_bytes(lines[start], min_indent);
     (dedented, Some(content_offset))
+}
+
+/// Byte length of `line`'s first `indent_chars` leading whitespace
+/// characters. The caller guarantees `line` has at least `indent_chars`
+/// leading whitespace chars, so the returned length is a UTF-8 char
+/// boundary and `&line[returned..]` never panics.
+fn cut_indent_bytes(line: &str, indent_chars: usize) -> usize {
+    line.chars().take(indent_chars).map(char::len_utf8).sum()
 }
 
 /// Collapse runs of whitespace into single spaces and trim.
@@ -286,10 +294,21 @@ pub fn decode_xml_entities(text: String) -> String {
 /// Returns `None` if the text contains anything other than a single CDATA
 /// section (multiple sections, surrounding non-whitespace characters, or
 /// embedded `]]>` terminators that would prevent a clean round-trip).
-pub fn strip_cdata_wrapper(text: &str) -> Option<&str> {
-    let trimmed = text.trim();
+///
+/// On success returns `(inner_byte_offset, inner)` where `inner_byte_offset`
+/// is the byte position of `inner` within the original `text` — i.e.
+/// `&text[inner_byte_offset..][..inner.len()] == inner`. This lets callers
+/// map a position inside the payload back to the original source without
+/// fragile raw-pointer subtraction. The offset is derived from
+/// [`str::trim`]'s leading-whitespace count plus the `<![CDATA[` prefix
+/// length, both of which fall on UTF-8 char boundaries.
+pub fn strip_cdata_wrapper(text: &str) -> Option<(usize, &str)> {
+    const PREFIX: &str = "<![CDATA[";
+    let trimmed = text.trim_start();
+    let leading_ws = text.len() - trimmed.len();
     let inner = trimmed
-        .strip_prefix("<![CDATA[")
+        .trim_end()
+        .strip_prefix(PREFIX)
         .and_then(|s| s.strip_suffix("]]>"))?;
     // Reject payloads that contain further CDATA markers — we cannot
     // safely round-trip nested or concatenated sections through a host
@@ -297,7 +316,7 @@ pub fn strip_cdata_wrapper(text: &str) -> Option<&str> {
     if inner.contains("<![CDATA[") || inner.contains("]]>") {
         return None;
     }
-    Some(inner)
+    Some((leading_ws + PREFIX.len(), inner))
 }
 
 /// Encode characters that are invalid in XML text content as entity

@@ -125,9 +125,12 @@ pub struct EmbeddedContent<'a> {
     /// The nesting depth in the SVG tree where this content lives.
     pub indent_depth: usize,
     /// Byte offset in the original SVG source where `content` begins.
+    ///
+    /// `&source[file_byte_offset..]` starts exactly at `content`'s first
+    /// character, so a host callback can map an embedded-formatter
+    /// `(line, col)` back to a position in the original SVG by counting
+    /// from this byte.
     pub file_byte_offset: usize,
-    /// 1-based index of this embedded block for its language.
-    pub block_index: usize,
 }
 
 /// Formatter configuration for SVG pretty-printing.
@@ -568,14 +571,6 @@ struct Formatter<'a> {
     source: &'a [u8],
     options: FormatOptions,
     out: String,
-    embedded_counts: EmbeddedCounts,
-}
-
-#[derive(Default)]
-struct EmbeddedCounts {
-    css: usize,
-    javascript: usize,
-    html: usize,
 }
 
 impl<'a> Formatter<'a> {
@@ -584,11 +579,6 @@ impl<'a> Formatter<'a> {
             source,
             options,
             out: String::new(),
-            embedded_counts: EmbeddedCounts {
-                css: 0,
-                javascript: 0,
-                html: 0,
-            },
         }
     }
 
@@ -632,16 +622,6 @@ impl<'a> Formatter<'a> {
             }
             _ => self.format_children(node, depth, fmt),
         }
-    }
-
-    fn next_embedded_index(&mut self, language: EmbeddedLanguage) -> usize {
-        let count = match language {
-            EmbeddedLanguage::Css => &mut self.embedded_counts.css,
-            EmbeddedLanguage::JavaScript => &mut self.embedded_counts.javascript,
-            EmbeddedLanguage::Html => &mut self.embedded_counts.html,
-        };
-        *count += 1;
-        *count
     }
 
     fn format_children(
@@ -1329,25 +1309,27 @@ impl<'a> Formatter<'a> {
                 let (dedented, offset) = dedent_block_with_offset(raw);
                 (decode_xml_entities(dedented), false, offset)
             },
-            |inner| {
-                let inner_offset = inner.as_ptr() as usize - raw.as_ptr() as usize;
+            |(inner_offset, inner)| {
+                // `inner_offset` is the byte position of `inner` within `raw`
+                // (CDATA prefix + any leading whitespace stripped by trim),
+                // both UTF-8 boundaries. Add the dedent offset within `inner`.
                 let (dedented, offset) = dedent_block_with_offset(inner);
                 (dedented, true, offset.map(|value| inner_offset + value))
             },
         );
+        // `dedent_block_with_offset` yields `None` exactly when the block is
+        // blank (no non-whitespace line), which also means `payload` is empty.
+        // The `Some(offset)` gate below therefore subsumes an empty-payload
+        // check — no separate `payload.is_empty()` guard is needed.
         let Some(payload_offset) = payload_offset else {
             return false;
         };
-        if payload.is_empty() {
-            return false;
-        }
         let file_byte_offset = raw_start + payload_offset;
         let req = EmbeddedContent {
             language,
             content: &payload,
             indent_depth: depth,
             file_byte_offset,
-            block_index: self.next_embedded_index(language),
         };
         fmt(req).is_some_and(|formatted| {
             if cdata_wrapped {
@@ -1391,12 +1373,10 @@ impl<'a> Formatter<'a> {
 
         let raw = std::str::from_utf8(&self.source[content_start..content_end]).ok()?;
         let (content, offset) = dedent_block_with_offset(raw);
-        let Some(offset) = offset else {
-            return None;
-        };
-        if content.is_empty() {
-            return None;
-        }
+        // `dedent_block_with_offset` returns `None` exactly for blank blocks,
+        // which is also the only case where `content` is empty — so the
+        // `Some(offset)` gate alone rules out empty content.
+        let offset = offset?;
         let file_byte_offset = content_start + offset;
 
         let req = EmbeddedContent {
@@ -1404,7 +1384,6 @@ impl<'a> Formatter<'a> {
             content: &content,
             indent_depth: depth + 1,
             file_byte_offset,
-            block_index: self.next_embedded_index(EmbeddedLanguage::Html),
         };
         let formatted = fmt(req)?;
 

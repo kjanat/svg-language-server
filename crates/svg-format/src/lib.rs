@@ -16,7 +16,7 @@ use tag_parse::{
     reorder_attributes,
 };
 use text_content::{
-    collapse_whitespace, decode_xml_entities, dedent_block, encode_xml_entities,
+    collapse_whitespace, decode_xml_entities, dedent_block_with_offset, encode_xml_entities,
     is_text_content_element, normalize_text_content_with_entities, strip_cdata_wrapper,
 };
 use tree_sitter::{Node, Parser};
@@ -124,6 +124,19 @@ pub struct EmbeddedContent<'a> {
     pub content: &'a str,
     /// The nesting depth in the SVG tree where this content lives.
     pub indent_depth: usize,
+    /// Byte offset in the original SVG source where the embedded payload
+    /// begins: the first non-whitespace content byte, past any `<![CDATA[`
+    /// prefix and the common leading indentation.
+    ///
+    /// This is a *block anchor*, not a byte-for-byte map. `content` is a
+    /// transformed view of the source — common indentation is stripped per
+    /// line, CRLF is normalized to LF, and (outside CDATA) XML entities are
+    /// decoded — so it is generally not byte-identical to
+    /// `&source[file_byte_offset..]`. A host callback can use this to locate
+    /// where the embedded region starts, but interior `(line, col)` positions
+    /// within `content` cannot be recovered by counting bytes from this
+    /// offset; that would require a full source map.
+    pub file_byte_offset: usize,
 }
 
 /// Formatter configuration for SVG pretty-printing.
@@ -1295,18 +1308,34 @@ impl<'a> Formatter<'a> {
         depth: usize,
         fmt: &mut dyn FnMut(EmbeddedContent<'_>) -> Option<String>,
     ) -> bool {
-        let raw = self.node_text(node).to_string();
-        let (payload, cdata_wrapped) = strip_cdata_wrapper(&raw).map_or_else(
-            || (decode_xml_entities(dedent_block(&raw)), false),
-            |inner| (dedent_block(inner), true),
+        let raw = self.node_text(node);
+        let raw_start = node.start_byte();
+        let (payload, cdata_wrapped, payload_offset) = strip_cdata_wrapper(raw).map_or_else(
+            || {
+                let (dedented, offset) = dedent_block_with_offset(raw);
+                (decode_xml_entities(dedented), false, offset)
+            },
+            |(inner_offset, inner)| {
+                // `inner_offset` is the byte position of `inner` within `raw`
+                // (CDATA prefix + any leading whitespace stripped by trim),
+                // both UTF-8 boundaries. Add the dedent offset within `inner`.
+                let (dedented, offset) = dedent_block_with_offset(inner);
+                (dedented, true, offset.map(|value| inner_offset + value))
+            },
         );
-        if payload.is_empty() {
+        // `dedent_block_with_offset` yields `None` exactly when the block is
+        // blank (no non-whitespace line), which also means `payload` is empty.
+        // The `Some(offset)` gate below therefore subsumes an empty-payload
+        // check — no separate `payload.is_empty()` guard is needed.
+        let Some(payload_offset) = payload_offset else {
             return false;
-        }
+        };
+        let file_byte_offset = raw_start + payload_offset;
         let req = EmbeddedContent {
             language,
             content: &payload,
             indent_depth: depth,
+            file_byte_offset,
         };
         fmt(req).is_some_and(|formatted| {
             if cdata_wrapped {
@@ -1349,15 +1378,18 @@ impl<'a> Formatter<'a> {
         }
 
         let raw = std::str::from_utf8(&self.source[content_start..content_end]).ok()?;
-        let content = dedent_block(raw);
-        if content.is_empty() {
-            return None;
-        }
+        let (content, offset) = dedent_block_with_offset(raw);
+        // `dedent_block_with_offset` returns `None` exactly for blank blocks,
+        // which is also the only case where `content` is empty — so the
+        // `Some(offset)` gate alone rules out empty content.
+        let offset = offset?;
+        let file_byte_offset = content_start + offset;
 
         let req = EmbeddedContent {
             language: EmbeddedLanguage::Html,
             content: &content,
             indent_depth: depth + 1,
+            file_byte_offset,
         };
         let formatted = fmt(req)?;
 

@@ -293,6 +293,103 @@ fn format_with_host_delegates_style_content() {
 }
 
 #[test]
+fn format_with_host_reports_file_offsets() {
+    let input = concat!(
+        "<svg>\n",
+        "  <style>\n",
+        "    <![CDATA[\n",
+        "      .a{fill:red}\n",
+        "    ]]>\n",
+        "  </style>\n",
+        "  <foreignObject>\n",
+        "    <div>hello</div>\n",
+        "  </foreignObject>\n",
+        "</svg>",
+    );
+    let mut css_offset = None;
+    let mut html_offset = None;
+    let _ = format_with_host(input, legacy_tab_options(), &mut |req| {
+        match req.language {
+            EmbeddedLanguage::Css => css_offset = Some(req.file_byte_offset),
+            EmbeddedLanguage::Html => html_offset = Some(req.file_byte_offset),
+            EmbeddedLanguage::JavaScript => {}
+        }
+        None
+    });
+    assert_eq!(css_offset, input.find(".a{fill:red}"));
+    assert_eq!(html_offset, input.find("<div>hello</div>"));
+}
+
+#[test]
+fn format_with_host_offset_points_at_plain_style_content() {
+    // Plain `<style>` (no CDATA): the reported offset must land on the
+    // first non-blank char of the embedded content.
+    let input = concat!(
+        "<svg>\n",
+        "  <style>\n",
+        "    .a { fill: red; }\n",
+        "  </style>\n",
+        "</svg>",
+    );
+    let mut css_offset = None;
+    let _ = format_with_host(input, legacy_tab_options(), &mut |req| {
+        if req.language == EmbeddedLanguage::Css {
+            css_offset = Some(req.file_byte_offset);
+        }
+        None
+    });
+    assert_eq!(css_offset, input.find(".a { fill: red; }"));
+}
+
+#[test]
+fn format_with_host_offset_skips_cdata_prefix_and_dedent() {
+    // CDATA-wrapped content: offset points past `<![CDATA[` and the common
+    // indentation, at the true first content char.
+    let input = concat!(
+        "<svg>\n",
+        "  <style>\n",
+        "    <![CDATA[\n",
+        "      .a { fill: red; }\n",
+        "    ]]>\n",
+        "  </style>\n",
+        "</svg>",
+    );
+    let mut css_offset = None;
+    let _ = format_with_host(input, legacy_tab_options(), &mut |req| {
+        if req.language == EmbeddedLanguage::Css {
+            css_offset = Some(req.file_byte_offset);
+        }
+        None
+    });
+    // Offset is past `<![CDATA[` and the common indent, at the first content
+    // char, and `find` only matches on a char boundary.
+    assert_eq!(css_offset, input.find(".a { fill: red; }"));
+}
+
+#[test]
+fn format_with_host_offset_handles_multibyte_indentation() {
+    // Multibyte content with multibyte (NBSP) leading whitespace: the
+    // reported offset must land on a char boundary at the real content
+    // start, not split a UTF-8 sequence.
+    let nbsp = '\u{A0}';
+    let input = format!(
+        "<svg>\n  <style>\n{nbsp}{nbsp}{nbsp}{nbsp}.café {{ content: \"déjà\"; }}\n  </style>\n</svg>",
+    );
+    let mut css_offset = None;
+    let _ = format_with_host(&input, legacy_tab_options(), &mut |req| {
+        if req.language == EmbeddedLanguage::Css {
+            css_offset = Some(req.file_byte_offset);
+        }
+        None
+    });
+    // The NBSP run is common leading whitespace and is stripped, so the
+    // offset lands on the first real content char `.`. Equality with `find`
+    // (which only returns char boundaries) proves the offset did not split a
+    // multi-byte sequence.
+    assert_eq!(css_offset, input.find(".café"));
+}
+
+#[test]
 fn multiline_path_value_continuation_aligns_under_opening_quote() {
     // W3 SVG path samples break long `d="..."` values across lines to keep
     // logical path-command groups visible. Each continuation line aligns

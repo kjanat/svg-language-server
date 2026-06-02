@@ -262,8 +262,10 @@ fn try_extract_css_declaration(
     } else if scoped_properties.is_empty() {
         Cow::Borrowed(root_properties)
     } else {
-        let mut merged = root_properties.clone();
-        merged.extend(scoped_properties.clone());
+        let mut merged = scoped_properties.clone();
+        for (name, value) in root_properties {
+            merged.entry(name.clone()).or_insert_with(|| value.clone());
+        }
         Cow::Owned(merged)
     };
     let (r, g, b, a, kind) =
@@ -345,7 +347,10 @@ fn block_is_root(block: tree_sitter::Node<'_>, css_source: &[u8]) -> bool {
             let Ok(text) = std::str::from_utf8(&css_source[child.byte_range()]) else {
                 return false;
             };
-            return text.to_ascii_lowercase().contains(":root");
+            return text
+                .as_bytes()
+                .windows(5)
+                .any(|window| window.eq_ignore_ascii_case(b":root"));
         }
         if !cursor.goto_next_sibling() {
             break;

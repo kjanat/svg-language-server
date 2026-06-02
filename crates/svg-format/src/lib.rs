@@ -124,12 +124,18 @@ pub struct EmbeddedContent<'a> {
     pub content: &'a str,
     /// The nesting depth in the SVG tree where this content lives.
     pub indent_depth: usize,
-    /// Byte offset in the original SVG source where `content` begins.
+    /// Byte offset in the original SVG source where the embedded payload
+    /// begins: the first non-whitespace content byte, past any `<![CDATA[`
+    /// prefix and the common leading indentation.
     ///
-    /// `&source[file_byte_offset..]` starts exactly at `content`'s first
-    /// character, so a host callback can map an embedded-formatter
-    /// `(line, col)` back to a position in the original SVG by counting
-    /// from this byte.
+    /// This is a *block anchor*, not a byte-for-byte map. `content` is a
+    /// transformed view of the source — common indentation is stripped per
+    /// line, CRLF is normalized to LF, and (outside CDATA) XML entities are
+    /// decoded — so it is generally not byte-identical to
+    /// `&source[file_byte_offset..]`. A host callback can use this to locate
+    /// where the embedded region starts, but interior `(line, col)` positions
+    /// within `content` cannot be recovered by counting bytes from this
+    /// offset; that would require a full source map.
     pub file_byte_offset: usize,
 }
 

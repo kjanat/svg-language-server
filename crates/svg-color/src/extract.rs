@@ -2,7 +2,6 @@ mod property;
 mod resolve;
 
 use std::{
-    borrow::Cow,
     collections::{HashMap, HashSet},
     ops::Range,
 };
@@ -21,6 +20,27 @@ type Rgba = (f32, f32, f32, f32);
 type ResolvedColor = (f32, f32, f32, f32, ColorKind);
 type ColorStop = (Rgba, Option<f64>);
 
+/// Identifies the scope a CSS custom property is declared in.
+///
+/// # Scope model (static syntactic heuristic, no DOM)
+///
+/// This crate resolves a `var()` reference purely from the parsed stylesheet
+/// text; there is no document tree to consult. A reference is resolved against
+/// just two property sources:
+///
+/// 1. the rule block the declaration physically lives in ([`Block`]), and
+/// 2. the `:root` globals ([`Root`]), which fill any gaps the block leaves.
+///
+/// Block-local declarations win over `:root` on conflict. That is the entire
+/// model. It deliberately does **not** emulate the real CSS cascade: it ignores
+/// descendant inheritance (a property set on an ancestor selector is invisible
+/// to a descendant rule), selector specificity, source order across rules, and
+/// any cross-rule cascade between two non-`:root` blocks. The goal is a useful
+/// swatch for the common `:root` + local-override pattern, not a conformant
+/// resolver.
+///
+/// [`Root`]: CssScopeKey::Root
+/// [`Block`]: CssScopeKey::Block
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 enum CssScopeKey {
     Root,
@@ -141,7 +161,8 @@ fn try_extract_style_colors(
     let Some(tree) = css_parser.parse(css_source, None) else {
         return true;
     };
-    let custom_properties = collect_css_custom_properties(css_source, &tree);
+    let scopes = collect_css_custom_properties(css_source, &tree);
+    let resolved_scopes = merge_scopes(&scopes);
 
     let mut cursor = tree.root_node().walk();
     walk_css(
@@ -149,7 +170,7 @@ fn try_extract_style_colors(
         css_source,
         byte_range.start,
         node.start_position(),
-        &custom_properties,
+        &resolved_scopes,
         out,
     );
     true
@@ -160,14 +181,14 @@ fn walk_css(
     css_source: &[u8],
     base_byte: usize,
     base_start: Point,
-    custom_properties: &CustomPropertyScopes,
+    resolved_scopes: &CustomPropertyScopes,
     out: &mut Vec<ColorInfo>,
 ) {
     loop {
         let node = cursor.node();
 
         if let Some(info) =
-            try_extract_css_declaration(node, css_source, base_byte, base_start, custom_properties)
+            try_extract_css_declaration(node, css_source, base_byte, base_start, resolved_scopes)
         {
             out.push(info);
         } else if let Some(info) = try_extract_css_leaf(node, css_source, base_byte, base_start) {
@@ -178,7 +199,7 @@ fn walk_css(
                 css_source,
                 base_byte,
                 base_start,
-                custom_properties,
+                resolved_scopes,
                 out,
             );
             cursor.goto_parent();
@@ -238,7 +259,7 @@ fn try_extract_css_declaration(
     css_source: &[u8],
     base_byte: usize,
     base_start: Point,
-    custom_properties: &CustomPropertyScopes,
+    resolved_scopes: &CustomPropertyScopes,
 ) -> Option<ColorInfo> {
     if node.kind() != "declaration" {
         return None;
@@ -252,24 +273,18 @@ fn try_extract_css_declaration(
     let value_node = property::declaration_primary_value_node(node)?;
     let value_text = property::declaration_value_text(node, css_source)?;
     let scope = css_scope_key(node);
+    // `resolved_scopes` already holds the fully merged property map for each
+    // scope (block-local props overlaid on `:root` globals, local winning), so
+    // this is a single borrow with no per-declaration cloning. A block that
+    // declares no custom properties of its own is absent from the map; it still
+    // sees `:root` globals by falling back to the `:root` scope's map.
     let empty = CustomProperties::new();
-    let scoped_properties = custom_properties.get(&scope).unwrap_or(&empty);
-    let root_properties = custom_properties
-        .get(&CssScopeKey::Root)
+    let scoped_properties = resolved_scopes
+        .get(&scope)
+        .or_else(|| resolved_scopes.get(&CssScopeKey::Root))
         .unwrap_or(&empty);
-    let merged_properties = if scope == CssScopeKey::Root || root_properties.is_empty() {
-        Cow::Borrowed(scoped_properties)
-    } else if scoped_properties.is_empty() {
-        Cow::Borrowed(root_properties)
-    } else {
-        let mut merged = scoped_properties.clone();
-        for (name, value) in root_properties {
-            merged.entry(name.clone()).or_insert_with(|| value.clone());
-        }
-        Cow::Owned(merged)
-    };
     let (r, g, b, a, kind) =
-        resolve::resolve_css_color(value_text, &merged_properties, &mut HashSet::new())?;
+        resolve::resolve_css_color(value_text, scoped_properties, &mut HashSet::new())?;
 
     Some(build_color_info(
         (r, g, b, a),
@@ -314,9 +329,38 @@ fn collect_css_custom_properties(css_source: &[u8], tree: &Tree) -> CustomProper
     properties
 }
 
+/// Precompute, once per stylesheet, the fully merged custom-property map for
+/// every scope.
+///
+/// For each non-`:root` block scope the result is the `:root` globals overlaid
+/// with that block's own declarations, with the block-local value winning on
+/// conflict and `:root` filling the gaps. The `:root` scope itself resolves
+/// against only its own globals. Doing this here means the per-declaration
+/// resolution path is a single map lookup with no cloning.
+fn merge_scopes(scopes: &CustomPropertyScopes) -> CustomPropertyScopes {
+    let empty = CustomProperties::new();
+    let root = scopes.get(&CssScopeKey::Root).unwrap_or(&empty);
+    let mut merged = CustomPropertyScopes::with_capacity(scopes.len());
+    for (&scope, local) in scopes {
+        if scope == CssScopeKey::Root || root.is_empty() {
+            merged.insert(scope, local.clone());
+            continue;
+        }
+        // Start from `:root` globals, then overlay block-local props so the
+        // local value wins on conflict while `:root` fills the gaps.
+        let mut combined = root.clone();
+        for (name, value) in local {
+            combined.insert(name.clone(), value.clone());
+        }
+        merged.insert(scope, combined);
+    }
+    merged
+}
+
 fn css_scope_key(node: tree_sitter::Node<'_>) -> CssScopeKey {
-    css_scope_block(node)
-        .map_or(CssScopeKey::Root, |block| CssScopeKey::Block(block.start_byte()))
+    css_scope_block(node).map_or(CssScopeKey::Root, |block| {
+        CssScopeKey::Block(block.start_byte())
+    })
 }
 
 fn css_scope_block(node: tree_sitter::Node<'_>) -> Option<tree_sitter::Node<'_>> {
@@ -330,6 +374,17 @@ fn css_scope_block(node: tree_sitter::Node<'_>) -> Option<tree_sitter::Node<'_>>
     None
 }
 
+/// Detect whether `block`'s owning rule set targets the document root via a
+/// real `:root` pseudo-class selector.
+///
+/// This walks the parsed tree-sitter-css AST rather than scanning selector
+/// text, so the literal `:root` inside an attribute selector
+/// (`[data-x=":root"]`), a string, a comment, or a `:not(:root)` argument is
+/// not mistaken for a root rule. A compound such as `:root:hover` or
+/// `html:root` is intentionally *not* treated as the unconditional document
+/// root: only a top-level selector that is exactly `:root` qualifies, because
+/// the heuristic treats `:root` blocks as the source of global custom
+/// properties.
 fn block_is_root(block: tree_sitter::Node<'_>, css_source: &[u8]) -> bool {
     let Some(parent) = block.parent() else {
         return false;
@@ -344,19 +399,62 @@ fn block_is_root(block: tree_sitter::Node<'_>, css_source: &[u8]) -> bool {
     loop {
         let child = cursor.node();
         if child.kind() == "selectors" {
-            let Ok(text) = std::str::from_utf8(&css_source[child.byte_range()]) else {
-                return false;
-            };
-            return text
-                .as_bytes()
-                .windows(5)
-                .any(|window| window.eq_ignore_ascii_case(b":root"));
+            return selectors_target_root(child, css_source);
         }
         if !cursor.goto_next_sibling() {
             break;
         }
     }
     false
+}
+
+/// Returns `true` when any top-level (comma-separated) selector in a
+/// `selectors` node is exactly the `:root` pseudo-class.
+fn selectors_target_root(selectors: tree_sitter::Node<'_>, css_source: &[u8]) -> bool {
+    let mut cursor = selectors.walk();
+    if !cursor.goto_first_child() {
+        return false;
+    }
+    loop {
+        let child = cursor.node();
+        if child.kind() == "pseudo_class_selector" && is_bare_root_pseudo(child, css_source) {
+            return true;
+        }
+        if !cursor.goto_next_sibling() {
+            break;
+        }
+    }
+    false
+}
+
+/// Returns `true` when `node` is a `pseudo_class_selector` consisting solely of
+/// `:root` — a single `class_name` child whose text is `root`
+/// (case-insensitive), with no leading tag/class part, nested pseudo-class, or
+/// argument list. This rejects compounds like `:root:hover`, `html:root`, and
+/// `:not(:root)`.
+fn is_bare_root_pseudo(node: tree_sitter::Node<'_>, css_source: &[u8]) -> bool {
+    let mut cursor = node.walk();
+    if !cursor.goto_first_child() {
+        return false;
+    }
+    let mut class_name: Option<tree_sitter::Node<'_>> = None;
+    loop {
+        let child = cursor.node();
+        if child.is_named() {
+            if child.kind() != "class_name" || class_name.is_some() {
+                // A tag_name, nested pseudo_class_selector, arguments node, or a
+                // second named child means this is a compound, not a bare :root.
+                return false;
+            }
+            class_name = Some(child);
+        }
+        if !cursor.goto_next_sibling() {
+            break;
+        }
+    }
+    class_name
+        .and_then(|name| std::str::from_utf8(&css_source[name.byte_range()]).ok())
+        .is_some_and(|text| text.eq_ignore_ascii_case("root"))
 }
 
 const fn build_color_info(
@@ -658,5 +756,82 @@ mod tests {
         assert!(fill_ref.a < 1.0);
         assert!(fill_ref.a > 0.9);
         Ok(())
+    }
+
+    #[test]
+    fn local_property_overrides_root_and_root_fills_gaps() {
+        // `.a` redefines `--c` locally (green) and also references `--g`, which
+        // only `:root` defines (blue). The local `--c` must win over the `:root`
+        // red, and the `:root` `--g` must still be visible to fill the gap.
+        let src = br"<svg><style>:root { --c: red; --g: blue; } .a { --c: green; fill: var(--c); stroke: var(--g); }</style></svg>";
+        let colors = extract_colors(src);
+
+        let mut by_text = HashMap::new();
+        for color in &colors {
+            if let Ok(text) = std::str::from_utf8(&src[color.byte_range.clone()]) {
+                by_text.insert(text, color);
+            }
+        }
+
+        let fill = by_text["var(--c)"];
+        // green = (0, 0.5019.., 0): local override wins over :root red.
+        assert!(
+            fill.r.abs() < f32::EPSILON,
+            "local --c must win, got {fill:?}"
+        );
+        assert!(fill.g > 0.4);
+        assert!(fill.b.abs() < f32::EPSILON);
+
+        let stroke = by_text["var(--g)"];
+        // blue from :root fills the gap the local block leaves.
+        assert!(stroke.r.abs() < f32::EPSILON);
+        assert!(stroke.g.abs() < f32::EPSILON);
+        assert!(
+            (stroke.b - 1.0).abs() < f32::EPSILON,
+            "root --g must fill gap, got {stroke:?}"
+        );
+    }
+
+    #[test]
+    fn attribute_selector_containing_root_text_is_not_root() {
+        // The literal `:root` lives only inside an attribute-selector string, so
+        // this rule does NOT define a `:root` global. A different, genuinely
+        // non-`:root` rule that references `--c` must therefore NOT resolve it.
+        // The old `windows(5)` substring scan over the selector text matched the
+        // `:root` inside `[data-x=":root"]`, so it leaked `--c` into the global
+        // scope and this `fill` resolved to red — this test pins the AST-based
+        // behavior that rejects it.
+        let src =
+            br#"<svg><style>[data-x=":root"] { --c: red; } .b { fill: var(--c); }</style></svg>"#;
+        let colors = extract_colors(src);
+
+        let leaked = colors.iter().any(|color| {
+            std::str::from_utf8(&src[color.byte_range.clone()])
+                .ok()
+                .is_some_and(|text| text == "var(--c)")
+        });
+        assert!(
+            !leaked,
+            ":root inside an attribute string must not create a global; got {colors:?}"
+        );
+    }
+
+    #[test]
+    fn cross_rule_non_root_var_does_not_resolve() {
+        // Known limitation, codified: `--c` is defined in `.a` but referenced
+        // from a *different* non-`:root` rule `.b`. The heuristic only looks at
+        // the reference's own block plus `:root`, so this must NOT resolve.
+        let src = br"<svg><style>.a { --c: red; } .b { fill: var(--c); }</style></svg>";
+        let colors = extract_colors(src);
+
+        let resolved = colors.iter().any(|color| {
+            std::str::from_utf8(&src[color.byte_range.clone()])
+                .ok()
+                .is_some_and(|text| text == "var(--c)")
+        });
+        assert!(
+            !resolved,
+            "cross-rule non-:root var() must stay unresolved; got {colors:?}"
+        );
     }
 }

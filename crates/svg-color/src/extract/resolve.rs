@@ -31,7 +31,7 @@ fn contains_var_function(text: &str) -> bool {
 
 pub(super) fn resolve_css_color(
     text: &str,
-    custom_properties: &CustomProperties,
+    custom_properties: &CustomProperties<'_>,
     seen: &mut HashSet<String>,
 ) -> Option<ResolvedColor> {
     let text = text.trim();
@@ -74,7 +74,7 @@ fn parse_literal_css_color(text: &str) -> Option<ResolvedColor> {
 
 fn resolve_var_color(
     args: &str,
-    custom_properties: &CustomProperties,
+    custom_properties: &CustomProperties<'_>,
     seen: &mut HashSet<String>,
 ) -> Option<ResolvedColor> {
     let parts = split_top_level(args, ',');
@@ -83,7 +83,7 @@ fn resolve_var_color(
         return None;
     }
 
-    if let Some(value) = custom_properties.get(name) {
+    if let Some(&value) = custom_properties.get(name) {
         if !seen.insert(name.to_owned()) {
             return None;
         }
@@ -99,7 +99,7 @@ fn resolve_var_color(
 
 fn resolve_color_mix(
     args: &str,
-    custom_properties: &CustomProperties,
+    custom_properties: &CustomProperties<'_>,
     seen: &mut HashSet<String>,
 ) -> Option<ResolvedColor> {
     let parts = split_top_level(args, ',');
@@ -124,7 +124,7 @@ fn resolve_color_mix(
 
 fn parse_color_mix_stop(
     stop: &str,
-    custom_properties: &CustomProperties,
+    custom_properties: &CustomProperties<'_>,
     seen: &mut HashSet<String>,
 ) -> Option<ColorStop> {
     let (color_text, percentage) = split_color_stop_percentage(stop.trim());

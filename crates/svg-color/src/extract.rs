@@ -15,8 +15,8 @@ use crate::{
     types::{ColorInfo, ColorKind},
 };
 
-type CustomProperties = HashMap<String, String>;
-type CustomPropertyScopes = HashMap<CssScopeKey, CustomProperties>;
+type CustomProperties<'a> = HashMap<&'a str, &'a str>;
+type CustomPropertyScopes<'a> = HashMap<CssScopeKey, CustomProperties<'a>>;
 type Rgba = (f32, f32, f32, f32);
 type ResolvedColor = (f32, f32, f32, f32, ColorKind);
 type ColorStop = (Rgba, Option<f64>);
@@ -182,7 +182,7 @@ fn walk_css(
     css_source: &[u8],
     base_byte: usize,
     base_start: Point,
-    resolved_scopes: &CustomPropertyScopes,
+    resolved_scopes: &CustomPropertyScopes<'_>,
     out: &mut Vec<ColorInfo>,
 ) {
     loop {
@@ -264,14 +264,14 @@ fn try_extract_css_leaf(
 /// Shared empty property map for declarations whose scope (and `:root`) carry no
 /// custom properties. Initialized at most once; avoids allocating a throwaway
 /// `HashMap` on every color declaration.
-static EMPTY_CUSTOM_PROPERTIES: OnceLock<CustomProperties> = OnceLock::new();
+static EMPTY_CUSTOM_PROPERTIES: OnceLock<CustomProperties<'static>> = OnceLock::new();
 
 fn try_extract_css_declaration(
     node: tree_sitter::Node<'_>,
     css_source: &[u8],
     base_byte: usize,
     base_start: Point,
-    resolved_scopes: &CustomPropertyScopes,
+    resolved_scopes: &CustomPropertyScopes<'_>,
 ) -> Option<ColorInfo> {
     if node.kind() != "declaration" {
         return None;
@@ -293,7 +293,7 @@ fn try_extract_css_declaration(
     let scoped_properties = resolved_scopes
         .get(&scope)
         .or_else(|| resolved_scopes.get(&CssScopeKey::Root))
-        .unwrap_or_else(|| EMPTY_CUSTOM_PROPERTIES.get_or_init(CustomProperties::new));
+        .unwrap_or_else(|| EMPTY_CUSTOM_PROPERTIES.get_or_init(HashMap::new));
     let (r, g, b, a, kind) =
         resolve::resolve_css_color(value_text, scoped_properties, &mut HashSet::new())?;
 
@@ -306,7 +306,10 @@ fn try_extract_css_declaration(
     ))
 }
 
-fn collect_css_custom_properties(css_source: &[u8], tree: &Tree) -> CustomPropertyScopes {
+fn collect_css_custom_properties<'a>(
+    css_source: &'a [u8],
+    tree: &Tree,
+) -> CustomPropertyScopes<'a> {
     let mut properties = HashMap::new();
     let mut cursor = tree.root_node().walk();
     walk_tree(&mut cursor, &mut |node| {
@@ -328,16 +331,16 @@ fn collect_css_custom_properties(css_source: &[u8], tree: &Tree) -> CustomProper
         });
         properties
             .entry(scope)
-            .or_insert_with(CustomProperties::new)
-            .insert(prop_name.to_owned(), value_text.to_owned());
+            .or_insert_with(HashMap::new)
+            .insert(prop_name, value_text);
         if scope != CssScopeKey::Root
             && let Some(block) = scope_block
             && block_is_root(block, css_source)
         {
             properties
                 .entry(CssScopeKey::Root)
-                .or_insert_with(CustomProperties::new)
-                .insert(prop_name.to_owned(), value_text.to_owned());
+                .or_insert_with(HashMap::new)
+                .insert(prop_name, value_text);
         }
     });
     properties
@@ -351,7 +354,7 @@ fn collect_css_custom_properties(css_source: &[u8], tree: &Tree) -> CustomProper
 /// conflict and `:root` filling the gaps. The `:root` scope itself resolves
 /// against only its own globals. Doing this here means the per-declaration
 /// resolution path is a single map lookup with no cloning.
-fn merge_scopes(scopes: &CustomPropertyScopes) -> CustomPropertyScopes {
+fn merge_scopes<'a>(scopes: &CustomPropertyScopes<'a>) -> CustomPropertyScopes<'a> {
     let empty = CustomProperties::new();
     let root = scopes.get(&CssScopeKey::Root).unwrap_or(&empty);
     let mut merged = CustomPropertyScopes::with_capacity(scopes.len());
@@ -361,10 +364,12 @@ fn merge_scopes(scopes: &CustomPropertyScopes) -> CustomPropertyScopes {
             continue;
         }
         // Start from `:root` globals, then overlay block-local props so the
-        // local value wins on conflict while `:root` fills the gaps.
+        // local value wins on conflict while `:root` fills the gaps. Keys and
+        // values are `&str` borrowed from the stylesheet, so these clones copy
+        // references, not owned strings.
         let mut combined = root.clone();
-        for (name, value) in local {
-            combined.insert(name.clone(), value.clone());
+        for (&name, &value) in local {
+            combined.insert(name, value);
         }
         merged.insert(scope, combined);
     }

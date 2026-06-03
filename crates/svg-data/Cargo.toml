@@ -25,6 +25,8 @@ quick-xml.workspace  = true
 regex.workspace      = true
 serde_json.workspace = true
 tempfile.workspace   = true
+tl.workspace         = true
+winnow.workspace     = true
 
 [build-dependencies]
 quick-xml.workspace  = true
@@ -32,8 +34,10 @@ regex.workspace      = true
 schemars.workspace   = true
 serde.workspace      = true
 serde_json.workspace = true
+tl.workspace         = true
 toml.workspace       = true
 ureq.workspace       = true
+winnow.workspace     = true
 
 [lints]
 workspace = true

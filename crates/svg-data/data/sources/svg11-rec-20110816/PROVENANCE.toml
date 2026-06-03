@@ -1,0 +1,42 @@
+# Vendored frozen SVG 1.1 (Second Edition) Property Index page.
+#
+# Byte-for-byte snapshot of the W3C REC `propidx.html`, the upstream source
+# from which the keyword value-enums are derived. Each property row's `Values`
+# column holds the value-definition syntax (bar-separated alternation, optional
+# `inherit`, `[ ... || ... ]` grouping) that the enum derivation reads.
+#
+# The dated TR URL is immutable (W3C never edits a dated /TR/ Recommendation),
+# so no git commit pin is needed — the URL itself is the pin.
+# Do NOT hand-edit the vendored bytes; re-fetch from the dated URL if ever lost.
+
+schema_version = 1
+purpose        = "value-enum derivation (keyword value sets for SVG presentation properties)"
+
+[authority]
+kind  = "w3c-tr"
+title = "Scalable Vector Graphics (SVG) 1.1 (Second Edition) — Property Index"
+url   = "https://www.w3.org/TR/2011/REC-SVG11-20110816/"
+
+[edition]
+snapshot = "Svg11Rec20110816"
+title    = "SVG 1.1 Second Edition"
+status   = "REC"
+
+[pin]
+kind  = "dated-url"
+value = "https://www.w3.org/TR/2011/REC-SVG11-20110816/propidx.html"
+date  = "2011-08-16"
+note  = "Dated W3C /TR/ Recommendations are immutable; the URL is the pin."
+
+[checksum]
+strategy = "sha256-per-input"
+note     = "Hash raw response bytes fetched from the dated URL."
+
+[[inputs]]
+id     = "property-index"
+kind   = "html"
+role   = "property -> Values syntax mapping (value-enum source)"
+path   = "propidx.html"
+url    = "https://www.w3.org/TR/2011/REC-SVG11-20110816/propidx.html"
+bytes  = 46636
+sha256 = "4e060a19ac1dfceb2946f4e789d7e93c83295f0df39fdf76a9ed5c63eca789aa"

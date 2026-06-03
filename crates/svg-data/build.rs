@@ -13,6 +13,8 @@
 mod bcd;
 #[path = "build/codegen.rs"]
 mod codegen;
+#[path = "build/propidx.rs"]
+mod propidx;
 #[path = "build/provenance_gate.rs"]
 mod provenance_gate;
 #[path = "build/reconcile.rs"]
@@ -21,6 +23,8 @@ mod reconcile;
 mod spec_scan;
 #[path = "src/types.rs"]
 mod types;
+#[path = "build/value_syntax.rs"]
+mod value_syntax;
 #[path = "build/verdict.rs"]
 mod verdict;
 #[path = "src/worker_schema.rs"]

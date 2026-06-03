@@ -33,6 +33,8 @@ mod spec;
 mod spec_scan;
 #[path = "build/spec_xml.rs"]
 mod spec_xml;
+#[path = "build/tr_index.rs"]
+mod tr_index;
 #[path = "src/types.rs"]
 mod types;
 #[path = "build/value_syntax.rs"]
@@ -544,8 +546,33 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
     fs::write(out_dir.join("svg11_inventory.rs"), svg11)?;
 
+    // Full SVG 2 CR inventory: derive every element/attribute/edge from the
+    // vendored published index tables (`eltindex.html` + `attindex.html`) and
+    // bake a `static SVG2_CR_20181004_INVENTORY`. Additive, exposed via
+    // `inventory::for_snapshot`. Hermetic — parses only the vendored CR index
+    // pages pinned for the snapshot. The CR index carries no attribute
+    // categories, so its attributes are faithfully unclassified (animatable
+    // flag retained as provenance) — see `inventory_codegen::generate_cr`.
+    let cr_dir = manifest_dir.join(CR_INDEX_SOURCES);
+    let cr_inventory = inventory_codegen::generate_cr(
+        &cr_dir,
+        "SVG2_CR_20181004_INVENTORY",
+        "/// The complete SVG 2 Candidate Recommendation (2018-10-04) inventory.\n\
+         ///\n\
+         /// Derived from the vendored published index tables (`eltindex.html` +\n\
+         /// `attindex.html`) at build time. Attributes carry no classification\n\
+         /// (the rendered CR index has no `attributecategory` groups); the\n\
+         /// animatable flag is retained as provenance. See [`Inventory`].",
+    )
+    .map_err(|e| -> Box<dyn Error> { e.into() })?;
+    fs::write(out_dir.join("cr_inventory.rs"), cr_inventory)?;
+
     Ok(())
 }
+
+/// Vendored SVG 2 CR published-index source directory (relative to the crate
+/// manifest), holding `eltindex.html` / `attindex.html` / `propidx.html`.
+const CR_INDEX_SOURCES: &str = "data/sources/svg2-cr-20181004";
 
 /// Vendored SVG 1.1 flat DTDs feeding the baked per-edition inventories: the
 /// crate-relative DTD path, the emitted `static` identifier, and its rustdoc.

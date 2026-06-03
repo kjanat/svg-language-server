@@ -231,27 +231,32 @@ impl Inventory {
 
 include!(concat!(env!("OUT_DIR"), "/spec_inventory.rs"));
 include!(concat!(env!("OUT_DIR"), "/svg11_inventory.rs"));
+include!(concat!(env!("OUT_DIR"), "/cr_inventory.rs"));
 
-/// Return the baked spec inventory for `snapshot`, if one exists.
+/// Return the baked spec inventory for `snapshot`.
 ///
-/// Three snapshots carry a baked, spec-faithful inventory, each derived from
-/// the vendored grammar pinned for it:
+/// All four snapshots carry a baked, spec-faithful inventory, each derived from
+/// the machine-readable artifact pinned for it:
 ///
 /// - [`SpecSnapshotId::Svg2EditorsDraft`] — from the SVG 2 ED
 ///   `definitions*.xml` family (see [`SPEC_INVENTORY`]);
 /// - [`SpecSnapshotId::Svg11Rec20030114`] and
 ///   [`SpecSnapshotId::Svg11Rec20110816`] — from each edition's flat SVG 1.1
 ///   DTD (see [`SVG11_REC_20030114_INVENTORY`] /
-///   [`SVG11_REC_20110816_INVENTORY`]).
+///   [`SVG11_REC_20110816_INVENTORY`]);
+/// - [`SpecSnapshotId::Svg2Cr20181004`] — from the CR's *published* index
+///   tables (`eltindex.html` + `attindex.html`; see
+///   [`SVG2_CR_20181004_INVENTORY`]). Unlike the ED's `definitions*.xml`, the
+///   rendered CR index carries no `attributecategory` groups, so its
+///   attributes are faithfully **unclassified** — the animatable flag the
+///   index *does* expose is retained as provenance instead. This makes the CR
+///   inventory's classification deliberately sparser than the
+///   `definitions.xml`/DTD editions, reflecting exactly what the CR's own
+///   machine-readable artifact exposes.
 ///
-/// [`SpecSnapshotId::Svg2Cr20181004`] has no vendored machine-readable grammar
-/// of its own and is modeled only by the curated, profile-aware catalog (see
-/// [`crate::attributes_for_with_profile`]), so this returns [`None`] for it
-/// rather than silently substituting another snapshot's data.
-///
-/// Returning [`Option`] keeps the "which snapshots have an inventory?" fact in
-/// the type, so a consumer cannot accidentally treat an un-inventoried snapshot
-/// as if it carried a full attribute universe.
+/// Now that every snapshot has an inventory this never returns [`None`], but
+/// the signature stays [`Option`] so adding a future un-inventoried snapshot
+/// cannot silently fabricate an attribute universe.
 ///
 /// This is re-exported at the crate root as [`crate::spec_inventory`] for
 /// ergonomic access alongside the curated catalog APIs.
@@ -261,7 +266,7 @@ pub fn for_snapshot(snapshot: SpecSnapshotId) -> Option<&'static Inventory> {
         SpecSnapshotId::Svg2EditorsDraft => Some(&SPEC_INVENTORY),
         SpecSnapshotId::Svg11Rec20030114 => Some(&SVG11_REC_20030114_INVENTORY),
         SpecSnapshotId::Svg11Rec20110816 => Some(&SVG11_REC_20110816_INVENTORY),
-        SpecSnapshotId::Svg2Cr20181004 => None,
+        SpecSnapshotId::Svg2Cr20181004 => Some(&SVG2_CR_20181004_INVENTORY),
     }
 }
 

@@ -49,24 +49,25 @@ fn ed_inventory_matches_audited_extractor_figures() {
 }
 
 #[test]
-fn cr_snapshot_has_no_baked_inventory() {
-    // Only the SVG 2 CR snapshot lacks a vendored machine-readable grammar of
-    // its own, so it alone has no baked inventory. The two SVG 1.1
-    // Recommendations now carry DTD-derived inventories (see
-    // `tests/svg11_inventory.rs`), and the ED carries its `definitions*.xml`
-    // inventory — those are covered elsewhere.
+fn cr_snapshot_now_carries_a_baked_inventory() {
+    // The SVG 2 CR snapshot now carries a baked inventory too, derived from its
+    // *published* index tables (`eltindex.html` + `attindex.html`) rather than a
+    // `definitions*.xml`/DTD grammar — so all four snapshots are inventoried and
+    // `for_snapshot` never returns `None`. Exact counts and the
+    // faithfully-empty classification are locked in `tests/cr_inventory.rs`;
+    // here we only assert the API contract flipped from `None` to `Some` and the
+    // convenience accessors are non-empty.
     let snapshot = SpecSnapshotId::Svg2Cr20181004;
     assert!(
-        spec_inventory(snapshot).is_none(),
-        "{snapshot:?} should not carry a baked full-spec inventory",
+        spec_inventory(snapshot).is_some(),
+        "{snapshot:?} should now carry a baked CR inventory",
     );
-    // The enumerating convenience accessors degrade to empty, not panic.
-    assert!(spec_attributes(snapshot).is_empty());
-    assert!(spec_elements(snapshot).is_empty());
-    assert_eq!(
-        spec_attributes_for_element(snapshot, "text").count(),
-        0,
-        "inventory-less snapshot must yield no element attributes",
+    assert!(!spec_attributes(snapshot).is_empty());
+    assert!(!spec_elements(snapshot).is_empty());
+    // `rect` is an element in the CR index and resolves attributes.
+    assert!(
+        spec_attributes_for_element(snapshot, "rect").count() > 0,
+        "{snapshot:?} rect should resolve attributes",
     );
 }
 

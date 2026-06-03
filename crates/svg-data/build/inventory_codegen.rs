@@ -20,6 +20,7 @@ use super::classification::Classification;
 use super::codegen::escape;
 use super::dtd::{self, DtdInventory};
 use super::spec_xml::{self, SpecInventory, SpecXmlError};
+use super::tr_index::CrInventory;
 
 /// Render the `static SPEC_INVENTORY` source for the inventory derived from
 /// the vendored ED `master/` directory.
@@ -48,6 +49,34 @@ pub fn generate_svg11(dtd_path: &Path, static_name: &str, doc: &str) -> std::io:
     let text = std::fs::read_to_string(dtd_path)?;
     let inventory = dtd::parse(&text);
     Ok(render_dtd_inventory(&inventory, static_name, doc))
+}
+
+/// Render a `static {static_name}: Inventory = …` source for the SVG 2
+/// Candidate Recommendation, derived from its vendored published index tables
+/// (`eltindex.html` + `attindex.html`) rooted at `cr_dir`.
+///
+/// The CR index pages do **not** carry the `attributecategory` groups the ED
+/// `definitions*.xml` does, so every attribute's normalized [`Classification`]
+/// set is **empty** — faithful to what the rendered index exposes. The only
+/// per-attribute provenance the index supplies is the animatable flag, recorded
+/// verbatim as a `raw_categories` marker (`animatable` for animatable
+/// attributes, plus a `source=attindex` tag on every attribute) so the
+/// provenance is honest about its sparse origin. The merged element scope is
+/// emitted as `element_scope`.
+///
+/// # Errors
+///
+/// Returns a parse error string if either vendored index page cannot be read or
+/// parsed.
+pub fn generate_cr(cr_dir: &Path, static_name: &str, doc: &str) -> Result<String, String> {
+    let eltindex = std::fs::read_to_string(cr_dir.join("eltindex.html"))
+        .map_err(|err| format!("CR eltindex.html: {err}"))?;
+    let attindex = std::fs::read_to_string(cr_dir.join("attindex.html"))
+        .map_err(|err| format!("CR attindex.html: {err}"))?;
+    let elements = super::tr_index::parse_eltindex(&eltindex)?;
+    let rows = super::tr_index::parse_attindex(&attindex)?;
+    let inventory = super::tr_index::build_inventory(elements, &rows);
+    Ok(render_cr_inventory(&inventory, static_name, doc))
 }
 
 /// Emit a Rust `Classification` constructor expression for one normalized
@@ -218,5 +247,45 @@ fn render_dtd_inventory(inventory: &DtdInventory, static_name: &str, doc: &str) 
         &inventory.elements,
         &attributes,
         &inventory.edges(),
+    )
+}
+
+/// Render the SVG 2 CR inventory from a [`CrInventory`].
+///
+/// Classifications are intentionally empty (the published index carries no
+/// `attributecategory` groups — see [`generate_cr`]). The animatable flag is the
+/// only datum the index attaches per attribute, recorded as a `raw_categories`
+/// provenance marker alongside a constant `source=attindex` tag so consumers can
+/// tell a CR attribute's provenance apart from the ED/DTD editions. The merged
+/// element scope is emitted verbatim.
+fn render_cr_inventory(inventory: &CrInventory, static_name: &str, doc: &str) -> String {
+    let attributes: Vec<RenderAttribute> = inventory
+        .attributes
+        .iter()
+        .map(|(name, facts)| {
+            // Provenance markers, sorted for determinism. `source=attindex` on
+            // every attribute (the index it came from); `animatable` only when
+            // the index marked the attribute animatable.
+            let mut raw_categories = vec!["source=attindex".to_string()];
+            if facts.animatable {
+                raw_categories.push("animatable".to_string());
+            }
+            raw_categories.sort();
+            RenderAttribute {
+                name: name.clone(),
+                // The CR index does not expose attribute categories, so no
+                // classification is fabricated — this is faithfully empty.
+                classifications: Vec::new(),
+                raw_categories,
+                element_scope: facts.element_scope.iter().cloned().collect(),
+            }
+        })
+        .collect();
+    render_inventory(
+        static_name,
+        doc,
+        &inventory.elements,
+        &attributes,
+        &inventory.edges,
     )
 }

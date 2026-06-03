@@ -1,281 +1,541 @@
-use std::{collections::HashMap, fs, path::Path};
+//! Deterministic, hermetic extractor for per-element **descriptions** scraped
+//! from the vendored svgwg chapter HTML.
+//!
+//! For each SVG element the spec documents, the chapter HTML opens the element's
+//! section with a definition anchor — most often a heading `<h2 id="RectElement">`
+//! — immediately followed by a short lead paragraph describing the element. This
+//! module locates that anchor + lead `<p>`, strips the markup, and normalizes the
+//! whitespace into a single clean sentence-or-two description. The result feeds
+//! the snapshot `title` audit (`tests/descriptions_audit.rs`) and, via
+//! `build.rs`, the baked catalog descriptions.
+//!
+//! ## Why raw scanning instead of a DOM walk
+//!
+//! The vendored chapter files are pre-publish svgwg sources: they contain
+//! bespoke `<edit:*>` processing directives (`<edit:elementsummary/>`,
+//! `<edit:with element='rect'>`, …) that are **not** valid HTML5. Lenient HTML5
+//! parsers (including `tl`) mis-nest the surrounding content around these tags,
+//! which makes "the lead `<p>` immediately after the anchor, in document order"
+//! unreliable to express against the reconstructed DOM. A deterministic byte/
+//! string scan over the raw source — anchored on the canonical `id="XxxElement"`
+//! markers, skipping editorial noise containers and `<edit:*>` directives — is
+//! both simpler and more faithful to document order here. `tl` is still used to
+//! turn the *chosen* paragraph's inner HTML into clean text (entity decoding,
+//! nested-tag stripping).
+//!
+//! ## Determinism
+//!
+//! - Chapter files are read in a fixed, sorted order.
+//! - Within a file, anchors are resolved in a fixed **priority tier** order
+//!   (canonical `id="XxxElement"` first, then element-name headings, then
+//!   `<edit:with element='…'>`), and within a tier by ascending document offset.
+//! - The first description found for an element wins; later anchors never
+//!   overwrite it. The output is a [`BTreeMap`], so iteration order is stable.
+//! - No I/O beyond reading the passed-in vendored files; no network.
 
-use super::ensure_cached;
+use std::{collections::BTreeMap, fs, path::Path};
 
-/// Pinned `w3c/svgwg` revision for reproducible spec scraping.
+use regex::Regex;
+use tl::ParserOptions;
+
+/// Chapter HTML files (under the vendored `master/` directory) that carry
+/// element definition sections, in a fixed order. Files absent from the vendor
+/// are silently skipped, so a partial vendor still extracts what it has.
 ///
-/// Update workflow:
-/// 1. `git ls-remote https://github.com/w3c/svgwg refs/heads/main`
-/// 2. Replace this SHA with the new commit hash.
-/// 3. Rebuild/test `svg-data` to refresh generated descriptions.
-const SVGWG_SHA: &str = "bd0b7819e8ce69d06e08b4710a18d46ac7252787";
-
-/// Base URL for raw svgwg spec HTML files on GitHub.
-const SVGWG_RAW: &str = "https://raw.githubusercontent.com/w3c/svgwg";
-
-/// Spec HTML files and the elements they document.
-const SVGWG_SPEC_FILES: &[&str] = &[
+/// Note: `filters.html` and the animations `Overview.html` are intentionally
+/// **not** listed — they are not part of the vendored chapter set, so filter
+/// and animation elements have no locatable prose here and are reported as gaps
+/// by the audit rather than fabricated.
+const CHAPTER_FILES: &[&str] = &[
+    "embedded.html",
+    "interact.html",
+    "linking.html",
+    "masking.html",
+    "painting.html",
+    "paths.html",
+    "pservers.html",
     "shapes.html",
     "struct.html",
     "text.html",
-    "paths.html",
-    "painting.html",
-    "pservers.html",
-    "linking.html",
-    "interact.html",
-    "embedded.html",
-    "masking.html",
 ];
 
-/// SVG Animations spec path (separate module in the same repo).
-const SVGWG_ANIM_URL: &str = "specs/animations/master/Overview.html";
+/// How far past an anchor we are willing to look for the lead paragraph before
+/// giving up. Lead descriptions sit within the first kilobyte or two of the
+/// section; searching further risks wandering into examples or sub-sections.
+const MAX_SECTION_WINDOW: usize = 12_000;
 
-/// Fetch element descriptions from the W3C svgwg spec sources.
-/// Returns a map of element name → spec description (HTML stripped).
-pub fn fetch_spec_descriptions(out_dir: &Path, offline: bool) -> HashMap<String, String> {
-    let mut descriptions = HashMap::new();
+/// Minimum length (in characters, post-normalization) for a paragraph to be
+/// accepted as a description. Filters out stray short fragments and labels.
+const MIN_DESCRIPTION_LEN: usize = 20;
 
-    // Fetch each spec file and extract descriptions
-    for file in SVGWG_SPEC_FILES {
-        let url = format!("{SVGWG_RAW}/{SVGWG_SHA}/master/{file}");
-        let cache_name = format!("svgwg-{SVGWG_SHA}-{file}");
-        let cache_path = out_dir.join(&cache_name);
-
-        match ensure_cached(&url, &cache_path, offline) {
-            Ok(true) => match fs::read_to_string(&cache_path) {
-                Ok(html) => extract_element_descriptions(&html, &mut descriptions),
-                Err(e) => println!(
-                    "cargo::warning=spec: failed to read cache {}: {e}",
-                    cache_path.display()
-                ),
-            },
-            Ok(false) => {}
-            Err(e) => {
-                println!("cargo::warning=spec: failed to fetch {file}: {e}");
-            }
-        }
-    }
-
-    // Fetch animations spec
-    let anim_url = format!("{SVGWG_RAW}/{SVGWG_SHA}/{SVGWG_ANIM_URL}");
-    let anim_cache = out_dir.join(format!("svgwg-{SVGWG_SHA}-animations.html"));
-    match ensure_cached(&anim_url, &anim_cache, offline) {
-        Ok(true) => match fs::read_to_string(&anim_cache) {
-            Ok(html) => extract_element_descriptions(&html, &mut descriptions),
-            Err(e) => println!(
-                "cargo::warning=spec: failed to read cache {}: {e}",
-                anim_cache.display()
-            ),
-        },
-        Ok(false) => {}
-        Err(e) => {
-            println!("cargo::warning=spec: failed to fetch animations spec: {e}");
-        }
-    }
-
-    println!(
-        "svg-data: loaded {} element descriptions from svgwg",
-        descriptions.len()
-    );
-    descriptions
-}
-
-/// Extract element descriptions from an svgwg spec HTML file.
+/// Extract per-element lead descriptions from every vendored chapter file under
+/// `master`.
 ///
-/// Uses two strategies:
-/// 1. Heading id="XxxElement" → first `<p>` after heading (most reliable)
-/// 2. `<edit:with element='name'>` → first `<p>` (fallback, validated)
-fn extract_element_descriptions(html: &str, out: &mut HashMap<String, String>) {
-    // Strategy 1 (primary): heading id="XxxElement" followed by <p>
-    let mut search_from = 0;
-    while let Some(id_pos) = html[search_from..].find("Element\">") {
-        let abs_pos = search_from + id_pos;
-        let prefix = &html[search_from..abs_pos];
-        if let Some(id_start) = prefix.rfind("id=\"") {
-            let name_start = search_from + id_start + 4;
-            let raw_id = &html[name_start..abs_pos + "Element".len()];
-            if is_interface_svg_identifier(raw_id) {
-                search_from = abs_pos + "Element\">".len();
-                continue;
-            }
-            if let Some(elem_name) = raw_id.strip_suffix("Element") {
-                let elem_name = uncapitalize_element_name(elem_name);
-                if !elem_name.is_empty()
-                    && !out.contains_key(&elem_name)
-                    && let Some(desc) =
-                        extract_first_paragraph(&html[abs_pos + "Element\">".len()..])
-                {
-                    let clean = strip_html_tags(&desc);
-                    if is_element_description(&clean, &elem_name) {
-                        out.insert(elem_name, truncate_description(&clean));
-                    }
-                }
-            }
-        }
-        search_from = abs_pos + "Element\">".len();
-    }
-
-    // Strategy 2 (fallback): <edit:with element='name'> followed by <p>
-    let mut search_from = 0;
-    while let Some(edit_pos) = html[search_from..].find("<edit:with element='") {
-        let abs_pos = search_from + edit_pos;
-        let after_tag = abs_pos + "<edit:with element='".len();
-        let Some(quote_end) = html[after_tag..].find('\'') else {
-            search_from = after_tag;
+/// Returns a map of `element name → clean, whitespace-normalized description`.
+/// Elements whose prose cannot be located (e.g. filter/animation elements not
+/// covered by the vendored chapters) are simply absent — never fabricated.
+#[must_use]
+pub fn extract_chapter_descriptions(master: &Path) -> BTreeMap<String, String> {
+    let mut out = BTreeMap::new();
+    for file in CHAPTER_FILES {
+        let Ok(html) = fs::read_to_string(master.join(file)) else {
             continue;
         };
-        let elem_name = &html[after_tag..after_tag + quote_end];
-        if is_interface_svg_identifier(elem_name) {
-            search_from = after_tag + quote_end;
+        extract_file(&html, &mut out);
+    }
+    out
+}
+
+/// Resolve every anchor in a single chapter file (tiered, document-ordered) and
+/// record the first description found for each element.
+fn extract_file(html: &str, out: &mut BTreeMap<String, String>) {
+    for anchor in collect_anchors(html) {
+        if out.contains_key(&anchor.element) {
             continue;
         }
-
-        if !out.contains_key(elem_name)
-            && let Some(desc) = extract_first_paragraph(&html[after_tag + quote_end..])
-        {
-            let clean = strip_html_tags(&desc);
-            if is_element_description(&clean, elem_name) {
-                out.insert(elem_name.to_string(), truncate_description(&clean));
-            }
+        if let Some(desc) = anchor_description(html, &anchor) {
+            out.insert(anchor.element.clone(), desc);
         }
-        search_from = after_tag + quote_end;
     }
 }
 
-/// Check if a description paragraph is actually about the element itself
-/// (not about an attribute that applies to it or some other context).
-fn is_element_description(text: &str, elem_name: &str) -> bool {
-    let lower = text.to_ascii_lowercase();
-
-    // Reject clearly non-element descriptions
-    if text.starts_with("The following")
-        || text.starts_with("This attribute")
-        || text.starts_with("The outline of")
-        || text.starts_with("Except for")
-        || ((text.starts_with("A ") || text.starts_with("An ")) && lower.contains(" object"))
-    {
-        return false;
-    }
-    // Best: description mentions the element by name
-    if text.contains(&format!("'{elem_name}'")) || text.contains(&format!("<{elem_name}>")) {
-        return true;
-    }
-    // Good: starts with typical spec description patterns
-    if text.starts_with("The '") || text.starts_with("A ") || text.starts_with("An ") {
-        return true;
-    }
-    false
-}
-
-/// Truncate scraped prose to the first two likely sentences for conciseness.
+/// Resolve an anchor to its element description.
 ///
-/// This uses a lightweight heuristic intended for build-time HTML scraping: it
-/// looks for a period followed by whitespace and then an uppercase character,
-/// including non-ASCII uppercase letters. The heuristic is intentionally
-/// imperfect and can still produce false positives around abbreviations such as
-/// `e.g.`, punctuation followed by quotes, or other editorial edge cases, but
-/// it keeps generated descriptions short without adding a heavy sentence parser.
-fn truncate_description(text: &str) -> String {
-    let mut sentences = 0;
-
-    for (idx, ch) in text.char_indices() {
-        if ch != '.' {
-            continue;
+/// For a [`AnchorKind::SelfParagraph`] anchor (`<p id="XxxElement">…</p>`) the
+/// description is the anchor paragraph's *own* content. For a
+/// [`AnchorKind::FollowingParagraph`] anchor (a heading / `<div>` / directive)
+/// the description is the lead `<p>` that follows it.
+fn anchor_description(html: &str, anchor: &Anchor) -> Option<String> {
+    match anchor.kind {
+        AnchorKind::SelfParagraph => {
+            let body = &html[anchor.body_start..];
+            let close = body.find("</p>")?;
+            let text = paragraph_text(&body[..close]);
+            (text.chars().count() >= MIN_DESCRIPTION_LEN).then_some(text)
         }
-
-        let mut saw_whitespace = false;
-        for next in text[idx + ch.len_utf8()..].chars() {
-            if next.is_whitespace() {
-                saw_whitespace = true;
-                continue;
-            }
-
-            if saw_whitespace && next.is_uppercase() {
-                sentences += 1;
-                if sentences >= 2 {
-                    return text[..=idx].to_string();
-                }
-            }
-            break;
-        }
+        AnchorKind::FollowingParagraph => lead_description(&html[anchor.body_start..]),
     }
-
-    text.to_string()
 }
 
-// If the first paragraph starts much later than this, we've likely wandered
-// into examples/notes rather than the short element description.
-const MAX_DESCRIPTION_SEARCH_OFFSET: usize = 2_000;
+/// A located element-definition anchor.
+struct Anchor {
+    element: String,
+    /// Byte offset at which the searchable section body begins (just past the
+    /// anchor's open tag).
+    body_start: usize,
+    kind: AnchorKind,
+}
 
-/// Extract text content of the first `<p>...</p>` block in the given HTML slice.
-fn extract_first_paragraph(html: &str) -> Option<String> {
-    // Call sites sometimes slice right after `...Element">`, which means
-    // we are already inside the target paragraph content.
-    if let Some(p_end) = html.find("</p>") {
-        let first_open = html.find("<p");
-        if first_open.is_none_or(|open| p_end < open) {
-            if p_end <= MAX_DESCRIPTION_SEARCH_OFFSET {
-                return Some(html[..p_end].to_string());
-            }
-            return None;
-        }
-    }
+/// Where an anchor's description lives relative to the anchor markup.
+#[derive(Clone, Copy)]
+enum AnchorKind {
+    /// The anchor *is* the descriptive paragraph (`<p id="XxxElement">…</p>`).
+    SelfParagraph,
+    /// The description is the lead `<p>` following the anchor.
+    FollowingParagraph,
+}
 
-    // Otherwise find the first explicit <p...> start tag in this slice.
-    // Accept both `<p>` and `<p ...>` while excluding tags like `<path>`.
-    let mut search_from = 0;
-    while let Some(rel_start) = html[search_from..].find("<p") {
-        let p_start = search_from + rel_start;
-        if p_start > MAX_DESCRIPTION_SEARCH_OFFSET {
-            return None;
-        }
+/// Collect anchors across all priority tiers, each tier ordered by ascending
+/// document offset, tier 1 (canonical) entirely before tier 2, etc.
+///
+/// Tiers, highest priority first:
+/// 1. `id="XxxElement"` on a heading / `<div>` / `<p>` — the canonical
+///    element-definition anchor.
+/// 2. A heading carrying exactly one `<span class="element-name">'name'</span>`
+///    — covers sections whose id does not follow the `XxxElement` convention
+///    (e.g. the `'a'` element under `id="Links"`).
+/// 3. `<edit:with element='name'>` — a processing directive that also names its
+///    element; a last-resort anchor.
+fn collect_anchors(html: &str) -> Vec<Anchor> {
+    let mut anchors = Vec::new();
+    push_sorted(&mut anchors, id_element_anchors(html));
+    push_sorted(&mut anchors, element_name_heading_anchors(html));
+    push_sorted(&mut anchors, edit_with_anchors(html));
+    anchors
+}
 
-        let tag_tail_start = p_start + 2;
-        let next = *html.as_bytes().get(tag_tail_start)?;
-        if next != b'>' && !next.is_ascii_whitespace() {
-            search_from = tag_tail_start;
+/// Sort a tier's anchors by document offset and append them after the anchors
+/// already collected from higher-priority tiers.
+fn push_sorted(acc: &mut Vec<Anchor>, mut tier: Vec<Anchor>) {
+    tier.sort_by_key(|anchor| anchor.body_start);
+    acc.extend(tier);
+}
+
+/// Tier 1: `id="XxxElement"` anchors on a heading, `<div>`, or `<p>`.
+fn id_element_anchors(html: &str) -> Vec<Anchor> {
+    static RE: std::sync::OnceLock<Regex> = std::sync::OnceLock::new();
+    let re = RE.get_or_init(|| {
+        Regex::new(
+            r#"(?s)<(h[1-6]|div|p)\s+id=(?:'([A-Za-z]+Element)'|"([A-Za-z]+Element)")[^>]*>"#,
+        )
+        .unwrap_or_else(|err| unreachable!("id-element anchor regex is valid: {err}"))
+    });
+    let mut anchors = Vec::new();
+    for caps in re.captures_iter(html) {
+        let Some(whole) = caps.get(0) else { continue };
+        let Some(tag) = caps.get(1).map(|m| m.as_str()) else {
+            continue;
+        };
+        // The id is captured in group 2 (single-quoted) or group 3
+        // (double-quoted); the `regex` crate has no backreferences, so the two
+        // quote styles are alternated rather than matched against an open quote.
+        let Some(raw_id) = caps.get(2).or_else(|| caps.get(3)).map(|m| m.as_str()) else {
+            continue;
+        };
+        if is_non_element_id(raw_id) {
             continue;
         }
-
-        let open_end = html[tag_tail_start..].find('>')?;
-        let content_start = tag_tail_start + open_end + 1;
-        let p_end = html[content_start..].find("</p>")?;
-        return Some(html[content_start..content_start + p_end].to_string());
+        let Some(element) = element_name_from_id(raw_id) else {
+            continue;
+        };
+        // `<p id="XxxElement">` carries the lead description in its own body
+        // (e.g. `linearGradient`, `stop`); heading / `<div>` anchors are
+        // followed by the lead paragraph.
+        let kind = if tag.eq_ignore_ascii_case("p") {
+            AnchorKind::SelfParagraph
+        } else {
+            AnchorKind::FollowingParagraph
+        };
+        anchors.push(Anchor {
+            element,
+            body_start: whole.end(),
+            kind,
+        });
     }
+    anchors
+}
 
+/// Tier 2: headings carrying exactly one `<span class="element-name">'name'</span>`.
+///
+/// Headings that name two elements (e.g. the shared `'desc'` / `'title'`
+/// section) are skipped — there is no single unambiguous lead paragraph for
+/// them, so they are left to the audit's gap handling rather than mis-assigned.
+fn element_name_heading_anchors(html: &str) -> Vec<Anchor> {
+    static HEADING: std::sync::OnceLock<Regex> = std::sync::OnceLock::new();
+    static NAME: std::sync::OnceLock<Regex> = std::sync::OnceLock::new();
+    let heading = HEADING.get_or_init(|| {
+        Regex::new(r"(?s)<h[1-6][^>]*>(.*?)</h[1-6]>")
+            .unwrap_or_else(|err| unreachable!("heading regex is valid: {err}"))
+    });
+    let name = NAME.get_or_init(|| {
+        Regex::new(r#"class=['"]element-name['"]>\s*['\u{2018}]([A-Za-z]+)['\u{2019}]"#)
+            .unwrap_or_else(|err| unreachable!("element-name regex is valid: {err}"))
+    });
+    let mut anchors = Vec::new();
+    for caps in heading.captures_iter(html) {
+        let (Some(whole), Some(inner)) = (caps.get(0), caps.get(1)) else {
+            continue;
+        };
+        if inner.as_str().matches("element-name").count() != 1 {
+            continue;
+        }
+        if let Some(found) = name.captures(inner.as_str())
+            && let Some(element) = found.get(1)
+        {
+            anchors.push(Anchor {
+                element: element.as_str().to_string(),
+                body_start: whole.end(),
+                kind: AnchorKind::FollowingParagraph,
+            });
+        }
+    }
+    anchors
+}
+
+/// Tier 3: `<edit:with element='name'>` processing directives.
+fn edit_with_anchors(html: &str) -> Vec<Anchor> {
+    static RE: std::sync::OnceLock<Regex> = std::sync::OnceLock::new();
+    let re = RE.get_or_init(|| {
+        Regex::new(r"<edit:with element='([^']+)'>")
+            .unwrap_or_else(|err| unreachable!("edit:with regex is valid: {err}"))
+    });
+    let mut anchors = Vec::new();
+    for caps in re.captures_iter(html) {
+        let (Some(whole), Some(element)) = (caps.get(0), caps.get(1)) else {
+            continue;
+        };
+        anchors.push(Anchor {
+            element: element.as_str().to_string(),
+            body_start: whole.end(),
+            kind: AnchorKind::FollowingParagraph,
+        });
+    }
+    anchors
+}
+
+/// Find the lead descriptive paragraph at the start of a section body.
+///
+/// The body is first truncated at the next element-definition anchor so we never
+/// borrow another element's prose. Editorial noise containers
+/// (`<div class="annotation|note|example|svg2-requirement">…</div>`) are removed
+/// so the genuine lead paragraph — which often follows a SVG-2-requirement table
+/// or an `<edit:elementsummary/>` — is the first `<p>` we see. Paragraphs whose
+/// own class marks them as noise, label-only paragraphs (e.g. "Attribute
+/// definitions:"), and too-short fragments are skipped.
+fn lead_description(body: &str) -> Option<String> {
+    let window = &body[..body.len().min(MAX_SECTION_WINDOW)];
+    let bounded = truncate_at_next_anchor(window);
+    let cleaned = remove_noise_containers(bounded);
+
+    for paragraph in paragraphs(&cleaned) {
+        if paragraph.class.as_deref().is_some_and(class_is_noise) {
+            continue;
+        }
+        let text = paragraph_text(paragraph.inner);
+        if text.chars().count() < MIN_DESCRIPTION_LEN {
+            continue;
+        }
+        if is_label(&text) {
+            continue;
+        }
+        // A paragraph that merely ends with a colon is an introduction to a
+        // list, not a description — unless it is the "…defined as follows:"
+        // lead the spec uses for a couple of elements (e.g. `view`).
+        if text.trim_end().ends_with(':') && !text.to_ascii_lowercase().contains("follows") {
+            continue;
+        }
+        return Some(text);
+    }
     None
 }
 
-/// Strip HTML tags from a string, leaving only text content.
-fn strip_html_tags(html: &str) -> String {
-    let mut result = String::with_capacity(html.len());
+/// Truncate a section body at the next `id="XxxElement"` anchor so an element's
+/// lead-paragraph search never crosses into the following element's section.
+fn truncate_at_next_anchor(body: &str) -> &str {
+    static RE: std::sync::OnceLock<Regex> = std::sync::OnceLock::new();
+    let re = RE.get_or_init(|| {
+        Regex::new(r#"(?s)<(?:h[1-6]|p|div)\s+id=['"][A-Za-z]+Element['"]"#)
+            .unwrap_or_else(|err| unreachable!("next-anchor regex is valid: {err}"))
+    });
+    re.find(body).map_or(body, |found| &body[..found.start()])
+}
+
+/// Remove editorial noise containers (`<div class="annotation|note|example|
+/// svg2-requirement">…</div>`) so the lead descriptive `<p>` is the first one
+/// the scanner encounters.
+///
+/// svgwg's annotation/requirement/example blocks are flat (not nested inside one
+/// another) in the chapter sources, so a non-greedy single pass is sufficient
+/// and deterministic.
+fn remove_noise_containers(body: &str) -> String {
+    static RE: std::sync::OnceLock<Regex> = std::sync::OnceLock::new();
+    let re = RE.get_or_init(|| {
+        Regex::new(
+            r#"(?s)<div\s+class=['"][^'"]*(?:annotation|note|example|svg2-requirement)[^'"]*['"][^>]*>.*?</div>"#,
+        )
+        .unwrap_or_else(|err| unreachable!("noise-container regex is valid: {err}"))
+    });
+    re.replace_all(body, " ").into_owned()
+}
+
+/// A `<p>` block: the value of its `class` attribute (if any) and its raw inner
+/// HTML.
+struct Paragraph<'a> {
+    class: Option<String>,
+    inner: &'a str,
+}
+
+/// Iterate the `<p>…</p>` blocks of a body in document order.
+fn paragraphs(body: &str) -> Vec<Paragraph<'_>> {
+    static RE: std::sync::OnceLock<Regex> = std::sync::OnceLock::new();
+    let re = RE.get_or_init(|| {
+        Regex::new(r"(?s)<p\b([^>]*)>(.*?)</p>")
+            .unwrap_or_else(|err| unreachable!("paragraph regex is valid: {err}"))
+    });
+    re.captures_iter(body)
+        .filter_map(|caps| {
+            let inner = caps.get(2)?.as_str();
+            let class = caps.get(1).and_then(|attrs| class_value(attrs.as_str()));
+            Some(Paragraph { class, inner })
+        })
+        .collect()
+}
+
+/// Extract the value of a `class` attribute from an open-tag attribute string.
+fn class_value(attrs: &str) -> Option<String> {
+    static RE: std::sync::OnceLock<Regex> = std::sync::OnceLock::new();
+    let re = RE.get_or_init(|| {
+        Regex::new(r#"class=['"]([^'"]*)['"]"#)
+            .unwrap_or_else(|err| unreachable!("class-value regex is valid: {err}"))
+    });
+    re.captures(attrs)
+        .and_then(|caps| caps.get(1))
+        .map(|m| m.as_str().to_string())
+}
+
+/// `true` if a paragraph's `class` marks it as editorial noise rather than
+/// descriptive prose.
+fn class_is_noise(class: &str) -> bool {
+    const NOISE: &[&str] = &["note", "annotation", "example", "svg2-requirement"];
+    NOISE.iter().any(|needle| class.contains(needle))
+}
+
+/// `true` if a paragraph is just a section label (e.g. "Attribute definitions:")
+/// rather than a description.
+fn is_label(text: &str) -> bool {
+    static RE: std::sync::OnceLock<Regex> = std::sync::OnceLock::new();
+    let re = RE.get_or_init(|| {
+        Regex::new(r"(?i)^(attribute|element|property)\s+definitions?:?\s*$")
+            .unwrap_or_else(|err| unreachable!("label regex is valid: {err}"))
+    });
+    re.is_match(text.trim())
+}
+
+/// Turn a paragraph's inner HTML into clean, whitespace-normalized text.
+///
+/// `tl` parses the fragment (entity-decoding and dropping nested `<a>`, `<code>`,
+/// `<em>` … wrappers); the resulting text is whitespace-collapsed and the
+/// typographic single quotes the spec uses around element/attribute references
+/// are normalized to straight quotes, matching the snapshot transcription style.
+fn paragraph_text(inner_html: &str) -> String {
+    let text = tl::parse(inner_html, ParserOptions::default()).map_or_else(
+        |_| strip_tags_fallback(inner_html),
+        |dom| {
+            let parser = dom.parser();
+            dom.children()
+                .iter()
+                .map(|handle| {
+                    handle
+                        .get(parser)
+                        .map(|node| node.inner_text(parser).into_owned())
+                        .unwrap_or_default()
+                })
+                .collect::<String>()
+        },
+    );
+    normalize_text(&text)
+}
+
+/// Plain tag-stripping fallback for the (unexpected) case where `tl` cannot
+/// parse a paragraph fragment.
+fn strip_tags_fallback(html: &str) -> String {
+    let mut out = String::with_capacity(html.len());
     let mut in_tag = false;
     for ch in html.chars() {
         match ch {
             '<' => in_tag = true,
             '>' => in_tag = false,
-            _ if !in_tag => result.push(ch),
+            _ if !in_tag => out.push(ch),
             _ => {}
         }
     }
-    // Normalize whitespace: collapse runs of whitespace into single spaces
-    let collapsed: String = result.split_whitespace().collect::<Vec<_>>().join(" ");
-    // Remove surrounding single quotes from element references like 'rect'
-    collapsed
-        .replace("\u{2018}", "'") // left single quote
-        .replace("\u{2019}", "'") // right single quote
+    out
 }
 
-/// Convert a `PascalCase` element ID to the actual element name.
-/// e.g. `Rect` → `rect`, `LinearGradient` → `linearGradient`,
-///      `FeGaussianBlur` → `feGaussianBlur`
-fn uncapitalize_element_name(id: &str) -> String {
-    let mut chars = id.chars();
-    chars.next().map_or_else(String::new, |first| {
-        format!("{}{}", first.to_lowercase(), chars.as_str())
-    })
+/// Collapse whitespace runs to single spaces, trim, and normalize typographic
+/// single quotes to straight quotes.
+fn normalize_text(text: &str) -> String {
+    text.split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ")
+        .replace(['\u{2018}', '\u{2019}'], "'")
 }
 
-fn is_interface_svg_identifier(raw_id: &str) -> bool {
+/// Convert a `PascalCase` element id (sans the `Element` suffix) to the actual
+/// element name. `Rect` → `rect`, `LinearGradient` → `linearGradient`.
+fn element_name_from_id(raw_id: &str) -> Option<String> {
+    let stem = raw_id.strip_suffix("Element")?;
+    if stem.is_empty() {
+        return None;
+    }
+    // An all-uppercase stem is an acronym (`SVGElement` → `svg`); lowercase it
+    // wholesale rather than only its first character (which would yield `sVG`).
+    if stem.chars().all(|ch| ch.is_ascii_uppercase()) {
+        return Some(stem.to_ascii_lowercase());
+    }
+    let mut chars = stem.chars();
+    let first = chars.next()?;
+    Some(format!("{}{}", first.to_lowercase(), chars.as_str()))
+}
+
+/// `true` for `id="…Element"` values that are **not** element-definition
+/// anchors: `WebIDL` interface ids (`InterfaceSVGRectElement`), glossary term
+/// definitions (`TermShapeElement`), and the `PointAssociatedElement` umbrella.
+fn is_non_element_id(raw_id: &str) -> bool {
     raw_id.contains("InterfaceSVG")
+        || raw_id.starts_with("Term")
+        || raw_id == "PointAssociatedElement"
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn id_to_element_name() {
+        assert_eq!(element_name_from_id("RectElement").as_deref(), Some("rect"));
+        assert_eq!(
+            element_name_from_id("LinearGradientElement").as_deref(),
+            Some("linearGradient")
+        );
+        assert_eq!(element_name_from_id("Foo").as_deref(), None);
+    }
+
+    #[test]
+    fn rejects_non_element_ids() {
+        assert!(is_non_element_id("InterfaceSVGRectElement"));
+        assert!(is_non_element_id("TermShapeElement"));
+        assert!(is_non_element_id("PointAssociatedElement"));
+        assert!(!is_non_element_id("RectElement"));
+    }
+
+    #[test]
+    fn extracts_simple_heading_lead() {
+        let html = "<h2 id=\"RectElement\">The <span class=\"element-name\">'rect'</span> element</h2>\
+            <edit:with element='rect'>\
+            <p>The <a>'rect'</a> element defines a rectangle which is axis-aligned \
+            with the current user coordinate system.</p>";
+        let mut out = BTreeMap::new();
+        extract_file(html, &mut out);
+        assert_eq!(
+            out.get("rect").map(String::as_str),
+            Some(
+                "The 'rect' element defines a rectangle which is axis-aligned with the current user coordinate system."
+            )
+        );
+    }
+
+    #[test]
+    fn skips_annotation_and_label_paragraphs() {
+        let html = "<h3 id=\"MarkerElement\">The <span class=\"element-name\">'marker'</span> element</h3>\
+            <edit:elementsummary name='marker'/>\
+            <p>The <a>'marker element'</a> element defines the graphics that are to \
+            be used for drawing markers on a shape.</p>\
+            <p id=\"MarkerAttributes\"><em>Attribute definitions:</em></p>";
+        let mut out = BTreeMap::new();
+        extract_file(html, &mut out);
+        assert_eq!(
+            out.get("marker").map(String::as_str),
+            Some(
+                "The 'marker element' element defines the graphics that are to be used for drawing markers on a shape."
+            )
+        );
+    }
+
+    #[test]
+    fn canonical_anchor_wins_over_element_name_heading() {
+        // A non-canonical element-name heading appears first in the document,
+        // but the canonical `id="GElement"` anchor must win.
+        let html = "<h2 id=\"Grouping\">Grouping: the <span class=\"element-name\">'g'</span> element</h2>\
+            <p>Some earlier prose that is not the canonical lead.</p>\
+            <h3 id=\"GElement\">The <span class=\"element-name\">'g'</span> element</h3>\
+            <p>The <a>'g'</a> element is a container used to group other SVG elements.</p>";
+        let mut out = BTreeMap::new();
+        extract_file(html, &mut out);
+        assert_eq!(
+            out.get("g").map(String::as_str),
+            Some("The 'g' element is a container used to group other SVG elements.")
+        );
+    }
+
+    #[test]
+    fn missing_prose_is_absent_not_fabricated() {
+        let html = "<div id=\"AElement\">\
+            <edit:elementsummary name='a'/>\
+            </div>\
+            <p><em>Attribute definitions:</em></p>";
+        let mut out = BTreeMap::new();
+        extract_file(html, &mut out);
+        assert!(!out.contains_key("a"));
+    }
 }

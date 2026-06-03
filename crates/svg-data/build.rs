@@ -21,6 +21,8 @@ mod propidx;
 mod provenance_gate;
 #[path = "build/reconcile.rs"]
 mod reconcile;
+#[path = "build/spec.rs"]
+mod spec;
 #[path = "build/spec_scan.rs"]
 mod spec_scan;
 #[path = "build/spec_xml.rs"]

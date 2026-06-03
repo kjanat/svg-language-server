@@ -23,6 +23,8 @@ mod provenance_gate;
 mod reconcile;
 #[path = "build/spec_scan.rs"]
 mod spec_scan;
+#[path = "build/spec_xml.rs"]
+mod spec_xml;
 #[path = "src/types.rs"]
 mod types;
 #[path = "build/value_syntax.rs"]

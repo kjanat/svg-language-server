@@ -49,23 +49,47 @@ fn ed_inventory_matches_audited_extractor_figures() {
 }
 
 #[test]
-fn older_snapshots_have_no_baked_inventory() {
+fn cr_snapshot_has_no_baked_inventory() {
+    // Only the SVG 2 CR snapshot lacks a vendored machine-readable grammar of
+    // its own, so it alone has no baked inventory. The two SVG 1.1
+    // Recommendations now carry DTD-derived inventories (see
+    // `tests/svg11_inventory.rs`), and the ED carries its `definitions*.xml`
+    // inventory — those are covered elsewhere.
+    let snapshot = SpecSnapshotId::Svg2Cr20181004;
+    assert!(
+        spec_inventory(snapshot).is_none(),
+        "{snapshot:?} should not carry a baked full-spec inventory",
+    );
+    // The enumerating convenience accessors degrade to empty, not panic.
+    assert!(spec_attributes(snapshot).is_empty());
+    assert!(spec_elements(snapshot).is_empty());
+    assert_eq!(
+        spec_attributes_for_element(snapshot, "text").count(),
+        0,
+        "inventory-less snapshot must yield no element attributes",
+    );
+}
+
+#[test]
+fn svg11_snapshots_now_carry_baked_inventories() {
+    // Both SVG 1.1 editions return a non-empty baked inventory derived from
+    // their vendored flat DTD. Exact counts/buckets are locked in
+    // `tests/svg11_inventory.rs`; here we only assert the API contract flipped
+    // from `None` to `Some` and the convenience accessors are non-empty.
     for snapshot in [
         SpecSnapshotId::Svg11Rec20030114,
         SpecSnapshotId::Svg11Rec20110816,
-        SpecSnapshotId::Svg2Cr20181004,
     ] {
         assert!(
-            spec_inventory(snapshot).is_none(),
-            "{snapshot:?} should not carry a baked full-spec inventory",
+            spec_inventory(snapshot).is_some(),
+            "{snapshot:?} should carry a baked SVG 1.1 inventory",
         );
-        // The enumerating convenience accessors degrade to empty, not panic.
-        assert!(spec_attributes(snapshot).is_empty());
-        assert!(spec_elements(snapshot).is_empty());
-        assert_eq!(
-            spec_attributes_for_element(snapshot, "text").count(),
-            0,
-            "inventory-less snapshot must yield no element attributes",
+        assert!(!spec_attributes(snapshot).is_empty());
+        assert!(!spec_elements(snapshot).is_empty());
+        // `rect` is a shape element in both editions and carries attributes.
+        assert!(
+            spec_attributes_for_element(snapshot, "rect").count() > 0,
+            "{snapshot:?} rect should resolve attributes",
         );
     }
 }

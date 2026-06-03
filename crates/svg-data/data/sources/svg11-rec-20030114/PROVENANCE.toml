@@ -40,3 +40,29 @@ path   = "propidx.html"
 url    = "https://www.w3.org/TR/2003/REC-SVG11-20030114/propidx.html"
 bytes  = 57360
 sha256 = "07b3025fa269bc368a284f91ddb5af609fc2146dbe72be458be4688b422d0ba0"
+
+# Flattened SVG 1.1 (First Edition) DTD — the machine-readable grammar of
+# element content models and attribute lists. Source of element presence,
+# the element x attribute matrix, and enumerated (a|b|c) attribute value sets.
+#
+# Fully self-contained "flat" DTD: every parameter entity for the modular
+# .mod files is inlined into one file (1173 `<!ENTITY %>`, 81 `<!ELEMENT>`,
+# 81 `<!ATTLIST>`); zero active external (SYSTEM) module pulls — the only
+# `SYSTEM` strings are PUBLIC/SYSTEM identifiers quoted inside comments.
+#
+# NOTE on URL: the dated path .../DTD/svg11-flat-20030114.dtd returns 404.
+# The flat DTD is served at the undated .../DTD/svg11-flat.dtd under the
+# immutable dated /TR/2003/REC-SVG11-20030114/ tree, so the bytes are still
+# pinned by the dated REC (W3C never edits a dated Recommendation's tree).
+[[inputs]]
+id     = "flat-dtd"
+kind   = "dtd"
+role   = "element presence + element/attribute matrix + enumerated attribute value sets"
+purpose = "presence / matrix / enum derivation"
+path   = "svg11-flat-20030114.dtd"
+url    = "https://www.w3.org/TR/2003/REC-SVG11-20030114/DTD/svg11-flat.dtd"
+bytes  = 187514
+sha256 = "935cd859603ab45517dbaac221104c6de04cc9dcfeb504115700232565ccf799"
+entity_decls  = 1173
+element_decls = 81
+attlist_decls = 81

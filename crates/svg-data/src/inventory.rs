@@ -230,19 +230,28 @@ impl Inventory {
 }
 
 include!(concat!(env!("OUT_DIR"), "/spec_inventory.rs"));
+include!(concat!(env!("OUT_DIR"), "/svg11_inventory.rs"));
 
 /// Return the baked spec inventory for `snapshot`, if one exists.
 ///
-/// Only [`SpecSnapshotId::Svg2EditorsDraft`] has a baked full-spec inventory:
-/// it is the single snapshot whose vendored `definitions*.xml` the Phase-7
-/// extractor reads. The older Recommendation/CR snapshots are modeled by the
-/// curated, profile-aware catalog (see [`crate::attributes_for_with_profile`])
-/// rather than a baked inventory, so this returns [`None`] for them rather
-/// than silently substituting the ED data.
+/// Three snapshots carry a baked, spec-faithful inventory, each derived from
+/// the vendored grammar pinned for it:
+///
+/// - [`SpecSnapshotId::Svg2EditorsDraft`] — from the SVG 2 ED
+///   `definitions*.xml` family (see [`SPEC_INVENTORY`]);
+/// - [`SpecSnapshotId::Svg11Rec20030114`] and
+///   [`SpecSnapshotId::Svg11Rec20110816`] — from each edition's flat SVG 1.1
+///   DTD (see [`SVG11_REC_20030114_INVENTORY`] /
+///   [`SVG11_REC_20110816_INVENTORY`]).
+///
+/// [`SpecSnapshotId::Svg2Cr20181004`] has no vendored machine-readable grammar
+/// of its own and is modeled only by the curated, profile-aware catalog (see
+/// [`crate::attributes_for_with_profile`]), so this returns [`None`] for it
+/// rather than silently substituting another snapshot's data.
 ///
 /// Returning [`Option`] keeps the "which snapshots have an inventory?" fact in
-/// the type, so a consumer cannot accidentally treat a Recommendation snapshot
-/// as if it carried the full ED universe.
+/// the type, so a consumer cannot accidentally treat an un-inventoried snapshot
+/// as if it carried a full attribute universe.
 ///
 /// This is re-exported at the crate root as [`crate::spec_inventory`] for
 /// ergonomic access alongside the curated catalog APIs.
@@ -250,9 +259,9 @@ include!(concat!(env!("OUT_DIR"), "/spec_inventory.rs"));
 pub fn for_snapshot(snapshot: SpecSnapshotId) -> Option<&'static Inventory> {
     match snapshot {
         SpecSnapshotId::Svg2EditorsDraft => Some(&SPEC_INVENTORY),
-        SpecSnapshotId::Svg11Rec20030114
-        | SpecSnapshotId::Svg11Rec20110816
-        | SpecSnapshotId::Svg2Cr20181004 => None,
+        SpecSnapshotId::Svg11Rec20030114 => Some(&SVG11_REC_20030114_INVENTORY),
+        SpecSnapshotId::Svg11Rec20110816 => Some(&SVG11_REC_20110816_INVENTORY),
+        SpecSnapshotId::Svg2Cr20181004 => None,
     }
 }
 

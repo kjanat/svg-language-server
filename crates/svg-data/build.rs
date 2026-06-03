@@ -13,6 +13,8 @@
 mod bcd;
 #[path = "build/codegen.rs"]
 mod codegen;
+#[path = "build/dtd.rs"]
+mod dtd;
 #[path = "build/edition.rs"]
 mod edition;
 #[path = "build/inventory_codegen.rs"]
@@ -431,6 +433,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo::rerun-if-changed=data/profiles/svg-native.json");
     // Vendored SVG 2 ED definitions feed the baked full-spec inventory.
     println!("cargo::rerun-if-changed=data/sources/svgwg-19482daf/master");
+    // Vendored SVG 1.1 flat DTDs feed the baked per-edition inventories.
+    println!("cargo::rerun-if-changed=data/sources/svg11-rec-20030114/svg11-flat-20030114.dtd");
+    println!("cargo::rerun-if-changed=data/sources/svg11-rec-20110816/svg11-flat-20110816.dtd");
     println!("cargo::rerun-if-env-changed=SVG_DATA_OFFLINE");
     println!("cargo::rerun-if-env-changed=SVG_COMPAT_FILE");
     println!("cargo::rerun-if-env-changed=SVG_COMPAT_URL");
@@ -523,8 +528,39 @@ fn main() -> Result<(), Box<dyn Error>> {
         .map_err(|e| -> Box<dyn Error> { e.to_string().into() })?;
     fs::write(out_dir.join("spec_inventory.rs"), spec_inventory)?;
 
+    // Full SVG 1.1 spec inventories: derive every element/classified
+    // attribute/edge from each edition's vendored flat DTD and bake a named
+    // `static …_INVENTORY`. Additive, exposed via `inventory::for_snapshot`.
+    // Hermetic — parses only the vendored DTD pinned for each snapshot.
+    let mut svg11 = String::new();
+    for (relative, static_name, doc) in SVG11_DTD_INVENTORIES {
+        let dtd_path = manifest_dir.join(relative);
+        let rendered = inventory_codegen::generate_svg11(&dtd_path, static_name, doc)
+            .map_err(|e| -> Box<dyn Error> { e.to_string().into() })?;
+        svg11.push_str(&rendered);
+        svg11.push('\n');
+    }
+    fs::write(out_dir.join("svg11_inventory.rs"), svg11)?;
+
     Ok(())
 }
+
+/// Vendored SVG 1.1 flat DTDs feeding the baked per-edition inventories: the
+/// crate-relative DTD path, the emitted `static` identifier, and its rustdoc.
+const SVG11_DTD_INVENTORIES: &[(&str, &str, &str)] = &[
+    (
+        "data/sources/svg11-rec-20030114/svg11-flat-20030114.dtd",
+        "SVG11_REC_20030114_INVENTORY",
+        "/// The complete SVG 1.1 (First Edition, 2003-01-14) spec inventory,\n\
+         /// derived from the vendored flat DTD at build time. See [`Inventory`].",
+    ),
+    (
+        "data/sources/svg11-rec-20110816/svg11-flat-20110816.dtd",
+        "SVG11_REC_20110816_INVENTORY",
+        "/// The complete SVG 1.1 (Second Edition, 2011-08-16) spec inventory,\n\
+         /// derived from the vendored flat DTD at build time. See [`Inventory`].",
+    ),
+];
 
 /// Vendored SVG 2 ED `master/` directory pinned for the `Svg2EditorsDraft`
 /// snapshot (commit `19482daf`). The same directory the

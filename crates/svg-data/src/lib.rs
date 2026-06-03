@@ -25,6 +25,8 @@ pub mod compat_parse;
 pub mod derived;
 /// Shared manifest, cache, provenance, and dataset emission helpers.
 pub mod extraction;
+/// Typed constraint model for SVG profiles (SVG Native).
+pub mod profile;
 /// Deterministic audit helpers for checked-in snapshot reviews.
 pub mod review;
 /// Typed schema for normalized per-snapshot checked-in SVG data.

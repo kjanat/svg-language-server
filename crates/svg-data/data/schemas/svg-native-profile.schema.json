@@ -1,0 +1,266 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "SvgNativeProfile",
+	"description": "The complete extracted SVG Native profile constraint dataset.\n\nThis is the root of the committed `data/profiles/svg-native.json` file and\nthe in-memory product of the build extractor.",
+	"type": "object",
+	"properties": {
+		"constraints": {
+			"description": "Every extracted constraint, ordered deterministically by\n`(kind, name, section)`.",
+			"type": "array",
+			"items": {
+				"$ref": "#/$defs/ProfileConstraint"
+			}
+		},
+		"coverage_gaps": {
+			"description": "Sections (or known facts) the heuristic prose extractor could not turn\ninto structured constraints with confidence. Never empty silently — a\ngap recorded here is honest about coverage.",
+			"type": "array",
+			"items": {
+				"$ref": "#/$defs/CoverageGap"
+			}
+		},
+		"profile": {
+			"description": "The profile slug, always `SvgNative` for this file.",
+			"type": "string"
+		},
+		"schema_version": {
+			"description": "Schema version for forward-compatible evolution of this file shape.",
+			"type": "integer",
+			"format": "uint32",
+			"minimum": 0
+		},
+		"source_pin": {
+			"description": "Provenance of the vendored spec source.",
+			"$ref": "#/$defs/ProfileSourcePin"
+		}
+	},
+	"required": [
+		"schema_version",
+		"profile",
+		"source_pin",
+		"constraints",
+		"coverage_gaps"
+	],
+	"$defs": {
+		"ConstraintKind": {
+			"description": "What kind of SVG construct a single [`ProfileConstraint`] talks about.\n\nThe SVG Native spec phrases its reductive differences against four distinct\nvocabularies — elements, attributes, presentation properties, and value\nkeywords — plus a handful of capability-level features (masking, external\nresource loading, DTD subsets). Keeping the kind explicit lets consumers\nroute a constraint to the right namespace without re-parsing the name.",
+			"oneOf": [
+				{
+					"description": "An SVG element, e.g. `text`, `marker`, `pattern`. Written `<{name}>` in\nthe Bikeshed source.",
+					"type": "string",
+					"const": "element"
+				},
+				{
+					"description": "An attribute or presentation property the spec lists without\ndistinguishing the two, e.g. `clip`, `pathLength`. Written `'name'`.\n\nThe spec prose does not consistently separate presentation *properties*\nfrom XML *attributes*; both appear as `'name'`. The [`Property`] kind is\nreserved for the cases the spec explicitly calls a property (the `<{ }>`\ndfn-style property references and the styling/text property lists).\n\n[`Property`]: ConstraintKind::Property",
+					"type": "string",
+					"const": "attribute"
+				},
+				{
+					"description": "A presentation property the spec explicitly names as a property, e.g.\n`display`, `color`, `pointer-events`.",
+					"type": "string",
+					"const": "property"
+				},
+				{
+					"description": "A value keyword, e.g. `context-fill`, `objectBoundingBox`, `calc()`.\nWritten `''value''` in the Bikeshed source.",
+					"type": "string",
+					"const": "value"
+				},
+				{
+					"description": "A capability or document-level feature with no single element/attribute\nname, e.g. masking, external resource loading, the XML DTD subset.",
+					"type": "string",
+					"const": "feature"
+				}
+			]
+		},
+		"ConstraintScope": {
+			"description": "The scope an allowlist-style constraint is restricted to.\n\nSVG Native expresses two shapes of constraint: flat removals (\"X is not\nsupported\") and *supported-only* allowlists (\"transform is only supported\non these elements\"). [`ConstraintScope`] captures the allowlist target so a\n[`ConstraintRule::SupportedOnly`] is self-describing.",
+			"oneOf": [
+				{
+					"description": "Supported only when carried by one of the listed elements (transform,\nviewBox, preserveAspectRatio bearers).",
+					"type": "object",
+					"properties": {
+						"names": {
+							"description": "Element names the feature is permitted on. Sorted, de-duplicated.",
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"on": {
+							"type": "string",
+							"const": "elements"
+						}
+					},
+					"required": [
+						"on",
+						"names"
+					]
+				},
+				{
+					"description": "Supported only for the listed value keywords (e.g. `gradientUnits` only\naccepts `userSpaceOnUse`).",
+					"type": "object",
+					"properties": {
+						"names": {
+							"description": "Value keywords permitted for the constrained name. Sorted.",
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"on": {
+							"type": "string",
+							"const": "values"
+						}
+					},
+					"required": [
+						"on",
+						"names"
+					]
+				},
+				{
+					"description": "Supported only for the listed unit tokens (the SVG Native length-unit\nallowlist). `(unitless)` is recorded as the literal token `unitless`.",
+					"type": "object",
+					"properties": {
+						"names": {
+							"description": "Unit tokens permitted, sorted.",
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"on": {
+							"type": "string",
+							"const": "units"
+						}
+					},
+					"required": [
+						"on",
+						"names"
+					]
+				},
+				{
+					"description": "Supported only for the listed raster image formats (image `data:` URL\npayloads).",
+					"type": "object",
+					"properties": {
+						"names": {
+							"description": "Image format tokens permitted, sorted.",
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"on": {
+							"type": "string",
+							"const": "image-formats"
+						}
+					},
+					"required": [
+						"on",
+						"names"
+					]
+				}
+			]
+		},
+		"CoverageGap": {
+			"description": "A section the extractor could not parse into structured constraints with\nconfidence — recorded so coverage gaps are explicit rather than silently\ndropped.",
+			"type": "object",
+			"properties": {
+				"reason": {
+					"description": "Why the prose resisted reliable structured extraction.",
+					"type": "string"
+				},
+				"section": {
+					"description": "The Bikeshed section id the gap is in.",
+					"type": "string"
+				}
+			},
+			"required": [
+				"section",
+				"reason"
+			]
+		},
+		"ProfileConstraint": {
+			"description": "A single typed constraint the SVG Native profile imposes, with the spec\nsection it was extracted from for provenance.",
+			"type": "object",
+			"properties": {
+				"kind": {
+					"description": "Which vocabulary `name` belongs to.",
+					"$ref": "#/$defs/ConstraintKind"
+				},
+				"name": {
+					"description": "The normalised construct name (backticks / link markup / Bikeshed\nreference syntax stripped). For [`ConstraintKind::Feature`] this is a\nstable slug describing the capability, e.g. `masking`.",
+					"type": "string"
+				},
+				"section": {
+					"description": "The Bikeshed section id (`{#anchor}`) the constraint was extracted from,\ne.g. `painting`, `text`, `coords`. Provenance for audit.",
+					"type": "string"
+				}
+			},
+			"oneOf": [
+				{
+					"description": "The named construct is entirely unsupported by the profile — the most\ncommon SVG Native difference (\"X is not supported by SVG Native\").",
+					"type": "object",
+					"properties": {
+						"rule": {
+							"type": "string",
+							"const": "unsupported"
+						}
+					},
+					"required": [
+						"rule"
+					]
+				},
+				{
+					"description": "The named construct is supported only within the given scope; all other\nusages are unsupported (\"transform is only supported on these\nelements\", \"only `userSpaceOnUse` is supported for `gradientUnits`\").",
+					"type": "object",
+					"properties": {
+						"rule": {
+							"type": "string",
+							"const": "supported-only"
+						},
+						"scope": {
+							"description": "The allowlist the construct is narrowed to.",
+							"$ref": "#/$defs/ConstraintScope"
+						}
+					},
+					"required": [
+						"rule",
+						"scope"
+					]
+				}
+			],
+			"required": [
+				"kind",
+				"name",
+				"section"
+			]
+		},
+		"ProfileSourcePin": {
+			"description": "Provenance pin for the vendored spec source the dataset was extracted from.\n\nMirrors the `[pin]` table in the vendored `PROVENANCE.toml`. SVG Native is a\nrolling Editor's Draft with no immutable dated URL, so the pin is a git\ncommit + capture date rather than a `/TR/` URL.",
+			"type": "object",
+			"properties": {
+				"basis": {
+					"description": "The base edition the profile is a reductive subset of.",
+					"type": "string"
+				},
+				"capture_date": {
+					"description": "ISO-8601 capture date.",
+					"type": "string"
+				},
+				"commit": {
+					"description": "The svgwg commit the source was captured at.",
+					"type": "string"
+				},
+				"repository": {
+					"description": "Upstream repository the Bikeshed source was captured from.",
+					"type": "string"
+				}
+			},
+			"required": [
+				"repository",
+				"commit",
+				"capture_date",
+				"basis"
+			]
+		}
+	}
+}

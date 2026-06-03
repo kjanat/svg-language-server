@@ -417,6 +417,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     // the catalog when it (or the override env vars) change. No dependency on
     // the Deno worker source anymore.
     println!("cargo::rerun-if-changed=data/sources/svg-compat-data.json");
+    println!("cargo::rerun-if-changed=data/sources/svg-native/index.bs");
+    println!("cargo::rerun-if-changed=data/sources/svg-native/PROVENANCE.toml");
+    println!("cargo::rerun-if-changed=data/profiles/svg-native.json");
     println!("cargo::rerun-if-env-changed=SVG_DATA_OFFLINE");
     println!("cargo::rerun-if-env-changed=SVG_COMPAT_FILE");
     println!("cargo::rerun-if-env-changed=SVG_COMPAT_URL");

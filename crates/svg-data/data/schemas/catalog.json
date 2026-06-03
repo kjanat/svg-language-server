@@ -96,6 +96,14 @@
 			],
 			"name": "SVG Source Manifest",
 			"url": "https://raw.githubusercontent.com/kjanat/svg-language-server/master/crates/svg-data/data/schemas/source-manifest.schema.json"
+		},
+		{
+			"description": "Extracted SVG Native profile constraint dataset (reductive subset of SVG 2 Secure Static Mode).",
+			"fileMatch": [
+				"**/profiles/svg-native.json"
+			],
+			"name": "SVG Native Profile Constraints",
+			"url": "https://raw.githubusercontent.com/kjanat/svg-language-server/master/crates/svg-data/data/schemas/svg-native-profile.schema.json"
 		}
 	],
 	"version": 1

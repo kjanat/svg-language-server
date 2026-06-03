@@ -27,6 +27,8 @@ pub mod derived;
 pub mod edition;
 /// Shared manifest, cache, provenance, and dataset emission helpers.
 pub mod extraction;
+/// Complete, spec-faithful SVG 2 ED inventory baked from `definitions*.xml`.
+pub mod inventory;
 /// Typed constraint model for SVG profiles (SVG Native).
 pub mod profile;
 /// Deterministic audit helpers for checked-in snapshot reviews.
@@ -418,6 +420,63 @@ pub fn attributes_for_with_profile(
 #[must_use]
 pub const fn elements_in_category(cat: ElementCategory) -> &'static [&'static str] {
     categories::elements_in_category(cat)
+}
+
+// --- Full-spec inventory access (additive companion to the curated catalog) ---
+//
+// The functions above (`attributes_for`, `attributes_for_with_profile`, …)
+// expose the *curated*, browser-reconciled catalog and remain authoritative
+// for current LSP/lint behavior. The functions below expose the *full*,
+// spec-faithful SVG 2 ED inventory baked from `definitions*.xml` (see
+// [`inventory`]) so consumers can pick/compare the complete universe —
+// including the bulky `aria-*`/`on*` families the curated catalog drops — and
+// filter it by [`inventory::Classification`]. The two layers are independent:
+// reading the inventory never changes curated behavior.
+
+/// Return the baked full-spec inventory for `snapshot`, if one exists.
+///
+/// Only [`SpecSnapshotId::Svg2EditorsDraft`] carries a baked inventory; older
+/// snapshots return [`None`] (see [`inventory::for_snapshot`] for the
+/// rationale). This is the entry point to the full-exposure layer; from the
+/// returned [`inventory::Inventory`] a caller can enumerate every element,
+/// attribute and edge, and filter by classification.
+#[must_use]
+pub fn spec_inventory(snapshot: SpecSnapshotId) -> Option<&'static inventory::Inventory> {
+    inventory::for_snapshot(snapshot)
+}
+
+/// Every classified attribute in `snapshot`'s full-spec inventory, sorted by
+/// name; empty for snapshots without a baked inventory.
+///
+/// Each record carries its normalized [`inventory::Classification`] set and the
+/// verbatim upstream `attributecategory` provenance, so a consumer can pick or
+/// compare on either. Use [`spec_inventory`] when the present/absent
+/// distinction between snapshots matters.
+#[must_use]
+pub fn spec_attributes(snapshot: SpecSnapshotId) -> &'static [inventory::Attribute] {
+    spec_inventory(snapshot).map_or(&[], |inv| inv.attributes.as_ref())
+}
+
+/// Every element declared in `snapshot`'s full-spec inventory, sorted by name;
+/// empty for snapshots without a baked inventory.
+#[must_use]
+pub fn spec_elements(snapshot: SpecSnapshotId) -> &'static [inventory::Element] {
+    spec_inventory(snapshot).map_or(&[], |inv| inv.elements.as_ref())
+}
+
+/// Iterate the full-spec attributes `snapshot` attaches to `element`, resolved
+/// to complete [`inventory::Attribute`] records (classification + provenance).
+///
+/// Yields nothing for snapshots without a baked inventory, or for an element
+/// the snapshot does not declare. See
+/// [`inventory::Inventory::attributes_for_element`] for resolution semantics.
+pub fn spec_attributes_for_element(
+    snapshot: SpecSnapshotId,
+    element: &str,
+) -> impl Iterator<Item = &'static inventory::Attribute> + use<'_> {
+    spec_inventory(snapshot)
+        .into_iter()
+        .flat_map(move |inv| inv.attributes_for_element(element))
 }
 
 fn profile_key_matches(snapshot: SpecSnapshotId, normalized_input: &str) -> bool {

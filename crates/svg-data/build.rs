@@ -15,6 +15,8 @@ mod bcd;
 mod codegen;
 #[path = "build/edition.rs"]
 mod edition;
+#[path = "build/inventory_codegen.rs"]
+mod inventory_codegen;
 #[path = "build/propidx.rs"]
 mod propidx;
 #[path = "build/provenance_gate.rs"]
@@ -427,6 +429,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo::rerun-if-changed=data/sources/svg-native/index.bs");
     println!("cargo::rerun-if-changed=data/sources/svg-native/PROVENANCE.toml");
     println!("cargo::rerun-if-changed=data/profiles/svg-native.json");
+    // Vendored SVG 2 ED definitions feed the baked full-spec inventory.
+    println!("cargo::rerun-if-changed=data/sources/svgwg-19482daf/master");
     println!("cargo::rerun-if-env-changed=SVG_DATA_OFFLINE");
     println!("cargo::rerun-if-env-changed=SVG_COMPAT_FILE");
     println!("cargo::rerun-if-env-changed=SVG_COMPAT_URL");
@@ -509,8 +513,24 @@ fn main() -> Result<(), Box<dyn Error>> {
     let edition_index = edition::generate(manifest_dir)?;
     fs::write(out_dir.join("edition_index.rs"), edition_index)?;
 
+    // Full SVG 2 ED spec inventory: derive every element/classified
+    // attribute/edge from the vendored `definitions*.xml` and bake a
+    // `static SPEC_INVENTORY` consumed by `src/inventory.rs`. Additive,
+    // alongside the curated catalog above. Hermetic — parses only the
+    // vendored ED `master/` directory pinned for the snapshot.
+    let ed_master = manifest_dir.join(ED_DEFINITIONS_MASTER);
+    let spec_inventory = inventory_codegen::generate(&ed_master)
+        .map_err(|e| -> Box<dyn Error> { e.to_string().into() })?;
+    fs::write(out_dir.join("spec_inventory.rs"), spec_inventory)?;
+
     Ok(())
 }
+
+/// Vendored SVG 2 ED `master/` directory pinned for the `Svg2EditorsDraft`
+/// snapshot (commit `19482daf`). The same directory the
+/// `tests/ed_presence_matrix.rs` extractor audit reads, so the baked
+/// inventory and the audited extractor never diverge.
+const ED_DEFINITIONS_MASTER: &str = "data/sources/svgwg-19482daf/master";
 
 fn load_build_inputs() -> Result<BuildInputs, Box<dyn Error>> {
     let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));

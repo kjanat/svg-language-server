@@ -87,6 +87,80 @@ impl std::fmt::Display for SpecXmlError {
 
 impl std::error::Error for SpecXmlError {}
 
+/// Spec-derived classification of an attribute, normalized from the upstream
+/// `attributecategory` group(s) it was declared under.
+///
+/// An attribute may carry **several** classifications (the SVG 2 ED lists
+/// `onunload`, for instance, under both the `document event` and `window
+/// event` groups). The mapping is derived purely from the upstream category
+/// name string by [`Classification::from_category`]; the raw string is kept
+/// alongside for provenance (see [`AttributeFacts::raw_categories`]).
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub enum Classification {
+    /// The `core` attributecategory (`id`, `class`, `style`, `lang`,
+    /// `tabindex`, `xml:space`, …).
+    Core,
+    /// The `presentation` attributecategory (the CSS-property-backed
+    /// presentation attributes such as `fill`, `stroke`, `opacity`).
+    Presentation,
+    /// The `aria` attributecategory (the `aria-*` family plus `role`).
+    Aria,
+    /// Any of the event-handler categories (`global event`, `document
+    /// event`, `window event`, `animation event`) — the `on*` handler
+    /// attributes.
+    EventHandler,
+    /// The `deprecated xlink` attributecategory (`xlink:href`,
+    /// `xlink:title`).
+    Xlink,
+    /// The `conditional processing` attributecategory
+    /// (`requiredExtensions`, `systemLanguage`).
+    ConditionalProcessing,
+    /// Any classification whose upstream category does not map to one of
+    /// the buckets above (e.g. `filter primitive`, `transfer function
+    /// element`, the non-event `animation *` categories). The wrapped
+    /// string is the raw upstream category name, preserved verbatim so no
+    /// spec datum is dropped.
+    Other(String),
+}
+
+impl Classification {
+    /// Normalize one raw upstream `attributecategory` name into a
+    /// [`Classification`]. Deterministic and total: every category string
+    /// maps to exactly one variant, with [`Classification::Other`] carrying
+    /// the verbatim name for anything outside the named buckets.
+    pub fn from_category(category: &str) -> Self {
+        match category {
+            "core" => Self::Core,
+            "presentation" => Self::Presentation,
+            "aria" => Self::Aria,
+            "global event" | "document event" | "window event" | "animation event" => {
+                Self::EventHandler
+            }
+            "deprecated xlink" => Self::Xlink,
+            "conditional processing" => Self::ConditionalProcessing,
+            other => Self::Other(other.to_string()),
+        }
+    }
+}
+
+/// The spec-faithful facts derived for a single attribute name: every
+/// upstream `attributecategory` it was declared under (raw, for provenance),
+/// the normalized [`Classification`] set, and — for top-level
+/// `<attribute elements='…'>` declarations — the elements it was scoped to.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct AttributeFacts {
+    /// Raw upstream `attributecategory` names this attribute appeared under,
+    /// sorted and de-duplicated. Empty for an attribute that only appears as
+    /// a nested `<attribute>` child of an `<element>` or as a top-level
+    /// scoped attribute (no category wrapper).
+    pub raw_categories: BTreeSet<String>,
+    /// Normalized classifications derived from [`Self::raw_categories`].
+    pub classifications: BTreeSet<Classification>,
+    /// Elements named in a top-level `<attribute name='x' elements='…'>`
+    /// declaration. Empty for attributes that are not element-scoped.
+    pub element_scope: BTreeSet<String>,
+}
+
 /// The deterministic presence inventory derived from `definitions*.xml`.
 #[derive(Debug, Clone, Default)]
 pub struct SpecInventory {
@@ -101,6 +175,10 @@ pub struct SpecInventory {
     /// element names (used for content-model scope, not for element
     /// presence).
     pub element_categories: BTreeMap<String, BTreeSet<String>>,
+    /// Per-attribute classification/provenance facts. Keyed by attribute
+    /// name; every name in [`Self::attributes`] has an entry (defaulting to
+    /// empty facts for purely element-local or unscoped attributes).
+    pub attribute_facts: BTreeMap<String, AttributeFacts>,
 }
 
 impl SpecInventory {
@@ -357,8 +435,51 @@ fn resolve(registries: Registries) -> SpecInventory {
             .insert(name.clone(), attributes);
     }
 
+    inventory.attribute_facts = resolve_attribute_facts(&registries, &inventory.attributes);
     inventory.element_categories = registries.element_categories;
     inventory
+}
+
+/// Build the per-attribute classification/provenance map.
+///
+/// Inverts the `attributecategory` → members registry into attribute →
+/// categories, normalizes each raw category into a [`Classification`], and
+/// folds in the element scope from any top-level `<attribute elements='…'>`
+/// declaration. Every name in `attribute_universe` gets an entry so consumers
+/// can look up facts for any attribute the extractor reports.
+fn resolve_attribute_facts(
+    registries: &Registries,
+    attribute_universe: &BTreeSet<String>,
+) -> BTreeMap<String, AttributeFacts> {
+    let mut facts: BTreeMap<String, AttributeFacts> = attribute_universe
+        .iter()
+        .map(|name| (name.clone(), AttributeFacts::default()))
+        .collect();
+
+    // Category provenance: each `attributecategory` contributes its raw name
+    // (and the derived classification) to every attribute it lists that is
+    // part of the resolved universe. Category members an element never pulls
+    // in via `attributecategories='…'` are not edges, so they are absent from
+    // the universe and are intentionally skipped here — the facts map mirrors
+    // the reported attribute set, no phantom entries.
+    for (category, members) in &registries.attribute_categories {
+        let classification = Classification::from_category(category);
+        for member in members {
+            if let Some(entry) = facts.get_mut(member) {
+                entry.raw_categories.insert(category.clone());
+                entry.classifications.insert(classification.clone());
+            }
+        }
+    }
+
+    // Element scope from top-level `<attribute name='x' elements='…'>`.
+    for (attribute, elements) in &registries.scoped_attributes {
+        if let Some(entry) = facts.get_mut(attribute) {
+            entry.element_scope.extend(elements.iter().cloned());
+        }
+    }
+
+    facts
 }
 
 /// Read and parse every vendored definitions file under `master`,

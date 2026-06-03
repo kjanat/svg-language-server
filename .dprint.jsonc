@@ -21,9 +21,10 @@
 	"excludes": [
 		"**/*.lock",
 		"**/node_modules",
-		"**/target",
-		"**/svgwg",
 		"**/samples/w3",
+		"**/svg-data/data/sources/**",
+		"**/svgwg",
+		"**/target",
 		".github/workflows/release.yml",
 	],
 	"plugins": [

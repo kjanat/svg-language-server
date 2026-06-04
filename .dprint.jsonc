@@ -10,12 +10,12 @@
 	},
 	"yaml": { "printWidth": 160 },
 	"exec": {
+		"associations": ["justfile", "*.rs", "*.svg", "*.toml"],
 		"commands": [
 			{ "command": "tombi format - --stdin-filename {{file_path}}", "exts": ["toml"] },
 			{ "command": "rustfmt --edition 2024", "exts": ["rs"] },
 			{ "command": "just --dump --justfile {{file_path}}", "fileNames": ["justfile"] },
-			{ "command": "cargo run --bin=svg-format", "exts": ["svg"] },
-			// { "command": "svg-format", "exts": ["svg"] },
+			{ "command": "cargo fmt-svg", "exts": ["svg"] },
 		],
 	},
 	"excludes": [

@@ -5,40 +5,36 @@
 	"compilerOptions": {
 		"jsx": "precompile",
 		"jsxImportSource": "preact",
-		"jsxPrecompileSkipElements": ["a", "script", "style", "link", "head"],
+		"jsxPrecompileSkipElements": ["a", "script", "style", "link", "head"]
 	},
 	"tasks": {
 		"dev": {
 			"command": "deno serve --watch -A src/main.ts",
-			"description": "Start the development server for SVG compatibility data.",
+			"description": "Start the development server for SVG compatibility data."
 		},
 		"test": {
 			"command": "deno test -P",
-			"description": "Run the tests for SVG compatibility data with preset permissions.",
-		},
-		"fmt": {
-			"command": "dprint fmt",
-			"description": "Format the codebase using dprint.",
+			"description": "Run the tests for SVG compatibility data with preset permissions."
 		},
 		"cli": {
 			"command": "deno run -A src/cli.ts",
-			"description": "Run the svg-compat CLI.",
+			"description": "Run the svg-compat CLI."
 		},
 		"emit:data": {
 			"command": "deno run -A src/cli.ts emit data",
-			"description": "Emit /data.json equivalent to stdout.",
+			"description": "Emit /data.json equivalent to stdout."
 		},
 		"emit:schema": {
 			"command": "deno run -A src/cli.ts emit schema",
-			"description": "Emit the JSON schema to stdout.",
-		},
+			"description": "Emit the JSON schema to stdout."
+		}
 	},
 	"exports": "./src/main.ts",
 	"deploy": {
 		"org": "kjanat",
 		"app": "svg-compat",
 		"install": "deno install",
-		"runtime": { "entrypoint": "main.ts", "cwd": "src" },
+		"runtime": { "entrypoint": "main.ts", "cwd": "src" }
 	},
 	"test": {
 		"permissions": {
@@ -46,7 +42,7 @@
 			"net": true,
 			"run": ["deno"],
 			"write": true,
-			"env": true,
-		},
-	},
+			"env": true
+		}
+	}
 }

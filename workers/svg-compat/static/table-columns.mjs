@@ -146,6 +146,8 @@ function initializeWidths(table) {
 /**
  * @param {HTMLTableElement} table
  * @param {HTMLTableCellElement} th
+ * @param {number} startX
+ * @param {number | undefined} pointerId
  */
 function startColumnResize(table, th, startX, pointerId) {
 	const colIndex = getColumnIndex(table, th);

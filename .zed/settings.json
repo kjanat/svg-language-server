@@ -3,6 +3,7 @@
 	"formatter": [{ "external": { "command": "dprint", "arguments": ["fmt", "--stdin", "{buffer_path}"] } }],
 	"languages": {
 		"Rust": { "wrap_guides": [100] },
+		"JavaScript": { "language_servers": ["deno", "!typescript-language-server", "!vtsls", "!eslint", "!tsgo"] },
 		"TypeScript": { "language_servers": ["deno", "!typescript-language-server", "!vtsls", "!eslint", "!tsgo"] },
 		"TSX": { "language_servers": ["deno", "!typescript-language-server", "!vtsls", "!eslint", "!tsgo"] },
 		"SVG": { "language_servers": ["svg-language-server"] }

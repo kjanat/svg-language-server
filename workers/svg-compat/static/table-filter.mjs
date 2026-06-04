@@ -13,7 +13,7 @@ function bindFilter(input) {
 	if (!targetId) return;
 	const section = document.getElementById(targetId);
 	if (!section) return;
-	const rows = Array.from(section.querySelectorAll("tbody tr[data-search]"));
+	const rows = /** @type {HTMLElement[]} */ (Array.from(section.querySelectorAll("tbody tr[data-search]")));
 	const empty = section.querySelector("tbody tr.table-empty");
 	const counter = section.querySelector(`[data-filter-count="${targetId}"]`);
 	const total = rows.length;

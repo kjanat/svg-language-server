@@ -1,6 +1,6 @@
 {
 	"useTabs": true,
-	"json": {},
+	"json": { "trailingCommas": "maintain" },
 	"markdown": { "textWrap": "maintain", "emphasisKind": "asterisks" },
 	"malva": {},
 	"markup": {

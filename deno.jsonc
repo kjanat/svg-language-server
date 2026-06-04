@@ -24,7 +24,7 @@
 	"tasks": {
 		"dev:all": "deno task --recursive dev",
 		"fmt": {
-			"command": "deno run -A --allow-scripts npm:dprint fmt",
+			"command": "dprint fmt",
 			"description": "Format the codebase using dprint.",
 		},
 	},
@@ -41,5 +41,4 @@
 		},
 	},
 	"compilerOptions": { "checkJs": true, "strict": true },
-	"nodeModulesDir": "auto",
 }

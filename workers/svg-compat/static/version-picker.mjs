@@ -50,8 +50,10 @@ function navigate() {
 }
 
 for (const input of inputs) {
-	const list = input.nextElementSibling;
-	let allVersions = [];
+	const sibling = input.nextElementSibling;
+	if (!(sibling instanceof HTMLElement)) continue;
+	const list = sibling;
+	let allVersions = /** @type {string[]} */ ([]);
 	let active = -1;
 
 	input.setAttribute("role", "combobox");
@@ -63,9 +65,12 @@ for (const input of inputs) {
 	const cacheKey = `ver:${input.dataset.pkg}`;
 
 	try {
-		const cached = JSON.parse(localStorage.getItem(cacheKey));
+		const raw = localStorage.getItem(cacheKey);
+		const cached = raw ? JSON.parse(raw) : null;
 		if (cached && Date.now() < cached.exp) allVersions = cached.v;
-	} catch {}
+	} catch {
+		// Ignore unreadable or malformed cache entries.
+	}
 
 	if (!allVersions.length) {
 		fetch("https://data.jsdelivr.com/v1/package/npm/" + input.dataset.pkg)
@@ -74,12 +79,15 @@ for (const input of inputs) {
 				allVersions = data.versions;
 				try {
 					localStorage.setItem(cacheKey, JSON.stringify({ v: allVersions, exp: Date.now() + CACHE_TTL }));
-				} catch {}
+				} catch {
+					// Ignore storage failures (quota exceeded, private mode).
+				}
 			})
 			.catch(() => {});
 	}
 
-	function show(filter) {
+	/** @param {string} filter */
+	const show = (filter) => {
 		list.innerHTML = "";
 		active = -1;
 		const q = filter.toLowerCase();
@@ -109,24 +117,26 @@ for (const input of inputs) {
 		const open = matches.length > 0;
 		list.hidden = !open;
 		input.setAttribute("aria-expanded", String(open));
-	}
+	};
 
-	function pick(v) {
+	/** @param {string} v */
+	const pick = (v) => {
 		input.value = v;
 		list.hidden = true;
 		input.setAttribute("aria-expanded", "false");
 		active = -1;
 		navigate();
-	}
+	};
 
-	function highlight(idx) {
+	/** @param {number} idx */
+	const highlight = (idx) => {
 		const items = list.children;
 		if (!items.length) return;
 		if (active >= 0 && items[active]) items[active].classList.remove("active");
 		active = ((idx % items.length) + items.length) % items.length;
 		items[active].classList.add("active");
 		items[active].scrollIntoView({ block: "nearest" });
-	}
+	};
 
 	input.addEventListener("focus", () => show(input.value));
 	input.addEventListener("input", () => show(input.value));
@@ -156,7 +166,8 @@ for (const input of inputs) {
 			highlight(active - 1);
 		} else if (e.key === "Enter" && active >= 0) {
 			e.preventDefault();
-			pick(list.children[active].textContent);
+			const choice = list.children[active].textContent;
+			if (choice !== null) pick(choice);
 		} else if (e.key === "Escape") {
 			list.hidden = true;
 			input.setAttribute("aria-expanded", "false");

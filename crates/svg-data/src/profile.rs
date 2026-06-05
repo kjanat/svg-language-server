@@ -199,3 +199,31 @@ impl SvgNative {
         })
     }
 }
+
+/// The baked SVG Native profile, parsed once from the committed
+/// `data/profiles/svg-native.json`.
+///
+/// The dataset is a build-time invariant: the `svg_native_profile` reproduction
+/// test proves the committed JSON deserialises and round-trips, so this parse
+/// cannot fail in a shipped build. A corrupt baked file is a packaging bug, not
+/// a recoverable runtime condition — it panics loudly rather than silently
+/// degrading enforcement to "no constraints" (which would let unsupported
+/// constructs through unnoticed).
+///
+/// # Panics
+///
+/// Panics if the baked `data/profiles/svg-native.json` is not valid `SvgNative`
+/// JSON — a packaging/build invariant the `svg_native_profile` reproduction test
+/// guarantees, so this cannot happen in a correctly built artifact.
+#[must_use]
+pub fn svg_native() -> &'static SvgNative {
+    static CACHE: std::sync::OnceLock<SvgNative> = std::sync::OnceLock::new();
+    CACHE.get_or_init(|| {
+        match serde_json::from_str(include_str!("../data/profiles/svg-native.json")) {
+            Ok(profile) => profile,
+            Err(error) => {
+                panic!("baked data/profiles/svg-native.json is not valid SvgNative JSON: {error}")
+            }
+        }
+    })
+}

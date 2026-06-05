@@ -240,6 +240,14 @@ impl ProfileConfig {
         svg_data::inventory::for_edition(edition)
     }
 
+    /// The baked SVG Native constraint set to enforce, when this target is the
+    /// SVG Native profile. `None` for snapshot/edition targets, which impose no
+    /// reductive constraint beyond their base catalog. Used to drop completion
+    /// items for constructs SVG Native does not support.
+    fn native_constraints(&self) -> Option<&'static svg_data::profile::SvgNative> {
+        self.is_constrained().then(svg_data::profile::svg_native)
+    }
+
     fn lint_options_for(&self, doc: &DocumentState) -> svg_lint::LintOptions {
         svg_lint::LintOptions {
             profile: self.effective_profile_for(doc),
@@ -308,23 +316,39 @@ fn is_svg_native_profile(requested: &str) -> bool {
     matches!(normalized.as_str(), "svg-native" | "svgnative" | "native")
 }
 
-/// Resolve an `svg.edition` config block into an [`EditionId`] with a baked
+/// Resolve an `svg.edition` config value into an [`EditionId`] with a baked
 /// inventory.
 ///
-/// Accepts `{ "series": "svg2", "date": "2016-09-15" }` for a dated edition or
-/// `{ "series": "svg2", "editors_draft": true }` for the rolling editor's draft.
-/// Returns the parsed [`EditionId`] only when [`svg_data::inventory::for_edition`]
-/// has a baked inventory for it, so an unknown edition falls back rather than
-/// silently selecting an empty catalog.
+/// Two surfaces are accepted:
+/// - a **string** edition key (e.g. `"svg2-2016-09-15"`,
+///   `"svg2-editors-draft"`), resolved through
+///   [`svg_data::resolve_edition_id`] so the LSP and the rest of the crate share
+///   one canonical key vocabulary (punctuation/case-insensitive); or
+/// - an **object** `{ "series": "svg2", "date": "2016-09-15" }` for a dated
+///   edition / `{ "series": "svg2", "editors_draft": true }` for the rolling
+///   editor's draft.
+///
+/// Either way the result is returned only when
+/// [`svg_data::inventory::for_edition`] has a baked inventory for it, so an
+/// unknown edition falls back rather than silently selecting an empty catalog.
 fn configured_edition(config: &Value) -> Option<svg_data::inventory::EditionId> {
     use svg_data::edition::Series;
     use svg_data::inventory::EditionId;
 
-    let edition = config
+    let edition_value = config
         .get("svg")
         .and_then(Value::as_object)
-        .and_then(|svg| svg.get("edition"))
-        .and_then(Value::as_object)?;
+        .and_then(|svg| svg.get("edition"))?;
+
+    // String form delegates to svg-data's canonical key resolver. Every edition
+    // it returns comes from the baked `EDITION_INVENTORIES`, so a baked
+    // inventory is guaranteed (the `for_edition` check below is then a no-op).
+    if let Some(key) = edition_value.as_str() {
+        return svg_data::resolve_edition_id(key)
+            .filter(|id| svg_data::inventory::for_edition(id).is_some());
+    }
+
+    let edition = edition_value.as_object()?;
 
     let series = match edition.get("series").and_then(Value::as_str)?.trim() {
         "svg10" | "svg1.0" | "1.0" => Series::Svg10,
@@ -505,6 +529,47 @@ fn restrict_child_items_to_inventory(
     items.retain(|item| allowed.contains(item.label.as_str()));
 }
 
+/// Drop attribute completion `items` that SVG Native does not support on
+/// `elem_name`. An attribute is removed when the profile records it as fully
+/// unsupported (as an attribute or a presentation property), or when it is
+/// `SupportedOnly` on a fixed set of elements that does not include `elem_name`.
+fn restrict_attribute_items_to_native(
+    items: &mut Vec<CompletionItem>,
+    native: &svg_data::profile::SvgNative,
+    elem_name: &str,
+) {
+    use svg_data::profile::{ConstraintKind, ConstraintScope};
+    items.retain(|item| {
+        let name = item.label.as_str();
+        let unsupported = native.is_unsupported(ConstraintKind::Attribute, name)
+            || native.is_unsupported(ConstraintKind::Property, name);
+        if unsupported {
+            return false;
+        }
+        // `SupportedOnly { Elements }` is an allowlist of bearer elements; drop
+        // the item when this element is not among them. Other scope shapes
+        // (values/units/image-formats) constrain the *value*, not whether the
+        // attribute applies, so they do not gate completion here.
+        for kind in [ConstraintKind::Attribute, ConstraintKind::Property] {
+            if let Some(ConstraintScope::Elements { names }) = native.supported_only(kind, name)
+                && !names.iter().any(|allowed| allowed == elem_name)
+            {
+                return false;
+            }
+        }
+        true
+    });
+}
+
+/// Drop element completion `items` for elements SVG Native does not support.
+fn restrict_element_items_to_native(
+    items: &mut Vec<CompletionItem>,
+    native: &svg_data::profile::SvgNative,
+) {
+    use svg_data::profile::ConstraintKind;
+    items.retain(|item| !native.is_unsupported(ConstraintKind::Element, item.label.as_str()));
+}
+
 fn completion_from_context(
     source: &[u8],
     tree: &tree_sitter::Tree,
@@ -515,6 +580,10 @@ fn completion_from_context(
     // spec-faithful inventory declares. `None` for snapshot/native targets keeps
     // the curated catalog's behavior unchanged.
     inventory: Option<&svg_data::inventory::Inventory>,
+    // SVG Native reductive constraints, when the target is the SVG Native
+    // profile: completion lists drop constructs the profile does not support.
+    // `None` for snapshot/edition targets.
+    native: Option<&svg_data::profile::SvgNative>,
 ) -> Option<CompletionResponse> {
     let mut cursor = node;
     loop {
@@ -540,6 +609,9 @@ fn completion_from_context(
             if let Some(inventory) = inventory {
                 restrict_attribute_items_to_inventory(&mut items, inventory, elem_name);
             }
+            if let Some(native) = native {
+                restrict_attribute_items_to_native(&mut items, native, elem_name);
+            }
             return completion_response(items);
         }
 
@@ -550,11 +622,18 @@ fn completion_from_context(
             if let Some(inventory) = inventory {
                 restrict_child_items_to_inventory(&mut items, inventory);
             }
+            if let Some(native) = native {
+                restrict_element_items_to_native(&mut items, native);
+            }
             return completion_response(items);
         }
 
         if kind == "document" {
-            return completion_response(root_element_completion_items(profile));
+            let mut items = root_element_completion_items(profile);
+            if let Some(native) = native {
+                restrict_element_items_to_native(&mut items, native);
+            }
+            return completion_response(items);
         }
 
         cursor = cursor.parent()?;
@@ -798,15 +877,24 @@ impl SvgLanguageServer {
     async fn current_lint_inputs_for(
         &self,
         doc: &DocumentState,
-    ) -> (svg_lint::LintOptions, Option<svg_lint::LintOverrides>) {
+    ) -> (
+        svg_lint::LintOptions,
+        Option<svg_lint::LintOverrides>,
+        Option<svg_lint::VerdictOverrides>,
+    ) {
         let profile = self.profile_config.read().await;
-        let overrides = self
-            .runtime_compat
-            .read()
-            .await
-            .as_ref()
-            .map(RuntimeCompat::to_lint_overrides);
-        (profile.lint_options_for(doc), overrides)
+        let lint_overrides;
+        let verdict_overrides;
+        {
+            let runtime = self.runtime_compat.read().await;
+            lint_overrides = runtime.as_ref().map(RuntimeCompat::to_lint_overrides);
+            verdict_overrides = runtime.as_ref().map(RuntimeCompat::to_verdict_overrides);
+        }
+        (
+            profile.lint_options_for(doc),
+            lint_overrides,
+            verdict_overrides,
+        )
     }
 
     async fn effective_profile_for_doc(&self, doc: &DocumentState) -> svg_data::SpecSnapshotId {
@@ -815,12 +903,13 @@ impl SvgLanguageServer {
 
     async fn relint_open_documents(&self) {
         let profile_config = self.profile_config.read().await.clone();
-        let overrides = self
-            .runtime_compat
-            .read()
-            .await
-            .as_ref()
-            .map(RuntimeCompat::to_lint_overrides);
+        let (overrides, verdict_overrides) = {
+            let runtime = self.runtime_compat.read().await;
+            (
+                runtime.as_ref().map(RuntimeCompat::to_lint_overrides),
+                runtime.as_ref().map(RuntimeCompat::to_verdict_overrides),
+            )
+        };
         let snapshot: Vec<_> = {
             let docs = self.documents.read().await;
             docs.iter()
@@ -831,11 +920,12 @@ impl SvgLanguageServer {
         for (uri, doc) in snapshot {
             let source_bytes = doc.source.as_bytes();
             let lint_options = profile_config.lint_options_for(&doc);
-            let lint_diags = svg_lint::lint_tree_with_options(
+            let lint_diags = svg_lint::lint_tree_with_compat(
                 source_bytes,
                 &doc.tree,
                 lint_options,
                 overrides.as_ref(),
+                verdict_overrides.as_ref(),
             );
             // A document can change after this check and before publish. That
             // brief stale-diagnostics window is acceptable here; holding the
@@ -892,12 +982,14 @@ impl SvgLanguageServer {
             tree,
         });
         let source_bytes = state.source.as_bytes();
-        let (lint_options, overrides) = self.current_lint_inputs_for(&state).await;
-        let lint_diags = svg_lint::lint_tree_with_options(
+        let (lint_options, overrides, verdict_overrides) =
+            self.current_lint_inputs_for(&state).await;
+        let lint_diags = svg_lint::lint_tree_with_compat(
             source_bytes,
             &state.tree,
             lint_options,
             overrides.as_ref(),
+            verdict_overrides.as_ref(),
         );
         self.documents
             .write()
@@ -1423,6 +1515,7 @@ impl LanguageServer for SvgLanguageServer {
                 node,
                 profile_config.effective_profile_for(&doc),
                 profile_config.edition_inventory(),
+                profile_config.native_constraints(),
             )
         };
         Ok(response)
@@ -1452,6 +1545,51 @@ mod tests {
 
     fn offset_of(source: &str, needle: &str) -> std::result::Result<usize, &'static str> {
         source.find(needle).ok_or("needle not present")
+    }
+
+    fn labeled(label: &str) -> CompletionItem {
+        CompletionItem {
+            label: label.to_owned(),
+            ..Default::default()
+        }
+    }
+
+    #[test]
+    fn native_constraints_only_for_svg_native_target() {
+        let native_cfg = ProfileConfig {
+            target: ConfiguredTarget::SvgNative,
+            force: false,
+        };
+        assert!(native_cfg.native_constraints().is_some());
+        assert!(ProfileConfig::default().native_constraints().is_none());
+    }
+
+    #[test]
+    fn svg_native_restricts_completion_to_supported_constructs() {
+        let native = svg_data::profile::svg_native();
+
+        // `clipPath` is recorded unsupported by SVG Native; `g` is not.
+        let mut elements = vec![labeled("g"), labeled("clipPath")];
+        restrict_element_items_to_native(&mut elements, native);
+        let labels: Vec<&str> = elements.iter().map(|item| item.label.as_str()).collect();
+        assert!(labels.contains(&"g"), "supported element kept: {labels:?}");
+        assert!(
+            !labels.contains(&"clipPath"),
+            "unsupported element dropped: {labels:?}"
+        );
+
+        // `clip-path` is an unsupported attribute; `fill` is not.
+        let mut attributes = vec![labeled("fill"), labeled("clip-path")];
+        restrict_attribute_items_to_native(&mut attributes, native, "rect");
+        let labels: Vec<&str> = attributes.iter().map(|item| item.label.as_str()).collect();
+        assert!(
+            labels.contains(&"fill"),
+            "supported attribute kept: {labels:?}"
+        );
+        assert!(
+            !labels.contains(&"clip-path"),
+            "unsupported attribute dropped: {labels:?}"
+        );
     }
 
     #[test]

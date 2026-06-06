@@ -475,7 +475,13 @@
 			"shape"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "category_set",
+			"categories": [
+				"animation",
+				"descriptive",
+				"paint_server",
+				"clip_mask"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -880,7 +886,13 @@
 			"shape"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "category_set",
+			"categories": [
+				"animation",
+				"descriptive",
+				"paint_server",
+				"clip_mask"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -3901,7 +3913,13 @@
 			"shape"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "category_set",
+			"categories": [
+				"animation",
+				"descriptive",
+				"paint_server",
+				"clip_mask"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -4524,7 +4542,13 @@
 			"shape"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "category_set",
+			"categories": [
+				"animation",
+				"descriptive",
+				"paint_server",
+				"clip_mask"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -4740,7 +4764,13 @@
 			"shape"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "category_set",
+			"categories": [
+				"animation",
+				"descriptive",
+				"paint_server",
+				"clip_mask"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -4837,7 +4867,13 @@
 			"shape"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "category_set",
+			"categories": [
+				"animation",
+				"descriptive",
+				"paint_server",
+				"clip_mask"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -5044,7 +5080,13 @@
 			"shape"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "category_set",
+			"categories": [
+				"animation",
+				"descriptive",
+				"paint_server",
+				"clip_mask"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -6185,10 +6227,18 @@
 			"text"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"text",
-				"descriptive"
+			"kind": "element_set",
+			"elements": [
+				"a",
+				"animate",
+				"desc",
+				"metadata",
+				"pattern",
+				"script",
+				"set",
+				"style",
+				"title",
+				"tspan"
 			]
 		},
 		"attributes": [

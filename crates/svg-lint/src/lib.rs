@@ -804,6 +804,30 @@ mod tests {
     }
 
     #[test]
+    fn shapes_allow_animation_and_tspan_rejects_text() {
+        let invalid_child = |src: &[u8]| {
+            lint(src)
+                .iter()
+                .any(|d| d.code == DiagnosticCode::InvalidChild)
+        };
+        // Animation elements ARE valid children of shapes…
+        assert!(
+            !invalid_child(br#"<svg><rect width="1" height="1"><animate attributeName="x" dur="1s"/></rect></svg>"#),
+            "animate is a valid child of rect"
+        );
+        // …but other shapes are not.
+        assert!(
+            invalid_child(br#"<svg><rect width="1" height="1"><circle r="1"/></rect></svg>"#),
+            "circle is not a valid child of rect"
+        );
+        // tspan accepts inline text content but not the text container.
+        assert!(
+            invalid_child(br"<svg><text><tspan><text>x</text></tspan></text></svg>"),
+            "text is not a valid child of tspan"
+        );
+    }
+
+    #[test]
     fn baseprofile_in_svg2_fires_unsupported_not_obsolete() {
         // Post-Phase-1 data audit: baseProfile was removed from the SVG 2
         // snapshot membership entirely, so lookups against an SVG 2 profile

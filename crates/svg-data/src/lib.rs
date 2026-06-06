@@ -765,7 +765,12 @@ mod tests {
         let rect = element("rect").ok_or("rect should exist")?;
         assert_eq!(rect.name, "rect");
         assert!(!rect.deprecated);
-        assert!(matches!(rect.content_model, ContentModel::Void));
+        // A shape is not childless: SVG lets it carry animation + descriptive
+        // (and paint-server / clip-mask) children, just not other shapes.
+        assert!(matches!(rect.content_model, ContentModel::Children(_)));
+        let children = allowed_children("rect");
+        assert!(children.contains(&"animate"), "rect allows <animate>");
+        assert!(!children.contains(&"circle"), "rect rejects other shapes");
         Ok(())
     }
 
@@ -828,8 +833,20 @@ mod tests {
 
     #[test]
     fn allowed_children_void() {
-        let children = allowed_children("rect");
+        // `stop` is a genuinely empty element (a gradient stop carries no child
+        // elements), so its allowed-children set is empty.
+        let children = allowed_children("stop");
         assert!(children.is_empty(), "void element should have no children");
+    }
+
+    #[test]
+    fn tspan_rejects_text_container() {
+        // SVG inline text containers accept text-content children (tspan, a,
+        // animation, …) but NOT the `text` element itself.
+        let children = allowed_children("tspan");
+        assert!(children.contains(&"tspan"), "tspan allows nested tspan");
+        assert!(!children.contains(&"text"), "tspan rejects <text>");
+        assert!(!children.contains(&"textPath"), "tspan rejects <textPath>");
     }
 
     #[test]

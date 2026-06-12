@@ -14,7 +14,6 @@
  */
 
 import type { Out } from "@kjanat/dreamcli";
-
 import type { CompatEntry, SvgCompatOutput } from "./lib/mod.ts";
 
 type BaselineBucket = "widely" | "newly" | "limited" | "unknown";

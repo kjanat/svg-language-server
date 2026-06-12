@@ -302,7 +302,7 @@ fn hover_baseprofile_verdict_is_forbid_in_svg2_profile() -> TestResult {
     // Flagship regression guard for the reconciled-verdict hover path:
     // baseProfile was removed from SVG 2. The old hover contradicted itself
     // by showing both `**Deprecated**` (BCD) and `**Stable in
-    // Svg2EditorsDraft20250914**` (snapshot data). After the fix:
+    // Svg2EditorsDraft**` (snapshot data). After the fix:
     //
     // - data audit removed baseProfile from the SVG 2 snapshot files;
     // - union lifecycle now returns Obsolete;

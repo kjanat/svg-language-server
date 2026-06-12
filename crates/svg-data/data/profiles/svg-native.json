@@ -1,0 +1,746 @@
+{
+	"$schema": "https://raw.githubusercontent.com/kjanat/svg-language-server/master/crates/svg-data/data/schemas/svg-native-profile.schema.json",
+	"constraints": [
+		{
+			"kind": "element",
+			"name": "a",
+			"rule": "unsupported",
+			"section": "linking"
+		},
+		{
+			"kind": "element",
+			"name": "clipPath",
+			"rule": "unsupported",
+			"section": "render"
+		},
+		{
+			"kind": "element",
+			"name": "font",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "element",
+			"name": "font-face",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "element",
+			"name": "font-face-format",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "element",
+			"name": "font-face-name",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "element",
+			"name": "font-face-src",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "element",
+			"name": "font-face-uri",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "element",
+			"name": "foreignObject",
+			"rule": "unsupported",
+			"section": "embedded"
+		},
+		{
+			"kind": "element",
+			"name": "glyph",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "element",
+			"name": "hkern",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "element",
+			"name": "marker",
+			"rule": "unsupported",
+			"section": "painting"
+		},
+		{
+			"kind": "element",
+			"name": "meta",
+			"rule": "unsupported",
+			"section": "struct"
+		},
+		{
+			"kind": "element",
+			"name": "metadata",
+			"rule": "unsupported",
+			"section": "struct"
+		},
+		{
+			"kind": "element",
+			"name": "missingGlyph",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "element",
+			"name": "pattern",
+			"rule": "unsupported",
+			"section": "pservers"
+		},
+		{
+			"kind": "element",
+			"name": "script",
+			"rule": "unsupported",
+			"section": "interact"
+		},
+		{
+			"kind": "element",
+			"name": "style",
+			"rule": "unsupported",
+			"section": "styling"
+		},
+		{
+			"kind": "element",
+			"name": "switch",
+			"rule": "unsupported",
+			"section": "struct"
+		},
+		{
+			"kind": "element",
+			"name": "symbol",
+			"rule": "unsupported",
+			"section": "struct"
+		},
+		{
+			"kind": "element",
+			"name": "text",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "element",
+			"name": "textPath",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "element",
+			"name": "tspan",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "element",
+			"name": "view",
+			"rule": "unsupported",
+			"section": "linking"
+		},
+		{
+			"kind": "element",
+			"name": "vkern",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "attribute",
+			"name": "clip-path",
+			"rule": "unsupported",
+			"section": "render"
+		},
+		{
+			"kind": "attribute",
+			"name": "cx",
+			"rule": "unsupported",
+			"section": "geometryproperties"
+		},
+		{
+			"kind": "attribute",
+			"name": "cy",
+			"rule": "unsupported",
+			"section": "geometryproperties"
+		},
+		{
+			"kind": "attribute",
+			"name": "gradientUnits",
+			"rule": "supported-only",
+			"scope": {
+				"names": [
+					"userSpaceOnUse"
+				],
+				"on": "values"
+			},
+			"section": "pservers"
+		},
+		{
+			"kind": "attribute",
+			"name": "height",
+			"rule": "unsupported",
+			"section": "geometryproperties"
+		},
+		{
+			"kind": "attribute",
+			"name": "pathLength",
+			"rule": "unsupported",
+			"section": "paths"
+		},
+		{
+			"kind": "attribute",
+			"name": "preserveAspectRatio",
+			"rule": "supported-only",
+			"scope": {
+				"names": [
+					"image",
+					"pattern",
+					"svg"
+				],
+				"on": "elements"
+			},
+			"section": "coords"
+		},
+		{
+			"kind": "attribute",
+			"name": "r",
+			"rule": "unsupported",
+			"section": "geometryproperties"
+		},
+		{
+			"kind": "attribute",
+			"name": "rx",
+			"rule": "unsupported",
+			"section": "geometryproperties"
+		},
+		{
+			"kind": "attribute",
+			"name": "ry",
+			"rule": "unsupported",
+			"section": "geometryproperties"
+		},
+		{
+			"kind": "attribute",
+			"name": "style",
+			"rule": "unsupported",
+			"section": "styling"
+		},
+		{
+			"kind": "attribute",
+			"name": "viewBox",
+			"rule": "supported-only",
+			"scope": {
+				"names": [
+					"svg"
+				],
+				"on": "elements"
+			},
+			"section": "coords"
+		},
+		{
+			"kind": "attribute",
+			"name": "width",
+			"rule": "unsupported",
+			"section": "geometryproperties"
+		},
+		{
+			"kind": "attribute",
+			"name": "x",
+			"rule": "unsupported",
+			"section": "geometryproperties"
+		},
+		{
+			"kind": "attribute",
+			"name": "xml:space",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "attribute",
+			"name": "y",
+			"rule": "unsupported",
+			"section": "geometryproperties"
+		},
+		{
+			"kind": "attribute",
+			"name": "zoomAndPan",
+			"rule": "unsupported",
+			"section": "interact"
+		},
+		{
+			"kind": "property",
+			"name": "alignment-baseline",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "all",
+			"rule": "unsupported",
+			"section": "styling"
+		},
+		{
+			"kind": "property",
+			"name": "baseline-shift",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "color",
+			"rule": "unsupported",
+			"section": "painting"
+		},
+		{
+			"kind": "property",
+			"name": "color-interpolation",
+			"rule": "unsupported",
+			"section": "painting"
+		},
+		{
+			"kind": "property",
+			"name": "direction",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "display",
+			"rule": "unsupported",
+			"section": "painting"
+		},
+		{
+			"kind": "property",
+			"name": "dominant-baseline",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "font",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "font-family",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "font-feature-settings",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "font-kerning",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "font-size",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "font-size-adjust",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "font-stretch",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "font-style",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "font-variant",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "font-weight",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "glyph-orientation-horizontal",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "glyph-orientation-vertical",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "inline-size",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "kerning",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "letter-spacing",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "marker",
+			"rule": "unsupported",
+			"section": "painting"
+		},
+		{
+			"kind": "property",
+			"name": "marker-end",
+			"rule": "unsupported",
+			"section": "painting"
+		},
+		{
+			"kind": "property",
+			"name": "marker-mid",
+			"rule": "unsupported",
+			"section": "painting"
+		},
+		{
+			"kind": "property",
+			"name": "marker-start",
+			"rule": "unsupported",
+			"section": "painting"
+		},
+		{
+			"kind": "property",
+			"name": "overflow",
+			"rule": "unsupported",
+			"section": "render"
+		},
+		{
+			"kind": "property",
+			"name": "paint-order",
+			"rule": "unsupported",
+			"section": "painting"
+		},
+		{
+			"kind": "property",
+			"name": "pointer-events",
+			"rule": "unsupported",
+			"section": "interact"
+		},
+		{
+			"kind": "property",
+			"name": "text-align",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "text-align-last",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "text-anchor",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "text-decoration",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "text-decoration-color",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "text-decoration-fill",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "text-decoration-line",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "text-decoration-stroke",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "text-decoration-style",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "text-indent",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "text-orientation",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "text-overflow",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "text-rendering",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "transform",
+			"rule": "supported-only",
+			"scope": {
+				"names": [
+					"circle",
+					"clipPath",
+					"defs",
+					"ellipse",
+					"g",
+					"image",
+					"line",
+					"path",
+					"polygon",
+					"polyline",
+					"rect",
+					"svg",
+					"use"
+				],
+				"on": "elements"
+			},
+			"section": "coords"
+		},
+		{
+			"kind": "property",
+			"name": "vector-effect",
+			"rule": "unsupported",
+			"section": "painting"
+		},
+		{
+			"kind": "property",
+			"name": "vertical-align",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "white-space",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "will-change",
+			"rule": "unsupported",
+			"section": "painting"
+		},
+		{
+			"kind": "property",
+			"name": "word-spacing",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "property",
+			"name": "writing-mode",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "value",
+			"name": "auto",
+			"rule": "unsupported",
+			"section": "geometryproperties"
+		},
+		{
+			"kind": "value",
+			"name": "auto",
+			"rule": "unsupported",
+			"section": "render"
+		},
+		{
+			"kind": "value",
+			"name": "calc()",
+			"rule": "unsupported",
+			"section": "styling"
+		},
+		{
+			"kind": "value",
+			"name": "context-fill",
+			"rule": "unsupported",
+			"section": "painting"
+		},
+		{
+			"kind": "value",
+			"name": "context-stroke",
+			"rule": "unsupported",
+			"section": "painting"
+		},
+		{
+			"kind": "value",
+			"name": "scroll",
+			"rule": "unsupported",
+			"section": "render"
+		},
+		{
+			"kind": "feature",
+			"name": "conditional-processing",
+			"rule": "unsupported",
+			"section": "struct"
+		},
+		{
+			"kind": "feature",
+			"name": "css-global-keywords",
+			"rule": "unsupported",
+			"section": "styling"
+		},
+		{
+			"kind": "feature",
+			"name": "external-resource-loading",
+			"rule": "unsupported",
+			"section": "struct"
+		},
+		{
+			"kind": "feature",
+			"name": "html-in-svg",
+			"rule": "unsupported",
+			"section": "embedded"
+		},
+		{
+			"kind": "feature",
+			"name": "image-format",
+			"rule": "supported-only",
+			"scope": {
+				"names": [
+					"JPEG",
+					"PNG"
+				],
+				"on": "image-formats"
+			},
+			"section": "struct"
+		},
+		{
+			"kind": "feature",
+			"name": "length-unit",
+			"rule": "supported-only",
+			"scope": {
+				"names": [
+					"cm",
+					"in",
+					"mm",
+					"pc",
+					"pt",
+					"px",
+					"unitless"
+				],
+				"on": "units"
+			},
+			"section": "coords"
+		},
+		{
+			"kind": "feature",
+			"name": "masking",
+			"rule": "unsupported",
+			"section": "render"
+		},
+		{
+			"kind": "feature",
+			"name": "percentage-length",
+			"rule": "unsupported",
+			"section": "styling"
+		},
+		{
+			"kind": "feature",
+			"name": "relative-length",
+			"rule": "unsupported",
+			"section": "styling"
+		},
+		{
+			"kind": "feature",
+			"name": "scripting-interactivity",
+			"rule": "unsupported",
+			"section": "interact"
+		},
+		{
+			"kind": "feature",
+			"name": "text-and-fonts",
+			"rule": "unsupported",
+			"section": "text"
+		},
+		{
+			"kind": "feature",
+			"name": "xml-dtd-subset",
+			"rule": "unsupported",
+			"section": "basics"
+		},
+		{
+			"kind": "feature",
+			"name": "xsl-processing",
+			"rule": "unsupported",
+			"section": "basics"
+		}
+	],
+	"coverage_gaps": [
+		{
+			"reason": "Lists attribute GROUPS by prose name (aria / conditional-processing / core except id / event-attribute families / deprecated xlink). These are not individual SVG attribute names; expanding them needs a curated group→names map, deferred.",
+			"section": "commonattributes"
+		},
+		{
+			"reason": "Captures every explicitly-marked text/font element & property, but the prose phrase \"the subproperties of 'font-variant'\" denotes additional names not spelled out literally; those sub-properties are not individually enumerated.",
+			"section": "text"
+		}
+	],
+	"profile": "SvgNative",
+	"schema_version": 1,
+	"source_pin": {
+		"basis": "SVG 2 Secure Static Mode",
+		"capture_date": "2026-06-03",
+		"commit": "ad280d03e1794513cf31384a89b38f2f8d982925",
+		"repository": "https://github.com/w3c/svgwg"
+	}
+}

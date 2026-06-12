@@ -355,6 +355,7 @@ pub fn format_element_hover_with_profile(
     profile: SpecSnapshotId,
     profile_lifecycle: Option<String>,
     rt: Option<&CompatOverride>,
+    native: Option<&svg_data::profile::SvgNative>,
 ) -> String {
     let baseline = rt
         .and_then(|r| r.baseline.as_ref())
@@ -370,15 +371,13 @@ pub fn format_element_hover_with_profile(
     }
     builder.description(el.description.to_owned());
 
-    if let Some(v) = verdict
-        && let Some(status) = format_verdict_status(v)
+    if native.is_some_and(|n| n.is_unsupported(svg_data::profile::ConstraintKind::Element, el.name))
     {
+        builder.status("⚠ Not supported by the SVG Native profile".to_owned());
+    }
+
+    if let Some(status) = reconciled_status(verdict, profile_lifecycle, rt) {
         builder.status(status);
-    } else if let Some(profile_lifecycle) = profile_lifecycle {
-        // Only fall back to the legacy profile lifecycle line when the
-        // verdict layer has nothing to say — avoids contradictions like
-        // "**Deprecated**" + "**Stable in Svg2EditorsDraft20250914**".
-        builder.status(profile_lifecycle);
     }
 
     if let Some(baseline) = baseline {
@@ -411,6 +410,7 @@ pub fn format_attribute_hover_with_profile(
     profile: SpecSnapshotId,
     profile_lifecycle: Option<String>,
     rt: Option<&CompatOverride>,
+    native: Option<&svg_data::profile::SvgNative>,
 ) -> String {
     let baseline = rt
         .and_then(|r| r.baseline.as_ref())
@@ -424,12 +424,15 @@ pub fn format_attribute_hover_with_profile(
     }
     builder.description(attr.description.to_owned());
 
-    if let Some(v) = verdict
-        && let Some(status) = format_verdict_status(v)
-    {
+    if native.is_some_and(|n| {
+        n.is_unsupported(svg_data::profile::ConstraintKind::Attribute, attr.name)
+            || n.is_unsupported(svg_data::profile::ConstraintKind::Property, attr.name)
+    }) {
+        builder.status("⚠ Not supported by the SVG Native profile".to_owned());
+    }
+
+    if let Some(status) = reconciled_status(verdict, profile_lifecycle, rt) {
         builder.status(status);
-    } else if let Some(profile_lifecycle) = profile_lifecycle {
-        builder.status(profile_lifecycle);
     }
 
     builder.value_constraints(value_constraints_lines(attr.values_for_profile(profile)));
@@ -795,9 +798,74 @@ fn format_verdict_headline(verdict: svg_data::CompatVerdict, feature_name: &str)
     format!("> {glyph} `{feature_name}` — {template}")
 }
 
+/// Reconcile the user-facing **status** line across the baked verdict, the
+/// profile-lifecycle fallback, and the runtime BCD overlay (`rt`).
+///
+/// The baked verdict is the primary source. On top of it, fresher runtime BCD
+/// can introduce a `deprecated` / `experimental` flag the baked snapshot did not
+/// yet carry — e.g. BCD marks a feature deprecated *after* the catalog was
+/// generated. Those runtime-only signals are appended so the hover reflects the
+/// newer state instead of a stale "stable" verdict.
+///
+/// Resolution order:
+/// 1. If the baked verdict has reason tags, render them and append any
+///    runtime-only deprecated/experimental tag the verdict does not already
+///    cover.
+/// 2. Otherwise, if the runtime overlay alone reports deprecated/experimental,
+///    render that.
+/// 3. Otherwise, fall back to the legacy profile-lifecycle line.
+fn reconciled_status(
+    verdict: Option<svg_data::CompatVerdict>,
+    profile_lifecycle: Option<String>,
+    rt: Option<&CompatOverride>,
+) -> Option<String> {
+    let runtime_tags = runtime_status_tags(verdict, rt);
+
+    if let Some(v) = verdict
+        && let Some(base) = format_verdict_status(v)
+    {
+        if runtime_tags.is_empty() {
+            return Some(base);
+        }
+        return Some(format!("{base} · {}", runtime_tags.join(" · ")));
+    }
+
+    if !runtime_tags.is_empty() {
+        return Some(format!("**Status:** {}", runtime_tags.join(" · ")));
+    }
+
+    // Only fall back to the legacy profile lifecycle line when neither the
+    // verdict layer nor the runtime overlay has anything to say — avoids
+    // contradictions like "**Deprecated**" + "**Stable in Svg2EditorsDraft**".
+    profile_lifecycle
+}
+
+/// Runtime-only deprecated/experimental tags the baked `verdict` does not
+/// already include. Empty when the runtime overlay is absent or adds nothing
+/// new, so callers can cheaply skip the append.
+fn runtime_status_tags(
+    verdict: Option<svg_data::CompatVerdict>,
+    rt: Option<&CompatOverride>,
+) -> Vec<String> {
+    let Some(rt) = rt else {
+        return Vec::new();
+    };
+    let verdict_has =
+        |reason: svg_data::VerdictReason| verdict.is_some_and(|v| v.reasons.contains(&reason));
+
+    let mut tags = Vec::new();
+    if rt.deprecated && !verdict_has(svg_data::VerdictReason::BcdDeprecated) {
+        tags.push("deprecated (current BCD)".to_owned());
+    }
+    if rt.experimental && !verdict_has(svg_data::VerdictReason::BcdExperimental) {
+        tags.push("experimental (current BCD)".to_owned());
+    }
+    tags
+}
+
 /// Render the verdict status line — one or more reason tags joined by
 /// ` · `. This consolidates the old split between `**Deprecated**` and
-/// `**Stable in Svg2EditorsDraft20250914**` into a single non-contradictory
+/// `**Stable in Svg2EditorsDraft**` into a single non-contradictory
 /// phrase sourced from the pre-reconciled verdict.
 fn format_verdict_status(verdict: svg_data::CompatVerdict) -> Option<String> {
     if verdict.reasons.is_empty() {
@@ -1029,7 +1097,7 @@ mod tests {
     fn unsupported_profile_hover_line_marks_obsolete_after_last_known_snapshot() {
         assert_eq!(
             profile_lifecycle_hover_line(
-                SpecSnapshotId::Svg2EditorsDraft20250914,
+                SpecSnapshotId::Svg2EditorsDraft,
                 &ProfileLookup::<()>::UnsupportedInProfile {
                     known_in: &[
                         SpecSnapshotId::Svg11Rec20030114,
@@ -1045,13 +1113,74 @@ mod tests {
     fn present_profile_hover_line_uses_selected_profile_lifecycle() {
         assert_eq!(
             profile_lifecycle_hover_line(
-                SpecSnapshotId::Svg2EditorsDraft20250914,
+                SpecSnapshotId::Svg2EditorsDraft,
                 &ProfileLookup::Present {
                     value: (),
                     lifecycle: SpecLifecycle::Experimental,
                 },
             ),
-            Some("**Experimental in Svg2EditorsDraft20250914**".to_owned())
+            Some("**Experimental in Svg2EditorsDraft**".to_owned())
+        );
+    }
+
+    fn rt_flags(deprecated: bool, experimental: bool) -> CompatOverride {
+        CompatOverride {
+            deprecated,
+            experimental,
+            baseline: None,
+            browser_support: None,
+        }
+    }
+
+    #[test]
+    fn runtime_deprecation_surfaces_when_baked_verdict_silent() {
+        // No baked verdict, no profile lifecycle: a fresher BCD `deprecated`
+        // flag must still reach the hover status.
+        let rt = rt_flags(true, false);
+        assert_eq!(
+            reconciled_status(None, None, Some(&rt)),
+            Some("**Status:** deprecated (current BCD)".to_owned())
+        );
+    }
+
+    #[test]
+    fn runtime_flag_appends_to_baked_verdict_status() {
+        let verdict = svg_data::CompatVerdict {
+            recommendation: svg_data::VerdictRecommendation::Caution,
+            headline_template: "",
+            reasons: &[svg_data::VerdictReason::BaselineLimited],
+        };
+        let rt = rt_flags(true, false);
+        // Baked verdict has no BcdDeprecated reason, so the runtime tag is added.
+        assert_eq!(
+            reconciled_status(Some(verdict), None, Some(&rt)),
+            Some("**Status:** limited baseline · deprecated (current BCD)".to_owned())
+        );
+    }
+
+    #[test]
+    fn runtime_flag_already_in_verdict_is_not_duplicated() {
+        let verdict = svg_data::CompatVerdict {
+            recommendation: svg_data::VerdictRecommendation::Avoid,
+            headline_template: "",
+            reasons: &[svg_data::VerdictReason::BcdDeprecated],
+        };
+        let rt = rt_flags(true, false);
+        assert_eq!(
+            reconciled_status(Some(verdict), None, Some(&rt)),
+            Some("**Status:** deprecated".to_owned())
+        );
+    }
+
+    #[test]
+    fn falls_back_to_profile_lifecycle_without_verdict_or_runtime() {
+        assert_eq!(
+            reconciled_status(
+                None,
+                Some("**Experimental in Svg2EditorsDraft**".to_owned()),
+                None
+            ),
+            Some("**Experimental in Svg2EditorsDraft**".to_owned())
         );
     }
 }

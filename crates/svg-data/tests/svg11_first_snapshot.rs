@@ -35,7 +35,7 @@ fn svg2_cr_snapshot_matches_profile_seed() {
 #[test]
 fn svg2_editors_draft_snapshot_matches_profile_seed() {
     assert_svg2_snapshot_matches_profile_seed(
-        SpecSnapshotId::Svg2EditorsDraft20250914,
+        SpecSnapshotId::Svg2EditorsDraft,
         "2025-09-14",
         13,
         "pinned svgwg commit and `definitions.xml`",
@@ -349,7 +349,7 @@ fn assert_snapshot_value_syntax_matches_catalog(
 const fn uses_foreign_css_refs(snapshot: SpecSnapshotId) -> bool {
     matches!(
         snapshot,
-        SpecSnapshotId::Svg2Cr20181004 | SpecSnapshotId::Svg2EditorsDraft20250914
+        SpecSnapshotId::Svg2Cr20181004 | SpecSnapshotId::Svg2EditorsDraft
     )
 }
 
@@ -520,10 +520,7 @@ fn enum_display_grammar_carries_full_css_set_in_every_snapshot() {
         (SpecSnapshotId::Svg11Rec20030114, SVG11_DISPLAY_VALUES),
         (SpecSnapshotId::Svg11Rec20110816, SVG11_DISPLAY_VALUES),
         (SpecSnapshotId::Svg2Cr20181004, SVG2_DISPLAY_VALUES),
-        (
-            SpecSnapshotId::Svg2EditorsDraft20250914,
-            SVG2_DISPLAY_VALUES,
-        ),
+        (SpecSnapshotId::Svg2EditorsDraft, SVG2_DISPLAY_VALUES),
     ] {
         let path = Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("data/specs")

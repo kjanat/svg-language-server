@@ -45,7 +45,7 @@ fn snapshot_manifests_cover_all_tracked_snapshots() {
         ("svg11-rec-20030114.toml", "Svg11Rec20030114"),
         ("svg11-rec-20110816.toml", "Svg11Rec20110816"),
         ("svg2-cr-20181004.toml", "Svg2Cr20181004"),
-        ("svg2-ed-20250914.toml", "Svg2EditorsDraft20250914"),
+        ("svg2-ed-20250914.toml", "Svg2EditorsDraft"),
     ] {
         let manifest = fs::read_to_string(manifest_dir.join(file_name))
             .unwrap_or_else(|error| panic!("failed to read {file_name}: {error}"));

@@ -1,0 +1,74 @@
+# Vendored SVG Native (Editor's Draft) spec source.
+#
+# SVG Native is a PROFILE of SVG — a reductive subset of SVG 2's Secure Static
+# Mode — NOT a version snapshot. It is the pinned input for the SVG Native
+# constraint-data extractor (the structured allow/deny lists of elements,
+# attributes, properties, value keywords, lengths, units, and image formats
+# that the profile removes from or restricts relative to SVG 2).
+#
+# SVG Native is a ROLLING Editor's Draft (Status: ED). Unlike a dated W3C /TR/
+# Recommendation, the upstream has NO immutable dated URL — it is continuously
+# republished at the same bare URL. There is therefore no URL pin. Provenance
+# is instead anchored by (a) the capture date and (b) the w3c/svgwg git commit
+# the Bikeshed source was copied from. Both live here in the data, mirroring
+# the undated rolling-ED model.
+#
+# Two artifacts are vendored:
+#   - index.bs   : the Bikeshed source, copied verbatim from a local w3c/svgwg
+#                  clone at the commit pinned below.
+#   - index.html : the published rendered single-page HTML, fetched from the
+#                  canonical svgwg.org URL. (svgwg.org has no separate
+#                  `single-page.html` for this spec; the spec is already a
+#                  single page served at the directory URL / index.html.)
+#
+# Do NOT hand-edit the vendored bytes. Re-vendor from a newer svgwg commit and
+# re-fetch the rendered HTML if the upstream draft changes, then update the
+# capture date, commit pin, and sha256s below.
+
+schema_version = 1
+purpose        = "SVG Native profile constraint-data extraction (reductive subset of SVG 2 Secure Static Mode)"
+
+[authority]
+kind  = "github-repo"
+title = "SVG Native (W3C SVG Working Group Editor's Draft)"
+url   = "https://svgwg.org/specs/svg-native/"
+
+[profile]
+# This is a profile axis, NOT a version-snapshot axis. Recorded for the
+# eventual LSP integration; not yet wired into SpecSnapshotId.
+name  = "SvgNative"
+basis = "SVG 2 Secure Static Mode"
+kind  = "reductive-subset"
+
+[edition]
+status = "ED"
+note   = "Rolling Editor's Draft; no dated/immutable upstream URL. Pinned by capture date + svgwg commit."
+
+[pin]
+kind   = "git-commit+capture-date"
+commit = "ad280d03e1794513cf31384a89b38f2f8d982925"
+date   = "2026-06-03"
+repo   = "https://github.com/w3c/svgwg"
+note   = "Rolling ED has no immutable URL; the svgwg commit + capture date are the pin."
+
+[checksum]
+strategy = "sha256-per-input"
+note     = "Hash raw bytes of each vendored file as captured."
+
+[[inputs]]
+id     = "bikeshed-source"
+kind   = "bikeshed"
+role   = "authoritative spec source (reductive differences from SVG 2 Secure Static Mode)"
+path   = "index.bs"
+source = "w3c/svgwg @ ad280d03 : specs/svg-native/index.bs"
+bytes  = 17160
+sha256 = "0d059065b5b35c05e753a4b398bdb6ab70ec234342d531930c25c5c248b9d1a5"
+
+[[inputs]]
+id     = "rendered-html"
+kind   = "html"
+role   = "published rendered single-page draft (cross-check for the extractor)"
+path   = "index.html"
+url    = "https://svgwg.org/specs/svg-native/index.html"
+bytes  = 173702
+sha256 = "0bde18be02bd0624d0b0bc7730fbdeb1177d58d2f1825ad955deddb6e34b2b04"

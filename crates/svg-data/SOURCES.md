@@ -63,12 +63,12 @@ These manifests drive provenance metadata embedded in every snapshot record.
 
 `data/specs/<SnapshotId>/` — one directory per canonical snapshot:
 
-| Snapshot ID                | Source                                         |
-| -------------------------- | ---------------------------------------------- |
-| `Svg11Rec20030114`         | SVG 1.1 First Edition (W3C REC 2003-01-14)     |
-| `Svg11Rec20110816`         | SVG 1.1 Second Edition (W3C REC 2011-08-16)    |
-| `Svg2Cr20181004`           | SVG 2 Candidate Recommendation (2018-10-04)    |
-| `Svg2EditorsDraft20250914` | SVG 2 Editor's Draft (svgwg commit `19482daf`) |
+| Snapshot ID        | Source                                                              |
+| ------------------ | ------------------------------------------------------------------- |
+| `Svg11Rec20030114` | SVG 1.1 First Edition (W3C REC 2003-01-14)                          |
+| `Svg11Rec20110816` | SVG 1.1 Second Edition (W3C REC 2011-08-16)                         |
+| `Svg2Cr20181004`   | SVG 2 Candidate Recommendation (2018-10-04)                         |
+| `Svg2EditorsDraft` | SVG 2 Editor's Draft, captured 2025-09-14 (svgwg commit `19482daf`) |
 
 Each snapshot directory contains eight files:
 
@@ -169,7 +169,7 @@ SVG 2 defers some attribute definitions to external specifications.
 Re-run all four seed generators and regen the derived union:
 
 ```sh
-for snap in Svg11Rec20030114 Svg11Rec20110816 Svg2Cr20181004 Svg2EditorsDraft20250914; do
+for snap in Svg11Rec20030114 Svg11Rec20110816 Svg2Cr20181004 Svg2EditorsDraft; do
   cargo run -p svg-data --example generate_snapshot_seed -- $snap
 done
 cargo run -p svg-data --example generate_derived_membership
@@ -205,7 +205,7 @@ absent from the snapshot data):
    automatically:
    ```sh
    cargo build -p svg-data --examples
-   for snap in Svg11Rec20030114 Svg11Rec20110816 Svg2Cr20181004 Svg2EditorsDraft20250914; do
+   for snap in Svg11Rec20030114 Svg11Rec20110816 Svg2Cr20181004 Svg2EditorsDraft; do
      cargo run -p svg-data --example generate_snapshot_seed -- $snap
    done
    cargo run -p svg-data --example generate_derived_membership

@@ -24,13 +24,8 @@ import {
 	staticAssetResponse,
 	textResponse,
 } from "./http.ts";
-import {
-	buildOutput,
-	buildSnapshot,
-	SVG_COMPAT_SCHEMA,
-	type SvgCompatOutput,
-	type SvgCompatSnapshot,
-} from "./lib/mod.ts";
+import type { SvgCompatOutput, SvgCompatSnapshot } from "./lib/mod.ts";
+import { buildOutput, buildSnapshot, SVG_COMPAT_SCHEMA } from "./lib/mod.ts";
 import { renderErrorHtml, renderHtml } from "./render.tsx";
 import {
 	InvalidSourceRequestError,
@@ -42,6 +37,7 @@ import {
 // Re-export the public lib surface so existing consumers
 // (`view.ts`, `render.tsx`, `main_test.ts`) can continue to import
 // from `./main.ts` without code churn.
+export { buildOutput, buildSnapshot, SVG_COMPAT_SCHEMA } from "./lib/mod.ts";
 export type {
 	AttributeEntry,
 	Baseline,
@@ -56,7 +52,6 @@ export type {
 	SvgCompatSources,
 	VersionQualifier,
 } from "./lib/mod.ts";
-export { buildOutput, buildSnapshot, SVG_COMPAT_SCHEMA } from "./lib/mod.ts";
 
 const snapshotInflight = new Map<string, Promise<SvgCompatSnapshot>>();
 const JSON_INDENT = 2;

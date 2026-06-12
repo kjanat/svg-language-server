@@ -1,0 +1,57 @@
+# Vendored browser-compat data consumed by the svg-data build script.
+#
+# `build/bcd.rs` parses this JSON (the svg-compat worker's `/data.json`
+# payload) into `worker_schema::WorkerOutput` and folds it into the
+# generated catalog. Vendoring the exact pinned payload lets the build read
+# it directly (env `SVG_COMPAT_FILE` / a tracked copy) instead of shelling
+# out to `deno run src/cli.ts emit data`, so `cargo build` needs no network
+# and no Deno toolchain.
+#
+# The payload's `sources` section records the upstream package versions it
+# was resolved against; those MUST match the pins in
+# `workers/svg-compat/deno.json` (@mdn/browser-compat-data, web-features).
+#
+# Refresh: re-run the worker emit and re-vendor —
+#   cd workers/svg-compat && deno run -A src/cli.ts emit data \
+#     --out ../../crates/svg-data/data/sources/svg-compat-data.json
+# then update `pin.date`, `sources.generated_at`, and the sha256 below.
+# Bumping the BCD / web-features versions means editing deno.json first.
+#
+# Do NOT hand-edit the vendored bytes. The only non-deterministic field is
+# `generated_at` (a capture timestamp); the compat data itself is fixed by
+# the pinned upstream versions.
+
+schema_version = 1
+purpose        = "BCD svg subtree + web-features baseline consumed by build/bcd.rs"
+
+[capture]
+method = "worker-emit"
+note   = "deno run -A src/cli.ts emit data --out <path>, run in workers/svg-compat"
+date   = "2026-06-03"
+
+# Upstream package versions embedded in the payload's `sources` block.
+# These mirror the pins in workers/svg-compat/deno.json.
+[sources.bcd]
+package    = "@mdn/browser-compat-data"
+version    = "7.3.11"
+mode       = "default"
+source_url = "https://unpkg.com/@mdn/browser-compat-data@7.3.11/data.json"
+
+[sources.web_features]
+package    = "web-features"
+version    = "3.23.0"
+mode       = "default"
+source_url = "https://unpkg.com/web-features@3.23.0/data.json"
+
+# Fallback capture path (production URL serves the same pinned build):
+# curl https://svg-compat.kjanat.com/data.json
+[fallback]
+url = "https://svg-compat.kjanat.com/data.json"
+
+[[inputs]]
+id           = "svg-compat-data"
+kind         = "json"
+role         = "svg element + attribute compat (baseline, browser_support, deprecation)"
+path         = "svg-compat-data.json"
+sha256       = "b2afcdb0e7a27e51758f851bb8c03f7ab00ea9175d486f0aceb6849c22191e13"
+generated_at = "2026-06-03T00:26:03.195Z"

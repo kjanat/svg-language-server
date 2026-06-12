@@ -659,6 +659,7 @@ fn render_bcd_deprecated_fix(
     conflict: &Conflict,
     header: &str,
     bcd_version: &str,
+    latest_snapshot: SpecSnapshotId,
 ) {
     use std::fmt::Write as _;
     let _ = writeln!(
@@ -671,7 +672,11 @@ fn render_bcd_deprecated_fix(
     );
     out.push('\n');
     out.push_str("  Fix one of:\n");
-    out.push_str("    1. Update data/specs/Svg2EditorsDraft20250914/ files to remove the\n");
+    let _ = writeln!(
+        out,
+        "    1. Update data/specs/{}/ files to remove the",
+        latest_snapshot.as_str()
+    );
     out.push_str("       feature (if the spec actually dropped it — run scan-spec to\n");
     out.push_str("       regenerate spec_removals.json and re-check).\n");
     out.push_str("    2. Add an entry to data/reviewed/bcd_spec_exceptions.toml:\n\n");
@@ -719,7 +724,7 @@ fn render_error(
                 render_spec_removed_fix(&mut out, conflict, latest_snapshot);
             }
             ConflictRule::BcdDeprecatedButSnapshotStable => {
-                render_bcd_deprecated_fix(&mut out, conflict, header, bcd_version);
+                render_bcd_deprecated_fix(&mut out, conflict, header, bcd_version, latest_snapshot);
             }
         }
     }

@@ -55,8 +55,10 @@ pub struct ElementMembershipFile {
 /// Typed payload for `data/derived/union/attributes.json`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
+#[schemars(deny_unknown_fields)]
 pub struct AttributeMembershipFile {
     /// Schema version for this derived payload.
+    #[schemars(range(min = 0, max = 4_294_967_295u32))]
     pub schema_version: u32,
     /// Canonical snapshot order used to derive membership.
     pub snapshots: Vec<SpecSnapshotId>,

@@ -4,6 +4,7 @@ alias c := format-check
 alias f := format
 alias i := install-lsp
 alias if := install-svg-format
+alias il := install-svg-lint
 alias l := lint
 alias fmt := format
 alias t := test
@@ -40,6 +41,11 @@ install-lsp profile="release":
 [group('install')]
 install-svg-format profile="release":
     cargo install --path crates/svg-format --bin svg-format --features="cli" --profile={{ profile }}
+
+# install svg-lint CLI to cargo bin
+[group('install')]
+install-svg-lint profile="release":
+    cargo install --path crates/svg-lint --bin svg-lint --features="cli" --profile={{ profile }}
 
 # clippy the workspace; warnings are errors
 [arg("allow-dirty", long="allow-dirty", short="a", value=" --allow-dirty")]
@@ -78,6 +84,11 @@ test *ARGS:
 test-svg-format:
     cargo test -p svg-format
 
+# test svg-lint only (fast loop)
+[group('rust')]
+test-svg-lint:
+    cargo test -p svg-lint
+
 # debug build, whole workspace
 [group('rust')]
 build-debug *ARGS:
@@ -93,10 +104,15 @@ build-release *ARGS:
 run-lsp *ARGS:
     cargo run -p svg-language-server -- {{ ARGS }}
 
-# typecheck the Bun scripts
+# typecheck the Deno-checked scripts (run under Bun, type-checked by Deno)
 [group('scripts')]
 typecheck:
-    bun --cwd=scripts typecheck
+    deno task --config scripts/deno.jsonc typecheck
+
+# run the svg-compat worker's Deno test suite
+[group('scripts')]
+test-deno *ARGS:
+    deno task --config workers/svg-compat/deno.jsonc test {{ ARGS }}
 
 # run every local check; stop on first failure
 [group('verify')]
@@ -106,6 +122,7 @@ verify:
     just release-config-check
     just lint
     just test
+    just test-deno
 
 # commit with an AI-written message
 [arg("model", long="model", short="m")]
@@ -139,3 +156,18 @@ release-local VERSION:
 generate-schemas:
     cargo run -p svg-data --example generate_schemas
     dprint fmt 'crates/svg-data/**/*.json'
+
+# check baked spec data vs live W3C + svgwg (exit 1 = stale)
+[group('spec-data')]
+spec-freshness *ARGS:
+    cargo run -q -p svg-data --features freshness-cli --bin spec-freshness -- {{ ARGS }}
+
+# re-vendor W3C version-history JSON (metadata only; safe) + update provenance
+[group('spec-data')]
+refresh-editions:
+    bun scripts/refresh-editions.ts
+
+# re-vendor svgwg sources at a new commit; pass --activate to flip the pin
+[group('spec-data')]
+refresh-svgwg COMMIT *FLAGS:
+    bun scripts/refresh-svgwg.ts {{ COMMIT }} {{ FLAGS }}

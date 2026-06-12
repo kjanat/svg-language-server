@@ -16,7 +16,8 @@ import { Layout } from "./components/Layout.tsx";
 import { TableSection } from "./components/TableSection.tsx";
 import { UpstreamSources } from "./components/UpstreamSources.tsx";
 import type { SvgCompatOutput } from "./main.ts";
-import { BROWSER_KEYS, type BrowserMaxChars, buildPageModel } from "./view.ts";
+import type { BrowserMaxChars } from "./view.ts";
+import { BROWSER_KEYS, buildPageModel } from "./view.ts";
 
 /**
  * Builds the inline `<main style>` string carrying per-browser chip

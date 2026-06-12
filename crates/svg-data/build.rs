@@ -11,14 +11,34 @@
 
 #[path = "build/bcd.rs"]
 mod bcd;
+#[path = "build/classification.rs"]
+mod classification;
 #[path = "build/codegen.rs"]
 mod codegen;
+#[path = "build/dtd.rs"]
+mod dtd;
+#[path = "build/edition.rs"]
+mod edition;
+#[path = "build/inventory_codegen.rs"]
+mod inventory_codegen;
+#[path = "build/propidx.rs"]
+mod propidx;
 #[path = "build/provenance_gate.rs"]
 mod provenance_gate;
 #[path = "build/reconcile.rs"]
 mod reconcile;
+#[path = "build/spec.rs"]
+mod spec;
+#[path = "build/spec_scan.rs"]
+mod spec_scan;
+#[path = "build/spec_xml.rs"]
+mod spec_xml;
+#[path = "build/tr_index.rs"]
+mod tr_index;
 #[path = "src/types.rs"]
 mod types;
+#[path = "build/value_syntax.rs"]
+mod value_syntax;
 #[path = "build/verdict.rs"]
 mod verdict;
 #[path = "src/worker_schema.rs"]
@@ -400,37 +420,64 @@ fn ensure_cached(url: &str, dest: &Path, offline: bool) -> Result<bool, String> 
     Ok(true)
 }
 
-fn emit_rerun_if_changed(path: &Path) -> Result<(), Box<dyn Error>> {
-    if !path.exists() {
-        return Ok(());
-    }
-
-    if path.is_file() {
-        println!("cargo::rerun-if-changed={}", path.display());
-        return Ok(());
-    }
-
-    for entry in fs::read_dir(path)? {
-        let entry = entry?;
-        emit_rerun_if_changed(&entry.path())?;
-    }
-
-    Ok(())
-}
-
-fn main() -> Result<(), Box<dyn Error>> {
-    let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let svg_compat_dir = manifest_dir.join("../../workers/svg-compat");
-
+/// Emit every `cargo::rerun-if-changed` / `cargo::rerun-if-env-changed`
+/// directive for the vendored inputs the build script consumes.
+///
+/// Kept out of [`main`] so the directive list (which grows as new vendored
+/// editions are added) does not bloat the orchestration body.
+fn emit_rerun_directives() {
     println!("cargo::rerun-if-changed=data/specs");
     println!("cargo::rerun-if-changed=data/derived");
     println!("cargo::rerun-if-changed=data/elements.json");
     println!("cargo::rerun-if-changed=data/placeholder_attribute_names.txt");
+    // Vendored compat slice is the default, hermetic compat source: rebuild
+    // the catalog when it (or the override env vars) change. No dependency on
+    // the Deno worker source anymore.
+    println!("cargo::rerun-if-changed=data/sources/svg-compat-data.json");
+    println!("cargo::rerun-if-changed=data/sources/w3c-api");
+    println!("cargo::rerun-if-changed=data/sources/svg-native/index.bs");
+    println!("cargo::rerun-if-changed=data/sources/svg-native/PROVENANCE.toml");
+    println!("cargo::rerun-if-changed=data/profiles/svg-native.json");
+    // Vendored SVG 2 ED definitions feed the baked full-spec inventory.
+    println!("cargo::rerun-if-changed=data/sources/svgwg-19482daf/master");
+    // Vendored SVG 1.0 + SVG 1.1 flat DTDs feed the baked per-edition inventories.
+    println!("cargo::rerun-if-changed=data/sources/svg10-rec-20010904/svg10.dtd");
+    println!("cargo::rerun-if-changed=data/sources/svg11-rec-20030114/svg11-flat-20030114.dtd");
+    println!("cargo::rerun-if-changed=data/sources/svg11-pr-20110609/svg11-flat-20110609.dtd");
+    println!("cargo::rerun-if-changed=data/sources/svg11-rec-20110816/svg11-flat-20110816.dtd");
+    // Vendored SVG 2 CR published index pages feed the baked CR inventories.
+    println!("cargo::rerun-if-changed=data/sources/svg2-cr-20160915");
+    println!("cargo::rerun-if-changed=data/sources/svg2-cr-20180807");
+    println!("cargo::rerun-if-changed=data/sources/svg2-cr-20181004");
+    // Editor's-draft snapshot pin backs the baked `ROLLING_PIN`.
+    println!("cargo::rerun-if-changed=data/specs/Svg2EditorsDraft/snapshot.json");
     println!("cargo::rerun-if-env-changed=SVG_DATA_OFFLINE");
     println!("cargo::rerun-if-env-changed=SVG_COMPAT_FILE");
     println!("cargo::rerun-if-env-changed=SVG_COMPAT_URL");
-    emit_rerun_if_changed(&svg_compat_dir.join("src"))?;
-    emit_rerun_if_changed(&svg_compat_dir.join("deno.json"))?;
+}
+
+/// Emit `SVG_SCHEMA_REF` for the schema-generating examples to bake into the
+/// `$schema`/`$id` links in `data/schemas/*.json`.
+///
+/// A tagged release exports `SVG_SCHEMA_REF` (e.g. `v2.0.0`) before regenerating
+/// schemas, so the committed links point at that immutable tagged path; every
+/// other build (dev, CI, local) falls back to `master`. Surfaced as a
+/// `rustc-env` so the examples resolve it at compile time via
+/// `concat!(.., env!("SVG_SCHEMA_REF"), ..)`.
+fn emit_schema_ref() {
+    let schema_ref = std::env::var("SVG_SCHEMA_REF")
+        .ok()
+        .filter(|value| !value.trim().is_empty())
+        .unwrap_or_else(|| "master".to_string());
+    println!("cargo::rustc-env=SVG_SCHEMA_REF={schema_ref}");
+    println!("cargo::rerun-if-env-changed=SVG_SCHEMA_REF");
+}
+
+fn main() -> Result<(), Box<dyn Error>> {
+    let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
+
+    emit_rerun_directives();
+    emit_schema_ref();
 
     // Provenance referential-integrity gate: fail the build early if any
     // `source_id` in the checked-in snapshot data doesn't resolve to a
@@ -503,8 +550,142 @@ fn main() -> Result<(), Box<dyn Error>> {
     write_attribute_values_profile_lookup(&mut out, &inputs.attributes, &attribute_idents)?;
 
     fs::write(&inputs.out_path, out)?;
+
+    // W3C edition index: parse the vendored API metadata into a baked,
+    // typed index. Hermetic — no network at build time.
+    let out_dir = PathBuf::from(std::env::var("OUT_DIR")?);
+    let edition_index = edition::generate(manifest_dir)?;
+    fs::write(out_dir.join("edition_index.rs"), edition_index)?;
+
+    // Full SVG 2 ED spec inventory: derive every element/classified
+    // attribute/edge from the vendored `definitions*.xml` and bake a
+    // `static SPEC_INVENTORY` consumed by `src/inventory.rs`. Additive,
+    // alongside the curated catalog above. Hermetic — parses only the
+    // vendored ED `master/` directory pinned for the snapshot.
+    let ed_master = manifest_dir.join(ED_DEFINITIONS_MASTER);
+    let spec_inventory = inventory_codegen::generate(&ed_master)
+        .map_err(|e| -> Box<dyn Error> { e.to_string().into() })?;
+    fs::write(out_dir.join("spec_inventory.rs"), spec_inventory)?;
+
+    // Full SVG 1.1 spec inventories: derive every element/classified
+    // attribute/edge from each edition's vendored flat DTD and bake a named
+    // `static …_INVENTORY`. Additive, exposed via `inventory::for_snapshot`.
+    // Hermetic — parses only the vendored DTD pinned for each snapshot.
+    let mut svg11 = String::new();
+    for (relative, static_name, doc) in SVG11_DTD_INVENTORIES {
+        let dtd_path = manifest_dir.join(relative);
+        let rendered = inventory_codegen::generate_svg11(&dtd_path, static_name, doc)
+            .map_err(|e| -> Box<dyn Error> { e.to_string().into() })?;
+        svg11.push_str(&rendered);
+        svg11.push('\n');
+    }
+    fs::write(out_dir.join("svg11_inventory.rs"), svg11)?;
+
+    // Full SVG 2 CR inventories: derive every element/attribute/edge from each
+    // dated CR's vendored published index tables (`eltindex.html` +
+    // `attindex.html`) and bake one `static …_INVENTORY` per edition. Additive,
+    // exposed via `inventory::for_snapshot` (the 2018-10-04 edition) and the
+    // edition-keyed `inventory::for_edition` (all three CRs).
+    // Hermetic — parses only the vendored CR index pages pinned for each
+    // edition. The CR index carries no attribute categories, so its attributes
+    // are faithfully unclassified (animatable flag retained as provenance) —
+    // see `inventory_codegen::generate_cr`.
+    let mut cr = String::new();
+    for (relative, static_name, doc) in CR_INDEX_INVENTORIES {
+        let cr_dir = manifest_dir.join(relative);
+        let rendered = inventory_codegen::generate_cr(&cr_dir, static_name, doc)
+            .map_err(|e| -> Box<dyn Error> { e.into() })?;
+        cr.push_str(&rendered);
+        cr.push('\n');
+    }
+    fs::write(out_dir.join("cr_inventory.rs"), cr)?;
+
     Ok(())
 }
+
+/// Vendored SVG 2 CR published-index inventories: the crate-relative source
+/// directory (holding `eltindex.html` / `attindex.html` / `propidx.html`), the
+/// emitted `static` identifier, and its rustdoc. One row per dated CR edition.
+const CR_INDEX_INVENTORIES: &[(&str, &str, &str)] = &[
+    (
+        "data/sources/svg2-cr-20160915",
+        "SVG2_CR_20160915_INVENTORY",
+        "/// The complete SVG 2 Candidate Recommendation (2016-09-15) inventory.\n\
+         ///\n\
+         /// Derived from the vendored published index tables (`eltindex.html` +\n\
+         /// `attindex.html`) at build time. Attributes carry no classification\n\
+         /// (the rendered CR index has no `attributecategory` groups); the\n\
+         /// animatable flag is retained as provenance. See [`Inventory`].",
+    ),
+    (
+        "data/sources/svg2-cr-20180807",
+        "SVG2_CR_20180807_INVENTORY",
+        "/// The complete SVG 2 Candidate Recommendation (2018-08-07) inventory.\n\
+         ///\n\
+         /// Derived from the vendored published index tables (`eltindex.html` +\n\
+         /// `attindex.html`) at build time. Attributes carry no classification\n\
+         /// (the rendered CR index has no `attributecategory` groups); the\n\
+         /// animatable flag is retained as provenance. See [`Inventory`].",
+    ),
+    (
+        "data/sources/svg2-cr-20181004",
+        "SVG2_CR_20181004_INVENTORY",
+        "/// The complete SVG 2 Candidate Recommendation (2018-10-04) inventory.\n\
+         ///\n\
+         /// Derived from the vendored published index tables (`eltindex.html` +\n\
+         /// `attindex.html`) at build time. Attributes carry no classification\n\
+         /// (the rendered CR index has no `attributecategory` groups); the\n\
+         /// animatable flag is retained as provenance. See [`Inventory`].",
+    ),
+];
+
+/// Vendored flat DTDs feeding the baked per-edition inventories: the
+/// crate-relative DTD path, the emitted `static` identifier, and its rustdoc.
+///
+/// Covers the SVG 1.0 (2001-09-04) REC and every SVG 1.1 flat DTD (the two
+/// frozen RECs plus the 2011-06-09 PR). All parse through the one
+/// [`dtd`](inventory_codegen::generate_svg11) reader; SVG 1.0's pre-modular
+/// collection-naming is handled by `build/dtd.rs` (`SVG10_ATTRIB_GROUPS`).
+const SVG11_DTD_INVENTORIES: &[(&str, &str, &str)] = &[
+    (
+        "data/sources/svg10-rec-20010904/svg10.dtd",
+        "SVG10_REC_20010904_INVENTORY",
+        "/// The complete SVG 1.0 (REC, 2001-09-04) spec inventory.\n\
+         ///\n\
+         /// Derived from the vendored DTD at build time. SVG 1.0 predates the\n\
+         /// SVG 1.1 modular DTD, so its flat attribute-collection entities\n\
+         /// (`stdAttrs`, `PresentationAttributes-*`, …) are classified via the\n\
+         /// same shared taxonomy. See [`Inventory`].",
+    ),
+    (
+        "data/sources/svg11-rec-20030114/svg11-flat-20030114.dtd",
+        "SVG11_REC_20030114_INVENTORY",
+        "/// The complete SVG 1.1 (First Edition, 2003-01-14) spec inventory,\n\
+         /// derived from the vendored flat DTD at build time. See [`Inventory`].",
+    ),
+    (
+        "data/sources/svg11-pr-20110609/svg11-flat-20110609.dtd",
+        "SVG11_PR_20110609_INVENTORY",
+        "/// The complete SVG 1.1 (Proposed Recommendation, 2011-06-09) spec\n\
+         /// inventory.\n\
+         ///\n\
+         /// Derived from the vendored flat DTD at build time. The PR DTD is\n\
+         /// identical to the 2011-08-16 Second Edition REC DTD. See\n\
+         /// [`Inventory`].",
+    ),
+    (
+        "data/sources/svg11-rec-20110816/svg11-flat-20110816.dtd",
+        "SVG11_REC_20110816_INVENTORY",
+        "/// The complete SVG 1.1 (Second Edition, 2011-08-16) spec inventory,\n\
+         /// derived from the vendored flat DTD at build time. See [`Inventory`].",
+    ),
+];
+
+/// Vendored SVG 2 ED `master/` directory pinned for the `Svg2EditorsDraft`
+/// snapshot (commit `19482daf`). The same directory the
+/// `tests/ed_presence_matrix.rs` extractor audit reads, so the baked
+/// inventory and the audited extractor never diverge.
+const ED_DEFINITIONS_MASTER: &str = "data/sources/svgwg-19482daf/master";
 
 fn load_build_inputs() -> Result<BuildInputs, Box<dyn Error>> {
     let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));

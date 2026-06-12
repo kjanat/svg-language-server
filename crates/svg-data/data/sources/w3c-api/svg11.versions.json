@@ -1,0 +1,368 @@
+{
+    "page": 1,
+    "limit": 100,
+    "pages": 1,
+    "total": 10,
+    "_links": {
+        "up": {
+            "href": "https://api.w3.org/specifications/SVG11"
+        },
+        "version-history": [
+            {
+                "href": "https://api.w3.org/specifications/SVG11/versions/20110816",
+                "title": "Scalable Vector Graphics (SVG) 1.1 (Second Edition)"
+            },
+            {
+                "href": "https://api.w3.org/specifications/SVG11/versions/20110609",
+                "title": "Scalable Vector Graphics (SVG) 1.1 (Second Edition)"
+            },
+            {
+                "href": "https://api.w3.org/specifications/SVG11/versions/20110512",
+                "title": "Scalable Vector Graphics (SVG) 1.1 (Second Edition)"
+            },
+            {
+                "href": "https://api.w3.org/specifications/SVG11/versions/20100622",
+                "title": "Scalable Vector Graphics (SVG) 1.1 (Second Edition)"
+            },
+            {
+                "href": "https://api.w3.org/specifications/SVG11/versions/20030114",
+                "title": "Scalable Vector Graphics (SVG) 1.1 Specification"
+            },
+            {
+                "href": "https://api.w3.org/specifications/SVG11/versions/20021115",
+                "title": "Scalable Vector Graphics (SVG) 1.1 Specification"
+            },
+            {
+                "href": "https://api.w3.org/specifications/SVG11/versions/20020430",
+                "title": "Scalable Vector Graphics (SVG) 1.1 Specification"
+            },
+            {
+                "href": "https://api.w3.org/specifications/SVG11/versions/20020215",
+                "title": "Scalable Vector Graphics (SVG) 1.1 Specification"
+            },
+            {
+                "href": "https://api.w3.org/specifications/SVG11/versions/20020108",
+                "title": "Scalable Vector Graphics (SVG) 1.1 Specification"
+            },
+            {
+                "href": "https://api.w3.org/specifications/SVG11/versions/20011030",
+                "title": "Scalable Vector Graphics (SVG) 1.1 Specification"
+            }
+        ],
+        "self": {
+            "href": "https://api.w3.org/specifications/SVG11/versions?embed=1&page=1&items=100"
+        },
+        "first": {
+            "href": "https://api.w3.org/specifications/SVG11/versions?embed=1&page=1&items=100"
+        },
+        "last": {
+            "href": "https://api.w3.org/specifications/SVG11/versions?embed=1&page=1&items=100"
+        }
+    },
+    "_embedded": {
+        "version-history": [
+            {
+                "status": "Recommendation",
+                "rec-track": true,
+                "uri": "https://www.w3.org/TR/2011/REC-SVG11-20110816/",
+                "date": "2011-08-16",
+                "informative": false,
+                "title": "Scalable Vector Graphics (SVG) 1.1 (Second Edition)",
+                "shortlink": "https://www.w3.org/TR/SVG11/",
+                "translation": "https://www.w3.org/Graphics/SVG/svg-updates/translations",
+                "errata": "https://www.w3.org/2011/08/REC-SVG11-20110816-errata",
+                "_links": {
+                    "self": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20110816"
+                    },
+                    "editors": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20110816/editors"
+                    },
+                    "deliverers": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20110816/deliverers"
+                    },
+                    "specification": {
+                        "href": "https://api.w3.org/specifications/SVG11"
+                    },
+                    "previous-edition": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20030114"
+                    },
+                    "predecessor-version": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20110816/predecessors"
+                    },
+                    "translations": {
+                        "href": "https://api.w3.org/callsfortranslation/230/translations"
+                    }
+                }
+            },
+            {
+                "status": "Proposed Recommendation",
+                "rec-track": true,
+                "uri": "https://www.w3.org/TR/2011/PR-SVG11-20110609/",
+                "date": "2011-06-09",
+                "pr-reviews-date": "2011-07-07",
+                "informative": false,
+                "title": "Scalable Vector Graphics (SVG) 1.1 (Second Edition)",
+                "shortlink": "https://www.w3.org/TR/SVG11/",
+                "_links": {
+                    "self": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20110609"
+                    },
+                    "editors": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20110609/editors"
+                    },
+                    "deliverers": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20110609/deliverers"
+                    },
+                    "specification": {
+                        "href": "https://api.w3.org/specifications/SVG11"
+                    },
+                    "previous-edition": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20030114"
+                    },
+                    "predecessor-version": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20110609/predecessors"
+                    },
+                    "successor-version": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20110609/successors"
+                    }
+                }
+            },
+            {
+                "status": "Last Call Working Draft",
+                "rec-track": true,
+                "uri": "https://www.w3.org/TR/2011/WD-SVG11-20110512/",
+                "date": "2011-05-12",
+                "last-call-feedback-due": "2011-06-02",
+                "informative": false,
+                "title": "Scalable Vector Graphics (SVG) 1.1 (Second Edition)",
+                "shortlink": "https://www.w3.org/TR/SVG11/",
+                "_links": {
+                    "self": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20110512"
+                    },
+                    "editors": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20110512/editors"
+                    },
+                    "deliverers": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20110512/deliverers"
+                    },
+                    "specification": {
+                        "href": "https://api.w3.org/specifications/SVG11"
+                    },
+                    "previous-edition": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20030114"
+                    },
+                    "predecessor-version": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20110512/predecessors"
+                    },
+                    "successor-version": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20110512/successors"
+                    }
+                }
+            },
+            {
+                "status": "Last Call Working Draft",
+                "rec-track": true,
+                "uri": "https://www.w3.org/TR/2010/WD-SVG11-20100622/",
+                "date": "2010-06-22",
+                "last-call-feedback-due": "2010-07-13",
+                "informative": false,
+                "title": "Scalable Vector Graphics (SVG) 1.1 (Second Edition)",
+                "shortlink": "https://www.w3.org/TR/SVG11/",
+                "_links": {
+                    "self": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20100622"
+                    },
+                    "editors": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20100622/editors"
+                    },
+                    "deliverers": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20100622/deliverers"
+                    },
+                    "specification": {
+                        "href": "https://api.w3.org/specifications/SVG11"
+                    },
+                    "previous-edition": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20030114"
+                    },
+                    "successor-version": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20100622/successors"
+                    }
+                }
+            },
+            {
+                "status": "Recommendation",
+                "rec-track": true,
+                "uri": "https://www.w3.org/TR/2003/REC-SVG11-20030114/",
+                "date": "2003-01-14",
+                "informative": false,
+                "title": "Scalable Vector Graphics (SVG) 1.1 Specification",
+                "shortlink": "https://www.w3.org/TR/SVG11/",
+                "translation": "https://www.w3.org/Graphics/SVG/WG/svg-updates/translations",
+                "errata": "https://www.w3.org/2003/01/REC-SVG11-20030114-errata",
+                "_links": {
+                    "self": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20030114"
+                    },
+                    "editors": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20030114/editors"
+                    },
+                    "deliverers": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20030114/deliverers"
+                    },
+                    "specification": {
+                        "href": "https://api.w3.org/specifications/SVG11"
+                    },
+                    "predecessor-version": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20030114/predecessors"
+                    }
+                }
+            },
+            {
+                "status": "Proposed Recommendation",
+                "rec-track": true,
+                "uri": "https://www.w3.org/TR/2002/PR-SVG11-20021115/",
+                "date": "2002-11-15",
+                "pr-reviews-date": "2002-12-20",
+                "informative": false,
+                "title": "Scalable Vector Graphics (SVG) 1.1 Specification",
+                "shortlink": "https://www.w3.org/TR/SVG11/",
+                "_links": {
+                    "self": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20021115"
+                    },
+                    "editors": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20021115/editors"
+                    },
+                    "deliverers": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20021115/deliverers"
+                    },
+                    "specification": {
+                        "href": "https://api.w3.org/specifications/SVG11"
+                    },
+                    "predecessor-version": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20021115/predecessors"
+                    },
+                    "successor-version": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20021115/successors"
+                    }
+                }
+            },
+            {
+                "status": "Candidate Recommendation Snapshot",
+                "rec-track": true,
+                "uri": "https://www.w3.org/TR/2002/CR-SVG11-20020430/",
+                "date": "2002-04-30",
+                "informative": false,
+                "title": "Scalable Vector Graphics (SVG) 1.1 Specification",
+                "shortlink": "https://www.w3.org/TR/SVG11/",
+                "_links": {
+                    "self": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20020430"
+                    },
+                    "editors": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20020430/editors"
+                    },
+                    "deliverers": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20020430/deliverers"
+                    },
+                    "specification": {
+                        "href": "https://api.w3.org/specifications/SVG11"
+                    },
+                    "predecessor-version": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20020430/predecessors"
+                    },
+                    "successor-version": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20020430/successors"
+                    }
+                }
+            },
+            {
+                "status": "Last Call Working Draft",
+                "rec-track": true,
+                "uri": "https://www.w3.org/TR/2002/WD-SVG11-20020215/",
+                "date": "2002-02-15",
+                "last-call-feedback-due": "2002-03-15",
+                "informative": false,
+                "title": "Scalable Vector Graphics (SVG) 1.1 Specification",
+                "shortlink": "https://www.w3.org/TR/SVG11/",
+                "_links": {
+                    "self": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20020215"
+                    },
+                    "editors": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20020215/editors"
+                    },
+                    "deliverers": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20020215/deliverers"
+                    },
+                    "specification": {
+                        "href": "https://api.w3.org/specifications/SVG11"
+                    },
+                    "predecessor-version": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20020215/predecessors"
+                    },
+                    "successor-version": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20020215/successors"
+                    }
+                }
+            },
+            {
+                "status": "Working Draft",
+                "rec-track": true,
+                "uri": "https://www.w3.org/TR/2002/WD-SVG11-20020108/",
+                "date": "2002-01-08",
+                "informative": false,
+                "title": "Scalable Vector Graphics (SVG) 1.1 Specification",
+                "shortlink": "https://www.w3.org/TR/SVG11/",
+                "_links": {
+                    "self": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20020108"
+                    },
+                    "editors": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20020108/editors"
+                    },
+                    "deliverers": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20020108/deliverers"
+                    },
+                    "specification": {
+                        "href": "https://api.w3.org/specifications/SVG11"
+                    },
+                    "predecessor-version": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20020108/predecessors"
+                    },
+                    "successor-version": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20020108/successors"
+                    }
+                }
+            },
+            {
+                "status": "Working Draft",
+                "rec-track": true,
+                "uri": "https://www.w3.org/TR/2001/WD-SVG11-20011030/",
+                "date": "2001-10-30",
+                "informative": false,
+                "title": "Scalable Vector Graphics (SVG) 1.1 Specification",
+                "shortlink": "https://www.w3.org/TR/SVG11/",
+                "_links": {
+                    "self": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20011030"
+                    },
+                    "editors": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20011030/editors"
+                    },
+                    "deliverers": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20011030/deliverers"
+                    },
+                    "specification": {
+                        "href": "https://api.w3.org/specifications/SVG11"
+                    },
+                    "successor-version": {
+                        "href": "https://api.w3.org/specifications/SVG11/versions/20011030/successors"
+                    }
+                }
+            }
+        ]
+    }
+}

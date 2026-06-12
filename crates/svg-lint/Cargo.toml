@@ -11,11 +11,36 @@ license.workspace    = true
 keywords             = ["diagnostics", "lint", "svg", "validation"]
 categories           = ["development-tools"]
 
+[lib]
+name = "svg_lint"
+path = "src/lib.rs"
+
+[[bin]]
+name              = "svg-lint"
+path              = "src/bin/svg-lint.rs"
+required-features = ["cli"]
+
 [dependencies]
 svg-data.workspace        = true
 svg-tree.workspace        = true
 tree-sitter.workspace     = true
 tree-sitter-svg.workspace = true
+
+[dependencies.clap]
+workspace = true
+features  = ["derive"]
+optional  = true
+
+[dependencies.serde_json]
+workspace = true
+optional  = true
+
+[dev-dependencies]
+serde_json.workspace = true
+
+[features]
+default = ["cli"]
+cli     = ["clap", "serde_json"]
 
 [lints]
 workspace = true

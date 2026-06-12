@@ -1,0 +1,199 @@
+# Vendored upstream svgwg definitions consumed by the SVG 2 Editor's Draft
+# presence/matrix derivation.
+#
+# These files were extracted verbatim from the w3c/svgwg git history at the
+# pinned commit below — the exact revision recorded in
+# `crates/svg-data/data/specs/Svg2EditorsDraft/snapshot.json`
+# (`pinned_sources[*].pin.commit`). Vendoring them at the snapshot pin makes
+# the element/attribute presence and attribute-scope matrix derivation an
+# apples-to-apples comparison against the SVG2-ED snapshot, reproducible
+# without a live network clone.
+#
+# Source of truth: the SPEC definitions below are authoritative. Where the
+# deterministic extractor faithfully reflects these files but the committed
+# hand-curated snapshot disagrees, the spec wins.
+#
+# The four `master/*.xml` files are the core SVG 2 + module inventories. The
+# fifth, `definitions-animations.xml`, is the SVG Animations module inventory
+# (specs/animations/master/definitions.xml at the same pin) — it carries the
+# five SMIL animation elements (animate, animateMotion, animateTransform, set,
+# mpath) that do not live in the core definitions.xml.
+#
+# The `master/*.html` chapter inputs (purpose = "description derivation") are
+# the rendered spec prose pages, vendored at the same pin and layout. They are
+# the source for human-readable element descriptions: each element definition
+# is anchored by an `<h2 id="XxxElement">` heading (e.g. id="RectElement") and
+# followed by descriptive `<p>` prose. The deterministic HTML extractor reads
+# these — never the live network — to derive element descriptions.
+#
+# Do NOT hand-edit the vendored bytes; re-vendor from a new pinned commit if
+# the snapshot pin changes.
+
+schema_version = 1
+purpose        = "SVG2-ED presence/matrix derivation (element + attribute presence, attribute elements= scope)"
+
+[authority]
+kind  = "github-repo"
+title = "w3c/svgwg"
+url   = "https://github.com/w3c/svgwg"
+
+[pin]
+kind  = "git-commit"
+value = "19482daf4094e72becde92b38c6a1c0d384b56a9"
+date  = "2025-09-13"
+note  = "Matches Svg2EditorsDraft/snapshot.json pinned_sources commit."
+
+[checksum]
+strategy = "sha256-per-input"
+note     = "Hash raw file bytes as extracted from the pinned commit."
+
+# Core SVG 2 + module inventories, mirrored under `master/` to match the
+# upstream layout (`master/<file>`).
+[[inputs]]
+id       = "definitions"
+kind     = "xml"
+role     = "top-level SVG 2 inventory (elements, attributes, properties)"
+path     = "master/definitions.xml"
+upstream = "master/definitions.xml"
+git_blob = "04e0c585afec1e5e449934ebaec087649b258f95"
+sha256   = "9ae739c4ba367c5f5afe64b81df56ec950199228b5b14f9ca987186a26e91170"
+
+[[inputs]]
+id       = "definitions-filters"
+kind     = "xml"
+role     = "Filter Effects module inventory"
+path     = "master/definitions-filters.xml"
+upstream = "master/definitions-filters.xml"
+git_blob = "eb52ccc7bcb8d8a10f31a715fbb2de8e13f88bac"
+sha256   = "c857755b7f01ad81f3ec76ce6af91a13c26af9d6a8e0d9429db5bccbfd8868eb"
+
+[[inputs]]
+id       = "definitions-masking"
+kind     = "xml"
+role     = "CSS Masking module inventory"
+path     = "master/definitions-masking.xml"
+upstream = "master/definitions-masking.xml"
+git_blob = "b2b69478e3e50ae904ed937d48f56dec239c00c1"
+sha256   = "47f2b6b533011ae3c73858e5517ea46a5181ba4464bdeae292d72677f6e12596"
+
+[[inputs]]
+id       = "definitions-compositing"
+kind     = "xml"
+role     = "Compositing module inventory"
+path     = "master/definitions-compositing.xml"
+upstream = "master/definitions-compositing.xml"
+git_blob = "241e62163f25c9dce595939ecba56ca08a30b288"
+sha256   = "c055f400e90888d9f107da62e470c750ba2dcd1d205bfa52f2a29d15f9ed844e"
+
+[[inputs]]
+id       = "definitions-animations"
+kind     = "xml"
+role     = "SVG Animations module inventory (animate, animateMotion, animateTransform, set, mpath)"
+path     = "master/definitions-animations.xml"
+upstream = "specs/animations/master/definitions.xml"
+git_blob = "d9aef82b7451897153291d2622d791f861454c90"
+sha256   = "51e3c26c3814e607404f8ff12906160c282fb7bcca0fff58397a0b6f765c0fcc"
+
+# Rendered chapter HTML pages — the element-description prose source.
+# Vendored at the same pin/layout as the inventories above; parsed offline by
+# the deterministic description extractor (anchor `id="XxxElement"` + `<p>`).
+
+[[inputs]]
+id       = "chapter-shapes"
+kind     = "html"
+role     = "basic shape elements (rect, circle, ellipse, line, polyline, polygon)"
+path     = "master/shapes.html"
+upstream = "master/shapes.html"
+git_blob = "cd0f2e38c5411520f36fe42eeb6b91b97d53f61d"
+sha256   = "b222c399dc88ddd8f31d72c4d59ffe180a9e8d1fc4ec4c4d5c4247230bf8125d"
+purpose  = "description derivation"
+
+[[inputs]]
+id       = "chapter-struct"
+kind     = "html"
+role     = "structural elements (svg, g, defs, symbol, use, switch, desc, title, metadata)"
+path     = "master/struct.html"
+upstream = "master/struct.html"
+git_blob = "aff89b7323a18afcf00c31a0cd23ef867c50a89c"
+sha256   = "5ac943bffe46a0f916463d87364a0e8d64a253ee8a6b0c5408e4ff753e3a98ee"
+purpose  = "description derivation"
+
+[[inputs]]
+id       = "chapter-text"
+kind     = "html"
+role     = "text elements (text, tspan, textPath)"
+path     = "master/text.html"
+upstream = "master/text.html"
+git_blob = "7b39290eb691ca5088e61bf61e0670f6e907ae62"
+sha256   = "74788ff57cdc67d837aa3e2b2b7eacffd4fb58804b0aa48fd94b3edb6c6153ad"
+purpose  = "description derivation"
+
+[[inputs]]
+id       = "chapter-paths"
+kind     = "html"
+role     = "path element (path)"
+path     = "master/paths.html"
+upstream = "master/paths.html"
+git_blob = "16d0ae90584b563abf298a6b755fdd268a0c90b9"
+sha256   = "cf1e20131ccf486a2858b4d61a21969f28205e9cd9bfe664daa0a282987f9da7"
+purpose  = "description derivation"
+
+[[inputs]]
+id       = "chapter-painting"
+kind     = "html"
+role     = "painting/marker elements (marker)"
+path     = "master/painting.html"
+upstream = "master/painting.html"
+git_blob = "307031662ea4758d082b715617a6d226b111868f"
+sha256   = "327b353ce6a2d9063f2237a230cfe62e107148e3571c63d8ed707b7409757ed1"
+purpose  = "description derivation"
+
+[[inputs]]
+id       = "chapter-pservers"
+kind     = "html"
+role     = "paint server elements (linearGradient, radialGradient, stop, pattern)"
+path     = "master/pservers.html"
+upstream = "master/pservers.html"
+git_blob = "b208b1b879ce152dcf532572c59c351a1ada0f14"
+sha256   = "938789f309527a760217b1d80e4d532270c4857147c25ef3ead85bcdcb64a4b5"
+purpose  = "description derivation"
+
+[[inputs]]
+id       = "chapter-linking"
+kind     = "html"
+role     = "linking elements (a, view)"
+path     = "master/linking.html"
+upstream = "master/linking.html"
+git_blob = "39a3cde6220a59b5a3219aace6e0e5221cdc6157"
+sha256   = "4de2156472351e42009f5d30a36a4d2a45eac30485936fc5e9aea3f02b8617b4"
+purpose  = "description derivation"
+
+[[inputs]]
+id       = "chapter-interact"
+kind     = "html"
+role     = "interactivity elements (cursor)"
+path     = "master/interact.html"
+upstream = "master/interact.html"
+git_blob = "5c8b13a50c5eadf4f8cd66ca3e90d7f7c4db09a6"
+sha256   = "e01ff28cdc97a0735ef6bfba8bc875ad63e1a251c8545649abae1e71d184e770"
+purpose  = "description derivation"
+
+[[inputs]]
+id       = "chapter-embedded"
+kind     = "html"
+role     = "embedded content elements (image, foreignObject)"
+path     = "master/embedded.html"
+upstream = "master/embedded.html"
+git_blob = "3d2e98d4b49cca17770dbfe2ce5318e48bc2239c"
+sha256   = "d451bb28f35399a40919c66087302aa262237d51d15361d04d15fec76c175836"
+purpose  = "description derivation"
+
+[[inputs]]
+id       = "chapter-masking"
+kind     = "html"
+role     = "clipping/masking elements (clipPath, mask)"
+path     = "master/masking.html"
+upstream = "master/masking.html"
+git_blob = "e14e6889705ba1ac784babbe426cf86451c579f3"
+sha256   = "44ccbd949b8aed6ff86f5e254799c3152055ad9dcb21eb1f4ea6a57a7f9b409c"
+purpose  = "description derivation"

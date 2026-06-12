@@ -1,6 +1,6 @@
 use std::{collections::HashMap, ops::Range, str::FromStr};
 
-use svg_data::SpecSnapshotId;
+use svg_data::{CompatVerdict, SpecSnapshotId};
 
 /// Runtime override flags for deprecated/experimental status.
 ///
@@ -26,6 +26,28 @@ pub struct LintOverrides {
     pub elements: HashMap<String, CompatFlags>,
     /// Attribute name → override flags.
     pub attributes: HashMap<String, CompatFlags>,
+}
+
+/// Runtime overrides for the baked [`CompatVerdict`] that drives advisory
+/// diagnostics (deprecation phrasing plus the partial / prefix /
+/// behind-flag hints).
+///
+/// A newer BCD load can supply a fresh verdict for an element or
+/// attribute name so the lint advisory tracks current data without
+/// rebuilding the catalog. Names absent from a map keep the baked
+/// verdict, so an empty (or unsupplied) [`VerdictOverrides`] is exactly
+/// baked behaviour.
+///
+/// Kept separate from [`LintOverrides`] so the existing flag-override
+/// channel stays source-compatible. Because [`CompatVerdict`] borrows
+/// `'static` reason data, override producers must mint `'static` verdicts
+/// (e.g. via a once-initialised, BCD-backed table).
+#[derive(Debug, Clone, Default)]
+pub struct VerdictOverrides {
+    /// Element name → runtime-overridden compat verdict.
+    pub elements: HashMap<String, CompatVerdict>,
+    /// Attribute name → runtime-overridden compat verdict.
+    pub attributes: HashMap<String, CompatVerdict>,
 }
 
 /// A single diagnostic produced by the SVG linter.
@@ -54,12 +76,23 @@ pub struct SvgDiagnostic {
 pub struct LintOptions {
     /// Selected pinned SVG snapshot.
     pub profile: SpecSnapshotId,
+    /// Reductive profile constraints (SVG Native) to additionally enforce on top
+    /// of the snapshot. `None` for an ordinary snapshot/edition target, which
+    /// imposes no extra reductive constraint beyond its base catalog.
+    pub native: Option<&'static svg_data::profile::SvgNative>,
+    /// The edition inventory to restrict to, for an edition that has no faithful
+    /// snapshot (e.g. SVG 1.0). The base `profile` is the nearest snapshot; this
+    /// inventory drops constructs the exact edition never declared. `None` for a
+    /// plain snapshot target.
+    pub edition: Option<&'static svg_data::inventory::Inventory>,
 }
 
 impl Default for LintOptions {
     fn default() -> Self {
         Self {
-            profile: SpecSnapshotId::Svg2EditorsDraft20250914,
+            profile: SpecSnapshotId::Svg2EditorsDraft,
+            native: None,
+            edition: None,
         }
     }
 }

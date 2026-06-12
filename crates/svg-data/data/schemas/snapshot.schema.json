@@ -220,9 +220,9 @@
 					"const": "Svg2Cr20181004"
 				},
 				{
-					"description": "Pinned SVG 2 Editor's Draft snapshot (2025-09-14).",
+					"description": "Rolling SVG 2 Editor's Draft snapshot. The captured commit pin and\ncapture date live in the snapshot's `snapshot.json` data so future ED\nrefreshes never require a Rust edit — only this undated identifier is\nstable across refreshes.",
 					"type": "string",
-					"const": "Svg2EditorsDraft20250914"
+					"const": "Svg2EditorsDraft"
 				}
 			]
 		}

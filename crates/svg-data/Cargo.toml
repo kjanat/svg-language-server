@@ -13,22 +13,41 @@ keywords             = ["browser-compat-data", "codegen", "mdn", "spec", "svg"]
 categories           = ["development-tools::build-utils", "web-programming"]
 build                = "build.rs"
 
+[[bin]]
+name              = "spec-freshness"
+required-features = ["freshness-cli"]
+
 [dependencies]
 schemars.workspace   = true
 serde.workspace      = true
 serde_json.workspace = true
 sha2.workspace       = true
 toml.workspace       = true
+ureq                 = { workspace = true, optional = true }
 
 [dev-dependencies]
-tempfile.workspace = true
+quick-xml.workspace  = true
+regex.workspace      = true
+serde_json.workspace = true
+tempfile.workspace   = true
+tl.workspace         = true
+winnow.workspace     = true
 
 [build-dependencies]
+quick-xml.workspace  = true
+regex.workspace      = true
 schemars.workspace   = true
 serde.workspace      = true
 serde_json.workspace = true
+tl.workspace         = true
 toml.workspace       = true
 ureq.workspace       = true
+winnow.workspace     = true
+
+[features]
+# Opt-in live spec-freshness CLI (`spec-freshness` bin). Pulls in `ureq` for the
+# network half; the library itself stays hermetic and network-free without it.
+freshness-cli = ["dep:ureq"]
 
 [lints]
 workspace = true

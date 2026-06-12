@@ -1,0 +1,219 @@
+name: Spec freshness
+
+# Detects when the baked SVG spec catalog has drifted from upstream:
+#   * a new W3C `/TR/` edition was published (vs the baked EDITION_INDEX), or
+#   * the svgwg editor's-draft default branch advanced past the baked
+#     ROLLING_PIN (the branch is resolved dynamically by the sentinel).
+#
+# Runs the `spec-freshness` sentinel (crates/svg-data, `freshness-cli` feature).
+# Exit 0 = fresh, 1 = drift (file/update a tracking issue), 2 = check errored
+# (fail the job loudly). The pure decision logic is unit-tested offline; this
+# workflow is just the scheduled network trigger + issue plumbing.
+
+on:
+  # Mondays 06:00 UTC — weekly is plenty for a spec that moves in months.
+  schedule: [cron: "0 6 * * 1"]
+  workflow_dispatch: {}
+
+permissions: { contents: write, issues: write, pull-requests: write }
+concurrency: { group: spec-freshness, cancel-in-progress: false }
+env: { ISSUE_LABEL: spec-freshness }
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with: { persist-credentials: false }
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Run freshness sentinel
+        id: sentinel
+        env: { GITHUB_TOKEN: "${{ github.token }}" }
+        run: |
+          set +e
+          cargo run --quiet --package svg-data \
+            --features freshness-cli --bin spec-freshness -- --json > report.json
+          code=$?
+          set -e
+          echo "exit_code=${code}" >> "$GITHUB_OUTPUT"
+          echo "Sentinel exit code: ${code}"
+          cat report.json || true
+          # 0 = fresh, 1 = stale (handled below). Anything else (2 = sentinel
+          # network/parse error, 101 = cargo build/run failure, …) is a real
+          # failure — fail the job loudly rather than silently passing.
+          if [ "${code}" != 0 ] && [ "${code}" != 1 ]; then
+            echo "::error::spec-freshness check failed to run (exit ${code})"
+            exit 1
+          fi
+
+      # Secondary drift signal: the svg-compat (workers/svg-compat) browser-support
+      # data vs. the baked spec catalog. The svg-data agent is adding a
+      # `--compat-drift` mode to the same `spec-freshness` binary; invoke it
+      # best-effort and surface the result on the same tracking issue. Exit
+      # codes mirror the primary check: 0 = aligned, 1 = drift, other = error.
+      - name: Check compat drift
+        id: compat
+        env: { GITHUB_TOKEN: "${{ github.token }}" }
+        run: |
+          set +e
+          cargo run --quiet --package svg-data \
+            --features freshness-cli --bin spec-freshness -- --compat-drift --json \
+            > compat-report.json
+          code=$?
+          set -e
+          echo "exit_code=${code}" >> "$GITHUB_OUTPUT"
+          echo "Compat-drift exit code: ${code}"
+          cat compat-report.json || true
+          if [ "${code}" != 0 ] && [ "${code}" != 1 ]; then
+            echo "::error::compat-drift check failed to run (exit ${code})"
+            exit 1
+          fi
+
+      # --- Auto-refresh (findings #6/#11) ---------------------------------
+      # When drift is path-relevant, don't just file an issue: re-vendor the
+      # affected sources, rebake derived data, GATE on the repro/provenance
+      # tests, and open a review PR. The sentinel emits the resolved upstream
+      # commit (`.rolling.head_commit`) and the path-relevant signal
+      # (`.rolling.tracked_input_drift`) in `report.json`, so the refresh is
+      # driven entirely off machine-readable output — no human commit lookup.
+      - name: Classify drift
+        id: drift
+        run: |
+          set -euo pipefail
+          published="$(jq '.published_drift | length' report.json)"
+          tracked="$(jq '(.rolling.tracked_input_drift // []) | length' report.json)"
+          head_commit="$(jq -r '.rolling.head_commit' report.json)"
+          compat="$(jq '(.drift // []) | length' compat-report.json 2>/dev/null || echo 0)"
+          {
+            echo "published=${published}"
+            echo "tracked=${tracked}"
+            echo "head_commit=${head_commit}"
+            echo "compat=${compat}"
+            if [ "${published}" != 0 ] || [ "${tracked}" != 0 ] || [ "${compat}" != 0 ]; then
+              echo "any=1"
+            else
+              echo "any=0"
+            fi
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Set up Bun
+        if: steps.drift.outputs.any == '1'
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dprint + just + tombi
+        if: steps.drift.outputs.any == '1'
+        uses: taiki-e/install-action@v2
+        with: { tool: "dprint,just,tombi" }
+
+      - name: Re-vendor drifted sources + rebake
+        if: steps.drift.outputs.any == '1'
+        run: |
+          set -euo pipefail
+          # W3C edition metadata / compat versions: safe, metadata-only.
+          if [ "${{ steps.drift.outputs.published }}" != 0 ] || [ "${{ steps.drift.outputs.compat }}" != 0 ]; then
+            echo "Re-vendoring W3C edition + compat metadata…"
+            bun scripts/refresh-editions.ts
+          fi
+          # Editor's-draft spec bytes: only when a tracked input actually moved,
+          # activating the new pin so the catalog regenerates from it.
+          if [ "${{ steps.drift.outputs.tracked }}" != 0 ]; then
+            echo "Re-vendoring svgwg sources at ${{ steps.drift.outputs.head_commit }} (activating pin)…"
+            bun scripts/refresh-svgwg.ts "${{ steps.drift.outputs.head_commit }}" --activate
+          fi
+          echo "Rebaking derived JSON schemas…"
+          just generate-schemas
+          echo "Normalising regenerated/vendored files to repo style…"
+          dprint fmt 'crates/svg-data/data/**' 'crates/svg-data/build.rs'
+
+      - name: Gate refresh on repro + provenance tests
+        if: steps.drift.outputs.any == '1'
+        run: cargo test --package svg-data
+
+      - name: Open auto-refresh pull request
+        if: steps.drift.outputs.any == '1'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          # A PAT (or fine-grained token) with `contents: write` +
+          # `pull-requests: write`, NOT the default GITHUB_TOKEN — so the
+          # opened PR triggers `pull_request` CI (ci.yml) instead of being
+          # inert. Add it as the `SPEC_REFRESH_PAT` repo secret.
+          token: "${{ secrets.SPEC_REFRESH_PAT }}"
+          base: "${{ github.event.repository.default_branch }}"
+          branch: spec-data/auto-refresh
+          delete-branch: true
+          labels: "${{ env.ISSUE_LABEL }}"
+          commit-message: "chore(spec-data): auto-refresh vendored sources from upstream"
+          title: "spec-data: auto-refresh vendored SVG spec sources"
+          body: |
+            Automated re-vendor from the weekly **spec-freshness** sentinel.
+
+            Drift detected:
+            - W3C published editions / compat versions: `${{ steps.drift.outputs.published }}` published, `${{ steps.drift.outputs.compat }}` compat
+            - Tracked svgwg inputs moved: `${{ steps.drift.outputs.tracked }}` (new HEAD `${{ steps.drift.outputs.head_commit }}`)
+
+            The refresh scripts re-vendored the affected sources with fresh
+            provenance, `just generate-schemas` rebaked derived data, and
+            `cargo test -p svg-data` (repro + provenance gates) passed in the
+            generating job. Review the catalog diff before merging.
+
+            > Opened with a PAT, so `pull_request` CI (ci.yml) runs on this PR;
+            > the sentinel job also ran the repro + provenance gate before
+            > creating it.
+
+      - name: Ensure label exists
+        if: steps.sentinel.outputs.exit_code == '1'
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          gh label create "$ISSUE_LABEL" \
+            --description "Baked SVG spec data has drifted from upstream" \
+            --color FBCA04 2>/dev/null || true
+
+      - name: Open or update tracking issue
+        if: steps.sentinel.outputs.exit_code == '1'
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          title="spec-data is stale — upstream SVG spec has moved"
+          cat > issue-body.md <<'EOF'
+          The `spec-freshness` sentinel detected drift between the baked
+          spec catalog and upstream. Refresh the vendored sources:
+
+          - `just refresh-editions` — re-vendor the W3C version-history JSON
+          - `just refresh-svgwg <commit>` — re-vendor svgwg sources at a new pin
+
+          Then rebuild and review the catalog diff; the repro tests gate correctness.
+
+          <details><summary>Sentinel report</summary>
+
+          ```json
+          EOF
+          cat report.json >> issue-body.md
+          cat >> issue-body.md <<'EOF'
+          ```
+
+          </details>
+          EOF
+
+          existing="$(gh issue list --state open --label "$ISSUE_LABEL" \
+            --json number --jq '.[0].number // empty')"
+          if [ -n "${existing}" ]; then
+            echo "Updating existing issue #${existing}"
+            gh issue comment "${existing}" --body-file issue-body.md
+          else
+            echo "Opening new tracking issue"
+            gh issue create --title "${title}" \
+              --label "$ISSUE_LABEL" --body-file issue-body.md
+          fi
+
+      - name: Close tracking issue when fresh
+        if: steps.sentinel.outputs.exit_code == '0'
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          for number in $(gh issue list --state open --label "$ISSUE_LABEL" \
+            --json number --jq '.[].number'); do
+            echo "Spec data is fresh again — closing #${number}"
+            gh issue close "${number}" \
+              --comment "Resolved: \`spec-freshness\` now reports the baked data up to date."
+          done

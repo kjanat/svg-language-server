@@ -1,0 +1,72 @@
+# Vendored upstream svgwg artifacts consumed by the SVG 2 spec scanner.
+#
+# These files were extracted verbatim from the w3c/svgwg git history at the
+# pinned commit below — the exact revision that
+# `crates/svg-data/data/reviewed/spec_removals.json` was generated from
+# (see that file's `source_pin.commit`). Vendoring them makes the
+# spec_removals derivation reproducible without a live network clone.
+#
+# Scanner: workers/svg-compat/src/spec_scan.ts (reads `<root>/master/<file>`).
+# Do NOT hand-edit the vendored bytes; re-vendor from a new pinned commit
+# and regenerate spec_removals.json if the upstream spec changes.
+
+schema_version = 1
+purpose        = "spec_removals.json derivation (SVG 2 removed/obsoleted feature signal)"
+
+[authority]
+kind  = "github-repo"
+title = "w3c/svgwg"
+url   = "https://github.com/w3c/svgwg"
+
+[pin]
+kind  = "git-commit"
+value = "bd0b7819e8ce69d06e08b4710a18d46ac7252787"
+date  = "2026-04-03"
+
+[checksum]
+strategy = "sha256-per-input"
+note     = "Hash raw file bytes as extracted from the pinned commit."
+
+# Files the scanner parses, mirrored under `master/` to match the layout it
+# expects (`${svgwgRoot}/master/<file>`).
+[[inputs]]
+id     = "definitions"
+kind   = "xml"
+role   = "top-level SVG 2 inventory (elements, attributes, properties)"
+path   = "master/definitions.xml"
+sha256 = "5a6a962854caf4da61460ae3965ee5e6a4c39e4e6e9f0fdda320c26c946da580"
+
+[[inputs]]
+id     = "definitions-filters"
+kind   = "xml"
+role   = "Filter Effects module inventory"
+path   = "master/definitions-filters.xml"
+sha256 = "f96968584136839df0770a6f09049f780b066f1a4b0821dd6664dc50992c696c"
+
+[[inputs]]
+id     = "definitions-masking"
+kind   = "xml"
+role   = "CSS Masking module inventory"
+path   = "master/definitions-masking.xml"
+sha256 = "47f2b6b533011ae3c73858e5517ea46a5181ba4464bdeae292d72677f6e12596"
+
+[[inputs]]
+id     = "definitions-compositing"
+kind   = "xml"
+role   = "Compositing module inventory"
+path   = "master/definitions-compositing.xml"
+sha256 = "c055f400e90888d9f107da62e470c750ba2dcd1d205bfa52f2a29d15f9ed844e"
+
+[[inputs]]
+id     = "text"
+kind   = "html"
+role   = "per-property status overrides (removed / obsoleted in SVG 2)"
+path   = "master/text.html"
+sha256 = "6966d740722f201e428e97490259c34788421eed58ad3f5e9c4d722ea65d421f"
+
+[[inputs]]
+id     = "changes"
+kind   = "html"
+role   = "changelog entries naming removed features"
+path   = "master/changes.html"
+sha256 = "8b6728356652a657058a1cf14102fc9f43c950f932562e23fb38563151c180e9"

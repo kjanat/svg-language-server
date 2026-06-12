@@ -488,7 +488,7 @@ fn lint_force_profile_ignores_document_version() -> TestResult {
     // ignored, so `version` fires `UnsupportedInProfile` again.
     let mut server = TestServer::start_with_initialize_options(&json!({
         "svg": {
-            "profile": "Svg2EditorsDraft20250914",
+            "profile": "Svg2EditorsDraft",
             "force_profile": true,
         }
     }))?;

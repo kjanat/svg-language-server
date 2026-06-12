@@ -4,29 +4,23 @@
 # See: https://doc.rust-lang.org/cargo/reference/config.html
 
 [alias]
-# Release flavours.
-br = "build --release"
-
-# Workspace shortcuts (built-in single-letter aliases b/c/d/t/r/rm
-# can't be redefined per the alias schema, so the workspace flavours
-# get short two-letter names).
-bw  = "build --workspace"
-bwa = "build --workspace --all-targets"
-cw  = "check --workspace --all-targets"
-dw  = "doc --workspace --no-deps"
-dwn = "--config .cargo/nightly.toml doc"
-rr  = "run --release"
-tw  = "test --workspace"
-twa = "test --workspace --all-targets --all-features"
-
+br        = "build --release"
+bw        = "build --workspace"
+bwa       = "build --workspace --all-targets"
+cw        = "check --workspace --all-targets"
+dw        = "doc --workspace --no-deps"
+dwn       = "--config .cargo/nightly.toml doc"
 fmt-check = "fmt --check"
-# Lints. Not aliased as `clippy` because that's an existing subcommand.
+fmt-svg   = "rb svg-format -q --manifest-path=crates/svg-format/Cargo.toml"
+fmt-svg-r = "rbr svg-format -q --manifest-path=crates/svg-format/Cargo.toml"
+i-fmt     = "install --path=crates/svg-format --bin=svg-format --force"
+i-lint    = "install '--path=crates/svg-lint' '--bin=svg-lint' --force"
+i-lsp     = "install --path=crates/svg-language-server --bin=svg-language-server --force"
 lint      = "clippy --workspace --all-targets --all-features -- -D warnings -D clippy::all"
-
-fmt-svg = "run --release -q -p svg-format --"
-# Run the workspace CLI binaries.
-sls     = "run --release -q -p svg-language-server --"
-
-fmtsvgi = "install --path=crates/svg-format --bin=svg-format --force"
-# Install the workspace CLI binaries locally.
-slsi    = "install --path=crates/svg-language-server --bin=svg-language-server --force"
+lsp       = "rb svg-language-server -q --manifest-path=crates/svg-language-server/Cargo.toml"
+rb        = "run --bin"
+rbr       = "run --release --bin"
+rr        = "run --release"
+svglint   = "rb svg-lint -q --manifest-path=crates/svg-lint/Cargo.toml"
+tw        = "test --workspace"
+twa       = "test --workspace --all-targets --all-features"

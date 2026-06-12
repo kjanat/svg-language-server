@@ -1,0 +1,54 @@
+# Vendored frozen SVG 1.1 (Proposed Recommendation, 2011-06-09) flat DTD.
+#
+# Flattened SVG 1.1 DTD — the machine-readable grammar of element content
+# models and attribute lists. Source of element presence, the element x
+# attribute matrix, and enumerated (a|b|c) attribute value sets.
+#
+# Fully self-contained "flat" DTD: every parameter entity for the modular
+# .mod files is inlined into one file (1168 `<!ENTITY %>`, 80 `<!ELEMENT>`,
+# 80 `<!ATTLIST>`); zero active external (SYSTEM) module pulls. This PR
+# (2011-06-09) DTD is byte-distinct from but structurally identical to the
+# SVG 1.1 SE (2011-08-16) flat DTD: same modular parameter-entity layout
+# (e.g. `rect` references the consolidated `%SVG.Presentation.attrib;`
+# group), so the existing build/dtd.rs entity-expansion path applies
+# unchanged.
+#
+# The dated TR URL is immutable (W3C never edits a dated /TR/ document),
+# so no git commit pin is needed — the URL itself is the pin.
+# Do NOT hand-edit the vendored bytes; re-fetch from the dated URL if lost.
+
+schema_version = 1
+purpose        = "presence / matrix / enum derivation"
+
+[authority]
+kind  = "w3c-tr"
+title = "Scalable Vector Graphics (SVG) 1.1 (Second Edition) — Proposed Recommendation"
+url   = "https://www.w3.org/TR/2011/PR-SVG11-20110609/"
+
+[edition]
+snapshot = "Svg11Pr20110609"
+title    = "SVG 1.1 (Second Edition) Proposed Recommendation"
+status   = "PR"
+
+[pin]
+kind  = "dated-url"
+value = "https://www.w3.org/TR/2011/PR-SVG11-20110609/DTD/svg11-flat.dtd"
+date  = "2011-06-09"
+note  = "Dated W3C /TR/ documents are immutable; the URL is the pin."
+
+[checksum]
+strategy = "sha256-per-input"
+note     = "Hash raw response bytes fetched from the dated URL."
+
+[[inputs]]
+id      = "flat-dtd"
+kind    = "dtd"
+role    = "element presence + element/attribute matrix + enumerated attribute value sets"
+purpose = "presence / matrix / enum derivation"
+path    = "svg11-flat-20110609.dtd"
+url     = "https://www.w3.org/TR/2011/PR-SVG11-20110609/DTD/svg11-flat.dtd"
+bytes   = 184584
+sha256  = "442ede54d3a8f02bddba978139ebd45f8d2168389c9ad15e6373a977df725bd9"
+entity_decls  = 1168
+element_decls = 80
+attlist_decls = 80

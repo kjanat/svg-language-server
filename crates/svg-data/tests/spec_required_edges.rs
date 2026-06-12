@@ -36,14 +36,14 @@ fn assert_attr_in_snapshot(snapshot: SpecSnapshotId, attribute: &str) {
 
 const SVG2: &[SpecSnapshotId] = &[
     SpecSnapshotId::Svg2Cr20181004,
-    SpecSnapshotId::Svg2EditorsDraft20250914,
+    SpecSnapshotId::Svg2EditorsDraft,
 ];
 
 const ALL: &[SpecSnapshotId] = &[
     SpecSnapshotId::Svg11Rec20030114,
     SpecSnapshotId::Svg11Rec20110816,
     SpecSnapshotId::Svg2Cr20181004,
-    SpecSnapshotId::Svg2EditorsDraft20250914,
+    SpecSnapshotId::Svg2EditorsDraft,
 ];
 
 #[test]

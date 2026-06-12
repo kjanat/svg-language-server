@@ -24,6 +24,22 @@ Library-first binary crate that owns JSON-RPC/LSP protocol flow, document state,
 - Client-facing labels/messages are effectively API; integration tests assert them.
 - Runtime compat fetch is additive metadata; behavior must degrade cleanly when fetch fails.
 - `src/main.rs` is a thin wrapper; substantive behavior belongs in `src/lib.rs` and feature modules.
+
+## CLIENT SETTINGS (initialization options / `didChangeConfiguration`)
+
+All read under the top-level `svg` key.
+
+| Setting                    | Type   | Default | Effect                                                                                                |
+| -------------------------- | ------ | ------- | ----------------------------------------------------------------------------------------------------- |
+| `svg.profile`              | string | unset   | Curated snapshot id/alias, or `svg-native` for the SVG Native profile.                                |
+| `svg.force_profile`        | bool   | `false` | Pin the resolved profile for every document, ignoring root `<svg version>`.                           |
+| `svg.edition`              | object | unset   | `{ series, date }` or `{ series, editors_draft: true }` — selects an edition-keyed inventory.         |
+| `svg.runtime_compat`       | bool   | `true`  | Opt-out gate for the unpkg BCD + web-features fetch. `false` keeps the session fully offline/private. |
+| `svg.spec_freshness_check` | bool   | `false` | Opt-in W3C/svgwg staleness probe (contacts `api.w3.org` + `api.github.com`).                          |
+
+- `svg.runtime_compat=false` skips the `fetch_runtime_compat` spawn in
+  `initialize`; hover and lint then use baked compat data only.
+- `svg.edition` precedence: an `svg.edition` block wins over `svg.profile`.
 - Profile-aware features take a `svg_data::SpecSnapshotId` parameter; route every
   catalog-driven lookup through that profile so completions, hover, and
   diagnostics agree on a single snapshot per request.
@@ -34,9 +50,21 @@ The active spec snapshot (SVG 1.1 vs SVG 2 vs an editor's draft) shapes which
 elements, attributes, and attribute values surface to the editor. Resolution
 flows top-down:
 
-1. `ProfileConfig` (`src/lib.rs`) holds the workspace-level resolved profile
-   plus a `force` flag, derived from `svg.profile` / `svg.force_profile`
-   settings via `resolve_profile_config`.
+1. `ProfileConfig` (`src/lib.rs`) holds the configured `ConfiguredTarget` ADT
+   plus a `force` flag, derived via `resolve_profile_config`. The target is one
+   of:
+   - `Snapshot(SpecSnapshotId)` — `svg.profile` resolves to one of the four
+     curated snapshots (the default).
+   - `SvgNative` — `svg.profile: "svg-native"` selects the SVG Native profile
+     (an SVG 2 subset). `is_constrained()` is true; constraint application is
+     partial — see the SVG-NATIVE follow-up below.
+   - `Edition(EditionId)` — `svg.edition: { series, date | editors_draft }`
+     selects an edition-keyed inventory beyond the four snapshots (e.g. SVG 1.0
+     REC, SVG 1.1 PR, older SVG 2 CRs). `edition_inventory()` returns the baked
+     `Inventory` for non-snapshot editions, used to additively restrict
+     completion lists in `completion_from_context`.
+     `ConfiguredTarget::base_snapshot()` resolves any target down to a
+     `SpecSnapshotId` so the existing snapshot-typed pipeline is unchanged.
 2. Per request, `effective_profile_for(doc)` consults
    `svg_lint::effective_profile`, which can downgrade to SVG 1.1 when the
    document's root `<svg version="1.1">` says so (unless `force` is set).

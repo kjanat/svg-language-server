@@ -1,0 +1,63 @@
+name: CI
+
+# General pull-request / master quality gate. Mirrors `just verify`, but
+# invokes the underlying tools directly so the job does not need the
+# cargo-dist toolchain that `just verify` pulls in via `release-config-check`.
+# The release pipeline lives in release.yml.
+
+on:
+  pull_request: {}
+  push:
+    branches: [master]
+
+permissions: { contents: read }
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rust:
+    name: Rust (clippy + test)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - uses: dtolnay/rust-toolchain@stable
+        with: { components: clippy }
+      - uses: Swatinem/rust-cache@v2
+      - name: Clippy (warnings are errors)
+        run: cargo clippy --workspace --all-targets --all-features -- -D clippy::all
+      - name: Test
+        run: cargo test --workspace
+
+  format:
+    name: dprint check
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      # dprint's `exec` plugin shells out to rustfmt (*.rs), `cargo fmt-svg`
+      # (*.svg), `tombi` (*.toml) and `just` (justfile); all must be present
+      # for `dprint check` to walk the tree without erroring.
+      - uses: dtolnay/rust-toolchain@stable
+        with: { components: rustfmt }
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: "dprint,just,tombi"
+      - name: dprint check
+        run: dprint check
+
+  deno:
+    name: Deno typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - uses: denoland/setup-deno@v2
+        with: { deno-version: v2.x }
+      - name: Typecheck Deno scripts
+        run: deno task --config scripts/deno.jsonc typecheck

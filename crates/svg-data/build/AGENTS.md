@@ -6,12 +6,12 @@ Build-script internals for compat fetch/cache, spec scraping, and deterministic 
 
 ## WHERE TO LOOK
 
-| Task                      | Location      | Notes                                               |
-| ------------------------- | ------------- | --------------------------------------------------- |
-| Fetch + merge compat data | `bcd.rs`      | BCD + web-features cache/read/merge pipeline        |
-| Fetch spec descriptions   | `spec.rs`     | Raw svgwg HTML fetch + paragraph extraction         |
-| Emit Rust source          | `codegen.rs`  | String escaping + stable Rust literal generation    |
-| See orchestration entry   | `../build.rs` | Wires curated JSON + compat + spec text into output |
+| Task                      | Location      | Notes                                                                                                                                                                                                                                                                                                                                                                      |
+| ------------------------- | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fetch + merge compat data | `bcd.rs`      | BCD + web-features cache/read/merge pipeline                                                                                                                                                                                                                                                                                                                               |
+| Extract spec descriptions | `spec.rs`     | **LIVE** — declared via `#[path = "build/spec.rs"] mod spec;` in `../build.rs`; hermetic per-element description extractor (`extract_chapter_descriptions`) scraping the vendored svgwg chapter HTML. Consumed by the `tests/descriptions_audit.rs` faithfulness audit (which re-includes it via its own `#[path]`). See `docs/specs/2026-06-03-spec-derivation-design.md` |
+| Emit Rust source          | `codegen.rs`  | String escaping + stable Rust literal generation                                                                                                                                                                                                                                                                                                                           |
+| See orchestration entry   | `../build.rs` | Wires curated JSON + compat + spec text into output                                                                                                                                                                                                                                                                                                                        |
 
 ## CONVENTIONS
 
@@ -29,5 +29,7 @@ Build-script internals for compat fetch/cache, spec scraping, and deterministic 
 
 ## NOTES
 
-- `spec.rs` strips HTML with simple text heuristics, not a full HTML parser.
+- `spec.rs` is **live** (`mod spec;` is declared in `../build.rs`); it strips HTML with
+  simple text heuristics, not a full HTML parser, and is exercised by the
+  `tests/descriptions_audit.rs` faithfulness audit.
 - `bcd.rs` merges deprecation/experimental/spec-url/baseline/browser-support signals conservatively across sources.

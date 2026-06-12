@@ -27,7 +27,8 @@
  * @module
  */
 
-import { cli, command, flag, group, type Out } from "@kjanat/dreamcli";
+import type { Out } from "@kjanat/dreamcli";
+import { cli, command, flag, group } from "@kjanat/dreamcli";
 
 import { renderDataSummary, renderSchemaSummary } from "./cli_render.ts";
 import { buildOutput, buildSnapshot, SVG_COMPAT_SCHEMA } from "./lib/mod.ts";

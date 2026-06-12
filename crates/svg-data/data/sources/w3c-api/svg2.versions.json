@@ -1,0 +1,369 @@
+{
+    "page": 1,
+    "limit": 100,
+    "pages": 1,
+    "total": 10,
+    "_links": {
+        "up": {
+            "href": "https://api.w3.org/specifications/SVG2"
+        },
+        "version-history": [
+            {
+                "href": "https://api.w3.org/specifications/SVG2/versions/20181004",
+                "title": "Scalable Vector Graphics (SVG) 2"
+            },
+            {
+                "href": "https://api.w3.org/specifications/SVG2/versions/20180807",
+                "title": "Scalable Vector Graphics (SVG) 2"
+            },
+            {
+                "href": "https://api.w3.org/specifications/SVG2/versions/20160915",
+                "title": "Scalable Vector Graphics (SVG) 2"
+            },
+            {
+                "href": "https://api.w3.org/specifications/SVG2/versions/20150915",
+                "title": "Scalable Vector Graphics (SVG) 2"
+            },
+            {
+                "href": "https://api.w3.org/specifications/SVG2/versions/20150709",
+                "title": "Scalable Vector Graphics (SVG) 2"
+            },
+            {
+                "href": "https://api.w3.org/specifications/SVG2/versions/20150409",
+                "title": "Scalable Vector Graphics (SVG) 2"
+            },
+            {
+                "href": "https://api.w3.org/specifications/SVG2/versions/20140211",
+                "title": "Scalable Vector Graphics (SVG) 2"
+            },
+            {
+                "href": "https://api.w3.org/specifications/SVG2/versions/20130618",
+                "title": "Scalable Vector Graphics (SVG) 2"
+            },
+            {
+                "href": "https://api.w3.org/specifications/SVG2/versions/20130409",
+                "title": "Scalable Vector Graphics (SVG) 2"
+            },
+            {
+                "href": "https://api.w3.org/specifications/SVG2/versions/20120828",
+                "title": "Scalable Vector Graphics (SVG) 2"
+            }
+        ],
+        "self": {
+            "href": "https://api.w3.org/specifications/SVG2/versions?embed=1&page=1&items=100"
+        },
+        "first": {
+            "href": "https://api.w3.org/specifications/SVG2/versions?embed=1&page=1&items=100"
+        },
+        "last": {
+            "href": "https://api.w3.org/specifications/SVG2/versions?embed=1&page=1&items=100"
+        }
+    },
+    "_embedded": {
+        "version-history": [
+            {
+                "status": "Candidate Recommendation Snapshot",
+                "rec-track": true,
+                "editor-draft": "https://w3c.github.io/svgwg/svg2-draft/",
+                "uri": "https://www.w3.org/TR/2018/CR-SVG2-20181004/",
+                "date": "2018-10-04",
+                "implementation-feedback-due": "2018-12-04",
+                "informative": false,
+                "title": "Scalable Vector Graphics (SVG) 2",
+                "shortlink": "https://www.w3.org/TR/SVG2/",
+                "process-rules": "https://www.w3.org/2018/Process-20180201/",
+                "_links": {
+                    "self": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20181004"
+                    },
+                    "editors": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20181004/editors"
+                    },
+                    "deliverers": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20181004/deliverers"
+                    },
+                    "specification": {
+                        "href": "https://api.w3.org/specifications/SVG2"
+                    },
+                    "predecessor-version": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20181004/predecessors"
+                    }
+                }
+            },
+            {
+                "status": "Candidate Recommendation Snapshot",
+                "rec-track": true,
+                "editor-draft": "https://w3c.github.io/svgwg/svg2-draft/",
+                "uri": "https://www.w3.org/TR/2018/CR-SVG2-20180807/",
+                "date": "2018-08-07",
+                "implementation-feedback-due": "2018-10-07",
+                "informative": false,
+                "title": "Scalable Vector Graphics (SVG) 2",
+                "shortlink": "https://www.w3.org/TR/SVG2/",
+                "process-rules": "https://www.w3.org/2018/Process-20180201/",
+                "_links": {
+                    "self": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20180807"
+                    },
+                    "editors": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20180807/editors"
+                    },
+                    "deliverers": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20180807/deliverers"
+                    },
+                    "specification": {
+                        "href": "https://api.w3.org/specifications/SVG2"
+                    },
+                    "predecessor-version": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20180807/predecessors"
+                    },
+                    "successor-version": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20180807/successors"
+                    }
+                }
+            },
+            {
+                "status": "Candidate Recommendation Snapshot",
+                "rec-track": true,
+                "editor-draft": "https://w3c.github.io/svgwg/svg2-draft/",
+                "uri": "https://www.w3.org/TR/2016/CR-SVG2-20160915/",
+                "date": "2016-09-15",
+                "implementation-feedback-due": "2016-11-15",
+                "informative": false,
+                "title": "Scalable Vector Graphics (SVG) 2",
+                "shortlink": "https://www.w3.org/TR/SVG2/",
+                "process-rules": "https://www.w3.org/2015/Process-20150901/",
+                "_links": {
+                    "self": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20160915"
+                    },
+                    "editors": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20160915/editors"
+                    },
+                    "deliverers": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20160915/deliverers"
+                    },
+                    "specification": {
+                        "href": "https://api.w3.org/specifications/SVG2"
+                    },
+                    "predecessor-version": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20160915/predecessors"
+                    },
+                    "successor-version": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20160915/successors"
+                    }
+                }
+            },
+            {
+                "status": "Working Draft",
+                "rec-track": true,
+                "editor-draft": "https://w3c.github.io/svgwg/svg2-draft/",
+                "uri": "https://www.w3.org/TR/2015/WD-SVG2-20150915/",
+                "date": "2015-09-15",
+                "informative": false,
+                "title": "Scalable Vector Graphics (SVG) 2",
+                "shortlink": "https://www.w3.org/TR/SVG2/",
+                "process-rules": "http://www.w3.org/2015/Process-20150901/",
+                "_links": {
+                    "self": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20150915"
+                    },
+                    "editors": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20150915/editors"
+                    },
+                    "deliverers": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20150915/deliverers"
+                    },
+                    "specification": {
+                        "href": "https://api.w3.org/specifications/SVG2"
+                    },
+                    "predecessor-version": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20150915/predecessors"
+                    },
+                    "successor-version": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20150915/successors"
+                    }
+                }
+            },
+            {
+                "status": "Working Draft",
+                "rec-track": true,
+                "editor-draft": "https://w3c.github.io/svgwg/svg2-draft/",
+                "uri": "https://www.w3.org/TR/2015/WD-SVG2-20150709/",
+                "date": "2015-07-09",
+                "informative": false,
+                "title": "Scalable Vector Graphics (SVG) 2",
+                "shortlink": "https://www.w3.org/TR/SVG2/",
+                "process-rules": "http://www.w3.org/2014/Process-20140801/",
+                "_links": {
+                    "self": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20150709"
+                    },
+                    "editors": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20150709/editors"
+                    },
+                    "deliverers": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20150709/deliverers"
+                    },
+                    "specification": {
+                        "href": "https://api.w3.org/specifications/SVG2"
+                    },
+                    "predecessor-version": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20150709/predecessors"
+                    },
+                    "successor-version": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20150709/successors"
+                    }
+                }
+            },
+            {
+                "status": "Working Draft",
+                "rec-track": true,
+                "editor-draft": "https://w3c.github.io/svgwg/svg2-draft/",
+                "uri": "https://www.w3.org/TR/2015/WD-SVG2-20150409/",
+                "date": "2015-04-09",
+                "informative": false,
+                "title": "Scalable Vector Graphics (SVG) 2",
+                "shortlink": "https://www.w3.org/TR/SVG2/",
+                "process-rules": "http://www.w3.org/2014/Process-20140801/",
+                "_links": {
+                    "self": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20150409"
+                    },
+                    "editors": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20150409/editors"
+                    },
+                    "deliverers": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20150409/deliverers"
+                    },
+                    "specification": {
+                        "href": "https://api.w3.org/specifications/SVG2"
+                    },
+                    "predecessor-version": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20150409/predecessors"
+                    },
+                    "successor-version": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20150409/successors"
+                    }
+                }
+            },
+            {
+                "status": "Working Draft",
+                "rec-track": true,
+                "editor-draft": "https://w3c.github.io/svgwg/svg2-draft/",
+                "uri": "https://www.w3.org/TR/2014/WD-SVG2-20140211/",
+                "date": "2014-02-11",
+                "informative": false,
+                "title": "Scalable Vector Graphics (SVG) 2",
+                "shortlink": "https://www.w3.org/TR/SVG2/",
+                "_links": {
+                    "self": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20140211"
+                    },
+                    "editors": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20140211/editors"
+                    },
+                    "deliverers": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20140211/deliverers"
+                    },
+                    "specification": {
+                        "href": "https://api.w3.org/specifications/SVG2"
+                    },
+                    "predecessor-version": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20140211/predecessors"
+                    },
+                    "successor-version": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20140211/successors"
+                    }
+                }
+            },
+            {
+                "status": "Working Draft",
+                "rec-track": true,
+                "editor-draft": "https://w3c.github.io/svgwg/svg2-draft/",
+                "uri": "https://www.w3.org/TR/2013/WD-SVG2-20130618/",
+                "date": "2013-06-18",
+                "informative": false,
+                "title": "Scalable Vector Graphics (SVG) 2",
+                "shortlink": "https://www.w3.org/TR/SVG2/",
+                "_links": {
+                    "self": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20130618"
+                    },
+                    "editors": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20130618/editors"
+                    },
+                    "deliverers": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20130618/deliverers"
+                    },
+                    "specification": {
+                        "href": "https://api.w3.org/specifications/SVG2"
+                    },
+                    "predecessor-version": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20130618/predecessors"
+                    },
+                    "successor-version": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20130618/successors"
+                    }
+                }
+            },
+            {
+                "status": "Working Draft",
+                "rec-track": true,
+                "editor-draft": "https://w3c.github.io/svgwg/svg2-draft/",
+                "uri": "https://www.w3.org/TR/2013/WD-SVG2-20130409/",
+                "date": "2013-04-09",
+                "informative": false,
+                "title": "Scalable Vector Graphics (SVG) 2",
+                "shortlink": "https://www.w3.org/TR/SVG2/",
+                "_links": {
+                    "self": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20130409"
+                    },
+                    "editors": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20130409/editors"
+                    },
+                    "deliverers": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20130409/deliverers"
+                    },
+                    "specification": {
+                        "href": "https://api.w3.org/specifications/SVG2"
+                    },
+                    "predecessor-version": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20130409/predecessors"
+                    },
+                    "successor-version": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20130409/successors"
+                    }
+                }
+            },
+            {
+                "status": "Working Draft",
+                "rec-track": true,
+                "editor-draft": "https://w3c.github.io/svgwg/svg2-draft/",
+                "uri": "https://www.w3.org/TR/2012/WD-SVG2-20120828/",
+                "date": "2012-08-28",
+                "informative": false,
+                "title": "Scalable Vector Graphics (SVG) 2",
+                "shortlink": "https://www.w3.org/TR/SVG2/",
+                "_links": {
+                    "self": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20120828"
+                    },
+                    "editors": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20120828/editors"
+                    },
+                    "deliverers": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20120828/deliverers"
+                    },
+                    "specification": {
+                        "href": "https://api.w3.org/specifications/SVG2"
+                    },
+                    "successor-version": {
+                        "href": "https://api.w3.org/specifications/SVG2/versions/20120828/successors"
+                    }
+                }
+            }
+        ]
+    }
+}

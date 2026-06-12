@@ -1,5 +1,6 @@
-//! Resolve the effective spec profile for a document by reading its
-//! declared `version` attribute on the root `<svg>` element.
+//! Resolve the effective spec profile for a document by reading the
+//! profile-declaring attributes on the root `<svg>` element — primarily
+//! `version`, with `baseProfile` (tiny/basic/full) narrowing the result.
 //!
 //! A document that says `<svg version="1.1">` is declaring the profile
 //! it targets. Treating that declaration as the authoritative profile
@@ -14,11 +15,24 @@
 //!
 //! # Limitations
 //!
-//! Only the four catalogued snapshots resolve: SVG 1.0 and 1.1 collapse
-//! to [`SpecSnapshotId::Svg11Rec20110816`]; SVG 2 values resolve to
-//! [`SpecSnapshotId::Svg2EditorsDraft20250914`]. SVG Tiny / Basic
-//! (`version="1.2"` etc.) are not modelled — they silently fall through
-//! to the configured profile.
+//! Only the catalogued snapshots resolve: SVG 1.0 and 1.1 collapse to
+//! [`SpecSnapshotId::Svg11Rec20110816`]; SVG 2 values resolve to
+//! [`SpecSnapshotId::Svg2EditorsDraft`].
+//!
+//! `baseProfile="tiny"` / `"basic"` name the SVG Tiny / Basic editions.
+//! Those editions have no catalogued [`SpecSnapshotId`] yet, so a
+//! constrained-profile declaration cannot resolve to a distinct snapshot
+//! and falls through to the configured profile rather than silently
+//! pretending the document targets the unconstrained full profile.
+//! `baseProfile="full"` (and an absent `baseProfile`) leave the
+//! version-derived snapshot unchanged.
+//!
+//! This module performs the `version` + `baseProfile` combination
+//! itself. Once `svg-data` exposes a typed snapshot-from-(version,
+//! baseProfile) mapping — including catalogued Tiny / Basic snapshots —
+//! [`resolve_declared_profile`] should delegate to it so the Tiny /
+//! Basic cases resolve to their own snapshots instead of falling
+//! through. See finding #13 for the cross-crate dependency.
 //!
 //! Nested `<svg>` elements are ignored. Only the outermost
 //! `svg_root_element` participates.
@@ -32,8 +46,8 @@ use tree_sitter::{Node, Tree};
 ///
 /// Resolution order:
 /// 1. If `force` is true, `configured` wins unconditionally.
-/// 2. Else, if the root `<svg>` has a `version="X"` attribute whose
-///    value maps to a catalogued snapshot, that snapshot wins.
+/// 2. Else, if the root `<svg>`'s `version` (narrowed by `baseProfile`)
+///    resolves to a catalogued snapshot, that snapshot wins.
 /// 3. Else, `configured`.
 #[must_use]
 pub fn effective_profile(
@@ -45,9 +59,59 @@ pub fn effective_profile(
     if force {
         return configured;
     }
-    extract_declared_version(tree, source)
-        .and_then(svg_data::snapshot_for_svg_version_attr)
-        .unwrap_or(configured)
+    resolve_declared_profile(tree, source).unwrap_or(configured)
+}
+
+/// Combine the root `<svg>`'s declared `version` and `baseProfile` into a
+/// catalogued snapshot, or `None` when the declaration doesn't pin one.
+///
+/// `baseProfile="tiny"`/`"basic"` are reductive *profiles of the same SVG
+/// edition the `version` names* (e.g. SVG 1.1 for `version="1.1"`), so they
+/// resolve to that edition's snapshot. Resolving to the base — rather than
+/// returning `None` and letting the caller fall back to the *configured*
+/// default, which can be an unrelated edition (e.g. an SVG 2 default mis-linting
+/// a Tiny SVG 1.1 document) — is strictly more correct. The reductive
+/// element/attribute removals Tiny/Basic impose are not yet modelled as a
+/// constraint set; that needs the Tiny/Basic spec data vendored, after which
+/// they can be enforced the way the SVG Native profile is.
+fn resolve_declared_profile(tree: &Tree, source: &[u8]) -> Option<SpecSnapshotId> {
+    let version_snapshot =
+        extract_declared_version(tree, source).and_then(svg_data::snapshot_for_svg_version_attr)?;
+    match extract_declared_base_profile(tree, source) {
+        Some(BaseProfile::Tiny | BaseProfile::Basic | BaseProfile::Full) | None => {
+            Some(version_snapshot)
+        }
+    }
+}
+
+/// The `baseProfile` declarations SVG 1.x defines. Unknown / malformed
+/// values are intentionally absent so they parse to `None` and leave the
+/// version-derived snapshot untouched rather than constraining it.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum BaseProfile {
+    /// `baseProfile="full"` — the unconstrained profile.
+    Full,
+    /// `baseProfile="basic"` — the SVG Basic edition.
+    Basic,
+    /// `baseProfile="tiny"` — the SVG Tiny edition.
+    Tiny,
+}
+
+impl BaseProfile {
+    fn parse(raw: &str) -> Option<Self> {
+        match raw.trim() {
+            "full" => Some(Self::Full),
+            "basic" => Some(Self::Basic),
+            "tiny" => Some(Self::Tiny),
+            _ => None,
+        }
+    }
+}
+
+/// Return the parsed `baseProfile` declaration on the outermost
+/// `svg_root_element`, or `None` when it is absent or unrecognised.
+fn extract_declared_base_profile(tree: &Tree, source: &[u8]) -> Option<BaseProfile> {
+    extract_root_attribute(tree, source, "baseProfile").and_then(BaseProfile::parse)
 }
 
 /// Return the raw text of the `version` attribute on the outermost
@@ -58,9 +122,20 @@ pub fn effective_profile(
 /// the source had; callers downstream are expected to trim.
 #[must_use]
 pub fn extract_declared_version<'a>(tree: &Tree, source: &'a [u8]) -> Option<&'a str> {
+    extract_root_attribute(tree, source, "version")
+}
+
+/// Return the unquoted text of `target` on the outermost
+/// `svg_root_element`, or `None` when the root lacks that attribute (or
+/// the tree has no SVG root). Shared by `version` and `baseProfile`
+/// detection so both honour the same "outermost root only" rule.
+///
+/// The returned slice carries whatever surrounding whitespace the source
+/// had; callers downstream are expected to trim.
+fn extract_root_attribute<'a>(tree: &Tree, source: &'a [u8], target: &str) -> Option<&'a str> {
     let root_svg = child_of_kind(tree.root_node(), "svg_root_element")?;
     let tag = opening_tag(root_svg)?;
-    let value_node = find_attribute_value(tag, source, "version")?;
+    let value_node = find_attribute_value(tag, source, target)?;
     let raw = std::str::from_utf8(&source[value_node.byte_range()]).ok()?;
     Some(strip_attribute_quotes(raw))
 }
@@ -220,7 +295,7 @@ mod tests {
     fn effective_profile_returns_svg11_for_version_1_1() -> TestResult {
         let src = br#"<svg version="1.1"></svg>"#;
         let tree = parse(src)?;
-        let configured = SpecSnapshotId::Svg2EditorsDraft20250914;
+        let configured = SpecSnapshotId::Svg2EditorsDraft;
         assert_eq!(
             effective_profile(&tree, src, configured, false),
             SpecSnapshotId::Svg11Rec20110816
@@ -232,17 +307,32 @@ mod tests {
     fn effective_profile_honors_force_override() -> TestResult {
         let src = br#"<svg version="1.1"></svg>"#;
         let tree = parse(src)?;
-        let configured = SpecSnapshotId::Svg2EditorsDraft20250914;
+        let configured = SpecSnapshotId::Svg2EditorsDraft;
         assert_eq!(effective_profile(&tree, src, configured, true), configured);
         Ok(())
     }
 
     #[test]
-    fn effective_profile_falls_back_on_unknown_version_string() -> TestResult {
-        // SVG Tiny 1.2 is not catalogued — fall through to configured.
+    fn effective_profile_resolves_uncatalogued_version_to_family_base() -> TestResult {
+        // SVG Tiny 1.2 is an SVG 1.x document: it resolves to the SVG 1.1 base
+        // edition, NOT the unrelated configured default (here SVG 2).
         let src = br#"<svg version="1.2"></svg>"#;
         let tree = parse(src)?;
-        let configured = SpecSnapshotId::Svg2EditorsDraft20250914;
+        let configured = SpecSnapshotId::Svg2EditorsDraft;
+        assert_eq!(
+            effective_profile(&tree, src, configured, false),
+            SpecSnapshotId::Svg11Rec20110816
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn effective_profile_falls_back_on_unrecognised_major() -> TestResult {
+        // A version with no usable 1.x/2.x major carries no signal, so the
+        // configured profile wins.
+        let src = br#"<svg version="draft"></svg>"#;
+        let tree = parse(src)?;
+        let configured = SpecSnapshotId::Svg2Cr20181004;
         assert_eq!(effective_profile(&tree, src, configured, false), configured);
         Ok(())
     }
@@ -260,7 +350,89 @@ mod tests {
     fn effective_profile_trims_whitespace_in_value() -> TestResult {
         let src = br#"<svg version=" 1.1 "></svg>"#;
         let tree = parse(src)?;
-        let configured = SpecSnapshotId::Svg2EditorsDraft20250914;
+        let configured = SpecSnapshotId::Svg2EditorsDraft;
+        assert_eq!(
+            effective_profile(&tree, src, configured, false),
+            SpecSnapshotId::Svg11Rec20110816
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn base_profile_full_keeps_version_snapshot() -> TestResult {
+        let src = br#"<svg version="1.1" baseProfile="full"></svg>"#;
+        let tree = parse(src)?;
+        let configured = SpecSnapshotId::Svg2EditorsDraft;
+        assert_eq!(
+            effective_profile(&tree, src, configured, false),
+            SpecSnapshotId::Svg11Rec20110816
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn base_profile_tiny_resolves_to_base_edition() -> TestResult {
+        // SVG Tiny is a reductive profile of the edition its `version` names,
+        // so a `version="1.1" baseProfile="tiny"` document resolves to the
+        // SVG 1.1 snapshot (its base) rather than falling through to an
+        // unrelated configured default (here SVG 2).
+        let src = br#"<svg version="1.1" baseProfile="tiny"></svg>"#;
+        let tree = parse(src)?;
+        let configured = SpecSnapshotId::Svg2EditorsDraft;
+        assert_eq!(
+            effective_profile(&tree, src, configured, false),
+            SpecSnapshotId::Svg11Rec20110816
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn base_profile_basic_resolves_to_base_edition() -> TestResult {
+        let src = br#"<svg version="1.1" baseProfile="basic"></svg>"#;
+        let tree = parse(src)?;
+        let configured = SpecSnapshotId::Svg2EditorsDraft;
+        assert_eq!(
+            effective_profile(&tree, src, configured, false),
+            SpecSnapshotId::Svg11Rec20110816
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn unrecognised_base_profile_keeps_version_snapshot() -> TestResult {
+        // A garbage `baseProfile` must not constrain the version mapping.
+        let src = br#"<svg version="1.1" baseProfile="garbage"></svg>"#;
+        let tree = parse(src)?;
+        let configured = SpecSnapshotId::Svg2EditorsDraft;
+        assert_eq!(
+            effective_profile(&tree, src, configured, false),
+            SpecSnapshotId::Svg11Rec20110816
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn base_profile_without_resolvable_version_falls_back() -> TestResult {
+        // `baseProfile` alone (no catalogued `version`) cannot pin a
+        // snapshot; the configured profile wins.
+        let src = br#"<svg baseProfile="tiny"></svg>"#;
+        let tree = parse(src)?;
+        let configured = SpecSnapshotId::Svg2Cr20181004;
+        assert_eq!(effective_profile(&tree, src, configured, false), configured);
+        Ok(())
+    }
+
+    #[test]
+    fn base_profile_ignored_on_nested_svg() -> TestResult {
+        // Only the outermost root participates: a nested `baseProfile`
+        // must not constrain the root's version-derived snapshot.
+        let src = br#"<svg version="1.1">
+            <foreignObject>
+                <svg baseProfile="tiny"></svg>
+            </foreignObject>
+        </svg>"#;
+        let tree = parse(src)?;
+        let configured = SpecSnapshotId::Svg2EditorsDraft;
         assert_eq!(
             effective_profile(&tree, src, configured, false),
             SpecSnapshotId::Svg11Rec20110816

@@ -1,5 +1,6 @@
 import { assert, assertEquals, assertExists } from "@std/assert";
-import server, { SVG_COMPAT_SCHEMA, type SvgCompatOutput } from "./main.ts";
+import type { SvgCompatOutput } from "./main.ts";
+import server, { SVG_COMPAT_SCHEMA } from "./main.ts";
 import { renderHtml } from "./render.tsx";
 import { defaultSourceSelection, parseSourceSelection, versionFromLocation } from "./sources.ts";
 

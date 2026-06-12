@@ -2,7 +2,6 @@ use std::{
     collections::HashMap,
     fs,
     path::{Path, PathBuf},
-    process::Command,
 };
 
 use super::{
@@ -13,6 +12,13 @@ use super::{
 const SVG_COMPAT_URL: &str = "https://svg-compat.kjanat.com/data.json";
 const SVG_COMPAT_FILE_ENV: &str = "SVG_COMPAT_FILE";
 const SVG_COMPAT_URL_ENV: &str = "SVG_COMPAT_URL";
+
+/// Vendored compat slice, relative to the crate manifest dir. This is the
+/// default, hermetic source for the build — no network, no Deno toolchain.
+/// Stage 1 of the spec-derivation work checked this file in; the build reads
+/// it directly. `SVG_COMPAT_FILE` / `SVG_COMPAT_URL` remain optional refresh
+/// overrides only.
+const VENDORED_COMPAT_PATH: &str = "data/sources/svg-compat-data.json";
 
 /// BCD-discovered attribute with compat metadata and element applicability.
 pub struct BcdAttribute {
@@ -31,8 +37,13 @@ pub struct CompatData {
     pub bcd_version: String,
 }
 
-/// Fetch pre-processed compat data from the svg-compat worker.
-/// On any failure, prints a cargo warning and returns empty maps.
+/// Load pre-processed compat data for the build.
+///
+/// Default source is the vendored slice at [`VENDORED_COMPAT_PATH`]; a missing
+/// or unparseable vendored slice is a HARD build error (Q-BCD-FALLBACK), since
+/// the baked catalog cannot be produced without it. `SVG_COMPAT_FILE` and
+/// `SVG_COMPAT_URL` are optional refresh overrides; of those, only the
+/// network (`SVG_COMPAT_URL`) override may fail soft to empty maps.
 pub fn fetch_compat_data(out_dir: &Path) -> CompatData {
     let offline = std::env::var("SVG_DATA_OFFLINE").is_ok();
     let cache_path = out_dir.join("svg-compat-data.json");
@@ -43,20 +54,28 @@ pub fn fetch_compat_data(out_dir: &Path) -> CompatData {
         bcd_version: "unknown".to_string(),
     };
 
-    let raw = match load_worker_json(&cache_path, offline) {
-        Ok(Some(source)) => source,
-        Ok(None) => return empty,
-        Err(error) => {
-            println!("cargo::warning=compat: {error}");
+    let raw = match load_compat_json(&cache_path, offline) {
+        CompatLoad::Loaded(source) => source,
+        CompatLoad::SoftEmpty(reason) => {
+            println!("cargo::warning=compat: {reason}");
             return empty;
+        }
+        CompatLoad::Hard(reason) => {
+            panic!(
+                "svg-data build: vendored compat slice unusable: {reason}\n\
+                 The build reads {VENDORED_COMPAT_PATH} (relative to the crate). \
+                 Restore/refresh it (see data/sources/svg-compat-data.PROVENANCE.toml).",
+            );
         }
     };
 
     let output: worker_schema::WorkerOutput = match serde_json::from_str(&raw) {
         Ok(parsed) => parsed,
         Err(error) => {
-            println!("cargo::warning=compat: failed to parse worker JSON: {error}");
-            return empty;
+            panic!(
+                "svg-data build: failed to parse compat JSON ({VENDORED_COMPAT_PATH} \
+                 or override): {error}",
+            );
         }
     };
 
@@ -73,11 +92,11 @@ pub fn fetch_compat_data(out_dir: &Path) -> CompatData {
         .collect();
 
     println!(
-        "svg-data: loaded {} element entries from worker",
+        "svg-data: loaded {} element entries from compat slice",
         elements.len()
     );
     println!(
-        "svg-data: loaded {} attribute entries from worker",
+        "svg-data: loaded {} attribute entries from compat slice",
         attributes.len()
     );
 
@@ -102,81 +121,68 @@ pub fn fetch_compat_data(out_dir: &Path) -> CompatData {
     }
 }
 
-fn load_worker_json(cache_path: &Path, offline: bool) -> Result<Option<String>, String> {
-    if let Some(file_path) = compat_file_path()? {
-        println!("svg-data: using local compat file {}", file_path.display());
-        return read_json_file(&file_path, "local compat file").map(Some);
-    }
-
-    if std::env::var(SVG_COMPAT_URL_ENV).is_err()
-        && !offline
-        && let Some(worker_dir) = local_worker_dir()
-    {
-        let temp_path = cache_path.with_extension("tmp");
-        match run_local_worker_cli(&worker_dir, &temp_path) {
-            Ok(()) => {
-                if let Err(error) = fs::rename(&temp_path, cache_path) {
-                    println!(
-                        "cargo::warning=compat: local svg-compat CLI failed to rename: {error}; falling back to remote cache"
-                    );
-                    let _ = fs::remove_file(&temp_path);
-                } else {
-                    println!(
-                        "svg-data: using local svg-compat CLI {}",
-                        worker_dir.display()
-                    );
-                    return read_json_file(cache_path, "local svg-compat CLI output").map(Some);
-                }
-            }
-            Err(error) => {
-                println!(
-                    "cargo::warning=compat: local svg-compat CLI failed: {error}; falling back to remote cache"
-                );
-                let _ = fs::remove_file(&temp_path);
-            }
-        }
-    }
-
-    let url = std::env::var(SVG_COMPAT_URL_ENV).unwrap_or_else(|_| SVG_COMPAT_URL.to_string());
-    match ensure_cached(&url, cache_path, offline) {
-        Ok(true) => read_json_file(cache_path, "compat cache").map(Some),
-        Ok(false) => {
-            println!("cargo::warning=compat: no cached data and offline — skipping");
-            Ok(None)
-        }
-        Err(error) => Err(format!("fetch failed: {error}")),
-    }
+/// Outcome of locating + reading the compat JSON for the build.
+enum CompatLoad {
+    /// Raw JSON text was read successfully.
+    Loaded(String),
+    /// Degrade-to-empty path (only the `SVG_COMPAT_URL` network override may
+    /// take this when the fetch can't be satisfied).
+    SoftEmpty(String),
+    /// Unrecoverable: the build cannot bake the catalog. Surfaces as a panic
+    /// (Q-BCD-FALLBACK — no silent degrade for the vendored default).
+    Hard(String),
 }
 
-fn compat_file_path() -> Result<Option<PathBuf>, String> {
-    let Ok(raw_path) = std::env::var(SVG_COMPAT_FILE_ENV) else {
-        return Ok(None);
-    };
-
-    let path = PathBuf::from(raw_path);
-    let resolved = if path.is_absolute() {
-        path
-    } else {
-        workspace_root()
-            .unwrap_or_else(|| Path::new(env!("CARGO_MANIFEST_DIR")).to_path_buf())
-            .join(path)
-    };
-
-    if resolved.exists() {
-        Ok(Some(resolved))
-    } else {
-        Err(format!(
-            "{} points to missing file {}",
-            SVG_COMPAT_FILE_ENV,
+fn load_compat_json(cache_path: &Path, offline: bool) -> CompatLoad {
+    // Explicit local-file override: must exist and be readable. Pointing the
+    // override at a missing file is an operator error, not a soft degrade.
+    if let Ok(raw_path) = std::env::var(SVG_COMPAT_FILE_ENV) {
+        let resolved = resolve_relative(&raw_path);
+        println!(
+            "svg-data: using {SVG_COMPAT_FILE_ENV} {}",
             resolved.display()
-        ))
+        );
+        return match read_json_file(&resolved, SVG_COMPAT_FILE_ENV) {
+            Ok(raw) => CompatLoad::Loaded(raw),
+            Err(error) => CompatLoad::Hard(error),
+        };
+    }
+
+    // Network refresh override: allowed to fail soft to empty maps.
+    if let Ok(url) = std::env::var(SVG_COMPAT_URL_ENV) {
+        println!("svg-data: using {SVG_COMPAT_URL_ENV} {url}");
+        return match ensure_cached(&url, cache_path, offline) {
+            Ok(true) => match read_json_file(cache_path, "compat cache") {
+                Ok(raw) => CompatLoad::Loaded(raw),
+                Err(error) => CompatLoad::SoftEmpty(error),
+            },
+            Ok(false) => CompatLoad::SoftEmpty("no cached data and offline — skipping".to_string()),
+            Err(error) => CompatLoad::SoftEmpty(format!("fetch failed: {error}")),
+        };
+    }
+
+    // Default, hermetic path: the vendored slice. Missing/unreadable is fatal.
+    let vendored = Path::new(env!("CARGO_MANIFEST_DIR")).join(VENDORED_COMPAT_PATH);
+    println!(
+        "svg-data: using vendored compat slice {}",
+        vendored.display()
+    );
+    match read_json_file(&vendored, "vendored compat slice") {
+        Ok(raw) => CompatLoad::Loaded(raw),
+        Err(error) => CompatLoad::Hard(error),
     }
 }
 
-fn local_worker_dir() -> Option<PathBuf> {
-    let worker_dir = workspace_root()?.join("workers/svg-compat");
-    let cli_path = worker_dir.join("src/cli.ts");
-    cli_path.exists().then_some(worker_dir)
+/// Resolve a user-supplied path against the workspace root (falling back to the
+/// crate manifest dir), leaving absolute paths untouched.
+fn resolve_relative(raw_path: &str) -> PathBuf {
+    let path = PathBuf::from(raw_path);
+    if path.is_absolute() {
+        return path;
+    }
+    workspace_root()
+        .unwrap_or_else(|| Path::new(env!("CARGO_MANIFEST_DIR")).to_path_buf())
+        .join(path)
 }
 
 fn workspace_root() -> Option<PathBuf> {
@@ -184,38 +190,6 @@ fn workspace_root() -> Option<PathBuf> {
         .ancestors()
         .nth(2)
         .map(Path::to_path_buf)
-}
-
-fn run_local_worker_cli(worker_dir: &Path, cache_path: &Path) -> Result<(), String> {
-    let output = Command::new("deno")
-        .arg("run")
-        .arg("-A")
-        .arg("src/cli.ts")
-        .arg("emit")
-        .arg("data")
-        .arg("--out")
-        .arg(cache_path)
-        .current_dir(worker_dir)
-        .output()
-        .map_err(|error| format!("spawn deno in {}: {error}", worker_dir.display()))?;
-
-    if output.status.success() {
-        return Ok(());
-    }
-
-    let stderr = String::from_utf8_lossy(&output.stderr);
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    let details = stderr.trim();
-    if !details.is_empty() {
-        return Err(format!("exit {}: {details}", output.status));
-    }
-
-    let details = stdout.trim();
-    if !details.is_empty() {
-        return Err(format!("exit {}: {details}", output.status));
-    }
-
-    Err(format!("exit {}", output.status))
 }
 
 fn read_json_file(path: &Path, label: &str) -> Result<String, String> {

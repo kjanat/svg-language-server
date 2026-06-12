@@ -208,7 +208,7 @@ fn build_seed_elements(
 ///
 /// Two distinct `SeedSourceBindings` fields (e.g. `attribute_index_*` and
 /// `detail_*`) can point at the same source id, kind, file and locator —
-/// most notably in `Svg2EditorsDraft20250914` where every binding resolves
+/// most notably in `Svg2EditorsDraft` where every binding resolves
 /// to `definitions.xml`. Without dedup the generated snapshot carries
 /// byte-identical provenance rows that skew coverage accounting.
 fn dedup_provenance(provenance: &mut Vec<FactProvenance>) {
@@ -352,7 +352,7 @@ fn manifest_path(snapshot: SpecSnapshotId) -> std::path::PathBuf {
         SpecSnapshotId::Svg11Rec20030114 => "svg11-rec-20030114.toml",
         SpecSnapshotId::Svg11Rec20110816 => "svg11-rec-20110816.toml",
         SpecSnapshotId::Svg2Cr20181004 => "svg2-cr-20181004.toml",
-        SpecSnapshotId::Svg2EditorsDraft20250914 => "svg2-ed-20250914.toml",
+        SpecSnapshotId::Svg2EditorsDraft => "svg2-ed-20250914.toml",
     };
 
     Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -365,7 +365,7 @@ fn foreign_manifest(
 ) -> svg_data::extraction::Result<Option<SourceManifest>> {
     if !matches!(
         snapshot,
-        SpecSnapshotId::Svg2Cr20181004 | SpecSnapshotId::Svg2EditorsDraft20250914
+        SpecSnapshotId::Svg2Cr20181004 | SpecSnapshotId::Svg2EditorsDraft
     ) {
         return Ok(None);
     }
@@ -564,7 +564,7 @@ fn foreign_reference_binding(
 ) -> Option<ForeignReferenceBinding> {
     if !matches!(
         snapshot,
-        SpecSnapshotId::Svg2Cr20181004 | SpecSnapshotId::Svg2EditorsDraft20250914
+        SpecSnapshotId::Svg2Cr20181004 | SpecSnapshotId::Svg2EditorsDraft
     ) {
         return None;
     }
@@ -752,7 +752,7 @@ fn manual_review_provenance_for(
         (SpecSnapshotId::Svg2Cr20181004, "enum-display") => {
             ("tr-root", "render.html", "VisibilityControl")
         }
-        (SpecSnapshotId::Svg2EditorsDraft20250914, "enum-display") => {
+        (SpecSnapshotId::Svg2EditorsDraft, "enum-display") => {
             ("chapter-html", "render.html", "VisibilityControl")
         }
         _ => return Ok(None),
@@ -1005,7 +1005,7 @@ const fn seed_source_bindings(snapshot: SpecSnapshotId) -> SeedSourceBindings {
             detail_file: None,
             review_note: "SVG 2 CR seed facts are SVG-owned; foreign references (svg-animations, css-masking-1, filter-effects-1, compositing-1, wai-aria-1.1, css-color-4, css-values-3) are emitted per-attribute when a foreign manifest is present.",
         },
-        SpecSnapshotId::Svg2EditorsDraft20250914 => SeedSourceBindings {
+        SpecSnapshotId::Svg2EditorsDraft => SeedSourceBindings {
             element_index_input: "definitions",
             element_index_source_kind: ProvenanceSourceKind::DefinitionsXml,
             element_index_confidence: ExtractionConfidence::Derived,

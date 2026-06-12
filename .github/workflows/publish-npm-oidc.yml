@@ -24,15 +24,14 @@ jobs:
           path: dist-npm/
           merge-multiple: true
       - uses: actions/setup-node@v6
-        with:
-          node-version: "24.x"
-          registry-url: "https://registry.npmjs.org"
+        with: { node-version: "latest", registry-url: "https://registry.npmjs.org" }
       - name: Publish dist npm installers
         shell: bash
         run: |
           set -euo pipefail
 
-          npm install -g npm@latest
+          # Use the npm bundled with the latest Node, which supports OIDC
+          # trusted publishing + `--provenance`.
 
           publish_pkg() {
             local source="$1"

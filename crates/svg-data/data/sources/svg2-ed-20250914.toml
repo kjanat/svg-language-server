@@ -2,7 +2,7 @@
 
 schema_version   = 1
 manifest_id      = "svg2-ed-20250914"
-snapshot         = "Svg2EditorsDraft20250914"
+snapshot         = "Svg2EditorsDraft"
 title            = "SVG 2 Editor's Draft"
 status           = "ED"
 authority_policy = "git-first"

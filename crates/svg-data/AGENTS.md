@@ -14,9 +14,15 @@ Build-script generated SVG catalog crate. Produces baked metadata used by lint +
 | Element category logic     | `src/categories.rs`          | Content-model/category constraints                 |
 | BCD path handling          | `src/bcd.rs`                 | Attribute/element compat extraction                |
 | Curated seed data          | `data/*.json`                | Inputs for generation bootstrap                    |
+| JSON schemas               | `data/schemas/*.schema.json` | **Generated** from Rust types — see below          |
 
 ## CONVENTIONS
 
+- `data/schemas/*.schema.json` are **generated from the Rust types** (`src/types.rs`,
+  `src/derived.rs`, which derive `schemars::JsonSchema`) via
+  `cargo run -p svg-data --example generate_schemas`. The Rust types are the source of
+  truth; the committed `.schema.json` files are a build artifact. Do **not** hand-edit
+  them — change the struct + regenerate.
 - Generated `src/catalog.rs` is output artifact; source of truth is pipeline + input data.
 - Prefer deterministic generation and stable ordering to keep diffs reviewable.
 - Preserve support for offline builds (`SVG_DATA_OFFLINE`) when touching network fetch behavior.
@@ -25,6 +31,7 @@ Build-script generated SVG catalog crate. Produces baked metadata used by lint +
 ## ANTI-PATTERNS
 
 - Do not hand-edit generated entries in `src/catalog.rs`.
+- Do not hand-edit `data/schemas/*.schema.json` — regenerate from the Rust types (above).
 - Do not assume BCD has one canonical compat path; check element-specific and global attribute paths.
 - Do not drop `<style>`/`<script>` special handling from categories/content model logic.
 - Do not introduce non-deterministic generation steps.

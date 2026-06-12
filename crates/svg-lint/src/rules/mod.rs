@@ -12,7 +12,10 @@ use tree_sitter::{Node, Tree};
 
 use crate::{
     namespaces::{self, NamespaceScope, SVG_NAMESPACE_URI, XLINK_NAMESPACE_URI},
-    types::{CompatFlags, DiagnosticCode, LintOptions, LintOverrides, Severity, SvgDiagnostic},
+    types::{
+        CompatFlags, DiagnosticCode, LintOptions, LintOverrides, Severity, SvgDiagnostic,
+        VerdictOverrides,
+    },
 };
 
 /// Element-vs-attribute specific diagnostic codes for lifecycle-driven
@@ -60,14 +63,21 @@ struct LintContext<'a> {
     seen_ids: HashMap<String, usize>,
     options: LintOptions,
     overrides: Option<&'a LintOverrides>,
+    verdict_overrides: Option<&'a VerdictOverrides>,
 }
 
 /// Run all lint checks on a parsed SVG tree.
+///
+/// `verdict_overrides` replaces the baked [`CompatVerdict`] for named
+/// elements/attributes (e.g. from a newer BCD load) so the advisory
+/// diagnostics track current data. `None` — or any name absent from the
+/// supplied maps — keeps baked behaviour.
 pub fn check_all(
     source: &[u8],
     tree: &Tree,
     options: LintOptions,
     overrides: Option<&LintOverrides>,
+    verdict_overrides: Option<&VerdictOverrides>,
 ) -> Vec<SvgDiagnostic> {
     let mut ctx = LintContext {
         source,
@@ -77,6 +87,7 @@ pub fn check_all(
         seen_ids: HashMap::new(),
         options,
         overrides,
+        verdict_overrides,
     };
     walk_elements(&mut ctx, tree.root_node(), &NamespaceScope::default());
     ctx.diagnostics
@@ -128,13 +139,36 @@ fn check_element<'a>(
         return scope;
     }
 
+    // SVG Native reductive constraint: a construct can be a valid SVG 2 element
+    // yet unsupported by the SVG Native profile. Flag it, then continue the
+    // normal snapshot checks so the user still gets attribute/child diagnostics.
+    check_native_element(ctx, name_node, expanded_name.local_name);
+
+    // When an edition is selected it is the **authority** on membership: the
+    // base snapshot is only the nearest catalogued approximation. An element the
+    // edition declares is valid even if the base snapshot dropped it (e.g.
+    // `definition-src` exists in SVG 1.0 but not the SVG 1.1 snapshot 1.0
+    // collapses to); an element the snapshot defines but the edition never did
+    // is flagged.
+    let edition_has_element =
+        edition_declares_element(ctx.options.edition, expanded_name.local_name);
+
     let lookup = svg_data::element_for_profile(ctx.options.profile, expanded_name.local_name);
     let def = match lookup {
         ProfileLookup::Present { value, lifecycle } => {
             let lifecycle =
                 element_diagnostic_lifecycle(ctx, expanded_name.local_name, value, lifecycle);
             emit_element_compat_diags(ctx, name_node, value, lifecycle);
+            if ctx.options.edition.is_some() && !edition_has_element {
+                flag_element_not_in_edition(ctx, name_node, expanded_name.local_name);
+            }
             value
+        }
+        // The snapshot rejects it, but the selected edition declares it: valid.
+        ProfileLookup::UnsupportedInProfile { .. } | ProfileLookup::Unknown
+            if edition_has_element =>
+        {
+            return scope;
         }
         ProfileLookup::UnsupportedInProfile { .. } => {
             push_diag(
@@ -165,7 +199,7 @@ fn check_element<'a>(
     };
 
     // Check: Unknown/deprecated/experimental attributes
-    check_attributes(ctx, tag, &scope);
+    check_attributes(ctx, tag, expanded_name.local_name, &scope);
 
     // Check: Duplicate id
     check_duplicate_id(
@@ -205,7 +239,107 @@ fn is_xml_infrastructure(name: &str) -> bool {
     name == "xmlns" || name.starts_with("xmlns:") || name.starts_with("xml:")
 }
 
-fn check_attributes(ctx: &mut LintContext<'_>, tag: Node, scope: &NamespaceScope<'_>) {
+/// Whether the selected `edition` (if any) declares an element by `name`.
+fn edition_declares_element(edition: Option<&svg_data::inventory::Inventory>, name: &str) -> bool {
+    edition.is_some_and(|inventory| {
+        inventory
+            .elements
+            .iter()
+            .any(|element| element.name.as_ref() == name)
+    })
+}
+
+/// Flag a snapshot-defined element the selected edition never declared.
+fn flag_element_not_in_edition(ctx: &mut LintContext<'_>, name_node: Node, local_name: &str) {
+    push_diag(
+        &mut ctx.diagnostics,
+        &mut ctx.suppressions,
+        name_node,
+        Severity::Error,
+        DiagnosticCode::UnsupportedInProfile,
+        format!("SVG element <{local_name}> is not defined in the selected edition"),
+    );
+}
+
+/// Flag an element the SVG Native profile does not support.
+fn check_native_element(ctx: &mut LintContext<'_>, name_node: Node, local_name: &str) {
+    if let Some(native) = ctx.options.native
+        && native.is_unsupported(svg_data::profile::ConstraintKind::Element, local_name)
+    {
+        push_diag(
+            &mut ctx.diagnostics,
+            &mut ctx.suppressions,
+            name_node,
+            Severity::Error,
+            DiagnosticCode::UnsupportedInProfile,
+            format!("SVG element <{local_name}> is not supported by SVG Native"),
+        );
+    }
+}
+
+/// Flag an attribute/property the SVG Native profile does not support.
+fn check_native_attribute(
+    ctx: &mut LintContext<'_>,
+    name_node: Node,
+    tag_start: usize,
+    lookup_name: &str,
+) {
+    if let Some(native) = ctx.options.native
+        && (native.is_unsupported(svg_data::profile::ConstraintKind::Attribute, lookup_name)
+            || native.is_unsupported(svg_data::profile::ConstraintKind::Property, lookup_name))
+    {
+        push_diag_in_tag(
+            &mut ctx.diagnostics,
+            &mut ctx.suppressions,
+            name_node,
+            Some(tag_start),
+            Severity::Error,
+            DiagnosticCode::UnsupportedInProfile,
+            format!("SVG attribute {lookup_name} is not supported by SVG Native"),
+        );
+    }
+}
+
+/// Flag an attribute the selected edition does not list for `elem_name` — when
+/// the edition declares that element and any attributes for it at all.
+fn check_edition_attribute(
+    ctx: &mut LintContext<'_>,
+    name_node: Node,
+    tag_start: usize,
+    elem_name: &str,
+    lookup_name: &str,
+) {
+    let Some(edition) = ctx.options.edition else {
+        return;
+    };
+    if !edition_declares_element(Some(edition), elem_name) {
+        return;
+    }
+    let allowed: Vec<&str> = edition
+        .attributes_for_element(elem_name)
+        .map(|attribute| attribute.name.as_ref())
+        .collect();
+    if !allowed.is_empty() && !allowed.contains(&lookup_name) {
+        push_diag_in_tag(
+            &mut ctx.diagnostics,
+            &mut ctx.suppressions,
+            name_node,
+            Some(tag_start),
+            Severity::Error,
+            DiagnosticCode::UnsupportedInProfile,
+            format!(
+                "SVG attribute {lookup_name} is not defined on <{elem_name}> in the selected edition"
+            ),
+        );
+    }
+}
+
+fn check_attributes(
+    ctx: &mut LintContext<'_>,
+    tag: Node,
+    elem_name: &str,
+    scope: &NamespaceScope<'_>,
+) {
     let tag_start = tag.start_position().row;
     let mut cursor = tag.walk();
     for attr_node in tag.children(&mut cursor) {
@@ -227,6 +361,11 @@ fn check_attributes(ctx: &mut LintContext<'_>, tag: Node, scope: &NamespaceScope
             continue;
         };
 
+        // Reductive-profile (SVG Native) and edition restrictions, independent
+        // of the snapshot lookup below.
+        check_native_attribute(ctx, name_node, tag_start, lookup_name.as_ref());
+        check_edition_attribute(ctx, name_node, tag_start, elem_name, lookup_name.as_ref());
+
         // Generic attribute names are a mixed bucket of valid SVG attributes and truly
         // unknown ones. Without a complete checked-in attribute catalog, treating a catalog
         // miss as "unknown" makes diagnostics depend on build-time BCD fetch state.
@@ -234,7 +373,7 @@ fn check_attributes(ctx: &mut LintContext<'_>, tag: Node, scope: &NamespaceScope
             ProfileLookup::Present { value, lifecycle } => {
                 let lifecycle =
                     attribute_diagnostic_lifecycle(ctx, lookup_name.as_ref(), value, lifecycle);
-                let verdict = svg_data::compat_verdict_for_attribute(value, ctx.options.profile);
+                let verdict = attribute_compat_verdict(ctx, lookup_name.as_ref(), value);
                 emit_lifecycle_diag_in_tag(
                     &mut ctx.diagnostics,
                     &mut ctx.suppressions,
@@ -506,7 +645,7 @@ fn emit_element_compat_diags(
     value: &'static svg_data::ElementDef,
     lifecycle: SpecLifecycle,
 ) {
-    let verdict = svg_data::compat_verdict_for_element(value, ctx.options.profile);
+    let verdict = element_compat_verdict(ctx, value);
     let subject = format!("<{}>", value.name);
     emit_lifecycle_diag(
         &mut ctx.diagnostics,
@@ -555,6 +694,44 @@ fn attribute_diagnostic_lifecycle(
         ctx.overrides
             .and_then(|overrides| overrides.attributes.get(attribute_name)),
     )
+}
+
+/// Resolve the compat verdict driving an element's advisory diagnostics.
+///
+/// A runtime verdict override for this element name (e.g. from a newer
+/// BCD load threaded in via [`VerdictOverrides`]) replaces the baked
+/// verdict so the lint advisory tracks current data. Absent an override,
+/// the baked [`svg_data::compat_verdict_for_element`] verdict is used —
+/// preserving existing default behaviour.
+fn element_compat_verdict(
+    ctx: &LintContext<'_>,
+    value: &svg_data::ElementDef,
+) -> Option<CompatVerdict> {
+    runtime_verdict_override(ctx, |overrides| overrides.elements.get(value.name))
+        .or_else(|| svg_data::compat_verdict_for_element(value, ctx.options.profile))
+}
+
+/// Resolve the compat verdict driving an attribute's advisory diagnostics.
+///
+/// Mirrors [`element_compat_verdict`]: a runtime override keyed by the
+/// canonical attribute name wins, otherwise the baked verdict is used.
+fn attribute_compat_verdict(
+    ctx: &LintContext<'_>,
+    lookup_name: &str,
+    value: &svg_data::AttributeDef,
+) -> Option<CompatVerdict> {
+    runtime_verdict_override(ctx, |overrides| overrides.attributes.get(lookup_name))
+        .or_else(|| svg_data::compat_verdict_for_attribute(value, ctx.options.profile))
+}
+
+/// Pull a runtime verdict override out of the optional [`VerdictOverrides`],
+/// returning `None` when no overrides were supplied or the selector
+/// misses. Keeps the borrowed-override plumbing in one place.
+fn runtime_verdict_override(
+    ctx: &LintContext<'_>,
+    select: impl FnOnce(&VerdictOverrides) -> Option<&CompatVerdict>,
+) -> Option<CompatVerdict> {
+    ctx.verdict_overrides.and_then(select).copied()
 }
 
 /// The catalog's baked `deprecated` / `experimental` flags come from BCD,

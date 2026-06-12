@@ -15,6 +15,7 @@ use serde_json::json;
 use svg_data::{
     derived::{AttributeMembershipFile, ElementMembershipFile, SnapshotOverlayFile},
     extraction::SourceManifest,
+    profile::SvgNative,
     snapshot_schema::{
         CategoriesFile, ElementAttributeMatrixFile, ExceptionsFile, GrammarFile, ReviewFile,
         SnapshotAttributeRecord, SnapshotElementRecord, SnapshotMetadataFile,
@@ -26,7 +27,13 @@ use svg_data::{
 /// each schema from this location. The `SchemaStore` catalog meta-schema
 /// requires `format: uri` for `url`, so relative paths are not valid here.
 /// Local-development LSP uses the relative paths in `.zed/settings.json`.
-const RAW_SCHEMA_BASE_URL: &str = "https://raw.githubusercontent.com/kjanat/svg-language-server/master/crates/svg-data/data/schemas";
+// Ref segment (`SVG_SCHEMA_REF`) is injected by `build.rs`: the release tag on a
+// tagged build, `master` otherwise.
+const RAW_SCHEMA_BASE_URL: &str = concat!(
+    "https://raw.githubusercontent.com/kjanat/svg-language-server/",
+    env!("SVG_SCHEMA_REF"),
+    "/crates/svg-data/data/schemas"
+);
 
 fn schema_url(file_name: &str) -> String {
     format!("{RAW_SCHEMA_BASE_URL}/{file_name}")
@@ -57,6 +64,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         ("union-elements", schema_for!(ElementMembershipFile)),
         ("union-attributes", schema_for!(AttributeMembershipFile)),
         ("overlay", schema_for!(SnapshotOverlayFile)),
+        // SVG Native profile constraint dataset (data/profiles/svg-native.json).
+        ("svg-native-profile", schema_for!(SvgNative)),
     ];
 
     for (name, schema) in files {
@@ -148,6 +157,12 @@ fn main() -> Result<(), Box<dyn Error>> {
                 "description": "TOML source manifests already carry a #:schema comment; this entry covers JSON-tool consumers.",
                 "fileMatch": ["**/sources/*.toml"],
                 "url": schema_url("source-manifest.schema.json")
+            },
+            {
+                "name": "SVG Native Profile Constraints",
+                "description": "Extracted SVG Native profile constraint dataset (reductive subset of SVG 2 Secure Static Mode).",
+                "fileMatch": ["**/profiles/svg-native.json"],
+                "url": schema_url("svg-native-profile.schema.json")
             }
         ]
     });

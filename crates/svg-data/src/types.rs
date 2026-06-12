@@ -414,8 +414,11 @@ pub enum SpecSnapshotId {
     Svg11Rec20110816,
     /// SVG 2 Candidate Recommendation (2018-10-04).
     Svg2Cr20181004,
-    /// Pinned SVG 2 Editor's Draft snapshot (2025-09-14).
-    Svg2EditorsDraft20250914,
+    /// Rolling SVG 2 Editor's Draft snapshot. The captured commit pin and
+    /// capture date live in the snapshot's `snapshot.json` data so future ED
+    /// refreshes never require a Rust edit — only this undated identifier is
+    /// stable across refreshes.
+    Svg2EditorsDraft,
 }
 
 impl SpecSnapshotId {
@@ -424,7 +427,7 @@ impl SpecSnapshotId {
     /// script (verdict synthesis), the runtime catalog (`lifecycle_for_profile`)
     /// and downstream lint rules (BCD-advice scoping). When a new snapshot
     /// lands, update this one constant.
-    pub const LATEST: Self = Self::Svg2EditorsDraft20250914;
+    pub const LATEST: Self = Self::Svg2EditorsDraft;
 
     /// Return the canonical stable string id used in config and diagnostics.
     #[must_use]
@@ -433,7 +436,7 @@ impl SpecSnapshotId {
             Self::Svg11Rec20030114 => "Svg11Rec20030114",
             Self::Svg11Rec20110816 => "Svg11Rec20110816",
             Self::Svg2Cr20181004 => "Svg2Cr20181004",
-            Self::Svg2EditorsDraft20250914 => "Svg2EditorsDraft20250914",
+            Self::Svg2EditorsDraft => "Svg2EditorsDraft",
         }
     }
 }

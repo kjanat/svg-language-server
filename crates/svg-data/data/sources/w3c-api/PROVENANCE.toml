@@ -1,0 +1,56 @@
+# Vendored W3C API version-history payloads for the three SVG spec series.
+#
+# These are HAL envelopes returned by the W3C specifications API:
+#   { page, limit, pages, total, _links, _embedded }
+# The edition list lives in `_embedded["version-history"][]`, each entry
+# carrying `status`, `rec-track`, `editor-draft`, `uri`, `date`,
+# `shortlink`, `title`, etc. This is METADATA ONLY — versions, dates,
+# status and URIs. It contains NO spec content (no prose, no IDL, no
+# property tables). Spec content is vendored separately under the
+# per-edition source dirs.
+#
+# Vendoring lets the build read an offline edition index (versions + dates
+# + status per series) without any network access at build time. The
+# build MUST stay hermetic; any live call to api.w3.org belongs only to a
+# (future) LSP runtime refresh path, never to `cargo build`.
+#
+# Refresh: re-fetch the three URLs below and re-vendor verbatim, then
+# update `date`, `sha256` and `bytes` for each input. The W3C API exposes
+# no immutable dated URL for the version list, so these captures are
+# pinned by capture date only.
+#
+# Do NOT hand-edit the vendored JSON bytes — save raw response bodies.
+
+schema_version = 1
+purpose        = "Offline W3C edition index (version-history metadata) per SVG series"
+
+[capture]
+method = "curl"
+note   = "curl 'https://api.w3.org/specifications/<SERIES>/versions?embed=1&items=100'"
+date   = "2026-06-03"
+kind   = "w3c-api-metadata"
+# Metadata-only: spec versions/dates/status/uri. No spec content.
+
+[[inputs]]
+id         = "svg.versions"
+series     = "SVG 1.0"
+path       = "svg.versions.json"
+source_url = "https://api.w3.org/specifications/SVG/versions?embed=1&items=100"
+sha256     = "546d4e487d2e4eea88b9c04e6226c8dda82732ca60a49b541394b382d627247a"
+bytes      = 20780
+
+[[inputs]]
+id         = "svg11.versions"
+series     = "SVG 1.1"
+path       = "svg11.versions.json"
+source_url = "https://api.w3.org/specifications/SVG11/versions?embed=1&items=100"
+sha256     = "780381a65725c1b6f808811814dea4dc6aa62bf32d0b31dbd600f3e7bf3cfe58"
+bytes      = 17156
+
+[[inputs]]
+id         = "svg2.versions"
+series     = "SVG 2"
+path       = "svg2.versions.json"
+source_url = "https://api.w3.org/specifications/SVG2/versions?embed=1&items=100"
+sha256     = "167f48404eb2c66e9668258d0f7d59ed44c439c5bba1153ded0daef293d59675"
+bytes      = 17052

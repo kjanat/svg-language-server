@@ -797,7 +797,7 @@ mod tests {
         let metadata = SnapshotMetadataFile {
             schema: None,
             schema_version: SNAPSHOT_SCHEMA_VERSION,
-            snapshot: SpecSnapshotId::Svg2EditorsDraft20250914,
+            snapshot: SpecSnapshotId::Svg2EditorsDraft,
             title: "SVG 2 Editor's Draft".into(),
             date: "2025-09-14".into(),
             status: SnapshotStatus::EditorsDraft,
@@ -821,9 +821,7 @@ mod tests {
 
         assert_eq!(
             json.get("snapshot"),
-            Some(&serde_json::Value::String(
-                "Svg2EditorsDraft20250914".into()
-            ))
+            Some(&serde_json::Value::String("Svg2EditorsDraft".into()))
         );
 
         let round_trip: SnapshotMetadataFile = serde_json::from_value(json)?;

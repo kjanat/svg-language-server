@@ -57,6 +57,54 @@ impl RuntimeCompat {
             attributes: convert(&self.attributes),
         }
     }
+
+    /// Build runtime verdict overrides for the deprecation/experimental
+    /// dimension of the advisory compat verdict.
+    ///
+    /// Runtime BCD can mark a construct deprecated/experimental even when the
+    /// baked verdict (derived from an older BCD snapshot at build time) does
+    /// not. Those two states are fully `'static`-constructible — unit
+    /// [`svg_data::VerdictReason`]s plus fixed headline keys — so they can flow
+    /// into the lint advisory verdict. Richer runtime detail (support tiers,
+    /// versions, prefixes) is owned by svg-data's build-time verdict derivation
+    /// and is not reconstructed here. Entries that are neither deprecated nor
+    /// experimental contribute no override, so the baked verdict stands.
+    pub fn to_verdict_overrides(&self) -> svg_lint::VerdictOverrides {
+        use svg_data::{CompatVerdict, VerdictReason, VerdictRecommendation};
+
+        const DEPRECATED: &[VerdictReason] = &[VerdictReason::BcdDeprecated];
+        const EXPERIMENTAL: &[VerdictReason] = &[VerdictReason::BcdExperimental];
+        const BOTH: &[VerdictReason] =
+            &[VerdictReason::BcdDeprecated, VerdictReason::BcdExperimental];
+
+        let verdict = |co: &CompatOverride| match (co.deprecated, co.experimental) {
+            (true, true) => Some(CompatVerdict {
+                recommendation: VerdictRecommendation::Avoid,
+                headline_template: "deprecated and experimental in current compat data",
+                reasons: BOTH,
+            }),
+            (true, false) => Some(CompatVerdict {
+                recommendation: VerdictRecommendation::Avoid,
+                headline_template: "deprecated in current compat data",
+                reasons: DEPRECATED,
+            }),
+            (false, true) => Some(CompatVerdict {
+                recommendation: VerdictRecommendation::Caution,
+                headline_template: "experimental in current compat data",
+                reasons: EXPERIMENTAL,
+            }),
+            (false, false) => None,
+        };
+        let convert = |map: &HashMap<String, CompatOverride>| {
+            map.iter()
+                .filter_map(|(name, co)| verdict(co).map(|verdict| (name.clone(), verdict)))
+                .collect()
+        };
+        svg_lint::VerdictOverrides {
+            elements: convert(&self.elements),
+            attributes: convert(&self.attributes),
+        }
+    }
 }
 
 const BCD_URL: &str = "https://unpkg.com/@mdn/browser-compat-data@latest/data.json";
@@ -362,14 +410,54 @@ const fn baseline_since(baseline: BaselineStatus) -> u16 {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
+
     use super::{
-        BaselineStatus, RuntimeBrowserSupport, RuntimeBrowserVersion,
-        apply_global_attribute_overrides, collect_element_attribute_overrides, merge_baseline,
-        merge_runtime_browser_support,
+        BaselineStatus, CompatOverride, RuntimeBrowserSupport, RuntimeBrowserVersion,
+        RuntimeCompat, apply_global_attribute_overrides, collect_element_attribute_overrides,
+        merge_baseline, merge_runtime_browser_support,
     };
 
     fn known(version: &str) -> RuntimeBrowserVersion {
         RuntimeBrowserVersion::Version(version.to_owned())
+    }
+
+    fn override_with(deprecated: bool, experimental: bool) -> CompatOverride {
+        CompatOverride {
+            deprecated,
+            experimental,
+            baseline: None,
+            browser_support: None,
+        }
+    }
+
+    #[test]
+    fn verdict_overrides_reflect_runtime_deprecation_and_experimental() {
+        use svg_data::VerdictRecommendation;
+
+        let runtime = RuntimeCompat {
+            elements: HashMap::from([("marker".to_owned(), override_with(true, false))]),
+            attributes: HashMap::from([
+                ("rx".to_owned(), override_with(false, true)),
+                ("fill".to_owned(), override_with(false, false)),
+            ]),
+        };
+        let overrides = runtime.to_verdict_overrides();
+
+        // Deprecated element -> Avoid verdict.
+        let Some(marker) = overrides.elements.get("marker") else {
+            panic!("marker should have a runtime verdict override");
+        };
+        assert_eq!(marker.recommendation, VerdictRecommendation::Avoid);
+
+        // Experimental attribute -> Caution verdict.
+        let Some(rx) = overrides.attributes.get("rx") else {
+            panic!("rx should have a runtime verdict override");
+        };
+        assert_eq!(rx.recommendation, VerdictRecommendation::Caution);
+
+        // Neither deprecated nor experimental -> no override (baked verdict stands).
+        assert!(!overrides.attributes.contains_key("fill"));
     }
 
     #[test]

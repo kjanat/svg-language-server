@@ -1,0 +1,84 @@
+# Vendored frozen SVG 2 Candidate Recommendation (2016-09-15) index pages.
+#
+# Byte-for-byte snapshots of the three published, fully-rendered index pages
+# of the dated W3C /TR/ CR. Unlike the SVG2 Editor's Draft templates (which
+# ship `<edit:*/>` placeholder tags expanded only at build time), the dated
+# CR pages are REAL rendered tables — verified: zero `<edit:` markers in any
+# of the three files.
+#
+#   - eltindex.html : the element inventory (element names). Each entry is a
+#                     `<li><span class="element-name">` list item.
+#   - attindex.html : the attribute matrix — each row is an attribute name,
+#                     the list of elements it may be specified on, and an
+#                     "Anim." (animatable) flag. Columns:
+#                     "Attribute | Elements on which the attribute may be
+#                     specified | Anim.". The attribute name is a row-header
+#                     `<th>` cell.
+#   - propidx.html  : property -> value-definition syntax. Columns:
+#                     "Name | Values | Initial value | Applies to | Inh. |
+#                     Percentages | Media | Anim.". The Values column holds the
+#                     bar-separated value syntax the keyword value-enum
+#                     derivation reads. The property name is a row-header
+#                     `<th>` cell.
+#
+# The dated TR URL is immutable (W3C never edits a dated /TR/ snapshot), so
+# the URL itself is the pin — no git commit hash needed.
+# Do NOT hand-edit the vendored bytes; re-fetch from the dated URLs if lost.
+
+schema_version = 1
+purpose        = "presence / matrix / enum derivation from the SVG 2 CR (2016-09-15) published index pages"
+
+[authority]
+kind  = "w3c-tr"
+title = "Scalable Vector Graphics (SVG) 2 — Candidate Recommendation"
+url   = "https://www.w3.org/TR/2016/CR-SVG2-20160915/"
+
+[edition]
+title  = "SVG 2 Candidate Recommendation"
+status = "CR"
+date   = "2016-09-15"
+
+[pin]
+kind  = "dated-url"
+value = "https://www.w3.org/TR/2016/CR-SVG2-20160915/"
+date  = "2016-09-15"
+note  = "Dated W3C /TR/ snapshots are immutable; the URL is the pin."
+
+[checksum]
+strategy = "sha256-per-input"
+note     = "Hash raw response bytes fetched from the dated URLs."
+
+[[inputs]]
+id       = "element-index"
+kind     = "html"
+role     = "element inventory (element presence)"
+purpose  = "presence derivation"
+path     = "eltindex.html"
+url      = "https://www.w3.org/TR/2016/CR-SVG2-20160915/eltindex.html"
+bytes    = 10956
+sha256   = "56384bc48a9a0c9ea12f373d6518992f4bff7d9186d950b2a812e15130d0ab30"
+elements = 77
+
+[[inputs]]
+id              = "attribute-index"
+kind            = "html"
+role            = "attribute -> elements matrix + animatable flag"
+purpose         = "presence / matrix derivation"
+path            = "attindex.html"
+url             = "https://www.w3.org/TR/2016/CR-SVG2-20160915/attindex.html"
+bytes           = 571599
+sha256          = "87a672ef40a823bf022b25870c16dfecde11aac7140a183736a7dbe8eb4ff5bd"
+columns         = ["Attribute", "Elements on which the attribute may be specified", "Anim."]
+attribute_rows  = 355
+
+[[inputs]]
+id             = "property-index"
+kind           = "html"
+role           = "property -> value-definition syntax (value-enum source)"
+purpose        = "enum derivation"
+path           = "propidx.html"
+url            = "https://www.w3.org/TR/2016/CR-SVG2-20160915/propidx.html"
+bytes          = 41897
+sha256         = "723dbe6978653535c1ad36b8b3a711645fb1025f5ea1d5e56195e7ff8190dac1"
+columns        = ["Name", "Values", "Initial value", "Applies to", "Inh.", "Percentages", "Media", "Anim."]
+property_rows  = 58

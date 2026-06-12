@@ -973,13 +973,10 @@ mod tests {
         )?;
 
         assert_eq!(manifest.schema_version, SOURCE_MANIFEST_SCHEMA_VERSION);
-        assert_eq!(
-            manifest.snapshot,
-            Some(SpecSnapshotId::Svg2EditorsDraft20250914)
-        );
+        assert_eq!(manifest.snapshot, Some(SpecSnapshotId::Svg2EditorsDraft));
 
         let metadata = manifest.snapshot_metadata("extractor-v1", "2026-04-09")?;
-        assert_eq!(metadata.snapshot, SpecSnapshotId::Svg2EditorsDraft20250914);
+        assert_eq!(metadata.snapshot, SpecSnapshotId::Svg2EditorsDraft);
         assert_eq!(metadata.pinned_sources.len(), manifest.inputs.len());
         assert_eq!(metadata.status, SnapshotStatus::EditorsDraft);
         Ok(())

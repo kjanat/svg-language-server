@@ -1,0 +1,80 @@
+# Vendored frozen SVG 2 Candidate Recommendation (2018-10-04) index pages.
+#
+# Byte-for-byte snapshots of the three published, fully-rendered index pages
+# of the dated W3C /TR/ CR. Unlike the SVG2 Editor's Draft templates (which
+# ship `<edit:*/>` placeholder tags expanded only at build time), the dated
+# CR pages are REAL rendered tables — verified: zero `<edit:` markers in any
+# of the three files.
+#
+#   - eltindex.html : the element inventory (element names).
+#   - attindex.html : the attribute matrix — each row is an attribute name,
+#                     the list of elements it may be specified on, and an
+#                     "Anim." (animatable) flag. Columns:
+#                     "Attribute | Elements on which the attribute may be
+#                     specified | Anim.".
+#   - propidx.html  : property -> value-definition syntax. Columns:
+#                     "Name | Values | Initial value | Applies to | Inh. |
+#                     Percentages". The Values column holds the bar-separated
+#                     value syntax the keyword value-enum derivation reads.
+#
+# The dated TR URL is immutable (W3C never edits a dated /TR/ snapshot), so
+# the URL itself is the pin — no git commit hash needed.
+# Do NOT hand-edit the vendored bytes; re-fetch from the dated URLs if lost.
+
+schema_version = 1
+purpose        = "presence / matrix / enum derivation from the SVG 2 CR (2018-10-04) published index pages"
+
+[authority]
+kind  = "w3c-tr"
+title = "Scalable Vector Graphics (SVG) 2 — Candidate Recommendation"
+url   = "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+
+[edition]
+snapshot = "Svg2Cr20181004"
+title    = "SVG 2 Candidate Recommendation"
+status   = "CR"
+
+[pin]
+kind  = "dated-url"
+value = "https://www.w3.org/TR/2018/CR-SVG2-20181004/"
+date  = "2018-10-04"
+note  = "Dated W3C /TR/ snapshots are immutable; the URL is the pin."
+
+[checksum]
+strategy = "sha256-per-input"
+note     = "Hash raw response bytes fetched from the dated URLs."
+
+[[inputs]]
+id       = "element-index"
+kind     = "html"
+role     = "element inventory (element presence)"
+purpose  = "presence derivation"
+path     = "eltindex.html"
+url      = "https://www.w3.org/TR/2018/CR-SVG2-20181004/eltindex.html"
+bytes    = 10434
+sha256   = "cdf201e0a6588896b7b1bae739ac80f7bbd44f25a2a76632a2f6762f94d02744"
+elements = 69
+
+[[inputs]]
+id              = "attribute-index"
+kind            = "html"
+role            = "attribute -> elements matrix + animatable flag"
+purpose         = "presence / matrix derivation"
+path            = "attindex.html"
+url             = "https://www.w3.org/TR/2018/CR-SVG2-20181004/attindex.html"
+bytes           = 525951
+sha256          = "d008a1b62808268bfda853659e425554f6fbc9b2e3f415bc2b6aad437712bd50"
+columns         = ["Attribute", "Elements on which the attribute may be specified", "Anim."]
+attribute_rows  = 339
+
+[[inputs]]
+id             = "property-index"
+kind           = "html"
+role           = "property -> value-definition syntax (value-enum source)"
+purpose        = "enum derivation"
+path           = "propidx.html"
+url            = "https://www.w3.org/TR/2018/CR-SVG2-20181004/propidx.html"
+bytes          = 30192
+sha256         = "d80b560f17cfdd16fe2cf5e976fc82d8585492c76aa349a836463cd14228de16"
+columns        = ["Name", "Values", "Initial value", "Applies to", "Inh.", "Percentages"]
+property_rows  = 37

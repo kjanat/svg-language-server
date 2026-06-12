@@ -1,0 +1,56 @@
+# Vendored frozen SVG 1.0 (Recommendation, 2001-09-04) flat DTD.
+#
+# Flattened SVG 1.0 DTD — the machine-readable grammar of element content
+# models and attribute lists. Source of element presence, the element x
+# attribute matrix, and enumerated (a|b|c) attribute value sets.
+#
+# SVG 1.0 predates SVG modularization: this is a single, hand-authored flat
+# DTD (131 `<!ENTITY %>`, 81 `<!ELEMENT>`, 81 `<!ATTLIST>`) with no DTD/.mod
+# split. It is structurally older/simpler than the 1.1 flat DTDs — ATTLISTs
+# reference granular `%PresentationAttributes-Color;` /
+# `%PresentationAttributes-FillStroke;` / `%PresentationAttributes-Graphics;`
+# parameter-entity groups directly and per-element `*Ext` extension hooks,
+# rather than the 1.1 consolidated `%SVG.Presentation.attrib;` group. The
+# build/dtd.rs entity-expansion + ATTLIST parser may need small, well-
+# justified adjustments for these 1.0-only parameter-entity group names.
+#
+# URL note: the bare path .../REC-SVG-20010904/svg10.dtd 404s; the flat DTD
+# is served at .../REC-SVG-20010904/DTD/svg10.dtd under the immutable dated
+# /TR/2001/REC-SVG-20010904/ tree, so the bytes are pinned by the dated REC.
+# Do NOT hand-edit the vendored bytes; re-fetch from the dated URL if lost.
+
+schema_version = 1
+purpose        = "presence / matrix / enum derivation"
+
+[authority]
+kind  = "w3c-tr"
+title = "Scalable Vector Graphics (SVG) 1.0 Specification"
+url   = "https://www.w3.org/TR/2001/REC-SVG-20010904/"
+
+[edition]
+snapshot = "Svg10Rec20010904"
+title    = "SVG 1.0"
+status   = "REC"
+
+[pin]
+kind  = "dated-url"
+value = "https://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd"
+date  = "2001-09-04"
+note  = "Dated W3C /TR/ Recommendations are immutable; the URL is the pin."
+
+[checksum]
+strategy = "sha256-per-input"
+note     = "Hash raw response bytes fetched from the dated URL."
+
+[[inputs]]
+id      = "flat-dtd"
+kind    = "dtd"
+role    = "element presence + element/attribute matrix + enumerated attribute value sets"
+purpose = "presence / matrix / enum derivation"
+path    = "svg10.dtd"
+url     = "https://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd"
+bytes   = 55654
+sha256  = "c43b7eae157c1b9c85d53ff7f509283cd4be3f1eb96c90ccafed054874a649c0"
+entity_decls  = 131
+element_decls = 81
+attlist_decls = 81

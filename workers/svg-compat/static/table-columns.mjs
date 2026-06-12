@@ -146,6 +146,8 @@ function initializeWidths(table) {
 /**
  * @param {HTMLTableElement} table
  * @param {HTMLTableCellElement} th
+ * @param {number} startX
+ * @param {number | undefined} pointerId
  */
 function startColumnResize(table, th, startX, pointerId) {
 	const colIndex = getColumnIndex(table, th);
@@ -189,12 +191,12 @@ function startColumnResize(table, th, startX, pointerId) {
 				// Pointer might already be released.
 			}
 		}
-		window.removeEventListener("pointermove", onMove);
-		window.removeEventListener("pointerup", onUp);
+		globalThis.removeEventListener("pointermove", onMove);
+		globalThis.removeEventListener("pointerup", onUp);
 	};
 
-	window.addEventListener("pointermove", onMove);
-	window.addEventListener("pointerup", onUp);
+	globalThis.addEventListener("pointermove", onMove);
+	globalThis.addEventListener("pointerup", onUp);
 }
 
 /**
@@ -313,4 +315,4 @@ for (const table of document.querySelectorAll("section[data-searchable] table"))
 	resizeObserver?.observe(resizeTarget);
 }
 
-window.addEventListener("resize", () => syncBrowserChipLayouts(document));
+globalThis.addEventListener("resize", () => syncBrowserChipLayouts(document));

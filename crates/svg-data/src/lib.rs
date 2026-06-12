@@ -809,7 +809,11 @@ mod tests {
     #[test]
     fn text_content_model() -> Result<(), Box<dyn Error>> {
         let text = element("text").ok_or("text should exist")?;
-        assert!(matches!(text.content_model, ContentModel::Children(_)));
+        // `text` is spec-derived as an explicit element set (resolved from the
+        // animation / descriptive / text-content-child / paint-server categories
+        // plus its listed elements) rather than a broad category set, so it can
+        // exclude the `text` / `textPath` containers it must not nest.
+        assert!(matches!(text.content_model, ContentModel::ChildrenSet(_)));
         Ok(())
     }
 
@@ -829,14 +833,94 @@ mod tests {
         let children = allowed_children("text");
         assert!(children.contains(&"tspan"), "text should allow tspan");
         assert!(!children.contains(&"rect"), "text should not allow rect");
+        // The inline-text trap: a `<text>` container cannot nest another
+        // `<text>`, but `<textPath>` and `<tspan>` ARE valid text-content
+        // children (the spec's `text content child` category names both).
+        assert!(
+            !children.contains(&"text"),
+            "text must reject nested <text>"
+        );
+        assert!(
+            children.contains(&"textPath"),
+            "text should allow <textPath> as a text-content child"
+        );
     }
 
     #[test]
-    fn allowed_children_void() {
-        // `stop` is a genuinely empty element (a gradient stop carries no child
-        // elements), so its allowed-children set is empty.
+    fn allowed_children_text_path_excludes_containers() {
+        let children = allowed_children("textPath");
+        assert!(children.contains(&"tspan"), "textPath should allow tspan");
+        assert!(
+            children.contains(&"animate"),
+            "textPath should allow <animate>"
+        );
+        assert!(
+            !children.contains(&"text"),
+            "textPath must reject nested <text>"
+        );
+        assert!(
+            !children.contains(&"textPath"),
+            "textPath must reject nested <textPath>"
+        );
+    }
+
+    #[test]
+    fn allowed_children_stop() {
+        // A gradient `<stop>` is no longer modelled as empty: the spec gives it
+        // `animate, set, script, style` children.
         let children = allowed_children("stop");
-        assert!(children.is_empty(), "void element should have no children");
+        for expected in ["animate", "set", "script", "style"] {
+            assert!(
+                children.contains(&expected),
+                "stop should allow <{expected}>"
+            );
+        }
+        assert!(!children.contains(&"rect"), "stop should not allow <rect>");
+    }
+
+    #[test]
+    fn allowed_children_filter_primitive() {
+        // Filter primitives accept exactly `animate, script, set` (their own
+        // narrow element set) — not the whole animation category, and certainly
+        // not shapes.
+        let children = allowed_children("feGaussianBlur");
+        assert!(
+            children.contains(&"animate"),
+            "feGaussianBlur should allow <animate>"
+        );
+        assert!(
+            !children.contains(&"rect"),
+            "feGaussianBlur should not allow <rect>"
+        );
+        assert!(
+            !children.contains(&"animateMotion"),
+            "feGaussianBlur allows only animate/script/set, not the whole animation category"
+        );
+    }
+
+    #[test]
+    fn allowed_children_fe_image_includes_animate_transform() {
+        // `feImage` is the one filter primitive whose spec element set also
+        // names `animateTransform`.
+        let children = allowed_children("feImage");
+        assert!(
+            children.contains(&"animateTransform"),
+            "feImage should allow <animateTransform>"
+        );
+        assert!(
+            !children.contains(&"rect"),
+            "feImage should not allow <rect>"
+        );
+    }
+
+    #[test]
+    fn allowed_children_use_includes_descriptive() {
+        // `use` was wrongly empty; the spec gives it animation + descriptive
+        // children plus clipPath/mask/script/style.
+        let children = allowed_children("use");
+        assert!(children.contains(&"desc"), "use should allow <desc>");
+        assert!(children.contains(&"animate"), "use should allow <animate>");
+        assert!(!children.contains(&"rect"), "use should not allow <rect>");
     }
 
     #[test]

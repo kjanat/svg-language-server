@@ -992,7 +992,12 @@
 			"filter_primitive"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"script",
+				"set"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -1091,7 +1096,12 @@
 			"filter_primitive"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"script",
+				"set"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -1290,7 +1300,12 @@
 			"filter_primitive"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"script",
+				"set"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -1393,7 +1408,12 @@
 			"filter_primitive"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"script",
+				"set"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -1602,7 +1622,12 @@
 			"filter_primitive"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"script",
+				"set"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -1703,7 +1728,12 @@
 			"light_source"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"script",
+				"set"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -1798,7 +1828,12 @@
 		"title": "The feDropShadow SVG element.",
 		"categories": [],
 		"content_model": {
-			"kind": "empty"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"script",
+				"set"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -1895,7 +1930,12 @@
 			"filter_primitive"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"script",
+				"set"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -1991,7 +2031,12 @@
 			"transfer_function"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"script",
+				"set"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -2093,7 +2138,12 @@
 			"transfer_function"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"script",
+				"set"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -2195,7 +2245,12 @@
 			"transfer_function"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"script",
+				"set"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -2297,7 +2352,12 @@
 			"transfer_function"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"script",
+				"set"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -2399,7 +2459,12 @@
 			"filter_primitive"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"script",
+				"set"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -2498,7 +2563,13 @@
 			"filter_primitive"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"animateTransform",
+				"script",
+				"set"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -2697,7 +2768,12 @@
 			"merge_node"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"script",
+				"set"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -2793,7 +2869,12 @@
 			"filter_primitive"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"script",
+				"set"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -2892,7 +2973,12 @@
 			"filter_primitive"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"script",
+				"set"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -2991,7 +3077,12 @@
 			"light_source"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"script",
+				"set"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -3193,7 +3284,12 @@
 			"light_source"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"script",
+				"set"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -3296,7 +3392,12 @@
 			"filter_primitive"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"script",
+				"set"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -3393,7 +3494,12 @@
 			"filter_primitive"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"script",
+				"set"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -3808,7 +3914,20 @@
 			"structural"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"animateMotion",
+				"animateTransform",
+				"clipPath",
+				"desc",
+				"mask",
+				"metadata",
+				"script",
+				"set",
+				"style",
+				"title"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -4446,7 +4565,13 @@
 			"motion_path"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "element_set",
+			"elements": [
+				"desc",
+				"metadata",
+				"script",
+				"title"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -5394,7 +5519,13 @@
 			"gradient"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"script",
+				"set",
+				"style"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -5918,10 +6049,26 @@
 			"text"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"text",
-				"descriptive"
+			"kind": "element_set",
+			"elements": [
+				"a",
+				"animate",
+				"animateMotion",
+				"animateTransform",
+				"clipPath",
+				"desc",
+				"linearGradient",
+				"marker",
+				"mask",
+				"metadata",
+				"pattern",
+				"radialGradient",
+				"script",
+				"set",
+				"style",
+				"textPath",
+				"title",
+				"tspan"
 			]
 		},
 		"attributes": [
@@ -6025,10 +6172,23 @@
 			"text"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"text",
-				"descriptive"
+			"kind": "element_set",
+			"elements": [
+				"a",
+				"animate",
+				"clipPath",
+				"desc",
+				"linearGradient",
+				"marker",
+				"mask",
+				"metadata",
+				"pattern",
+				"radialGradient",
+				"script",
+				"set",
+				"style",
+				"title",
+				"tspan"
 			]
 		},
 		"attributes": [
@@ -6232,8 +6392,10 @@
 				"a",
 				"animate",
 				"desc",
+				"linearGradient",
 				"metadata",
 				"pattern",
+				"radialGradient",
 				"script",
 				"set",
 				"style",
@@ -6342,7 +6504,20 @@
 			"structural"
 		],
 		"content_model": {
-			"kind": "empty"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"animateMotion",
+				"animateTransform",
+				"clipPath",
+				"desc",
+				"mask",
+				"metadata",
+				"script",
+				"set",
+				"style",
+				"title"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -6441,7 +6616,18 @@
 		"title": "The 'view' element is defined as follows:",
 		"categories": [],
 		"content_model": {
-			"kind": "empty"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"animateMotion",
+				"animateTransform",
+				"desc",
+				"metadata",
+				"script",
+				"set",
+				"style",
+				"title"
+			]
 		},
 		"attributes": [
 			"alignment-baseline",

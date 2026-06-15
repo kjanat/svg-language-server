@@ -36,13 +36,32 @@ use std::{collections::BTreeMap, path::PathBuf};
 
 use serde::Deserialize;
 
-/// The `Svg2EditorsDraft` snapshot is pinned (via its `snapshot.json`
-/// provenance) to svgwg commit `19482daf…`; the audit reads the vendored
-/// checkout captured at that commit. Pinning the directory explicitly (rather
-/// than picking any `svgwg-*` dir) keeps the audit aligned with the snapshot
-/// under test even though other vendored captures (e.g. the `spec_scan` source)
-/// coexist under `data/sources/`.
-const VENDORED_ED_MASTER: &str = "data/sources/svgwg-19482daf/master";
+/// The vendored `master/` directory for the `Svg2EditorsDraft` snapshot,
+/// resolved from the `git_commit` pin in `snapshot.json` (dir is
+/// `svgwg-<commit[..8]>`). Reading the pin keeps the audit aligned with the
+/// snapshot under test across re-vendors — no hardcoded commit to update — even
+/// though other vendored captures (e.g. the `spec_scan` source) coexist under
+/// `data/sources/`.
+fn vendored_ed_master() -> PathBuf {
+    let path = manifest_dir().join("data/specs/Svg2EditorsDraft/snapshot.json");
+    let raw = std::fs::read(&path).unwrap_or_else(|err| panic!("read {}: {err}", path.display()));
+    let snapshot: serde_json::Value = serde_json::from_slice(&raw)
+        .unwrap_or_else(|err| panic!("parse {}: {err}", path.display()));
+    let commit = snapshot
+        .get("pinned_sources")
+        .and_then(serde_json::Value::as_array)
+        .into_iter()
+        .flatten()
+        .filter_map(|source| source.get("pin"))
+        .find(|pin| pin.get("kind").and_then(serde_json::Value::as_str) == Some("git_commit"))
+        .and_then(|pin| pin.get("commit"))
+        .and_then(serde_json::Value::as_str)
+        .unwrap_or_else(|| panic!("no git_commit pin in {}", path.display()));
+    let prefix = commit
+        .get(..8)
+        .unwrap_or_else(|| panic!("git_commit pin too short: {commit:?}"));
+    manifest_dir().join(format!("data/sources/svgwg-{prefix}/master"))
+}
 
 /// A single element record from the snapshot `elements.json`. Only the fields
 /// the audit needs are deserialized.
@@ -80,7 +99,7 @@ fn snapshot_titles() -> BTreeMap<String, String> {
 
 /// Run the extractor over the pinned vendored ED chapter HTML.
 fn extracted_descriptions() -> BTreeMap<String, String> {
-    spec::extract_chapter_descriptions(&manifest_dir().join(VENDORED_ED_MASTER))
+    spec::extract_chapter_descriptions(&vendored_ed_master())
 }
 
 /// Elements whose extracted lead description reproduces the snapshot `title`

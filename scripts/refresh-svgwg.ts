@@ -1,6 +1,10 @@
 #!/usr/bin/env bun
 /**
- * Re-vendor the svgwg editor's-draft sources at a new `master` commit.
+ * Re-vendor the svgwg editor's-draft sources at a new commit.
+ *
+ * With no commit argument, resolves svgwg's *default* branch HEAD via the GitHub
+ * API (the default branch is `main`; `master` is a stale legacy branch). An
+ * explicit 40-hex commit is still accepted for a deliberately pinned bump.
  *
  * Unlike `refresh-editions` (metadata only), these files ARE spec content: a new
  * commit can change which elements/attributes/properties the derived catalog
@@ -16,12 +20,14 @@
  * unintended catalog change.
  *
  * Usage:
- *   bun scripts/refresh-svgwg.ts <commit> [--activate]   (or `just refresh-svgwg <commit>`)
+ *   bun scripts/refresh-svgwg.ts [commit] [--activate]   (or `just refresh-svgwg`)
+ *   - no commit  → vendor svgwg default-branch HEAD
+ *   - <40-hex>   → vendor that exact commit
  */
 import { error, log } from "node:console";
-import { mkdir } from "node:fs/promises";
+import { mkdir, rm } from "node:fs/promises";
 import { dirname, normalize } from "node:path";
-import { argv, exit, stdout } from "node:process";
+import { argv, env, exit, stdout } from "node:process";
 
 const repoRoot = normalize(`${import.meta.dirname}/..`);
 const dataDir = `${repoRoot}/crates/svg-data/data`;
@@ -47,12 +53,12 @@ interface SvgwgProvenance {
 }
 
 async function main(): Promise<void> {
-	const newCommit = argv[2];
-	if (!newCommit || !/^[0-9a-f]{40}$/.test(newCommit)) {
-		error("usage: refresh-svgwg <40-hex-commit> [--activate]");
-		exit(1);
-	}
 	const activate = argv.includes("--activate");
+	// A human typing a sha is the failure mode that vendored the wrong (stale
+	// `master`) branch. Default to resolving svgwg's *default* branch HEAD
+	// ourselves; an explicit 40-hex commit is still honoured for a pinned bump.
+	const explicit = argv.slice(2).find((arg) => /^[0-9a-f]{40}$/.test(arg));
+	const newCommit = explicit ?? (await resolveDefaultBranchHead());
 
 	const snapshot = (await Bun.file(snapshotPath).json()) as Snapshot;
 	const oldCommit = snapshot.pinned_sources
@@ -96,12 +102,19 @@ async function main(): Promise<void> {
 		log(`${bytes.byteLength} bytes`);
 	}
 
-	const today = new Date().toISOString().slice(0, 10);
-	await Bun.write(`${newDir}/PROVENANCE.toml`, rewriteSvgwgProvenance(provText, facts, oldCommit, newCommit, today));
+	// Date the pin by the *commit*, not the wall clock — so re-vendoring the same
+	// commit is byte-identical (idempotent) instead of churning the date.
+	const pinDate = await commitDate(newCommit);
+	await Bun.write(`${newDir}/PROVENANCE.toml`, rewriteSvgwgProvenance(provText, facts, oldCommit, newCommit, pinDate));
 	log(`\nvendored ${inputs.length} files into ${relativeToRoot(newDir)}`);
 
 	if (activate) {
-		await activatePin(oldCommit, newCommit, today);
+		await activatePin(oldCommit, newCommit, pinDate);
+		// The superseded vendor dir is dead once the pin is flipped. Removing it
+		// keeps exactly one ED vendor dir on disk and means a stale capture can
+		// never silently linger (or fail the provenance gate forever).
+		await rm(oldDir, { recursive: true, force: true });
+		log(`removed superseded vendor dir ${relativeToRoot(oldDir)}`);
 		log("\nactivated new pin. next:");
 		log("  cargo build -p svg-data         # regenerate the catalog");
 		log("  cargo test  -p svg-data         # repro tests gate the change");
@@ -113,6 +126,59 @@ async function main(): Promise<void> {
 		log(`  crates/svg-data/data/specs/Svg2EditorsDraft/snapshot.json   commit + date`);
 		log(`  crates/svg-data/data/sources/svg2-ed-*.toml                 pin + locators + date`);
 	}
+}
+
+/**
+ * Resolve svgwg's *default* branch HEAD commit via the GitHub API — never a
+ * hardcoded branch name. svgwg renamed its default branch to `main` while the
+ * legacy `master` branch lingers, stale and divergent; resolving the default
+ * dynamically is the only way to track the real editor's draft. Uses
+ * `GITHUB_TOKEN` when present (CI rate limits / private mirrors).
+ */
+async function resolveDefaultBranchHead(): Promise<string> {
+	const headers: Record<string, string> = {
+		"User-Agent": "svg-language-server-refresh-svgwg",
+		Accept: "application/vnd.github+json",
+	};
+	const token = env.GITHUB_TOKEN;
+	if (token) headers.Authorization = `Bearer ${token}`;
+
+	const repoResponse = await fetch("https://api.github.com/repos/w3c/svgwg", { headers });
+	if (!repoResponse.ok) {
+		error(`resolve default branch: HTTP ${repoResponse.status}`);
+		exit(1);
+	}
+	const defaultBranch = ((await repoResponse.json()) as { default_branch: string }).default_branch;
+
+	const headResponse = await fetch(
+		`https://api.github.com/repos/w3c/svgwg/commits/${defaultBranch}`,
+		{ headers },
+	);
+	if (!headResponse.ok) {
+		error(`resolve ${defaultBranch} HEAD: HTTP ${headResponse.status}`);
+		exit(1);
+	}
+	const sha = ((await headResponse.json()) as { sha: string }).sha;
+	log(`resolved svgwg default branch '${defaultBranch}' HEAD: ${sha}`);
+	return sha;
+}
+
+/** The committer date (YYYY-MM-DD) of a commit — a deterministic pin date. */
+async function commitDate(sha: string): Promise<string> {
+	const headers: Record<string, string> = {
+		"User-Agent": "svg-language-server-refresh-svgwg",
+		Accept: "application/vnd.github+json",
+	};
+	const token = env.GITHUB_TOKEN;
+	if (token) headers.Authorization = `Bearer ${token}`;
+
+	const response = await fetch(`https://api.github.com/repos/w3c/svgwg/commits/${sha}`, { headers });
+	if (!response.ok) {
+		error(`resolve commit date for ${sha}: HTTP ${response.status}`);
+		exit(1);
+	}
+	const committed = (await response.json()) as { commit: { committer: { date: string } } };
+	return committed.commit.committer.date.slice(0, 10);
 }
 
 function sha256Hex(bytes: Uint8Array): string {

@@ -1,0 +1,12 @@
+{
+	"worktree": { "bgIsolation": "none" },
+	"permissions": {
+		"allow": ["Bash(cargo clippy:*)"],
+		"deny": [
+			"Write(crates/svg-data/data/**)",
+			"Edit(crates/svg-data/data/**)",
+			"Write(.claude/settings.json)",
+			"Edit(.claude/settings.json)"
+		]
+	}
+}

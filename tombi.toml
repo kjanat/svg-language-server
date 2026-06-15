@@ -47,3 +47,7 @@ workspace-diagnostic.enabled = true
 [schema]
 enabled = true
 strict  = true
+
+[[schemas]]
+path    = "./crates/svg-data/data/schemas/source-manifest.schema.json"
+include = ["./crates/svg-data/data/sources/svg*.toml"]

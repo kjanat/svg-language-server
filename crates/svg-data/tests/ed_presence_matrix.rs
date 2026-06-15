@@ -52,12 +52,37 @@ fn manifest_dir() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
 }
 
-/// The vendored `master/` directory pinned for the `Svg2EditorsDraft`
-/// snapshot. The pin (`19482daf`) is recorded in
-/// `data/specs/Svg2EditorsDraft/snapshot.json`; the extractor must read the
-/// **same** captured commit the snapshot was derived from.
+/// The vendored `master/` directory for the `Svg2EditorsDraft` snapshot,
+/// resolved from the `git_commit` pin in `snapshot.json` (the vendored dir is
+/// `svgwg-<commit[..8]>`). Reading the pin keeps the extractor on the **same**
+/// commit the snapshot was derived from across re-vendors, with no hardcoded
+/// commit to update by hand.
 fn ed_master() -> PathBuf {
-    manifest_dir().join("data/sources/svgwg-19482daf/master")
+    let snapshot_path = ed_snapshot_dir().join("snapshot.json");
+    let raw = match std::fs::read(&snapshot_path) {
+        Ok(raw) => raw,
+        Err(error) => panic!("read {}: {error}", snapshot_path.display()),
+    };
+    let snapshot: serde_json::Value = match serde_json::from_slice(&raw) {
+        Ok(value) => value,
+        Err(error) => panic!("parse {}: {error}", snapshot_path.display()),
+    };
+    let commit = snapshot
+        .get("pinned_sources")
+        .and_then(serde_json::Value::as_array)
+        .into_iter()
+        .flatten()
+        .filter_map(|source| source.get("pin"))
+        .find(|pin| pin.get("kind").and_then(serde_json::Value::as_str) == Some("git_commit"))
+        .and_then(|pin| pin.get("commit"))
+        .and_then(serde_json::Value::as_str);
+    let Some(commit) = commit else {
+        panic!("no git_commit pin in {}", snapshot_path.display())
+    };
+    let Some(prefix) = commit.get(..8) else {
+        panic!("git_commit pin too short to form a dir name: {commit:?}")
+    };
+    manifest_dir().join(format!("data/sources/svgwg-{prefix}/master"))
 }
 
 fn ed_snapshot_dir() -> PathBuf {

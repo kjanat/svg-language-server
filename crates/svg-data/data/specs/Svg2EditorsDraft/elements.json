@@ -6,20 +6,7 @@
 			"container"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"container",
-				"shape",
-				"text",
-				"gradient",
-				"filter",
-				"descriptive",
-				"structural",
-				"animation",
-				"paint_server",
-				"clip_mask",
-				"never_rendered"
-			]
+			"kind": "any_svg"
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -124,9 +111,12 @@
 			"animation"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"descriptive"
+			"kind": "element_set",
+			"elements": [
+				"desc",
+				"metadata",
+				"script",
+				"title"
 			]
 		},
 		"attributes": [
@@ -240,10 +230,13 @@
 			"animation"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"motion_path",
-				"descriptive"
+			"kind": "element_set",
+			"elements": [
+				"desc",
+				"metadata",
+				"mpath",
+				"script",
+				"title"
 			]
 		},
 		"attributes": [
@@ -359,9 +352,12 @@
 			"animation"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"descriptive"
+			"kind": "element_set",
+			"elements": [
+				"desc",
+				"metadata",
+				"script",
+				"title"
 			]
 		},
 		"attributes": [
@@ -475,12 +471,23 @@
 			"shape"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"animation",
-				"descriptive",
-				"paint_server",
-				"clip_mask"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"animateMotion",
+				"animateTransform",
+				"clipPath",
+				"desc",
+				"linearGradient",
+				"marker",
+				"mask",
+				"metadata",
+				"pattern",
+				"radialGradient",
+				"script",
+				"set",
+				"style",
+				"title"
 			]
 		},
 		"attributes": [
@@ -580,11 +587,25 @@
 			"clip_mask"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"shape",
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"animateMotion",
+				"animateTransform",
+				"circle",
+				"desc",
+				"ellipse",
+				"line",
+				"metadata",
+				"path",
+				"polygon",
+				"polyline",
+				"rect",
+				"script",
+				"set",
 				"text",
-				"descriptive"
+				"title",
+				"use"
 			]
 		},
 		"attributes": [
@@ -682,19 +703,42 @@
 			"container"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"container",
-				"shape",
-				"text",
-				"gradient",
+			"kind": "element_set",
+			"elements": [
+				"a",
+				"animate",
+				"animateMotion",
+				"animateTransform",
+				"circle",
+				"clipPath",
+				"defs",
+				"desc",
+				"ellipse",
 				"filter",
-				"descriptive",
-				"structural",
-				"animation",
-				"paint_server",
-				"clip_mask",
-				"never_rendered"
+				"foreignObject",
+				"g",
+				"image",
+				"line",
+				"linearGradient",
+				"marker",
+				"mask",
+				"metadata",
+				"path",
+				"pattern",
+				"polygon",
+				"polyline",
+				"radialGradient",
+				"rect",
+				"script",
+				"set",
+				"style",
+				"svg",
+				"switch",
+				"symbol",
+				"text",
+				"title",
+				"use",
+				"view"
 			]
 		},
 		"attributes": [
@@ -791,7 +835,7 @@
 			"descriptive"
 		],
 		"content_model": {
-			"kind": "text_only"
+			"kind": "any_svg"
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -886,12 +930,23 @@
 			"shape"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"animation",
-				"descriptive",
-				"paint_server",
-				"clip_mask"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"animateMotion",
+				"animateTransform",
+				"clipPath",
+				"desc",
+				"linearGradient",
+				"marker",
+				"mask",
+				"metadata",
+				"pattern",
+				"radialGradient",
+				"script",
+				"set",
+				"style",
+				"title"
 			]
 		},
 		"attributes": [
@@ -1200,9 +1255,13 @@
 			"filter_primitive"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"transfer_function"
+			"kind": "element_set",
+			"elements": [
+				"feFuncA",
+				"feFuncB",
+				"feFuncG",
+				"feFuncR",
+				"script"
 			]
 		},
 		"attributes": [
@@ -1519,9 +1578,15 @@
 			"filter_primitive"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"light_source"
+			"kind": "element_set",
+			"elements": [
+				"desc",
+				"feDistantLight",
+				"fePointLight",
+				"feSpotLight",
+				"metadata",
+				"script",
+				"title"
 			]
 		},
 		"attributes": [
@@ -2669,9 +2734,10 @@
 			"filter_primitive"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"merge_node"
+			"kind": "element_set",
+			"elements": [
+				"feMergeNode",
+				"script"
 			]
 		},
 		"attributes": [
@@ -3180,9 +3246,15 @@
 			"filter_primitive"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"light_source"
+			"kind": "element_set",
+			"elements": [
+				"desc",
+				"feDistantLight",
+				"fePointLight",
+				"feSpotLight",
+				"metadata",
+				"script",
+				"title"
 			]
 		},
 		"attributes": [
@@ -3600,10 +3672,31 @@
 			"filter"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"filter_primitive",
-				"descriptive"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"desc",
+				"feBlend",
+				"feColorMatrix",
+				"feComponentTransfer",
+				"feComposite",
+				"feConvolveMatrix",
+				"feDiffuseLighting",
+				"feDisplacementMap",
+				"feDropShadow",
+				"feFlood",
+				"feGaussianBlur",
+				"feImage",
+				"feMerge",
+				"feMorphology",
+				"feOffset",
+				"feSpecularLighting",
+				"feTile",
+				"feTurbulence",
+				"metadata",
+				"script",
+				"set",
+				"title"
 			]
 		},
 		"attributes": [
@@ -3805,19 +3898,42 @@
 			"container"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"container",
-				"shape",
-				"text",
-				"gradient",
+			"kind": "element_set",
+			"elements": [
+				"a",
+				"animate",
+				"animateMotion",
+				"animateTransform",
+				"circle",
+				"clipPath",
+				"defs",
+				"desc",
+				"ellipse",
 				"filter",
-				"descriptive",
-				"structural",
-				"animation",
-				"paint_server",
-				"clip_mask",
-				"never_rendered"
+				"foreignObject",
+				"g",
+				"image",
+				"line",
+				"linearGradient",
+				"marker",
+				"mask",
+				"metadata",
+				"path",
+				"pattern",
+				"polygon",
+				"polyline",
+				"radialGradient",
+				"rect",
+				"script",
+				"set",
+				"style",
+				"svg",
+				"switch",
+				"symbol",
+				"text",
+				"title",
+				"use",
+				"view"
 			]
 		},
 		"attributes": [
@@ -4032,12 +4148,23 @@
 			"shape"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"animation",
-				"descriptive",
-				"paint_server",
-				"clip_mask"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"animateMotion",
+				"animateTransform",
+				"clipPath",
+				"desc",
+				"linearGradient",
+				"marker",
+				"mask",
+				"metadata",
+				"pattern",
+				"radialGradient",
+				"script",
+				"set",
+				"style",
+				"title"
 			]
 		},
 		"attributes": [
@@ -4138,11 +4265,17 @@
 			"gradient"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"gradient",
-				"descriptive",
-				"animation"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"animateTransform",
+				"desc",
+				"metadata",
+				"script",
+				"set",
+				"stop",
+				"style",
+				"title"
 			]
 		},
 		"attributes": [
@@ -4246,16 +4379,42 @@
 			"container"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"shape",
-				"text",
-				"gradient",
+			"kind": "element_set",
+			"elements": [
+				"a",
+				"animate",
+				"animateMotion",
+				"animateTransform",
+				"circle",
+				"clipPath",
+				"defs",
+				"desc",
+				"ellipse",
 				"filter",
-				"descriptive",
-				"animation",
-				"paint_server",
-				"clip_mask"
+				"foreignObject",
+				"g",
+				"image",
+				"line",
+				"linearGradient",
+				"marker",
+				"mask",
+				"metadata",
+				"path",
+				"pattern",
+				"polygon",
+				"polyline",
+				"radialGradient",
+				"rect",
+				"script",
+				"set",
+				"style",
+				"svg",
+				"switch",
+				"symbol",
+				"text",
+				"title",
+				"use",
+				"view"
 			]
 		},
 		"attributes": [
@@ -4359,15 +4518,46 @@
 			"clip_mask"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"container",
-				"shape",
+			"kind": "element_set",
+			"elements": [
+				"a",
+				"altGlyphDef",
+				"animate",
+				"animateMotion",
+				"animateTransform",
+				"circle",
+				"clipPath",
+				"color-profile",
+				"defs",
+				"desc",
+				"ellipse",
+				"filter",
+				"font",
+				"font-face",
+				"foreignObject",
+				"g",
+				"image",
+				"line",
+				"linearGradient",
+				"marker",
+				"mask",
+				"metadata",
+				"path",
+				"pattern",
+				"polygon",
+				"polyline",
+				"radialGradient",
+				"rect",
+				"script",
+				"set",
+				"style",
+				"svg",
+				"switch",
+				"symbol",
 				"text",
-				"gradient",
-				"descriptive",
-				"structural",
-				"never_rendered"
+				"title",
+				"use",
+				"view"
 			]
 		},
 		"attributes": [
@@ -4470,7 +4660,7 @@
 			"descriptive"
 		],
 		"content_model": {
-			"kind": "text_only"
+			"kind": "any_svg"
 		},
 		"attributes": [
 			"alignment-baseline",
@@ -4667,12 +4857,23 @@
 			"shape"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"animation",
-				"descriptive",
-				"paint_server",
-				"clip_mask"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"animateMotion",
+				"animateTransform",
+				"clipPath",
+				"desc",
+				"linearGradient",
+				"marker",
+				"mask",
+				"metadata",
+				"pattern",
+				"radialGradient",
+				"script",
+				"set",
+				"style",
+				"title"
 			]
 		},
 		"attributes": [
@@ -4770,19 +4971,42 @@
 			"paint_server"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"container",
-				"shape",
-				"text",
-				"gradient",
+			"kind": "element_set",
+			"elements": [
+				"a",
+				"animate",
+				"animateMotion",
+				"animateTransform",
+				"circle",
+				"clipPath",
+				"defs",
+				"desc",
+				"ellipse",
 				"filter",
-				"descriptive",
-				"structural",
-				"animation",
-				"paint_server",
-				"clip_mask",
-				"never_rendered"
+				"foreignObject",
+				"g",
+				"image",
+				"line",
+				"linearGradient",
+				"marker",
+				"mask",
+				"metadata",
+				"path",
+				"pattern",
+				"polygon",
+				"polyline",
+				"radialGradient",
+				"rect",
+				"script",
+				"set",
+				"style",
+				"svg",
+				"switch",
+				"symbol",
+				"text",
+				"title",
+				"use",
+				"view"
 			]
 		},
 		"attributes": [
@@ -4889,12 +5113,23 @@
 			"shape"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"animation",
-				"descriptive",
-				"paint_server",
-				"clip_mask"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"animateMotion",
+				"animateTransform",
+				"clipPath",
+				"desc",
+				"linearGradient",
+				"marker",
+				"mask",
+				"metadata",
+				"pattern",
+				"radialGradient",
+				"script",
+				"set",
+				"style",
+				"title"
 			]
 		},
 		"attributes": [
@@ -4992,12 +5227,23 @@
 			"shape"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"animation",
-				"descriptive",
-				"paint_server",
-				"clip_mask"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"animateMotion",
+				"animateTransform",
+				"clipPath",
+				"desc",
+				"linearGradient",
+				"marker",
+				"mask",
+				"metadata",
+				"pattern",
+				"radialGradient",
+				"script",
+				"set",
+				"style",
+				"title"
 			]
 		},
 		"attributes": [
@@ -5095,11 +5341,17 @@
 			"gradient"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"gradient",
-				"descriptive",
-				"animation"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"animateTransform",
+				"desc",
+				"metadata",
+				"script",
+				"set",
+				"stop",
+				"style",
+				"title"
 			]
 		},
 		"attributes": [
@@ -5205,12 +5457,23 @@
 			"shape"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"animation",
-				"descriptive",
-				"paint_server",
-				"clip_mask"
+			"kind": "element_set",
+			"elements": [
+				"animate",
+				"animateMotion",
+				"animateTransform",
+				"clipPath",
+				"desc",
+				"linearGradient",
+				"marker",
+				"mask",
+				"metadata",
+				"pattern",
+				"radialGradient",
+				"script",
+				"set",
+				"style",
+				"title"
 			]
 		},
 		"attributes": [
@@ -5413,9 +5676,12 @@
 			"animation"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"descriptive"
+			"kind": "element_set",
+			"elements": [
+				"desc",
+				"metadata",
+				"script",
+				"title"
 			]
 		},
 		"attributes": [
@@ -5721,19 +5987,42 @@
 			"container"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"container",
-				"shape",
-				"text",
-				"gradient",
+			"kind": "element_set",
+			"elements": [
+				"a",
+				"animate",
+				"animateMotion",
+				"animateTransform",
+				"circle",
+				"clipPath",
+				"defs",
+				"desc",
+				"ellipse",
 				"filter",
-				"descriptive",
-				"structural",
-				"animation",
-				"paint_server",
-				"clip_mask",
-				"never_rendered"
+				"foreignObject",
+				"g",
+				"image",
+				"line",
+				"linearGradient",
+				"marker",
+				"mask",
+				"metadata",
+				"path",
+				"pattern",
+				"polygon",
+				"polyline",
+				"radialGradient",
+				"rect",
+				"script",
+				"set",
+				"style",
+				"svg",
+				"switch",
+				"symbol",
+				"text",
+				"title",
+				"use",
+				"view"
 			]
 		},
 		"attributes": [
@@ -5836,13 +6125,27 @@
 			"structural"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"container",
-				"shape",
+			"kind": "element_set",
+			"elements": [
+				"a",
+				"animate",
+				"animateMotion",
+				"animateTransform",
+				"circle",
+				"ellipse",
+				"foreignObject",
+				"g",
+				"image",
+				"line",
+				"path",
+				"polygon",
+				"polyline",
+				"rect",
+				"set",
+				"svg",
+				"switch",
 				"text",
-				"structural",
-				"animation"
+				"use"
 			]
 		},
 		"attributes": [
@@ -5939,19 +6242,42 @@
 			"container"
 		],
 		"content_model": {
-			"kind": "category_set",
-			"categories": [
-				"container",
-				"shape",
-				"text",
-				"gradient",
+			"kind": "element_set",
+			"elements": [
+				"a",
+				"animate",
+				"animateMotion",
+				"animateTransform",
+				"circle",
+				"clipPath",
+				"defs",
+				"desc",
+				"ellipse",
 				"filter",
-				"descriptive",
-				"structural",
-				"animation",
-				"paint_server",
-				"clip_mask",
-				"never_rendered"
+				"foreignObject",
+				"g",
+				"image",
+				"line",
+				"linearGradient",
+				"marker",
+				"mask",
+				"metadata",
+				"path",
+				"pattern",
+				"polygon",
+				"polyline",
+				"radialGradient",
+				"rect",
+				"script",
+				"set",
+				"style",
+				"svg",
+				"switch",
+				"symbol",
+				"text",
+				"title",
+				"use",
+				"view"
 			]
 		},
 		"attributes": [
@@ -6292,7 +6618,7 @@
 			"descriptive"
 		],
 		"content_model": {
-			"kind": "text_only"
+			"kind": "any_svg"
 		},
 		"attributes": [
 			"alignment-baseline",

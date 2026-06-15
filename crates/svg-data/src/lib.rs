@@ -765,12 +765,24 @@ mod tests {
         let rect = element("rect").ok_or("rect should exist")?;
         assert_eq!(rect.name, "rect");
         assert!(!rect.deprecated);
-        // A shape is not childless: SVG lets it carry animation + descriptive
-        // (and paint-server / clip-mask) children, just not other shapes.
-        assert!(matches!(rect.content_model, ContentModel::Children(_)));
+        // A shape is spec-derived as an explicit element set: the `anyof`
+        // content model (animation + descriptive + paint-server categories
+        // plus clipPath/marker/mask/script/style) flattened through the spec's
+        // own category membership.
+        assert!(matches!(rect.content_model, ContentModel::ChildrenSet(_)));
         let children = allowed_children("rect");
         assert!(children.contains(&"animate"), "rect allows <animate>");
         assert!(!children.contains(&"circle"), "rect rejects other shapes");
+        // Regression guard: the paint servers, marker and script the spec lists
+        // for a shape used to be dropped when the model was a bare category set
+        // (our `paint_server` category omits gradients, our taxonomy has no
+        // category covering marker/script).
+        assert!(
+            children.contains(&"linearGradient"),
+            "rect allows gradients"
+        );
+        assert!(children.contains(&"marker"), "rect allows <marker>");
+        assert!(children.contains(&"script"), "rect allows <script>");
         Ok(())
     }
 

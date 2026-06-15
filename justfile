@@ -167,7 +167,30 @@ spec-freshness *ARGS:
 refresh-editions:
     bun scripts/refresh-editions.ts
 
-# re-vendor svgwg sources at a new commit; pass --activate to flip the pin
+# re-vendor svgwg sources; no COMMIT = default-branch HEAD; --activate flips pin
 [group('spec-data')]
-refresh-svgwg COMMIT *FLAGS:
+refresh-svgwg COMMIT='' *FLAGS:
     bun scripts/refresh-svgwg.ts {{ COMMIT }} {{ FLAGS }}
+
+# One deterministic, hands-off spec refresh — the ONLY supported way to update
+# vendored/derived spec data. Vendors svgwg default-branch HEAD verbatim, then
+# regenerates every derived artifact in dependency order, formats, and gates.
+# Every write goes through a generator (cargo/bun); nothing is edited by hand.
+# Identical inputs produce identical bytes, so it is safe to re-run and to run
+# in CI. Review `git diff` and commit the result. Pass extra flags through to the
+# vendor step (e.g. an explicit commit) via FLAGS.
+[group('spec-data')]
+refresh-spec *FLAGS:
+    bun scripts/refresh-svgwg.ts --activate {{ FLAGS }}
+    cargo build -p svg-data
+    cargo run -q -p svg-data --example generate_snapshot_seed -- Svg11Rec20030114
+    cargo run -q -p svg-data --example generate_snapshot_seed -- Svg11Rec20110816
+    cargo run -q -p svg-data --example generate_snapshot_seed -- Svg2Cr20181004
+    cargo run -q -p svg-data --example generate_snapshot_seed -- Svg2EditorsDraft
+    cargo run -q -p svg-data --example derive_content_models
+    cargo run -q -p svg-data --example generate_snapshot_review all
+    cargo run -q -p svg-data --example generate_derived_membership
+    cargo run -q -p svg-data --example generate_schemas
+    cargo run -q -p svg-data --example generate_svg_native_profile
+    dprint fmt 'crates/svg-data/**'
+    cargo test -p svg-data

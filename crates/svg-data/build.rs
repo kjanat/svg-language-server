@@ -439,7 +439,7 @@ fn emit_rerun_directives() {
     println!("cargo::rerun-if-changed=data/sources/svg-native/PROVENANCE.toml");
     println!("cargo::rerun-if-changed=data/profiles/svg-native.json");
     // Vendored SVG 2 ED definitions feed the baked full-spec inventory.
-    println!("cargo::rerun-if-changed=data/sources/svgwg-19482daf/master");
+    println!("cargo::rerun-if-changed=data/sources/svgwg-b792b64e/master");
     // Vendored SVG 1.0 + SVG 1.1 flat DTDs feed the baked per-edition inventories.
     println!("cargo::rerun-if-changed=data/sources/svg10-rec-20010904/svg10.dtd");
     println!("cargo::rerun-if-changed=data/sources/svg11-rec-20030114/svg11-flat-20030114.dtd");
@@ -685,7 +685,7 @@ const SVG11_DTD_INVENTORIES: &[(&str, &str, &str)] = &[
 /// snapshot (commit `19482daf`). The same directory the
 /// `tests/ed_presence_matrix.rs` extractor audit reads, so the baked
 /// inventory and the audited extractor never diverge.
-const ED_DEFINITIONS_MASTER: &str = "data/sources/svgwg-19482daf/master";
+const ED_DEFINITIONS_MASTER: &str = "data/sources/svgwg-b792b64e/master";
 
 fn load_build_inputs() -> Result<BuildInputs, Box<dyn Error>> {
     let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));

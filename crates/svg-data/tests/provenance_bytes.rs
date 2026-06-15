@@ -9,14 +9,23 @@
 //! hand-edited, reformatted, or corrupted while the provenance keeps claiming
 //! pristine upstream bytes; this test is the gate that catches exactly that.
 //!
-//! `sha256` is the load-bearing check: an identical SHA-256 means byte-identical
-//! content (finding a collision is infeasible), so it subsumes any reformat or
-//! edit. `git_blob` (present only where the upstream is a git object) is an
-//! upstream-*traceability* locator — `git cat-file blob <git_blob>` resolves the
-//! exact source revision — not a second integrity check; the bytes it names are
-//! already locked down by `sha256`. So `git_blob` is format-validated here (a
-//! 40-char lowercase hex git object id) rather than recomputed, which would pull
-//! a SHA-1 dependency in solely to re-prove what `sha256` already proves.
+//! Two independent hashes are recomputed from the bytes and checked:
+//!
+//! * `sha256` — recorded locally; proves the file still matches what was written
+//!   down next to it.
+//! * `git_blob` — the upstream git object id (`sha1("blob "+len+"\0"+bytes)`).
+//!   A faithfully vendored file's git blob hash equals the object id the file
+//!   carries in svgwg's own tree, so this ties the bytes to a real upstream
+//!   revision, not merely to a locally-written number.
+//!
+//! These are NOT redundant, and assuming they were is what let a meddle through.
+//! `sha256` is self-referential: edit the file, recompute and rewrite the
+//! recorded `sha256`, and it passes forever. A hand-edited `definitions.xml`
+//! did exactly that — refreshed `sha256` to match the edit while leaving
+//! `git_blob` pointing at the original upstream object, so the two hashes
+//! silently described different bytes. Recomputing `git_blob` and comparing it
+//! to the recorded value catches that class of tampering: a vendored file that
+//! is not the verbatim upstream object now fails the build.
 
 use std::{
     fs,
@@ -24,6 +33,7 @@ use std::{
 };
 
 use serde::Deserialize;
+use sha1::Sha1;
 use sha2::{Digest, Sha256};
 
 #[derive(Deserialize)]
@@ -71,14 +81,27 @@ fn provenance_files(root: &Path) -> Vec<PathBuf> {
     found
 }
 
-fn sha256_hex(bytes: &[u8]) -> String {
-    let digest = Sha256::new_with_prefix(bytes).finalize();
-    let mut hex = String::with_capacity(digest.len() * 2);
-    for byte in digest {
+fn hex_encode(bytes: &[u8]) -> String {
+    let mut hex = String::with_capacity(bytes.len() * 2);
+    for byte in bytes {
         use std::fmt::Write as _;
         let _ = write!(hex, "{byte:02x}");
     }
     hex
+}
+
+fn sha256_hex(bytes: &[u8]) -> String {
+    hex_encode(&Sha256::new_with_prefix(bytes).finalize())
+}
+
+/// Git blob object id of the bytes: `sha1("blob " + len + "\0" + bytes)`. Equals
+/// the object id the file carries in the upstream git tree iff it was vendored
+/// verbatim — so a mismatch means the local copy was altered after vendoring.
+fn git_blob_hex(bytes: &[u8]) -> String {
+    let mut hasher = Sha1::new();
+    hasher.update(format!("blob {}\0", bytes.len()).into_bytes());
+    hasher.update(bytes);
+    hex_encode(&hasher.finalize())
 }
 
 fn is_git_object_id(value: &str) -> bool {
@@ -154,13 +177,20 @@ fn vendored_bytes_match_recorded_provenance() {
                     ));
                 }
             }
-            if let Some(git_blob) = &input.git_blob
-                && !is_git_object_id(git_blob)
-            {
-                failures.push(format!(
-                    "{relative}: input `{}` git_blob is not a 40-char lowercase-hex object id: {git_blob:?}",
-                    input.path
-                ));
+            if let Some(git_blob) = &input.git_blob {
+                if !is_git_object_id(git_blob) {
+                    failures.push(format!(
+                        "{relative}: input `{}` git_blob is not a 40-char lowercase-hex object id: {git_blob:?}",
+                        input.path
+                    ));
+                } else if git_blob_hex(&bytes) != *git_blob {
+                    failures.push(format!(
+                        "{relative}: input `{}` git_blob mismatch — file is not the verbatim upstream object\n      recorded: {}\n      actual:   {}",
+                        input.path,
+                        git_blob,
+                        git_blob_hex(&bytes)
+                    ));
+                }
             }
             verified_inputs += 1;
         }

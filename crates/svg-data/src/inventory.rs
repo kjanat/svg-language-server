@@ -573,13 +573,16 @@ mod tests {
 
     #[test]
     fn inventory_counts_match_audited_extractor_figures() {
-        // These figures are the audited reality at pin `19482daf`, the same
-        // numbers locked by `tests/ed_presence_matrix.rs`. A drift here means
-        // the baked inventory and the live extractor disagree — fail loudly.
+        // Audited reality at the pinned ED commit (resolved from
+        // `snapshot.json`), the same numbers locked by
+        // `tests/ed_presence_matrix.rs`. A drift here means the baked inventory
+        // and the live extractor disagree — fail loudly. The attribute figure
+        // rose 313 → 314 at svgwg `b792b64e`: `path-length` became a
+        // presentation attribute (svgwg #1118).
         assert_eq!(SPEC_INVENTORY.elements.len(), 63, "element count drifted");
         assert_eq!(
             SPEC_INVENTORY.attributes.len(),
-            313,
+            314,
             "attribute count drifted"
         );
         assert_eq!(SPEC_INVENTORY.edges.len(), 6752, "edge count drifted");

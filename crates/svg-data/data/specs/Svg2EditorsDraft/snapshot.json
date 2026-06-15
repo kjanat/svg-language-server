@@ -3,7 +3,7 @@
 	"schema_version": 1,
 	"snapshot": "Svg2EditorsDraft",
 	"title": "SVG 2 Editor's Draft",
-	"date": "2025-09-14",
+	"date": "2026-06-14",
 	"status": "editors_draft",
 	"pinned_sources": [
 		{
@@ -13,7 +13,7 @@
 			"pin": {
 				"kind": "git_commit",
 				"repository": "https://github.com/w3c/svgwg",
-				"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+				"commit": "b792b64e5d112fd1e07bf50814a148728867226a",
 				"path": "master/publish.xml"
 			}
 		},
@@ -24,7 +24,7 @@
 			"pin": {
 				"kind": "git_commit",
 				"repository": "https://github.com/w3c/svgwg",
-				"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+				"commit": "b792b64e5d112fd1e07bf50814a148728867226a",
 				"path": "master/definitions.xml"
 			}
 		},
@@ -35,7 +35,7 @@
 			"pin": {
 				"kind": "git_commit",
 				"repository": "https://github.com/w3c/svgwg",
-				"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+				"commit": "b792b64e5d112fd1e07bf50814a148728867226a",
 				"path": "master/definitions-filters.xml"
 			}
 		},
@@ -46,7 +46,7 @@
 			"pin": {
 				"kind": "git_commit",
 				"repository": "https://github.com/w3c/svgwg",
-				"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+				"commit": "b792b64e5d112fd1e07bf50814a148728867226a",
 				"path": "master/definitions-masking.xml"
 			}
 		},
@@ -57,7 +57,7 @@
 			"pin": {
 				"kind": "git_commit",
 				"repository": "https://github.com/w3c/svgwg",
-				"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+				"commit": "b792b64e5d112fd1e07bf50814a148728867226a",
 				"path": "master/definitions-compositing.xml"
 			}
 		},
@@ -68,7 +68,7 @@
 			"pin": {
 				"kind": "git_commit",
 				"repository": "https://github.com/w3c/svgwg",
-				"commit": "19482daf4094e72becde92b38c6a1c0d384b56a9",
+				"commit": "b792b64e5d112fd1e07bf50814a148728867226a",
 				"path": null
 			}
 		},

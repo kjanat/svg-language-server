@@ -381,3 +381,84 @@ fn decode_entity(entity: &str) -> Option<char> {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const HTML: &str = r#"<h2 id="Shapes">Basic <span>Shapes</span></h2>
+<dl class="definitions">
+  <dt><dfn id="term-shape" data-dfn-type="dfn">shape</dfn></dt>
+  <dd>A graphics element with a defined outline.</dd>
+</dl>
+<table class="propdef def">
+  <tr><th>Name:</th><td><dfn id="TextAnchor" data-dfn-type="property">text-anchor</dfn></td></tr>
+  <tr><th>Value:</th><td>start | middle | end</td></tr>
+  <tr><th>Initial:</th><td>start</td></tr>
+  <tr><th>Inherited:</th><td>yes</td></tr>
+</table>
+<edit:example href='images/x.svg' image='no'/>"#;
+
+    #[test]
+    fn value_keywords_keeps_only_bare_keywords() {
+        assert_eq!(value_keywords("start | middle | end"), ["start", "middle", "end"]);
+        assert_eq!(value_keywords("auto | <length-percentage>"), ["auto"]);
+        assert_eq!(value_keywords("<paint>"), Vec::<String>::new());
+        assert_eq!(value_keywords("nonzero | evenodd"), ["nonzero", "evenodd"]);
+    }
+
+    #[test]
+    fn decode_entities_handles_named_and_numeric() {
+        assert_eq!(decode_entities("a&lt;b&gt;c").as_ref(), "a<b>c");
+        assert_eq!(decode_entities("&amp;&quot;").as_ref(), "&\"");
+        assert_eq!(decode_entities("x&#65;y").as_ref(), "xAy");
+        assert_eq!(decode_entities("x&#x41;y").as_ref(), "xAy");
+        assert_eq!(decode_entities("plain text").as_ref(), "plain text");
+        // Unrecognized entity body is left verbatim.
+        assert_eq!(decode_entities("a&bogus;b").as_ref(), "a&bogus;b");
+    }
+
+    #[test]
+    fn extracts_chapter_entities() -> Result<(), Box<dyn std::error::Error>> {
+        let ch = extract_chapter("shapes", HTML)?;
+
+        // Heading anchor keeps its (entity/whitespace-normalized) text.
+        let shapes = ch.anchors.iter().find(|a| a.id == "Shapes").ok_or("no Shapes anchor")?;
+        assert_eq!(shapes.tag, "h2");
+        assert_eq!(shapes.text.as_deref(), Some("Basic Shapes"));
+
+        assert_eq!(ch.examples.len(), 1);
+        assert_eq!(ch.examples[0].href.as_deref(), Some("images/x.svg"));
+        assert_eq!(ch.examples[0].image.as_deref(), Some("no"));
+
+        assert_eq!(ch.properties.len(), 1);
+        let prop = &ch.properties[0];
+        assert_eq!(prop.name, "text-anchor");
+        assert_eq!(prop.id.as_deref(), Some("TextAnchor"));
+        assert_eq!(prop.value.as_deref(), Some("start | middle | end"));
+        assert_eq!(prop.keywords, ["start", "middle", "end"]);
+        assert_eq!(prop.initial.as_deref(), Some("start"));
+        assert_eq!(prop.inherited.as_deref(), Some("yes"));
+
+        assert_eq!(ch.term_definitions.len(), 1);
+        let term = &ch.term_definitions[0];
+        assert_eq!(term.term, "shape");
+        assert_eq!(term.id.as_deref(), Some("term-shape"));
+        assert_eq!(term.kind.as_deref(), Some("dfn"));
+        assert_eq!(term.description, "A graphics element with a defined outline.");
+        Ok(())
+    }
+
+    #[test]
+    fn decodes_entities_in_value_grammar() -> Result<(), Box<dyn std::error::Error>> {
+        let html = r#"<table class="propdef">
+  <tr><th>Name:</th><td><dfn id="P">inline-size</dfn></td></tr>
+  <tr><th>Value:</th><td>auto | <a>&lt;length-percentage&gt;</a></td></tr>
+</table>"#;
+        let ch = extract_chapter("text", html)?;
+        assert_eq!(ch.properties.len(), 1);
+        assert_eq!(ch.properties[0].value.as_deref(), Some("auto | <length-percentage>"));
+        assert_eq!(ch.properties[0].keywords, ["auto"]);
+        Ok(())
+    }
+}

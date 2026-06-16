@@ -30,7 +30,7 @@ pub struct AttributeRef {
 
 /// The kind of structural content model an element declares (the `contentmodel`
 /// attribute). These are the build tool's own categories of allowed children.
-#[derive(Debug, Clone, Copy, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ContentModelKind {
     /// Any element or character data is allowed (`any`).
@@ -387,4 +387,77 @@ fn comma_list(element: &BytesStart, key: &[u8]) -> Fallible<Vec<String>> {
         .filter(|part| !part.is_empty())
         .map(str::to_owned)
         .collect())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const DEFS: &str = r"<definitions>
+  <element name='rect' href='shapes.html#RectElement' contentmodel='anyof'
+      elementcategories='descriptive' elements='a' attributecategories='core'
+      attributes='x, y' geometryproperties='width, height' interfaces='SVGRectElement'>
+    <attribute name='rx' href='shapes.html#Rx' animatable='yes'/>
+  </element>
+  <element name='desc' href='struct.html#DescElement' contentmodel='any'/>
+  <attribute name='id' href='struct.html#id'/>
+  <property name='fill' href='painting.html#fill'/>
+  <elementcategory name='shape' href='shapes.html#shape' elements='rect, circle'/>
+  <attributecategory name='core' href='struct.html#core'>
+    <attribute name='cid' href='struct.html#cid' animatable='no'/>
+  </attributecategory>
+</definitions>";
+
+    #[test]
+    fn extracts_every_element_field() -> Result<(), Box<dyn std::error::Error>> {
+        let defs = extract_definitions(DEFS, Some("https://base/".to_owned()))?;
+        assert_eq!(defs.anchor_base.as_deref(), Some("https://base/"));
+        assert_eq!(defs.elements.len(), 2);
+
+        let rect = defs.elements.iter().find(|e| e.name == "rect").ok_or("no rect")?;
+        assert_eq!(rect.href.as_deref(), Some("shapes.html#RectElement"));
+        assert_eq!(rect.content_model, Some(ContentModelKind::AnyOf));
+        assert_eq!(rect.allowed_element_categories, ["descriptive"]);
+        assert_eq!(rect.allowed_elements, ["a"]);
+        assert_eq!(rect.attribute_categories, ["core"]);
+        assert_eq!(rect.common_attributes, ["x", "y"]);
+        assert_eq!(rect.geometry_properties, ["width", "height"]);
+        assert_eq!(rect.interfaces, ["SVGRectElement"]);
+        assert_eq!(rect.attributes.len(), 1);
+        assert_eq!(rect.attributes[0].name, "rx");
+        assert_eq!(rect.attributes[0].animatable, Some(true));
+
+        let desc = defs.elements.iter().find(|e| e.name == "desc").ok_or("no desc")?;
+        assert_eq!(desc.content_model, Some(ContentModelKind::Any));
+        assert!(desc.allowed_elements.is_empty());
+        Ok(())
+    }
+
+    #[test]
+    fn routes_attributes_properties_categories() -> Result<(), Box<dyn std::error::Error>> {
+        let defs = extract_definitions(DEFS, None)?;
+        // Only the top-level <attribute> is global; the one nested in the
+        // category must NOT leak into globals.
+        assert_eq!(defs.global_attributes.len(), 1);
+        assert_eq!(defs.global_attributes[0].name, "id");
+
+        assert_eq!(defs.properties.len(), 1);
+        assert_eq!(defs.properties[0].name, "fill");
+
+        assert_eq!(defs.element_categories.len(), 1);
+        assert_eq!(defs.element_categories[0].name, "shape");
+        assert_eq!(defs.element_categories[0].elements, ["rect", "circle"]);
+
+        assert_eq!(defs.attribute_categories.len(), 1);
+        assert_eq!(defs.attribute_categories[0].attributes.len(), 1);
+        assert_eq!(defs.attribute_categories[0].attributes[0].name, "cid");
+        assert_eq!(defs.attribute_categories[0].attributes[0].animatable, Some(false));
+        Ok(())
+    }
+
+    #[test]
+    fn rejects_unknown_content_model() {
+        let xml = "<definitions><element name='x' contentmodel='bogus'/></definitions>";
+        assert!(extract_definitions(xml, None).is_err());
+    }
 }

@@ -145,3 +145,47 @@ fn attribute(element: &BytesStart, key: &[u8]) -> Fallible<Option<String>> {
     }
     Ok(None)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const PUBLISH: &str = r"<publish-conf xmlns='http://mcc.id.au/ns/local'>
+  <maturity>ED</maturity>
+  <versions>
+    <cvs href='https://draft/'/>
+    <this href='https://tr/dated/'/>
+    <latest href='https://tr/latest/'/>
+  </versions>
+  <definitions href='definitions.xml'/>
+  <definitions href='../specs/x/definitions.xml' base='https://ext/'/>
+  <chapter name='intro'/>
+  <appendix name='changes'/>
+  <toc href='Overview.html'/>
+</publish-conf>";
+
+    #[test]
+    fn parses_the_input_graph() -> Result<(), Box<dyn std::error::Error>> {
+        let graph = parse_publish(PUBLISH)?;
+        assert_eq!(graph.maturity, "ED");
+        assert_eq!(graph.chapters.len(), 1);
+        assert_eq!(graph.chapters[0], "intro");
+        assert_eq!(graph.appendices.len(), 1);
+        assert_eq!(graph.appendices[0], "changes");
+
+        assert_eq!(graph.definitions.len(), 2);
+        assert_eq!(graph.definitions[0].href, "definitions.xml");
+        assert_eq!(graph.definitions[0].base, None);
+        assert_eq!(graph.definitions[1].href, "../specs/x/definitions.xml");
+        assert_eq!(graph.definitions[1].base.as_deref(), Some("https://ext/"));
+
+        let cvs = graph.versions.iter().find(|v| v.name == "cvs").ok_or("no cvs")?;
+        assert_eq!(cvs.href, "https://draft/");
+        let this = graph.versions.iter().find(|v| v.name == "this").ok_or("no this")?;
+        assert_eq!(this.href, "https://tr/dated/");
+
+        assert_eq!(graph.references.len(), 1);
+        assert_eq!(graph.references[0].name, "toc");
+        Ok(())
+    }
+}

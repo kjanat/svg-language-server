@@ -72,6 +72,21 @@ pub struct PropertyValueDef {
     pub animation_type: Option<String>,
 }
 
+/// A term defined in a `<dl class="definitions">` list, paired with the prose
+/// description from its `<dd>`. This is the spec's own glossary: the reliable,
+/// structured source of per-entity descriptions.
+#[derive(Debug, Clone, Serialize)]
+pub struct TermDefinition {
+    /// The defined term (the `<dt>`'s `<dfn>` text).
+    pub term: String,
+    /// The definition's anchor id, when its `<dfn>` has one.
+    pub id: Option<String>,
+    /// The `data-dfn-type` (`dfn`, `element`, `attribute`, ...), when set.
+    pub kind: Option<String>,
+    /// The description prose from the paired `<dd>`.
+    pub description: String,
+}
+
 /// Everything extracted from one chapter/appendix page.
 #[derive(Debug, Clone, Serialize)]
 pub struct Chapter {
@@ -79,12 +94,14 @@ pub struct Chapter {
     pub name: String,
     /// Every `id` anchor on the page.
     pub anchors: Vec<Anchor>,
-    /// Term definitions.
+    /// Term definitions (anchors only).
     pub dfns: Vec<Dfn>,
     /// Example references.
     pub examples: Vec<Example>,
     /// Property value-definition tables.
     pub properties: Vec<PropertyValueDef>,
+    /// Glossary term definitions paired with their descriptions.
+    pub term_definitions: Vec<TermDefinition>,
 }
 
 /// Extract anchors, definitions, and examples from a chapter's HTML.
@@ -100,6 +117,7 @@ pub fn extract_chapter(name: &str, html: &str) -> Fallible<Chapter> {
         dfns: Vec::new(),
         examples: Vec::new(),
         properties: Vec::new(),
+        term_definitions: Vec::new(),
     };
 
     for node in dom.nodes() {
@@ -137,11 +155,61 @@ pub fn extract_chapter(name: &str, html: &str) -> Fallible<Chapter> {
                     chapter.properties.push(property);
                 }
             }
+            "dl" if has_class(tag, "definitions") => {
+                extract_definition_list(tag, parser, &mut chapter.term_definitions);
+            }
             _ => {}
         }
     }
 
     Ok(chapter)
+}
+
+/// Pair the `<dt>`/`<dd>` children of a definition list into term definitions,
+/// walking direct children in document order so each term keeps its own
+/// description.
+fn extract_definition_list(dl: &HTMLTag, parser: &Parser, out: &mut Vec<TermDefinition>) {
+    let mut pending: Option<Dfn> = None;
+    for handle in dl.children().top().iter() {
+        let Some(child) = handle.get(parser).and_then(|node| node.as_tag()) else {
+            continue;
+        };
+        match child.name().as_utf8_str().as_ref() {
+            "dt" => pending = Some(term_of(child, parser)),
+            "dd" => {
+                if let Some(dfn) = pending.take() {
+                    out.push(TermDefinition {
+                        term: dfn.term,
+                        id: dfn.id,
+                        kind: dfn.kind,
+                        description: normalize_ws(&child.inner_text(parser)),
+                    });
+                }
+            }
+            _ => {}
+        }
+    }
+}
+
+/// The term a `<dt>` defines: its inner `<dfn>` when present, else the `<dt>`'s
+/// own text (so no term is dropped).
+fn term_of(dt: &HTMLTag, parser: &Parser) -> Dfn {
+    if let Some(handle) = dt
+        .query_selector(parser, "dfn")
+        .and_then(|mut hits| hits.next())
+        && let Some(dfn) = handle.get(parser).and_then(|node| node.as_tag())
+    {
+        return Dfn {
+            id: attr(dfn, "id"),
+            term: normalize_ws(&dfn.inner_text(parser)),
+            kind: attr(dfn, "data-dfn-type"),
+        };
+    }
+    Dfn {
+        id: None,
+        term: normalize_ws(&dt.inner_text(parser)),
+        kind: None,
+    }
 }
 
 /// Extract a single property value-definition table into a [`PropertyValueDef`].

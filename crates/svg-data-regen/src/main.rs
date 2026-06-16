@@ -159,24 +159,29 @@ fn report_chapters(provenance: &Provenance, graph: &PublishGraph) -> Fallible<()
     let mut dfns = 0usize;
     let mut examples = 0usize;
     let mut properties = 0usize;
+    let mut terms = 0usize;
     let mut sample_property: Option<chapter::PropertyValueDef> = None;
+    let mut sample_term: Option<chapter::TermDefinition> = None;
     let want_property = std::env::var("REGEN_PROPERTY").ok();
+    let want_term = std::env::var("REGEN_TERM").ok();
     let pages = graph.chapters.iter().chain(&graph.appendices);
     for name in pages {
         let path = format!("{PUBLISH_DIR}/{name}.html");
         let html = fetch::raw_file(REPO_SLUG, &provenance.commit_sha, &path)?;
         let extracted = chapter::extract_chapter(name, &html)?;
         println!(
-            "  {name:<12} {:>4} anchors  {:>3} dfns  {:>2} examples  {:>3} props",
+            "  {name:<12} {:>4} anchors  {:>3} dfns  {:>2} ex  {:>3} props  {:>3} terms",
             extracted.anchors.len(),
             extracted.dfns.len(),
             extracted.examples.len(),
             extracted.properties.len(),
+            extracted.term_definitions.len(),
         );
         anchors += extracted.anchors.len();
         dfns += extracted.dfns.len();
         examples += extracted.examples.len();
         properties += extracted.properties.len();
+        terms += extracted.term_definitions.len();
         if sample_property.is_none() {
             sample_property = match &want_property {
                 Some(want) => extracted
@@ -187,9 +192,19 @@ fn report_chapters(provenance: &Provenance, graph: &PublishGraph) -> Fallible<()
                 None => extracted.properties.first().cloned(),
             };
         }
+        if sample_term.is_none() {
+            sample_term = match &want_term {
+                Some(want) => extracted
+                    .term_definitions
+                    .iter()
+                    .find(|t| &t.term == want)
+                    .cloned(),
+                None => extracted.term_definitions.first().cloned(),
+            };
+        }
     }
     println!(
-        "  {:-<12} {anchors:>4} anchors  {dfns:>3} dfns  {examples:>2} examples  {properties:>3} props ({} pages)",
+        "  {:-<12} {anchors:>4} anchors  {dfns:>3} dfns  {examples:>2} ex  {properties:>3} props  {terms:>3} terms ({} pages)",
         "TOTAL ",
         graph.chapters.len() + graph.appendices.len(),
     );
@@ -197,6 +212,10 @@ fn report_chapters(provenance: &Provenance, graph: &PublishGraph) -> Fallible<()
     if let Some(property) = &sample_property {
         println!("\n## sample extracted property (as JSON)");
         println!("{}", serde_json::to_string_pretty(property)?);
+    }
+    if let Some(term) = &sample_term {
+        println!("\n## sample extracted term definition (as JSON)");
+        println!("{}", serde_json::to_string_pretty(term)?);
     }
 
     Ok(())

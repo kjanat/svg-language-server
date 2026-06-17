@@ -17,14 +17,15 @@ pub mod types;
 
 pub use types::{
     AttributeApplicability, AttributeDef, AttributeElementCompat, AttributeValues,
-    BaselineQualifier, BaselineStatus, BrowserFlag, BrowserSupport, BrowserVersion, CompatFacts,
+    BaselineQualifier, BaselineStatus, BrowserFlag, BrowserSupport, BrowserVersion, CatalogGraph,
+    CatalogGraphEdge, CatalogGraphEdgeKind, CatalogGraphNode, CatalogGraphNodeKind, CompatFacts,
     CompatSubfeature, CompatSubfeatureKind, CompatVerdict, ContentModel, CssGrammarEdge,
     CssGrammarEdgeKind, CssGrammarGraph, CssGrammarNode, CssGrammarNodeKind, ElementCategory,
     ElementDef, ProfileLookup, ProfiledAttribute, ProfiledElement, SnapshotMetadata, SpecLifecycle,
     SpecSnapshotId, VerdictReason, VerdictRecommendation,
 };
 
-use catalog::{ATTRIBUTES, COMPAT_SUBFEATURES, ELEMENTS, SNAPSHOT_METADATA};
+use catalog::{ATTRIBUTES, CATALOG_GRAPH, COMPAT_SUBFEATURES, ELEMENTS, SNAPSHOT_METADATA};
 
 /// All snapshots the catalog tracks, oldest first.
 #[must_use]
@@ -64,6 +65,12 @@ pub const fn elements() -> &'static [ElementDef] {
 #[must_use]
 pub const fn attributes() -> &'static [AttributeDef] {
     ATTRIBUTES
+}
+
+/// Derived graph view over the catalog.
+#[must_use]
+pub const fn catalog_graph() -> &'static CatalogGraph {
+    &CATALOG_GRAPH
 }
 
 /// BCD subfeatures retained for behavior/value-specific diagnostics.
@@ -495,6 +502,43 @@ mod catalog_tests {
     #[test]
     fn catalog_is_non_empty() {
         assert!(elements().len() >= 60, "the element catalog is populated");
+    }
+
+    #[test]
+    fn catalog_graph_exposes_derived_relationships() {
+        let graph = catalog_graph();
+        assert!(graph.nodes.len() > elements().len());
+        assert!(graph.edges.len() > attributes().len());
+        assert!(graph.nodes.iter().any(|node| {
+            node.id == "element:circle"
+                && node.name == "circle"
+                && node.kind == CatalogGraphNodeKind::Element
+        }));
+        assert!(graph.nodes.iter().any(|node| {
+            node.id == "value:fill"
+                && node.name == "fill (color)"
+                && node.kind == CatalogGraphNodeKind::ValueGrammar
+        }));
+        assert!(graph.edges.iter().any(|edge| {
+            edge.from == "attribute:fill"
+                && edge.to == "css-property:fill"
+                && edge.kind == CatalogGraphEdgeKind::UsesCssProperty
+        }));
+        assert!(graph.edges.iter().any(|edge| {
+            edge.from == "attribute:fill"
+                && edge.to == "value:fill"
+                && edge.kind == CatalogGraphEdgeKind::HasValueGrammar
+        }));
+        assert!(graph.edges.iter().any(|edge| {
+            edge.from == "attribute:fill"
+                && edge.to == "element:circle"
+                && edge.kind == CatalogGraphEdgeKind::AppliesTo
+        }));
+        assert!(graph.edges.iter().any(|edge| {
+            edge.from == "element:circle"
+                && edge.to == "attribute-category:global"
+                && edge.kind == CatalogGraphEdgeKind::AcceptsGlobalAttributes
+        }));
     }
 
     #[test]

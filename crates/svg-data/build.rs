@@ -22,6 +22,7 @@ struct Catalog {
     elements: Vec<Element>,
     #[serde(default)]
     attributes: Vec<Attribute>,
+    graph: CatalogGraph,
 }
 
 /// Browser-compat metadata from `catalog.json`.
@@ -291,6 +292,58 @@ enum AttributeApplicability {
     None,
 }
 
+/// Derived graph view from `catalog.json`.
+#[derive(Deserialize)]
+struct CatalogGraph {
+    nodes: Vec<CatalogGraphNode>,
+    edges: Vec<CatalogGraphEdge>,
+}
+
+/// One graph node from `catalog.json`.
+#[derive(Deserialize)]
+struct CatalogGraphNode {
+    id: String,
+    kind: CatalogGraphNodeKind,
+    name: String,
+}
+
+/// Catalog graph node kind.
+#[derive(Deserialize)]
+#[serde(rename_all = "snake_case")]
+enum CatalogGraphNodeKind {
+    Element,
+    Attribute,
+    ElementCategory,
+    AttributeCategory,
+    Profile,
+    CssProperty,
+    ValueGrammar,
+    CompatFeature,
+}
+
+/// One graph edge from `catalog.json`.
+#[derive(Deserialize)]
+struct CatalogGraphEdge {
+    from: String,
+    to: String,
+    kind: CatalogGraphEdgeKind,
+}
+
+/// Catalog graph edge kind.
+#[derive(Deserialize)]
+#[serde(rename_all = "snake_case")]
+enum CatalogGraphEdgeKind {
+    AllowsChild,
+    HasAttribute,
+    AppliesTo,
+    MemberOf,
+    AcceptsGlobalAttributes,
+    UsesCssProperty,
+    HasValueGrammar,
+    OverridesValueInProfile,
+    Describes,
+}
+
 fn main() {
     let Some(out_dir) = env::var_os("OUT_DIR") else {
         panic!("OUT_DIR must be set by cargo");
@@ -339,6 +392,7 @@ fn empty_catalog() -> String {
         "pub static ATTRIBUTES: &[crate::types::AttributeDef] = &[];",
         "pub static COMPAT_SUBFEATURES: &[crate::types::CompatSubfeature] = &[];",
         "pub static SNAPSHOT_METADATA: &[crate::types::SnapshotMetadata] = &[];",
+        "pub static CATALOG_GRAPH: crate::types::CatalogGraph = crate::types::CatalogGraph { nodes: &[], edges: &[] };",
     ]
     .join("\n")
 }
@@ -365,7 +419,88 @@ fn emit_catalog(catalog: &Catalog) -> String {
     }
     out.push_str("];\n");
     out.push_str("pub static SNAPSHOT_METADATA: &[crate::types::SnapshotMetadata] = &[];\n");
+    let _ = writeln!(
+        out,
+        "pub static CATALOG_GRAPH: crate::types::CatalogGraph = {};",
+        emit_catalog_graph(&catalog.graph)
+    );
     out
+}
+
+/// Render the derived catalog graph as Rust source.
+fn emit_catalog_graph(graph: &CatalogGraph) -> String {
+    format!(
+        "crate::types::CatalogGraph {{ nodes: &[{}], edges: &[{}] }}",
+        graph
+            .nodes
+            .iter()
+            .map(emit_catalog_graph_node)
+            .collect::<Vec<_>>()
+            .join(", "),
+        graph
+            .edges
+            .iter()
+            .map(emit_catalog_graph_edge)
+            .collect::<Vec<_>>()
+            .join(", "),
+    )
+}
+
+fn emit_catalog_graph_node(node: &CatalogGraphNode) -> String {
+    format!(
+        "crate::types::CatalogGraphNode {{ id: {:?}, kind: {}, name: {:?} }}",
+        node.id,
+        emit_catalog_graph_node_kind(&node.kind),
+        node.name,
+    )
+}
+
+const fn emit_catalog_graph_node_kind(kind: &CatalogGraphNodeKind) -> &'static str {
+    match kind {
+        CatalogGraphNodeKind::Element => "crate::types::CatalogGraphNodeKind::Element",
+        CatalogGraphNodeKind::Attribute => "crate::types::CatalogGraphNodeKind::Attribute",
+        CatalogGraphNodeKind::ElementCategory => {
+            "crate::types::CatalogGraphNodeKind::ElementCategory"
+        }
+        CatalogGraphNodeKind::AttributeCategory => {
+            "crate::types::CatalogGraphNodeKind::AttributeCategory"
+        }
+        CatalogGraphNodeKind::Profile => "crate::types::CatalogGraphNodeKind::Profile",
+        CatalogGraphNodeKind::CssProperty => "crate::types::CatalogGraphNodeKind::CssProperty",
+        CatalogGraphNodeKind::ValueGrammar => "crate::types::CatalogGraphNodeKind::ValueGrammar",
+        CatalogGraphNodeKind::CompatFeature => "crate::types::CatalogGraphNodeKind::CompatFeature",
+    }
+}
+
+fn emit_catalog_graph_edge(edge: &CatalogGraphEdge) -> String {
+    format!(
+        "crate::types::CatalogGraphEdge {{ from: {:?}, to: {:?}, kind: {} }}",
+        edge.from,
+        edge.to,
+        emit_catalog_graph_edge_kind(&edge.kind),
+    )
+}
+
+const fn emit_catalog_graph_edge_kind(kind: &CatalogGraphEdgeKind) -> &'static str {
+    match kind {
+        CatalogGraphEdgeKind::AllowsChild => "crate::types::CatalogGraphEdgeKind::AllowsChild",
+        CatalogGraphEdgeKind::HasAttribute => "crate::types::CatalogGraphEdgeKind::HasAttribute",
+        CatalogGraphEdgeKind::AppliesTo => "crate::types::CatalogGraphEdgeKind::AppliesTo",
+        CatalogGraphEdgeKind::MemberOf => "crate::types::CatalogGraphEdgeKind::MemberOf",
+        CatalogGraphEdgeKind::AcceptsGlobalAttributes => {
+            "crate::types::CatalogGraphEdgeKind::AcceptsGlobalAttributes"
+        }
+        CatalogGraphEdgeKind::UsesCssProperty => {
+            "crate::types::CatalogGraphEdgeKind::UsesCssProperty"
+        }
+        CatalogGraphEdgeKind::HasValueGrammar => {
+            "crate::types::CatalogGraphEdgeKind::HasValueGrammar"
+        }
+        CatalogGraphEdgeKind::OverridesValueInProfile => {
+            "crate::types::CatalogGraphEdgeKind::OverridesValueInProfile"
+        }
+        CatalogGraphEdgeKind::Describes => "crate::types::CatalogGraphEdgeKind::Describes",
+    }
 }
 
 /// Append one `ElementDef` literal.

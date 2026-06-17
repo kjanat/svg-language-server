@@ -186,6 +186,81 @@ pub enum CssGrammarEdgeKind {
     Next,
 }
 
+/// Derived graph view over the SVG catalog.
+#[derive(Debug, Clone, Copy)]
+pub struct CatalogGraph {
+    /// Graph nodes.
+    pub nodes: &'static [CatalogGraphNode],
+    /// Directed graph edges.
+    pub edges: &'static [CatalogGraphEdge],
+}
+
+/// One node in the derived catalog graph.
+#[derive(Debug, Clone, Copy)]
+pub struct CatalogGraphNode {
+    /// Stable node id, namespaced by node kind.
+    pub id: &'static str,
+    /// Node kind.
+    pub kind: CatalogGraphNodeKind,
+    /// Human-readable node name.
+    pub name: &'static str,
+}
+
+/// Catalog graph node kinds.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CatalogGraphNodeKind {
+    /// SVG element definition.
+    Element,
+    /// SVG attribute definition.
+    Attribute,
+    /// SVG element category from the spec taxonomy.
+    ElementCategory,
+    /// SVG attribute category from the spec taxonomy.
+    AttributeCategory,
+    /// SVG specification profile/snapshot.
+    Profile,
+    /// CSS property backing a presentation attribute.
+    CssProperty,
+    /// Attribute value grammar node.
+    ValueGrammar,
+    /// Retained browser-compat subfeature not modeled as a first-class element/attribute.
+    CompatFeature,
+}
+
+/// One directed edge in the derived catalog graph.
+#[derive(Debug, Clone, Copy)]
+pub struct CatalogGraphEdge {
+    /// Source node id.
+    pub from: &'static str,
+    /// Target node id.
+    pub to: &'static str,
+    /// Edge kind.
+    pub kind: CatalogGraphEdgeKind,
+}
+
+/// Catalog graph edge kinds.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CatalogGraphEdgeKind {
+    /// Parent element accepts child element.
+    AllowsChild,
+    /// Element has a direct/specific attribute declaration.
+    HasAttribute,
+    /// Attribute applies to an element after global/scoped applicability is resolved.
+    AppliesTo,
+    /// Feature is a member of a spec category.
+    MemberOf,
+    /// Element accepts the SVG global attribute set.
+    AcceptsGlobalAttributes,
+    /// Presentation attribute is backed by a CSS property.
+    UsesCssProperty,
+    /// Attribute points at a value grammar node.
+    HasValueGrammar,
+    /// Value grammar override applies in the target profile.
+    OverridesValueInProfile,
+    /// Compat subfeature describes the target element/attribute.
+    Describes,
+}
+
 /// Which elements an attribute can appear on.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AttributeApplicability {

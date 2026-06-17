@@ -18,20 +18,31 @@ use serde::Deserialize;
 
 const CATALOG_SCHEMA_VERSION: u16 = 1;
 
-/// The committed catalog, mirroring `svg-data-regen`'s output shape.
+/// The committed root manifest, mirroring `svg-data-regen`'s output shape.
 #[derive(Deserialize)]
-struct Catalog {
+struct CatalogManifest {
     schema_version: u16,
+    core: CatalogRef,
     #[serde(default)]
-    compat: Option<CompatMetadata>,
+    compat: Option<CatalogRef>,
+    graph: CatalogRef,
+    #[serde(default)]
+    snapshots: Vec<SnapshotRef>,
+}
+
+/// Reference from `catalog.json` to another catalog document.
+#[derive(Deserialize)]
+struct CatalogRef {
+    href: String,
+}
+
+/// Canonical latest catalog data.
+#[derive(Deserialize)]
+struct CatalogCore {
+    schema_version: u16,
     elements: Vec<Element>,
     #[serde(default)]
     attributes: Vec<Attribute>,
-    #[serde(default)]
-    inventories: Vec<Inventory>,
-    #[serde(default)]
-    snapshots: Vec<SnapshotRef>,
-    graph: CatalogGraph,
 }
 
 /// Reference from `catalog.json` to a version-specific overlay document.
@@ -41,11 +52,20 @@ struct SnapshotRef {
     href: String,
 }
 
-/// Browser-compat metadata from `catalog.json`.
+/// Browser-compat metadata from `catalog.compat.json`.
 #[derive(Deserialize)]
 struct CompatMetadata {
+    schema_version: u16,
     #[serde(default)]
     unmodeled_features: Vec<CompatSubfeature>,
+}
+
+/// Derived graph data from `catalog.graph.json`.
+#[derive(Deserialize)]
+struct CatalogGraphDocument {
+    schema_version: u16,
+    #[serde(flatten)]
+    graph: CatalogGraph,
 }
 
 /// A BCD feature kept out of the element/attribute catalog.
@@ -158,13 +178,24 @@ struct Inventory {
 struct SnapshotDocument {
     schema_version: u16,
     profile: SpecSnapshot,
+    #[serde(default)]
+    aliases: Vec<String>,
     inventory: SnapshotInventory,
+    #[serde(default)]
+    value_overrides: Vec<SnapshotValueOverride>,
 }
 
 /// The inventory payload inside one snapshot overlay.
 #[derive(Deserialize)]
 struct SnapshotInventory {
     elements: Vec<InventoryElement>,
+}
+
+/// One value-space override scoped by the containing snapshot document.
+#[derive(Deserialize)]
+struct SnapshotValueOverride {
+    attribute: String,
+    values: AttributeValues,
 }
 
 /// One element's generated per-snapshot inventory.
@@ -267,7 +298,7 @@ struct BrowserFlag {
 }
 
 /// The attribute value-space shapes the catalog encodes.
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 enum AttributeValues {
     Enum {
@@ -287,14 +318,14 @@ enum AttributeValues {
     FreeText,
 }
 
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 struct CssGrammarGraph {
     root: u16,
     nodes: Vec<CssGrammarNode>,
     edges: Vec<CssGrammarEdge>,
 }
 
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 struct CssGrammarNode {
     id: u16,
     kind: CssGrammarNodeKind,
@@ -302,7 +333,7 @@ struct CssGrammarNode {
     text: Option<String>,
 }
 
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 #[serde(rename_all = "snake_case")]
 enum CssGrammarNodeKind {
     Root,
@@ -313,14 +344,14 @@ enum CssGrammarNodeKind {
     Operator,
 }
 
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 struct CssGrammarEdge {
     from: u16,
     to: u16,
     kind: CssGrammarEdgeKind,
 }
 
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 #[serde(rename_all = "snake_case")]
 enum CssGrammarEdgeKind {
     Contains,
@@ -414,20 +445,28 @@ fn generate_catalog(data_dir: &Path) -> String {
     let Ok(json) = fs::read_to_string(&catalog_path) else {
         return empty_catalog();
     };
-    let catalog: Catalog = match serde_json::from_str(&json) {
-        Ok(catalog) => catalog,
+    let manifest: CatalogManifest = match serde_json::from_str(&json) {
+        Ok(manifest) => manifest,
         Err(error) => panic!("parse {}: {error}", catalog_path.display()),
     };
     assert_eq!(
-        catalog.schema_version,
+        manifest.schema_version,
         CATALOG_SCHEMA_VERSION,
         "{} has schema_version {}, expected {}",
         catalog_path.display(),
-        catalog.schema_version,
+        manifest.schema_version,
         CATALOG_SCHEMA_VERSION
     );
-    let inventories = load_catalog_inventories(data_dir, &catalog);
-    emit_catalog(&catalog, &inventories)
+    let mut core = load_catalog_core(data_dir, &manifest.core);
+    let compat = manifest
+        .compat
+        .as_ref()
+        .map(|reference| load_catalog_compat(data_dir, reference));
+    let graph = load_catalog_graph(data_dir, &manifest.graph);
+    let snapshots = load_catalog_snapshots(data_dir, &manifest.snapshots);
+    apply_snapshot_value_overrides(&mut core.attributes, &snapshots);
+    let inventories = snapshot_inventories(&snapshots);
+    emit_catalog(&core, compat.as_ref(), &graph, &snapshots, &inventories)
 }
 
 /// Placeholder catalog used before any spec data has been extracted.
@@ -444,23 +483,49 @@ fn empty_catalog() -> String {
     .join("\n")
 }
 
-fn load_catalog_inventories(data_dir: &Path, catalog: &Catalog) -> Vec<Inventory> {
-    let mut inventories = catalog.inventories.clone();
-    for snapshot in &catalog.snapshots {
+fn load_catalog_core(data_dir: &Path, reference: &CatalogRef) -> CatalogCore {
+    let path = resolve_catalog_ref(data_dir, &reference.href);
+    println!("cargo::rerun-if-changed={}", path.display());
+    let json = fs::read_to_string(&path)
+        .unwrap_or_else(|error| panic!("read {}: {error}", path.display()));
+    let core: CatalogCore = serde_json::from_str(&json)
+        .unwrap_or_else(|error| panic!("parse {}: {error}", path.display()));
+    assert_schema_version(&path, core.schema_version);
+    core
+}
+
+fn load_catalog_compat(data_dir: &Path, reference: &CatalogRef) -> CompatMetadata {
+    let path = resolve_catalog_ref(data_dir, &reference.href);
+    println!("cargo::rerun-if-changed={}", path.display());
+    let json = fs::read_to_string(&path)
+        .unwrap_or_else(|error| panic!("read {}: {error}", path.display()));
+    let compat: CompatMetadata = serde_json::from_str(&json)
+        .unwrap_or_else(|error| panic!("parse {}: {error}", path.display()));
+    assert_schema_version(&path, compat.schema_version);
+    compat
+}
+
+fn load_catalog_graph(data_dir: &Path, reference: &CatalogRef) -> CatalogGraph {
+    let path = resolve_catalog_ref(data_dir, &reference.href);
+    println!("cargo::rerun-if-changed={}", path.display());
+    let json = fs::read_to_string(&path)
+        .unwrap_or_else(|error| panic!("read {}: {error}", path.display()));
+    let document: CatalogGraphDocument = serde_json::from_str(&json)
+        .unwrap_or_else(|error| panic!("parse {}: {error}", path.display()));
+    assert_schema_version(&path, document.schema_version);
+    document.graph
+}
+
+fn load_catalog_snapshots(data_dir: &Path, snapshots: &[SnapshotRef]) -> Vec<SnapshotDocument> {
+    let mut documents = Vec::new();
+    for snapshot in snapshots {
         let path = resolve_catalog_ref(data_dir, &snapshot.href);
         println!("cargo::rerun-if-changed={}", path.display());
         let json = fs::read_to_string(&path)
             .unwrap_or_else(|error| panic!("read {}: {error}", path.display()));
         let document: SnapshotDocument = serde_json::from_str(&json)
             .unwrap_or_else(|error| panic!("parse {}: {error}", path.display()));
-        assert_eq!(
-            document.schema_version,
-            CATALOG_SCHEMA_VERSION,
-            "{} has schema_version {}, expected {}",
-            path.display(),
-            document.schema_version,
-            CATALOG_SCHEMA_VERSION
-        );
+        assert_schema_version(&path, document.schema_version);
         assert_eq!(
             document.profile,
             snapshot.profile,
@@ -469,12 +534,51 @@ fn load_catalog_inventories(data_dir: &Path, catalog: &Catalog) -> Vec<Inventory
             document.profile,
             snapshot.profile
         );
+        documents.push(document);
+    }
+    documents
+}
+
+fn snapshot_inventories(snapshots: &[SnapshotDocument]) -> Vec<Inventory> {
+    let mut inventories = Vec::new();
+    for snapshot in snapshots {
         inventories.push(Inventory {
-            profile: document.profile,
-            elements: document.inventory.elements,
+            profile: snapshot.profile,
+            elements: snapshot.inventory.elements.clone(),
         });
     }
     inventories
+}
+
+fn apply_snapshot_value_overrides(attributes: &mut [Attribute], snapshots: &[SnapshotDocument]) {
+    for snapshot in snapshots {
+        for override_ in &snapshot.value_overrides {
+            let Some(attribute) = attributes
+                .iter_mut()
+                .find(|attribute| attribute.name == override_.attribute)
+            else {
+                panic!(
+                    "snapshot {:?} value override references unknown attribute {}",
+                    snapshot.profile, override_.attribute
+                );
+            };
+            attribute.value_overrides.push(AttributeValueOverride {
+                profile: snapshot.profile,
+                values: override_.values.clone(),
+            });
+        }
+    }
+}
+
+fn assert_schema_version(path: &Path, schema_version: u16) {
+    assert_eq!(
+        schema_version,
+        CATALOG_SCHEMA_VERSION,
+        "{} has schema_version {}, expected {}",
+        path.display(),
+        schema_version,
+        CATALOG_SCHEMA_VERSION
+    );
 }
 
 fn resolve_catalog_ref(data_dir: &Path, href: &str) -> PathBuf {
@@ -503,26 +607,36 @@ fn resolve_catalog_ref(data_dir: &Path, href: &str) -> PathBuf {
 
 /// Emit the catalog as Rust source: static `ElementDef` and `AttributeDef`
 /// arrays, plus the still-empty snapshot array (populated by later phases).
-fn emit_catalog(catalog: &Catalog, inventories: &[Inventory]) -> String {
+fn emit_catalog(
+    core: &CatalogCore,
+    compat: Option<&CompatMetadata>,
+    graph: &CatalogGraph,
+    snapshots: &[SnapshotDocument],
+    inventories: &[Inventory],
+) -> String {
     let mut out = String::from("// Generated by build.rs from data/catalog.json.\n");
     out.push_str("pub static ELEMENTS: &[crate::types::ElementDef] = &[\n");
-    for element in &catalog.elements {
+    for element in &core.elements {
         emit_element(&mut out, element);
     }
     out.push_str("];\n");
     out.push_str("pub static ATTRIBUTES: &[crate::types::AttributeDef] = &[\n");
-    for attribute in &catalog.attributes {
+    for attribute in &core.attributes {
         emit_attribute(&mut out, attribute);
     }
     out.push_str("];\n");
     out.push_str("pub static COMPAT_SUBFEATURES: &[crate::types::CompatSubfeature] = &[\n");
-    if let Some(compat) = catalog.compat.as_ref() {
+    if let Some(compat) = compat {
         for subfeature in &compat.unmodeled_features {
             emit_compat_subfeature(&mut out, subfeature);
         }
     }
     out.push_str("];\n");
-    out.push_str("pub static SNAPSHOT_METADATA: &[crate::types::SnapshotMetadata] = &[];\n");
+    out.push_str("pub static SNAPSHOT_METADATA: &[crate::types::SnapshotMetadata] = &[\n");
+    for snapshot in snapshots {
+        emit_snapshot_metadata(&mut out, snapshot);
+    }
+    out.push_str("];\n");
     out.push_str("pub static INVENTORIES: &[crate::inventory::Inventory] = &[\n");
     for inventory in inventories {
         emit_inventory(&mut out, inventory);
@@ -531,9 +645,19 @@ fn emit_catalog(catalog: &Catalog, inventories: &[Inventory]) -> String {
     let _ = writeln!(
         out,
         "pub static CATALOG_GRAPH: crate::types::CatalogGraph = {};",
-        emit_catalog_graph(&catalog.graph)
+        emit_catalog_graph(graph)
     );
     out
+}
+
+/// Append one generated snapshot metadata entry.
+fn emit_snapshot_metadata(out: &mut String, snapshot: &SnapshotDocument) {
+    let _ = writeln!(
+        out,
+        "    crate::types::SnapshotMetadata {{ snapshot: {}, aliases: &[{}] }},",
+        emit_spec_snapshot(snapshot.profile),
+        quote_list(&snapshot.aliases),
+    );
 }
 
 /// Append one generated edition inventory.

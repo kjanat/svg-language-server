@@ -307,33 +307,10 @@ pub fn snapshot_metadata(snapshot: SpecSnapshotId) -> SnapshotMetadata {
         .iter()
         .find(|metadata| metadata.snapshot == snapshot)
         .cloned()
-        .unwrap_or_else(|| built_in_snapshot_metadata(snapshot))
-}
-
-fn built_in_snapshot_metadata(snapshot: SpecSnapshotId) -> SnapshotMetadata {
-    let aliases: &'static [&'static str] = match snapshot {
-        SpecSnapshotId::Svg11Rec20030114 => {
-            &["svg11rec20030114", "svg11-20030114", "svg1.1-20030114"][..]
-        }
-        SpecSnapshotId::Svg11Rec20110816 => &[
-            "svg11",
-            "svg1.1",
-            "1.1",
-            "svg11rec20110816",
-            "svg11-20110816",
-        ],
-        SpecSnapshotId::Svg2Cr20181004 => &["svg2cr", "svg2-cr", "svg2cr20181004", "svg2-20181004"],
-        SpecSnapshotId::Svg2EditorsDraft => &[
-            "svg2",
-            "svg2.0",
-            "2",
-            "2.0",
-            "svg2draft",
-            "svg2-draft",
-            "latest",
-        ],
-    };
-    SnapshotMetadata { snapshot, aliases }
+        .unwrap_or(SnapshotMetadata {
+            snapshot,
+            aliases: &[],
+        })
 }
 
 /// Resolve a requested profile string (id or alias) to a snapshot.
@@ -588,7 +565,17 @@ mod catalog_tests {
     }
 
     #[test]
-    fn profile_aliases_resolve_without_generated_snapshot_metadata() {
+    fn profile_aliases_resolve_from_generated_snapshot_metadata() {
+        assert!(
+            snapshot_metadata(SpecSnapshotId::Svg11Rec20110816)
+                .aliases
+                .contains(&"svg11")
+        );
+        assert!(
+            snapshot_metadata(SpecSnapshotId::Svg2EditorsDraft)
+                .aliases
+                .contains(&"latest")
+        );
         assert_eq!(
             resolve_profile_id("svg11"),
             Some(SpecSnapshotId::Svg11Rec20110816)

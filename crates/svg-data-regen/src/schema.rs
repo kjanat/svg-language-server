@@ -3,7 +3,7 @@
 use schemars::schema_for;
 use serde_json::{Value, json};
 
-use crate::catalog::Catalog;
+use crate::catalog::CatalogManifest;
 
 /// Version of the `catalog.json` data contract.
 pub const CATALOG_SCHEMA_VERSION: u16 = 1;
@@ -19,7 +19,7 @@ const CATALOG_SCHEMA_TITLE: &str = "svg-data catalog v1";
 /// # Errors
 /// Returns an error only if serializing the generated schema value fails.
 pub fn catalog_schema_json() -> Result<String, serde_json::Error> {
-    let mut schema = serde_json::to_value(schema_for!(Catalog))?;
+    let mut schema = serde_json::to_value(schema_for!(CatalogManifest))?;
     apply_catalog_metadata(&mut schema);
     json_schema_sort::sort_schema(&mut schema);
     let mut text = serde_json::to_string_pretty(&schema)?;
@@ -76,12 +76,10 @@ mod tests {
         assert_eq!(
             property_keys,
             [
-                "attributes",
                 "commit",
                 "compat",
-                "elements",
+                "core",
                 "graph",
-                "legacy_sources",
                 "schema_version",
                 "snapshots"
             ]

@@ -1,9 +1,15 @@
 {
 	"schema_version": 1,
 	"profile": "Svg2Cr20181004",
+	"aliases": [
+		"svg2cr",
+		"svg2-cr",
+		"svg2cr20181004",
+		"svg2-20181004"
+	],
 	"sources": [
-		"https://www.w3.org/TR/2018/CR-SVG2-20181004/eltindex.html",
-		"https://www.w3.org/TR/2018/CR-SVG2-20181004/attindex.html"
+		"https://www.w3.org/TR/2018/CR-SVG2-20181004/attindex.html",
+		"https://www.w3.org/TR/2018/CR-SVG2-20181004/eltindex.html"
 	],
 	"inventory": {
 		"elements": [

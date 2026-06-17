@@ -1,0 +1,453 @@
+{
+	"schema_version": 1,
+	"browser_compat_data": {
+		"name": "@mdn/browser-compat-data",
+		"version": "8.0.3",
+		"url": "https://unpkg.com/@mdn/browser-compat-data@8.0.3/data.json"
+	},
+	"web_features": {
+		"name": "web-features",
+		"version": "3.30.0",
+		"url": "https://unpkg.com/web-features@3.30.0/data.json"
+	},
+	"unmodeled_features": [
+		{
+			"compat_key": "svg.elements.a.xlink_href",
+			"kind": "legacy_xlink_alias",
+			"element": "a",
+			"name": "xlink_href",
+			"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Reference/Attribute/xlink:href",
+			"deprecated": true,
+			"standard_track": true,
+			"baseline": {
+				"kind": "limited"
+			},
+			"browser_support": {
+				"chrome": {
+					"supported": true,
+					"version_added": "1"
+				},
+				"edge": {
+					"supported": true,
+					"version_added": "12"
+				},
+				"firefox": {
+					"supported": true,
+					"version_added": "1.5"
+				},
+				"safari": {
+					"supported": true,
+					"version_added": "3.1"
+				}
+			}
+		},
+		{
+			"compat_key": "svg.elements.feImage.xlink_href",
+			"kind": "legacy_xlink_alias",
+			"element": "feImage",
+			"name": "xlink_href",
+			"deprecated": true,
+			"standard_track": true,
+			"baseline": {
+				"kind": "limited"
+			},
+			"browser_support": {
+				"chrome": {
+					"supported": true,
+					"version_added": "5"
+				},
+				"edge": {
+					"supported": true,
+					"version_added": "12"
+				},
+				"firefox": {
+					"supported": true,
+					"notes": [
+						"Document fragments (including references to fragments in the current document) are not supported (see [bug 455986](https://bugzil.la/455986))."
+					],
+					"version_added": "4"
+				},
+				"safari": {
+					"supported": true,
+					"version_added": "6"
+				}
+			}
+		},
+		{
+			"compat_key": "svg.elements.filter.xlink_href",
+			"kind": "legacy_xlink_alias",
+			"element": "filter",
+			"name": "xlink_href",
+			"mdn_url": "https://developer.mozilla.org/docs/Web/SVG/Reference/Attribute/xlink:href",
+			"deprecated": true,
+			"standard_track": true,
+			"baseline": {
+				"kind": "limited"
+			},
+			"browser_support": {
+				"chrome": {
+					"supported": true,
+					"version_added": "5"
+				},
+				"edge": {
+					"supported": true,
+					"version_added": "79"
+				},
+				"firefox": {
+					"supported": true,
+					"version_added": "3"
+				},
+				"safari": {
+					"supported": true,
+					"version_added": "6"
+				}
+			}
+		},
+		{
+			"compat_key": "svg.elements.image.xlink_href",
+			"kind": "legacy_xlink_alias",
+			"element": "image",
+			"name": "xlink_href",
+			"deprecated": true,
+			"standard_track": true,
+			"baseline": {
+				"kind": "limited"
+			},
+			"browser_support": {
+				"chrome": {
+					"supported": true,
+					"version_added": "1"
+				},
+				"edge": {
+					"supported": true,
+					"version_added": "79"
+				},
+				"firefox": {
+					"supported": true,
+					"version_added": "1.5"
+				},
+				"safari": {
+					"supported": true,
+					"version_added": "3"
+				}
+			}
+		},
+		{
+			"compat_key": "svg.elements.linearGradient.xlink_href",
+			"kind": "legacy_xlink_alias",
+			"element": "linearGradient",
+			"name": "xlink_href",
+			"deprecated": true,
+			"standard_track": true,
+			"baseline": {
+				"kind": "limited"
+			},
+			"browser_support": {
+				"chrome": {
+					"supported": true,
+					"version_added": "1"
+				},
+				"edge": {
+					"supported": true,
+					"version_added": "79"
+				},
+				"firefox": {
+					"supported": true,
+					"version_added": "1.5"
+				},
+				"safari": {
+					"supported": true,
+					"version_added": "3"
+				}
+			}
+		},
+		{
+			"compat_key": "svg.elements.mpath.xlink_href",
+			"kind": "legacy_xlink_alias",
+			"element": "mpath",
+			"name": "xlink_href",
+			"deprecated": true,
+			"standard_track": true,
+			"baseline": {
+				"kind": "limited"
+			},
+			"browser_support": {
+				"chrome": {
+					"supported": true,
+					"version_added": "19"
+				},
+				"edge": {
+					"supported": true,
+					"version_added": "79"
+				},
+				"firefox": {
+					"supported": true,
+					"version_added": "4"
+				},
+				"safari": {
+					"supported": true,
+					"version_added": "6"
+				}
+			}
+		},
+		{
+			"compat_key": "svg.elements.pattern.xlink_href",
+			"kind": "legacy_xlink_alias",
+			"element": "pattern",
+			"name": "xlink_href",
+			"deprecated": true,
+			"standard_track": true,
+			"baseline": {
+				"kind": "limited"
+			},
+			"browser_support": {
+				"chrome": {
+					"supported": true,
+					"version_added": "1"
+				},
+				"edge": {
+					"supported": true,
+					"version_added": "12"
+				},
+				"firefox": {
+					"supported": true,
+					"version_added": "3"
+				},
+				"safari": {
+					"supported": true,
+					"version_added": "3"
+				}
+			}
+		},
+		{
+			"compat_key": "svg.elements.radialGradient.xlink_href",
+			"kind": "legacy_xlink_alias",
+			"element": "radialGradient",
+			"name": "xlink_href",
+			"deprecated": true,
+			"standard_track": true,
+			"baseline": {
+				"kind": "limited"
+			},
+			"browser_support": {
+				"chrome": {
+					"supported": true,
+					"version_added": "1"
+				},
+				"edge": {
+					"supported": true,
+					"version_added": "79"
+				},
+				"firefox": {
+					"supported": true,
+					"version_added": "1.5"
+				},
+				"safari": {
+					"supported": true,
+					"version_added": "3"
+				}
+			}
+		},
+		{
+			"compat_key": "svg.elements.script.xlink_href",
+			"kind": "legacy_xlink_alias",
+			"element": "script",
+			"name": "xlink_href",
+			"deprecated": true,
+			"standard_track": true,
+			"baseline": {
+				"kind": "limited"
+			},
+			"browser_support": {
+				"chrome": {
+					"supported": true,
+					"version_added": "1"
+				},
+				"edge": {
+					"supported": true,
+					"version_added": "79"
+				},
+				"firefox": {
+					"supported": true,
+					"version_added": "1.5"
+				},
+				"safari": {
+					"supported": true,
+					"version_added": "3"
+				}
+			}
+		},
+		{
+			"compat_key": "svg.elements.textPath.xlink_href",
+			"kind": "legacy_xlink_alias",
+			"element": "textPath",
+			"name": "xlink_href",
+			"deprecated": true,
+			"standard_track": true,
+			"baseline": {
+				"kind": "limited"
+			},
+			"browser_support": {
+				"chrome": {
+					"supported": true,
+					"version_added": "1"
+				},
+				"edge": {
+					"supported": true,
+					"version_added": "12"
+				},
+				"firefox": {
+					"supported": true,
+					"version_added": "2"
+				},
+				"safari": {
+					"supported": true,
+					"version_added": "3.1"
+				}
+			}
+		},
+		{
+			"compat_key": "svg.elements.title.tooltip_display",
+			"kind": "behavior",
+			"element": "title",
+			"name": "tooltip_display",
+			"standard_track": false,
+			"baseline": {
+				"kind": "widely",
+				"since": 2022,
+				"qualifier": null
+			},
+			"browser_support": {
+				"chrome": {
+					"supported": true,
+					"version_added": "1"
+				},
+				"edge": {
+					"supported": true,
+					"version_added": "79"
+				},
+				"firefox": {
+					"supported": true,
+					"version_added": "4"
+				},
+				"safari": {
+					"supported": true,
+					"version_added": "3"
+				}
+			}
+		},
+		{
+			"compat_key": "svg.elements.use.data_uri",
+			"kind": "behavior",
+			"element": "use",
+			"name": "data_uri",
+			"standard_track": true,
+			"baseline": {
+				"kind": "limited"
+			},
+			"browser_support": {
+				"chrome": {
+					"supported": true,
+					"version_added": "22",
+					"version_removed": "120"
+				},
+				"edge": {
+					"supported": true,
+					"version_added": "≤18",
+					"version_qualifier": "before"
+				},
+				"firefox": {
+					"supported": true,
+					"version_added": "4",
+					"version_removed": "122"
+				},
+				"safari": {
+					"supported": false
+				}
+			}
+		},
+		{
+			"compat_key": "svg.elements.use.external_uri",
+			"kind": "behavior",
+			"element": "use",
+			"name": "external_uri",
+			"standard_track": true,
+			"baseline": {
+				"kind": "widely",
+				"since": 2018,
+				"qualifier": null
+			},
+			"browser_support": {
+				"chrome": {
+					"supported": true,
+					"version_added": "22"
+				},
+				"edge": {
+					"supported": true,
+					"version_added": "13"
+				},
+				"firefox": {
+					"supported": true,
+					"version_added": "4"
+				},
+				"safari": {
+					"supported": true,
+					"version_added": "7"
+				}
+			}
+		},
+		{
+			"compat_key": "svg.elements.use.omit_external_fragment",
+			"kind": "behavior",
+			"element": "use",
+			"name": "omit_external_fragment",
+			"experimental": true,
+			"standard_track": true,
+			"browser_support": {
+				"chrome": {
+					"supported": true,
+					"version_added": "137"
+				},
+				"edge": {
+					"supported": true,
+					"version_added": "137"
+				},
+				"firefox": {
+					"supported": false
+				},
+				"safari": {
+					"supported": false
+				}
+			}
+		},
+		{
+			"compat_key": "svg.elements.use.xlink_href",
+			"kind": "legacy_xlink_alias",
+			"element": "use",
+			"name": "xlink_href",
+			"deprecated": true,
+			"standard_track": true,
+			"baseline": {
+				"kind": "limited"
+			},
+			"browser_support": {
+				"chrome": {
+					"supported": true,
+					"version_added": "1"
+				},
+				"edge": {
+					"supported": true,
+					"version_added": "12"
+				},
+				"firefox": {
+					"supported": true,
+					"version_added": "1.5"
+				},
+				"safari": {
+					"supported": true,
+					"version_added": "3"
+				}
+			}
+		}
+	]
+}

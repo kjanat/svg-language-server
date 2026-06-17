@@ -19,21 +19,18 @@ use crate::{
     extract::{AttributeRef, ContentModelKind, Definitions, PropertyDef},
 };
 
-/// The full derived catalog written to `svg-data/data/catalog.json`.
-#[derive(Debug, Serialize, JsonSchema)]
+/// The full derived catalog kept in memory while writing split JSON files.
+#[derive(Debug)]
 pub struct Catalog {
     /// Version of the JSON catalog/schema contract.
     pub schema_version: u16,
     /// The upstream commit this catalog was derived from.
     pub commit: String,
     /// Browser-compat data sources used for objective compat facts.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub compat: Option<CatalogCompatProvenance>,
     /// Authoritative legacy-profile sources used for snapshot-specific data.
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub legacy_sources: Vec<CatalogLegacySource>,
     /// Version-specific overlay documents, sorted by profile.
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub snapshots: Vec<CatalogSnapshotRef>,
     /// Element definitions, sorted by name.
     pub elements: Vec<CatalogElement>,
@@ -41,6 +38,68 @@ pub struct Catalog {
     pub attributes: Vec<CatalogAttribute>,
     /// Derived graph view over the catalog.
     pub graph: CatalogGraph,
+}
+
+/// Root manifest written to `svg-data/data/catalog.json`.
+#[derive(Debug, Serialize, JsonSchema)]
+pub struct CatalogManifest {
+    /// Version of the JSON catalog/schema contract.
+    pub schema_version: u16,
+    /// The upstream commit this catalog was derived from.
+    pub commit: String,
+    /// Canonical latest element/attribute catalog document.
+    pub core: CatalogFileRef,
+    /// Browser-compat provenance and retained compat subfeatures.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub compat: Option<CatalogFileRef>,
+    /// Derived relationship graph document.
+    pub graph: CatalogFileRef,
+    /// Version-specific overlay documents, sorted by profile.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub snapshots: Vec<CatalogSnapshotRef>,
+}
+
+/// Relative reference from one catalog document to another.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, JsonSchema)]
+pub struct CatalogFileRef {
+    /// Relative path from `catalog.json` to the JSON file.
+    pub href: String,
+}
+
+/// Canonical latest catalog data.
+#[derive(Debug, Serialize)]
+pub struct CatalogCore<'a> {
+    /// Version of the JSON catalog/schema contract.
+    pub schema_version: u16,
+    /// Element definitions, sorted by name.
+    pub elements: &'a [CatalogElement],
+    /// Attribute definitions, sorted by canonical name.
+    pub attributes: &'a [CatalogAttribute],
+}
+
+/// Browser-compat provenance and retained non-catalogued compat features.
+#[derive(Debug, Serialize)]
+pub struct CatalogCompatDocument<'a> {
+    /// Version of the JSON catalog/schema contract.
+    pub schema_version: u16,
+    /// MDN browser-compat-data package source.
+    pub browser_compat_data: &'a CatalogPackageSource,
+    /// web-features package source.
+    pub web_features: &'a CatalogPackageSource,
+    /// BCD features intentionally not modeled as elements/attributes.
+    #[serde(default, skip_serializing_if = "is_empty_slice")]
+    pub unmodeled_features: &'a [CatalogCompatSubfeature],
+}
+
+/// Derived graph document.
+#[derive(Debug, Serialize)]
+pub struct CatalogGraphDocument<'a> {
+    /// Version of the JSON catalog/schema contract.
+    pub schema_version: u16,
+    /// Graph nodes, sorted by id.
+    pub nodes: &'a [CatalogGraphNode],
+    /// Directed graph edges, sorted by `(from, to, kind)`.
+    pub edges: &'a [CatalogGraphEdge],
 }
 
 /// One element's spec-derived catalog entry.
@@ -116,7 +175,7 @@ pub struct CatalogAttribute {
     pub element_compat: Vec<CatalogAttributeElementCompat>,
     /// Per-profile value-space overrides, when older snapshots accepted a
     /// different grammar.
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[serde(skip_serializing)]
     pub value_overrides: Vec<CatalogAttributeValueOverride>,
     /// Attribute value space.
     pub values: CatalogAttributeValues,
@@ -193,11 +252,17 @@ pub struct CatalogSnapshot {
     pub schema_version: u16,
     /// Profile snapshot this overlay describes.
     pub profile: CatalogSpecSnapshotId,
+    /// Accepted profile id aliases for this snapshot.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub aliases: Vec<String>,
     /// Exact source URLs used to derive this snapshot.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub sources: Vec<String>,
     /// Per-snapshot element/attribute inventory.
     pub inventory: CatalogSnapshotInventory,
+    /// Per-profile value-space overrides for this snapshot.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub value_overrides: Vec<CatalogSnapshotValueOverride>,
 }
 
 /// Per-snapshot element/attribute inventory payload.
@@ -207,6 +272,15 @@ pub struct CatalogSnapshotInventory {
     pub elements: Vec<CatalogInventoryElement>,
     /// Attributes present anywhere in this profile.
     pub attributes: Vec<String>,
+}
+
+/// One value-space override scoped by the containing snapshot document.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, JsonSchema)]
+pub struct CatalogSnapshotValueOverride {
+    /// Attribute/property name whose value space is overridden.
+    pub attribute: String,
+    /// Value space for this snapshot.
+    pub values: CatalogAttributeValues,
 }
 
 /// Per-snapshot element/attribute inventory.
@@ -249,18 +323,112 @@ pub enum CatalogSpecSnapshotId {
 impl CatalogSnapshot {
     /// Convert the in-memory inventory shape into its committed overlay file.
     #[must_use]
-    pub fn from_inventory(inventory: &CatalogInventory) -> Self {
+    pub fn from_inventory(
+        inventory: &CatalogInventory,
+        attributes: &[CatalogAttribute],
+        legacy_sources: &[CatalogLegacySource],
+    ) -> Self {
+        let sources = inventory
+            .sources
+            .iter()
+            .cloned()
+            .chain(
+                legacy_sources
+                    .iter()
+                    .filter(|source| source.profile == inventory.profile)
+                    .map(|source| source.url.clone()),
+            )
+            .collect::<BTreeSet<_>>()
+            .into_iter()
+            .collect();
+        let value_overrides = attributes
+            .iter()
+            .flat_map(|attribute| {
+                attribute
+                    .value_overrides
+                    .iter()
+                    .filter(move |override_| override_.profile == inventory.profile)
+                    .map(|override_| CatalogSnapshotValueOverride {
+                        attribute: attribute.name.clone(),
+                        values: override_.values.clone(),
+                    })
+            })
+            .collect();
         Self {
             schema_version: crate::schema::CATALOG_SCHEMA_VERSION,
             profile: inventory.profile,
-            sources: inventory.sources.clone(),
+            aliases: catalog_snapshot_aliases(inventory.profile)
+                .iter()
+                .map(|alias| (*alias).to_owned())
+                .collect(),
+            sources,
             inventory: CatalogSnapshotInventory {
                 elements: inventory.elements.clone(),
                 attributes: inventory.attributes.clone(),
             },
+            value_overrides,
         }
     }
 }
+
+impl Catalog {
+    /// Root manifest for the split catalog.
+    #[must_use]
+    pub fn manifest(&self) -> CatalogManifest {
+        CatalogManifest {
+            schema_version: self.schema_version,
+            commit: self.commit.clone(),
+            core: CatalogFileRef {
+                href: CATALOG_CORE_HREF.to_owned(),
+            },
+            compat: self.compat.as_ref().map(|_| CatalogFileRef {
+                href: CATALOG_COMPAT_HREF.to_owned(),
+            }),
+            graph: CatalogFileRef {
+                href: CATALOG_GRAPH_HREF.to_owned(),
+            },
+            snapshots: self.snapshots.clone(),
+        }
+    }
+
+    /// Canonical latest core document.
+    #[must_use]
+    pub fn core_document(&self) -> CatalogCore<'_> {
+        CatalogCore {
+            schema_version: self.schema_version,
+            elements: &self.elements,
+            attributes: &self.attributes,
+        }
+    }
+
+    /// Browser-compat companion document, when compat data was available.
+    #[must_use]
+    pub fn compat_document(&self) -> Option<CatalogCompatDocument<'_>> {
+        self.compat.as_ref().map(|compat| CatalogCompatDocument {
+            schema_version: self.schema_version,
+            browser_compat_data: &compat.browser_compat_data,
+            web_features: &compat.web_features,
+            unmodeled_features: &compat.unmodeled_features,
+        })
+    }
+
+    /// Derived graph companion document.
+    #[must_use]
+    pub fn graph_document(&self) -> CatalogGraphDocument<'_> {
+        CatalogGraphDocument {
+            schema_version: self.schema_version,
+            nodes: &self.graph.nodes,
+            edges: &self.graph.edges,
+        }
+    }
+}
+
+/// Relative JSON file path for canonical latest catalog data.
+pub const CATALOG_CORE_HREF: &str = "catalog.core.json";
+/// Relative JSON file path for browser-compat companion data.
+pub const CATALOG_COMPAT_HREF: &str = "catalog.compat.json";
+/// Relative JSON file path for the derived relationship graph.
+pub const CATALOG_GRAPH_HREF: &str = "catalog.graph.json";
 
 /// Relative JSON file path for the snapshot overlay for `profile`.
 #[must_use]
@@ -270,6 +438,35 @@ pub const fn catalog_snapshot_href(profile: CatalogSpecSnapshotId) -> &'static s
         CatalogSpecSnapshotId::Svg11Rec20110816 => "snapshots/svg11-rec-20110816.json",
         CatalogSpecSnapshotId::Svg2Cr20181004 => "snapshots/svg2-cr-20181004.json",
         CatalogSpecSnapshotId::Svg2EditorsDraft => "snapshots/svg2-editors-draft.json",
+    }
+}
+
+/// Accepted profile id aliases for `profile`.
+#[must_use]
+pub const fn catalog_snapshot_aliases(profile: CatalogSpecSnapshotId) -> &'static [&'static str] {
+    match profile {
+        CatalogSpecSnapshotId::Svg11Rec20030114 => {
+            &["svg11rec20030114", "svg11-20030114", "svg1.1-20030114"]
+        }
+        CatalogSpecSnapshotId::Svg11Rec20110816 => &[
+            "svg11",
+            "svg1.1",
+            "1.1",
+            "svg11rec20110816",
+            "svg11-20110816",
+        ],
+        CatalogSpecSnapshotId::Svg2Cr20181004 => {
+            &["svg2cr", "svg2-cr", "svg2cr20181004", "svg2-20181004"]
+        }
+        CatalogSpecSnapshotId::Svg2EditorsDraft => &[
+            "svg2",
+            "svg2.0",
+            "2",
+            "2.0",
+            "svg2draft",
+            "svg2-draft",
+            "latest",
+        ],
     }
 }
 
@@ -429,6 +626,10 @@ pub struct CatalogCompatFacts {
 #[allow(clippy::trivially_copy_pass_by_ref)]
 const fn is_false(value: &bool) -> bool {
     !*value
+}
+
+const fn is_empty_slice<T>(slice: &&[T]) -> bool {
+    slice.is_empty()
 }
 
 /// The runtime value-space shapes the catalog emits.

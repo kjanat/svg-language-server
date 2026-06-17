@@ -34,6 +34,7 @@ use std::process::ExitCode;
 
 use discover::PublishGraph;
 use provenance::{BaseUrls, Provenance};
+use serde::Serialize;
 
 /// Upstream repository the catalog derives from.
 const REPO_SLUG: &str = "w3c/svgwg";
@@ -308,11 +309,10 @@ fn write_catalog(
     inventories: &[catalog::CatalogInventory],
 ) -> Fallible<PathBuf> {
     let data_dir = catalog_data_dir()?;
-    write_catalog_snapshots(&data_dir, inventories)?;
+    write_catalog_components(&data_dir, built)?;
+    write_catalog_snapshots(&data_dir, built, inventories)?;
     let path = data_dir.join("catalog.json");
-    let mut json = serde_json::to_string_pretty(built)?;
-    json.push('\n');
-    std::fs::write(&path, json)?;
+    write_json(&path, &built.manifest())?;
     std::fs::write(
         data_dir.join(schema::CATALOG_SCHEMA_FILE),
         schema::catalog_schema_json()?,
@@ -320,8 +320,27 @@ fn write_catalog(
     Ok(path)
 }
 
+fn write_catalog_components(data_dir: &Path, built: &catalog::Catalog) -> Fallible<()> {
+    write_json(
+        &resolve_data_ref_for_write(data_dir, catalog::CATALOG_CORE_HREF)?,
+        &built.core_document(),
+    )?;
+    if let Some(compat) = built.compat_document() {
+        write_json(
+            &resolve_data_ref_for_write(data_dir, catalog::CATALOG_COMPAT_HREF)?,
+            &compat,
+        )?;
+    }
+    write_json(
+        &resolve_data_ref_for_write(data_dir, catalog::CATALOG_GRAPH_HREF)?,
+        &built.graph_document(),
+    )?;
+    Ok(())
+}
+
 fn write_catalog_snapshots(
     data_dir: &Path,
+    built: &catalog::Catalog,
     inventories: &[catalog::CatalogInventory],
 ) -> Fallible<()> {
     let snapshots_dir = data_dir.join("snapshots");
@@ -331,10 +350,12 @@ fn write_catalog_snapshots(
     for inventory in inventories {
         let href = catalog::catalog_snapshot_href(inventory.profile);
         let path = resolve_data_ref_for_write(data_dir, href)?;
-        let snapshot = catalog::CatalogSnapshot::from_inventory(inventory);
-        let mut json = serde_json::to_string_pretty(&snapshot)?;
-        json.push('\n');
-        std::fs::write(&path, json)?;
+        let snapshot = catalog::CatalogSnapshot::from_inventory(
+            inventory,
+            &built.attributes,
+            &built.legacy_sources,
+        );
+        write_json(&path, &snapshot)?;
         expected.insert(path.canonicalize()?);
     }
 
@@ -349,6 +370,13 @@ fn write_catalog_snapshots(
         }
     }
 
+    Ok(())
+}
+
+fn write_json(path: &Path, value: &impl Serialize) -> Fallible<()> {
+    let mut json = serde_json::to_string_pretty(value)?;
+    json.push('\n');
+    std::fs::write(path, json)?;
     Ok(())
 }
 

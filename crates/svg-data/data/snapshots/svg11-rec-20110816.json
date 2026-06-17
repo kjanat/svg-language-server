@@ -1,9 +1,17 @@
 {
 	"schema_version": 1,
 	"profile": "Svg11Rec20110816",
+	"aliases": [
+		"svg11",
+		"svg1.1",
+		"1.1",
+		"svg11rec20110816",
+		"svg11-20110816"
+	],
 	"sources": [
+		"https://www.w3.org/TR/SVG11/attindex.html",
 		"https://www.w3.org/TR/SVG11/eltindex.html",
-		"https://www.w3.org/TR/SVG11/attindex.html"
+		"https://www.w3.org/TR/SVG11/propidx.html"
 	],
 	"inventory": {
 		"elements": [
@@ -5111,5 +5119,297 @@
 			"z",
 			"zoomAndPan"
 		]
-	}
+	},
+	"value_overrides": [
+		{
+			"attribute": "alignment-baseline",
+			"values": {
+				"kind": "enum",
+				"values": [
+					"after-edge",
+					"alphabetic",
+					"auto",
+					"baseline",
+					"before-edge",
+					"central",
+					"hanging",
+					"ideographic",
+					"inherit",
+					"mathematical",
+					"middle",
+					"text-after-edge",
+					"text-before-edge"
+				]
+			}
+		},
+		{
+			"attribute": "clip-rule",
+			"values": {
+				"kind": "enum",
+				"values": [
+					"evenodd",
+					"inherit",
+					"nonzero"
+				]
+			}
+		},
+		{
+			"attribute": "color-interpolation",
+			"values": {
+				"kind": "enum",
+				"values": [
+					"auto",
+					"inherit",
+					"linearRGB",
+					"sRGB"
+				]
+			}
+		},
+		{
+			"attribute": "color-interpolation-filters",
+			"values": {
+				"kind": "enum",
+				"values": [
+					"auto",
+					"inherit",
+					"linearRGB",
+					"sRGB"
+				]
+			}
+		},
+		{
+			"attribute": "direction",
+			"values": {
+				"kind": "enum",
+				"values": [
+					"inherit",
+					"ltr",
+					"rtl"
+				]
+			}
+		},
+		{
+			"attribute": "display",
+			"values": {
+				"kind": "enum",
+				"values": [
+					"block",
+					"compact",
+					"inherit",
+					"inline",
+					"inline-table",
+					"list-item",
+					"marker",
+					"none",
+					"run-in",
+					"table",
+					"table-caption",
+					"table-cell",
+					"table-column",
+					"table-column-group",
+					"table-footer-group",
+					"table-header-group",
+					"table-row",
+					"table-row-group"
+				]
+			}
+		},
+		{
+			"attribute": "dominant-baseline",
+			"values": {
+				"kind": "enum",
+				"values": [
+					"alphabetic",
+					"auto",
+					"central",
+					"hanging",
+					"ideographic",
+					"inherit",
+					"mathematical",
+					"middle",
+					"no-change",
+					"reset-size",
+					"text-after-edge",
+					"text-before-edge",
+					"use-script"
+				]
+			}
+		},
+		{
+			"attribute": "fill-rule",
+			"values": {
+				"kind": "enum",
+				"values": [
+					"evenodd",
+					"inherit",
+					"nonzero"
+				]
+			}
+		},
+		{
+			"attribute": "font-stretch",
+			"values": {
+				"kind": "enum",
+				"values": [
+					"condensed",
+					"expanded",
+					"extra-condensed",
+					"extra-expanded",
+					"inherit",
+					"narrower",
+					"normal",
+					"semi-condensed",
+					"semi-expanded",
+					"ultra-condensed",
+					"ultra-expanded",
+					"wider"
+				]
+			}
+		},
+		{
+			"attribute": "font-style",
+			"values": {
+				"kind": "enum",
+				"values": [
+					"inherit",
+					"italic",
+					"normal",
+					"oblique"
+				]
+			}
+		},
+		{
+			"attribute": "font-variant",
+			"values": {
+				"kind": "enum",
+				"values": [
+					"inherit",
+					"normal",
+					"small-caps"
+				]
+			}
+		},
+		{
+			"attribute": "font-weight",
+			"values": {
+				"kind": "enum",
+				"values": [
+					"100",
+					"200",
+					"300",
+					"400",
+					"500",
+					"600",
+					"700",
+					"800",
+					"900",
+					"bold",
+					"bolder",
+					"inherit",
+					"lighter",
+					"normal"
+				]
+			}
+		},
+		{
+			"attribute": "image-rendering",
+			"values": {
+				"kind": "enum",
+				"values": [
+					"auto",
+					"inherit",
+					"optimizeQuality",
+					"optimizeSpeed"
+				]
+			}
+		},
+		{
+			"attribute": "overflow",
+			"values": {
+				"kind": "enum",
+				"values": [
+					"auto",
+					"hidden",
+					"inherit",
+					"scroll",
+					"visible"
+				]
+			}
+		},
+		{
+			"attribute": "stroke-linecap",
+			"values": {
+				"kind": "enum",
+				"values": [
+					"butt",
+					"inherit",
+					"round",
+					"square"
+				]
+			}
+		},
+		{
+			"attribute": "stroke-linejoin",
+			"values": {
+				"kind": "enum",
+				"values": [
+					"bevel",
+					"inherit",
+					"miter",
+					"round"
+				]
+			}
+		},
+		{
+			"attribute": "text-anchor",
+			"values": {
+				"kind": "enum",
+				"values": [
+					"end",
+					"inherit",
+					"middle",
+					"start"
+				]
+			}
+		},
+		{
+			"attribute": "unicode-bidi",
+			"values": {
+				"kind": "enum",
+				"values": [
+					"bidi-override",
+					"embed",
+					"inherit",
+					"normal"
+				]
+			}
+		},
+		{
+			"attribute": "visibility",
+			"values": {
+				"kind": "enum",
+				"values": [
+					"collapse",
+					"hidden",
+					"inherit",
+					"visible"
+				]
+			}
+		},
+		{
+			"attribute": "writing-mode",
+			"values": {
+				"kind": "enum",
+				"values": [
+					"inherit",
+					"lr",
+					"lr-tb",
+					"rl",
+					"rl-tb",
+					"tb",
+					"tb-rl"
+				]
+			}
+		}
+	]
 }

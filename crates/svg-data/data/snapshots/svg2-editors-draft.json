@@ -1,6 +1,15 @@
 {
 	"schema_version": 1,
 	"profile": "Svg2EditorsDraft",
+	"aliases": [
+		"svg2",
+		"svg2.0",
+		"2",
+		"2.0",
+		"svg2draft",
+		"svg2-draft",
+		"latest"
+	],
 	"inventory": {
 		"elements": [
 			{

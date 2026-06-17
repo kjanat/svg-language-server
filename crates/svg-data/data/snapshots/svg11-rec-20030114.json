@@ -1123,6 +1123,1255 @@
 			"zoomAndPan"
 		]
 	},
+	"lifecycle": {
+		"elements": [
+			{
+				"name": "audio",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "canvas",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "discard",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "feDropShadow",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "iframe",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "unknown",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "video",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			}
+		],
+		"attributes": [
+			{
+				"name": "additive",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg11Rec20110816",
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-activedescendant",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-atomic",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-autocomplete",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-busy",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-checked",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-colcount",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-colindex",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-colspan",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-controls",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-current",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-describedby",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-details",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-disabled",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-dropeffect",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-errormessage",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-expanded",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-flowto",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-grabbed",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-haspopup",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-hidden",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-invalid",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-keyshortcuts",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-label",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-labelledby",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-level",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-live",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-modal",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-multiline",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-multiselectable",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-orientation",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-owns",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-placeholder",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-posinset",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-pressed",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-readonly",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-relevant",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-required",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-roledescription",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-rowcount",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-rowindex",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-rowspan",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-selected",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-setsize",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-sort",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-valuemax",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-valuemin",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-valuenow",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "aria-valuetext",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "attributeName",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg11Rec20110816",
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "autofocus",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "begin",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg11Rec20110816",
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "crossorigin",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "download",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "fr",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "href",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "hreflang",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "id",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg11Rec20110816",
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "mask-type",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onafterprint",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "onbeforeprint",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "oncancel",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "oncanplay",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "oncanplaythrough",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onchange",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onclose",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "oncopy",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "oncuechange",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "oncut",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "ondblclick",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "ondrag",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "ondragend",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "ondragenter",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "ondragexit",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "ondragleave",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "ondragover",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "ondragstart",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "ondrop",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "ondurationchange",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onemptied",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onended",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onfocus",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onhashchange",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "oninput",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "oninvalid",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onkeydown",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onkeypress",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onkeyup",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onloadeddata",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onloadedmetadata",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onloadstart",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onmessage",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "onmouseenter",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onmouseleave",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onoffline",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "ononline",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "onpagehide",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "onpageshow",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "onpaste",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onpause",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onplay",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onplaying",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onpopstate",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "onprogress",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onratechange",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onreset",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onseeked",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onseeking",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onselect",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onshow",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onstalled",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onstorage",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "onsubmit",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onsuspend",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "ontimeupdate",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "ontoggle",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onvolumechange",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onwaiting",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onwheel",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "paint-order",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "path-length",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "ping",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "playbackorder",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "referrerpolicy",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "rel",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "role",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "side",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "tabindex",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "timelinebegin",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "transform-origin",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "vector-effect",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2Cr20181004",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "xlink:href",
+				"catalog_name": "href",
+				"present": true,
+				"lifecycle": "stable",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "xml:lang",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg11Rec20110816"
+				]
+			}
+		]
+	},
 	"value_overrides": [
 		{
 			"attribute": "alignment-baseline",

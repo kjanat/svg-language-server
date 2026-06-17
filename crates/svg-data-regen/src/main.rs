@@ -352,6 +352,7 @@ fn write_catalog_snapshots(
         let path = resolve_data_ref_for_write(data_dir, href)?;
         let snapshot = catalog::CatalogSnapshot::from_inventory(
             inventory,
+            inventories,
             &built.attributes,
             &built.legacy_sources,
         );

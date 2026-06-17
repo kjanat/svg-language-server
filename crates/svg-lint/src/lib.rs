@@ -766,8 +766,8 @@ mod tests {
 
         // `definition-src` is an SVG 1.0 font element that the SVG 1.1 snapshot
         // (which `version="1.0"` collapses to) no longer carries. Linting it
-        // against the bare 1.1 snapshot wrongly flags it `UnknownElement`;
-        // routing through the SVG 1.0 edition must accept it.
+        // against the bare 1.1 snapshot rejects it; routing through the SVG 1.0
+        // edition must accept it.
         let svg10 =
             inventory::for_edition(&inventory::EditionId::dated(Series::Svg10, "2001-09-04"))
                 .ok_or("no SVG 1.0 edition inventory")?;
@@ -796,7 +796,7 @@ mod tests {
         assert!(
             snapshot_only
                 .iter()
-                .any(|d| d.code == DiagnosticCode::UnknownElement
+                .any(|d| d.code == DiagnosticCode::UnsupportedInProfile
                     && d.message.contains("definition-src")),
             "control: 1.1 snapshot alone rejects definition-src: {snapshot_only:?}"
         );

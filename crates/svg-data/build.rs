@@ -182,7 +182,40 @@ struct SnapshotDocument {
     aliases: Vec<String>,
     inventory: SnapshotInventory,
     #[serde(default)]
+    lifecycle: SnapshotLifecycle,
+    #[serde(default)]
     value_overrides: Vec<SnapshotValueOverride>,
+}
+
+/// The lifecycle overlay payload inside one snapshot overlay.
+#[derive(Default, Deserialize)]
+struct SnapshotLifecycle {
+    #[serde(default)]
+    elements: Vec<LifecycleEntry>,
+    #[serde(default)]
+    attributes: Vec<LifecycleEntry>,
+}
+
+/// One feature lifecycle fact in a snapshot overlay.
+#[derive(Deserialize)]
+struct LifecycleEntry {
+    name: String,
+    #[serde(default)]
+    catalog_name: Option<String>,
+    present: bool,
+    lifecycle: LifecycleStatus,
+    #[serde(default)]
+    known_in: Vec<SpecSnapshot>,
+}
+
+/// Lifecycle statuses emitted by snapshot overlays.
+#[derive(Deserialize)]
+#[serde(rename_all = "snake_case")]
+enum LifecycleStatus {
+    Stable,
+    Experimental,
+    Obsolete,
+    NotYetIntroduced,
 }
 
 /// The inventory payload inside one snapshot overlay.
@@ -477,6 +510,7 @@ fn empty_catalog() -> String {
         "pub static ATTRIBUTES: &[crate::types::AttributeDef] = &[];",
         "pub static COMPAT_SUBFEATURES: &[crate::types::CompatSubfeature] = &[];",
         "pub static SNAPSHOT_METADATA: &[crate::types::SnapshotMetadata] = &[];",
+        "pub static LIFECYCLE_OVERLAYS: &[crate::types::SnapshotLifecycle] = &[];",
         "pub static INVENTORIES: &[crate::inventory::Inventory] = &[];",
         "pub static CATALOG_GRAPH: crate::types::CatalogGraph = crate::types::CatalogGraph { nodes: &[], edges: &[] };",
     ]
@@ -637,6 +671,11 @@ fn emit_catalog(
         emit_snapshot_metadata(&mut out, snapshot);
     }
     out.push_str("];\n");
+    out.push_str("pub static LIFECYCLE_OVERLAYS: &[crate::types::SnapshotLifecycle] = &[\n");
+    for snapshot in snapshots {
+        emit_snapshot_lifecycle(&mut out, snapshot);
+    }
+    out.push_str("];\n");
     out.push_str("pub static INVENTORIES: &[crate::inventory::Inventory] = &[\n");
     for inventory in inventories {
         emit_inventory(&mut out, inventory);
@@ -658,6 +697,61 @@ fn emit_snapshot_metadata(out: &mut String, snapshot: &SnapshotDocument) {
         emit_spec_snapshot(snapshot.profile),
         quote_list(&snapshot.aliases),
     );
+}
+
+/// Append one generated snapshot lifecycle overlay.
+fn emit_snapshot_lifecycle(out: &mut String, snapshot: &SnapshotDocument) {
+    let elements = snapshot
+        .lifecycle
+        .elements
+        .iter()
+        .map(emit_lifecycle_entry)
+        .collect::<Vec<_>>()
+        .join(", ");
+    let attributes = snapshot
+        .lifecycle
+        .attributes
+        .iter()
+        .map(emit_lifecycle_entry)
+        .collect::<Vec<_>>()
+        .join(", ");
+    let _ = writeln!(
+        out,
+        "    crate::types::SnapshotLifecycle {{ snapshot: {}, elements: &[{}], attributes: &[{}] }},",
+        emit_spec_snapshot(snapshot.profile),
+        elements,
+        attributes,
+    );
+}
+
+fn emit_lifecycle_entry(entry: &LifecycleEntry) -> String {
+    let catalog_name = entry
+        .catalog_name
+        .as_ref()
+        .map_or_else(|| "None".to_owned(), |name| format!("Some({name:?})"));
+    let known_in = entry
+        .known_in
+        .iter()
+        .map(|snapshot| emit_spec_snapshot(*snapshot))
+        .collect::<Vec<_>>()
+        .join(", ");
+    format!(
+        "crate::types::FeatureLifecycle {{ name: {:?}, catalog_name: {catalog_name}, present: {}, lifecycle: {}, known_in: &[{}] }}",
+        entry.name,
+        entry.present,
+        emit_lifecycle_status(&entry.lifecycle),
+        known_in,
+    )
+}
+
+const fn emit_lifecycle_status(status: &LifecycleStatus) -> &'static str {
+    match status {
+        LifecycleStatus::Stable => "crate::types::SpecLifecycle::Stable",
+        LifecycleStatus::Experimental => "crate::types::SpecLifecycle::Experimental",
+        LifecycleStatus::Obsolete | LifecycleStatus::NotYetIntroduced => {
+            "crate::types::SpecLifecycle::Obsolete"
+        }
+    }
 }
 
 /// Append one generated edition inventory.

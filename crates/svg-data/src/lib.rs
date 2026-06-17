@@ -21,11 +21,14 @@ pub use types::{
     CatalogGraphEdge, CatalogGraphEdgeKind, CatalogGraphNode, CatalogGraphNodeKind, CompatFacts,
     CompatSubfeature, CompatSubfeatureKind, CompatVerdict, ContentModel, CssGrammarEdge,
     CssGrammarEdgeKind, CssGrammarGraph, CssGrammarNode, CssGrammarNodeKind, ElementCategory,
-    ElementDef, ProfileLookup, ProfiledAttribute, ProfiledElement, SnapshotMetadata, SpecLifecycle,
-    SpecSnapshotId, VerdictReason, VerdictRecommendation,
+    ElementDef, FeatureLifecycle, ProfileLookup, ProfiledAttribute, ProfiledElement,
+    SnapshotLifecycle, SnapshotMetadata, SpecLifecycle, SpecSnapshotId, VerdictReason,
+    VerdictRecommendation,
 };
 
-use catalog::{ATTRIBUTES, CATALOG_GRAPH, COMPAT_SUBFEATURES, ELEMENTS, SNAPSHOT_METADATA};
+use catalog::{
+    ATTRIBUTES, CATALOG_GRAPH, COMPAT_SUBFEATURES, ELEMENTS, LIFECYCLE_OVERLAYS, SNAPSHOT_METADATA,
+};
 
 /// All snapshots the catalog tracks, oldest first.
 #[must_use]
@@ -73,6 +76,12 @@ pub const fn inventories() -> &'static [inventory::Inventory] {
     inventory::generated()
 }
 
+/// Generated per-snapshot lifecycle overlays.
+#[must_use]
+pub const fn lifecycle_overlays() -> &'static [SnapshotLifecycle] {
+    LIFECYCLE_OVERLAYS
+}
+
 /// Derived graph view over the catalog.
 #[must_use]
 pub const fn catalog_graph() -> &'static CatalogGraph {
@@ -96,9 +105,17 @@ pub fn compat_subfeature(compat_key: &str) -> Option<&'static CompatSubfeature> 
 /// Profile-aware element lookup.
 #[must_use]
 pub fn element_for_profile(profile: SpecSnapshotId, name: &str) -> ProfileLookup<ElementDef> {
-    // Per-profile presence (`UnsupportedInProfile`) is produced once the spec
-    // inventory is extracted; until then every known element is present+stable.
-    let _ = profile;
+    if let Some(lifecycle) = element_lifecycle_for_profile(profile, name) {
+        if !lifecycle.present {
+            return ProfileLookup::UnsupportedInProfile {
+                known_in: lifecycle.known_in,
+            };
+        }
+        return element(name).map_or(ProfileLookup::Unknown, |value| ProfileLookup::Present {
+            value,
+            lifecycle: lifecycle.lifecycle,
+        });
+    }
     element(name).map_or(ProfileLookup::Unknown, |value| ProfileLookup::Present {
         value,
         lifecycle: SpecLifecycle::Stable,
@@ -108,58 +125,32 @@ pub fn element_for_profile(profile: SpecSnapshotId, name: &str) -> ProfileLookup
 /// Profile-aware attribute lookup.
 #[must_use]
 pub fn attribute_for_profile(profile: SpecSnapshotId, name: &str) -> ProfileLookup<AttributeDef> {
-    if let Some(lookup) = href_lookup_for_profile(profile, name) {
-        return lookup;
-    }
-    if let Some(lookup) = svg11_declarator_lookup_for_profile(profile, name) {
-        return lookup;
+    if let Some(lifecycle) = attribute_lifecycle_for_profile(profile, name) {
+        if !lifecycle.present {
+            return ProfileLookup::UnsupportedInProfile {
+                known_in: lifecycle.known_in,
+            };
+        }
+        let catalog_name = lifecycle.catalog_name.unwrap_or(lifecycle.name);
+        return attribute_by_catalog_name(catalog_name).map_or(ProfileLookup::Unknown, |value| {
+            attribute_lookup_present_with_lifecycle(value, lifecycle.lifecycle)
+        });
     }
     attribute(name).map_or(ProfileLookup::Unknown, attribute_lookup_present)
 }
 
 const fn attribute_lookup_present(value: &'static AttributeDef) -> ProfileLookup<AttributeDef> {
+    attribute_lookup_present_with_lifecycle(value, SpecLifecycle::Stable)
+}
+
+const fn attribute_lookup_present_with_lifecycle(
+    value: &'static AttributeDef,
+    lifecycle: SpecLifecycle,
+) -> ProfileLookup<AttributeDef> {
     if matches!(value.applicability, AttributeApplicability::None) {
         return ProfileLookup::Unknown;
     }
-    ProfileLookup::Present {
-        value,
-        lifecycle: SpecLifecycle::Stable,
-    }
-}
-
-fn href_lookup_for_profile(
-    profile: SpecSnapshotId,
-    name: &str,
-) -> Option<ProfileLookup<AttributeDef>> {
-    match (name, is_svg11_profile(profile)) {
-        ("href", true) => {
-            attribute_by_catalog_name("href").map(|_| ProfileLookup::UnsupportedInProfile {
-                known_in: SVG2_HREF_SNAPSHOTS,
-            })
-        }
-        ("xlink:href", true) => attribute_by_catalog_name("href").map(attribute_lookup_present),
-        ("xlink:href", false) => {
-            attribute_by_catalog_name("href").map(|_| ProfileLookup::UnsupportedInProfile {
-                known_in: SVG11_SNAPSHOTS,
-            })
-        }
-        _ => None,
-    }
-}
-
-fn svg11_declarator_lookup_for_profile(
-    profile: SpecSnapshotId,
-    name: &str,
-) -> Option<ProfileLookup<AttributeDef>> {
-    if !matches!(name, "baseProfile" | "version") {
-        return None;
-    }
-    if is_svg11_profile(profile) {
-        return attribute_by_catalog_name(name).map(attribute_lookup_present);
-    }
-    attribute_by_catalog_name(name).map(|_| ProfileLookup::UnsupportedInProfile {
-        known_in: SVG11_SNAPSHOTS,
-    })
+    ProfileLookup::Present { value, lifecycle }
 }
 
 /// Attributes that apply to `elem_name` in `profile`.
@@ -178,37 +169,15 @@ pub fn attributes_for_with_profile(
                 .applicability
                 .includes(elem_name, element.global_attrs)
         })
-        .map(|attribute| ProfiledAttribute {
-            name: attribute_name_for_profile(profile, attribute.name),
-            attribute,
-            lifecycle: SpecLifecycle::Stable,
+        .filter_map(|attribute| {
+            let (name, lifecycle) = attribute_profile_name_and_lifecycle(profile, attribute.name)?;
+            Some(ProfiledAttribute {
+                name,
+                attribute,
+                lifecycle,
+            })
         })
         .collect()
-}
-
-fn attribute_name_for_profile(profile: SpecSnapshotId, name: &'static str) -> &'static str {
-    if name == "href" && is_svg11_profile(profile) {
-        "xlink:href"
-    } else {
-        name
-    }
-}
-
-const SVG11_SNAPSHOTS: &[SpecSnapshotId] = &[
-    SpecSnapshotId::Svg11Rec20030114,
-    SpecSnapshotId::Svg11Rec20110816,
-];
-
-const SVG2_HREF_SNAPSHOTS: &[SpecSnapshotId] = &[
-    SpecSnapshotId::Svg2Cr20181004,
-    SpecSnapshotId::Svg2EditorsDraft,
-];
-
-const fn is_svg11_profile(profile: SpecSnapshotId) -> bool {
-    matches!(
-        profile,
-        SpecSnapshotId::Svg11Rec20030114 | SpecSnapshotId::Svg11Rec20110816
-    )
 }
 
 /// Concrete child elements allowed inside `parent` in `profile`.
@@ -223,12 +192,67 @@ pub fn allowed_children_with_profile(
     };
     allowed_child_names(&parent.content_model)
         .into_iter()
+        .filter(|name| {
+            element_lifecycle_for_profile(profile, name).is_none_or(|lifecycle| lifecycle.present)
+        })
         .filter_map(element)
         .map(|element| ProfiledElement {
             element,
-            lifecycle: SpecLifecycle::Stable,
+            lifecycle: element_lifecycle_for_profile(profile, element.name)
+                .map_or(SpecLifecycle::Stable, |lifecycle| lifecycle.lifecycle),
         })
         .collect()
+}
+
+fn element_lifecycle_for_profile(
+    profile: SpecSnapshotId,
+    name: &str,
+) -> Option<&'static FeatureLifecycle> {
+    lifecycle_overlay(profile)?
+        .elements
+        .iter()
+        .find(|entry| entry.name == name)
+}
+
+fn attribute_lifecycle_for_profile(
+    profile: SpecSnapshotId,
+    name: &str,
+) -> Option<&'static FeatureLifecycle> {
+    lifecycle_overlay(profile)?.attributes.iter().find(|entry| {
+        entry.name == name
+            || entry
+                .catalog_name
+                .is_some_and(|catalog_name| catalog_name == name && entry.present)
+    })
+}
+
+fn attribute_profile_name_and_lifecycle(
+    profile: SpecSnapshotId,
+    catalog_name: &'static str,
+) -> Option<(&'static str, SpecLifecycle)> {
+    if let Some(entry) = lifecycle_overlay(profile).and_then(|overlay| {
+        overlay.attributes.iter().find(|entry| {
+            entry.present
+                && (entry.name == catalog_name || entry.catalog_name == Some(catalog_name))
+        })
+    }) {
+        return Some((entry.name, entry.lifecycle));
+    }
+    if lifecycle_overlay(profile).is_some_and(|overlay| {
+        overlay
+            .attributes
+            .iter()
+            .any(|entry| !entry.present && entry.name == catalog_name)
+    }) {
+        return None;
+    }
+    Some((catalog_name, SpecLifecycle::Stable))
+}
+
+fn lifecycle_overlay(profile: SpecSnapshotId) -> Option<&'static SnapshotLifecycle> {
+    LIFECYCLE_OVERLAYS
+        .iter()
+        .find(|overlay| overlay.snapshot == profile)
 }
 
 /// Whether `parent` hosts foreign-namespace (e.g. HTML) children.
@@ -565,6 +589,53 @@ mod catalog_tests {
     }
 
     #[test]
+    fn lifecycle_overlays_drive_profile_lookup() {
+        assert_eq!(lifecycle_overlays().len(), spec_snapshots().len());
+
+        let latest = lifecycle_overlays()
+            .iter()
+            .find(|overlay| overlay.snapshot == SpecSnapshotId::Svg2EditorsDraft)
+            .expect("latest lifecycle overlay");
+        assert!(latest.elements.iter().any(|entry| {
+            entry.name == "font"
+                && !entry.present
+                && entry.lifecycle == SpecLifecycle::Obsolete
+                && entry.known_in
+                    == [
+                        SpecSnapshotId::Svg11Rec20030114,
+                        SpecSnapshotId::Svg11Rec20110816,
+                    ]
+        }));
+        assert!(latest.attributes.iter().any(|entry| {
+            entry.name == "mask-type"
+                && entry.present
+                && entry.lifecycle == SpecLifecycle::Experimental
+                && entry.known_in == [SpecSnapshotId::Svg2EditorsDraft]
+        }));
+
+        assert!(matches!(
+            element_for_profile(SpecSnapshotId::Svg2EditorsDraft, "font"),
+            ProfileLookup::UnsupportedInProfile { known_in }
+                if known_in == [SpecSnapshotId::Svg11Rec20030114, SpecSnapshotId::Svg11Rec20110816]
+        ));
+        assert!(matches!(
+            attribute_for_profile(SpecSnapshotId::Svg2EditorsDraft, "mask-type"),
+            ProfileLookup::Present { value, lifecycle: SpecLifecycle::Experimental }
+                if value.name == "mask-type"
+        ));
+        assert!(matches!(
+            attribute_for_profile(SpecSnapshotId::Svg2EditorsDraft, "baseProfile"),
+            ProfileLookup::UnsupportedInProfile { known_in }
+                if known_in == [SpecSnapshotId::Svg11Rec20030114, SpecSnapshotId::Svg11Rec20110816]
+        ));
+        assert!(matches!(
+            attribute_for_profile(SpecSnapshotId::Svg11Rec20110816, "mask-type"),
+            ProfileLookup::UnsupportedInProfile { known_in }
+                if known_in == [SpecSnapshotId::Svg2EditorsDraft]
+        ));
+    }
+
+    #[test]
     fn profile_aliases_resolve_from_generated_snapshot_metadata() {
         assert!(
             snapshot_metadata(SpecSnapshotId::Svg11Rec20110816)
@@ -642,7 +713,7 @@ mod catalog_tests {
         assert!(matches!(
             attribute_for_profile(SpecSnapshotId::Svg11Rec20110816, "href"),
             ProfileLookup::UnsupportedInProfile { known_in }
-                if known_in == SVG2_HREF_SNAPSHOTS
+                if known_in == [SpecSnapshotId::Svg2Cr20181004, SpecSnapshotId::Svg2EditorsDraft]
         ));
         assert!(matches!(
             attribute_for_profile(SpecSnapshotId::Svg11Rec20110816, "xlink:href"),
@@ -652,7 +723,7 @@ mod catalog_tests {
         assert!(matches!(
             attribute_for_profile(SpecSnapshotId::Svg2EditorsDraft, "xlink:href"),
             ProfileLookup::UnsupportedInProfile { known_in }
-                if known_in == SVG11_SNAPSHOTS
+                if known_in == [SpecSnapshotId::Svg11Rec20030114, SpecSnapshotId::Svg11Rec20110816]
         ));
         assert!(matches!(
             attribute_for_profile(SpecSnapshotId::Svg2EditorsDraft, "href"),

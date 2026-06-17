@@ -5235,5 +5235,352 @@
 			"z",
 			"zoomAndPan"
 		]
+	},
+	"lifecycle": {
+		"elements": [
+			{
+				"name": "altGlyph",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "altGlyphDef",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "altGlyphItem",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "animElementAttrs",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114"
+				]
+			},
+			{
+				"name": "animateColor",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "color-profile",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "cursor",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "definition-src",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114"
+				]
+			},
+			{
+				"name": "font",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "font-face",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "font-face-format",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "font-face-name",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "font-face-src",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "font-face-uri",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "glyph",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "glyphRef",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "hkern",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "missing-glyph",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "tref",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "vkern",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			}
+		],
+		"attributes": [
+			{
+				"name": "attributeType",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "autofocus",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "baseProfile",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "color-profile",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "d",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "externalResourcesRequired",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "kerning",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "mask-type",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onwheel",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "path-length",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "rx",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "ry",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816",
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "transform-origin",
+				"present": false,
+				"lifecycle": "not_yet_introduced",
+				"known_in": [
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "version",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "xlink:actuate",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "xlink:href",
+				"catalog_name": "href",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "xlink:show",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "xml:lang",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20110816"
+				]
+			}
+		]
 	}
 }

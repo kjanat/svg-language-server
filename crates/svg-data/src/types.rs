@@ -702,3 +702,30 @@ pub struct SnapshotMetadata {
     /// Accepted alias strings that resolve to this snapshot.
     pub aliases: &'static [&'static str],
 }
+
+/// Lifecycle overlay for one snapshot.
+#[derive(Debug, Clone, Copy)]
+pub struct SnapshotLifecycle {
+    /// The snapshot this lifecycle overlay describes.
+    pub snapshot: SpecSnapshotId,
+    /// Element lifecycle entries for this snapshot.
+    pub elements: &'static [FeatureLifecycle],
+    /// Attribute lifecycle entries for this snapshot.
+    pub attributes: &'static [FeatureLifecycle],
+}
+
+/// One feature lifecycle fact in a snapshot overlay.
+#[derive(Debug, Clone, Copy)]
+pub struct FeatureLifecycle {
+    /// Feature name as written for the profile family.
+    pub name: &'static str,
+    /// Canonical catalog attribute name, when different from `name`.
+    pub catalog_name: Option<&'static str>,
+    /// Whether the feature is present in the snapshot.
+    pub present: bool,
+    /// Lifecycle status. For absent features this is the reason family used by
+    /// hover/lint once the lookup has already taken the unsupported path.
+    pub lifecycle: SpecLifecycle,
+    /// Snapshots where this feature is present.
+    pub known_in: &'static [SpecSnapshotId],
+}

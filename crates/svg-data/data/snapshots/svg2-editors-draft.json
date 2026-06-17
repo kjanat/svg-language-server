@@ -7429,5 +7429,430 @@
 			"yChannelSelector",
 			"z"
 		]
+	},
+	"lifecycle": {
+		"elements": [
+			{
+				"name": "altGlyph",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "altGlyphDef",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "altGlyphItem",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "animElementAttrs",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114"
+				]
+			},
+			{
+				"name": "animateColor",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "audio",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "canvas",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "color-profile",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "cursor",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "definition-src",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114"
+				]
+			},
+			{
+				"name": "discard",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "font",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "font-face",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "font-face-format",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "font-face-name",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "font-face-src",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "font-face-uri",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "glyph",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "glyphRef",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "hkern",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "iframe",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "missing-glyph",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "tref",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "unknown",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "video",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "vkern",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			}
+		],
+		"attributes": [
+			{
+				"name": "attributeType",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "autofocus",
+				"present": true,
+				"lifecycle": "experimental",
+				"known_in": [
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "baseProfile",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "mask-type",
+				"present": true,
+				"lifecycle": "experimental",
+				"known_in": [
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "onafterprint",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "onbeforeprint",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "onhashchange",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "onmessage",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "onoffline",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "ononline",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "onpagehide",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "onpageshow",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "onpopstate",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "onstorage",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg2Cr20181004"
+				]
+			},
+			{
+				"name": "onwheel",
+				"present": true,
+				"lifecycle": "experimental",
+				"known_in": [
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "path-length",
+				"present": true,
+				"lifecycle": "experimental",
+				"known_in": [
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "transform-origin",
+				"present": true,
+				"lifecycle": "experimental",
+				"known_in": [
+					"Svg2EditorsDraft"
+				]
+			},
+			{
+				"name": "version",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "xlink:actuate",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "xlink:href",
+				"catalog_name": "href",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "xlink:show",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "xml:lang",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20110816"
+				]
+			},
+			{
+				"name": "zoomAndPan",
+				"present": false,
+				"lifecycle": "obsolete",
+				"known_in": [
+					"Svg11Rec20030114",
+					"Svg11Rec20110816",
+					"Svg2Cr20181004"
+				]
+			}
+		]
 	}
 }

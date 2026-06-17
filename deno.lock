@@ -135,6 +135,7 @@
     "https://esm.sh/preact@10.23.1/compat": "02f6093eb259891b41ee4d7a94efd629f5efdd15e1314069897717151d070c29",
     "https://esm.sh/preact@10.23.1/denonext/compat.mjs": "6c7911cc716541b71fefb50568eaf6e19e6c51fa73eca3e14541ef86adf9a9b6",
     "https://esm.sh/preact@10.23.1/denonext/hooks.mjs": "5474aa5b2ac8c9dc566086edb7997db970f32d31e334e670acdac72feeee54f0",
+    "https://esm.sh/preact@10.23.1/denonext/jsx-runtime.mjs": "7e77cc2ac6b965d6c4468d3e075bf740199741ddc7fd5580ac0da588e6862756",
     "https://esm.sh/preact@10.23.1/denonext/preact.mjs": "4fe1d081cd3a11a7f9afecfaeb177a8c0408adebac8341fc8c142782c5a77496",
     "https://esm.sh/preact@10.23.1/jsx-runtime": "7b82d057c8dd196e140bd915e92747f383f47d8ef1b46b8ca9b49d011e2ee4f3",
     "https://esm.sh/preact@11.0.0-experimental.1/denonext/preact.mjs": "1bf5b1144bcabad34fca733c8a57bc967d76cd413f4fc6da4e8301bf15032323",

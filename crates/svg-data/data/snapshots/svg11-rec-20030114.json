@@ -1,0 +1,1120 @@
+{
+	"schema_version": 1,
+	"profile": "Svg11Rec20030114",
+	"sources": [
+		"https://www.w3.org/TR/2003/REC-SVG11-20030114/eltindex.html",
+		"https://www.w3.org/TR/2003/REC-SVG11-20030114/attindex.html"
+	],
+	"inventory": {
+		"elements": [
+			{
+				"name": "a",
+				"attributes": [
+					"class",
+					"externalResourcesRequired",
+					"style",
+					"target",
+					"transform",
+					"xlink:actuate",
+					"xlink:arcrole",
+					"xlink:href",
+					"xlink:role",
+					"xlink:show",
+					"xlink:title",
+					"xlink:type",
+					"xmlns:xlink"
+				]
+			},
+			{
+				"name": "altGlyph",
+				"attributes": [
+					"class",
+					"dx",
+					"dy",
+					"externalResourcesRequired",
+					"format",
+					"glyphRef",
+					"rotate",
+					"style",
+					"x",
+					"xlink:href",
+					"y"
+				]
+			},
+			{
+				"name": "altGlyphDef",
+				"attributes": []
+			},
+			{
+				"name": "altGlyphItem",
+				"attributes": []
+			},
+			{
+				"name": "animElementAttrs",
+				"attributes": [
+					"xlink:href"
+				]
+			},
+			{
+				"name": "animate",
+				"attributes": [
+					"externalResourcesRequired"
+				]
+			},
+			{
+				"name": "animateColor",
+				"attributes": [
+					"externalResourcesRequired"
+				]
+			},
+			{
+				"name": "animateMotion",
+				"attributes": [
+					"by",
+					"calcMode",
+					"externalResourcesRequired",
+					"from",
+					"keyPoints",
+					"keySplines",
+					"keyTimes",
+					"origin",
+					"path",
+					"rotate",
+					"to",
+					"values"
+				]
+			},
+			{
+				"name": "animateTransform",
+				"attributes": [
+					"externalResourcesRequired",
+					"type"
+				]
+			},
+			{
+				"name": "circle",
+				"attributes": [
+					"class",
+					"cx",
+					"cy",
+					"externalResourcesRequired",
+					"r",
+					"style",
+					"transform"
+				]
+			},
+			{
+				"name": "clipPath",
+				"attributes": [
+					"class",
+					"clipPathUnits",
+					"externalResourcesRequired",
+					"style",
+					"transform"
+				]
+			},
+			{
+				"name": "color-profile",
+				"attributes": [
+					"local",
+					"name",
+					"rendering-intent",
+					"xlink:href"
+				]
+			},
+			{
+				"name": "cursor",
+				"attributes": [
+					"externalResourcesRequired",
+					"x",
+					"xlink:href",
+					"y"
+				]
+			},
+			{
+				"name": "definition-src",
+				"attributes": [
+					"xlink:href"
+				]
+			},
+			{
+				"name": "defs",
+				"attributes": [
+					"class",
+					"externalResourcesRequired",
+					"style",
+					"transform"
+				]
+			},
+			{
+				"name": "desc",
+				"attributes": [
+					"class",
+					"style"
+				]
+			},
+			{
+				"name": "ellipse",
+				"attributes": [
+					"class",
+					"cx",
+					"cy",
+					"externalResourcesRequired",
+					"rx",
+					"ry",
+					"style",
+					"transform"
+				]
+			},
+			{
+				"name": "feBlend",
+				"attributes": [
+					"in2",
+					"mode"
+				]
+			},
+			{
+				"name": "feColorMatrix",
+				"attributes": [
+					"type",
+					"values"
+				]
+			},
+			{
+				"name": "feComponentTransfer",
+				"attributes": []
+			},
+			{
+				"name": "feComposite",
+				"attributes": [
+					"in2",
+					"k1",
+					"k2",
+					"k3",
+					"k4",
+					"operator"
+				]
+			},
+			{
+				"name": "feConvolveMatrix",
+				"attributes": [
+					"bias",
+					"divisor",
+					"edgeMode",
+					"kernelMatrix",
+					"kernelUnitLength",
+					"order",
+					"preserveAlpha",
+					"targetX",
+					"targetY"
+				]
+			},
+			{
+				"name": "feDiffuseLighting",
+				"attributes": [
+					"class",
+					"diffuseConstant",
+					"kernelUnitLength",
+					"surfaceScale"
+				]
+			},
+			{
+				"name": "feDisplacementMap",
+				"attributes": [
+					"in2",
+					"scale",
+					"xChannelSelector",
+					"yChannelSelector"
+				]
+			},
+			{
+				"name": "feDistantLight",
+				"attributes": [
+					"azimuth",
+					"elevation"
+				]
+			},
+			{
+				"name": "feFlood",
+				"attributes": [
+					"class"
+				]
+			},
+			{
+				"name": "feFuncA",
+				"attributes": []
+			},
+			{
+				"name": "feFuncB",
+				"attributes": []
+			},
+			{
+				"name": "feFuncG",
+				"attributes": []
+			},
+			{
+				"name": "feFuncR",
+				"attributes": []
+			},
+			{
+				"name": "feGaussianBlur",
+				"attributes": [
+					"stdDeviation"
+				]
+			},
+			{
+				"name": "feImage",
+				"attributes": [
+					"class",
+					"externalResourcesRequired",
+					"style",
+					"xlink:href"
+				]
+			},
+			{
+				"name": "feMerge",
+				"attributes": []
+			},
+			{
+				"name": "feMergeNode",
+				"attributes": [
+					"in"
+				]
+			},
+			{
+				"name": "feMorphology",
+				"attributes": [
+					"operator",
+					"radius"
+				]
+			},
+			{
+				"name": "feOffset",
+				"attributes": [
+					"dx",
+					"dy"
+				]
+			},
+			{
+				"name": "fePointLight",
+				"attributes": [
+					"x",
+					"y",
+					"z"
+				]
+			},
+			{
+				"name": "feSpecularLighting",
+				"attributes": [
+					"class",
+					"kernelUnitLength",
+					"specularConstant",
+					"specularExponent",
+					"surfaceScale"
+				]
+			},
+			{
+				"name": "feSpotLight",
+				"attributes": [
+					"limitingConeAngle",
+					"pointsAtX",
+					"pointsAtY",
+					"pointsAtZ",
+					"specularExponent",
+					"x",
+					"y",
+					"z"
+				]
+			},
+			{
+				"name": "feTile",
+				"attributes": []
+			},
+			{
+				"name": "feTurbulence",
+				"attributes": [
+					"baseFrequency",
+					"numOctaves",
+					"seed",
+					"stitchTiles",
+					"type"
+				]
+			},
+			{
+				"name": "filter",
+				"attributes": [
+					"animate",
+					"class",
+					"externalResourcesRequired",
+					"feColorMatrix",
+					"feComposite",
+					"feGaussianBlur",
+					"feMorphology",
+					"feTile",
+					"filterRes",
+					"filterUnits",
+					"height",
+					"primitiveUnits",
+					"style",
+					"width",
+					"x",
+					"xlink:href",
+					"y"
+				]
+			},
+			{
+				"name": "font",
+				"attributes": [
+					"class",
+					"externalResourcesRequired",
+					"horiz-adv-x",
+					"horiz-origin-x",
+					"horiz-origin-y",
+					"style",
+					"vert-adv-y",
+					"vert-origin-x",
+					"vert-origin-y"
+				]
+			},
+			{
+				"name": "font-face",
+				"attributes": [
+					"accent-height",
+					"alphabetic",
+					"ascent",
+					"bbox",
+					"cap-height",
+					"descent",
+					"font-family",
+					"font-size",
+					"font-stretch",
+					"font-style",
+					"font-variant",
+					"font-weight",
+					"hanging",
+					"ideographic",
+					"mathematical",
+					"overline-position",
+					"overline-thickness",
+					"panose-1",
+					"slope",
+					"stemh",
+					"stemv",
+					"strikethrough-position",
+					"strikethrough-thickness",
+					"underline-position",
+					"underline-thickness",
+					"unicode-range",
+					"units-per-em",
+					"v-alphabetic",
+					"v-hanging",
+					"v-ideographic",
+					"v-mathematical",
+					"widths",
+					"x-height"
+				]
+			},
+			{
+				"name": "font-face-format",
+				"attributes": []
+			},
+			{
+				"name": "font-face-name",
+				"attributes": []
+			},
+			{
+				"name": "font-face-src",
+				"attributes": []
+			},
+			{
+				"name": "font-face-uri",
+				"attributes": [
+					"xlink:href"
+				]
+			},
+			{
+				"name": "foreignObject",
+				"attributes": [
+					"class",
+					"externalResourcesRequired",
+					"height",
+					"style",
+					"transform",
+					"width",
+					"x",
+					"y"
+				]
+			},
+			{
+				"name": "g",
+				"attributes": [
+					"class",
+					"externalResourcesRequired",
+					"style",
+					"transform"
+				]
+			},
+			{
+				"name": "glyph",
+				"attributes": [
+					"arabic-form",
+					"class",
+					"d",
+					"glyph-name",
+					"horiz-adv-x",
+					"lang",
+					"orientation",
+					"style",
+					"unicode",
+					"vert-adv-y",
+					"vert-origin-x",
+					"vert-origin-y"
+				]
+			},
+			{
+				"name": "glyphRef",
+				"attributes": [
+					"class",
+					"dx",
+					"dy",
+					"format",
+					"glyphRef",
+					"style",
+					"x",
+					"xlink:href",
+					"y"
+				]
+			},
+			{
+				"name": "hkern",
+				"attributes": [
+					"g1",
+					"g2",
+					"k",
+					"u1",
+					"u2"
+				]
+			},
+			{
+				"name": "image",
+				"attributes": [
+					"class",
+					"externalResourcesRequired",
+					"height",
+					"preserveAspectRatio",
+					"style",
+					"transform",
+					"width",
+					"x",
+					"xlink:href",
+					"y"
+				]
+			},
+			{
+				"name": "line",
+				"attributes": [
+					"class",
+					"externalResourcesRequired",
+					"style",
+					"transform",
+					"x1",
+					"x2",
+					"y1",
+					"y2"
+				]
+			},
+			{
+				"name": "linearGradient",
+				"attributes": [
+					"class",
+					"externalResourcesRequired",
+					"gradientTransform",
+					"gradientUnits",
+					"spreadMethod",
+					"style",
+					"x1",
+					"x2",
+					"xlink:href",
+					"y1",
+					"y2"
+				]
+			},
+			{
+				"name": "marker",
+				"attributes": [
+					"class",
+					"externalResourcesRequired",
+					"markerHeight",
+					"markerUnits",
+					"markerWidth",
+					"orient",
+					"preserveAspectRatio",
+					"refX",
+					"refY",
+					"style",
+					"viewBox"
+				]
+			},
+			{
+				"name": "mask",
+				"attributes": [
+					"class",
+					"externalResourcesRequired",
+					"height",
+					"maskContentUnits",
+					"maskUnits",
+					"style",
+					"width",
+					"x",
+					"y"
+				]
+			},
+			{
+				"name": "metadata",
+				"attributes": []
+			},
+			{
+				"name": "missing-glyph",
+				"attributes": [
+					"class",
+					"d",
+					"horiz-adv-x",
+					"style",
+					"vert-adv-y",
+					"vert-origin-x",
+					"vert-origin-y"
+				]
+			},
+			{
+				"name": "mpath",
+				"attributes": [
+					"externalResourcesRequired",
+					"xlink:href"
+				]
+			},
+			{
+				"name": "path",
+				"attributes": [
+					"class",
+					"d",
+					"externalResourcesRequired",
+					"pathLength",
+					"style",
+					"transform"
+				]
+			},
+			{
+				"name": "pattern",
+				"attributes": [
+					"class",
+					"externalResourcesRequired",
+					"height",
+					"patternContentUnits",
+					"patternTransform",
+					"patternUnits",
+					"preserveAspectRatio",
+					"style",
+					"viewBox",
+					"width",
+					"x",
+					"xlink:href",
+					"y"
+				]
+			},
+			{
+				"name": "polygon",
+				"attributes": [
+					"class",
+					"externalResourcesRequired",
+					"points",
+					"style",
+					"transform"
+				]
+			},
+			{
+				"name": "polyline",
+				"attributes": [
+					"class",
+					"externalResourcesRequired",
+					"points",
+					"style",
+					"transform"
+				]
+			},
+			{
+				"name": "radialGradient",
+				"attributes": [
+					"class",
+					"cx",
+					"cy",
+					"externalResourcesRequired",
+					"fx",
+					"fy",
+					"gradientTransform",
+					"gradientUnits",
+					"r",
+					"spreadMethod",
+					"style",
+					"xlink:href"
+				]
+			},
+			{
+				"name": "rect",
+				"attributes": [
+					"class",
+					"externalResourcesRequired",
+					"height",
+					"rx",
+					"ry",
+					"style",
+					"transform",
+					"width",
+					"x",
+					"y"
+				]
+			},
+			{
+				"name": "script",
+				"attributes": [
+					"externalResourcesRequired",
+					"type",
+					"xlink:href"
+				]
+			},
+			{
+				"name": "set",
+				"attributes": [
+					"externalResourcesRequired",
+					"to"
+				]
+			},
+			{
+				"name": "stop",
+				"attributes": [
+					"class",
+					"offset",
+					"style"
+				]
+			},
+			{
+				"name": "style",
+				"attributes": [
+					"media",
+					"title",
+					"type",
+					"xml:space"
+				]
+			},
+			{
+				"name": "svg",
+				"attributes": [
+					"baseProfile",
+					"class",
+					"contentScriptType",
+					"contentStyleType",
+					"externalResourcesRequired",
+					"height",
+					"preserveAspectRatio",
+					"style",
+					"version",
+					"viewBox",
+					"width",
+					"x",
+					"xmlns",
+					"y",
+					"zoomAndPan"
+				]
+			},
+			{
+				"name": "switch",
+				"attributes": [
+					"class",
+					"externalResourcesRequired",
+					"style",
+					"transform"
+				]
+			},
+			{
+				"name": "symbol",
+				"attributes": [
+					"class",
+					"externalResourcesRequired",
+					"preserveAspectRatio",
+					"style",
+					"viewBox"
+				]
+			},
+			{
+				"name": "text",
+				"attributes": [
+					"class",
+					"dx",
+					"dy",
+					"externalResourcesRequired",
+					"lengthAdjust",
+					"rotate",
+					"style",
+					"textLength",
+					"transform",
+					"x",
+					"y"
+				]
+			},
+			{
+				"name": "textPath",
+				"attributes": [
+					"class",
+					"externalResourcesRequired",
+					"lengthAdjust",
+					"method",
+					"spacing",
+					"startOffset",
+					"style",
+					"textLength",
+					"xlink:href"
+				]
+			},
+			{
+				"name": "title",
+				"attributes": [
+					"class",
+					"style"
+				]
+			},
+			{
+				"name": "tref",
+				"attributes": [
+					"class",
+					"dx",
+					"dy",
+					"externalResourcesRequired",
+					"lengthAdjust",
+					"rotate",
+					"style",
+					"textLength",
+					"x",
+					"xlink:href",
+					"y"
+				]
+			},
+			{
+				"name": "tspan",
+				"attributes": [
+					"class",
+					"dx",
+					"dy",
+					"externalResourcesRequired",
+					"lengthAdjust",
+					"rotate",
+					"style",
+					"textLength",
+					"x",
+					"y"
+				]
+			},
+			{
+				"name": "use",
+				"attributes": [
+					"class",
+					"externalResourcesRequired",
+					"height",
+					"style",
+					"transform",
+					"width",
+					"x",
+					"xlink:href",
+					"y"
+				]
+			},
+			{
+				"name": "view",
+				"attributes": [
+					"externalResourcesRequired",
+					"preserveAspectRatio",
+					"viewBox",
+					"viewTarget",
+					"zoomAndPan"
+				]
+			},
+			{
+				"name": "vkern",
+				"attributes": [
+					"g1",
+					"g2",
+					"k",
+					"u1",
+					"u2"
+				]
+			}
+		],
+		"attributes": [
+			"accent-height",
+			"accumulate",
+			"alignment-baseline",
+			"alphabetic",
+			"amplitude",
+			"animate",
+			"arabic-form",
+			"ascent",
+			"attributeType",
+			"azimuth",
+			"baseFrequency",
+			"baseProfile",
+			"baseline-shift",
+			"bbox",
+			"bias",
+			"by",
+			"calcMode",
+			"cap-height",
+			"class",
+			"clip",
+			"clip-path",
+			"clip-rule",
+			"clipPathUnits",
+			"color",
+			"color-interpolation",
+			"color-interpolation-filters",
+			"color-profile",
+			"color-rendering",
+			"contentScriptType",
+			"contentStyleType",
+			"cursor",
+			"cx",
+			"cy",
+			"d",
+			"descent",
+			"diffuseConstant",
+			"direction",
+			"display",
+			"divisor",
+			"dominant-baseline",
+			"dur",
+			"dx",
+			"dy",
+			"edgeMode",
+			"elevation",
+			"enable-background",
+			"end",
+			"exponent",
+			"externalResourcesRequired",
+			"feColorMatrix",
+			"feComposite",
+			"feGaussianBlur",
+			"feMorphology",
+			"feTile",
+			"fill",
+			"fill-opacity",
+			"fill-rule",
+			"filter",
+			"filterRes",
+			"filterUnits",
+			"flood-color",
+			"flood-opacity",
+			"font-family",
+			"font-size",
+			"font-size-adjust",
+			"font-stretch",
+			"font-style",
+			"font-variant",
+			"font-weight",
+			"format",
+			"from",
+			"fx",
+			"fy",
+			"g1",
+			"g2",
+			"glyph-name",
+			"glyph-orientation-horizontal",
+			"glyph-orientation-vertical",
+			"glyphRef",
+			"gradientTransform",
+			"gradientUnits",
+			"hanging",
+			"height",
+			"horiz-adv-x",
+			"horiz-origin-x",
+			"horiz-origin-y",
+			"ideographic",
+			"image-rendering",
+			"in",
+			"in2",
+			"intercept",
+			"k",
+			"k1",
+			"k2",
+			"k3",
+			"k4",
+			"kernelMatrix",
+			"kernelUnitLength",
+			"kerning",
+			"keyPoints",
+			"keySplines",
+			"keyTimes",
+			"lang",
+			"lengthAdjust",
+			"letter-spacing",
+			"lighting-color",
+			"limitingConeAngle",
+			"local",
+			"marker-end",
+			"marker-mid",
+			"marker-start",
+			"markerHeight",
+			"markerUnits",
+			"markerWidth",
+			"mask",
+			"maskContentUnits",
+			"maskUnits",
+			"mathematical",
+			"max",
+			"media",
+			"method",
+			"min",
+			"mode",
+			"name",
+			"numOctaves",
+			"offset",
+			"onabort",
+			"onactivate",
+			"onbegin",
+			"onclick",
+			"onend",
+			"onerror",
+			"onfocusin",
+			"onfocusout",
+			"onload",
+			"onmousedown",
+			"onmousemove",
+			"onmouseout",
+			"onmouseover",
+			"onmouseup",
+			"onrepeat",
+			"onresize",
+			"onscroll",
+			"onunload",
+			"onzoom",
+			"opacity",
+			"operator",
+			"order",
+			"orient",
+			"orientation",
+			"origin",
+			"overflow",
+			"overline-position",
+			"overline-thickness",
+			"panose-1",
+			"path",
+			"pathLength",
+			"patternContentUnits",
+			"patternTransform",
+			"patternUnits",
+			"pointer-events",
+			"points",
+			"pointsAtX",
+			"pointsAtY",
+			"pointsAtZ",
+			"preserveAlpha",
+			"preserveAspectRatio",
+			"primitiveUnits",
+			"r",
+			"radius",
+			"refX",
+			"refY",
+			"rendering-intent",
+			"repeatCount",
+			"repeatDur",
+			"requiredExtensions",
+			"restart",
+			"result",
+			"rotate",
+			"rx",
+			"ry",
+			"scale",
+			"seed",
+			"shape-rendering",
+			"slope",
+			"spacing",
+			"specularConstant",
+			"specularExponent",
+			"spreadMethod",
+			"startOffset",
+			"stdDeviation",
+			"stemh",
+			"stemv",
+			"stitchTiles",
+			"stop-color",
+			"stop-opacity",
+			"strikethrough-position",
+			"strikethrough-thickness",
+			"stroke",
+			"stroke-dasharray",
+			"stroke-dashoffset",
+			"stroke-linecap",
+			"stroke-linejoin",
+			"stroke-miterlimit",
+			"stroke-opacity",
+			"stroke-width",
+			"style",
+			"surfaceScale",
+			"systemLanguage",
+			"tableValues",
+			"target",
+			"targetX",
+			"targetY",
+			"text-anchor",
+			"text-decoration",
+			"text-rendering",
+			"textLength",
+			"title",
+			"to",
+			"transform",
+			"type",
+			"u1",
+			"u2",
+			"underline-position",
+			"underline-thickness",
+			"unicode",
+			"unicode-bidi",
+			"unicode-range",
+			"units-per-em",
+			"v-alphabetic",
+			"v-hanging",
+			"v-ideographic",
+			"v-mathematical",
+			"values",
+			"version",
+			"vert-adv-y",
+			"vert-origin-x",
+			"vert-origin-y",
+			"viewBox",
+			"viewTarget",
+			"visibility",
+			"width",
+			"widths",
+			"word-spacing",
+			"writing-mode",
+			"x",
+			"x-height",
+			"x1",
+			"x2",
+			"xChannelSelector",
+			"xlink:actuate",
+			"xlink:arcrole",
+			"xlink:href",
+			"xlink:role",
+			"xlink:show",
+			"xlink:title",
+			"xlink:type",
+			"xml:base",
+			"xml:space",
+			"xmlns",
+			"xmlns:xlink",
+			"y",
+			"y1",
+			"y2",
+			"yChannelSelector",
+			"z",
+			"zoomAndPan"
+		]
+	}
+}

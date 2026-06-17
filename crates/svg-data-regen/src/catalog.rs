@@ -32,13 +32,13 @@ pub struct Catalog {
     /// Authoritative legacy-profile sources used for snapshot-specific data.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub legacy_sources: Vec<CatalogLegacySource>,
+    /// Version-specific overlay documents, sorted by profile.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub snapshots: Vec<CatalogSnapshotRef>,
     /// Element definitions, sorted by name.
     pub elements: Vec<CatalogElement>,
     /// Attribute definitions, sorted by canonical name.
     pub attributes: Vec<CatalogAttribute>,
-    /// Per-snapshot element/attribute inventories.
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub inventories: Vec<CatalogInventory>,
     /// Derived graph view over the catalog.
     pub graph: CatalogGraph,
 }
@@ -177,6 +177,38 @@ pub struct CatalogAttributeValueOverride {
     pub values: CatalogAttributeValues,
 }
 
+/// Reference from the root catalog to a version-specific overlay document.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, JsonSchema)]
+pub struct CatalogSnapshotRef {
+    /// Profile snapshot this overlay describes.
+    pub profile: CatalogSpecSnapshotId,
+    /// Relative path from `catalog.json` to the overlay JSON file.
+    pub href: String,
+}
+
+/// Version-specific overlay document.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, JsonSchema)]
+pub struct CatalogSnapshot {
+    /// Version of the JSON catalog/schema contract.
+    pub schema_version: u16,
+    /// Profile snapshot this overlay describes.
+    pub profile: CatalogSpecSnapshotId,
+    /// Exact source URLs used to derive this snapshot.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub sources: Vec<String>,
+    /// Per-snapshot element/attribute inventory.
+    pub inventory: CatalogSnapshotInventory,
+}
+
+/// Per-snapshot element/attribute inventory payload.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, JsonSchema)]
+pub struct CatalogSnapshotInventory {
+    /// Elements present in this profile.
+    pub elements: Vec<CatalogInventoryElement>,
+    /// Attributes present anywhere in this profile.
+    pub attributes: Vec<String>,
+}
+
 /// Per-snapshot element/attribute inventory.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, JsonSchema)]
 pub struct CatalogInventory {
@@ -212,6 +244,33 @@ pub enum CatalogSpecSnapshotId {
     Svg2Cr20181004,
     /// SVG 2 Editor's Draft (rolling).
     Svg2EditorsDraft,
+}
+
+impl CatalogSnapshot {
+    /// Convert the in-memory inventory shape into its committed overlay file.
+    #[must_use]
+    pub fn from_inventory(inventory: &CatalogInventory) -> Self {
+        Self {
+            schema_version: crate::schema::CATALOG_SCHEMA_VERSION,
+            profile: inventory.profile,
+            sources: inventory.sources.clone(),
+            inventory: CatalogSnapshotInventory {
+                elements: inventory.elements.clone(),
+                attributes: inventory.attributes.clone(),
+            },
+        }
+    }
+}
+
+/// Relative JSON file path for the snapshot overlay for `profile`.
+#[must_use]
+pub const fn catalog_snapshot_href(profile: CatalogSpecSnapshotId) -> &'static str {
+    match profile {
+        CatalogSpecSnapshotId::Svg11Rec20030114 => "snapshots/svg11-rec-20030114.json",
+        CatalogSpecSnapshotId::Svg11Rec20110816 => "snapshots/svg11-rec-20110816.json",
+        CatalogSpecSnapshotId::Svg2Cr20181004 => "snapshots/svg2-cr-20181004.json",
+        CatalogSpecSnapshotId::Svg2EditorsDraft => "snapshots/svg2-editors-draft.json",
+    }
 }
 
 /// A BCD feature below an SVG element that is not an element or attribute.
@@ -641,14 +700,21 @@ pub fn build_catalog(
         &attributes,
         &inventories,
     );
+    let snapshots = inventories
+        .iter()
+        .map(|inventory| CatalogSnapshotRef {
+            profile: inventory.profile,
+            href: catalog_snapshot_href(inventory.profile).to_owned(),
+        })
+        .collect();
     Catalog {
         schema_version: crate::schema::CATALOG_SCHEMA_VERSION,
         commit: commit.to_owned(),
         compat: compat.map(|compat| compat.provenance.clone()),
         legacy_sources: legacy.sources.to_vec(),
+        snapshots,
         elements,
         attributes,
-        inventories,
         graph,
     }
 }
@@ -2402,6 +2468,13 @@ mod tests {
             },
         );
 
+        assert_eq!(
+            catalog.snapshots,
+            [CatalogSnapshotRef {
+                profile: CatalogSpecSnapshotId::Svg11Rec20110816,
+                href: "snapshots/svg11-rec-20110816.json".to_owned(),
+            }]
+        );
         assert!(graph_has_edge(
             &catalog,
             "element:a",

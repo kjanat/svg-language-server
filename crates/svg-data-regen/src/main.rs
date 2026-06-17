@@ -25,7 +25,10 @@ mod legacy;
 mod provenance;
 mod schema;
 
-use std::path::{Path, PathBuf};
+use std::{
+    collections::BTreeSet,
+    path::{Component, Path, PathBuf},
+};
 
 use std::process::ExitCode;
 
@@ -181,14 +184,19 @@ fn report(provenance: &Provenance, graph: &PublishGraph) -> Fallible<()> {
         &legacy,
         &inventories,
     );
-    let path = write_catalog(&built)?;
+    let path = write_catalog(&built, &inventories)?;
+    print_catalog_written(&built, &path);
+    Ok(())
+}
+
+fn print_catalog_written(built: &catalog::Catalog, path: &Path) {
     println!(
-        "\n## catalog written: {} elements, {} attributes -> {}",
+        "\n## catalog written: {} elements, {} attributes, {} snapshots -> {}",
         built.elements.len(),
         built.attributes.len(),
-        display_path(&path)
+        built.snapshots.len(),
+        display_path(path)
     );
-    Ok(())
 }
 
 fn build_committed_catalog(
@@ -295,8 +303,12 @@ fn fetch_and_report_compat() -> Fallible<compat::CompatCatalog> {
 
 /// Write the derived catalog as deterministic pretty JSON into `svg-data`'s
 /// `data/` directory, returning the path written.
-fn write_catalog(built: &catalog::Catalog) -> Fallible<PathBuf> {
+fn write_catalog(
+    built: &catalog::Catalog,
+    inventories: &[catalog::CatalogInventory],
+) -> Fallible<PathBuf> {
     let data_dir = catalog_data_dir()?;
+    write_catalog_snapshots(&data_dir, inventories)?;
     let path = data_dir.join("catalog.json");
     let mut json = serde_json::to_string_pretty(built)?;
     json.push('\n');
@@ -305,6 +317,62 @@ fn write_catalog(built: &catalog::Catalog) -> Fallible<PathBuf> {
         data_dir.join(schema::CATALOG_SCHEMA_FILE),
         schema::catalog_schema_json()?,
     )?;
+    Ok(path)
+}
+
+fn write_catalog_snapshots(
+    data_dir: &Path,
+    inventories: &[catalog::CatalogInventory],
+) -> Fallible<()> {
+    let snapshots_dir = data_dir.join("snapshots");
+    std::fs::create_dir_all(&snapshots_dir)?;
+    let mut expected = BTreeSet::new();
+
+    for inventory in inventories {
+        let href = catalog::catalog_snapshot_href(inventory.profile);
+        let path = resolve_data_ref_for_write(data_dir, href)?;
+        let snapshot = catalog::CatalogSnapshot::from_inventory(inventory);
+        let mut json = serde_json::to_string_pretty(&snapshot)?;
+        json.push('\n');
+        std::fs::write(&path, json)?;
+        expected.insert(path.canonicalize()?);
+    }
+
+    for entry in std::fs::read_dir(&snapshots_dir)? {
+        let entry = entry?;
+        let path = entry.path();
+        if path.extension().and_then(|extension| extension.to_str()) == Some("json") {
+            let canonical = path.canonicalize()?;
+            if !expected.contains(&canonical) {
+                std::fs::remove_file(path)?;
+            }
+        }
+    }
+
+    Ok(())
+}
+
+fn resolve_data_ref_for_write(data_dir: &Path, href: &str) -> Fallible<PathBuf> {
+    let relative = Path::new(href);
+    if relative.is_absolute()
+        || relative
+            .components()
+            .any(|component| !matches!(component, Component::Normal(_)))
+    {
+        return Err(format!("catalog data ref must be a clean relative path: {href}").into());
+    }
+
+    let path = data_dir.join(relative);
+    let Some(parent) = path.parent() else {
+        return Err(format!("catalog data ref has no parent: {href}").into());
+    };
+    std::fs::create_dir_all(parent)?;
+    let canonical_data_dir = data_dir.canonicalize()?;
+    let canonical_parent = parent.canonicalize()?;
+    if !canonical_parent.starts_with(&canonical_data_dir) {
+        return Err(format!("catalog data ref escaped data directory: {href}").into());
+    }
+
     Ok(path)
 }
 

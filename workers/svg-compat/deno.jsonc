@@ -3,7 +3,7 @@
 	"name": "svg-compat",
 	"version": "1.0.0",
 	"compilerOptions": {
-		"jsx": "precompile",
+		"jsx": "react-jsx",
 		"jsxImportSource": "preact",
 		"jsxPrecompileSkipElements": ["a", "script", "style", "link", "head"]
 	},

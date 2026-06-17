@@ -81,6 +81,7 @@ mod tests {
                 "compat",
                 "elements",
                 "graph",
+                "inventories",
                 "legacy_sources",
                 "schema_version"
             ]

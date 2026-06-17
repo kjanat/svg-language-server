@@ -20,6 +20,7 @@ mod css;
 mod discover;
 mod extract;
 mod fetch;
+mod inventory;
 mod legacy;
 mod provenance;
 mod schema;
@@ -168,6 +169,7 @@ fn report(provenance: &Provenance, graph: &PublishGraph) -> Fallible<()> {
     let external_properties = fetch_and_report_external_property_defs(&all_defs, editors_draft)?;
     let compat = fetch_and_report_compat()?;
     let legacy = fetch_and_report_legacy_value_overrides()?;
+    let inventories = fetch_and_report_inventories(&all_defs)?;
     let chapter_report = chapter_report.with_external_properties(external_properties.properties);
 
     let built = build_committed_catalog(
@@ -177,6 +179,7 @@ fn report(provenance: &Provenance, graph: &PublishGraph) -> Fallible<()> {
         &provenance.commit_sha,
         &compat,
         &legacy,
+        &inventories,
     );
     let path = write_catalog(&built)?;
     println!(
@@ -195,6 +198,7 @@ fn build_committed_catalog(
     commit: &str,
     compat: &compat::CompatCatalog,
     legacy: &legacy::LegacyValueOverrides,
+    inventories: &[catalog::CatalogInventory],
 ) -> catalog::Catalog {
     catalog::build_catalog(
         definitions,
@@ -206,6 +210,7 @@ fn build_committed_catalog(
         catalog::CatalogLegacyInputs {
             sources: &legacy.sources,
             value_overrides: &legacy.attributes,
+            inventories,
         },
     )
 }
@@ -242,6 +247,36 @@ fn fetch_and_report_legacy_value_overrides() -> Fallible<legacy::LegacyValueOver
         legacy::merge_value_overrides(&mut merged, extracted);
     }
     Ok(merged)
+}
+
+fn fetch_and_report_inventories(
+    definitions: &[extract::Definitions],
+) -> Fallible<Vec<catalog::CatalogInventory>> {
+    println!("\n## edition inventories");
+    let mut inventories = Vec::new();
+    for source in inventory::SNAPSHOT_INDEX_SOURCES {
+        let element_html = fetch::url_text(source.element_index_url, "text/html")?;
+        let attribute_html = fetch::url_text(source.attribute_index_url, "text/html")?;
+        let extracted = inventory::extract_index_inventory(source, &element_html, &attribute_html)?;
+        println!(
+            "  {} -> {} elements, {} attributes",
+            source.name,
+            extracted.elements.len(),
+            extracted.attributes.len()
+        );
+        inventories.push(extracted);
+    }
+    let editors_draft = inventory::inventory_from_definitions(
+        catalog::CatalogSpecSnapshotId::Svg2EditorsDraft,
+        definitions,
+    );
+    println!(
+        "  SVG 2 Editor's Draft definitions -> {} elements, {} attributes",
+        editors_draft.elements.len(),
+        editors_draft.attributes.len()
+    );
+    inventories.push(editors_draft);
+    Ok(inventories)
 }
 
 fn fetch_and_report_compat() -> Fallible<compat::CompatCatalog> {

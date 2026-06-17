@@ -67,6 +67,12 @@ pub const fn attributes() -> &'static [AttributeDef] {
     ATTRIBUTES
 }
 
+/// Generated per-snapshot inventories.
+#[must_use]
+pub const fn inventories() -> &'static [inventory::Inventory] {
+    inventory::generated()
+}
+
 /// Derived graph view over the catalog.
 #[must_use]
 pub const fn catalog_graph() -> &'static CatalogGraph {
@@ -539,6 +545,46 @@ mod catalog_tests {
                 && edge.to == "attribute-category:global"
                 && edge.kind == CatalogGraphEdgeKind::AcceptsGlobalAttributes
         }));
+        assert!(graph.edges.iter().any(|edge| {
+            edge.from == "element:font"
+                && edge.to == "profile:Svg11Rec20110816"
+                && edge.kind == CatalogGraphEdgeKind::PresentIn
+        }));
+        assert!(!graph.edges.iter().any(|edge| {
+            edge.from == "element:font"
+                && edge.to == "profile:Svg2EditorsDraft"
+                && edge.kind == CatalogGraphEdgeKind::PresentIn
+        }));
+        assert!(!graph.edges.iter().any(|edge| {
+            edge.from == "attribute:fetchpriority" && edge.kind == CatalogGraphEdgeKind::PresentIn
+        }));
+    }
+
+    #[test]
+    fn generated_inventories_track_snapshot_presence() {
+        assert_eq!(inventories().len(), spec_snapshots().len());
+        let Some(svg11) = inventory::for_edition(&inventory::EditionId::for_snapshot(
+            SpecSnapshotId::Svg11Rec20110816,
+        )) else {
+            panic!("SVG 1.1 inventory is generated");
+        };
+        assert!(svg11.elements.iter().any(|element| element.name == "font"));
+        assert!(
+            svg11
+                .attributes_for_element("a")
+                .any(|attribute| attribute.name == "xlink:href")
+        );
+
+        let Some(svg2) = inventory::for_edition(&inventory::EditionId::for_snapshot(
+            SpecSnapshotId::Svg2EditorsDraft,
+        )) else {
+            panic!("SVG 2 editor's draft inventory is generated");
+        };
+        assert!(!svg2.elements.iter().any(|element| element.name == "font"));
+        assert!(
+            svg2.attributes_for_element("a")
+                .any(|attribute| attribute.name == "href")
+        );
     }
 
     #[test]

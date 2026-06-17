@@ -36,6 +36,9 @@ pub struct Catalog {
     pub elements: Vec<CatalogElement>,
     /// Attribute definitions, sorted by canonical name.
     pub attributes: Vec<CatalogAttribute>,
+    /// Per-snapshot element/attribute inventories.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub inventories: Vec<CatalogInventory>,
     /// Derived graph view over the catalog.
     pub graph: CatalogGraph,
 }
@@ -172,6 +175,29 @@ pub struct CatalogAttributeValueOverride {
     pub profile: CatalogSpecSnapshotId,
     /// Value space for that profile.
     pub values: CatalogAttributeValues,
+}
+
+/// Per-snapshot element/attribute inventory.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, JsonSchema)]
+pub struct CatalogInventory {
+    /// Profile snapshot this inventory describes.
+    pub profile: CatalogSpecSnapshotId,
+    /// Exact source URLs used to derive this inventory.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub sources: Vec<String>,
+    /// Elements present in this profile.
+    pub elements: Vec<CatalogInventoryElement>,
+    /// Attributes present anywhere in this profile.
+    pub attributes: Vec<String>,
+}
+
+/// One element's per-snapshot attribute inventory.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, JsonSchema)]
+pub struct CatalogInventoryElement {
+    /// Element name.
+    pub name: String,
+    /// Attribute names this profile lists for the element.
+    pub attributes: Vec<String>,
 }
 
 /// SVG specification snapshots understood by the catalog contract.
@@ -532,6 +558,8 @@ pub enum CatalogGraphEdgeKind {
     OverridesValueInProfile,
     /// Compat subfeature describes the target element/attribute.
     Describes,
+    /// Feature is present in the target profile.
+    PresentIn,
 }
 
 /// The runtime content-model shapes the catalog emits. The spec's category
@@ -560,6 +588,8 @@ pub struct CatalogLegacyInputs<'a> {
     pub sources: &'a [CatalogLegacySource],
     /// Attribute value overrides keyed by attribute/property name.
     pub value_overrides: &'a BTreeMap<String, Vec<CatalogAttributeValueOverride>>,
+    /// Per-snapshot element/attribute inventories.
+    pub inventories: &'a [CatalogInventory],
 }
 
 /// Build the catalog from every definitions module's extracted entities.
@@ -602,7 +632,15 @@ pub fn build_catalog(
         compat,
         legacy.value_overrides,
     );
-    let graph = build_catalog_graph(modules, properties, compat, &elements, &attributes);
+    let inventories = legacy.inventories.to_vec();
+    let graph = build_catalog_graph(
+        modules,
+        properties,
+        compat,
+        &elements,
+        &attributes,
+        &inventories,
+    );
     Catalog {
         schema_version: crate::schema::CATALOG_SCHEMA_VERSION,
         commit: commit.to_owned(),
@@ -610,6 +648,7 @@ pub fn build_catalog(
         legacy_sources: legacy.sources.to_vec(),
         elements,
         attributes,
+        inventories,
         graph,
     }
 }
@@ -620,6 +659,7 @@ fn build_catalog_graph(
     compat: Option<&CompatCatalog>,
     elements: &[CatalogElement],
     attributes: &[CatalogAttribute],
+    inventories: &[CatalogInventory],
 ) -> CatalogGraph {
     let mut builder = CatalogGraphBuilder::default();
     add_graph_profile_nodes(&mut builder);
@@ -630,6 +670,7 @@ fn build_catalog_graph(
     add_graph_element_edges(&mut builder, elements);
     add_graph_attribute_edges(&mut builder, elements, attributes);
     add_graph_value_edges(&mut builder, attributes);
+    add_graph_inventory_edges(&mut builder, inventories);
     add_graph_compat_edges(&mut builder, compat);
     builder.finish()
 }
@@ -949,6 +990,26 @@ fn add_graph_compat_edges(builder: &mut CatalogGraphBuilder, compat: Option<&Com
         if !feature.name.is_empty() {
             let attribute_id = builder.node(CatalogGraphNodeKind::Attribute, &feature.name);
             builder.edge(&feature_id, &attribute_id, CatalogGraphEdgeKind::Describes);
+        }
+    }
+}
+
+fn add_graph_inventory_edges(builder: &mut CatalogGraphBuilder, inventories: &[CatalogInventory]) {
+    for inventory in inventories {
+        let profile_id = builder.node(
+            CatalogGraphNodeKind::Profile,
+            catalog_profile_name(inventory.profile),
+        );
+        for element in &inventory.elements {
+            let element_id = builder.node(CatalogGraphNodeKind::Element, &element.name);
+            builder.edge(&element_id, &profile_id, CatalogGraphEdgeKind::PresentIn);
+        }
+        for attribute in &inventory.attributes {
+            let attribute_id = builder.node(
+                CatalogGraphNodeKind::Attribute,
+                canonical_attribute_name(attribute).as_ref(),
+            );
+            builder.edge(&attribute_id, &profile_id, CatalogGraphEdgeKind::PresentIn);
         }
     }
 }
@@ -1915,7 +1976,7 @@ fn resolve_url(base: &str, href: &str) -> String {
 }
 
 /// Canonicalize legacy xlink spellings without depending on the runtime crate.
-fn canonical_attribute_name(name: &str) -> std::borrow::Cow<'_, str> {
+pub fn canonical_attribute_name(name: &str) -> std::borrow::Cow<'_, str> {
     match name {
         "xlink:href" => std::borrow::Cow::Borrowed("href"),
         other => std::borrow::Cow::Borrowed(other),
@@ -2083,6 +2144,7 @@ mod tests {
             CatalogLegacyInputs {
                 sources: &[],
                 value_overrides: &BTreeMap::new(),
+                inventories: &[],
             },
         )
     }
@@ -2179,6 +2241,7 @@ mod tests {
             CatalogLegacyInputs {
                 sources: &[],
                 value_overrides: &overrides,
+                inventories: &[],
             },
         );
 
@@ -2315,6 +2378,45 @@ mod tests {
     }
 
     #[test]
+    fn catalog_graph_links_inventory_presence() {
+        let inventory = CatalogInventory {
+            profile: CatalogSpecSnapshotId::Svg11Rec20110816,
+            sources: vec!["https://example.test/attindex.html".to_owned()],
+            elements: vec![CatalogInventoryElement {
+                name: "a".to_owned(),
+                attributes: vec!["xlink:href".to_owned()],
+            }],
+            attributes: vec!["xlink:href".to_owned()],
+        };
+        let catalog = build_catalog(
+            &[defs()],
+            &[property("fill", "none", &["none"])],
+            &[],
+            "https://example.test/",
+            "abc",
+            None,
+            CatalogLegacyInputs {
+                sources: &[],
+                value_overrides: &BTreeMap::new(),
+                inventories: &[inventory],
+            },
+        );
+
+        assert!(graph_has_edge(
+            &catalog,
+            "element:a",
+            "profile:Svg11Rec20110816",
+            CatalogGraphEdgeKind::PresentIn
+        ));
+        assert!(graph_has_edge(
+            &catalog,
+            "attribute:href",
+            "profile:Svg11Rec20110816",
+            CatalogGraphEdgeKind::PresentIn
+        ));
+    }
+
+    #[test]
     fn bcd_only_attributes_are_added_with_bcd_bearers() -> Result<(), Box<dyn std::error::Error>> {
         let compat = CompatCatalog {
             provenance: CatalogCompatProvenance {
@@ -2350,6 +2452,7 @@ mod tests {
             CatalogLegacyInputs {
                 sources: &[],
                 value_overrides: &BTreeMap::new(),
+                inventories: &[],
             },
         );
 
@@ -2436,6 +2539,7 @@ mod tests {
             CatalogLegacyInputs {
                 sources: &[],
                 value_overrides: &BTreeMap::new(),
+                inventories: &[],
             },
         );
 

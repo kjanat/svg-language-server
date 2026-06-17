@@ -128,11 +128,15 @@ static SVG2_20160915: Inventory = Inventory {
 /// The inventory for an edition, when one has been extracted.
 #[must_use]
 pub fn for_edition(edition: &EditionId) -> Option<&'static Inventory> {
-    if edition == &SVG10_20010904.edition {
-        Some(&SVG10_20010904)
-    } else if edition == &SVG2_20160915.edition {
-        Some(&SVG2_20160915)
-    } else {
-        None
-    }
+    crate::catalog::INVENTORIES
+        .iter()
+        .find(|inventory| &inventory.edition == edition)
+        .or_else(|| (edition == &SVG10_20010904.edition).then_some(&SVG10_20010904))
+        .or_else(|| (edition == &SVG2_20160915.edition).then_some(&SVG2_20160915))
+}
+
+/// Generated inventories for curated snapshots.
+#[must_use]
+pub const fn generated() -> &'static [Inventory] {
+    crate::catalog::INVENTORIES
 }

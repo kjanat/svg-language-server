@@ -259,6 +259,8 @@ pub enum CatalogGraphEdgeKind {
     OverridesValueInProfile,
     /// Compat subfeature describes the target element/attribute.
     Describes,
+    /// Feature is present in the target profile.
+    PresentIn,
 }
 
 /// Which elements an attribute can appear on.

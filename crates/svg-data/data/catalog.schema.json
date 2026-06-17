@@ -1116,6 +1116,11 @@
           "description": "Compat subfeature describes the target element/attribute.",
           "type": "string",
           "const": "describes"
+        },
+        {
+          "description": "Feature is present in the target profile.",
+          "type": "string",
+          "const": "present_in"
         }
       ]
     },
@@ -1186,6 +1191,63 @@
           "const": "compat_feature"
         }
       ]
+    },
+    "CatalogInventory": {
+      "description": "Per-snapshot element/attribute inventory.",
+      "type": "object",
+      "required": [
+        "attributes",
+        "elements",
+        "profile"
+      ],
+      "properties": {
+        "attributes": {
+          "description": "Attributes present anywhere in this profile.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "elements": {
+          "description": "Elements present in this profile.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CatalogInventoryElement"
+          }
+        },
+        "profile": {
+          "$ref": "#/$defs/CatalogSpecSnapshotId",
+          "description": "Profile snapshot this inventory describes."
+        },
+        "sources": {
+          "description": "Exact source URLs used to derive this inventory.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "CatalogInventoryElement": {
+      "description": "One element's per-snapshot attribute inventory.",
+      "type": "object",
+      "required": [
+        "attributes",
+        "name"
+      ],
+      "properties": {
+        "attributes": {
+          "description": "Attribute names this profile lists for the element.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "name": {
+          "description": "Element name.",
+          "type": "string"
+        }
+      }
     },
     "CatalogLegacySource": {
       "description": "One legacy SVG profile source used to derive snapshot-specific facts.",
@@ -1302,6 +1364,13 @@
     "graph": {
       "$ref": "#/$defs/CatalogGraph",
       "description": "Derived graph view over the catalog."
+    },
+    "inventories": {
+      "description": "Per-snapshot element/attribute inventories.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/CatalogInventory"
+      }
     },
     "legacy_sources": {
       "description": "Authoritative legacy-profile sources used for snapshot-specific data.",

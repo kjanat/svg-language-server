@@ -22,6 +22,8 @@ struct Catalog {
     elements: Vec<Element>,
     #[serde(default)]
     attributes: Vec<Attribute>,
+    #[serde(default)]
+    inventories: Vec<Inventory>,
     graph: CatalogGraph,
 }
 
@@ -128,6 +130,20 @@ struct AttributeElementCompat {
 struct AttributeValueOverride {
     profile: SpecSnapshot,
     values: AttributeValues,
+}
+
+/// One generated per-snapshot inventory.
+#[derive(Deserialize)]
+struct Inventory {
+    profile: SpecSnapshot,
+    elements: Vec<InventoryElement>,
+}
+
+/// One element's generated per-snapshot inventory.
+#[derive(Deserialize)]
+struct InventoryElement {
+    name: String,
+    attributes: Vec<String>,
 }
 
 /// SVG specification snapshots encoded in the catalog.
@@ -342,6 +358,7 @@ enum CatalogGraphEdgeKind {
     HasValueGrammar,
     OverridesValueInProfile,
     Describes,
+    PresentIn,
 }
 
 fn main() {
@@ -392,6 +409,7 @@ fn empty_catalog() -> String {
         "pub static ATTRIBUTES: &[crate::types::AttributeDef] = &[];",
         "pub static COMPAT_SUBFEATURES: &[crate::types::CompatSubfeature] = &[];",
         "pub static SNAPSHOT_METADATA: &[crate::types::SnapshotMetadata] = &[];",
+        "pub static INVENTORIES: &[crate::inventory::Inventory] = &[];",
         "pub static CATALOG_GRAPH: crate::types::CatalogGraph = crate::types::CatalogGraph { nodes: &[], edges: &[] };",
     ]
     .join("\n")
@@ -419,12 +437,46 @@ fn emit_catalog(catalog: &Catalog) -> String {
     }
     out.push_str("];\n");
     out.push_str("pub static SNAPSHOT_METADATA: &[crate::types::SnapshotMetadata] = &[];\n");
+    out.push_str("pub static INVENTORIES: &[crate::inventory::Inventory] = &[\n");
+    for inventory in &catalog.inventories {
+        emit_inventory(&mut out, inventory);
+    }
+    out.push_str("];\n");
     let _ = writeln!(
         out,
         "pub static CATALOG_GRAPH: crate::types::CatalogGraph = {};",
         emit_catalog_graph(&catalog.graph)
     );
     out
+}
+
+/// Append one generated edition inventory.
+fn emit_inventory(out: &mut String, inventory: &Inventory) {
+    let elements = inventory
+        .elements
+        .iter()
+        .map(emit_inventory_element)
+        .collect::<Vec<_>>()
+        .join(", ");
+    let _ = writeln!(
+        out,
+        "    crate::inventory::Inventory {{ edition: crate::inventory::EditionId::for_snapshot({}), elements: &[{}] }},",
+        emit_spec_snapshot(inventory.profile),
+        elements,
+    );
+}
+
+fn emit_inventory_element(element: &InventoryElement) -> String {
+    let attributes = element
+        .attributes
+        .iter()
+        .map(|attribute| format!("crate::inventory::Attribute {{ name: {attribute:?} }}"))
+        .collect::<Vec<_>>()
+        .join(", ");
+    format!(
+        "crate::inventory::Element {{ name: {:?}, attributes: &[{}] }}",
+        element.name, attributes
+    )
 }
 
 /// Render the derived catalog graph as Rust source.
@@ -500,6 +552,7 @@ const fn emit_catalog_graph_edge_kind(kind: &CatalogGraphEdgeKind) -> &'static s
             "crate::types::CatalogGraphEdgeKind::OverridesValueInProfile"
         }
         CatalogGraphEdgeKind::Describes => "crate::types::CatalogGraphEdgeKind::Describes",
+        CatalogGraphEdgeKind::PresentIn => "crate::types::CatalogGraphEdgeKind::PresentIn",
     }
 }
 

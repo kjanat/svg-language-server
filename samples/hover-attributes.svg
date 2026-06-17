@@ -57,6 +57,7 @@
   </svg>
 
   <!-- Hover "clip-path", "mask", "filter": URL references -->
+  <!-- svg-lint-disable-next-line MissingReferenceDefinition -->
   <rect x="10" y="120" width="60" height="60"
         fill="#264653"
         clip-path="url(#myClip)" filter="url(#myFilter)" />

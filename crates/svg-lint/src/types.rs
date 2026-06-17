@@ -28,20 +28,18 @@ pub struct LintOverrides {
     pub attributes: HashMap<String, CompatFlags>,
 }
 
-/// Runtime overrides for the baked [`CompatVerdict`] that drives advisory
+/// Runtime overrides for the catalog-derived [`CompatVerdict`] that drives advisory
 /// diagnostics (deprecation phrasing plus the partial / prefix /
 /// behind-flag hints).
 ///
 /// A newer BCD load can supply a fresh verdict for an element or
 /// attribute name so the lint advisory tracks current data without
-/// rebuilding the catalog. Names absent from a map keep the baked
+/// rebuilding the catalog. Names absent from a map keep the catalog-derived
 /// verdict, so an empty (or unsupplied) [`VerdictOverrides`] is exactly
-/// baked behaviour.
+/// catalog behaviour.
 ///
 /// Kept separate from [`LintOverrides`] so the existing flag-override
-/// channel stays source-compatible. Because [`CompatVerdict`] borrows
-/// `'static` reason data, override producers must mint `'static` verdicts
-/// (e.g. via a once-initialised, BCD-backed table).
+/// channel stays source-compatible.
 #[derive(Debug, Clone, Default)]
 pub struct VerdictOverrides {
     /// Element name → runtime-overridden compat verdict.

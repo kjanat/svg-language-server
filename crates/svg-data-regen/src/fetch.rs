@@ -42,6 +42,11 @@ fn get_text(url: &str, accept: &str) -> Fallible<String> {
     Ok(body)
 }
 
+/// Fetch an arbitrary URL as text.
+pub fn url_text(url: &str, accept: &str) -> Fallible<String> {
+    get_text(url, accept)
+}
+
 /// The repository's default branch name, resolved via the API.
 ///
 /// Never hardcode `main`/`master`: the default branch is authoritative and has

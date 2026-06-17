@@ -15,6 +15,7 @@ use serde::Serialize;
 
 use crate::{
     chapter::PropertyValueDef,
+    compat::CompatCatalog,
     extract::{AttributeRef, ContentModelKind, Definitions, PropertyDef},
 };
 
@@ -25,6 +26,9 @@ pub struct Catalog {
     pub schema_version: u16,
     /// The upstream commit this catalog was derived from.
     pub commit: String,
+    /// Browser-compat data sources used for objective compat facts.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub compat: Option<CatalogCompatProvenance>,
     /// Element definitions, sorted by name.
     pub elements: Vec<CatalogElement>,
     /// Attribute definitions, sorted by canonical name.
@@ -36,8 +40,26 @@ pub struct Catalog {
 pub struct CatalogElement {
     /// Element tag name.
     pub name: String,
+    /// MDN reference URL.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mdn_url: Option<String>,
     /// Resolved spec permalink (the module's anchor base joined with the href).
     pub spec_url: Option<String>,
+    /// Whether compat data marks the element deprecated.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub deprecated: bool,
+    /// Whether compat data marks the element experimental.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub experimental: bool,
+    /// Whether compat data marks the element as standards-track.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub standard_track: Option<bool>,
+    /// Web-platform baseline status, when known.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub baseline: Option<CatalogBaselineStatus>,
+    /// Per-browser support data, when known.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub browser_support: Option<CatalogBrowserSupport>,
     /// Structural child-content model.
     pub content_model: CatalogContentModel,
     /// Element-specific attribute names (sorted, deduped).
@@ -51,16 +73,228 @@ pub struct CatalogElement {
 pub struct CatalogAttribute {
     /// Canonical attribute name (`xlink:href` collapses to `href`).
     pub name: String,
+    /// MDN reference URL.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mdn_url: Option<String>,
     /// Resolved spec permalink.
     pub spec_url: Option<String>,
+    /// Whether compat data marks the attribute deprecated.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub deprecated: bool,
+    /// Whether compat data marks the attribute experimental.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub experimental: bool,
+    /// Whether compat data marks the attribute as standards-track.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub standard_track: Option<bool>,
     /// Whether the spec marks the attribute animatable.
     pub animatable: bool,
     /// Backing CSS property name when this is a presentation attribute.
     pub presentation_attribute: Option<String>,
+    /// Web-platform baseline status, when known.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub baseline: Option<CatalogBaselineStatus>,
+    /// Per-browser support data, when known.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub browser_support: Option<CatalogBrowserSupport>,
+    /// Element-scoped compat facts for attributes whose BCD data differs by bearer.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub element_compat: Vec<CatalogAttributeElementCompat>,
     /// Attribute value space.
     pub values: CatalogAttributeValues,
     /// Which elements accept the attribute.
     pub applicability: CatalogAttributeApplicability,
+}
+
+/// Browser-compat package provenance for objective catalog facts.
+#[derive(Debug, Clone, Serialize, JsonSchema)]
+pub struct CatalogCompatProvenance {
+    /// MDN browser-compat-data package source.
+    pub browser_compat_data: CatalogPackageSource,
+    /// web-features package source.
+    pub web_features: CatalogPackageSource,
+    /// BCD features intentionally not modeled as elements/attributes.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub unmodeled_features: Vec<CatalogCompatSubfeature>,
+}
+
+/// One npm package source used during regeneration.
+#[derive(Debug, Clone, Serialize, JsonSchema)]
+pub struct CatalogPackageSource {
+    /// Package name.
+    pub name: String,
+    /// Resolved package version.
+    pub version: String,
+    /// Exact data URL fetched.
+    pub url: String,
+}
+
+/// Attribute compat facts scoped to one element bearer.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, JsonSchema)]
+pub struct CatalogAttributeElementCompat {
+    /// Element name this compat record applies to.
+    pub element: String,
+    /// Objective compat facts for this attribute on `element`.
+    #[serde(flatten)]
+    pub facts: CatalogCompatFacts,
+}
+
+/// A BCD feature below an SVG element that is not an element or attribute.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, JsonSchema)]
+pub struct CatalogCompatSubfeature {
+    /// Full BCD compat key, e.g. `svg.elements.use.data_uri`.
+    pub compat_key: String,
+    /// Why this was not modeled as a normal attribute/element.
+    pub kind: CatalogCompatSubfeatureKind,
+    /// Owning SVG element name.
+    pub element: String,
+    /// BCD child feature name.
+    pub name: String,
+    /// Objective compat facts for the subfeature.
+    #[serde(flatten)]
+    pub facts: CatalogCompatFacts,
+}
+
+/// Why a BCD child feature is kept out of the attribute catalog.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum CatalogCompatSubfeatureKind {
+    /// A behavior or value-shape feature, not an attribute name.
+    Behavior,
+    /// A legacy `xlink:*` alias that needs profile-scoped alias modeling.
+    LegacyXlinkAlias,
+}
+
+/// Web-platform baseline status of a feature.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, JsonSchema)]
+#[serde(tag = "kind", rename_all = "snake_case")]
+pub enum CatalogBaselineStatus {
+    /// Widely available across engines.
+    Widely {
+        /// Year it reached widely-available baseline.
+        since: u16,
+        /// Qualifier when the upstream date was inexact.
+        qualifier: Option<CatalogBaselineQualifier>,
+    },
+    /// Newly available, not yet widely available.
+    Newly {
+        /// Year it reached newly-available baseline.
+        since: u16,
+        /// Qualifier when the upstream date was inexact.
+        qualifier: Option<CatalogBaselineQualifier>,
+    },
+    /// Limited availability.
+    Limited,
+}
+
+/// Inexactness qualifier on a baseline / version date.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum CatalogBaselineQualifier {
+    /// The date is an "on or before" upper bound.
+    Before,
+    /// The date is an "on or after" lower bound.
+    After,
+    /// The date is approximate.
+    Approximately,
+}
+
+/// Per-browser support across the four tracked engines.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, JsonSchema)]
+pub struct CatalogBrowserSupport {
+    /// Chrome support.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub chrome: Option<CatalogBrowserVersion>,
+    /// Edge support.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub edge: Option<CatalogBrowserVersion>,
+    /// Firefox support.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub firefox: Option<CatalogBrowserVersion>,
+    /// Safari support.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub safari: Option<CatalogBrowserVersion>,
+}
+
+/// Baked support detail for one browser.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, JsonSchema)]
+pub struct CatalogBrowserVersion {
+    /// Explicit support flag, when the data states one (`false` = unsupported).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub supported: Option<bool>,
+    /// Whether support is partial.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub partial_implementation: bool,
+    /// Upstream notes.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub notes: Vec<String>,
+    /// Vendor prefix required, when any.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prefix: Option<String>,
+    /// Alternative name the browser ships under, when any.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub alternative_name: Option<String>,
+    /// Runtime flags gating the feature.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub flags: Vec<CatalogBrowserFlag>,
+    /// First version (`"15"`, `"<=37"`), when known.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub version_added: Option<String>,
+    /// Qualifier on the added version's date inexactness.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub version_qualifier: Option<CatalogBaselineQualifier>,
+    /// Version support was removed in, when any.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub version_removed: Option<String>,
+    /// Qualifier on the removed version's date inexactness.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub version_removed_qualifier: Option<CatalogBaselineQualifier>,
+}
+
+impl CatalogBrowserSupport {
+    /// Whether all tracked browser entries are absent.
+    #[must_use]
+    pub const fn is_empty(&self) -> bool {
+        self.chrome.is_none()
+            && self.edge.is_none()
+            && self.firefox.is_none()
+            && self.safari.is_none()
+    }
+}
+
+/// A runtime flag a browser gates a feature behind.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, JsonSchema)]
+pub struct CatalogBrowserFlag {
+    /// Flag/preference name.
+    pub name: String,
+}
+
+/// Objective browser-compat facts for one catalog entry.
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, JsonSchema)]
+pub struct CatalogCompatFacts {
+    /// MDN reference URL.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mdn_url: Option<String>,
+    /// Whether compat data marks the feature deprecated.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub deprecated: bool,
+    /// Whether compat data marks the feature experimental.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub experimental: bool,
+    /// Whether compat data marks the feature as standards-track.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub standard_track: Option<bool>,
+    /// Web-platform baseline status, when known.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub baseline: Option<CatalogBaselineStatus>,
+    /// Per-browser support data, when known.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub browser_support: Option<CatalogBrowserSupport>,
+}
+
+#[allow(clippy::trivially_copy_pass_by_ref)]
+const fn is_false(value: &bool) -> bool {
+    !*value
 }
 
 /// The runtime value-space shapes the catalog emits.
@@ -135,21 +369,28 @@ pub fn build_catalog(
     properties: &[PropertyValueDef],
     editors_draft_base: &str,
     commit: &str,
+    compat: Option<&CompatCatalog>,
 ) -> Catalog {
     let members = category_members(modules);
     let mut elements = Vec::new();
     for module in modules {
         let base = module.anchor_base.as_deref().unwrap_or(editors_draft_base);
         for element in &module.elements {
-            elements.push(build_element(element, base, &members));
+            elements.push(build_element(
+                element,
+                base,
+                &members,
+                compat.and_then(|compat| compat.elements.get(&element.name)),
+            ));
         }
     }
     elements.sort_by(|a, b| a.name.cmp(&b.name));
     Catalog {
         schema_version: crate::schema::CATALOG_SCHEMA_VERSION,
         commit: commit.to_owned(),
+        compat: compat.map(|compat| compat.provenance.clone()),
         elements,
-        attributes: build_attributes(modules, properties, editors_draft_base),
+        attributes: build_attributes(modules, properties, editors_draft_base, compat),
     }
 }
 
@@ -171,6 +412,7 @@ fn build_element(
     element: &crate::extract::ElementDef,
     base: &str,
     members: &BTreeMap<&str, Vec<&str>>,
+    compat: Option<&CatalogCompatFacts>,
 ) -> CatalogElement {
     let content_model = match element.content_model {
         // The spec's `any` ("any elements or character data") hosts foreign
@@ -211,7 +453,13 @@ fn build_element(
 
     CatalogElement {
         name: element.name.clone(),
+        mdn_url: compat.and_then(|facts| facts.mdn_url.clone()),
         spec_url: element.href.as_ref().map(|href| format!("{base}{href}")),
+        deprecated: compat.is_some_and(|facts| facts.deprecated),
+        experimental: compat.is_some_and(|facts| facts.experimental),
+        standard_track: compat.and_then(|facts| facts.standard_track),
+        baseline: compat.and_then(|facts| facts.baseline),
+        browser_support: compat.and_then(|facts| facts.browser_support.clone()),
         content_model,
         attrs,
         global_attrs: element
@@ -227,6 +475,7 @@ fn build_attributes(
     modules: &[Definitions],
     properties: &[PropertyValueDef],
     editors_draft_base: &str,
+    compat: Option<&CompatCatalog>,
 ) -> Vec<CatalogAttribute> {
     let all_elements: BTreeSet<String> = modules
         .iter()
@@ -242,14 +491,96 @@ fn build_attributes(
     let category_attributes = attribute_categories(modules, editors_draft_base);
     let mut attributes: BTreeMap<String, AttributeAccumulator> = BTreeMap::new();
 
+    seed_attribute_metadata(modules, editors_draft_base, &mut attributes);
+    seed_presentation_attribute_metadata(&presentation_attributes, &mut attributes);
+    collect_element_attribute_bearers(
+        modules,
+        editors_draft_base,
+        &presentation_attributes,
+        &category_attributes,
+        &mut attributes,
+    );
+
+    let mut attributes: Vec<CatalogAttribute> = attributes
+        .into_values()
+        .map(|attribute| {
+            let mut attribute = attribute.finish(&all_elements, &properties_by_name);
+            if let Some(attribute_compat) =
+                compat.and_then(|compat| compat.attributes.get(&attribute.name))
+            {
+                if let Some(facts) = attribute_compat.common_facts() {
+                    attribute.apply_compat(facts);
+                }
+                attribute.apply_element_compat(attribute_compat);
+            }
+            attribute
+        })
+        .collect();
+    if let Some(compat) = compat {
+        append_compat_only_attributes(&mut attributes, compat);
+    }
+    attributes.sort_by(|a, b| a.name.cmp(&b.name));
+    attributes
+}
+
+fn append_compat_only_attributes(attributes: &mut Vec<CatalogAttribute>, compat: &CompatCatalog) {
+    let existing: BTreeSet<String> = attributes
+        .iter()
+        .map(|attribute| attribute.name.clone())
+        .collect();
+    for (name, attribute_compat) in &compat.attributes {
+        if existing.contains(name) {
+            continue;
+        }
+        let mut attribute = CatalogAttribute {
+            name: name.clone(),
+            mdn_url: None,
+            spec_url: None,
+            deprecated: false,
+            experimental: false,
+            standard_track: None,
+            animatable: false,
+            presentation_attribute: None,
+            baseline: None,
+            browser_support: None,
+            element_compat: Vec::new(),
+            values: CatalogAttributeValues::FreeText,
+            applicability: compat_attribute_applicability(attribute_compat),
+        };
+        if let Some(facts) = attribute_compat.common_facts() {
+            attribute.apply_compat(facts);
+        }
+        attribute.apply_element_compat(attribute_compat);
+        attributes.push(attribute);
+    }
+}
+
+fn compat_attribute_applicability(
+    attribute: &crate::compat::CompatAttribute,
+) -> CatalogAttributeApplicability {
+    if attribute.is_global() {
+        CatalogAttributeApplicability::Global
+    } else if attribute.element_facts.is_empty() {
+        CatalogAttributeApplicability::None
+    } else {
+        CatalogAttributeApplicability::Elements {
+            elements: attribute.bearers().cloned().collect(),
+        }
+    }
+}
+
+fn seed_attribute_metadata(
+    modules: &[Definitions],
+    editors_draft_base: &str,
+    attributes: &mut BTreeMap<String, AttributeAccumulator>,
+) {
     for module in modules {
         let base = module.anchor_base.as_deref().unwrap_or(editors_draft_base);
         for property in &module.properties {
-            let entry = accumulator_for(&mut attributes, &property.name);
-            entry.merge_property(property, base);
+            accumulator_for(attributes, &property.name).merge_property(property, base);
         }
         for attribute in &module.global_attributes {
-            let entry = accumulator_for(&mut attributes, &attribute.name);
+            let entry = accumulator_for(attributes, &attribute.name);
             entry.merge_ref(attribute, base);
             if !attribute.elements.is_empty() {
                 entry.bearers.extend(attribute.elements.iter().cloned());
@@ -257,7 +588,7 @@ fn build_attributes(
         }
         for category in &module.attribute_categories {
             for attribute in &category.attributes {
-                let entry = accumulator_for(&mut attributes, &attribute.name);
+                let entry = accumulator_for(attributes, &attribute.name);
                 entry.merge_ref(attribute, base);
                 if category.name == "presentation" {
                     entry.presentation_attribute = Some(entry.name.clone());
@@ -265,70 +596,115 @@ fn build_attributes(
             }
         }
     }
-    for presentation in &presentation_attributes {
-        let entry = accumulator_for(&mut attributes, &presentation.name);
-        entry.merge_presentation_href(presentation.href.as_deref(), &presentation.base);
-    }
+}
 
+fn seed_presentation_attribute_metadata(
+    presentation_attributes: &[PresentationAttribute],
+    attributes: &mut BTreeMap<String, AttributeAccumulator>,
+) {
+    for presentation in presentation_attributes {
+        accumulator_for(attributes, &presentation.name)
+            .merge_presentation_href(presentation.href.as_deref(), &presentation.base);
+    }
+}
+
+fn collect_element_attribute_bearers(
+    modules: &[Definitions],
+    editors_draft_base: &str,
+    presentation_attributes: &[PresentationAttribute],
+    category_attributes: &BTreeMap<String, Vec<CategorizedAttribute>>,
+    attributes: &mut BTreeMap<String, AttributeAccumulator>,
+) {
     for module in modules {
         let base = module.anchor_base.as_deref().unwrap_or(editors_draft_base);
         for element in &module.elements {
-            for attribute in &element.attributes {
-                let entry = accumulator_for(&mut attributes, &attribute.name);
-                entry.merge_ref(attribute, base);
-                if attribute.elements.is_empty() {
-                    entry.bearers.insert(element.name.clone());
-                } else {
-                    entry.bearers.extend(attribute.elements.iter().cloned());
-                }
-            }
-            for attribute_name in element
-                .common_attributes
-                .iter()
-                .chain(&element.geometry_properties)
-            {
-                let entry = accumulator_for(&mut attributes, attribute_name);
-                entry.bearers.insert(element.name.clone());
-            }
-            for category_name in &element.attribute_categories {
-                if category_name == "presentation" {
-                    for presentation in &presentation_attributes {
-                        let entry = accumulator_for(&mut attributes, &presentation.name);
-                        entry.merge_presentation_href(
-                            presentation.href.as_deref(),
-                            &presentation.base,
-                        );
-                        entry.bearers.insert(element.name.clone());
-                    }
-                }
-                if category_name == "deprecated xlink" {
-                    continue;
-                }
-                let Some(category) = category_attributes.get(category_name.as_str()) else {
-                    continue;
-                };
-                for attribute in category {
-                    let entry = accumulator_for(&mut attributes, &attribute.attribute.name);
-                    entry.merge_ref(&attribute.attribute, &attribute.base);
-                    if attribute.presentation {
-                        entry.presentation_attribute = Some(entry.name.clone());
-                    }
-                    if attribute.attribute.elements.is_empty() {
-                        entry.bearers.insert(element.name.clone());
-                    } else {
-                        entry
-                            .bearers
-                            .extend(attribute.attribute.elements.iter().cloned());
-                    }
-                }
-            }
+            collect_direct_attribute_bearers(element, base, attributes);
+            collect_category_attribute_bearers(
+                element,
+                presentation_attributes,
+                category_attributes,
+                attributes,
+            );
         }
     }
+}
 
-    attributes
-        .into_values()
-        .map(|attribute| attribute.finish(&all_elements, &properties_by_name))
-        .collect()
+fn collect_direct_attribute_bearers(
+    element: &crate::extract::ElementDef,
+    base: &str,
+    attributes: &mut BTreeMap<String, AttributeAccumulator>,
+) {
+    for attribute in &element.attributes {
+        let entry = accumulator_for(attributes, &attribute.name);
+        entry.merge_ref(attribute, base);
+        if attribute.elements.is_empty() {
+            entry.bearers.insert(element.name.clone());
+        } else {
+            entry.bearers.extend(attribute.elements.iter().cloned());
+        }
+    }
+    for attribute_name in element
+        .common_attributes
+        .iter()
+        .chain(&element.geometry_properties)
+    {
+        accumulator_for(attributes, attribute_name)
+            .bearers
+            .insert(element.name.clone());
+    }
+}
+
+fn collect_category_attribute_bearers(
+    element: &crate::extract::ElementDef,
+    presentation_attributes: &[PresentationAttribute],
+    category_attributes: &BTreeMap<String, Vec<CategorizedAttribute>>,
+    attributes: &mut BTreeMap<String, AttributeAccumulator>,
+) {
+    for category_name in &element.attribute_categories {
+        if category_name == "presentation" {
+            collect_presentation_attribute_bearers(element, presentation_attributes, attributes);
+        }
+        if category_name == "deprecated xlink" {
+            continue;
+        }
+        let Some(category) = category_attributes.get(category_name.as_str()) else {
+            continue;
+        };
+        for attribute in category {
+            collect_one_category_attribute_bearer(element, attribute, attributes);
+        }
+    }
+}
+
+fn collect_presentation_attribute_bearers(
+    element: &crate::extract::ElementDef,
+    presentation_attributes: &[PresentationAttribute],
+    attributes: &mut BTreeMap<String, AttributeAccumulator>,
+) {
+    for presentation in presentation_attributes {
+        let entry = accumulator_for(attributes, &presentation.name);
+        entry.merge_presentation_href(presentation.href.as_deref(), &presentation.base);
+        entry.bearers.insert(element.name.clone());
+    }
+}
+
+fn collect_one_category_attribute_bearer(
+    element: &crate::extract::ElementDef,
+    attribute: &CategorizedAttribute,
+    attributes: &mut BTreeMap<String, AttributeAccumulator>,
+) {
+    let entry = accumulator_for(attributes, &attribute.attribute.name);
+    entry.merge_ref(&attribute.attribute, &attribute.base);
+    if attribute.presentation {
+        entry.presentation_attribute = Some(entry.name.clone());
+    }
+    if attribute.attribute.elements.is_empty() {
+        entry.bearers.insert(element.name.clone());
+    } else {
+        entry
+            .bearers
+            .extend(attribute.attribute.elements.iter().cloned());
+    }
 }
 
 /// Module property declarations paired with the base URL needed to resolve
@@ -526,12 +902,41 @@ impl AttributeAccumulator {
         };
         CatalogAttribute {
             name: self.name,
+            mdn_url: None,
             spec_url: self.spec_url,
+            deprecated: false,
+            experimental: false,
+            standard_track: None,
             animatable,
             presentation_attribute: self.presentation_attribute,
+            baseline: None,
+            browser_support: None,
+            element_compat: Vec::new(),
             values,
             applicability,
         }
+    }
+}
+
+impl CatalogAttribute {
+    fn apply_compat(&mut self, facts: &CatalogCompatFacts) {
+        self.mdn_url.clone_from(&facts.mdn_url);
+        self.deprecated = facts.deprecated;
+        self.experimental = facts.experimental;
+        self.standard_track = facts.standard_track;
+        self.baseline = facts.baseline;
+        self.browser_support.clone_from(&facts.browser_support);
+    }
+
+    fn apply_element_compat(&mut self, attribute: &crate::compat::CompatAttribute) {
+        self.element_compat = attribute
+            .element_facts
+            .iter()
+            .map(|(element, facts)| CatalogAttributeElementCompat {
+                element: element.clone(),
+                facts: facts.clone(),
+            })
+            .collect();
     }
 }
 
@@ -654,6 +1059,7 @@ fn flatten_children(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::compat::{CompatAttribute, CompatCatalog};
     use crate::extract::{
         AttributeCategory, AttributeRef, ContentModelKind, ElementDef, PropertyDef,
     };
@@ -745,6 +1151,14 @@ mod tests {
         }
     }
 
+    fn compat_source(name: &str) -> CatalogPackageSource {
+        CatalogPackageSource {
+            name: name.to_owned(),
+            version: "0.0.0".to_owned(),
+            url: format!("https://example.test/{name}.json"),
+        }
+    }
+
     #[test]
     fn builds_attribute_catalog_with_explicit_applicability()
     -> Result<(), Box<dyn std::error::Error>> {
@@ -757,6 +1171,7 @@ mod tests {
             )],
             "https://example.test/",
             "abc",
+            None,
         );
 
         let id = catalog
@@ -826,6 +1241,141 @@ mod tests {
                 elements: vec!["rect".to_owned()]
             }
         );
+        Ok(())
+    }
+
+    #[test]
+    fn bcd_only_attributes_are_added_with_bcd_bearers() -> Result<(), Box<dyn std::error::Error>> {
+        let compat = CompatCatalog {
+            provenance: CatalogCompatProvenance {
+                browser_compat_data: compat_source("bcd"),
+                web_features: compat_source("web-features"),
+                unmodeled_features: Vec::new(),
+            },
+            elements: std::collections::BTreeMap::new(),
+            attributes: std::collections::BTreeMap::from([(
+                "fetchpriority".to_owned(),
+                CompatAttribute {
+                    global_facts: None,
+                    element_facts: std::collections::BTreeMap::from([(
+                        "rect".to_owned(),
+                        CatalogCompatFacts {
+                            mdn_url: Some(
+                                "https://developer.mozilla.org/docs/Web/SVG/Reference/Attribute/fetchpriority"
+                                    .to_owned(),
+                            ),
+                            ..CatalogCompatFacts::default()
+                        },
+                    )]),
+                },
+            )]),
+        };
+        let catalog = build_catalog(
+            &[defs()],
+            &[],
+            "https://example.test/",
+            "abc",
+            Some(&compat),
+        );
+
+        let fetchpriority = catalog
+            .attributes
+            .iter()
+            .find(|attribute| attribute.name == "fetchpriority")
+            .ok_or("missing fetchpriority")?;
+
+        assert_eq!(fetchpriority.spec_url, None);
+        assert_eq!(
+            fetchpriority.mdn_url.as_deref(),
+            Some("https://developer.mozilla.org/docs/Web/SVG/Reference/Attribute/fetchpriority")
+        );
+        assert_eq!(fetchpriority.values, CatalogAttributeValues::FreeText);
+        assert_eq!(fetchpriority.element_compat.len(), 1);
+        assert_eq!(
+            fetchpriority.applicability,
+            CatalogAttributeApplicability::Elements {
+                elements: vec!["rect".to_owned()]
+            }
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn element_scoped_attribute_compat_does_not_flatten_by_name()
+    -> Result<(), Box<dyn std::error::Error>> {
+        let mut text_path = element("textPath");
+        text_path.attributes.push(attr(
+            "path",
+            "text.html#TextPathElementPathAttribute",
+            Some(false),
+        ));
+        let mut animate_motion = element("animateMotion");
+        animate_motion.attributes.push(attr(
+            "path",
+            "animate.html#AnimateMotionElementPathAttribute",
+            Some(false),
+        ));
+        let defs = Definitions {
+            elements: vec![text_path, animate_motion],
+            ..defs()
+        };
+        let compat = CompatCatalog {
+            provenance: CatalogCompatProvenance {
+                browser_compat_data: compat_source("bcd"),
+                web_features: compat_source("web-features"),
+                unmodeled_features: Vec::new(),
+            },
+            elements: std::collections::BTreeMap::new(),
+            attributes: std::collections::BTreeMap::from([(
+                "path".to_owned(),
+                CompatAttribute {
+                    global_facts: None,
+                    element_facts: std::collections::BTreeMap::from([
+                        (
+                            "animateMotion".to_owned(),
+                            CatalogCompatFacts {
+                                experimental: false,
+                                standard_track: Some(true),
+                                ..CatalogCompatFacts::default()
+                            },
+                        ),
+                        (
+                            "textPath".to_owned(),
+                            CatalogCompatFacts {
+                                experimental: true,
+                                standard_track: Some(true),
+                                ..CatalogCompatFacts::default()
+                            },
+                        ),
+                    ]),
+                },
+            )]),
+        };
+        let catalog = build_catalog(&[defs], &[], "https://example.test/", "abc", Some(&compat));
+
+        let path = catalog
+            .attributes
+            .iter()
+            .find(|attribute| attribute.name == "path")
+            .ok_or("missing path")?;
+
+        assert!(
+            !path.experimental,
+            "mixed per-element facts must not mark every path attribute experimental"
+        );
+        assert_eq!(path.element_compat.len(), 2);
+        let text_path = path
+            .element_compat
+            .iter()
+            .find(|compat| compat.element == "textPath")
+            .ok_or("missing textPath path compat")?;
+        let animate_motion = path
+            .element_compat
+            .iter()
+            .find(|compat| compat.element == "animateMotion")
+            .ok_or("missing animateMotion path compat")?;
+        assert!(text_path.facts.experimental);
+        assert!(!animate_motion.facts.experimental);
         Ok(())
     }
 

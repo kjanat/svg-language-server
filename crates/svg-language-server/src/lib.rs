@@ -397,7 +397,13 @@ fn configured_edition(config: &Value) -> Option<svg_data::inventory::EditionId> 
         }
     };
 
-    // Only accept editions that actually have a baked inventory.
+    // Curated snapshot editions are already represented by the snapshot
+    // catalog, so they do not need an additive inventory to be accepted.
+    if edition_is_curated_snapshot(&id) {
+        return Some(id);
+    }
+
+    // Non-curated editions need a baked inventory to act as the authority.
     svg_data::inventory::for_edition(&id)
         .is_some()
         .then_some(id)
@@ -720,8 +726,15 @@ fn build_hover_context(
 
     let element_markdown =
         build_element_hover_markdown(node, &node_text, profile, runtime_compat, native);
-    let attribute_markdown =
-        build_attribute_hover_markdown(&kind, &node_text, profile, runtime_compat, native);
+    let attribute_markdown = build_attribute_hover_markdown(
+        node,
+        &kind,
+        &node_text,
+        source,
+        profile,
+        runtime_compat,
+        native,
+    );
 
     let definition_target = svg_references::definition_target_at(source, &doc.tree, byte_offset);
     let stylesheet_hrefs = svg_references::extract_xml_stylesheet_hrefs(source);
@@ -831,8 +844,10 @@ fn build_element_hover_markdown(
 }
 
 fn build_attribute_hover_markdown(
+    node: tree_sitter::Node<'_>,
     kind: &str,
     node_text: &str,
+    source: &[u8],
     profile: svg_data::SpecSnapshotId,
     runtime_compat: Option<&RuntimeCompat>,
     native: Option<&'static svg_data::profile::SvgNative>,
@@ -842,6 +857,7 @@ fn build_attribute_hover_markdown(
     }
 
     let lookup = svg_data::attribute_for_profile(profile, node_text);
+    let element_name = attribute_owner_element_name(node, source);
     let profile_lifecycle = profile_lifecycle_hover_line(profile, &lookup);
     let runtime_override = runtime_compat.and_then(|runtime| runtime.attributes.get(node_text));
 
@@ -850,6 +866,7 @@ fn build_attribute_hover_markdown(
             Some(format_attribute_hover_with_profile_name(
                 value,
                 node_text,
+                element_name.as_deref(),
                 profile,
                 profile_lifecycle,
                 runtime_override,
@@ -861,6 +878,7 @@ fn build_attribute_hover_markdown(
                 format_attribute_hover_with_profile_name(
                     attribute,
                     node_text,
+                    element_name.as_deref(),
                     profile,
                     profile_lifecycle,
                     runtime_override,
@@ -870,6 +888,22 @@ fn build_attribute_hover_markdown(
         }
         svg_data::ProfileLookup::Unknown => external_attribute_hover(kind, node_text),
     }
+}
+
+fn attribute_owner_element_name(node: tree_sitter::Node<'_>, source: &[u8]) -> Option<String> {
+    let attribute_node = node.parent()?;
+    if attribute_node.kind() != "attribute" {
+        return None;
+    }
+    let tag = attribute_node.parent()?;
+    if !matches!(tag.kind(), "start_tag" | "self_closing_tag") {
+        return None;
+    }
+    let mut cursor = tag.walk();
+    tag.children(&mut cursor)
+        .find(|child| child.kind() == "name")
+        .and_then(|name| name.utf8_text(source).ok())
+        .map(str::to_owned)
 }
 
 #[derive(Clone)]

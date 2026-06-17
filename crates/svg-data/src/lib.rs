@@ -16,13 +16,14 @@ mod catalog;
 pub mod types;
 
 pub use types::{
-    AttributeApplicability, AttributeDef, AttributeValues, BaselineQualifier, BaselineStatus,
-    BrowserFlag, BrowserSupport, BrowserVersion, CompatVerdict, ContentModel, ElementCategory,
+    AttributeApplicability, AttributeDef, AttributeElementCompat, AttributeValues,
+    BaselineQualifier, BaselineStatus, BrowserFlag, BrowserSupport, BrowserVersion, CompatFacts,
+    CompatSubfeature, CompatSubfeatureKind, CompatVerdict, ContentModel, ElementCategory,
     ElementDef, ProfileLookup, ProfiledAttribute, ProfiledElement, SnapshotMetadata, SpecLifecycle,
     SpecSnapshotId, VerdictReason, VerdictRecommendation,
 };
 
-use catalog::{ATTRIBUTES, ELEMENTS, SNAPSHOT_METADATA};
+use catalog::{ATTRIBUTES, COMPAT_SUBFEATURES, ELEMENTS, SNAPSHOT_METADATA};
 
 /// All snapshots the catalog tracks, oldest first.
 #[must_use]
@@ -56,6 +57,26 @@ fn attribute_by_catalog_name(name: &str) -> Option<&'static AttributeDef> {
 #[must_use]
 pub const fn elements() -> &'static [ElementDef] {
     ELEMENTS
+}
+
+/// All attribute definitions in the union catalog.
+#[must_use]
+pub const fn attributes() -> &'static [AttributeDef] {
+    ATTRIBUTES
+}
+
+/// BCD subfeatures retained for behavior/value-specific diagnostics.
+#[must_use]
+pub const fn compat_subfeatures() -> &'static [CompatSubfeature] {
+    COMPAT_SUBFEATURES
+}
+
+/// Look up one retained BCD subfeature by full compat key.
+#[must_use]
+pub fn compat_subfeature(compat_key: &str) -> Option<&'static CompatSubfeature> {
+    COMPAT_SUBFEATURES
+        .iter()
+        .find(|feature| feature.compat_key == compat_key)
 }
 
 /// Profile-aware element lookup.
@@ -191,7 +212,14 @@ pub fn compat_verdict_for_element(
     element: &ElementDef,
     profile: SpecSnapshotId,
 ) -> Option<CompatVerdict> {
-    verdict_for(element.verdicts, profile)
+    let _ = profile;
+    compat_verdict_from_facts(&CompatFacts {
+        deprecated: element.deprecated,
+        experimental: element.experimental,
+        standard_track: element.standard_track,
+        baseline: element.baseline,
+        browser_support: element.browser_support,
+    })
 }
 
 /// The compat verdict for an attribute in a profile, when one was derived.
@@ -200,7 +228,28 @@ pub fn compat_verdict_for_attribute(
     attribute: &AttributeDef,
     profile: SpecSnapshotId,
 ) -> Option<CompatVerdict> {
-    verdict_for(attribute.verdicts, profile)
+    compat_verdict_for_attribute_on_element(attribute, None, profile)
+}
+
+/// The compat verdict for an attribute on a concrete element, when one was derived.
+#[must_use]
+pub fn compat_verdict_for_attribute_on_element(
+    attribute: &AttributeDef,
+    element_name: Option<&str>,
+    profile: SpecSnapshotId,
+) -> Option<CompatVerdict> {
+    let _ = profile;
+    compat_verdict_from_facts(&attribute.compat_facts_for_element(element_name))
+}
+
+/// The compat verdict for a retained behavior/value subfeature.
+#[must_use]
+pub fn compat_verdict_for_subfeature(
+    subfeature: &CompatSubfeature,
+    profile: SpecSnapshotId,
+) -> Option<CompatVerdict> {
+    let _ = profile;
+    compat_verdict_from_facts(&subfeature.facts)
 }
 
 /// Resolve a `version="…"` attribute value to a snapshot by major family.
@@ -274,13 +323,97 @@ pub fn resolve_edition_id(requested: &str) -> Option<inventory::EditionId> {
     resolve_profile_id(requested).map(inventory::EditionId::for_snapshot)
 }
 
-fn verdict_for(
-    verdicts: &'static [(SpecSnapshotId, CompatVerdict)],
-    profile: SpecSnapshotId,
-) -> Option<CompatVerdict> {
-    verdicts
+fn compat_verdict_from_facts(facts: &CompatFacts) -> Option<CompatVerdict> {
+    let mut reasons = Vec::new();
+    if facts.deprecated {
+        reasons.push(VerdictReason::BcdDeprecated);
+    }
+    if facts.experimental {
+        reasons.push(VerdictReason::BcdExperimental);
+    }
+    if facts.standard_track == Some(false) {
+        reasons.push(VerdictReason::BcdNonStandard);
+    }
+    match facts.baseline {
+        Some(BaselineStatus::Limited) => reasons.push(VerdictReason::BaselineLimited),
+        Some(BaselineStatus::Newly { since, qualifier }) => {
+            reasons.push(VerdictReason::BaselineNewly { since, qualifier });
+        }
+        Some(BaselineStatus::Widely { .. }) | None => {}
+    }
+    if let Some(support) = facts.browser_support.as_ref() {
+        collect_browser_reasons(&mut reasons, "chrome", support.chrome);
+        collect_browser_reasons(&mut reasons, "edge", support.edge);
+        collect_browser_reasons(&mut reasons, "firefox", support.firefox);
+        collect_browser_reasons(&mut reasons, "safari", support.safari);
+    }
+    if reasons.is_empty() {
+        return None;
+    }
+    let recommendation = recommendation_for_reasons(&reasons);
+    Some(CompatVerdict {
+        recommendation,
+        headline_template: headline_for_recommendation(recommendation),
+        reasons,
+    })
+}
+
+fn collect_browser_reasons(
+    reasons: &mut Vec<VerdictReason>,
+    browser: &'static str,
+    version: Option<BrowserVersion>,
+) {
+    let Some(version) = version else {
+        return;
+    };
+    if version.supported == Some(false) {
+        reasons.push(VerdictReason::UnsupportedIn(browser));
+    }
+    if version.partial_implementation {
+        reasons.push(VerdictReason::PartialImplementationIn(browser));
+    }
+    if let Some(prefix) = version.prefix {
+        reasons.push(VerdictReason::PrefixRequiredIn { browser, prefix });
+    }
+    if !version.flags.is_empty() {
+        reasons.push(VerdictReason::BehindFlagIn(browser));
+    }
+    if let Some(version_removed) = version.version_removed {
+        reasons.push(VerdictReason::RemovedIn {
+            browser,
+            version: version_removed,
+            qualifier: version.version_removed_qualifier,
+        });
+    }
+}
+
+fn recommendation_for_reasons(reasons: &[VerdictReason]) -> VerdictRecommendation {
+    if reasons
         .iter()
-        .find_map(|(snapshot, verdict)| (*snapshot == profile).then_some(*verdict))
+        .any(|reason| matches!(reason, VerdictReason::ProfileObsolete { .. }))
+    {
+        return VerdictRecommendation::Forbid;
+    }
+    if reasons.iter().any(|reason| {
+        matches!(
+            reason,
+            VerdictReason::BcdDeprecated
+                | VerdictReason::BcdNonStandard
+                | VerdictReason::RemovedIn { .. }
+        )
+    }) {
+        return VerdictRecommendation::Avoid;
+    }
+    VerdictRecommendation::Caution
+}
+
+const fn headline_for_recommendation(recommendation: VerdictRecommendation) -> &'static str {
+    match recommendation {
+        VerdictRecommendation::Safe => "safe to use",
+        VerdictRecommendation::Caution => "use with care",
+        VerdictRecommendation::Avoid => "avoid in new work",
+        VerdictRecommendation::Forbid => "do not use",
+    }
 }
 
 fn allowed_child_names(content_model: &ContentModel) -> Vec<&'static str> {
@@ -454,6 +587,177 @@ mod catalog_tests {
             attribute_for_profile(SpecSnapshotId::LATEST, "xlink:title"),
             ProfileLookup::Unknown
         ));
+    }
+
+    #[test]
+    fn compat_verdict_is_derived_from_objective_attribute_facts() {
+        let attribute = AttributeDef {
+            name: "demo",
+            description: "",
+            mdn_url: "",
+            spec_url: None,
+            deprecated: true,
+            experimental: false,
+            standard_track: Some(false),
+            animatable: false,
+            presentation_attribute: None,
+            baseline: Some(BaselineStatus::Limited),
+            browser_support: Some(BrowserSupport {
+                chrome: Some(BrowserVersion {
+                    partial_implementation: true,
+                    ..BrowserVersion::EMPTY
+                }),
+                edge: None,
+                firefox: None,
+                safari: Some(BrowserVersion {
+                    prefix: Some("-webkit-"),
+                    ..BrowserVersion::EMPTY
+                }),
+            }),
+            element_compat: &[],
+            values: AttributeValues::FreeText,
+            value_overrides: &[],
+            applicability: AttributeApplicability::Global,
+        };
+
+        let Some(verdict) = compat_verdict_for_attribute(&attribute, SpecSnapshotId::LATEST) else {
+            panic!("objective facts should produce a verdict");
+        };
+
+        assert_eq!(verdict.recommendation, VerdictRecommendation::Avoid);
+        assert!(verdict.reasons.contains(&VerdictReason::BcdDeprecated));
+        assert!(verdict.reasons.contains(&VerdictReason::BcdNonStandard));
+        assert!(verdict.reasons.contains(&VerdictReason::BaselineLimited));
+        assert!(
+            verdict
+                .reasons
+                .contains(&VerdictReason::PartialImplementationIn("chrome"))
+        );
+        assert!(verdict.reasons.contains(&VerdictReason::PrefixRequiredIn {
+            browser: "safari",
+            prefix: "-webkit-"
+        }));
+    }
+
+    #[test]
+    fn compat_verdict_is_absent_without_objective_caveats() {
+        let attribute = AttributeDef {
+            name: "demo",
+            description: "",
+            mdn_url: "",
+            spec_url: None,
+            deprecated: false,
+            experimental: false,
+            standard_track: Some(true),
+            animatable: false,
+            presentation_attribute: None,
+            baseline: Some(BaselineStatus::Widely {
+                since: 2020,
+                qualifier: None,
+            }),
+            browser_support: None,
+            element_compat: &[],
+            values: AttributeValues::FreeText,
+            value_overrides: &[],
+            applicability: AttributeApplicability::Global,
+        };
+
+        assert!(compat_verdict_for_attribute(&attribute, SpecSnapshotId::LATEST).is_none());
+    }
+
+    #[test]
+    fn fetchpriority_is_catalogued_from_bcd_only_data() {
+        let Some(fetchpriority) = attribute("fetchpriority") else {
+            panic!("fetchpriority missing from catalog");
+        };
+
+        assert_eq!(fetchpriority.spec_url, None);
+        assert_eq!(fetchpriority.standard_track, Some(false));
+        assert!(fetchpriority.experimental);
+        assert!(matches!(
+            fetchpriority.baseline,
+            Some(BaselineStatus::Limited)
+        ));
+        assert!(matches!(
+            fetchpriority.applicability,
+            AttributeApplicability::Elements(elements)
+                if elements == ["feImage", "image", "script"]
+        ));
+
+        let Some(verdict) = compat_verdict_for_attribute(fetchpriority, SpecSnapshotId::LATEST)
+        else {
+            panic!("fetchpriority objective facts should produce a verdict");
+        };
+        assert!(verdict.reasons.contains(&VerdictReason::BcdExperimental));
+        assert!(verdict.reasons.contains(&VerdictReason::BcdNonStandard));
+        assert!(verdict.reasons.contains(&VerdictReason::BaselineLimited));
+    }
+
+    #[test]
+    fn element_scoped_attribute_compat_does_not_flatten_by_name() {
+        let Some(path) = attribute("path") else {
+            panic!("path missing from catalog");
+        };
+
+        assert!(!path.experimental);
+        assert!(compat_verdict_for_attribute(path, SpecSnapshotId::LATEST).is_none());
+        assert!(
+            compat_verdict_for_attribute_on_element(
+                path,
+                Some("animateMotion"),
+                SpecSnapshotId::LATEST
+            )
+            .is_none()
+        );
+
+        let Some(text_path_verdict) =
+            compat_verdict_for_attribute_on_element(path, Some("textPath"), SpecSnapshotId::LATEST)
+        else {
+            panic!("textPath path facts should produce a verdict");
+        };
+        assert!(
+            text_path_verdict
+                .reasons
+                .contains(&VerdictReason::BcdExperimental)
+        );
+        assert!(
+            text_path_verdict
+                .reasons
+                .contains(&VerdictReason::UnsupportedIn("chrome"))
+        );
+    }
+
+    #[test]
+    fn bcd_behavior_subfeatures_are_retained_for_future_lints() {
+        let Some(data_uri) = compat_subfeature("svg.elements.use.data_uri") else {
+            panic!("use.data_uri subfeature missing");
+        };
+        assert_eq!(data_uri.kind, CompatSubfeatureKind::Behavior);
+        assert_eq!(data_uri.element, "use");
+        assert_eq!(data_uri.name, "data_uri");
+
+        let Some(verdict) = compat_verdict_for_subfeature(data_uri, SpecSnapshotId::LATEST) else {
+            panic!("use.data_uri facts should produce a verdict");
+        };
+        assert!(verdict.reasons.contains(&VerdictReason::BaselineLimited));
+        assert!(
+            verdict
+                .reasons
+                .contains(&VerdictReason::UnsupportedIn("safari"))
+        );
+        assert!(verdict.reasons.iter().any(|reason| matches!(
+            reason,
+            VerdictReason::RemovedIn {
+                browser: "chrome",
+                version: "120",
+                ..
+            }
+        )));
+
+        let Some(xlink_href) = compat_subfeature("svg.elements.use.xlink_href") else {
+            panic!("use.xlink_href subfeature missing");
+        };
+        assert_eq!(xlink_href.kind, CompatSubfeatureKind::LegacyXlinkAlias);
     }
 
     #[test]

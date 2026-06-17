@@ -33,11 +33,10 @@ struct LifecycleCodes {
 /// Grouping these four fields keeps [`emit_lifecycle_diag_in_tag`]
 /// under the arg-count budget and lets callers read as `emit(.., diag)`
 /// rather than `emit(.., lifecycle, verdict, codes, subject)`.
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 struct LifecycleDiagnostic<'a> {
     lifecycle: SpecLifecycle,
-    /// Pre-computed verdict for richer messages. `None` when the catalog
-    /// doesn't carry verdicts (e.g. in unit-test fixtures).
+    /// Catalog-derived verdict for richer messages.
     verdict: Option<CompatVerdict>,
     codes: LifecycleCodes,
     subject: &'a str,
@@ -68,10 +67,10 @@ struct LintContext<'a> {
 
 /// Run all lint checks on a parsed SVG tree.
 ///
-/// `verdict_overrides` replaces the baked [`CompatVerdict`] for named
+/// `verdict_overrides` replaces the catalog-derived [`CompatVerdict`] for named
 /// elements/attributes (e.g. from a newer BCD load) so the advisory
-/// diagnostics track current data. `None` — or any name absent from the
-/// supplied maps — keeps baked behaviour.
+/// diagnostics track current data. `None` - or any name absent from the
+/// supplied maps - keeps catalog behaviour.
 pub fn check_all(
     source: &[u8],
     tree: &Tree,
@@ -380,9 +379,14 @@ fn check_attributes(
         // miss as "unknown" makes diagnostics depend on build-time BCD fetch state.
         match svg_data::attribute_for_profile(ctx.options.profile, lookup_name.as_ref()) {
             ProfileLookup::Present { value, lifecycle } => {
-                let lifecycle =
-                    attribute_diagnostic_lifecycle(ctx, lookup_name.as_ref(), value, lifecycle);
-                let verdict = attribute_compat_verdict(ctx, lookup_name.as_ref(), value);
+                let lifecycle = attribute_diagnostic_lifecycle(
+                    ctx,
+                    elem_name,
+                    lookup_name.as_ref(),
+                    value,
+                    lifecycle,
+                );
+                let verdict = attribute_compat_verdict(ctx, elem_name, lookup_name.as_ref(), value);
                 emit_lifecycle_diag_in_tag(
                     &mut ctx.diagnostics,
                     &mut ctx.suppressions,
@@ -390,7 +394,7 @@ fn check_attributes(
                     Some(tag_start),
                     LifecycleDiagnostic {
                         lifecycle,
-                        verdict,
+                        verdict: verdict.clone(),
                         codes: ATTRIBUTE_LIFECYCLE_CODES,
                         subject: value.name,
                     },
@@ -662,7 +666,7 @@ fn emit_element_compat_diags(
         name_node,
         LifecycleDiagnostic {
             lifecycle,
-            verdict,
+            verdict: verdict.clone(),
             codes: ELEMENT_LIFECYCLE_CODES,
             subject: &subject,
         },
@@ -693,13 +697,15 @@ fn element_diagnostic_lifecycle(
 
 fn attribute_diagnostic_lifecycle(
     ctx: &LintContext<'_>,
+    element_name: &str,
     attribute_name: &str,
     value: &svg_data::AttributeDef,
     lifecycle: SpecLifecycle,
 ) -> SpecLifecycle {
+    let facts = value.compat_facts_for_element(Some(element_name));
     diagnostic_lifecycle(
         lifecycle,
-        effective_catalog_flags(ctx.options.profile, value.deprecated, value.experimental),
+        effective_catalog_flags(ctx.options.profile, facts.deprecated, facts.experimental),
         ctx.overrides
             .and_then(|overrides| overrides.attributes.get(attribute_name)),
     )
@@ -708,9 +714,9 @@ fn attribute_diagnostic_lifecycle(
 /// Resolve the compat verdict driving an element's advisory diagnostics.
 ///
 /// A runtime verdict override for this element name (e.g. from a newer
-/// BCD load threaded in via [`VerdictOverrides`]) replaces the baked
+/// BCD load threaded in via [`VerdictOverrides`]) replaces the catalog-derived
 /// verdict so the lint advisory tracks current data. Absent an override,
-/// the baked [`svg_data::compat_verdict_for_element`] verdict is used —
+/// the [`svg_data::compat_verdict_for_element`] verdict is used —
 /// preserving existing default behaviour.
 fn element_compat_verdict(
     ctx: &LintContext<'_>,
@@ -723,14 +729,20 @@ fn element_compat_verdict(
 /// Resolve the compat verdict driving an attribute's advisory diagnostics.
 ///
 /// Mirrors [`element_compat_verdict`]: a runtime override keyed by the
-/// canonical attribute name wins, otherwise the baked verdict is used.
+/// canonical attribute name wins, otherwise the catalog-derived verdict is used.
 fn attribute_compat_verdict(
     ctx: &LintContext<'_>,
+    element_name: &str,
     lookup_name: &str,
     value: &svg_data::AttributeDef,
 ) -> Option<CompatVerdict> {
-    runtime_verdict_override(ctx, |overrides| overrides.attributes.get(lookup_name))
-        .or_else(|| svg_data::compat_verdict_for_attribute(value, ctx.options.profile))
+    runtime_verdict_override(ctx, |overrides| overrides.attributes.get(lookup_name)).or_else(|| {
+        svg_data::compat_verdict_for_attribute_on_element(
+            value,
+            Some(element_name),
+            ctx.options.profile,
+        )
+    })
 }
 
 /// Pull a runtime verdict override out of the optional [`VerdictOverrides`],
@@ -740,7 +752,7 @@ fn runtime_verdict_override(
     ctx: &LintContext<'_>,
     select: impl FnOnce(&VerdictOverrides) -> Option<&CompatVerdict>,
 ) -> Option<CompatVerdict> {
-    ctx.verdict_overrides.and_then(select).copied()
+    ctx.verdict_overrides.and_then(select).cloned()
 }
 
 /// The catalog's baked `deprecated` / `experimental` flags come from BCD,
@@ -884,7 +896,7 @@ fn emit_verdict_hints(
     let mut prefix = Vec::new();
     let mut flagged = Vec::new();
 
-    for reason in verdict.reasons {
+    for reason in &verdict.reasons {
         match reason {
             VerdictReason::PartialImplementationIn(browser) => partial.push(*browser),
             VerdictReason::PrefixRequiredIn { browser, prefix: p } => {

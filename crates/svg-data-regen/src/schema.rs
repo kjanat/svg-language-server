@@ -75,7 +75,13 @@ mod tests {
             .collect();
         assert_eq!(
             property_keys,
-            ["attributes", "commit", "elements", "schema_version"]
+            [
+                "attributes",
+                "commit",
+                "compat",
+                "elements",
+                "schema_version"
+            ]
         );
         Ok(())
     }

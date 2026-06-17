@@ -251,6 +251,66 @@ pub struct BrowserSupport {
     pub safari: Option<BrowserVersion>,
 }
 
+/// Objective browser-compat facts for one catalog feature.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct CompatFacts {
+    /// Whether compat data marks the feature deprecated.
+    pub deprecated: bool,
+    /// Whether compat data marks the feature experimental.
+    pub experimental: bool,
+    /// Whether compat data marks the feature as standards-track.
+    pub standard_track: Option<bool>,
+    /// Web-platform baseline status, when known.
+    pub baseline: Option<BaselineStatus>,
+    /// Per-browser support data, when known.
+    pub browser_support: Option<BrowserSupport>,
+}
+
+impl CompatFacts {
+    /// Empty/neutral compat facts.
+    pub const EMPTY: Self = Self {
+        deprecated: false,
+        experimental: false,
+        standard_track: None,
+        baseline: None,
+        browser_support: None,
+    };
+}
+
+/// Attribute compat facts scoped to one element bearer.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct AttributeElementCompat {
+    /// Element name this compat record applies to.
+    pub element: &'static str,
+    /// Objective compat facts for this attribute on `element`.
+    pub facts: CompatFacts,
+}
+
+/// A BCD feature below an SVG element that is not modeled as an element or
+/// attribute.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct CompatSubfeature {
+    /// Full BCD compat key, e.g. `svg.elements.use.data_uri`.
+    pub compat_key: &'static str,
+    /// Why this is not in the normal element/attribute catalog.
+    pub kind: CompatSubfeatureKind,
+    /// Owning SVG element name.
+    pub element: &'static str,
+    /// BCD child feature name.
+    pub name: &'static str,
+    /// Objective compat facts for the subfeature.
+    pub facts: CompatFacts,
+}
+
+/// Why a BCD child feature is kept out of the attribute catalog.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CompatSubfeatureKind {
+    /// A behavior or value-shape feature, not an attribute name.
+    Behavior,
+    /// A legacy `xlink:*` alias that needs profile-scoped alias modeling.
+    LegacyXlinkAlias,
+}
+
 /// One contributing reason behind a [`CompatVerdict`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum VerdictReason {
@@ -258,6 +318,8 @@ pub enum VerdictReason {
     BcdDeprecated,
     /// Compat data marks the feature experimental.
     BcdExperimental,
+    /// Compat data marks the feature as non-standard.
+    BcdNonStandard,
     /// The active profile dropped the feature after `last_seen`.
     ProfileObsolete {
         /// Last snapshot the feature was present in.
@@ -311,15 +373,15 @@ pub enum VerdictRecommendation {
     Forbid,
 }
 
-/// A fully-reconciled compatibility verdict for a feature in a profile.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+/// A compatibility verdict derived at runtime from baked objective facts.
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CompatVerdict {
     /// Highest-tier recommendation across all reasons.
     pub recommendation: VerdictRecommendation,
     /// Static template key for the hover headline.
     pub headline_template: &'static str,
-    /// Contributing reasons, sorted by tier.
-    pub reasons: &'static [VerdictReason],
+    /// Contributing reasons, sorted by derivation order.
+    pub reasons: Vec<VerdictReason>,
 }
 
 /// Definition of an SVG element.
@@ -337,12 +399,12 @@ pub struct ElementDef {
     pub deprecated: bool,
     /// Whether compat data marks the element experimental.
     pub experimental: bool,
+    /// Whether compat data marks the element as standards-track.
+    pub standard_track: Option<bool>,
     /// Web-platform baseline status, when known.
     pub baseline: Option<BaselineStatus>,
     /// Per-browser support data, when known.
     pub browser_support: Option<BrowserSupport>,
-    /// Pre-computed compat verdicts per snapshot.
-    pub verdicts: &'static [(SpecSnapshotId, CompatVerdict)],
     /// Structural child-content model.
     pub content_model: ContentModel,
     /// Element-specific attribute names.
@@ -366,6 +428,8 @@ pub struct AttributeDef {
     pub deprecated: bool,
     /// Whether compat data marks the attribute experimental.
     pub experimental: bool,
+    /// Whether compat data marks the attribute as standards-track.
+    pub standard_track: Option<bool>,
     /// Whether the spec marks the attribute animatable.
     pub animatable: bool,
     /// CSS presentation-attribute property name, when applicable.
@@ -374,8 +438,8 @@ pub struct AttributeDef {
     pub baseline: Option<BaselineStatus>,
     /// Per-browser support data, when known.
     pub browser_support: Option<BrowserSupport>,
-    /// Pre-computed compat verdicts per snapshot.
-    pub verdicts: &'static [(SpecSnapshotId, CompatVerdict)],
+    /// Element-scoped compat facts for this attribute.
+    pub element_compat: &'static [AttributeElementCompat],
     /// Value space.
     pub values: AttributeValues,
     /// Per-snapshot value overrides, when the value space differs by profile.
@@ -392,6 +456,32 @@ impl AttributeDef {
             .iter()
             .find_map(|(snapshot, values)| (*snapshot == profile).then_some(values))
             .unwrap_or(&self.values)
+    }
+
+    /// Attribute-wide compat facts.
+    #[must_use]
+    pub const fn compat_facts(&self) -> CompatFacts {
+        CompatFacts {
+            deprecated: self.deprecated,
+            experimental: self.experimental,
+            standard_track: self.standard_track,
+            baseline: self.baseline,
+            browser_support: self.browser_support,
+        }
+    }
+
+    /// Compat facts for this attribute on a concrete element, falling back to
+    /// attribute-wide facts when no element-scoped record exists.
+    #[must_use]
+    pub fn compat_facts_for_element(&self, element_name: Option<&str>) -> CompatFacts {
+        element_name
+            .and_then(|element_name| {
+                self.element_compat
+                    .iter()
+                    .find(|compat| compat.element == element_name)
+                    .map(|compat| compat.facts)
+            })
+            .unwrap_or_else(|| self.compat_facts())
     }
 }
 

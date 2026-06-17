@@ -15,6 +15,7 @@
 
 mod catalog;
 mod chapter;
+mod compat;
 mod discover;
 mod extract;
 mod fetch;
@@ -162,11 +163,14 @@ fn report(provenance: &Provenance, graph: &PublishGraph) -> Fallible<()> {
         .as_deref()
         .unwrap_or_default();
     let chapter_report = report_chapters(provenance, graph, &macros, want_sample.as_deref())?;
+    let compat = fetch_and_report_compat()?;
+
     let built = catalog::build_catalog(
         &all_defs,
         &chapter_report.properties,
         editors_draft,
         &provenance.commit_sha,
+        Some(&compat),
     );
     let path = write_catalog(&built)?;
     println!(
@@ -176,6 +180,20 @@ fn report(provenance: &Provenance, graph: &PublishGraph) -> Fallible<()> {
         path.display()
     );
     Ok(())
+}
+
+fn fetch_and_report_compat() -> Fallible<compat::CompatCatalog> {
+    println!("\n## browser compat extraction");
+    let compat = compat::fetch_compat_catalog()?;
+    println!(
+        "  {}@{}",
+        compat.provenance.browser_compat_data.name, compat.provenance.browser_compat_data.version
+    );
+    println!(
+        "  {}@{}",
+        compat.provenance.web_features.name, compat.provenance.web_features.version
+    );
+    Ok(compat)
 }
 
 /// Write the derived catalog as deterministic pretty JSON into `svg-data`'s

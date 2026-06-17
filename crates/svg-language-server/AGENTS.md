@@ -80,7 +80,7 @@ flows top-down:
    - `format_attribute_hover_with_profile` /
      `format_element_hover_with_profile` → renders value constraints,
      profile-lifecycle status (deprecated/removed/experimental), and
-     compat verdicts for the active snapshot.
+     runtime-derived compat verdicts for the active snapshot.
 
 When adding a new completion or hover surface, take `SpecSnapshotId` as a
 parameter rather than reading a default, and prefer `AttributeDef::values_for_profile`

@@ -592,10 +592,12 @@ mod catalog_tests {
     fn lifecycle_overlays_drive_profile_lookup() {
         assert_eq!(lifecycle_overlays().len(), spec_snapshots().len());
 
-        let latest = lifecycle_overlays()
+        let Some(latest) = lifecycle_overlays()
             .iter()
             .find(|overlay| overlay.snapshot == SpecSnapshotId::Svg2EditorsDraft)
-            .expect("latest lifecycle overlay");
+        else {
+            panic!("latest lifecycle overlay");
+        };
         assert!(latest.elements.iter().any(|entry| {
             entry.name == "font"
                 && !entry.present

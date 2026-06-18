@@ -1,9 +1,11 @@
 //! JSON Schema emitted with the generated catalog.
 
-use schemars::schema_for;
+use schemars::{JsonSchema, schema_for};
 use serde_json::{Value, json};
 
-use crate::catalog::CatalogManifest;
+use crate::catalog::{
+    CatalogCompatDocument, CatalogCore, CatalogGraphDocument, CatalogManifest, CatalogSnapshot,
+};
 
 /// Version of the `catalog.json` data contract.
 pub const CATALOG_SCHEMA_VERSION: u16 = 1;
@@ -20,11 +22,45 @@ const CATALOG_SCHEMA_TITLE: &str = "svg-data catalog v1";
 /// Returns an error only if serializing the generated schema value fails.
 pub fn catalog_schema_json() -> Result<String, serde_json::Error> {
     let mut schema = serde_json::to_value(schema_for!(CatalogManifest))?;
+    merge_document_schema::<CatalogCore<'static>>(&mut schema, "CatalogCore")?;
+    merge_document_schema::<CatalogCompatDocument<'static>>(&mut schema, "CatalogCompatDocument")?;
+    merge_document_schema::<CatalogGraphDocument<'static>>(&mut schema, "CatalogGraphDocument")?;
+    merge_document_schema::<CatalogSnapshot>(&mut schema, "CatalogSnapshot")?;
     apply_catalog_metadata(&mut schema);
     json_schema_sort::sort_schema(&mut schema);
     let mut text = serde_json::to_string_pretty(&schema)?;
     text.push('\n');
     Ok(text)
+}
+
+fn merge_document_schema<T: JsonSchema>(
+    schema: &mut Value,
+    name: &str,
+) -> Result<(), serde_json::Error> {
+    let mut document = serde_json::to_value(schema_for!(T))?;
+    let Some(document_object) = document.as_object_mut() else {
+        return Ok(());
+    };
+    let document_defs = document_object.remove("$defs");
+    document_object.remove("$schema");
+
+    let Some(schema_object) = schema.as_object_mut() else {
+        return Ok(());
+    };
+    let defs_value = schema_object
+        .entry("$defs")
+        .or_insert_with(|| Value::Object(serde_json::Map::new()));
+    let Some(defs) = defs_value.as_object_mut() else {
+        return Ok(());
+    };
+
+    if let Some(Value::Object(document_defs)) = document_defs {
+        for (key, value) in document_defs {
+            defs.entry(key).or_insert(value);
+        }
+    }
+    defs.insert(name.to_owned(), document);
+    Ok(())
 }
 
 /// Add catalog-specific metadata that cannot be inferred from the Rust type.
@@ -83,6 +119,21 @@ mod tests {
                 "schema_version",
                 "snapshots"
             ]
+        );
+        assert!(
+            schema
+                .pointer("/$defs/CatalogSnapshot/properties/lifecycle")
+                .is_some(),
+            "snapshot overlay schema must include lifecycle"
+        );
+        assert!(
+            serde_json::to_string(
+                schema
+                    .pointer("/$defs/CatalogLifecycleStatus")
+                    .ok_or("missing lifecycle status schema")?
+            )?
+            .contains("not_yet_introduced"),
+            "lifecycle status schema must include not-yet-introduced"
         );
         Ok(())
     }

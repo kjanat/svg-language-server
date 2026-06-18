@@ -67,7 +67,7 @@ pub struct CatalogFileRef {
 }
 
 /// Canonical latest catalog data.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, JsonSchema)]
 pub struct CatalogCore<'a> {
     /// Version of the JSON catalog/schema contract.
     pub schema_version: u16,
@@ -78,7 +78,7 @@ pub struct CatalogCore<'a> {
 }
 
 /// Browser-compat provenance and retained non-catalogued compat features.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, JsonSchema)]
 pub struct CatalogCompatDocument<'a> {
     /// Version of the JSON catalog/schema contract.
     pub schema_version: u16,
@@ -92,7 +92,7 @@ pub struct CatalogCompatDocument<'a> {
 }
 
 /// Derived graph document.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, JsonSchema)]
 pub struct CatalogGraphDocument<'a> {
     /// Version of the JSON catalog/schema contract.
     pub schema_version: u16,

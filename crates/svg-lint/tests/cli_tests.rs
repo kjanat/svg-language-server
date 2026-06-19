@@ -6,7 +6,7 @@
 
 use std::{
     error::Error,
-    io::Write,
+    io::{ErrorKind, Write},
     process::{Command, Stdio},
 };
 
@@ -33,7 +33,13 @@ fn run(args: &[&str], stdin: Option<&str>) -> Result<Output, Box<dyn Error>> {
         .spawn()?;
     if let Some(input) = stdin {
         let mut handle = child.stdin.take().ok_or("child stdin unavailable")?;
-        handle.write_all(input.as_bytes())?;
+        match handle.write_all(input.as_bytes()) {
+            Ok(()) => {}
+            // Usage errors can exit before reading stdin; keep asserting
+            // the child status/stderr instead of failing the harness.
+            Err(error) if error.kind() == ErrorKind::BrokenPipe => {}
+            Err(error) => return Err(Box::new(error)),
+        }
         // Drop the handle so the child sees EOF before we wait.
         drop(handle);
     }

@@ -3,8 +3,8 @@
 Structural formatter for SVG documents.
 
 This crate formats SVG by parsing with tree-sitter and rebuilding a normalized
-structure with tab indentation, deterministic attribute ordering, and stable
-tag layout. Style/script text blocks are preserved without trying to parse and
+structure with tab indentation, deterministic attribute ordering, and stable tag
+layout. Style/script text blocks are preserved without trying to parse and
 rewrite CSS/JS semantics.
 
 ## API
@@ -55,4 +55,4 @@ cargo run -p svg-format -- --in-place icon.svg
 
 ## Part of [svg-language-server]
 
-[svg-language-server]: https://github.com/kjanat/svg-language-server
+[svg-language-server]: https://github.com/kjanat/svg

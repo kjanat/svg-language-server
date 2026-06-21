@@ -52,4 +52,4 @@ location (byte range + row/col).
 
 ## Part of [svg-language-server]
 
-[svg-language-server]: https://github.com/kjanat/svg-language-server
+[svg-language-server]: https://github.com/kjanat/svg

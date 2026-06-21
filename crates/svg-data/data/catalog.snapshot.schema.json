@@ -1,495 +1,495 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$defs": {
-    "CatalogAttributeValues": {
-      "description": "The runtime value-space shapes the catalog emits.",
-      "oneOf": [
-        {
-          "description": "One of the listed keyword values.",
-          "type": "object",
-          "required": [
-            "kind",
-            "values"
-          ],
-          "properties": {
-            "kind": {
-              "type": "string",
-              "const": "enum"
-            },
-            "values": {
-              "description": "Allowed keyword values.",
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        },
-        {
-          "description": "A transform list; functions are completion hints.",
-          "type": "object",
-          "required": [
-            "functions",
-            "kind"
-          ],
-          "properties": {
-            "functions": {
-              "description": "Transform function names.",
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "kind": {
-              "type": "string",
-              "const": "transform"
-            }
-          }
-        },
-        {
-          "description": "A CSS/SVG color value.",
-          "type": "object",
-          "required": [
-            "kind"
-          ],
-          "properties": {
-            "kind": {
-              "type": "string",
-              "const": "color"
-            }
-          }
-        },
-        {
-          "description": "A length or length-percentage value.",
-          "type": "object",
-          "required": [
-            "kind"
-          ],
-          "properties": {
-            "kind": {
-              "type": "string",
-              "const": "length"
-            }
-          }
-        },
-        {
-          "description": "A URL / fragment reference.",
-          "type": "object",
-          "required": [
-            "kind"
-          ],
-          "properties": {
-            "kind": {
-              "type": "string",
-              "const": "url"
-            }
-          }
-        },
-        {
-          "description": "A number or percentage.",
-          "type": "object",
-          "required": [
-            "kind"
-          ],
-          "properties": {
-            "kind": {
-              "type": "string",
-              "const": "number_or_percentage"
-            }
-          }
-        },
-        {
-          "description": "A structured CSS value grammar that is richer than the runtime's\nspecialized variants.",
-          "type": "object",
-          "required": [
-            "grammar",
-            "graph",
-            "kind"
-          ],
-          "properties": {
-            "grammar": {
-              "description": "Raw grammar text from the defining spec.",
-              "type": "string"
-            },
-            "graph": {
-              "$ref": "#/$defs/CatalogCssGrammarGraph",
-              "description": "Token graph extracted from the grammar."
-            },
-            "kind": {
-              "type": "string",
-              "const": "css_grammar"
-            }
-          }
-        },
-        {
-          "description": "Free-form text with no constrained grammar.",
-          "type": "object",
-          "required": [
-            "kind"
-          ],
-          "properties": {
-            "kind": {
-              "type": "string",
-              "const": "free_text"
-            }
-          }
-        }
-      ]
-    },
-    "CatalogCssGrammarEdge": {
-      "description": "One directed edge in a CSS grammar graph.",
-      "type": "object",
-      "required": [
-        "from",
-        "kind",
-        "to"
-      ],
-      "properties": {
-        "from": {
-          "description": "Source node id.",
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 65535,
-          "format": "uint16"
-        },
-        "kind": {
-          "$ref": "#/$defs/CatalogCssGrammarEdgeKind",
-          "description": "Edge kind."
-        },
-        "to": {
-          "description": "Target node id.",
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 65535,
-          "format": "uint16"
-        }
-      }
-    },
-    "CatalogCssGrammarEdgeKind": {
-      "description": "CSS grammar edge kinds.",
-      "oneOf": [
-        {
-          "description": "Parent/group containment.",
-          "type": "string",
-          "const": "contains"
-        },
-        {
-          "description": "Sibling order within a parent/group.",
-          "type": "string",
-          "const": "next"
-        }
-      ]
-    },
-    "CatalogCssGrammarGraph": {
-      "description": "Graph representation of a CSS value grammar.",
-      "type": "object",
-      "required": [
-        "edges",
-        "nodes",
-        "root"
-      ],
-      "properties": {
-        "edges": {
-          "description": "Grammar edges.",
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/CatalogCssGrammarEdge"
-          }
-        },
-        "nodes": {
-          "description": "Grammar nodes.",
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/CatalogCssGrammarNode"
-          }
-        },
-        "root": {
-          "description": "Root node id.",
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 65535,
-          "format": "uint16"
-        }
-      }
-    },
-    "CatalogCssGrammarNode": {
-      "description": "One node in a CSS grammar graph.",
-      "type": "object",
-      "required": [
-        "id",
-        "kind"
-      ],
-      "properties": {
-        "id": {
-          "description": "Stable node id within the graph.",
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 65535,
-          "format": "uint16"
-        },
-        "kind": {
-          "$ref": "#/$defs/CatalogCssGrammarNodeKind",
-          "description": "Node kind."
-        },
-        "text": {
-          "description": "Token text, when the node carries one.",
-          "type": [
-            "null",
-            "string"
-          ]
-        }
-      }
-    },
-    "CatalogCssGrammarNodeKind": {
-      "description": "CSS grammar node kinds.",
-      "oneOf": [
-        {
-          "description": "Synthetic root.",
-          "type": "string",
-          "const": "root"
-        },
-        {
-          "description": "Bracketed group.",
-          "type": "string",
-          "const": "group"
-        },
-        {
-          "description": "CSS keyword token.",
-          "type": "string",
-          "const": "keyword"
-        },
-        {
-          "description": "CSS type token, e.g. `<length>`.",
-          "type": "string",
-          "const": "type"
-        },
-        {
-          "description": "Functional notation token, e.g. `url()`.",
-          "type": "string",
-          "const": "function"
-        },
-        {
-          "description": "CSS grammar operator or multiplier.",
-          "type": "string",
-          "const": "operator"
-        }
-      ]
-    },
-    "CatalogInventoryElement": {
-      "description": "One element's per-snapshot attribute inventory.",
-      "type": "object",
-      "required": [
-        "attributes",
-        "name"
-      ],
-      "properties": {
-        "attributes": {
-          "description": "Attribute names this profile lists for the element.",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "name": {
-          "description": "Element name.",
-          "type": "string"
-        }
-      }
-    },
-    "CatalogLifecycleEntry": {
-      "description": "One feature lifecycle fact in a snapshot overlay.",
-      "type": "object",
-      "required": [
-        "lifecycle",
-        "name",
-        "present"
-      ],
-      "properties": {
-        "catalog_name": {
-          "description": "Canonical catalog attribute name, when different from `name`.",
-          "type": [
-            "null",
-            "string"
-          ]
-        },
-        "known_in": {
-          "description": "Snapshots where this feature is present.",
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/CatalogSpecSnapshotId"
-          }
-        },
-        "lifecycle": {
-          "$ref": "#/$defs/CatalogLifecycleStatus",
-          "description": "Lifecycle status for this snapshot."
-        },
-        "name": {
-          "description": "Feature name as written in this profile family (`xlink:href` stays\ndistinct from `href`).",
-          "type": "string"
-        },
-        "present": {
-          "description": "Whether the feature is present in the containing snapshot.",
-          "type": "boolean"
-        }
-      }
-    },
-    "CatalogLifecycleStatus": {
-      "description": "Lifecycle statuses the snapshot overlay can derive from profile membership.",
-      "oneOf": [
-        {
-          "description": "Present and stable, included only when the overlay must carry profile\nspelling metadata.",
-          "type": "string",
-          "const": "stable"
-        },
-        {
-          "description": "Present only in a draft snapshot.",
-          "type": "string",
-          "const": "experimental"
-        },
-        {
-          "description": "Known in earlier snapshots, absent from this one.",
-          "type": "string",
-          "const": "obsolete"
-        },
-        {
-          "description": "Known in later snapshots, absent from this one.",
-          "type": "string",
-          "const": "not_yet_introduced"
-        }
-      ]
-    },
-    "CatalogSnapshotInventory": {
-      "description": "Per-snapshot element/attribute inventory payload.",
-      "type": "object",
-      "required": [
-        "attributes",
-        "elements"
-      ],
-      "properties": {
-        "attributes": {
-          "description": "Attributes present anywhere in this profile.",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "elements": {
-          "description": "Elements present in this profile.",
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/CatalogInventoryElement"
-          }
-        }
-      }
-    },
-    "CatalogSnapshotLifecycle": {
-      "description": "Per-snapshot lifecycle overlay.",
-      "type": "object",
-      "properties": {
-        "attributes": {
-          "description": "Attribute lifecycle facts that differ from ordinary stable presence.",
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/CatalogLifecycleEntry"
-          }
-        },
-        "elements": {
-          "description": "Element lifecycle facts that differ from ordinary stable presence.",
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/CatalogLifecycleEntry"
-          }
-        }
-      }
-    },
-    "CatalogSnapshotValueOverride": {
-      "description": "One value-space override scoped by the containing snapshot document.",
-      "type": "object",
-      "required": [
-        "attribute",
-        "values"
-      ],
-      "properties": {
-        "attribute": {
-          "description": "Attribute/property name whose value space is overridden.",
-          "type": "string"
-        },
-        "values": {
-          "$ref": "#/$defs/CatalogAttributeValues",
-          "description": "Value space for this snapshot."
-        }
-      }
-    },
-    "CatalogSpecSnapshotId": {
-      "description": "SVG specification snapshots understood by the catalog contract.",
-      "oneOf": [
-        {
-          "description": "SVG 1.1 First Edition (W3C REC 2003-01-14).",
-          "type": "string",
-          "const": "Svg11Rec20030114"
-        },
-        {
-          "description": "SVG 1.1 Second Edition (W3C REC 2011-08-16).",
-          "type": "string",
-          "const": "Svg11Rec20110816"
-        },
-        {
-          "description": "SVG 2 Candidate Recommendation (2018-10-04).",
-          "type": "string",
-          "const": "Svg2Cr20181004"
-        },
-        {
-          "description": "SVG 2 Editor's Draft (rolling).",
-          "type": "string",
-          "const": "Svg2EditorsDraft"
-        }
-      ]
-    }
-  },
-  "title": "svg-data snapshot overlay v1",
-  "description": "Version-specific overlay document.",
-  "type": "object",
-  "required": [
-    "inventory",
-    "profile",
-    "schema_version"
-  ],
-  "properties": {
-    "aliases": {
-      "description": "Accepted profile id aliases for this snapshot.",
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "inventory": {
-      "$ref": "#/$defs/CatalogSnapshotInventory",
-      "description": "Per-snapshot element/attribute inventory."
-    },
-    "lifecycle": {
-      "$ref": "#/$defs/CatalogSnapshotLifecycle",
-      "description": "Profile lifecycle facts derived from snapshot membership."
-    },
-    "profile": {
-      "$ref": "#/$defs/CatalogSpecSnapshotId",
-      "description": "Profile snapshot this overlay describes."
-    },
-    "schema_version": {
-      "const": 1
-    },
-    "sources": {
-      "description": "Exact source URLs used to derive this snapshot.",
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "value_overrides": {
-      "description": "Per-profile value-space overrides for this snapshot.",
-      "type": "array",
-      "items": {
-        "$ref": "#/$defs/CatalogSnapshotValueOverride"
-      }
-    }
-  }
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$defs": {
+		"CatalogAttributeValues": {
+			"description": "The runtime value-space shapes the catalog emits.",
+			"oneOf": [
+				{
+					"description": "One of the listed keyword values.",
+					"type": "object",
+					"required": [
+						"kind",
+						"values"
+					],
+					"properties": {
+						"kind": {
+							"type": "string",
+							"const": "enum"
+						},
+						"values": {
+							"description": "Allowed keyword values.",
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					}
+				},
+				{
+					"description": "A transform list; functions are completion hints.",
+					"type": "object",
+					"required": [
+						"functions",
+						"kind"
+					],
+					"properties": {
+						"functions": {
+							"description": "Transform function names.",
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"kind": {
+							"type": "string",
+							"const": "transform"
+						}
+					}
+				},
+				{
+					"description": "A CSS/SVG color value.",
+					"type": "object",
+					"required": [
+						"kind"
+					],
+					"properties": {
+						"kind": {
+							"type": "string",
+							"const": "color"
+						}
+					}
+				},
+				{
+					"description": "A length or length-percentage value.",
+					"type": "object",
+					"required": [
+						"kind"
+					],
+					"properties": {
+						"kind": {
+							"type": "string",
+							"const": "length"
+						}
+					}
+				},
+				{
+					"description": "A URL / fragment reference.",
+					"type": "object",
+					"required": [
+						"kind"
+					],
+					"properties": {
+						"kind": {
+							"type": "string",
+							"const": "url"
+						}
+					}
+				},
+				{
+					"description": "A number or percentage.",
+					"type": "object",
+					"required": [
+						"kind"
+					],
+					"properties": {
+						"kind": {
+							"type": "string",
+							"const": "number_or_percentage"
+						}
+					}
+				},
+				{
+					"description": "A structured CSS value grammar that is richer than the runtime's\nspecialized variants.",
+					"type": "object",
+					"required": [
+						"grammar",
+						"graph",
+						"kind"
+					],
+					"properties": {
+						"grammar": {
+							"description": "Raw grammar text from the defining spec.",
+							"type": "string"
+						},
+						"graph": {
+							"$ref": "#/$defs/CatalogCssGrammarGraph",
+							"description": "Token graph extracted from the grammar."
+						},
+						"kind": {
+							"type": "string",
+							"const": "css_grammar"
+						}
+					}
+				},
+				{
+					"description": "Free-form text with no constrained grammar.",
+					"type": "object",
+					"required": [
+						"kind"
+					],
+					"properties": {
+						"kind": {
+							"type": "string",
+							"const": "free_text"
+						}
+					}
+				}
+			]
+		},
+		"CatalogCssGrammarEdge": {
+			"description": "One directed edge in a CSS grammar graph.",
+			"type": "object",
+			"required": [
+				"from",
+				"kind",
+				"to"
+			],
+			"properties": {
+				"from": {
+					"description": "Source node id.",
+					"type": "integer",
+					"minimum": 0,
+					"maximum": 65535,
+					"format": "uint16"
+				},
+				"kind": {
+					"$ref": "#/$defs/CatalogCssGrammarEdgeKind",
+					"description": "Edge kind."
+				},
+				"to": {
+					"description": "Target node id.",
+					"type": "integer",
+					"minimum": 0,
+					"maximum": 65535,
+					"format": "uint16"
+				}
+			}
+		},
+		"CatalogCssGrammarEdgeKind": {
+			"description": "CSS grammar edge kinds.",
+			"oneOf": [
+				{
+					"description": "Parent/group containment.",
+					"type": "string",
+					"const": "contains"
+				},
+				{
+					"description": "Sibling order within a parent/group.",
+					"type": "string",
+					"const": "next"
+				}
+			]
+		},
+		"CatalogCssGrammarGraph": {
+			"description": "Graph representation of a CSS value grammar.",
+			"type": "object",
+			"required": [
+				"edges",
+				"nodes",
+				"root"
+			],
+			"properties": {
+				"edges": {
+					"description": "Grammar edges.",
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/CatalogCssGrammarEdge"
+					}
+				},
+				"nodes": {
+					"description": "Grammar nodes.",
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/CatalogCssGrammarNode"
+					}
+				},
+				"root": {
+					"description": "Root node id.",
+					"type": "integer",
+					"minimum": 0,
+					"maximum": 65535,
+					"format": "uint16"
+				}
+			}
+		},
+		"CatalogCssGrammarNode": {
+			"description": "One node in a CSS grammar graph.",
+			"type": "object",
+			"required": [
+				"id",
+				"kind"
+			],
+			"properties": {
+				"id": {
+					"description": "Stable node id within the graph.",
+					"type": "integer",
+					"minimum": 0,
+					"maximum": 65535,
+					"format": "uint16"
+				},
+				"kind": {
+					"$ref": "#/$defs/CatalogCssGrammarNodeKind",
+					"description": "Node kind."
+				},
+				"text": {
+					"description": "Token text, when the node carries one.",
+					"type": [
+						"null",
+						"string"
+					]
+				}
+			}
+		},
+		"CatalogCssGrammarNodeKind": {
+			"description": "CSS grammar node kinds.",
+			"oneOf": [
+				{
+					"description": "Synthetic root.",
+					"type": "string",
+					"const": "root"
+				},
+				{
+					"description": "Bracketed group.",
+					"type": "string",
+					"const": "group"
+				},
+				{
+					"description": "CSS keyword token.",
+					"type": "string",
+					"const": "keyword"
+				},
+				{
+					"description": "CSS type token, e.g. `<length>`.",
+					"type": "string",
+					"const": "type"
+				},
+				{
+					"description": "Functional notation token, e.g. `url()`.",
+					"type": "string",
+					"const": "function"
+				},
+				{
+					"description": "CSS grammar operator or multiplier.",
+					"type": "string",
+					"const": "operator"
+				}
+			]
+		},
+		"CatalogInventoryElement": {
+			"description": "One element's per-snapshot attribute inventory.",
+			"type": "object",
+			"required": [
+				"attributes",
+				"name"
+			],
+			"properties": {
+				"attributes": {
+					"description": "Attribute names this profile lists for the element.",
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"name": {
+					"description": "Element name.",
+					"type": "string"
+				}
+			}
+		},
+		"CatalogLifecycleEntry": {
+			"description": "One feature lifecycle fact in a snapshot overlay.",
+			"type": "object",
+			"required": [
+				"lifecycle",
+				"name",
+				"present"
+			],
+			"properties": {
+				"catalog_name": {
+					"description": "Canonical catalog attribute name, when different from `name`.",
+					"type": [
+						"null",
+						"string"
+					]
+				},
+				"known_in": {
+					"description": "Snapshots where this feature is present.",
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/CatalogSpecSnapshotId"
+					}
+				},
+				"lifecycle": {
+					"$ref": "#/$defs/CatalogLifecycleStatus",
+					"description": "Lifecycle status for this snapshot."
+				},
+				"name": {
+					"description": "Feature name as written in this profile family (`xlink:href` stays\ndistinct from `href`).",
+					"type": "string"
+				},
+				"present": {
+					"description": "Whether the feature is present in the containing snapshot.",
+					"type": "boolean"
+				}
+			}
+		},
+		"CatalogLifecycleStatus": {
+			"description": "Lifecycle statuses the snapshot overlay can derive from profile membership.",
+			"oneOf": [
+				{
+					"description": "Present and stable, included only when the overlay must carry profile\nspelling metadata.",
+					"type": "string",
+					"const": "stable"
+				},
+				{
+					"description": "Present only in a draft snapshot.",
+					"type": "string",
+					"const": "experimental"
+				},
+				{
+					"description": "Known in earlier snapshots, absent from this one.",
+					"type": "string",
+					"const": "obsolete"
+				},
+				{
+					"description": "Known in later snapshots, absent from this one.",
+					"type": "string",
+					"const": "not_yet_introduced"
+				}
+			]
+		},
+		"CatalogSnapshotInventory": {
+			"description": "Per-snapshot element/attribute inventory payload.",
+			"type": "object",
+			"required": [
+				"attributes",
+				"elements"
+			],
+			"properties": {
+				"attributes": {
+					"description": "Attributes present anywhere in this profile.",
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"elements": {
+					"description": "Elements present in this profile.",
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/CatalogInventoryElement"
+					}
+				}
+			}
+		},
+		"CatalogSnapshotLifecycle": {
+			"description": "Per-snapshot lifecycle overlay.",
+			"type": "object",
+			"properties": {
+				"attributes": {
+					"description": "Attribute lifecycle facts that differ from ordinary stable presence.",
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/CatalogLifecycleEntry"
+					}
+				},
+				"elements": {
+					"description": "Element lifecycle facts that differ from ordinary stable presence.",
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/CatalogLifecycleEntry"
+					}
+				}
+			}
+		},
+		"CatalogSnapshotValueOverride": {
+			"description": "One value-space override scoped by the containing snapshot document.",
+			"type": "object",
+			"required": [
+				"attribute",
+				"values"
+			],
+			"properties": {
+				"attribute": {
+					"description": "Attribute/property name whose value space is overridden.",
+					"type": "string"
+				},
+				"values": {
+					"$ref": "#/$defs/CatalogAttributeValues",
+					"description": "Value space for this snapshot."
+				}
+			}
+		},
+		"CatalogSpecSnapshotId": {
+			"description": "SVG specification snapshots understood by the catalog contract.",
+			"oneOf": [
+				{
+					"description": "SVG 1.1 First Edition (W3C REC 2003-01-14).",
+					"type": "string",
+					"const": "Svg11Rec20030114"
+				},
+				{
+					"description": "SVG 1.1 Second Edition (W3C REC 2011-08-16).",
+					"type": "string",
+					"const": "Svg11Rec20110816"
+				},
+				{
+					"description": "SVG 2 Candidate Recommendation (2018-10-04).",
+					"type": "string",
+					"const": "Svg2Cr20181004"
+				},
+				{
+					"description": "SVG 2 Editor's Draft (rolling).",
+					"type": "string",
+					"const": "Svg2EditorsDraft"
+				}
+			]
+		}
+	},
+	"title": "svg-data snapshot overlay v1",
+	"description": "Version-specific overlay document.",
+	"type": "object",
+	"required": [
+		"inventory",
+		"profile",
+		"schema_version"
+	],
+	"properties": {
+		"aliases": {
+			"description": "Accepted profile id aliases for this snapshot.",
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		},
+		"inventory": {
+			"$ref": "#/$defs/CatalogSnapshotInventory",
+			"description": "Per-snapshot element/attribute inventory."
+		},
+		"lifecycle": {
+			"$ref": "#/$defs/CatalogSnapshotLifecycle",
+			"description": "Profile lifecycle facts derived from snapshot membership."
+		},
+		"profile": {
+			"$ref": "#/$defs/CatalogSpecSnapshotId",
+			"description": "Profile snapshot this overlay describes."
+		},
+		"schema_version": {
+			"const": 1
+		},
+		"sources": {
+			"description": "Exact source URLs used to derive this snapshot.",
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		},
+		"value_overrides": {
+			"description": "Per-profile value-space overrides for this snapshot.",
+			"type": "array",
+			"items": {
+				"$ref": "#/$defs/CatalogSnapshotValueOverride"
+			}
+		}
+	}
 }

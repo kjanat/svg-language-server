@@ -1,42 +1,45 @@
-# svg-language-server
+# svg
 
-Rust workspace for SVG tooling.
+SVG tooling monorepo.
 
-This monorepo contains the `svg-language-server` binary plus the crates that
-power formatting, linting, color analysis, spec data lookup, and
-definition/reference navigation.
+This repository contains the SVG language server, parser grammar, editor
+integration, and the Rust crates that power formatting, linting, color analysis,
+spec data lookup, and definition/reference navigation.
 
 > [!IMPORTANT]
-> This project is not published to crates.io yet.
-> Expect breaking changes while the workspace is still under active development.
+> This project is not published to crates.io yet. Expect breaking changes while
+> the workspace is still under active development.
 
 ## Install
 
 LSP:
 
 ```sh
-cargo install --git https://github.com/kjanat/svg-language-server \
+cargo install --git https://github.com/kjanat/svg \
   svg-language-server
 ```
 
 Formatter:
 
 ```bash
-cargo install --git https://github.com/kjanat/svg-language-server \
+cargo install --git https://github.com/kjanat/svg \
   svg-format
 ```
 
 ## Workspace Contents
 
-| Crate                 | Purpose                                                                |
-| --------------------- | ---------------------------------------------------------------------- |
-| `svg-language-server` | LSP binary for SVG files                                               |
-| `svg-format`          | Structural SVG formatter library and CLI                               |
-| `svg-lint`            | Structural SVG diagnostics                                             |
-| `svg-color`           | Color extraction and color presentation helpers                        |
-| `svg-data`            | Generated SVG catalog from MDN/browser compatibility data              |
-| `svg-references`      | Symbol extraction for `id`, CSS class, and custom property definitions |
-| `svg-tree`            | Shared tree-sitter helpers and tree utilities                          |
+| Path                         | Purpose                                                                |
+| ---------------------------- | ---------------------------------------------------------------------- |
+| `crates/svg-language-server` | LSP binary for SVG files                                               |
+| `crates/svg-format`          | Structural SVG formatter library and CLI                               |
+| `crates/svg-lint`            | Structural SVG diagnostics                                             |
+| `crates/svg-color`           | Color extraction and color presentation helpers                        |
+| `crates/svg-data`            | Generated SVG catalog from spec, BCD, and web-features data            |
+| `crates/svg-data-regen`      | Deterministic catalog regeneration pipeline                            |
+| `crates/svg-references`      | Symbol extraction for `id`, CSS class, and custom property definitions |
+| `crates/svg-tree`            | Shared tree-sitter helpers and tree utilities                          |
+| `grammars/tree-sitter-svg`   | Tree-sitter grammar for SVG                                            |
+| `editors/zed-svg`            | Zed extension for SVG language support                                 |
 
 ### Dependency Graph
 
@@ -46,22 +49,36 @@ graph BT
   svg-references --> svg-tree
   svg-lint --> svg-tree
   svg-lint --> svg-data
+  svg-tree --> tree-sitter-svg
+  svg-color --> tree-sitter-svg
+  svg-format --> tree-sitter-svg
+  svg-lint --> tree-sitter-svg
+  svg-references --> tree-sitter-svg
   svg-language-server --> svg-color
   svg-language-server --> svg-data
   svg-language-server --> svg-format
   svg-language-server --> svg-lint
   svg-language-server --> svg-references
   svg-language-server --> svg-tree
+  zed-svg --> svg-language-server
+  zed-svg --> tree-sitter-svg
 ```
 
 ## Language Server Features
 
-- `textDocument/hover` for element and attribute docs, MDN links, and baseline status
-- `textDocument/completion` for SVG element, attribute, value, and inline CSS completions
-- `textDocument/publishDiagnostics` for structural validation such as unknown elements, invalid nesting, duplicate IDs, deprecated usage, and missing local references
-- `textDocument/documentColor` for paint color discovery in SVG attributes and embedded stylesheets
-- `textDocument/colorPresentation` for converting colors between multiple CSS/SVG formats
-- `textDocument/definition` for local `id` targets plus CSS class and custom property definitions
+- `textDocument/hover` for element and attribute docs, MDN links, and baseline
+  status
+- `textDocument/completion` for SVG element, attribute, value, and inline CSS
+  completions
+- `textDocument/publishDiagnostics` for structural validation such as unknown
+  elements, invalid nesting, duplicate IDs, deprecated usage, and missing local
+  references
+- `textDocument/documentColor` for paint color discovery in SVG attributes and
+  embedded stylesheets
+- `textDocument/colorPresentation` for converting colors between multiple
+  CSS/SVG formats
+- `textDocument/definition` for local `id` targets plus CSS class and custom
+  property definitions
 - `textDocument/formatting` for deterministic structural SVG formatting
 
 ## Color Support
@@ -114,12 +131,14 @@ npm install --global svg-language-server
 npm install --global svg-format
 ```
 
-These are thin installer packages: they fetch only the matching GitHub Release artifact for the current OS/architecture instead of bundling every platform into the npm tarball.
+These are thin installer packages: they fetch only the matching GitHub Release
+artifact for the current OS/architecture instead of bundling every platform into
+the npm tarball.
 
 If you want to install directly from GitHub instead of a local checkout:
 
 ```sh
-cargo install --git https://github.com/kjanat/svg-language-server svg-language-server
+cargo install --git https://github.com/kjanat/svg svg-language-server
 ```
 
 ## Repository Layout
@@ -133,6 +152,10 @@ crates/
   svg-data/             generated SVG catalog
   svg-references/       definition/reference analysis
   svg-tree/             shared tree-sitter helpers and tree utilities
+grammars/
+  tree-sitter-svg/      Tree-sitter grammar and language queries
+editors/
+  zed-svg/              Zed extension
 docs/
   plans/
   specs/
@@ -185,7 +208,17 @@ vim.api.nvim_create_autocmd("FileType", {
 
 ### Zed
 
-Add this to your SVG extension's `extension.toml`:
+For local development, install the extension under `editors/zed-svg` with:
+
+```text
+zed: Install Dev Extension
+```
+
+The extension installs or falls back to the `svg-language-server` binary and
+uses the SVG grammar/query package from this repository.
+
+If you are wiring a separate extension manually, add this to its
+`extension.toml`:
 
 ```toml
 [language_servers.svg-language-server]
@@ -194,32 +227,31 @@ languages = ["SVG"]
 
 ### Other Editors
 
-Any LSP-compatible editor works. Point it at `svg-language-server --stdio`
-with filetype `svg`. The server communicates over stdin/stdout using the
-standard Language Server Protocol.
+Any LSP-compatible editor works. Point it at `svg-language-server --stdio` with
+filetype `svg`. The server communicates over stdin/stdout using the standard
+Language Server Protocol.
 
 ## Known Limitations
 
 - **No rename/refactoring** — `id`, class, and custom property renames are not
   yet supported
 - **No workspace-wide diagnostics** — only open documents are linted
-- **Flat custom property scope** — CSS `var()` resolution in embedded `<style>`
-  uses a flat property map; same-named properties in different rules resolve to
-  the last definition (see #3)
-- **Nightly Rust** — the workspace requires nightly for `let_chains` and
-  `f32::midpoint`; this may change once these features stabilize
-- **Network dependency** — the build script fetches BCD/spec data from
-  unpkg.com and GitHub; set `SVG_DATA_OFFLINE=1` for fully offline builds
-  using cached data
+- **Regeneration is networked** — normal builds use checked-in catalog data, but
+  `svg-data-regen` intentionally contacts upstream specs and compatibility
+  sources when refreshing the catalog
 
 ## Formatter Plugin
 
-The dprint plugin lives in a separate repository:
-https://github.com/kjanat/dprint-plugin-svg
+The dprint plugin lives in a separate repository: [kjanat/dprint-plugin-svg]
 
 ## Release Publishing
 
 - Git tags publish both binaries to one GitHub Release.
-- npm packages `svg-language-server` and `svg-format` are published from GitHub Actions.
-- Run `just release-local <version>` to bump versions, run `just verify`, commit, and create the local `v<version>` tag. This requires `bun` locally. Pushing that tag triggers publication.
+- npm packages `svg-language-server` and `svg-format` are published from GitHub
+  Actions.
+- Run `just release-local <version>` to bump versions, run `just verify`,
+  commit, and create the local `v<version>` tag. This requires `bun` locally.
+  Pushing that tag triggers publication.
 - See `docs/releasing.md` for the bootstrap and trusted-publisher details.
+
+[kjanat/dprint-plugin-svg]: https://github.com/kjanat/dprint-plugin-svg

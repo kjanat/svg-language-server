@@ -1,7 +1,6 @@
-#:schema https://gist.githubusercontent.com/kjanat/1172d9d2d6dbe7c6d9983aaabef2eea5/raw/cargo-config.bundle.json
-
 # Cargo configuration for the svg-language-server workspace.
 # See: https://doc.rust-lang.org/cargo/reference/config.html
+# Schema configured in ../tombi.toml
 
 [alias]
 br        = "build --release"
@@ -9,7 +8,7 @@ bw        = "build --workspace"
 bwa       = "build --workspace --all-targets"
 cw        = "check --workspace --all-targets"
 dw        = "doc --workspace --no-deps"
-dwn       = "--config .cargo/nightly.toml doc"
+dwn       = "--config .cargo/nightly.toml doc --workspace --all-features"
 fmt-check = "fmt --check"
 fmt-svg   = "rb svg-format -q --manifest-path=crates/svg-format/Cargo.toml"
 fmt-svg-r = "rbr svg-format -q --manifest-path=crates/svg-format/Cargo.toml"

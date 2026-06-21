@@ -2,9 +2,15 @@
 
 ## Context
 
-The browser-support-preservation refactor shipped. The worker `/data.json` and the static Rust catalog now carry **every** upstream BCD/web-features signal end-to-end: 11 per-browser fields (`version_added`, `version_qualifier`, `supported`, `version_removed`, `version_removed_qualifier`, `partial_implementation`, `prefix`, `alternative_name`, `flags`, `notes`, `raw_value_added`) plus full baseline date sub-objects with qualifiers.
+The browser-support-preservation refactor shipped. The worker `/data.json` and
+the static Rust catalog now carry **every** upstream BCD/web-features signal
+end-to-end: 11 per-browser fields (`version_added`, `version_qualifier`,
+`supported`, `version_removed`, `version_removed_qualifier`,
+`partial_implementation`, `prefix`, `alternative_name`, `flags`, `notes`,
+`raw_value_added`) plus full baseline date sub-objects with qualifiers.
 
-**But the rendering layer drops most of it**, and in one case actively lies. Using `baseProfile` as the canary:
+**But the rendering layer drops most of it**, and in one case actively lies.
+Using `baseProfile` as the canary:
 
 | Surface                             | Current output                                                                                                                                                                                       | Problem                                                                                                                                                                                   |
 | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -17,13 +23,24 @@ The browser-support-preservation refactor shipped. The worker `/data.json` and t
 
 **Root cause of the `baseProfile` contradiction** (verified by explore-agent):
 
-`crates/svg-data/data/derived/union/attributes.json:106` lists `baseProfile` as `present_in` → `Svg2EditorsDraft20250914`. `build.rs::union_lifecycle_expr()` (lines 668-676) then classifies it as `SpecLifecycle::Stable`. But `baseProfile` was **removed from SVG 2** — it's not in the spec anymore. The membership data is wrong, not the derivation logic. Same story for `version` (the SVG version attribute, not a package version).
+`crates/svg-data/data/derived/union/attributes.json:106` lists `baseProfile` as
+`present_in` → `Svg2EditorsDraft20250914`. `build.rs::union_lifecycle_expr()`
+(lines 668-676) then classifies it as `SpecLifecycle::Stable`. But `baseProfile`
+was **removed from SVG 2** — it's not in the spec anymore. The membership data
+is wrong, not the derivation logic. Same story for `version` (the SVG version
+attribute, not a package version).
 
 ### Two binding principles for this plan
 
-1. **One source of truth per signal, reconciled at build time, not render time.** If BCD says "deprecated" and the spec snapshot says "stable", that's a build-time error — fail the build, force the fix. Consumers should never have to decide which source to trust.
+1. **One source of truth per signal, reconciled at build time, not render
+   time.** If BCD says "deprecated" and the spec snapshot says "stable", that's
+   a build-time error — fail the build, force the fix. Consumers should never
+   have to decide which source to trust.
 
-2. **The hover must answer one question first: should I use this?** Everything else is evidence. The current hover is a wall of independent facts that the user has to synthesize. A great UX does the synthesis and then shows its work.
+2. **The hover must answer one question first: should I use this?** Everything
+   else is evidence. The current hover is a wall of independent facts that the
+   user has to synthesize. A great UX does the synthesis and then shows its
+   work.
 
 ### Intended outcome
 
@@ -40,9 +57,11 @@ The browser-support-preservation refactor shipped. The worker `/data.json` and t
 
   [MDN Reference](...) · [Spec history](...)
   ```
-  — one clear verdict, one status line that consolidates all agreeing signals, supporting evidence below.
+  — one clear verdict, one status line that consolidates all agreeing signals,
+  supporting evidence below.
 
-- LSP hover for `baseline-shift` (a Limited-baseline CSS property with `≤80` qualifier) reads:
+- LSP hover for `baseline-shift` (a Limited-baseline CSS property with `≤80`
+  qualifier) reads:
   ```
   > ⚠ baseline-shift — Limited availability, avoid without fallback
 
@@ -58,12 +77,18 @@ The browser-support-preservation refactor shipped. The worker `/data.json` and t
 
   [MDN Reference](...) · [Spec](...)
   ```
-  — qualifier glyphs render, partial-impl notes surface as sub-bullets, Firefox's explicit `false` shows `✗`.
+  — qualifier glyphs render, partial-impl notes surface as sub-bullets,
+  Firefox's explicit `false` shows `✗`.
 
-- Dashboard chips get colour + icons for every state class. The 5 unstyled CSS classes become meaningful.
-- Stats grid surfaces new tiles (partial, removed, flagged, unsupported-anywhere) so the data we preserve is legible at a glance.
-- `svg-lint` gains `obsolete-feature` + `partial-implementation-info` rules that consume the same unified verdict helper the hover uses. They cannot disagree — same function call.
-- Build fails loudly when BCD and the spec membership file disagree on an entry, catching data drift at the `cargo check` stage.
+- Dashboard chips get colour + icons for every state class. The 5 unstyled CSS
+  classes become meaningful.
+- Stats grid surfaces new tiles (partial, removed, flagged,
+  unsupported-anywhere) so the data we preserve is legible at a glance.
+- `svg-lint` gains `obsolete-feature` + `partial-implementation-info` rules that
+  consume the same unified verdict helper the hover uses. They cannot disagree —
+  same function call.
+- Build fails loudly when BCD and the spec membership file disagree on an entry,
+  catching data drift at the `cargo check` stage.
 
 ---
 
@@ -71,11 +96,21 @@ The browser-support-preservation refactor shipped. The worker `/data.json` and t
 
 Three structural additions:
 
-1. **`CompatVerdict`** — a new shared type in `svg-data` that fuses BCD deprecation, spec lifecycle, baseline tier, and per-browser signals into a single `recommendation` + `reasoning` value. **One source of truth for both hover and lint.**
+1. **`CompatVerdict`** — a new shared type in `svg-data` that fuses BCD
+   deprecation, spec lifecycle, baseline tier, and per-browser signals into a
+   single `recommendation` + `reasoning` value. **One source of truth for both
+   hover and lint.**
 
-2. **`svg_data::lint_data::check_bcd_spec_agreement()`** — a build-time cross-check that walks every catalog entry and asserts BCD-deprecated entries are not also marked `SpecLifecycle::Stable` in the latest snapshot. Currently we'd have ~2-4 offenders (`baseProfile`, `version`, possibly `contentStyleType`, `contentScriptType`). Fails `cargo build` with a clear message per offender.
+2. **`svg_data::lint_data::check_bcd_spec_agreement()`** — a build-time
+   cross-check that walks every catalog entry and asserts BCD-deprecated entries
+   are not also marked `SpecLifecycle::Stable` in the latest snapshot. Currently
+   we'd have ~2-4 offenders (`baseProfile`, `version`, possibly
+   `contentStyleType`, `contentScriptType`). Fails `cargo build` with a clear
+   message per offender.
 
-3. **Structured hover builder** — `hover::CompatMarkdownBuilder` replaces the loose `parts.push(...)` pattern with a typed builder that emits a consistent section layout. Ensures every entry gets the same structural skeleton.
+3. **Structured hover builder** — `hover::CompatMarkdownBuilder` replaces the
+   loose `parts.push(...)` pattern with a typed builder that emits a consistent
+   section layout. Ensures every entry gets the same structural skeleton.
 
 ```
 crates/svg-data/src/
@@ -118,7 +153,11 @@ workers/svg-compat/
 └── src/render.tsx        UPDATED: populate new stat fields
 ```
 
-The `CompatVerdict` model is the architectural linchpin. Both the hover markdown and the lint diagnostic paths call `compute_compat_verdict(def)` and render against the result. If we ever find them disagreeing, it's a bug in one **renderer**, not in the data or logic — the call sites are structurally identical.
+The `CompatVerdict` model is the architectural linchpin. Both the hover markdown
+and the lint diagnostic paths call `compute_compat_verdict(def)` and render
+against the result. If we ever find them disagreeing, it's a bug in one
+**renderer**, not in the data or logic — the call sites are structurally
+identical.
 
 ---
 
@@ -198,28 +237,39 @@ pub struct CompatVerdict {
 }
 ```
 
-The `&'static [VerdictReason]` constraint means each entry's reasons are computed at **build time** and interned. This keeps `AttributeDef` / `ElementDef` `Copy` and avoids per-hover allocation.
+The `&'static [VerdictReason]` constraint means each entry's reasons are
+computed at **build time** and interned. This keeps `AttributeDef` /
+`ElementDef` `Copy` and avoids per-hover allocation.
 
 ### 1.2 `crates/svg-data/src/verdict.rs` — new module
 
-Pure function that takes a `&AttributeDef` / `&ElementDef` plus a selected `SpecSnapshotId` and produces a `CompatVerdict`. Rules (in priority order):
+Pure function that takes a `&AttributeDef` / `&ElementDef` plus a selected
+`SpecSnapshotId` and produces a `CompatVerdict`. Rules (in priority order):
 
 1. Spec-obsolete in selected profile → `Forbid` + `ProfileObsolete`.
-2. All tracked browsers explicitly unsupported (`supported: Some(false)` for chrome/edge/firefox/safari) → `Forbid` + `UnsupportedIn` per browser.
+2. All tracked browsers explicitly unsupported (`supported: Some(false)` for
+   chrome/edge/firefox/safari) → `Forbid` + `UnsupportedIn` per browser.
 3. BCD deprecated → `Avoid` + `BcdDeprecated`.
-4. Spec-deprecated in selected profile → `Avoid` + `ProfileObsolete { last_seen }`.
+4. Spec-deprecated in selected profile → `Avoid` +
+   `ProfileObsolete { last_seen }`.
 5. Any `partial_implementation` → `Caution` + `PartialImplementationIn`.
 6. `prefix` or `flags` required anywhere → `Caution` + respective reason.
 7. Baseline `limited` → `Caution` + `BaselineLimited`.
 8. Baseline `newly` → `Caution` + `BaselineNewly`.
-9. Anything with `version_removed` → `Caution` + `RemovedIn` (future-removal warning).
+9. Anything with `version_removed` → `Caution` + `RemovedIn` (future-removal
+   warning).
 10. Otherwise → `Safe`.
 
-Multiple reasons can apply; the function collects them into a const-interned slice via the build script. The **final recommendation is the strongest (most restrictive) reason present**. This guarantees "Deprecated + Stable in spec" becomes `Avoid` with a `BcdDeprecated` reason — no more contradictory output.
+Multiple reasons can apply; the function collects them into a const-interned
+slice via the build script. The **final recommendation is the strongest (most
+restrictive) reason present**. This guarantees "Deprecated + Stable in spec"
+becomes `Avoid` with a `BcdDeprecated` reason — no more contradictory output.
 
 ### 1.3 Rule priority algorithm — exact decision tree
 
-`VerdictRecommendation` forms a total order: `Safe(0) < Caution(1) < Avoid(2) < Forbid(3)`. Each reason maps to a tier via a const function:
+`VerdictRecommendation` forms a total order:
+`Safe(0) < Caution(1) < Avoid(2) < Forbid(3)`. Each reason maps to a tier via a
+const function:
 
 ```rust
 const fn reason_tier(r: VerdictReason) -> VerdictRecommendation {
@@ -240,7 +290,9 @@ const fn reason_tier(r: VerdictReason) -> VerdictRecommendation {
 }
 ```
 
-**Fully-unsupported special case**: when all four browsers have `supported: Some(false)`, the collection loop promotes the reason set to `Forbid`. This is checked as a post-collection step, not per-reason.
+**Fully-unsupported special case**: when all four browsers have
+`supported: Some(false)`, the collection loop promotes the reason set to
+`Forbid`. This is checked as a post-collection step, not per-reason.
 
 **Final verdict**:
 
@@ -249,13 +301,18 @@ recommendation = max(reason_tier(r) for r in collected_reasons)
 reasons = collected_reasons sorted by tier desc, then by fixed listing order for tie-breaking
 ```
 
-Multiple reasons at the same tier are all preserved — they all appear in the Status line and sub-bullets. There's no early-exit; every applicable rule is evaluated independently and all matching reasons are collected.
+Multiple reasons at the same tier are all preserved — they all appear in the
+Status line and sub-bullets. There's no early-exit; every applicable rule is
+evaluated independently and all matching reasons are collected.
 
-**`None` reasons from non-applicable rules are simply not added to the collection.** There is no "unknown" tier — every possible state either produces a reason or is silently absent.
+**`None` reasons from non-applicable rules are simply not added to the
+collection.** There is no "unknown" tier — every possible state either produces
+a reason or is silently absent.
 
 ### 1.4 Build-time emission strategy
 
-**Where**: `verdict.rs` result is emitted as a new field on `AttributeDef` and `ElementDef` in the generated `catalog.rs`:
+**Where**: `verdict.rs` result is emitted as a new field on `AttributeDef` and
+`ElementDef` in the generated `catalog.rs`:
 
 ```rust
 pub struct AttributeDef {
@@ -265,9 +322,11 @@ pub struct AttributeDef {
 }
 ```
 
-`build.rs` emits this field in the same loop that emits `browser_support`, `baseline`, etc. The value is a reference to a named const slice.
+`build.rs` emits this field in the same loop that emits `browser_support`,
+`baseline`, etc. The value is a reference to a named const slice.
 
-**Interning reason slices**: `build.rs` collects all distinct reason vectors, deduplicates them by content, and emits named const arrays:
+**Interning reason slices**: `build.rs` collects all distinct reason vectors,
+deduplicates them by content, and emits named const arrays:
 
 ```rust
 const REASONS_BCD_DEP: &[VerdictReason] = &[VerdictReason::BcdDeprecated];
@@ -277,11 +336,18 @@ const REASONS_PROFILE_OBS_SVG2CR: &[VerdictReason] = &[VerdictReason::ProfileObs
 // ...
 ```
 
-Each `AttributeDef` then references the appropriate slice pointer. Deduplication is by `Vec<VerdictReason>` equality check in the build script's collection map — typical SVG dataset has ~50 distinct combinations across ~200 entries, so this is fast.
+Each `AttributeDef` then references the appropriate slice pointer. Deduplication
+is by `Vec<VerdictReason>` equality check in the build script's collection map —
+typical SVG dataset has ~50 distinct combinations across ~200 entries, so this
+is fast.
 
-**Human-readable Rust**: the emitted code is valid Rust that can be diffed and reviewed. Binary serialization would be opaque and break on struct layout changes.
+**Human-readable Rust**: the emitted code is valid Rust that can be diffed and
+reviewed. Binary serialization would be opaque and break on struct layout
+changes.
 
-**`CompatVerdict` is `Copy`**: `headline_template: &'static str` is a format key, not a rendered string. Interpolation happens in a **separate non-Copy formatter**:
+**`CompatVerdict` is `Copy`**: `headline_template: &'static str` is a format
+key, not a rendered string. Interpolation happens in a **separate non-Copy
+formatter**:
 
 ```rust
 // In hover.rs — non-Copy, allocates.
@@ -291,13 +357,23 @@ fn format_verdict_headline(verdict: CompatVerdict, feature_name: &str) -> String
 }
 ```
 
-The `Copy` struct holds only the `&'static str` template key; the allocating formatter is called once per hover render.
+The `Copy` struct holds only the `&'static str` template key; the allocating
+formatter is called once per hover render.
 
 ### 1.5 Worker ↔ Rust data flow — no serialization needed
 
-**`CompatVerdict` is a Rust-only concept.** The worker (Deno/TypeScript) does NOT consume Rust-computed verdicts. The worker's rendering layer (`BrowserSupport.tsx`, `BaselineBadge.tsx`, `StatsGrid.tsx`) already has all the signals from the TypeScript `BrowserVersion`/`Baseline` types in `/data.json` — it computes its own visual state directly from those signals using the same logic.
+**`CompatVerdict` is a Rust-only concept.** The worker (Deno/TypeScript) does
+NOT consume Rust-computed verdicts. The worker's rendering layer
+(`BrowserSupport.tsx`, `BaselineBadge.tsx`, `StatsGrid.tsx`) already has all the
+signals from the TypeScript `BrowserVersion`/`Baseline` types in `/data.json` —
+it computes its own visual state directly from those signals using the same
+logic.
 
-Phase 3 (worker CSS/stats) never touches verdicts. It works exclusively with the data already present in `SvgCompatOutput`. No `verdicts.json` endpoint is needed; no JSON schema for verdicts is needed. The verdict abstraction lives entirely in Rust and is consumed only by the hover and lint layers. This keeps the TypeScript side simple and avoids a cross-runtime contract.
+Phase 3 (worker CSS/stats) never touches verdicts. It works exclusively with the
+data already present in `SvgCompatOutput`. No `verdicts.json` endpoint is
+needed; no JSON schema for verdicts is needed. The verdict abstraction lives
+entirely in Rust and is consumed only by the hover and lint layers. This keeps
+the TypeScript side simple and avoids a cross-runtime contract.
 
 ### 1.6 `crates/svg-data/src/lib.rs`
 
@@ -315,11 +391,14 @@ pub fn compat_verdict_for_attribute(
 ) -> CompatVerdict;
 ```
 
-Both do a linear scan of `def.verdicts` for the matching snapshot, returning `Safe` with no reasons if not found (defensive fallback — shouldn't happen for covered snapshots).
+Both do a linear scan of `def.verdicts` for the matching snapshot, returning
+`Safe` with no reasons if not found (defensive fallback — shouldn't happen for
+covered snapshots).
 
 ### 1.7 `BaselineQualifier` glyph map
 
-Already implemented as `format_baseline_qualifier()` in `hover.rs:570-576`. The mapping:
+Already implemented as `format_baseline_qualifier()` in `hover.rs:570-576`. The
+mapping:
 
 ```rust
 const fn qualifier_glyph(q: BaselineQualifier) -> &'static str {
@@ -331,7 +410,11 @@ const fn qualifier_glyph(q: BaselineQualifier) -> &'static str {
 }
 ```
 
-**Same function reused for version qualifiers.** `BrowserVersionView::Version` changes from a bare `&'static str` to a two-field struct `{ version: &'static str, qualifier: Option<BaselineQualifier> }`. The glyph is prepended in `format_browser_support_line` using this same function — no new mapping needed.
+**Same function reused for version qualifiers.** `BrowserVersionView::Version`
+changes from a bare `&'static str` to a two-field struct
+`{ version: &'static str, qualifier: Option<BaselineQualifier> }`. The glyph is
+prepended in `format_browser_support_line` using this same function — no new
+mapping needed.
 
 ---
 
@@ -339,7 +422,8 @@ const fn qualifier_glyph(q: BaselineQualifier) -> &'static str {
 
 ### 2.1 `crates/svg-language-server/src/hover.rs`
 
-Replace the sprawling `format_{element,attribute}_hover_with_profile` with a structured builder:
+Replace the sprawling `format_{element,attribute}_hover_with_profile` with a
+structured builder:
 
 ```rust
 struct CompatMarkdownBuilder {
@@ -357,7 +441,9 @@ enum Section {
 }
 ```
 
-The builder renders each section to markdown with consistent spacing (single blank line between, no stray trailing whitespace), then joins. Every hover gets the same skeleton, so the user's eye learns the shape.
+The builder renders each section to markdown with consistent spacing (single
+blank line between, no stray trailing whitespace), then joins. Every hover gets
+the same skeleton, so the user's eye learns the shape.
 
 ### 2.2 `format_browser_support_line` fix — render qualifier glyphs
 
@@ -376,28 +462,43 @@ BrowserVersionView::Version { version, qualifier } => {
 }
 ```
 
-`BrowserVersionView::Version` becomes `{ version: &str, qualifier: Option<BaselineQualifier> }`. `baked_browser_version` passes through `v.version_qualifier` — one extra field, already in the struct.
+`BrowserVersionView::Version` becomes
+`{ version: &str, qualifier: Option<BaselineQualifier> }`.
+`baked_browser_version` passes through `v.version_qualifier` — one extra field,
+already in the struct.
 
-Separator becomes `·` instead of `|` for prose-style readability (the pipe made sense for a monospace grid; bullets read better in rendered markdown).
+Separator becomes `·` instead of `|` for prose-style readability (the pipe made
+sense for a monospace grid; bullets read better in rendered markdown).
 
 ### 2.3 Per-browser sub-bullets — data source confirmed
 
-All 11 `BrowserVersion` fields are already in the baked static catalog (`catalog.rs`, emitted by `build/codegen.rs`). No additional fetch needed — hover reads directly from `attr.browser_support`.
+All 11 `BrowserVersion` fields are already in the baked static catalog
+(`catalog.rs`, emitted by `build/codegen.rs`). No additional fetch needed —
+hover reads directly from `attr.browser_support`.
 
-**The `notes` text** (e.g. `"Only the default value of sRGB is implemented"` for Chrome on `color-interpolation`) comes from BCD's `notes` field, which is already ingested into `BrowserVersion.notes: &'static [&'static str]`. Sub-bullets render the first note string; not hard-coded.
+**The `notes` text** (e.g. `"Only the default value of sRGB is implemented"` for
+Chrome on `color-interpolation`) comes from BCD's `notes` field, which is
+already ingested into `BrowserVersion.notes: &'static [&'static str]`.
+Sub-bullets render the first note string; not hard-coded.
 
-Sub-bullet composition rules per-browser, in order (all applicable rules contribute lines):
+Sub-bullet composition rules per-browser, in order (all applicable rules
+contribute lines):
 
-- `partial_implementation: true` → `"partial — {notes[0] if present, else empty}"`
+- `partial_implementation: true` →
+  `"partial — {notes[0] if present, else empty}"`
 - `prefix` present → `"requires {prefix} prefix"`
 - `version_removed` present → `"removed in {qualifier_glyph}{version_removed}"`
 - `notes` (without `partial`) → note strings joined with `·`
 - `alternative_name` present → `"ships as`{alternative_name}`"`
 - `flags` non-empty → `"behind flag {flag.name}"`
 
-If no browser would produce a sub-bullet, the `BrowserNotes` section is omitted entirely.
+If no browser would produce a sub-bullet, the `BrowserNotes` section is omitted
+entirely.
 
-**Test fixture confirmation**: `color-interpolation` has `partial_implementation: true` + notes on Chrome in live BCD (confirmed in prior session). `baseline-shift` has `≤80` version qualifiers for Chrome + Edge. Both are real live entries.
+**Test fixture confirmation**: `color-interpolation` has
+`partial_implementation: true` + notes on Chrome in live BCD (confirmed in prior
+session). `baseline-shift` has `≤80` version qualifiers for Chrome + Edge. Both
+are real live entries.
 
 Example rendering:
 
@@ -410,7 +511,8 @@ Chrome ≤80 · Edge ≤80 · Firefox ✗ · Safari ≤13.1
 
 ### 2.4 Headline synthesis
 
-The headline is a markdown blockquote whose content is driven by `VerdictRecommendation`:
+The headline is a markdown blockquote whose content is driven by
+`VerdictRecommendation`:
 
 | Recommendation | Glyph | Template                                     |
 | -------------- | ----- | -------------------------------------------- |
@@ -419,26 +521,43 @@ The headline is a markdown blockquote whose content is driven by `VerdictRecomme
 | `Avoid`        | ⊘     | `{name} — {short_reason}, avoid in new work` |
 | `Forbid`       | ✗     | `{name} — {short_reason}, do not use`        |
 
-`short_reason` is derived from the first reason in the verdict's reason list (e.g. `BcdDeprecated` → `"deprecated"`, `ProfileObsolete` → `"removed from SVG 2"`, `BaselineLimited` → `"limited availability"`).
+`short_reason` is derived from the first reason in the verdict's reason list
+(e.g. `BcdDeprecated` → `"deprecated"`, `ProfileObsolete` →
+`"removed from SVG 2"`, `BaselineLimited` → `"limited availability"`).
 
-The headline is rendered as `> ✗ baseProfile — removed from SVG 2, do not use`, which GitHub-flavoured markdown renders as a visually distinct blockquote. LSP clients that support markdown render it with a left border and muted background — a clean attention-grabber.
+The headline is rendered as `> ✗ baseProfile — removed from SVG 2, do not use`,
+which GitHub-flavoured markdown renders as a visually distinct blockquote. LSP
+clients that support markdown render it with a left border and muted background
+— a clean attention-grabber.
 
 ### 2.5 Status line
 
-Single line, bullet-separated, sourced from `verdict.reasons` (first 3-5 entries). Example:
+Single line, bullet-separated, sourced from `verdict.reasons` (first 3-5
+entries). Example:
 
 `**Status:** Removed from Svg2Cr20181004 · BCD deprecated · Not Baseline`
 
-This replaces the old split between `**Deprecated**` and `**Stable in Svg2EditorsDraft**`. Because the verdict is pre-reconciled, there's no way for this line to contradict the headline — they both read from the same `CompatVerdict`.
+This replaces the old split between `**Deprecated**` and
+`**Stable in Svg2EditorsDraft**`. Because the verdict is pre-reconciled, there's
+no way for this line to contradict the headline — they both read from the same
+`CompatVerdict`.
 
 ### 2.6 Existing hover tests
 
 `tests/definitions_and_hover.rs` currently asserts:
 
-- `hover_renders_baseline_qualifier_for_fegaussianblur` — must be updated to assert the new Status line format (still contains `≤2021`, but in a different structural position).
-- `hover_marks_glyph_orientation_horizontal_unsupported_across_chromium_firefox` — must be updated to assert `Chrome ✗`, `Firefox ✗` in the new `·`-separated chip line.
-- Add new test: `hover_headline_for_baseprofile_reads_removed_from_svg2` — asserts the blockquote headline exists and contains "removed from SVG 2".
-- Add new test: `hover_renders_per_browser_sub_bullets_for_partial_implementation` — uses `color-interpolation` (which has `partial_implementation: true` on chrome in the live data) as fixture.
+- `hover_renders_baseline_qualifier_for_fegaussianblur` — must be updated to
+  assert the new Status line format (still contains `≤2021`, but in a different
+  structural position).
+- `hover_marks_glyph_orientation_horizontal_unsupported_across_chromium_firefox`
+  — must be updated to assert `Chrome ✗`, `Firefox ✗` in the new `·`-separated
+  chip line.
+- Add new test: `hover_headline_for_baseprofile_reads_removed_from_svg2` —
+  asserts the blockquote headline exists and contains "removed from SVG 2".
+- Add new test:
+  `hover_renders_per_browser_sub_bullets_for_partial_implementation` — uses
+  `color-interpolation` (which has `partial_implementation: true` on chrome in
+  the live data) as fixture.
 
 ---
 
@@ -446,7 +565,11 @@ This replaces the old split between `**Deprecated**` and `**Stable in Svg2Editor
 
 ### 3.1 CSS for unstyled chip states
 
-**First step when implementing**: read `workers/svg-compat/static/style.css` to verify whether `--color-danger`, `--color-warn`, `--color-caution`, `--color-info` custom properties exist in the `:root` rule. If they do not exist, introduce them in `:root` alongside the existing `--chip-bg-base` and similar tokens. If they do exist, reuse them as-is.
+**First step when implementing**: read `workers/svg-compat/static/style.css` to
+verify whether `--color-danger`, `--color-warn`, `--color-caution`,
+`--color-info` custom properties exist in the `:root` rule. If they do not
+exist, introduce them in `:root` alongside the existing `--chip-bg-base` and
+similar tokens. If they do exist, reuse them as-is.
 
 `workers/svg-compat/static/style.css`:
 
@@ -484,15 +607,23 @@ This replaces the old split between `**Deprecated**` and `**Stable in Svg2Editor
 }
 ```
 
-Uses the existing `--color-*` semantic tokens if present; otherwise introduce them in the `:root` rule alongside the existing palette. `color-mix` is widely supported in 2024+ browsers, matches the project's modern-baseline CSS.
+Uses the existing `--color-*` semantic tokens if present; otherwise introduce
+them in the `:root` rule alongside the existing palette. `color-mix` is widely
+supported in 2024+ browsers, matches the project's modern-baseline CSS.
 
-Dark-mode variant via the existing `@media (prefers-color-scheme: dark)` block — same shape, different intensity multipliers.
+Dark-mode variant via the existing `@media (prefers-color-scheme: dark)` block —
+same shape, different intensity multipliers.
 
 ### 3.2 Status glyph overlays
 
-Instead of adding new SVG assets, reuse the existing `check.svg` / `cross.svg` mask and use a CSS `mask-image` filter to tint it by state. `chip-unsupported` flips the mask to `cross.svg`; `chip-partial` / `chip-prefixed` / `chip-removed` keep `check.svg` but tint it.
+Instead of adding new SVG assets, reuse the existing `check.svg` / `cross.svg`
+mask and use a CSS `mask-image` filter to tint it by state. `chip-unsupported`
+flips the mask to `cross.svg`; `chip-partial` / `chip-prefixed` / `chip-removed`
+keep `check.svg` but tint it.
 
-`BrowserSupport.tsx` already selects the mask based on `hasData`. Extend so `supported === false` → `cross.svg`, partial/removed → keep check but add the state class (CSS does the tinting). Zero new assets needed.
+`BrowserSupport.tsx` already selects the mask based on `hasData`. Extend so
+`supported === false` → `cross.svg`, partial/removed → keep check but add the
+state class (CSS does the tinting). Zero new assets needed.
 
 ### 3.3 `BaselineBadge.tsx` — richer `title`
 
@@ -514,7 +645,8 @@ function baselineTitle(baseline: Baseline): string {
 }
 ```
 
-Surfaces `low_date.raw` / `high_date.raw` end-to-end. Zero layout change, pure accessibility win.
+Surfaces `low_date.raw` / `high_date.raw` end-to-end. Zero layout change, pure
+accessibility win.
 
 ### 3.4 Stats grid extensions
 
@@ -536,7 +668,8 @@ export interface PageStats {
 
 `buildPageModel` computes these with a single pass over elements + attributes.
 
-`StatsGrid.tsx` adds a second row of tiles for the new counts, using muted styling so the "structural" counts (elements, attributes) remain primary.
+`StatsGrid.tsx` adds a second row of tiles for the new counts, using muted
+styling so the "structural" counts (elements, attributes) remain primary.
 
 ### 3.5 Dashboard tests
 
@@ -578,23 +711,36 @@ export interface PageStats {
 
 ### 4.2 Existing deprecated rule — richer message
 
-Replace the current hardcoded `"<name> is deprecated"` with a message that reads from `CompatVerdict` so the lint and hover agree. If the verdict's top reason is `BcdDeprecated`, the message includes "deprecated in BCD"; if it's `ProfileObsolete { last_seen }`, the message includes "last present in `{last_seen}`".
+Replace the current hardcoded `"<name> is deprecated"` with a message that reads
+from `CompatVerdict` so the lint and hover agree. If the verdict's top reason is
+`BcdDeprecated`, the message includes "deprecated in BCD"; if it's
+`ProfileObsolete { last_seen }`, the message includes "last present in
+`{last_seen}`".
 
 ### 4.3 Exception matching semantics
 
 An exception entry matches when **both** `name` and `element` agree:
 
-- `element = "*"` wildcard matches an attribute used on any element (including element-specific use).
+- `element = "*"` wildcard matches an attribute used on any element (including
+  element-specific use).
 - Specific element (`element = "svg"`) matches only that element.
 - **Precedence**: specific-element exception wins over wildcard when both exist.
 
-For `xlink:href`: a single `element = "*"` exception covers all `<use>`, `<image>`, `<tref>` uses. No three separate entries needed. The matcher finds any exception where `e.name == attr_name && (e.element == "*" || e.element == use_context)`.
+For `xlink:href`: a single `element = "*"` exception covers all `<use>`,
+`<image>`, `<tref>` uses. No three separate entries needed. The matcher finds
+any exception where
+`e.name == attr_name && (e.element == "*" || e.element == use_context)`.
 
-Exception IDs (used for the self-pruning check) are `(kind, name, element)` tuples.
+Exception IDs (used for the self-pruning check) are `(kind, name, element)`
+tuples.
 
 ### 4.4 Reliability hook — build-time agreement check (hard error + allowlist)
 
-Decision: **Option A, hard error with exception allowlist**, per Oracle consultation. Warnings would recreate the exact failure mode that let `baseProfile` sit broken for months. The allowlist preserves legitimate both-sources-correct disagreements like `xlink:href` without forcing us to mangle either data source.
+Decision: **Option A, hard error with exception allowlist**, per Oracle
+consultation. Warnings would recreate the exact failure mode that let
+`baseProfile` sit broken for months. The allowlist preserves legitimate
+both-sources-correct disagreements like `xlink:href` without forcing us to
+mangle either data source.
 
 `crates/svg-data/build.rs` — `reconcile_bcd_spec()`:
 
@@ -655,11 +801,17 @@ fn reconcile_bcd_spec(
 
 **Key mechanics** (from Oracle's refinement):
 
-1. **Batched emission.** One `cargo::error` that lists every conflict + every dead exception. No death-by-papercuts when a BCD bump flips 15 entries at once.
+1. **Batched emission.** One `cargo::error` that lists every conflict + every
+   dead exception. No death-by-papercuts when a BCD bump flips 15 entries at
+   once.
 
-2. **Self-pruning.** Exceptions that don't match any current conflict are themselves an error. When the spec catches up and the disagreement resolves, the allowlist must shrink. Prevents rot.
+2. **Self-pruning.** Exceptions that don't match any current conflict are
+   themselves an error. When the spec catches up and the disagreement resolves,
+   the allowlist must shrink. Prevents rot.
 
-3. **Paste-ready fix-its.** The error message includes a pre-filled TOML block the developer can paste directly into the exception file with just a `<WHY>` + `<URL>` edit:
+3. **Paste-ready fix-its.** The error message includes a pre-filled TOML block
+   the developer can paste directly into the exception file with just a
+   `<WHY>` + `<URL>` edit:
 
 ```
 cargo::error=BCD/spec reconciliation failed (2 conflicts, 0 stale exceptions).
@@ -688,7 +840,9 @@ Conflict #2: attribute `version` on <svg>
 Source: crates/svg-data/build.rs::reconcile_bcd_spec
 ```
 
-**Exception file** — `crates/svg-data/data/reviewed/bcd_spec_exceptions.toml`. Single file, TOML (dprint-formatted), with nested `[[element]]` / `[[attribute]]` tables for scope:
+**Exception file** — `crates/svg-data/data/reviewed/bcd_spec_exceptions.toml`.
+Single file, TOML (dprint-formatted), with nested `[[element]]` /
+`[[attribute]]` tables for scope:
 
 ```toml
 [[attribute]]
@@ -704,46 +858,88 @@ upstream_ref = "https://svgwg.org/svg2-draft/changes.html#attributes"
 Required fields per entry:
 
 - `name`: attribute or element name
-- `element`: element scope (`*` for global; specific tag for element-bound attrs)
+- `element`: element scope (`*` for global; specific tag for element-bound
+  attrs)
 - `bcd_says` / `spec_says`: the literal conflict so the allowlist self-documents
 - `reason`: one-sentence human explanation
 - `added`: ISO date the exception was added (for rot audits)
 - `upstream_ref`: URL to primary source so a future maintainer can verify in 30s
 
-**Local-vs-CI parity.** The hard error fires identically in local `cargo check` and CI. No env-var escape hatch. If a developer needs to work through a pipeline while a BCD bump is pending, they use a WIP exception entry with `reason = "WIP: resolving in #<PR-number>"` — explicit, trackable, self-pruning.
+**Local-vs-CI parity.** The hard error fires identically in local `cargo check`
+and CI. No env-var escape hatch. If a developer needs to work through a pipeline
+while a BCD bump is pending, they use a WIP exception entry with
+`reason = "WIP: resolving in #<PR-number>"` — explicit, trackable, self-pruning.
 
 ### 4.4 Data audit — every BCD-deprecated attribute
 
-Scope decision: full audit of **every** currently-BCD-deprecated SVG attribute (and element, if any), not just the two known wrong. Benefit: one clean pass through the spec now costs less than repeated targeted fixes over the next year, and it gives us a vetted baseline the build check can then enforce forever.
+Scope decision: full audit of **every** currently-BCD-deprecated SVG attribute
+(and element, if any), not just the two known wrong. Benefit: one clean pass
+through the spec now costs less than repeated targeted fixes over the next year,
+and it gives us a vetted baseline the build check can then enforce forever.
 
 **Inventory step** (read-only, runs before any edits):
 
-1. Dump the full BCD-deprecated attribute list from the current worker JSON via `deno run -A workers/svg-compat/src/cli.ts emit data`, filtered through `jq` to `[.attributes | to_entries[] | select(.value.deprecated == true) | .key]`. Expected count: ~20 based on prior audits (`baseProfile`, `version`, `contentStyleType`, `contentScriptType`, `zoomAndPan`, possibly several xlink:* aliases, `requiredFeatures`, `xml:base`, `xml:lang` — the exact list lands in a review document).
+1. Dump the full BCD-deprecated attribute list from the current worker JSON via
+   `deno run -A workers/svg-compat/src/cli.ts emit data`, filtered through `jq`
+   to `[.attributes | to_entries[] | select(.value.deprecated == true) | .key]`.
+   Expected count: ~20 based on prior audits (`baseProfile`, `version`,
+   `contentStyleType`, `contentScriptType`, `zoomAndPan`, possibly several
+   xlink:* aliases, `requiredFeatures`, `xml:base`, `xml:lang` — the exact list
+   lands in a review document).
 
-2. For each entry, cross-reference against **three** authoritative sources in order:
-   - **SVG 2 Editor's Draft** (`https://svgwg.org/svg2-draft/`) — ground truth for the latest snapshot.
-   - **SVG 2 CR (2018-10-04)** (`https://www.w3.org/TR/2018/CR-SVG2-20181004/`) — the locked CR snapshot we reference as `Svg2Cr20181004`.
+2. For each entry, cross-reference against **three** authoritative sources in
+   order:
+   - **SVG 2 Editor's Draft** (`https://svgwg.org/svg2-draft/`) — ground truth
+     for the latest snapshot.
+   - **SVG 2 CR (2018-10-04)** (`https://www.w3.org/TR/2018/CR-SVG2-20181004/`)
+     — the locked CR snapshot we reference as `Svg2Cr20181004`.
    - **SVG 1.1 2E** (`https://www.w3.org/TR/SVG11/`) — the SVG 1.1 reference.
 
 3. For each entry, record **one of four** verdicts:
-   - **Removed in SVG 2**: attribute is not defined in SVG 2 Editor's Draft or CR. Fix: remove from `data/specs/Svg2EditorsDraft20250914/attributes.json` and `data/specs/Svg2Cr20181004/attributes.json`; remove from `data/derived/union/attributes.json` membership. Lifecycle becomes `Obsolete` in the later profiles.
-   - **Deprecated in SVG 2 (still defined, marked "legacy")**: attribute is present but the spec explicitly flags it as legacy/deprecated. Fix: keep in membership, add a `deprecated: true` field to the snapshot attribute entry, extend `union_lifecycle_expr()` to honour it, let the build-time check pass because both sources agree.
-   - **Legitimate disagreement (spec removed, browsers still ship)**: add to `bcd_spec_exceptions.toml` with a `reason` citing the upstream URL. Example: `xlink:href` lives here.
-   - **BCD is wrong**: rare but happens (e.g. BCD lags behind a spec revert). Fix: file an upstream BCD issue and add a WIP exception entry referencing the BCD issue URL.
+   - **Removed in SVG 2**: attribute is not defined in SVG 2 Editor's Draft or
+     CR. Fix: remove from `data/specs/Svg2EditorsDraft20250914/attributes.json`
+     and `data/specs/Svg2Cr20181004/attributes.json`; remove from
+     `data/derived/union/attributes.json` membership. Lifecycle becomes
+     `Obsolete` in the later profiles.
+   - **Deprecated in SVG 2 (still defined, marked "legacy")**: attribute is
+     present but the spec explicitly flags it as legacy/deprecated. Fix: keep in
+     membership, add a `deprecated: true` field to the snapshot attribute entry,
+     extend `union_lifecycle_expr()` to honour it, let the build-time check pass
+     because both sources agree.
+   - **Legitimate disagreement (spec removed, browsers still ship)**: add to
+     `bcd_spec_exceptions.toml` with a `reason` citing the upstream URL.
+     Example: `xlink:href` lives here.
+   - **BCD is wrong**: rare but happens (e.g. BCD lags behind a spec revert).
+     Fix: file an upstream BCD issue and add a WIP exception entry referencing
+     the BCD issue URL.
 
-4. Output of the audit is a single Markdown review document at `crates/svg-data/data/reviewed/bcd_deprecation_audit_2026-04.md` capturing: (a) every BCD-deprecated attribute, (b) its classification, (c) the upstream URLs consulted, (d) the fix applied (data edit, exception, upstream bug). This file lives in git as the audit trail — next year's reviewer reads it to understand the current state.
+4. Output of the audit is a single Markdown review document at
+   `crates/svg-data/data/reviewed/bcd_deprecation_audit_2026-04.md` capturing:
+   (a) every BCD-deprecated attribute, (b) its classification, (c) the upstream
+   URLs consulted, (d) the fix applied (data edit, exception, upstream bug).
+   This file lives in git as the audit trail — next year's reviewer reads it to
+   understand the current state.
 
 **Snapshot surgery scope — which snapshots to edit**:
 
-The rule is: `present_in` must only include snapshots where the attribute is normatively defined. SVG 1.1 entries are CORRECT and must NOT be removed — `baseProfile` was real in SVG 1.1. Only SVG 2 snapshots where the attribute was removed need fixing.
+The rule is: `present_in` must only include snapshots where the attribute is
+normatively defined. SVG 1.1 entries are CORRECT and must NOT be removed —
+`baseProfile` was real in SVG 1.1. Only SVG 2 snapshots where the attribute was
+removed need fixing.
 
-- If removed from SVG 2 entirely (CR + ED): remove from both `Svg2Cr20181004` and `Svg2EditorsDraft20250914`.
-- If present in CR but removed in the ED: remove only from `Svg2EditorsDraft20250914`.
+- If removed from SVG 2 entirely (CR + ED): remove from both `Svg2Cr20181004`
+  and `Svg2EditorsDraft20250914`.
+- If present in CR but removed in the ED: remove only from
+  `Svg2EditorsDraft20250914`.
 - SVG 1.1 snapshots: never touched by this audit.
 
-For `baseProfile`: its correct `present_in` after the fix is `["Svg11Rec20030114", "Svg11Rec20110816"]`. The `union_lifecycle_expr()` then sees it's absent from the latest snapshot and returns `Obsolete` automatically — no logic change needed.
+For `baseProfile`: its correct `present_in` after the fix is
+`["Svg11Rec20030114", "Svg11Rec20110816"]`. The `union_lifecycle_expr()` then
+sees it's absent from the latest snapshot and returns `Obsolete` automatically —
+no logic change needed.
 
-**Known anchor points** — these are the expected results for the three most-studied cases, which the audit must validate:
+**Known anchor points** — these are the expected results for the three
+most-studied cases, which the audit must validate:
 
 | Attribute                                          | Classification                            | Fix                                                                       |
 | -------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------- |
@@ -751,15 +947,25 @@ For `baseProfile`: its correct `present_in` after the fix is `["Svg11Rec20030114
 | `version` (the SVG `version` attribute on `<svg>`) | Removed in SVG 2                          | Same                                                                      |
 | `xlink:href`                                       | Legitimate disagreement                   | Exception entry with `spec_says = obsolete`, `bcd_says = not_deprecated`  |
 
-**Snapshot surgery**: the union file is derived from the per-snapshot attribute files, so fixes must cascade:
+**Snapshot surgery**: the union file is derived from the per-snapshot attribute
+files, so fixes must cascade:
 
-1. Edit `crates/svg-data/data/specs/Svg2EditorsDraft20250914/attributes.json` — remove the attribute entry (or add an explicit `status: "removed"` marker if we prefer to track "was once here, gone now").
-2. Edit `crates/svg-data/data/specs/Svg2Cr20181004/attributes.json` if the attribute was already gone at the CR stage.
-3. Regenerate the union: run whatever script currently regenerates `data/derived/union/attributes.json` from the snapshot sources. If no script exists, hand-edit (it's just membership arrays).
-4. `cargo check -p svg-data` should now produce `Obsolete` lifecycle for the fixed entries. The build check should stop complaining.
-5. Add the now-obsolete attribute to the `obsolete_feature` lint fixture so we have a regression test.
+1. Edit `crates/svg-data/data/specs/Svg2EditorsDraft20250914/attributes.json` —
+   remove the attribute entry (or add an explicit `status: "removed"` marker if
+   we prefer to track "was once here, gone now").
+2. Edit `crates/svg-data/data/specs/Svg2Cr20181004/attributes.json` if the
+   attribute was already gone at the CR stage.
+3. Regenerate the union: run whatever script currently regenerates
+   `data/derived/union/attributes.json` from the snapshot sources. If no script
+   exists, hand-edit (it's just membership arrays).
+4. `cargo check -p svg-data` should now produce `Obsolete` lifecycle for the
+   fixed entries. The build check should stop complaining.
+5. Add the now-obsolete attribute to the `obsolete_feature` lint fixture so we
+   have a regression test.
 
-Expected downstream effect: `lifecycle_for_profile` returns `Obsolete` for the removed entries in the latest profile, lint fires `obsolete-feature`, hover shows the new `Forbid` headline with a `ProfileObsolete { last_seen }` reason.
+Expected downstream effect: `lifecycle_for_profile` returns `Obsolete` for the
+removed entries in the latest profile, lint fires `obsolete-feature`, hover
+shows the new `Forbid` headline with a `ProfileObsolete { last_seen }` reason.
 
 ### 4.5 Lint tests
 
@@ -779,45 +985,70 @@ Expected downstream effect: `lifecycle_for_profile` returns `Obsolete` for the r
 
 Replace / add:
 
-- **`hover_baseprofile_verdict_is_forbid`**: hovers `<svg baseProfile="full">`, asserts output contains `> ✗ baseProfile`, `**Status:**`, and `removed from`.
-- **`hover_renders_version_qualifier_glyphs`**: uses `baseline-shift` (live `≤80` in BCD), asserts `Chrome ≤80` appears.
-- **`hover_renders_per_browser_partial_note`**: uses `color-interpolation` (live `partial_implementation: true`), asserts a markdown sub-bullet contains `Chrome:` and `partial`.
-- **`hover_no_contradictory_status_lines`**: hovers any deprecated attribute, asserts `Stable in` does NOT appear anywhere in the markdown.
-- Update `hover_renders_baseline_qualifier_for_fegaussianblur` — new structural position but same `≤2021` assertion.
-- Update `hover_marks_glyph_orientation_horizontal_unsupported_across_chromium_firefox` — new separator (`·`) + new `✗` glyph.
+- **`hover_baseprofile_verdict_is_forbid`**: hovers `<svg baseProfile="full">`,
+  asserts output contains `> ✗ baseProfile`, `**Status:**`, and `removed from`.
+- **`hover_renders_version_qualifier_glyphs`**: uses `baseline-shift` (live
+  `≤80` in BCD), asserts `Chrome ≤80` appears.
+- **`hover_renders_per_browser_partial_note`**: uses `color-interpolation` (live
+  `partial_implementation: true`), asserts a markdown sub-bullet contains
+  `Chrome:` and `partial`.
+- **`hover_no_contradictory_status_lines`**: hovers any deprecated attribute,
+  asserts `Stable in` does NOT appear anywhere in the markdown.
+- Update `hover_renders_baseline_qualifier_for_fegaussianblur` — new structural
+  position but same `≤2021` assertion.
+- Update
+  `hover_marks_glyph_orientation_horizontal_unsupported_across_chromium_firefox`
+  — new separator (`·`) + new `✗` glyph.
 
 ### 5.2 Unit tests for `compat_verdict`
 
 `crates/svg-data/src/verdict.rs`:
 
 - `safe_for_stable_rect` — a `<rect>` in SVG 2 → `Safe`, no reasons.
-- `forbid_for_obsolete_baseprofile` — after the data fix, baseProfile → `Forbid` with `ProfileObsolete` reason.
-- `avoid_for_bcd_deprecated_only` — a hypothetical attribute deprecated in BCD but not spec-obsolete → `Avoid`.
-- `caution_for_partial_only` — any entry with only `partial_implementation` triggers → `Caution`.
-- `priority_ordering` — when multiple reasons apply, recommendation takes the strongest.
+- `forbid_for_obsolete_baseprofile` — after the data fix, baseProfile → `Forbid`
+  with `ProfileObsolete` reason.
+- `avoid_for_bcd_deprecated_only` — a hypothetical attribute deprecated in BCD
+  but not spec-obsolete → `Avoid`.
+- `caution_for_partial_only` — any entry with only `partial_implementation`
+  triggers → `Caution`.
+- `priority_ordering` — when multiple reasons apply, recommendation takes the
+  strongest.
 
 ### 5.3 End-to-end verification
 
 **Rust side:**
 
-1. `cargo check --workspace` — clean, no `cargo::error` from the new BCD↔spec agreement check (assuming data fixes land).
-2. `cargo test --workspace` — all green, including new verdict + hover + lint tests.
+1. `cargo check --workspace` — clean, no `cargo::error` from the new BCD↔spec
+   agreement check (assuming data fixes land).
+2. `cargo test --workspace` — all green, including new verdict + hover + lint
+   tests.
 3. `cargo clippy --workspace --all-targets -- -D warnings` — clean.
-4. Open an SVG document with `<svg baseProfile="full">` in a real LSP-enabled editor, hover `baseProfile` → confirm the new blockquote headline renders visibly distinct.
-5. Same for `color-interpolation` on a `<path>` → confirm per-browser sub-bullets with partial note.
-6. Run `svg-lint` over a fixture file containing deprecated attributes → confirm new rule IDs fire (`obsolete-feature`, `partial-implementation`, `prefix-required`, `behind-flag`).
+4. Open an SVG document with `<svg baseProfile="full">` in a real LSP-enabled
+   editor, hover `baseProfile` → confirm the new blockquote headline renders
+   visibly distinct.
+5. Same for `color-interpolation` on a `<path>` → confirm per-browser
+   sub-bullets with partial note.
+6. Run `svg-lint` over a fixture file containing deprecated attributes → confirm
+   new rule IDs fire (`obsolete-feature`, `partial-implementation`,
+   `prefix-required`, `behind-flag`).
 
 **Worker side:**
 
 1. `cd workers/svg-compat && deno task test` — all green.
-2. `deno task dev` and visit `http://localhost:8000/` — confirm colored chip variants render for entries with `partial_implementation` / `version_removed` / etc. No unstyled "dark matter" chips.
+2. `deno task dev` and visit `http://localhost:8000/` — confirm colored chip
+   variants render for entries with `partial_implementation` / `version_removed`
+   / etc. No unstyled "dark matter" chips.
 3. `BaselineBadge` hover tooltip surfaces `low_date.raw` / `high_date.raw`.
 4. Stats grid shows non-zero counts for the new tiles.
-5. Filter input works with new keywords (`removed`, `partial`, `flagged`, `unsupported`).
+5. Filter input works with new keywords (`removed`, `partial`, `flagged`,
+   `unsupported`).
 
-**Cross-cutting:**
-6. Regenerate data via `deno run -A workers/svg-compat/src/cli.ts emit data --out /tmp/svg-compat-data.json`, copy to Rust build cache, `cargo test` — confirm everything still roundtrips.
-7. Sanity check the build-time agreement check catches a real regression: manually revert the baseProfile data fix, run `cargo check`, confirm it fails with a clear error message.
+**Cross-cutting:** 6. Regenerate data via
+`deno run -A workers/svg-compat/src/cli.ts emit data --out /tmp/svg-compat-data.json`,
+copy to Rust build cache, `cargo test` — confirm everything still roundtrips. 7.
+Sanity check the build-time agreement check catches a real regression: manually
+revert the baseProfile data fix, run `cargo check`, confirm it fails with a
+clear error message.
 
 ---
 
@@ -845,33 +1076,58 @@ Replace / add:
 | `workers/svg-compat/src/render.tsx`                                   | UPDATED   | Populate new stat fields                                                                                                                                         |
 | `workers/svg-compat/src/main_test.ts`                                 | UPDATED   | New dashboard render tests                                                                                                                                       |
 
-No new files in the worker (extensions only). Three new files in svg-data (`verdict.rs`, exception TOML, optional `BcdSpecError` type).
+No new files in the worker (extensions only). Three new files in svg-data
+(`verdict.rs`, exception TOML, optional `BcdSpecError` type).
 
 ---
 
 ## Out of scope
 
-- **Container queries for the chip layout** — earlier attempt showed container-type breaks table auto-layout. Keep the viewport breakpoint approach.
-- **Full snapshot-review rewrite** — we're only fixing `baseProfile` + `version`. A full audit of membership data against authoritative SVG 2 spec is a separate plan.
-- **Runtime BCD refetch** — `RuntimeCompat` / `compat_parse::extract_browser_versions` is a separate code path that still uses the simpler `Unknown | Version(String)` shape for the unpkg-live overlay. It keeps working unchanged; the verdict layer uses the baked catalog as its source.
-- **LSP markdown rendering quirks** — some LSP clients render `>` blockquotes inconsistently. The headline must still be legible as plain text if the client strips quoting. This is a UX consideration handled by making the glyph+name prefix stand on its own even without the `>` marker.
-- **Lint-severity configuration UI** — new rules land at their default severities. Runtime reconfigurability is a follow-up.
+- **Container queries for the chip layout** — earlier attempt showed
+  container-type breaks table auto-layout. Keep the viewport breakpoint
+  approach.
+- **Full snapshot-review rewrite** — we're only fixing `baseProfile` +
+  `version`. A full audit of membership data against authoritative SVG 2 spec is
+  a separate plan.
+- **Runtime BCD refetch** — `RuntimeCompat` /
+  `compat_parse::extract_browser_versions` is a separate code path that still
+  uses the simpler `Unknown | Version(String)` shape for the unpkg-live overlay.
+  It keeps working unchanged; the verdict layer uses the baked catalog as its
+  source.
+- **LSP markdown rendering quirks** — some LSP clients render `>` blockquotes
+  inconsistently. The headline must still be legible as plain text if the client
+  strips quoting. This is a UX consideration handled by making the glyph+name
+  prefix stand on its own even without the `>` marker.
+- **Lint-severity configuration UI** — new rules land at their default
+  severities. Runtime reconfigurability is a follow-up.
 - **Animated diff / changelog rendering on the dashboard** — pure nice-to-have.
 
 ---
 
 ## Unresolved questions
 
-Minor copy/severity choices that don't affect structure — resolve during implementation:
+Minor copy/severity choices that don't affect structure — resolve during
+implementation:
 
-- baseProfile headline wording: `"removed from SVG 2"` vs `"no longer in SVG 2"` vs `"obsolete in SVG 2"`. Caveman preference: shortest = best.
-- `partial-implementation` lint severity: `info` or `hint`. Probably `hint` — it's signal, not a problem you need to fix.
-- `BaselineBadge` title copy: human-readable (`"widely available ≤2021-04-02"`) vs raw-ish (`"widely ≤2021"`). Human-readable probably wins; the title is a tooltip, not a CSV.
-- CLI `--verdict` flag that dumps computed verdicts alongside `/data.json` for regression diffing across web-features releases. Nice-to-have; out of scope for the initial landing but worth noting as a follow-up.
+- baseProfile headline wording: `"removed from SVG 2"` vs `"no longer in SVG 2"`
+  vs `"obsolete in SVG 2"`. Caveman preference: shortest = best.
+- `partial-implementation` lint severity: `info` or `hint`. Probably `hint` —
+  it's signal, not a problem you need to fix.
+- `BaselineBadge` title copy: human-readable (`"widely available ≤2021-04-02"`)
+  vs raw-ish (`"widely ≤2021"`). Human-readable probably wins; the title is a
+  tooltip, not a CSV.
+- CLI `--verdict` flag that dumps computed verdicts alongside `/data.json` for
+  regression diffing across web-features releases. Nice-to-have; out of scope
+  for the initial landing but worth noting as a follow-up.
 
 Resolved via user answers + Oracle consultation:
 
-- **Scope**: full pipeline (Rust hover + lint + verdict + worker dashboard CSS + stats grid + data audit).
-- **Build check strictness**: Option A — hard error with exception allowlist, batched emission, self-pruning, paste-ready fix-it messages.
-- **Hover glyphs**: Unicode symbols (`✓` / `⚠` / `⊘` / `✗`). Not emoji, not plain text.
-- **Data audit**: full audit of every BCD-deprecated attribute against SVG 2 ED + SVG 2 CR + SVG 1.1. Audit output lives in `bcd_deprecation_audit_2026-04.md`.
+- **Scope**: full pipeline (Rust hover + lint + verdict + worker dashboard CSS +
+  stats grid + data audit).
+- **Build check strictness**: Option A — hard error with exception allowlist,
+  batched emission, self-pruning, paste-ready fix-it messages.
+- **Hover glyphs**: Unicode symbols (`✓` / `⚠` / `⊘` / `✗`). Not emoji, not
+  plain text.
+- **Data audit**: full audit of every BCD-deprecated attribute against SVG 2
+  ED + SVG 2 CR + SVG 1.1. Audit output lives in
+  `bcd_deprecation_audit_2026-04.md`.

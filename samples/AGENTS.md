@@ -2,7 +2,9 @@
 
 ## OVERVIEW
 
-Manual SVG fixtures for diagnostics, hover, completions, colors, and larger smoke-test documents. This directory is for examples and repro files, not automated test inputs.
+Manual SVG fixtures for diagnostics, hover, completions, colors, and larger
+smoke-test documents. This directory is for examples and repro files, not
+automated test inputs.
 
 ## STRUCTURE
 
@@ -31,7 +33,8 @@ samples/
 ## CONVENTIONS
 
 - File names track feature area, not source order.
-- Samples may be intentionally invalid or awkward if that is the behavior under test.
+- Samples may be intentionally invalid or awkward if that is the behavior under
+  test.
 - `assets/` files support other sample SVGs rather than standing alone.
 
 ## ANTI-PATTERNS

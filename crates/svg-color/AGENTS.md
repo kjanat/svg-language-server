@@ -2,7 +2,8 @@
 
 ## OVERVIEW
 
-Color subsystem for SVG/CSS extraction and LSP color presentations, including custom props and `color-mix(...)` resolution in embedded style blocks.
+Color subsystem for SVG/CSS extraction and LSP color presentations, including
+custom props and `color-mix(...)` resolution in embedded style blocks.
 
 ## WHERE TO LOOK
 
@@ -16,9 +17,12 @@ Color subsystem for SVG/CSS extraction and LSP color presentations, including cu
 
 ## CONVENTIONS
 
-- Keep parse/extract/presentation function support aligned; add format in all layers.
-- Preserve byte-range precision; extraction ranges feed direct editor replacements.
-- Named-color ordering assumptions in `present.rs` must stay synced with `named_colors.rs`.
+- Keep parse/extract/presentation function support aligned; add format in all
+  layers.
+- Preserve byte-range precision; extraction ranges feed direct editor
+  replacements.
+- Named-color ordering assumptions in `present.rs` must stay synced with
+  `named_colors.rs`.
 - Favor deterministic labels (stable decimal formatting, stable ordering).
 
 ## ANTI-PATTERNS
@@ -30,4 +34,5 @@ Color subsystem for SVG/CSS extraction and LSP color presentations, including cu
 
 ## NOTES
 
-- This crate is shared by LSP methods; keep allocations/branches reasonable for per-keystroke usage.
+- This crate is shared by LSP methods; keep allocations/branches reasonable for
+  per-keystroke usage.

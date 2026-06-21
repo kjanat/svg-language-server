@@ -1,10 +1,16 @@
 # Full Snapshot SVG Data Implementation Plan
 
-> Build snapshot-first SVG spec data, then derive union data and version diffs from reviewed facts.
+> Build snapshot-first SVG spec data, then derive union data and version diffs
+> from reviewed facts.
 
-**Goal:** Replace sparse profile exceptions with full per-snapshot normalized SVG spec data, structured grammar coverage, provenance, and derived overlays.
+**Goal:** Replace sparse profile exceptions with full per-snapshot normalized
+SVG spec data, structured grammar coverage, provenance, and derived overlays.
 
-**Architecture:** Canonical data is checked in per snapshot under `crates/svg-data/data/specs/<snapshot-id>/`. Fetch manifests pin authority sources. Parsers normalize snapshot facts. Review reports validate each snapshot. Derived union/overlay artifacts are generated only after all snapshots pass review.
+**Architecture:** Canonical data is checked in per snapshot under
+`crates/svg-data/data/specs/<snapshot-id>/`. Fetch manifests pin authority
+sources. Parsers normalize snapshot facts. Review reports validate each
+snapshot. Derived union/overlay artifacts are generated only after all snapshots
+pass review.
 
 **Spec:** `docs/specs/2026-04-09-full-snapshot-svg-data-design.md`
 
@@ -47,7 +53,8 @@
 ## Phase 3
 
 - [ ] Ingest `Svg2Cr20181004` with TR-first authority and explicit foreign refs.
-- [ ] Ingest `Svg2EditorsDraft20250914` from the pinned `w3c/svgwg` commit and structured definitions files.
+- [ ] Ingest `Svg2EditorsDraft20250914` from the pinned `w3c/svgwg` commit and
+      structured definitions files.
 
 ## Phase 4
 

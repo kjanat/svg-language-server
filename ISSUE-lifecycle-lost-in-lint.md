@@ -2,7 +2,8 @@
 
 ## Summary
 
-`svg-lint` already computes `SpecLifecycle::Obsolete`, but the final diagnostic emitter drops that state on the floor.
+`svg-lint` already computes `SpecLifecycle::Obsolete`, but the final diagnostic
+emitter drops that state on the floor.
 
 That makes lint the odd surface out:
 
@@ -10,7 +11,9 @@ That makes lint the odd surface out:
 - completion can still surface obsolete symbols in supported profiles
 - lint says nothing
 
-This is a real product bug, not just an architecture smell. If a feature is still parseable but obsolete in the selected profile, the editor should not force the user to discover that only by hovering.
+This is a real product bug, not just an architecture smell. If a feature is
+still parseable but obsolete in the selected profile, the editor should not
+force the user to discover that only by hovering.
 
 ## Problem
 
@@ -18,7 +21,8 @@ The bug is in `crates/svg-lint/src/rules/mod.rs`:
 
 - `diagnostic_lifecycle(...)` preserves `SpecLifecycle::Obsolete` immediately
   - `crates/svg-lint/src/rules/mod.rs:554-563`
-- `emit_lifecycle_diag_in_tag(...)` only emits for `Deprecated` and `Experimental`
+- `emit_lifecycle_diag_in_tag(...)` only emits for `Deprecated` and
+  `Experimental`
   - `crates/svg-lint/src/rules/mod.rs:531-550`
 - `Obsolete` is grouped with `Stable` and produces no diagnostic
 
@@ -50,7 +54,8 @@ Example: `xlink:href`
   - `crates/svg-language-server/src/completion.rs:712-726`
 - lint emits no obsolete diagnostic at all
 
-Net effect: a user can hover a symbol, see that it is obsolete, and still get no diagnostic telling them to change it.
+Net effect: a user can hover a symbol, see that it is obsolete, and still get no
+diagnostic telling them to change it.
 
 ## Evidence
 
@@ -93,14 +98,17 @@ Hover can render:
 - `**Obsolete in Svg11Rec20110816**`
 - `**Obsolete after Svg11Rec20110816**`
 
-So the information is not missing from the data path. It is only missing from lint output.
+So the information is not missing from the data path. It is only missing from
+lint output.
 
 ### Completion already models obsolete as a displayable state
 
 - `crates/svg-language-server/src/completion.rs:689-705`
 - `crates/svg-language-server/src/completion.rs:712-726`
 
-Completion detail text and deprecated tagging already treat `Obsolete` as meaningful UI state, even though the completion path still has its own lifecycle inconsistency problems.
+Completion detail text and deprecated tagging already treat `Obsolete` as
+meaningful UI state, even though the completion path still has its own lifecycle
+inconsistency problems.
 
 ## Scope
 
@@ -122,7 +130,8 @@ Policy split:
 - `svg-lint` decides how those facts become diagnostics
 - `svg-language-server` renders those facts in hover/completion
 
-This specific bug should be fixed in lint, but the fix should not invent new source-of-truth rules inside hover.
+This specific bug should be fixed in lint, but the fix should not invent new
+source-of-truth rules inside hover.
 
 ## Proposed Fix
 
@@ -140,7 +149,8 @@ That restores user-visible feedback without blocking on a larger refactor.
 
 ### Preferred follow-up
 
-Use a shared effective-lifecycle helper so lint and completion stop re-implementing lifecycle merge rules separately.
+Use a shared effective-lifecycle helper so lint and completion stop
+re-implementing lifecycle merge rules separately.
 
 That broader alignment belongs with:
 
@@ -214,7 +224,8 @@ Add/update LSP diagnostic coverage in:
 
 Goal:
 
-- when a profile-supported symbol is obsolete, publish diagnostics should contain a user-visible lifecycle diagnostic
+- when a profile-supported symbol is obsolete, publish diagnostics should
+  contain a user-visible lifecycle diagnostic
 
 ## Related Work
 

@@ -4,9 +4,12 @@ Color extraction and format conversion for SVG documents.
 
 ## Features
 
-- Extract color values from parsed SVG trees (hex, modern and legacy `rgb()`/`hsl()`, `hwb()`, `lab()`, `lch()`, `oklab()`, `oklch()`, named colors)
+- Extract color values from parsed SVG trees (hex, modern and legacy
+  `rgb()`/`hsl()`, `hwb()`, `lab()`, `lch()`, `oklab()`, `oklch()`, named
+  colors)
 - Extract colors from SVG presentation attributes and embedded `<style>` blocks
-- Resolves CSS custom properties and `color-mix(...)` inside embedded `<style>` blocks
+- Resolves CSS custom properties and `color-mix(...)` inside embedded `<style>`
+  blocks
 - Convert between color formats for LSP color presentations
 - Recognizes all 148 CSS named colors
 
@@ -39,8 +42,9 @@ let labels = color_presentations(r, g, b, a, kind);
 | OKLCH    | `oklch(62.8% 0.2577 29.23)`                    |
 | Named    | `red`, `transparent`, `cornflowerblue`         |
 
-Embedded CSS can also resolve derived colors such as `fill: var(--toolbar-bg)` and `color-mix(in oklch, var(--base), white 8%)`.
+Embedded CSS can also resolve derived colors such as `fill: var(--toolbar-bg)`
+and `color-mix(in oklch, var(--base), white 8%)`.
 
 ## Part of [svg-language-server]
 
-[svg-language-server]: https://github.com/kjanat/svg-language-server
+[svg-language-server]: https://github.com/kjanat/svg

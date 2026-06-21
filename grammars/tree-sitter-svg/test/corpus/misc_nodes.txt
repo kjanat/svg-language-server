@@ -1,0 +1,90 @@
+==================
+Comments, PI, CDATA, entities
+==================
+
+<svg>
+  <!-- marker -->
+  <?xml-stylesheet type="text/css" href="theme.css"?>
+  <![CDATA[<literal>still text</literal>]]>
+  <text>Tom &amp; Jerry &#x41; &#65;</text>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (text)
+    (comment
+      text: (comment_text))
+    (text)
+    (processing_instruction
+      target: (name)
+      content: (pi_content))
+    (text)
+    (cdata_section
+      (cdata_text))
+    (text)
+    (element
+      (start_tag
+        name: (name))
+      (text)
+      (entity_reference)
+      (text)
+      (entity_reference)
+      (text)
+      (entity_reference)
+      (end_tag
+        name: (name)))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Misc text around root
+==================
+
+
+<svg><g/></svg>
+
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+CDATA with consecutive close brackets
+==================
+
+<svg><text><![CDATA[a[0]=b[1]]]></text></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (start_tag
+        name: (name))
+      (cdata_section
+        (cdata_text))
+      (end_tag
+        name: (name)))
+    (end_tag
+      name: (name)))
+  (text))

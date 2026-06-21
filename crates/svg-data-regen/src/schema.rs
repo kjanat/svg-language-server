@@ -21,7 +21,10 @@ pub const CATALOG_GRAPH_SCHEMA_FILE: &str = "catalog.graph.schema.json";
 /// File name for the generated snapshot overlay JSON Schema.
 pub const CATALOG_SNAPSHOT_SCHEMA_FILE: &str = "catalog.snapshot.schema.json";
 
-const CATALOG_SCHEMA_ID: &str = "https://github.com/kjanat/svg-language-server/raw/HEAD/crates/svg-data/data/catalog.schema.json";
+const CATALOG_SCHEMA_ID: &str = concat!(
+    env!("CARGO_PKG_REPOSITORY"),
+    "/raw/HEAD/crates/svg-data/data/catalog.schema.json"
+);
 const CATALOG_SCHEMA_TITLE: &str = "svg-data catalog v1";
 const CATALOG_CORE_SCHEMA_TITLE: &str = "svg-data core catalog v1";
 const CATALOG_COMPAT_SCHEMA_TITLE: &str = "svg-data compat catalog v1";

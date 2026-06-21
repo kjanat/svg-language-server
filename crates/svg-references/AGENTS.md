@@ -2,7 +2,8 @@
 
 ## OVERVIEW
 
-Shared symbol lookup crate for local `id`, CSS class, and custom property definitions/references across SVG and embedded CSS.
+Shared symbol lookup crate for local `id`, CSS class, and custom property
+definitions/references across SVG and embedded CSS.
 
 ## WHERE TO LOOK
 
@@ -15,18 +16,27 @@ Shared symbol lookup crate for local `id`, CSS class, and custom property defini
 
 ## CONVENTIONS
 
-- Public API stays leaf-crate pure: spans + definition enums, no LSP transport types.
-- Deepest-node lookup must correct anonymous leaves to named parents before dispatch.
-- Inline CSS is reparsed with `tree-sitter-css` and rebased back to SVG row/col space.
-- Class references in `class="..."` and custom property references in `var(...)` both resolve here.
+- Public API stays leaf-crate pure: spans + definition enums, no LSP transport
+  types.
+- Deepest-node lookup must correct anonymous leaves to named parents before
+  dispatch.
+- Inline CSS is reparsed with `tree-sitter-css` and rebased back to SVG row/col
+  space.
+- Class references in `class="..."` and custom property references in `var(...)`
+  both resolve here.
 
 ## ANTI-PATTERNS
 
-- Do not treat arbitrary raw text as stylesheet content; only real `<style>` elements count.
-- Do not collect attribute selectors such as `[class~=foo]` as class definitions.
-- Do not lose absolute span mapping when converting CSS nodes back into SVG positions.
-- Do not drop custom property handling from either SVG property names or CSS `var(...)` references.
+- Do not treat arbitrary raw text as stylesheet content; only real `<style>`
+  elements count.
+- Do not collect attribute selectors such as `[class~=foo]` as class
+  definitions.
+- Do not lose absolute span mapping when converting CSS nodes back into SVG
+  positions.
+- Do not drop custom property handling from either SVG property names or CSS
+  `var(...)` references.
 
 ## NOTES
 
-- This crate is mostly single-file by design; split only if the public surface grows meaningfully.
+- This crate is mostly single-file by design; split only if the public surface
+  grows meaningfully.

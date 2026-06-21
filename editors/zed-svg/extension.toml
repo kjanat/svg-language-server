@@ -1,0 +1,24 @@
+#:schema https://raw.githubusercontent.com/kjanat/zed-editor/refs/heads/feature/extension-toml-schema/crates/extension_api/schemas/extension.schema.json
+
+id             = "svg"
+name           = "SVG"
+version        = "0.1.0"
+schema_version = 1
+authors        = ["Kaj Kowalski <info@kajkowalski.nl>"]
+description    = "Syntax highlighting and language injections for SVG files."
+repository     = "https://github.com/kjanat/svg"
+languages      = ["languages/svg"]
+
+[grammars.svg]
+repository = "https://github.com/kjanat/tree-sitter-svg"
+rev        = "6f50d36b66ab691881deba5448c10230c3b27e11"
+# After a post-import commit exists on github.com/kjanat/svg, pin that commit
+# and add: path = "grammars/tree-sitter-svg"
+
+[language_servers.svg-language-server]
+languages        = ["SVG"]
+language_ids.SVG = "svg"
+
+[[capabilities]]
+kind    = "npm:install"
+package = "svg-language-server"

@@ -2,7 +2,8 @@
 
 ## OVERVIEW
 
-Library-first binary crate that owns JSON-RPC/LSP protocol flow, document state, and fanout into lint/format/color/references/data/tree crates.
+Library-first binary crate that owns JSON-RPC/LSP protocol flow, document state,
+and fanout into lint/format/color/references/data/tree crates.
 
 ## WHERE TO LOOK
 
@@ -19,11 +20,15 @@ Library-first binary crate that owns JSON-RPC/LSP protocol flow, document state,
 
 ## CONVENTIONS
 
-- Keep `DocumentState` as source of truth: raw source + parsed tree cached per document.
+- Keep `DocumentState` as source of truth: raw source + parsed tree cached per
+  document.
 - Use byte<->UTF-16 helpers for every range conversion; never hand-roll offsets.
-- Client-facing labels/messages are effectively API; integration tests assert them.
-- Runtime compat fetch is additive metadata; behavior must degrade cleanly when fetch fails.
-- `src/main.rs` is a thin wrapper; substantive behavior belongs in `src/lib.rs` and feature modules.
+- Client-facing labels/messages are effectively API; integration tests assert
+  them.
+- Runtime compat fetch is additive metadata; behavior must degrade cleanly when
+  fetch fails.
+- `src/main.rs` is a thin wrapper; substantive behavior belongs in `src/lib.rs`
+  and feature modules.
 
 ## CLIENT SETTINGS (initialization options / `didChangeConfiguration`)
 
@@ -40,8 +45,8 @@ All read under the top-level `svg` key.
 - `svg.runtime_compat=false` skips the `fetch_runtime_compat` spawn in
   `initialize`; hover and lint then use baked compat data only.
 - `svg.edition` precedence: an `svg.edition` block wins over `svg.profile`.
-- Profile-aware features take a `svg_data::SpecSnapshotId` parameter; route every
-  catalog-driven lookup through that profile so completions, hover, and
+- Profile-aware features take a `svg_data::SpecSnapshotId` parameter; route
+  every catalog-driven lookup through that profile so completions, hover, and
   diagnostics agree on a single snapshot per request.
 
 ## PROFILE-AWARE COMPLETION & HOVER
@@ -68,8 +73,8 @@ flows top-down:
 2. Per request, `effective_profile_for(doc)` consults
    `svg_lint::effective_profile`, which can downgrade to SVG 1.1 when the
    document's root `<svg version="1.1">` says so (unless `force` is set).
-3. The effective `SpecSnapshotId` is threaded into `completion_from_context`
-   and `hover_for_position`, which forwards it into:
+3. The effective `SpecSnapshotId` is threaded into `completion_from_context` and
+   `hover_for_position`, which forwards it into:
    - `attribute_completion_items`, `child_element_completion_items`,
      `root_element_completion_items` → filter via `attribute_for_profile` /
      `element_for_profile` so attributes/elements unsupported in the active
@@ -77,20 +82,22 @@ flows top-down:
    - `value_completions` (this PR) → resolves attribute value lists through
      `AttributeDef::values_for_profile`, so SVG 1.1 `display` keeps the CSS2
      keywords (`run-in`/`compact`/`marker`) that the union default drops.
-   - `format_attribute_hover_with_profile` /
-     `format_element_hover_with_profile` → renders value constraints,
-     profile-lifecycle status (deprecated/removed/experimental), and
-     runtime-derived compat verdicts for the active snapshot.
+   - `format_attribute_hover_with_profile` / `format_element_hover_with_profile`
+     → renders value constraints, profile-lifecycle status
+     (deprecated/removed/experimental), and runtime-derived compat verdicts for
+     the active snapshot.
 
 When adding a new completion or hover surface, take `SpecSnapshotId` as a
-parameter rather than reading a default, and prefer `AttributeDef::values_for_profile`
-over `&attr.values` so per-snapshot overrides keep surfacing.
+parameter rather than reading a default, and prefer
+`AttributeDef::values_for_profile` over `&attr.values` so per-snapshot overrides
+keep surfacing.
 
 ## ANTI-PATTERNS
 
 - Do not parse document repeatedly per request; reuse cached tree.
 - Do not assume `attribute_name` is the only attribute node kind.
-- Do not force protocol behavior that ignores client capabilities without explicit reason.
+- Do not force protocol behavior that ignores client capabilities without
+  explicit reason.
 - Do not touch leaf-crate internals from here; extend leaf APIs first.
 - Do not read raw `AttributeDef::values` or `attributes()` from catalog-driven
   completion/hover paths; always resolve through the active profile so
@@ -98,5 +105,7 @@ over `&attr.values` so per-snapshot overrides keep surfacing.
 
 ## NOTES
 
-- `src/lib.rs` is the orchestrator; keep helpers cohesive and feature-local rather than growing `main.rs`.
-- Test suite is feature-split; keep new cases near the protocol area they exercise.
+- `src/lib.rs` is the orchestrator; keep helpers cohesive and feature-local
+  rather than growing `main.rs`.
+- Test suite is feature-split; keep new cases near the protocol area they
+  exercise.

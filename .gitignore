@@ -2,6 +2,7 @@ target/
 /_*.md
 /*.png
 bun.lock
+!grammars/tree-sitter-svg/bun.lock
 node_modules/
 .playwright-*/
 svgwg/

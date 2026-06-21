@@ -2,7 +2,8 @@
 
 ## OVERVIEW
 
-Design history and implementation plans. Files are dated, paired, and meant to capture intent, scope, and verification for major features.
+Design history and implementation plans. Files are dated, paired, and meant to
+capture intent, scope, and verification for major features.
 
 ## STRUCTURE
 
@@ -25,15 +26,20 @@ docs/
 
 - Filenames are date-prefixed: `YYYY-MM-DD-*`.
 - Plans point at a matching spec and use checkbox task lists.
-- Specs describe goal, architecture, testing, and non-goals before implementation.
-- Verification sections are historical guidance; current command truth still lives in `justfile`.
+- Specs describe goal, architecture, testing, and non-goals before
+  implementation.
+- Verification sections are historical guidance; current command truth still
+  lives in `justfile`.
 
 ## ANTI-PATTERNS
 
 - Do not edit a plan without checking the matching spec.
-- Do not assume docs still match code; verify against source when behavior changed.
-- Do not treat plan snippets as copy-paste safe without checking current APIs and file paths.
+- Do not assume docs still match code; verify against source when behavior
+  changed.
+- Do not treat plan snippets as copy-paste safe without checking current APIs
+  and file paths.
 
 ## NOTES
 
-- Current docs capture two milestones: the initial color-only LSP and the later full SVG intelligence expansion.
+- Current docs capture two milestones: the initial color-only LSP and the later
+  full SVG intelligence expansion.

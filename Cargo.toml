@@ -1,18 +1,17 @@
-#:tombi lint.disabled = true
-
 [workspace]
 resolver = "3"
-members  = ["crates/*"]
+members  = ["crates/*", "editors/zed-svg", "grammars/*"]
 
 [workspace.package]
-version    = "0.1.0"
-authors    = ["Kaj Kowalski <info@kajkowalski.nl>"]
-edition    = "2024"
-homepage   = "https://github.com/kjanat/svg-language-server#readme"
-repository = "https://github.com/kjanat/svg-language-server"
-license    = "MIT"
-keywords   = ["svg"]
-categories = ["development-tools"]
+version      = "0.1.0"
+authors      = ["Kaj Kowalski <info@kajkowalski.nl>"]  # tombi: lint.rules = { deprecated.disabled = true, unused-noqa.disabled = true }
+edition      = "2024"
+rust-version = "1.96"
+homepage     = "https://github.com/kjanat/svg#readme"
+repository   = "https://github.com/kjanat/svg"
+license      = "MIT"
+keywords     = ["svg"]
+categories   = ["development-tools"]
 
 [workspace.dependencies]
 base64           = "0.22"
@@ -35,44 +34,18 @@ ureq             = "3"
 url              = "2"
 winnow           = "1"
 
-[workspace.dependencies.json-schema-sort]
-version          = "0.1"
-default-features = false
+json-schema-sort   = { version = "0.1", default-features = false }
+serde              = { version = "1", features = ["derive"] }
+tokio              = { version = "1", features = ["fs", "io-std", "macros", "rt-multi-thread"] }
+tracing-subscriber = { version = "0.3", features = ["fmt"] }
 
-[workspace.dependencies.serde]
-version  = "1"
-features = ["derive"]
-
-[workspace.dependencies.svg-color]
-path = "crates/svg-color"
-
-[workspace.dependencies.svg-data]
-path = "crates/svg-data"
-
-[workspace.dependencies.svg-format]
-path = "crates/svg-format"
-
-[workspace.dependencies.svg-lint]
-path = "crates/svg-lint"
-
-[workspace.dependencies.svg-references]
-path = "crates/svg-references"
-
-[workspace.dependencies.svg-tree]
-path = "crates/svg-tree"
-
-[workspace.dependencies.tokio]
-version  = "1"
-features = ["fs", "io-std", "macros", "rt-multi-thread"]
-
-[workspace.dependencies.tracing-subscriber]
-version  = "0.3"
-features = ["fmt"]
-
-[workspace.dependencies.tree-sitter-svg]
-package = "tree-sitter-svg"
-git     = "https://github.com/kjanat/tree-sitter-svg"
-rev     = "6f50d36b66ab691881deba5448c10230c3b27e11"
+svg-color       = { package = "svg-color", path = "crates/svg-color" }
+svg-data        = { package = "svg-data", path = "crates/svg-data" }
+svg-format      = { package = "svg-format", path = "crates/svg-format" }
+svg-lint        = { package = "svg-lint", path = "crates/svg-lint" }
+svg-references  = { package = "svg-references", path = "crates/svg-references" }
+svg-tree        = { package = "svg-tree", path = "crates/svg-tree" }
+tree-sitter-svg = { package = "tree-sitter-svg", path = "grammars/tree-sitter-svg" }
 
 [workspace.lints.clippy]
 expect_used                        = "deny"
@@ -138,9 +111,6 @@ private_doc_tests            = "warn"
 private_intra_doc_links      = "warn"
 redundant_explicit_links     = "deny"
 unescaped_backticks          = "warn"
-
-# [patch."https://github.com/kjanat/tree-sitter-svg"]
-# tree-sitter-svg = { path = "../tree-sitter-svg" }
 
 # The profile that 'dist' will build with
 [profile.dist]

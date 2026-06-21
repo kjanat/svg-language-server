@@ -2,7 +2,8 @@
 
 ## OVERVIEW
 
-Workspace package boundary. Keep crate responsibilities narrow; cross-crate coupling goes through explicit APIs.
+Workspace package boundary. Keep crate responsibilities narrow; cross-crate
+coupling goes through explicit APIs.
 
 ## STRUCTURE
 
@@ -31,14 +32,19 @@ crates/
 
 ## CONVENTIONS
 
-- `svg-language-server` is the only integration hub; prefer leaf crates for domain logic.
+- `svg-language-server` is the only integration hub; prefer leaf crates for
+  domain logic.
 - `svg-data` is generated at build-time; consumers treat it as read-only API.
-- Shared parser stack is tree-sitter-based; shared helpers live in `svg-tree`, and node kind handling must match grammar names exactly.
-- Keep API shape stable across crates; integration tests validate user-facing strings and protocol payloads.
+- Shared parser stack is tree-sitter-based; shared helpers live in `svg-tree`,
+  and node kind handling must match grammar names exactly.
+- Keep API shape stable across crates; integration tests validate user-facing
+  strings and protocol payloads.
 
 ## ANTI-PATTERNS
 
 - Do not leak LSP transport types into leaf crates.
-- Do not duplicate parser-kind allowlists across crates without explicit sync plan.
+- Do not duplicate parser-kind allowlists across crates without explicit sync
+  plan.
 - Do not add runtime network fetches outside explicit compat-refresh path.
-- Do not bypass crate boundaries by reaching into another crate's private implementation details.
+- Do not bypass crate boundaries by reaching into another crate's private
+  implementation details.

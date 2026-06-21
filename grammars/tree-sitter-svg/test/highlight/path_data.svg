@@ -1,0 +1,47 @@
+<svg>
+  <path d="M0 1 L10 20 H30 V40 C1 2 3 4 5 6 S7 8 9 10 Q11 12 13 14 T15 16 A17 18 19 0 1 20 21 Z"/>
+  <!--  ^ attribute -->
+  <!--     ^ constructor -->
+  <!--      ^ number -->
+  <!--        ^ property -->
+  <!--          ^ keyword -->
+  <!--           ^^ number -->
+  <!--              ^^ property -->
+  <!--                 ^ keyword -->
+  <!--                  ^^ number -->
+  <!--                     ^ keyword -->
+  <!--                      ^^ property -->
+  <!--                         ^ function.builtin -->
+  <!--                          ^ number -->
+  <!--                            ^ property -->
+  <!--                              ^ number -->
+  <!--                                ^ property -->
+  <!--                                  ^ number -->
+  <!--                                    ^ property -->
+  <!--                                      ^ function.builtin -->
+  <!--                                       ^ number -->
+  <!--                                         ^ property -->
+  <!--                                           ^ number -->
+  <!--                                             ^^ property -->
+  <!--                                                ^ function.builtin -->
+  <!--                                                 ^^ number -->
+  <!--                                                    ^^ property -->
+  <!--                                                       ^^ number -->
+  <!--                                                          ^^ property -->
+  <!--                                                             ^ function.builtin -->
+  <!--                                                              ^^ number -->
+  <!--                                                                 ^^ property -->
+  <!--                                                                    ^ function -->
+  <!--                                                                     ^^ constant -->
+  <!--                                                                        ^^ constant -->
+  <!--                                                                           ^^ number -->
+  <!--                                                                              ^ boolean -->
+  <!--                                                                                ^ boolean -->
+  <!--                                                                                  ^^ number -->
+  <!--                                                                                     ^^ property -->
+  <!--                                                                                        ^ punctuation.special -->
+  <path d="M10,20"/>
+  <!--      ^^ number -->
+  <!--        ^ punctuation.delimiter -->
+  <!--         ^^ property -->
+</svg>

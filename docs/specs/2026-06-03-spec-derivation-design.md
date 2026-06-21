@@ -1,11 +1,10 @@
 # svg-data Spec-Derivation Map & Rust-Only `build.rs` Design
 
-**Date:** 2026-06-03
-**Status:** design / roadmap (supersedes the speculative phasing in issue #9)
-**Constraint:** the production derivation pipeline runs **entirely in Rust
-`build.rs` / `build/` modules — no TypeScript in the build.** TypeScript is
-allowed only as throwaway prototyping/verification (validate a parser, then port
-to Rust).
+**Date:** 2026-06-03 **Status:** design / roadmap (supersedes the speculative
+phasing in issue #9) **Constraint:** the production derivation pipeline runs
+**entirely in Rust `build.rs` / `build/` modules — no TypeScript in the build.**
+TypeScript is allowed only as throwaway prototyping/verification (validate a
+parser, then port to Rust).
 
 This document maps every dataset under `crates/svg-data/data/` to its upstream
 spec artifact, judges whether it can be **deterministically and reproducibly
@@ -16,15 +15,16 @@ not just the repo. See `PIPELINE.md` for the current as-built data flow.
 
 All findings were cross-checked against the live tree:
 
-- `mod spec` is **not** declared in `build.rs:12-25` → `build/spec.rs` is orphaned.
+- `mod spec` is **not** declared in `build.rs:12-25` → `build/spec.rs` is
+  orphaned.
 - `build/bcd.rs` shells out to `deno` (`bcd.rs:189-194`).
 - `[build-dependencies]` = `schemars, serde, serde_json, toml, ureq`; `regex` +
   `winnow` are present transitively in `Cargo.lock`; `quick-xml`/`roxmltree`/
   `scraper` are **not**.
-- svgwg is a **gitignored, untracked local discovery clone** (`git ls-files svgwg`
-  = 0, no `.gitmodules`) — not a tracked submodule. Its HEAD was `bd0b7819` when
-  this was written; the ED provenance pin `19482daf` (see §0) was merely absent
-  from that stale clone.
+- svgwg is a **gitignored, untracked local discovery clone**
+  (`git ls-files svgwg` = 0, no `.gitmodules`) — not a tracked submodule. Its
+  HEAD was `bd0b7819` when this was written; the ED provenance pin `19482daf`
+  (see §0) was merely absent from that stale clone.
 
 ---
 
@@ -38,10 +38,10 @@ clone* simply hadn't fetched.
 
 The `Svg2EditorsDraft20250914` dataset records provenance pin `19482daf…` (the
 svgwg commit dated 2025-09-14 it was captured from). When this was written the
-local clone sat behind at `bd0b7819`, so that object failed `git cat-file` — fixed
-by a plain `git -C svgwg fetch` (the ED moves fast: one fetch fast-forwarded ~2891
-commits and rewrote `text.html` almost entirely, which is exactly why a frozen pin
-exists).
+local clone sat behind at `bd0b7819`, so that object failed `git cat-file` —
+fixed by a plain `git -C svgwg fetch` (the ED moves fast: one fetch
+fast-forwarded ~2891 commits and rewrote `text.html` almost entirely, which is
+exactly why a frozen pin exists).
 
 | SHA                     | Role                                                                                                                                                          |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -50,21 +50,22 @@ exists).
 
 **Decision (Q-PIN):** the clone is throwaway — the build may `git clone` svgwg
 freely during discovery. Because we **vendor** (Q-VENDOR), the pin's only job is
-to record *which commit the vendored artifacts were captured at*. There is no reason
-to stay on `19482daf` specifically; it's just the existing dated snapshot.
-Re-capturing at a newer commit is a deliberate, separate data refresh (date the
-new snapshot accordingly). What must hold: the vendored artifacts and the recorded
-source SHA move together, and `spec_removals.json` / `spec.rs` get re-pinned to
-the **same** captured commit so the two stop disagreeing.
+to record *which commit the vendored artifacts were captured at*. There is no
+reason to stay on `19482daf` specifically; it's just the existing dated
+snapshot. Re-capturing at a newer commit is a deliberate, separate data refresh
+(date the new snapshot accordingly). What must hold: the vendored artifacts and
+the recorded source SHA move together, and `spec_removals.json` / `spec.rs` get
+re-pinned to the **same** captured commit so the two stop disagreeing.
 
 ---
 
 ## A. Edition catalog & versioning model (frozen vs rolling + freshness)
 
-**Requirement:** the SVG 2 Editor's Draft must **not** be a dated Rust enum variant
-that has to be bumped on every refresh. Only **frozen, immutable** editions are
-hard-set in Rust; the ED is a **single undated** variant whose captured commit/date
-is **data**, and the LSP reports whether its baked compat data is still current.
+**Requirement:** the SVG 2 Editor's Draft must **not** be a dated Rust enum
+variant that has to be bumped on every refresh. Only **frozen, immutable**
+editions are hard-set in Rust; the ED is a **single undated** variant whose
+captured commit/date is **data**, and the LSP reports whether its baked compat
+data is still current.
 
 ### Frozen editions — hard-set Rust variants, vendored once, never touched
 
@@ -83,17 +84,17 @@ edition is a one-time cost.
 
 ### Rolling edition — one undated variant
 
-`Svg2EditorsDraft` (drop the `20250914` suffix).
-Captured svgwg commit + date live in `snapshot.json`
-(data) → refreshing the ED = regenerate its data, **no Rust edit**.\
+`Svg2EditorsDraft` (drop the `20250914` suffix). Captured svgwg commit + date
+live in `snapshot.json` (data) → refreshing the ED = regenerate its data, **no
+Rust edit**.\
 `SpecSnapshotId::LATEST = Svg2EditorsDraft`.\
-Sources: `https://svgwg.org/svg2-draft/`
-(+ `single-page.html`), repo `https://github.com/w3c/svgwg`.
+Sources: `https://svgwg.org/svg2-draft/` (+ `single-page.html`), repo
+`https://github.com/w3c/svgwg`.
 
 Today the enum (`src/types.rs:410`) has 4 dated variants with
-`LATEST = Svg2EditorsDraft20250914`, referenced in **37 places across 16 files**;
-renaming to an undated `Svg2EditorsDraft` (date → `snapshot.json` data) is the
-mechanical change that kills the date-bumping toil.
+`LATEST = Svg2EditorsDraft20250914`, referenced in **37 places across 16
+files**; renaming to an undated `Svg2EditorsDraft` (date → `snapshot.json` data)
+is the mechanical change that kills the date-bumping toil.
 
 ### Freshness / usability signal (LSP feature — the point of capturing editions)
 
@@ -107,19 +108,20 @@ mechanical change that kills the date-bumping toil.
 
 ### Edition discovery & freshness via the W3C API
 
-Don't hardcode the edition list — the **W3C API** (`api.w3.org`, public, no auth,
-JSON, ISO-8601 dates, rate limit 6000/IP/10min) is the authoritative source:
+Don't hardcode the edition list — the **W3C API** (`api.w3.org`, public, no
+auth, JSON, ISO-8601 dates, rate limit 6000/IP/10min) is the authoritative
+source:
 
-- `GET /specifications/{shortname}/versions?embed=1` → every published version with
-  `date`, `status`, `uri` (the dated TR URL). Shortnames: **`SVG`** (1.0),
+- `GET /specifications/{shortname}/versions?embed=1` → every published version
+  with `date`, `status`, `uri` (the dated TR URL). Shortnames: **`SVG`** (1.0),
   **`SVG11`**, **`SVG2`**.
 - `GET /specifications/{shortname}/versions/latest` → redirect to the latest
   published version — drives the "is there a newer published edition?" check.
-- For the rolling ED (not on `/TR/`), freshness compares against the svgwg git repo
-  HEAD (`github.com/w3c/svgwg`).
+- For the rolling ED (not on `/TR/`), freshness compares against the svgwg git
+  repo HEAD (`github.com/w3c/svgwg`).
 
-Authoritative milestone inventory (REC/PR/CR — pulled live 2026-06-03; WDs omitted,
-available but low value):
+Authoritative milestone inventory (REC/PR/CR — pulled live 2026-06-03; WDs
+omitted, available but low value):
 
 | shortname | date                    | status       | URI                                      |
 | --------- | ----------------------- | ------------ | ---------------------------------------- |
@@ -136,19 +138,19 @@ available but low value):
 
 The user's requested editions map 1:1 to these REC/PR/CR milestones. **Capture
 priority = REC/PR/CR; WDs optional.** Build vs runtime split: the build derives
-from **vendored** dated artifacts (the API may be used offline-gated at *capture*
-time to resolve URLs + record `status`/`date` per snapshot); the **LSP** hits the
-API (opt-in) only for the runtime freshness signal.
+from **vendored** dated artifacts (the API may be used offline-gated at
+*capture* time to resolve URLs + record `status`/`date` per snapshot); the
+**LSP** hits the API (opt-in) only for the runtime freshness signal.
 
 #### What the API actually returns (payload + scope)
 
 > **Scope: bibliographic metadata ONLY — no spec content.** The W3C API carries
-> *publication* metadata (versions, dates, status, editors, groups) and at most a
-> one-paragraph abstract per series (`description`). It contains **zero** technical
-> spec data — no elements, attributes, properties, value grammars, or content
-> models. All of that still comes from parsing the **vendored spec documents**
-> (propidx.html, `definitions*.xml`, DTD, chapter HTML). The API is purely the
-> *edition-index + freshness* layer, never a content source.
+> *publication* metadata (versions, dates, status, editors, groups) and at most
+> a one-paragraph abstract per series (`description`). It contains **zero**
+> technical spec data — no elements, attributes, properties, value grammars, or
+> content models. All of that still comes from parsing the **vendored spec
+> documents** (propidx.html, `definitions*.xml`, DTD, chapter HTML). The API is
+> purely the *edition-index + freshness* layer, never a content source.
 
 Format: **HAL+JSON** — every response is a pagination envelope
 `{ page, limit, pages, total, _links, _embedded }`; related resources are linked
@@ -169,17 +171,18 @@ Per-version object (11 typed fields, all the index/freshness layer needs):
 predecessor-version). `…/versions/latest` is a **302 redirect** to the latest
 dated version resource — latest-published date with one HEAD, no body parse.
 
-The whole SVG edition universe is ~55 KB of structured JSON over 3 GETs → cheap to
-**vendor as a static edition index** and refresh occasionally; a Rust struct over
-`_embedded.version-history[]` (`serde_json`, ignore `_links`) is all the build
-needs.
+The whole SVG edition universe is ~55 KB of structured JSON over 3 GETs → cheap
+to **vendor as a static edition index** and refresh occasionally; a Rust struct
+over `_embedded.version-history[]` (`serde_json`, ignore `_links`) is all the
+build needs.
 
 ### How editions get populated
 
-Each frozen edition's snapshot data is **derived by the pipeline** (vendor the TR
-artifact → parse in `build.rs` → generate/audit) — **not hand-seeded**. "Capture
-these editions" therefore means *vendor their artifacts + run the derivers*, not
-transcribe more snapshots by hand (which is the toil issue #9 exists to kill).
+Each frozen edition's snapshot data is **derived by the pipeline** (vendor the
+TR artifact → parse in `build.rs` → generate/audit) — **not hand-seeded**.
+"Capture these editions" therefore means *vendor their artifacts + run the
+derivers*, not transcribe more snapshots by hand (which is the toil issue #9
+exists to kill).
 
 ### Profiles (SVG Native & the SVG family) — constraint layers, not versions
 
@@ -190,24 +193,25 @@ profile axis rather than the version axis.
 
 **SVG Native** (the immediate ask):
 
-- Source: `svgwg/specs/svg-native/index.bs` — a **Bikeshed** doc in the svgwg repo
-  (`Title: SVG Native`, `Shortname: svg-native`, `Status: ED`, `Group: SVG`);
-  published at `https://svgwg.org/specs/svg-native/`. **Rolling like the SVG2 ED**
-  (not on `/TR/` — the W3C API knows the shortname but has no dated versions). →
-  treat as an **undated `SvgNative` profile**, capture commit/date as data,
-  freshness vs svgwg git HEAD.
+- Source: `svgwg/specs/svg-native/index.bs` — a **Bikeshed** doc in the svgwg
+  repo (`Title: SVG Native`, `Shortname: svg-native`, `Status: ED`,
+  `Group: SVG`); published at `https://svgwg.org/specs/svg-native/`. **Rolling
+  like the SVG2 ED** (not on `/TR/` — the W3C API knows the shortname but has no
+  dated versions). → treat as an **undated `SvgNative` profile**, capture
+  commit/date as data, freshness vs svgwg git HEAD.
 - **This is real spec data** (unlike the W3C API). SVG Native is defined as
   *reductive differences* from SVG 2 Secure Static Mode: explicit lists of
   **unsupported** elements / attributes / properties / values (e.g. no `text`/
   `tspan`/`marker`/`pattern`/`symbol`/`switch`/`style`; no `display`/`color`/
   `pointer-events`/`clip`; no percentage or relative lengths) **plus a few
-  supported-only allowlists** (transform-bearing elements; units px/pt/pc/mm/cm/in;
-  image formats JPEG/PNG/APNG; `gradientUnits=userSpaceOnUse` only).
+  supported-only allowlists** (transform-bearing elements; units
+  px/pt/pc/mm/cm/in; image formats JPEG/PNG/APNG; `gradientUnits=userSpaceOnUse`
+  only).
 - Derivation: parse the reductive prose ("X is not supported by SVG Native") and
-  the supported-only lists into a **constraint set layered over SVG 1.1/SVG 2** —
-  heuristic prose parsing (like `spec_scan`), from the generated HTML or the `.bs`
-  source. Output feeds the profile axis so the LSP can flag *"not available in the
-  SVG Native profile."*
+  the supported-only lists into a **constraint set layered over SVG 1.1/SVG 2**
+  — heuristic prose parsing (like `spec_scan`), from the generated HTML or the
+  `.bs` source. Output feeds the profile axis so the LSP can flag *"not
+  available in the SVG Native profile."*
 
 **Broader SVG family** (related, out-of-scope for now but the same two axes):
 other *profiles* — **SVG Tiny 1.2**, **SVG Basic**, **Mobile** (all subsets, all
@@ -264,19 +268,20 @@ pinned spec artifact.
 | **SVG 2 CR (2018-10-04)**        | TR `…/2018/CR-SVG2-20181004/propidx.html`                            | TR, rendered (verified)                                                         | TR, published table                                                               | removed in SVG2                                       | not pinned for CR                               | **dated TR URL**                        |
 | **SVG 2 ED (svgwg, 2025-09-14)** | `svgwg/master/propidx.html` (**inline-rendered, usable; to vendor**) | `svgwg/master/eltindex.html` = **`<edit:elementindex/>` placeholder — USELESS** | `svgwg/master/attindex.html` = **`<edit:attributetable/>` placeholder — USELESS** | removed                                               | `svgwg/master/definitions*.xml` (**to vendor**) | **git SHA — provenance pin (see §0)**   |
 
-> The table covers only the four editions inspected so far. The additional frozen
-> editions in §A (SVG 1.0 2001, SVG 1.1 PR 2011-06, SVG 2 CR 2016-09 / 2018-08)
-> follow the same dated-TR shape (propidx/eltindex/attindex + DTD for SVG 1.x; CR
-> HTML for SVG 2 CR) but their per-artifact availability must be **verified at
-> capture time**, not assumed.
+> The table covers only the four editions inspected so far. The additional
+> frozen editions in §A (SVG 1.0 2001, SVG 1.1 PR 2011-06, SVG 2 CR 2016-09 /
+> 2018-08) follow the same dated-TR shape (propidx/eltindex/attindex + DTD for
+> SVG 1.x; CR HTML for SVG 2 CR) but their per-artifact availability must be
+> **verified at capture time**, not assumed.
 
 **Divergences that matter:**
 
-- **Indexes**: SVG1.1 ships pre-rendered eltindex/attindex on W3C TR (scrapeable).
-  SVG2-ED's are unexpanded `<edit:*/>` templates → zero rows; ED inventory **must**
-  come from `definitions.xml`, SVG2-CR from the published dated TR index.
-- **Machine-readability**: SVG2 has structured `definitions*.xml`; SVG1.1 has only
-  the flattened SGML DTD + rendered HTML — no XML.
+- **Indexes**: SVG1.1 ships pre-rendered eltindex/attindex on W3C TR
+  (scrapeable). SVG2-ED's are unexpanded `<edit:*/>` templates → zero rows; ED
+  inventory **must** come from `definitions.xml`, SVG2-CR from the published
+  dated TR index.
+- **Machine-readability**: SVG2 has structured `definitions*.xml`; SVG1.1 has
+  only the flattened SGML DTD + rendered HTML — no XML.
 - **`propidx.html` is the exception** — inline-rendered even in `svgwg/master`,
   the only SVG2 index usable directly from the clone.
 - **Pinning**: SVG1.1 + SVG2-CR use immutable dated TR URLs (stable; vendor them
@@ -291,12 +296,12 @@ pinned spec artifact.
 Extend the existing `#[path]` modules (`build/bcd.rs`, `reconcile.rs`,
 `provenance_gate.rs`, `verdict.rs`, `codegen.rs`). Reuse:
 
-- **`ensure_cached(url, dest, offline)`** (`build.rs:364`) — `ureq` fetch → cache,
-  offline branch, 24h TTL (`CACHE_MAX_AGE_SECS`). No new fetch infra.
-- **generate-OR-audit-and-gate** — mirror `reconcile.rs:248-280`: derive in Rust,
-  diff against checked-in data, `cargo::error!` on undocumented drift. New derivers
-  feed the **same** gates (`provenance_gate.rs:83`, `reconcile.rs` 3-signal,
-  `derived.rs:184` `UnresolvedReview`) so `codegen.rs` is unchanged.
+- **`ensure_cached(url, dest, offline)`** (`build.rs:364`) — `ureq` fetch →
+  cache, offline branch, 24h TTL (`CACHE_MAX_AGE_SECS`). No new fetch infra.
+- **generate-OR-audit-and-gate** — mirror `reconcile.rs:248-280`: derive in
+  Rust, diff against checked-in data, `cargo::error!` on undocumented drift. New
+  derivers feed the **same** gates (`provenance_gate.rs:83`, `reconcile.rs`
+  3-signal, `derived.rs:184` `UnresolvedReview`) so `codegen.rs` is unchanged.
 
 | Module                        | Purpose                                                                                                                               | Crate               | Replaces                              |
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ------------------------------------- |
@@ -307,16 +312,17 @@ Extend the existing `#[path]` modules (`build/bcd.rs`, `reconcile.rs`,
 | `build/value_syntax.rs` (new) | CSS value-def-syntax / `<pre>` BNF → `GrammarNode`; strip `[inherit]`                                                                 | `winnow` (present)  | hand-authored enum leaves             |
 | `build/membership.rs` (new)   | Call existing `src/derived.rs::build_membership_artifacts` from the build (today only `examples/`)                                    | reuse               | manual `cargo run --example`          |
 
-**`[build-dependencies]` additions:** `quick-xml`, `roxmltree`, `tl` (prefer over
-`scraper`; escalate to `scraper` only if `[id$=Element] + p` selectors prove
-necessary). `regex`/`winnow` already transitive → zero risk. Avoid `chumsky`
-(large) and `html5ever`.
+**`[build-dependencies]` additions:** `quick-xml`, `roxmltree`, `tl` (prefer
+over `scraper`; escalate to `scraper` only if `[id$=Element] + p` selectors
+prove necessary). `regex`/`winnow` already transitive → zero risk. Avoid
+`chumsky` (large) and `html5ever`.
 
-**Vendor-over-fetch (decided, Q-VENDOR):** capture svgwg artifacts from a build-time
-clone and vendor them; vendor the gaps as sliced files + sha256 (`data/sources/svg11-flat-*.dtd`,
-SVG1.1/SVG2-CR rendered indexes, `bcd-<ver>.svg.json`, `web-features-<ver>.json`);
-build-time fetch only behind `SVG_DATA_OFFLINE`; `cargo::rerun-if-changed` each
-vendored file (pattern at `build.rs:425-431`).
+**Vendor-over-fetch (decided, Q-VENDOR):** capture svgwg artifacts from a
+build-time clone and vendor them; vendor the gaps as sliced files + sha256
+(`data/sources/svg11-flat-*.dtd`, SVG1.1/SVG2-CR rendered indexes,
+`bcd-<ver>.svg.json`, `web-features-<ver>.json`); build-time fetch only behind
+`SVG_DATA_OFFLINE`; `cargo::rerun-if-changed` each vendored file (pattern at
+`build.rs:425-431`).
 
 ---
 
@@ -333,12 +339,12 @@ vendored file (pattern at `build.rs:425-431`).
 | **Never auto-derive** | structured grammars (#3-10); curated exceptions (#22,24,25); prose content models; taxonomy map | const-gen or curated                                                                    | const / `toml`                                |
 
 **Net correction vs issue #9:** the old ordering inverted difficulty (easy
-const-gen grammars "later", hard heterogeneous matrix/categories "early"), pointed
-at wrong sources (MDN for descriptions, propidx for all enums, single
+const-gen grammars "later", hard heterogeneous matrix/categories "early"),
+pointed at wrong sources (MDN for descriptions, propidx for all enums, single
 `definitions.xml` for the whole matrix), and missed the two highest-leverage
-TS-removal wins (spec_scan port + BCD de-Deno) entirely. **P0 (de-Deno + spec_scan
-port) precedes everything; ED work (P1) just needs the vendor capture pinned to
-one agreed commit (§0) — provenance hygiene, not a blocker.**
+TS-removal wins (spec_scan port + BCD de-Deno) entirely. **P0 (de-Deno +
+spec_scan port) precedes everything; ED work (P1) just needs the vendor capture
+pinned to one agreed commit (§0) — provenance hygiene, not a blocker.**
 
 ---
 
@@ -364,30 +370,35 @@ entry + `added` + `upstream_ref` + self-prune-on-no-match pattern):
 
 ## 6. Decisions (resolved 2026-06-03)
 
-- **Q-EDITIONS → frozen are hard-set, ED is rolling/undated + freshness (see §A).**
-  Capture all reachable frozen editions (SVG 1.0 2001, SVG 1.1 FE 2003, SVG 1.1
-  PR 2011-06, SVG 1.1 SE 2011-08, SVG 2 CR 2016-09 / 2018-08 / 2018-10) as hard-set
-  Rust variants, derived once from their dated TR artifacts. The Editor's Draft
-  becomes a single **undated** `Svg2EditorsDraft` variant whose captured commit/date
-  is data (no Rust bump on refresh). The LSP surfaces a freshness signal:
-  frozen = "final"; ED = baked-capture vs live, "N commits behind / current."
+- **Q-EDITIONS → frozen are hard-set, ED is rolling/undated + freshness (see
+  §A).** Capture all reachable frozen editions (SVG 1.0 2001, SVG 1.1 FE 2003,
+  SVG 1.1 PR 2011-06, SVG 1.1 SE 2011-08, SVG 2 CR 2016-09 / 2018-08 / 2018-10)
+  as hard-set Rust variants, derived once from their dated TR artifacts. The
+  Editor's Draft becomes a single **undated** `Svg2EditorsDraft` variant whose
+  captured commit/date is data (no Rust bump on refresh). The LSP surfaces a
+  freshness signal: frozen = "final"; ED = baked-capture vs live, "N commits
+  behind / current."
 - **Q-PIN → provenance, not a constraint.** `svgwg/` is a gitignored throwaway
-  discovery clone; the build may `git clone` it freely. The pin only records which
-  commit the vendored artifacts were captured at. No need to stay on `19482daf`;
-  re-capturing at a newer commit is a deliberate, separately-dated data refresh.
-  Keep the vendored artifacts and recorded SHA in lockstep, and re-pin
-  `spec_removals.json` / `spec.rs` to the **same** captured commit. (See §0.)
+  discovery clone; the build may `git clone` it freely. The pin only records
+  which commit the vendored artifacts were captured at. No need to stay on
+  `19482daf`; re-capturing at a newer commit is a deliberate, separately-dated
+  data refresh. Keep the vendored artifacts and recorded SHA in lockstep, and
+  re-pin `spec_removals.json` / `spec.rs` to the **same** captured commit. (See
+  §0.)
 - **Q-VENDOR → vendor.** Vendor the un-vendored artifacts (SVG1.1 DTD + indexes,
-  SVG2-CR HTML, BCD/web-features slices) so the build is hermetic and network-free;
-  build-time fetch stays as the `SVG_DATA_OFFLINE`-gated fallback only.
-- **Q-INHERIT → strip.** Drop `[inherit]` from derived enums, matching the existing
-  `grammars.json` shape.
-- **Q-BCD-FALLBACK → hard error.** With a vendored BCD slice always present, a load
-  failure is a **build error** (no silent empty-map degrade). The non-reproducible
-  `?bcd=latest` path stays **only** for the worker / UI preview, never the build.
+  SVG2-CR HTML, BCD/web-features slices) so the build is hermetic and
+  network-free; build-time fetch stays as the `SVG_DATA_OFFLINE`-gated fallback
+  only.
+- **Q-INHERIT → strip.** Drop `[inherit]` from derived enums, matching the
+  existing `grammars.json` shape.
+- **Q-BCD-FALLBACK → hard error.** With a vendored BCD slice always present, a
+  load failure is a **build error** (no silent empty-map degrade). The
+  non-reproducible `?bcd=latest` path stays **only** for the worker / UI
+  preview, never the build.
 - **Q-TAXONOMY → re-align.** Re-align the category taxonomy to SVG2
   `<elementcategory>` names to shrink the manual mapping surface (the
-  filter-subtree inventions still need a small curated map, but the bulk aligns).
+  filter-subtree inventions still need a small curated map, but the bulk
+  aligns).
 - **Q-ORPHANS → revive + delete.** Revive `build/spec.rs` as the P3 description
   scraper; delete dead `data/attributes.json` (no consumer); fix the stale
   `build/AGENTS.md` entry that still lists `spec.rs` as live.

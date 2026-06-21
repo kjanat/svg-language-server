@@ -1,23 +1,15 @@
 {
-	"extends": [
-		"https://github.com/kjanat/kjanat/raw/83172bacbfaf02e8ea419492ed3899b5ce806a9d/configs/dprint.remote.json"
-	],
+	"$schema": "https://dprint.dev/schemas/v0.json",
+	// update: git ls-remote https://github.com/kjanat/kjanat.git HEAD | awk '{print $1}' | xargs -r -I{} sed -i -E 's#(github\.com/kjanat/kjanat/raw/)[0-9a-f]{40}(/configs/dprint\.remote\.json)#\1{}\2#g' .dprint.jsonc
+	"extends": "https://github.com/kjanat/kjanat/raw/715d59c6fc69e8020ae0016932782b7bb64d969a/configs/dprint.remote.json",
 	"useTabs": true,
 	"jsonSchemaSort": { "associations": ["**/schema.json", "**/*.schema.json"] },
-	"json": {
-		"trailingCommas": "maintain",
-		"associations": ["!schema.json", "!*.schema.json", "**/*.json", "**/*.jsonc"]
-	},
-	"markdown": { "textWrap": "maintain", "emphasisKind": "asterisks" },
-	"malva": {},
-	"markup": {
-		"associations": ["!**/*.svg"],
-		"ignoreCommentDirective": "dprint-ignore",
-		"ignoreFileCommentDirective": "dprint-ignore-file",
-	},
+	"json": { "trailingCommas": "maintain", "associations": ["**/*.json", "**/*.jsonc"] },
+	"markdown": { "textWrap": "always", "emphasisKind": "asterisks", "lineWidth": 80 },
+	"markup": { "associations": ["!**/*.svg"] },
 	"yaml": { "printWidth": 160 },
 	"exec": {
-		"associations": ["justfile", "*.rs", "*.svg", "*.toml"],
+		"associations": ["justfile", "**/*.rs", "**/*.toml"], // "*.svg"
 		"commands": [
 			{ "command": "tombi format - --stdin-filename {{file_path}}", "exts": ["toml"] },
 			{ "command": "rustfmt --edition 2024", "exts": ["rs"] },
@@ -29,11 +21,12 @@
 		"**/*.lock",
 		"**/node_modules",
 		"**/samples/w3",
-		"catalog.json",
 		"**/svg-data/data/sources/**",
 		"**/svgwg",
 		"**/target",
+		"**/zed-svg/grammars",
 		".github/workflows/release.yml",
+		"catalog.json",
 	],
 	"plugins": [
 		"https://plugins.dprint.dev/exec-0.6.2.json@df98f54ffd3092b8a841aedd6d098a2651f16d0a796a40535774f1a8b4b9d463",

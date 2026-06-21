@@ -1,0 +1,9 @@
+#:schema https://gist.githubusercontent.com/kjanat/1172d9d2d6dbe7c6d9983aaabef2eea5/raw/cargo-config.bundle.json
+
+# Cargo configuration for the svg-language-server workspace.
+# See: https://doc.rust-lang.org/cargo/reference/config.html
+
+[alias]
+br        = "build --release"
+fmt-check = "fmt --check"
+lint      = "clippy --workspace --all-targets --all-features -- -D warnings -D clippy::all"

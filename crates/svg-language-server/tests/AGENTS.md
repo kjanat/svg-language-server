@@ -2,7 +2,8 @@
 
 ## OVERVIEW
 
-Feature-split protocol tests that build the real server binary, speak raw JSON-RPC over stdio, and assert user-facing LSP behavior.
+Feature-split protocol tests that build the real server binary, speak raw
+JSON-RPC over stdio, and assert user-facing LSP behavior.
 
 ## STRUCTURE
 
@@ -28,19 +29,28 @@ tests/
 
 ## CONVENTIONS
 
-- Keep tests protocol-level: exercise requests/notifications against the spawned binary, not internal functions.
-- Prefer inline SVG snippets over fixture files unless the sample is truly large or reused.
-- Treat labels, codes, and capability payloads as API; assert concrete user-facing values.
-- Drain or filter queued notifications carefully before asserting on later responses.
+- Keep tests protocol-level: exercise requests/notifications against the spawned
+  binary, not internal functions.
+- Prefer inline SVG snippets over fixture files unless the sample is truly large
+  or reused.
+- Treat labels, codes, and capability payloads as API; assert concrete
+  user-facing values.
+- Drain or filter queued notifications carefully before asserting on later
+  responses.
 
 ## ANTI-PATTERNS
 
-- Do not replace the harness with mocked transport for behavior that should stay end-to-end.
-- Do not assume responses arrive in strict request order when notifications can interleave.
-- Do not add fragile cursor offsets without tying them to source search when practical.
-- Do not mute stderr/stdout protocol details in the harness without understanding failure modes.
+- Do not replace the harness with mocked transport for behavior that should stay
+  end-to-end.
+- Do not assume responses arrive in strict request order when notifications can
+  interleave.
+- Do not add fragile cursor offsets without tying them to source search when
+  practical.
+- Do not mute stderr/stdout protocol details in the harness without
+  understanding failure modes.
 
 ## NOTES
 
 - `support/mod.rs` caches the built binary path with `OnceLock`.
-- Current docs/plans may still mention an older `tests/integration.rs`; current suite is split by feature.
+- Current docs/plans may still mention an older `tests/integration.rs`; current
+  suite is split by feature.

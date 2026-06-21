@@ -1,8 +1,8 @@
-[build]
+[build]  # rustup run nightly -- cargo --config .cargo/nightly.toml doc --workspace --all-features
+rustflags    = ["-D", "warnings"]
 rustdocflags = [
   "-Zcrate-attr=feature(rustdoc_missing_doc_code_examples)",
   "-Zcrate-attr=warn(rustdoc::missing_doc_code_examples)",
   "-D",
   "warnings",
 ]
-rustflags    = ["-D", "warnings"]

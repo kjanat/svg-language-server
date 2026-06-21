@@ -6,11 +6,8 @@ from ._binding import language
 
 
 def _get_query(name, file):
-    try:
-        query = _files(f"{__package__}") / file
-        globals()[name] = query.read_text()
-    except FileNotFoundError:
-        globals()[name] = None
+    query = _files(f"{__package__}") / file
+    globals()[name] = query.read_text()
     return globals()[name]
 
 

@@ -74,7 +74,7 @@ are parsed as generic `attribute_name`/`quoted_attribute_value` pairs.
 
 | Attribute                   | Sub-grammar                                        |
 | --------------------------- | -------------------------------------------------- |
-| `d`, `path`                 | Full SVG path data (commands, coordinates, arcs)   |
+| `d`                         | Full SVG path data (commands, coordinates, arcs)   |
 | `viewBox`                   | Four-number box                                    |
 | `preserveAspectRatio`       | Optional `defer`, alignment, optional meet/slice   |
 | `transform` and variants    | Function list (matrix, translate, rotate, ...)     |
@@ -194,7 +194,7 @@ assert tree.root_node.type == "source_file"
 ### Go
 
 ```sh
-go get github.com/tree-sitter/go-tree-sitter github.com/kjanat/tree-sitter-svg
+go get github.com/tree-sitter/go-tree-sitter github.com/kjanat/svg/grammars/tree-sitter-svg
 ```
 
 ```go
@@ -203,7 +203,7 @@ package main
 import (
     "fmt"
 
-    tree_sitter_svg "github.com/kjanat/tree-sitter-svg/bindings/go"
+    tree_sitter_svg "github.com/kjanat/svg/grammars/tree-sitter-svg/bindings/go"
     tree_sitter "github.com/tree-sitter/go-tree-sitter"
 )
 
@@ -336,7 +336,7 @@ families).
 
 ## License
 
-[MIT][LICENSE] © Kaj Kowalski
+[MIT][LICENSE-MIT] or [Apache-2.0][LICENSE-APACHE] © Kaj Kowalski
 
 [`grammar.js`]: ./grammar.js
 [`queries/*.scm`]: ./queries/
@@ -344,7 +344,9 @@ families).
 [`src/scanner.c`]: ./src/scanner.c
 [`test/corpus/`]: ./test/corpus/
 [`test/highlight/`]: ./test/highlight/
-[LICENSE]: https://github.com/kjanat/tree-sitter-svg/blob/master/LICENSE
+[LICENSE]: ./LICENSE-MIT
+[LICENSE-APACHE]: ./LICENSE-APACHE
+[LICENSE-MIT]: ./LICENSE-MIT
 [SVG2 specification]: https://www.w3.org/TR/SVG2/
 [Tree-sitter CLI]: https://tree-sitter.github.io/tree-sitter/creating-parsers/tool-overview.html
 [Tree-sitter]: https://tree-sitter.github.io/tree-sitter/

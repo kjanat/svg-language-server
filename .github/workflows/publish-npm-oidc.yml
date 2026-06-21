@@ -41,6 +41,11 @@ jobs:
               Sort-Object -Unique
           )
 
+          if ($packages.Count -eq 0) {
+            $msg = "No npm package artifacts found in dist plan"
+            "::error::$msg"; Write-Error "$msg"
+          }
+
           foreach ($pkg in $packages) {
             if ($pkg -notmatch '^[A-Za-z0-9._@+-]+-npm-package\.tar\.gz$') {
               $msg = "Unexpected npm artifact filename: $pkg"

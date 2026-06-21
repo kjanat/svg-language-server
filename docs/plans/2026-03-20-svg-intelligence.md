@@ -337,10 +337,13 @@ Include at least these attributes: `id`, `class`, `style`, `fill`, `stroke`,
 `stroke-width`, `stroke-linecap`, `stroke-linejoin`, `stroke-dasharray`,
 `opacity`, `fill-opacity`, `stroke-opacity`, `transform`, `d`, `viewBox`,
 `preserveAspectRatio`, `x`, `y`, `width`, `height`, `cx`, `cy`, `r`, `rx`, `ry`,
-`x1`, `y1`, `x2`, `y2`, `points`, `href`, `xlink:href`, `font-family`,
-`font-size`, `font-weight`, `text-anchor`, `dominant-baseline`, `stop-color`,
-`stop-opacity`, `offset`, `gradientUnits`, `gradientTransform`, `clip-path`,
-`mask`, `filter`, `display`, `visibility`, `color`.
+`x1`, `y1`, `x2`, `y2`, `points`, `href`, `font-family`, `font-size`,
+`font-weight`, `text-anchor`, `dominant-baseline`, `stop-color`, `stop-opacity`,
+`offset`, `gradientUnits`, `gradientTransform`, `clip-path`, `mask`, `filter`,
+`display`, `visibility`, `color`.
+
+Keep `xlink:href` as a deprecated compatibility fallback, not a primary
+completion/hover target.
 
 Example:
 
@@ -1448,7 +1451,7 @@ async fn document_color(&self, params: DocumentColorParams) -> Result<Vec<ColorI
     let source_bytes = doc.source.as_bytes();
     let colors = svg_color::extract_colors_from_tree(source_bytes, &doc.tree);
 
-    // Preserve existing color_kinds cache logic
+    // Replace cached color kinds for this URI; didChange invalidates stale entries.
     let mut kinds = self.color_kinds.write().await;
     kinds.retain(|(uri, _, _), _| *uri != params.text_document.uri);
 

@@ -53,8 +53,7 @@ flowchart TD
     build --> catalog --> api --> comp & lint
 
     propidx["propidx.html<br/>declared gap / migration target"]
-    spec_rs["build/spec.rs<br/>orphaned, not referenced"]
-    class propidx,spec_rs gap;
+    class propidx gap;
 
     classDef gap stroke-dasharray: 5 5,stroke:#c0392b;
 ```
@@ -148,12 +147,6 @@ Ordered by stage — input → mechanism → output.
 6. **Codegen** — `codegen::*` + `verdict::format_verdicts_slice` write static
    `ELEMENTS`/`ATTRIBUTES` arrays and lookup fns to `$OUT_DIR/catalog.rs`
    (`// @generated`).
-
-> **Orphaned:** `crates/svg-data/build/spec.rs` (`fetch_spec_descriptions`,
-> pinned to a svgwg SHA) is **not** declared as a module in `build.rs` nor
-> referenced by any `build/*.rs`. It is dead relative to the active pipeline.
-
----
 
 ## ③ → ④ Generated catalog & API
 

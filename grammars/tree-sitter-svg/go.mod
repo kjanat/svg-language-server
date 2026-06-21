@@ -1,4 +1,4 @@
-module github.com/kjanat/tree-sitter-svg
+module github.com/kjanat/svg/grammars/tree-sitter-svg
 
 go 1.26
 

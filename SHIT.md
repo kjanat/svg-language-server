@@ -37,7 +37,7 @@ Low:
 17. Publish workflow uses moving Node `latest`.
 18. `svg-data` inventory docs are stale after inventory expansion.
 19. `svg-data/build/AGENTS.md` still says `spec.rs` is orphaned.
-20. `spec-freshness.yml` comment still says SVGWG `master`.
+20. `refresh-spec.yml` comment still says SVGWG `master`.
 
 ## Findings
 
@@ -154,11 +154,11 @@ constraints in lint/completion/hover.
 
 ### 6. RESOLVED - Medium - freshness automation detects drift but does not update data
 
-Status: RESOLVED - `.github/workflows/spec-freshness.yml` now includes an
+Status: RESOLVED - `.github/workflows/refresh-spec.yml` now includes an
 auto-refresh path that re-vendors sources, regenerates schemas, gates on tests,
 and opens a review PR when drift is path-relevant.
 
-Files: `.github/workflows/spec-freshness.yml:58-92`,
+Files: `.github/workflows/refresh-spec.yml:58-92`,
 `crates/svg-language-server/src/freshness.rs:35-54`,
 `crates/svg-language-server/src/lib.rs:668-684`
 
@@ -237,7 +237,7 @@ it in `just verify`.
 ### 10. Medium - no general PR CI runs the project verification gate
 
 Files: `.github/workflows/release.yml:41-80`,
-`.github/workflows/spec-freshness.yml:12-36`,
+`.github/workflows/refresh-spec.yml:12-36`,
 `.github/workflows/publish-npm-oidc.yml:1-28`
 
 Issue: the checked-in workflows do not run `just verify`, `cargo test`,
@@ -256,11 +256,11 @@ it, plus Deno worker checks if they stay outside verify.
 
 ### 11. RESOLVED - Medium - freshness CI ignores BCD/web-features drift
 
-Status: RESOLVED - `.github/workflows/spec-freshness.yml` now runs the compat
+Status: RESOLVED - `.github/workflows/refresh-spec.yml` now runs the compat
 drift mode and threads the result into the same drift classification/refresh
 path.
 
-Files: `.github/workflows/spec-freshness.yml:30-36`,
+Files: `.github/workflows/refresh-spec.yml:30-36`,
 `crates/svg-data/src/bin/spec-freshness.rs:1-19`,
 `crates/svg-data/src/bin/spec-freshness.rs:90-160`,
 `crates/svg-data/build/bcd.rs:12-21`
@@ -288,7 +288,7 @@ Status: PARTIAL / STALE - the workflow now has `timeout-minutes`; the referenced
 tree, so the old CLI-specific evidence no longer matches current code.
 
 Files: `crates/svg-data/src/bin/spec-freshness.rs:71-88`,
-`.github/workflows/spec-freshness.yml:21-36`
+`.github/workflows/refresh-spec.yml:21-36`
 
 Issue: the CLI uses bare `ureq::get` with no configured timeout, and the
 workflow has no `timeout-minutes`.
@@ -435,12 +435,12 @@ extractor.
 Suggested fix: update the build knowledge base to describe `spec.rs` as the
 hermetic description extractor.
 
-### 20. RESOLVED - Low - `spec-freshness.yml` comment still says SVGWG `master`
+### 20. RESOLVED - Low - `refresh-spec.yml` comment still says SVGWG `master`
 
 Status: RESOLVED - the workflow comment now says the editor's-draft default
 branch is resolved dynamically.
 
-File: `.github/workflows/spec-freshness.yml:3-10`
+File: `.github/workflows/refresh-spec.yml:3-10`
 
 Issue: workflow comments say the sentinel checks the SVGWG editor's-draft
 `master`, but code now resolves the upstream default branch dynamically.

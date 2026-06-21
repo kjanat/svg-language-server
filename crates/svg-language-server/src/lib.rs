@@ -1061,6 +1061,10 @@ impl SvgLanguageServer {
             .write()
             .await
             .insert(uri.clone(), state.clone());
+        self.color_kinds
+            .write()
+            .await
+            .retain(|key, _| key.uri != uri);
 
         publish_lint_diagnostics(&self.client, uri, source_bytes, lint_diags, Some(version)).await;
     }

@@ -41,20 +41,16 @@ fn main() {
 
     c_config.compile("tree-sitter-svg");
 
-    println!("cargo:rustc-check-cfg=cfg(with_highlights_query)");
-    if std::path::Path::new("queries/highlights.scm").exists() {
-        println!("cargo:rustc-cfg=with_highlights_query");
-    }
-    println!("cargo:rustc-check-cfg=cfg(with_injections_query)");
-    if std::path::Path::new("queries/injections.scm").exists() {
-        println!("cargo:rustc-cfg=with_injections_query");
-    }
-    println!("cargo:rustc-check-cfg=cfg(with_locals_query)");
-    if std::path::Path::new("queries/locals.scm").exists() {
-        println!("cargo:rustc-cfg=with_locals_query");
-    }
-    println!("cargo:rustc-check-cfg=cfg(with_tags_query)");
-    if std::path::Path::new("queries/tags.scm").exists() {
-        println!("cargo:rustc-cfg=with_tags_query");
+    emit_query_cfg("queries/highlights.scm", "with_highlights_query");
+    emit_query_cfg("queries/injections.scm", "with_injections_query");
+    emit_query_cfg("queries/locals.scm", "with_locals_query");
+    emit_query_cfg("queries/tags.scm", "with_tags_query");
+}
+
+fn emit_query_cfg(path: &str, cfg: &str) {
+    println!("cargo:rerun-if-changed={path}");
+    println!("cargo:rustc-check-cfg=cfg({cfg})");
+    if std::path::Path::new(path).exists() {
+        println!("cargo:rustc-cfg={cfg}");
     }
 }

@@ -1044,8 +1044,9 @@ Run: `cargo check -p svg-language-server` Expected: compiles clean
 
 - [ ] **Step 4: Manual smoke test**
 
-Run: `cargo build -p svg-language-server` Then test with an LSP client (e.g.,
-`echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{...}}' | cargo run -p svg-language-server`).
+Run: `cargo build -p svg-language-server` Then test with an LSP client or a
+properly framed JSON-RPC message, for example:
+`printf 'Content-Length: 58\r\n\r\n{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' | cargo run -p svg-language-server`.
 Expected: server responds with capabilities including `colorProvider: true`
 
 - [ ] **Step 5: Commit**

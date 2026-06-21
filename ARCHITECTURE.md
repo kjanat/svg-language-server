@@ -1,7 +1,7 @@
 # Architecture
 
-This document describes the data flow and design decisions in the
-svg-language-server workspace.
+This document describes the data flow and design decisions in the `svg`
+workspace.
 
 ## Crate dependency graph
 
@@ -107,18 +107,15 @@ textDocument/formatting
 
 ### Compile-time catalog (`svg-data`)
 
-The build script (`build.rs` + `build/bcd.rs`, `build/codegen.rs`,
-`build/spec.rs`) fetches data from three sources:
+`svg-data-regen` fetches upstream SVG/CSS/compat sources on demand and writes
+committed split catalog artifacts under `crates/svg-data/data/`: the root
+manifest, core catalog, compat facts, graph, and snapshot overlays.
 
-1. **Curated JSON** — hand-maintained element/attribute definitions in the crate
-2. **BCD (Browser Compat Data)** — fetched from unpkg.com at build time, merged
-   into the catalog for deprecation/experimental/baseline/browser-support fields
-3. **W3C svgwg spec HTML** — scraped for element descriptions
-
-The build script generates `catalog.rs` (included via `include!()`) containing
-static arrays of `ElementDef` and `AttributeDef`.
-
-Set `SVG_DATA_OFFLINE=1` to skip network fetches and use cached data.
+The `svg-data` build script is hermetic: it reads those committed JSON files,
+validates relative refs under the data directory, and generates `catalog.rs`
+(included via `include!()`) containing static arrays and lookup tables. Browser
+compatibility and web-features facts come from the committed compat artifact,
+not from unpkg during Cargo builds.
 
 ### Runtime compat overlay (`RuntimeCompat`)
 

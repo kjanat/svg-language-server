@@ -8,9 +8,9 @@ tree-sitter generate
 dprint fmt .
 
 # Re-stage only generated files that now differ from the index
-changed=$(git diff --name-only -- src/)
-if [ -n "$changed" ]; then
-	echo "$changed" | xargs git add
+mapfile -d '' changed < <(git diff --name-only -z -- src/)
+if ((${#changed[@]})); then
+	git add -- "${changed[@]}"
 	echo "pre-commit: re-staged changed generated files:"
-	echo "$changed"
+	printf "  %s\n" "${changed[@]}"
 fi

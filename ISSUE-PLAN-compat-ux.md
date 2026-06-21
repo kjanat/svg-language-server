@@ -914,8 +914,9 @@ clear error message.
 | `workers/svg-compat/src/render.tsx`                                   | UPDATED   | Populate new stat fields                                                                                                   |
 | `workers/svg-compat/src/main_test.ts`                                 | UPDATED   | New dashboard render tests                                                                                                 |
 
-No new files in the worker (extensions only). Three new files in svg-data
-(`verdict.rs`, exception TOML, optional `BcdSpecError` type).
+Worker static SVG assets are in scope for the browser support visuals, alongside
+three new files in svg-data (`verdict.rs`, exception TOML, optional
+`BcdSpecError` type).
 
 ---
 

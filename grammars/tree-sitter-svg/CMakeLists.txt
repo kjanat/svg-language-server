@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.13)
 project(tree-sitter-svg
         VERSION "0.1.0"
         DESCRIPTION "SVG grammar for Tree-sitter"
-        HOMEPAGE_URL "https://github.com/kjanat/svg/tree/master/grammars/tree-sitter-svg"
+        HOMEPAGE_URL "https://github.com/kjanat/svg"
         LANGUAGES C)
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)

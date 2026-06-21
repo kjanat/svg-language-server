@@ -18,29 +18,36 @@ impl SvgExtension {
         version: &str,
         expected_path: &str,
     ) -> zed::Result<()> {
-        let result = zed::npm_install_package(package_name, version);
-        match result {
-            Ok(()) => {
-                if !Self::file_exists(expected_path) {
-                    Err(format!(
-                        "installed package '{package_name}' did not contain expected path '{expected_path}'",
-                    ))?;
-                }
-            }
-            Err(error) => {
-                if !Self::file_exists(expected_path) {
-                    Err(error)?;
-                }
-            }
+        if Self::file_exists(expected_path) {
+            return Ok(());
+        }
+
+        zed::npm_install_package(package_name, version)?;
+        if !Self::file_exists(expected_path) {
+            Err(format!(
+                "installed package '{package_name}' did not contain expected path '{expected_path}'",
+            ))?;
         }
 
         Ok(())
+    }
+
+    fn npm_managed_server_path() -> zed::Result<String> {
+        Ok(env::current_dir()
+            .map_err(|error| format!("failed to get extension working directory: {error}"))?
+            .join(LSP_RUN_PATH)
+            .to_string_lossy()
+            .to_string())
     }
 
     fn npm_managed_server_script_path(
         &mut self,
         language_server_id: &zed::LanguageServerId,
     ) -> zed::Result<String> {
+        if Self::file_exists(LSP_RUN_PATH) {
+            return Self::npm_managed_server_path();
+        }
+
         zed::set_language_server_installation_status(
             language_server_id,
             &zed::LanguageServerInstallationStatus::CheckingForUpdate,
@@ -48,23 +55,13 @@ impl SvgExtension {
 
         let lsp_version = zed::npm_package_latest_version(LSP_PACKAGE_NAME)?;
 
-        let lsp_needs_install = !Self::file_exists(LSP_RUN_PATH)
-            || zed::npm_package_installed_version(LSP_PACKAGE_NAME)?.as_ref() != Some(&lsp_version);
+        zed::set_language_server_installation_status(
+            language_server_id,
+            &zed::LanguageServerInstallationStatus::Downloading,
+        );
 
-        if lsp_needs_install {
-            zed::set_language_server_installation_status(
-                language_server_id,
-                &zed::LanguageServerInstallationStatus::Downloading,
-            );
-
-            self.install_npm_package(LSP_PACKAGE_NAME, &lsp_version, LSP_RUN_PATH)?;
-        }
-
-        Ok(env::current_dir()
-            .map_err(|error| format!("failed to get extension working directory: {error}"))?
-            .join(LSP_RUN_PATH)
-            .to_string_lossy()
-            .to_string())
+        self.install_npm_package(LSP_PACKAGE_NAME, &lsp_version, LSP_RUN_PATH)?;
+        Self::npm_managed_server_path()
     }
 }
 

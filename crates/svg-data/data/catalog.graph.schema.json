@@ -1,178 +1,178 @@
 {
-	"$schema": "https://json-schema.org/draft/2020-12/schema",
-	"$defs": {
-		"CatalogGraphEdge": {
-			"description": "One directed edge in the derived catalog graph.",
-			"type": "object",
-			"required": [
-				"from",
-				"kind",
-				"to"
-			],
-			"properties": {
-				"from": {
-					"description": "Source node id.",
-					"type": "string"
-				},
-				"kind": {
-					"$ref": "#/$defs/CatalogGraphEdgeKind",
-					"description": "Edge kind."
-				},
-				"to": {
-					"description": "Target node id.",
-					"type": "string"
-				}
-			}
-		},
-		"CatalogGraphEdgeKind": {
-			"description": "Catalog graph edge kinds.",
-			"oneOf": [
-				{
-					"description": "Parent element accepts child element.",
-					"type": "string",
-					"const": "allows_child"
-				},
-				{
-					"description": "Element has a direct/specific attribute declaration.",
-					"type": "string",
-					"const": "has_attribute"
-				},
-				{
-					"description": "Attribute applies to an element after global/scoped applicability is resolved.",
-					"type": "string",
-					"const": "applies_to"
-				},
-				{
-					"description": "Feature is a member of a spec category.",
-					"type": "string",
-					"const": "member_of"
-				},
-				{
-					"description": "Element accepts the SVG global attribute set.",
-					"type": "string",
-					"const": "accepts_global_attributes"
-				},
-				{
-					"description": "Presentation attribute is backed by a CSS property.",
-					"type": "string",
-					"const": "uses_css_property"
-				},
-				{
-					"description": "Attribute points at a value grammar node.",
-					"type": "string",
-					"const": "has_value_grammar"
-				},
-				{
-					"description": "Value grammar override applies in the target profile.",
-					"type": "string",
-					"const": "overrides_value_in_profile"
-				},
-				{
-					"description": "Compat subfeature describes the target element/attribute.",
-					"type": "string",
-					"const": "describes"
-				},
-				{
-					"description": "Feature is present in the target profile.",
-					"type": "string",
-					"const": "present_in"
-				}
-			]
-		},
-		"CatalogGraphNode": {
-			"description": "One node in the derived catalog graph.",
-			"type": "object",
-			"required": [
-				"id",
-				"kind",
-				"name"
-			],
-			"properties": {
-				"id": {
-					"description": "Stable node id, namespaced by node kind.",
-					"type": "string"
-				},
-				"kind": {
-					"$ref": "#/$defs/CatalogGraphNodeKind",
-					"description": "Node kind."
-				},
-				"name": {
-					"description": "Human-readable node name.",
-					"type": "string"
-				}
-			}
-		},
-		"CatalogGraphNodeKind": {
-			"description": "Catalog graph node kinds.",
-			"oneOf": [
-				{
-					"description": "SVG element definition.",
-					"type": "string",
-					"const": "element"
-				},
-				{
-					"description": "SVG attribute definition.",
-					"type": "string",
-					"const": "attribute"
-				},
-				{
-					"description": "SVG element category from the spec taxonomy.",
-					"type": "string",
-					"const": "element_category"
-				},
-				{
-					"description": "SVG attribute category from the spec taxonomy.",
-					"type": "string",
-					"const": "attribute_category"
-				},
-				{
-					"description": "SVG specification profile/snapshot.",
-					"type": "string",
-					"const": "profile"
-				},
-				{
-					"description": "CSS property backing a presentation attribute.",
-					"type": "string",
-					"const": "css_property"
-				},
-				{
-					"description": "Attribute value grammar node.",
-					"type": "string",
-					"const": "value_grammar"
-				},
-				{
-					"description": "Retained browser-compat subfeature not modeled as a first-class element/attribute.",
-					"type": "string",
-					"const": "compat_feature"
-				}
-			]
-		}
-	},
-	"title": "svg-data graph catalog v1",
-	"description": "Derived graph document.",
-	"type": "object",
-	"required": [
-		"edges",
-		"nodes",
-		"schema_version"
-	],
-	"properties": {
-		"edges": {
-			"description": "Directed graph edges, sorted by `(from, to, kind)`.",
-			"type": "array",
-			"items": {
-				"$ref": "#/$defs/CatalogGraphEdge"
-			}
-		},
-		"nodes": {
-			"description": "Graph nodes, sorted by id.",
-			"type": "array",
-			"items": {
-				"$ref": "#/$defs/CatalogGraphNode"
-			}
-		},
-		"schema_version": {
-			"const": 1
-		}
-	}
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "CatalogGraphEdge": {
+      "description": "One directed edge in the derived catalog graph.",
+      "type": "object",
+      "required": [
+        "from",
+        "kind",
+        "to"
+      ],
+      "properties": {
+        "from": {
+          "description": "Source node id.",
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/CatalogGraphEdgeKind",
+          "description": "Edge kind."
+        },
+        "to": {
+          "description": "Target node id.",
+          "type": "string"
+        }
+      }
+    },
+    "CatalogGraphEdgeKind": {
+      "description": "Catalog graph edge kinds.",
+      "oneOf": [
+        {
+          "description": "Parent element accepts child element.",
+          "type": "string",
+          "const": "allows_child"
+        },
+        {
+          "description": "Element has a direct/specific attribute declaration.",
+          "type": "string",
+          "const": "has_attribute"
+        },
+        {
+          "description": "Attribute applies to an element after global/scoped applicability is resolved.",
+          "type": "string",
+          "const": "applies_to"
+        },
+        {
+          "description": "Feature is a member of a spec category.",
+          "type": "string",
+          "const": "member_of"
+        },
+        {
+          "description": "Element accepts the SVG global attribute set.",
+          "type": "string",
+          "const": "accepts_global_attributes"
+        },
+        {
+          "description": "Presentation attribute is backed by a CSS property.",
+          "type": "string",
+          "const": "uses_css_property"
+        },
+        {
+          "description": "Attribute points at a value grammar node.",
+          "type": "string",
+          "const": "has_value_grammar"
+        },
+        {
+          "description": "Value grammar override applies in the target profile.",
+          "type": "string",
+          "const": "overrides_value_in_profile"
+        },
+        {
+          "description": "Compat subfeature describes the target element/attribute.",
+          "type": "string",
+          "const": "describes"
+        },
+        {
+          "description": "Feature is present in the target profile.",
+          "type": "string",
+          "const": "present_in"
+        }
+      ]
+    },
+    "CatalogGraphNode": {
+      "description": "One node in the derived catalog graph.",
+      "type": "object",
+      "required": [
+        "id",
+        "kind",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "description": "Stable node id, namespaced by node kind.",
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/CatalogGraphNodeKind",
+          "description": "Node kind."
+        },
+        "name": {
+          "description": "Human-readable node name.",
+          "type": "string"
+        }
+      }
+    },
+    "CatalogGraphNodeKind": {
+      "description": "Catalog graph node kinds.",
+      "oneOf": [
+        {
+          "description": "SVG element definition.",
+          "type": "string",
+          "const": "element"
+        },
+        {
+          "description": "SVG attribute definition.",
+          "type": "string",
+          "const": "attribute"
+        },
+        {
+          "description": "SVG element category from the spec taxonomy.",
+          "type": "string",
+          "const": "element_category"
+        },
+        {
+          "description": "SVG attribute category from the spec taxonomy.",
+          "type": "string",
+          "const": "attribute_category"
+        },
+        {
+          "description": "SVG specification profile/snapshot.",
+          "type": "string",
+          "const": "profile"
+        },
+        {
+          "description": "CSS property backing a presentation attribute.",
+          "type": "string",
+          "const": "css_property"
+        },
+        {
+          "description": "Attribute value grammar node.",
+          "type": "string",
+          "const": "value_grammar"
+        },
+        {
+          "description": "Retained browser-compat subfeature not modeled as a first-class element/attribute.",
+          "type": "string",
+          "const": "compat_feature"
+        }
+      ]
+    }
+  },
+  "title": "svg-data graph catalog v1",
+  "description": "Derived graph document.",
+  "type": "object",
+  "required": [
+    "edges",
+    "nodes",
+    "schema_version"
+  ],
+  "properties": {
+    "edges": {
+      "description": "Directed graph edges, sorted by `(from, to, kind)`.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/CatalogGraphEdge"
+      }
+    },
+    "nodes": {
+      "description": "Graph nodes, sorted by id.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/CatalogGraphNode"
+      }
+    },
+    "schema_version": {
+      "const": 1
+    }
+  }
 }

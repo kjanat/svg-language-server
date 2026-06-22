@@ -1,967 +1,940 @@
 {
-	"$schema": "https://json-schema.org/draft/2020-12/schema",
-	"$defs": {
-		"CatalogAttribute": {
-			"description": "One attribute's spec-derived catalog entry.",
-			"type": "object",
-			"required": [
-				"animatable",
-				"applicability",
-				"name",
-				"value_overrides",
-				"values"
-			],
-			"properties": {
-				"animatable": {
-					"description": "Whether the spec marks the attribute animatable.",
-					"type": "boolean"
-				},
-				"applicability": {
-					"$ref": "#/$defs/CatalogAttributeApplicability",
-					"description": "Which elements accept the attribute."
-				},
-				"baseline": {
-					"description": "Web-platform baseline status, when known.",
-					"anyOf": [
-						{
-							"$ref": "#/$defs/CatalogBaselineStatus"
-						},
-						{
-							"type": "null"
-						}
-					]
-				},
-				"browser_support": {
-					"description": "Per-browser support data, when known.",
-					"anyOf": [
-						{
-							"$ref": "#/$defs/CatalogBrowserSupport"
-						},
-						{
-							"type": "null"
-						}
-					]
-				},
-				"deprecated": {
-					"description": "Whether compat data marks the attribute deprecated.",
-					"type": "boolean"
-				},
-				"description": {
-					"description": "Short human-readable description from spec prose.",
-					"type": [
-						"null",
-						"string"
-					]
-				},
-				"element_compat": {
-					"description": "Element-scoped compat facts for attributes whose BCD data differs by bearer.",
-					"type": "array",
-					"items": {
-						"$ref": "#/$defs/CatalogAttributeElementCompat"
-					}
-				},
-				"experimental": {
-					"description": "Whether compat data marks the attribute experimental.",
-					"type": "boolean"
-				},
-				"mdn_url": {
-					"description": "MDN reference URL.",
-					"type": [
-						"null",
-						"string"
-					]
-				},
-				"name": {
-					"description": "Canonical attribute name (`xlink:href` collapses to `href`).",
-					"type": "string"
-				},
-				"presentation_attribute": {
-					"description": "Backing CSS property name when this is a presentation attribute.",
-					"type": [
-						"null",
-						"string"
-					]
-				},
-				"spec_url": {
-					"description": "Resolved spec permalink.",
-					"type": [
-						"null",
-						"string"
-					]
-				},
-				"standard_track": {
-					"description": "Whether compat data marks the attribute as standards-track.",
-					"type": [
-						"boolean",
-						"null"
-					]
-				},
-				"value_overrides": {
-					"description": "Per-profile value-space overrides, when older snapshots accepted a\ndifferent grammar.",
-					"writeOnly": true,
-					"type": "array",
-					"items": {
-						"$ref": "#/$defs/CatalogAttributeValueOverride"
-					}
-				},
-				"values": {
-					"$ref": "#/$defs/CatalogAttributeValues",
-					"description": "Attribute value space."
-				}
-			}
-		},
-		"CatalogAttributeApplicability": {
-			"description": "Which elements an attribute can appear on.",
-			"oneOf": [
-				{
-					"description": "Applies to every element that accepts global SVG attributes.",
-					"type": "object",
-					"required": [
-						"kind"
-					],
-					"properties": {
-						"kind": {
-							"type": "string",
-							"const": "global"
-						}
-					}
-				},
-				{
-					"description": "Applies only to the listed element names.",
-					"type": "object",
-					"required": [
-						"elements",
-						"kind"
-					],
-					"properties": {
-						"elements": {
-							"description": "Bearer element names.",
-							"type": "array",
-							"items": {
-								"type": "string"
-							}
-						},
-						"kind": {
-							"type": "string",
-							"const": "elements"
-						}
-					}
-				},
-				{
-					"description": "Known attribute that applies to no elements in this catalog.",
-					"type": "object",
-					"required": [
-						"kind"
-					],
-					"properties": {
-						"kind": {
-							"type": "string",
-							"const": "none"
-						}
-					}
-				}
-			]
-		},
-		"CatalogAttributeElementCompat": {
-			"description": "Attribute compat facts scoped to one element bearer.",
-			"type": "object",
-			"required": [
-				"element"
-			],
-			"properties": {
-				"baseline": {
-					"description": "Web-platform baseline status, when known.",
-					"anyOf": [
-						{
-							"$ref": "#/$defs/CatalogBaselineStatus"
-						},
-						{
-							"type": "null"
-						}
-					]
-				},
-				"browser_support": {
-					"description": "Per-browser support data, when known.",
-					"anyOf": [
-						{
-							"$ref": "#/$defs/CatalogBrowserSupport"
-						},
-						{
-							"type": "null"
-						}
-					]
-				},
-				"deprecated": {
-					"description": "Whether compat data marks the feature deprecated.",
-					"type": "boolean"
-				},
-				"element": {
-					"description": "Element name this compat record applies to.",
-					"type": "string"
-				},
-				"experimental": {
-					"description": "Whether compat data marks the feature experimental.",
-					"type": "boolean"
-				},
-				"mdn_url": {
-					"description": "MDN reference URL.",
-					"type": [
-						"null",
-						"string"
-					]
-				},
-				"standard_track": {
-					"description": "Whether compat data marks the feature as standards-track.",
-					"type": [
-						"boolean",
-						"null"
-					]
-				}
-			}
-		},
-		"CatalogAttributeValueOverride": {
-			"description": "One per-profile value-space override for an attribute.",
-			"type": "object",
-			"required": [
-				"profile",
-				"values"
-			],
-			"properties": {
-				"profile": {
-					"$ref": "#/$defs/CatalogSpecSnapshotId",
-					"description": "Profile snapshot where this value grammar applies."
-				},
-				"values": {
-					"$ref": "#/$defs/CatalogAttributeValues",
-					"description": "Value space for that profile."
-				}
-			}
-		},
-		"CatalogAttributeValues": {
-			"description": "The runtime value-space shapes the catalog emits.",
-			"oneOf": [
-				{
-					"description": "One of the listed keyword values.",
-					"type": "object",
-					"required": [
-						"kind",
-						"values"
-					],
-					"properties": {
-						"kind": {
-							"type": "string",
-							"const": "enum"
-						},
-						"values": {
-							"description": "Allowed keyword values.",
-							"type": "array",
-							"items": {
-								"type": "string"
-							}
-						}
-					}
-				},
-				{
-					"description": "A transform list; functions are completion hints.",
-					"type": "object",
-					"required": [
-						"functions",
-						"kind"
-					],
-					"properties": {
-						"functions": {
-							"description": "Transform function names.",
-							"type": "array",
-							"items": {
-								"type": "string"
-							}
-						},
-						"kind": {
-							"type": "string",
-							"const": "transform"
-						}
-					}
-				},
-				{
-					"description": "A CSS/SVG color value.",
-					"type": "object",
-					"required": [
-						"kind"
-					],
-					"properties": {
-						"kind": {
-							"type": "string",
-							"const": "color"
-						}
-					}
-				},
-				{
-					"description": "A length or length-percentage value.",
-					"type": "object",
-					"required": [
-						"kind"
-					],
-					"properties": {
-						"kind": {
-							"type": "string",
-							"const": "length"
-						}
-					}
-				},
-				{
-					"description": "A URL / fragment reference.",
-					"type": "object",
-					"required": [
-						"kind"
-					],
-					"properties": {
-						"kind": {
-							"type": "string",
-							"const": "url"
-						}
-					}
-				},
-				{
-					"description": "A number or percentage.",
-					"type": "object",
-					"required": [
-						"kind"
-					],
-					"properties": {
-						"kind": {
-							"type": "string",
-							"const": "number_or_percentage"
-						}
-					}
-				},
-				{
-					"description": "A structured CSS value grammar that is richer than the runtime's\nspecialized variants.",
-					"type": "object",
-					"required": [
-						"grammar",
-						"graph",
-						"kind"
-					],
-					"properties": {
-						"grammar": {
-							"description": "Raw grammar text from the defining spec.",
-							"type": "string"
-						},
-						"graph": {
-							"$ref": "#/$defs/CatalogCssGrammarGraph",
-							"description": "Token graph extracted from the grammar."
-						},
-						"kind": {
-							"type": "string",
-							"const": "css_grammar"
-						}
-					}
-				},
-				{
-					"description": "Free-form text with no constrained grammar.",
-					"type": "object",
-					"required": [
-						"kind"
-					],
-					"properties": {
-						"kind": {
-							"type": "string",
-							"const": "free_text"
-						}
-					}
-				}
-			]
-		},
-		"CatalogBaselineQualifier": {
-			"description": "Inexactness qualifier on a baseline / version date.",
-			"oneOf": [
-				{
-					"description": "The date is an \"on or before\" upper bound.",
-					"type": "string",
-					"const": "before"
-				},
-				{
-					"description": "The date is an \"on or after\" lower bound.",
-					"type": "string",
-					"const": "after"
-				},
-				{
-					"description": "The date is approximate.",
-					"type": "string",
-					"const": "approximately"
-				}
-			]
-		},
-		"CatalogBaselineStatus": {
-			"description": "Web-platform baseline status of a feature.",
-			"oneOf": [
-				{
-					"description": "Widely available across engines.",
-					"type": "object",
-					"required": [
-						"kind",
-						"since"
-					],
-					"properties": {
-						"kind": {
-							"type": "string",
-							"const": "widely"
-						},
-						"qualifier": {
-							"description": "Qualifier when the upstream date was inexact.",
-							"anyOf": [
-								{
-									"$ref": "#/$defs/CatalogBaselineQualifier"
-								},
-								{
-									"type": "null"
-								}
-							]
-						},
-						"since": {
-							"description": "Year it reached widely-available baseline.",
-							"type": "integer",
-							"minimum": 0,
-							"maximum": 65535,
-							"format": "uint16"
-						}
-					}
-				},
-				{
-					"description": "Newly available, not yet widely available.",
-					"type": "object",
-					"required": [
-						"kind",
-						"since"
-					],
-					"properties": {
-						"kind": {
-							"type": "string",
-							"const": "newly"
-						},
-						"qualifier": {
-							"description": "Qualifier when the upstream date was inexact.",
-							"anyOf": [
-								{
-									"$ref": "#/$defs/CatalogBaselineQualifier"
-								},
-								{
-									"type": "null"
-								}
-							]
-						},
-						"since": {
-							"description": "Year it reached newly-available baseline.",
-							"type": "integer",
-							"minimum": 0,
-							"maximum": 65535,
-							"format": "uint16"
-						}
-					}
-				},
-				{
-					"description": "Limited availability.",
-					"type": "object",
-					"required": [
-						"kind"
-					],
-					"properties": {
-						"kind": {
-							"type": "string",
-							"const": "limited"
-						}
-					}
-				}
-			]
-		},
-		"CatalogBrowserFlag": {
-			"description": "A runtime flag a browser gates a feature behind.",
-			"type": "object",
-			"required": [
-				"name"
-			],
-			"properties": {
-				"name": {
-					"description": "Flag/preference name.",
-					"type": "string"
-				}
-			}
-		},
-		"CatalogBrowserSupport": {
-			"description": "Per-browser support across the four tracked engines.",
-			"type": "object",
-			"properties": {
-				"chrome": {
-					"description": "Chrome support.",
-					"anyOf": [
-						{
-							"$ref": "#/$defs/CatalogBrowserVersion"
-						},
-						{
-							"type": "null"
-						}
-					]
-				},
-				"edge": {
-					"description": "Edge support.",
-					"anyOf": [
-						{
-							"$ref": "#/$defs/CatalogBrowserVersion"
-						},
-						{
-							"type": "null"
-						}
-					]
-				},
-				"firefox": {
-					"description": "Firefox support.",
-					"anyOf": [
-						{
-							"$ref": "#/$defs/CatalogBrowserVersion"
-						},
-						{
-							"type": "null"
-						}
-					]
-				},
-				"safari": {
-					"description": "Safari support.",
-					"anyOf": [
-						{
-							"$ref": "#/$defs/CatalogBrowserVersion"
-						},
-						{
-							"type": "null"
-						}
-					]
-				}
-			}
-		},
-		"CatalogBrowserVersion": {
-			"description": "Baked support detail for one browser.",
-			"type": "object",
-			"properties": {
-				"alternative_name": {
-					"description": "Alternative name the browser ships under, when any.",
-					"type": [
-						"null",
-						"string"
-					]
-				},
-				"flags": {
-					"description": "Runtime flags gating the feature.",
-					"type": "array",
-					"items": {
-						"$ref": "#/$defs/CatalogBrowserFlag"
-					}
-				},
-				"notes": {
-					"description": "Upstream notes.",
-					"type": "array",
-					"items": {
-						"type": "string"
-					}
-				},
-				"partial_implementation": {
-					"description": "Whether support is partial.",
-					"type": "boolean"
-				},
-				"prefix": {
-					"description": "Vendor prefix required, when any.",
-					"type": [
-						"null",
-						"string"
-					]
-				},
-				"supported": {
-					"description": "Explicit support flag, when the data states one (`false` = unsupported).",
-					"type": [
-						"boolean",
-						"null"
-					]
-				},
-				"version_added": {
-					"description": "First version (`\"15\"`, `\"<=37\"`), when known.",
-					"type": [
-						"null",
-						"string"
-					]
-				},
-				"version_qualifier": {
-					"description": "Qualifier on the added version's date inexactness.",
-					"anyOf": [
-						{
-							"$ref": "#/$defs/CatalogBaselineQualifier"
-						},
-						{
-							"type": "null"
-						}
-					]
-				},
-				"version_removed": {
-					"description": "Version support was removed in, when any.",
-					"type": [
-						"null",
-						"string"
-					]
-				},
-				"version_removed_qualifier": {
-					"description": "Qualifier on the removed version's date inexactness.",
-					"anyOf": [
-						{
-							"$ref": "#/$defs/CatalogBaselineQualifier"
-						},
-						{
-							"type": "null"
-						}
-					]
-				}
-			}
-		},
-		"CatalogContentModel": {
-			"description": "The runtime content-model shapes the catalog emits. The spec's category\ntaxonomy is already flattened into [`Self::ChildrenSet`].",
-			"oneOf": [
-				{
-					"description": "Accepts exactly the listed child element names.",
-					"type": "object",
-					"required": [
-						"elements",
-						"kind"
-					],
-					"properties": {
-						"elements": {
-							"description": "Allowed child element names (sorted, deduped).",
-							"type": "array",
-							"items": {
-								"type": "string"
-							}
-						},
-						"kind": {
-							"type": "string",
-							"const": "children_set"
-						}
-					}
-				},
-				{
-					"description": "Accepts any element from the SVG namespace.",
-					"type": "object",
-					"required": [
-						"kind"
-					],
-					"properties": {
-						"kind": {
-							"type": "string",
-							"const": "any_svg"
-						}
-					}
-				},
-				{
-					"description": "Hosts arbitrary foreign-namespace content (the spec's `any` model:\n\"any elements or character data\"), e.g. HTML in `foreignObject`.",
-					"type": "object",
-					"required": [
-						"kind"
-					],
-					"properties": {
-						"kind": {
-							"type": "string",
-							"const": "foreign"
-						}
-					}
-				},
-				{
-					"description": "Primarily character data.",
-					"type": "object",
-					"required": [
-						"kind"
-					],
-					"properties": {
-						"kind": {
-							"type": "string",
-							"const": "text"
-						}
-					}
-				}
-			]
-		},
-		"CatalogCssGrammarEdge": {
-			"description": "One directed edge in a CSS grammar graph.",
-			"type": "object",
-			"required": [
-				"from",
-				"kind",
-				"to"
-			],
-			"properties": {
-				"from": {
-					"description": "Source node id.",
-					"type": "integer",
-					"minimum": 0,
-					"maximum": 65535,
-					"format": "uint16"
-				},
-				"kind": {
-					"$ref": "#/$defs/CatalogCssGrammarEdgeKind",
-					"description": "Edge kind."
-				},
-				"to": {
-					"description": "Target node id.",
-					"type": "integer",
-					"minimum": 0,
-					"maximum": 65535,
-					"format": "uint16"
-				}
-			}
-		},
-		"CatalogCssGrammarEdgeKind": {
-			"description": "CSS grammar edge kinds.",
-			"oneOf": [
-				{
-					"description": "Parent/group containment.",
-					"type": "string",
-					"const": "contains"
-				},
-				{
-					"description": "Sibling order within a parent/group.",
-					"type": "string",
-					"const": "next"
-				}
-			]
-		},
-		"CatalogCssGrammarGraph": {
-			"description": "Graph representation of a CSS value grammar.",
-			"type": "object",
-			"required": [
-				"edges",
-				"nodes",
-				"root"
-			],
-			"properties": {
-				"edges": {
-					"description": "Grammar edges.",
-					"type": "array",
-					"items": {
-						"$ref": "#/$defs/CatalogCssGrammarEdge"
-					}
-				},
-				"nodes": {
-					"description": "Grammar nodes.",
-					"type": "array",
-					"items": {
-						"$ref": "#/$defs/CatalogCssGrammarNode"
-					}
-				},
-				"root": {
-					"description": "Root node id.",
-					"type": "integer",
-					"minimum": 0,
-					"maximum": 65535,
-					"format": "uint16"
-				}
-			}
-		},
-		"CatalogCssGrammarNode": {
-			"description": "One node in a CSS grammar graph.",
-			"type": "object",
-			"required": [
-				"id",
-				"kind"
-			],
-			"properties": {
-				"id": {
-					"description": "Stable node id within the graph.",
-					"type": "integer",
-					"minimum": 0,
-					"maximum": 65535,
-					"format": "uint16"
-				},
-				"kind": {
-					"$ref": "#/$defs/CatalogCssGrammarNodeKind",
-					"description": "Node kind."
-				},
-				"text": {
-					"description": "Token text, when the node carries one.",
-					"type": [
-						"null",
-						"string"
-					]
-				}
-			}
-		},
-		"CatalogCssGrammarNodeKind": {
-			"description": "CSS grammar node kinds.",
-			"oneOf": [
-				{
-					"description": "Synthetic root.",
-					"type": "string",
-					"const": "root"
-				},
-				{
-					"description": "Bracketed group.",
-					"type": "string",
-					"const": "group"
-				},
-				{
-					"description": "CSS keyword token.",
-					"type": "string",
-					"const": "keyword"
-				},
-				{
-					"description": "CSS type token, e.g. `<length>`.",
-					"type": "string",
-					"const": "type"
-				},
-				{
-					"description": "Functional notation token, e.g. `url()`.",
-					"type": "string",
-					"const": "function"
-				},
-				{
-					"description": "CSS grammar operator or multiplier.",
-					"type": "string",
-					"const": "operator"
-				}
-			]
-		},
-		"CatalogElement": {
-			"description": "One element's spec-derived catalog entry.",
-			"type": "object",
-			"required": [
-				"attrs",
-				"content_model",
-				"global_attrs",
-				"name"
-			],
-			"properties": {
-				"attrs": {
-					"description": "Element-specific attribute names (sorted, deduped).",
-					"type": "array",
-					"items": {
-						"type": "string"
-					}
-				},
-				"baseline": {
-					"description": "Web-platform baseline status, when known.",
-					"anyOf": [
-						{
-							"$ref": "#/$defs/CatalogBaselineStatus"
-						},
-						{
-							"type": "null"
-						}
-					]
-				},
-				"browser_support": {
-					"description": "Per-browser support data, when known.",
-					"anyOf": [
-						{
-							"$ref": "#/$defs/CatalogBrowserSupport"
-						},
-						{
-							"type": "null"
-						}
-					]
-				},
-				"content_model": {
-					"$ref": "#/$defs/CatalogContentModel",
-					"description": "Structural child-content model."
-				},
-				"deprecated": {
-					"description": "Whether compat data marks the element deprecated.",
-					"type": "boolean"
-				},
-				"description": {
-					"description": "Short human-readable description from spec prose.",
-					"type": [
-						"null",
-						"string"
-					]
-				},
-				"experimental": {
-					"description": "Whether compat data marks the element experimental.",
-					"type": "boolean"
-				},
-				"global_attrs": {
-					"description": "Whether the element carries the SVG global (`core`) attributes.",
-					"type": "boolean"
-				},
-				"mdn_url": {
-					"description": "MDN reference URL.",
-					"type": [
-						"null",
-						"string"
-					]
-				},
-				"name": {
-					"description": "Element tag name.",
-					"type": "string"
-				},
-				"spec_url": {
-					"description": "Resolved spec permalink (the module's anchor base joined with the href).",
-					"type": [
-						"null",
-						"string"
-					]
-				},
-				"standard_track": {
-					"description": "Whether compat data marks the element as standards-track.",
-					"type": [
-						"boolean",
-						"null"
-					]
-				}
-			}
-		},
-		"CatalogSpecSnapshotId": {
-			"description": "SVG specification snapshots understood by the catalog contract.",
-			"oneOf": [
-				{
-					"description": "SVG 1.1 First Edition (W3C REC 2003-01-14).",
-					"type": "string",
-					"const": "Svg11Rec20030114"
-				},
-				{
-					"description": "SVG 1.1 Second Edition (W3C REC 2011-08-16).",
-					"type": "string",
-					"const": "Svg11Rec20110816"
-				},
-				{
-					"description": "SVG 2 Candidate Recommendation (2018-10-04).",
-					"type": "string",
-					"const": "Svg2Cr20181004"
-				},
-				{
-					"description": "SVG 2 Editor's Draft (rolling).",
-					"type": "string",
-					"const": "Svg2EditorsDraft"
-				}
-			]
-		}
-	},
-	"title": "svg-data core catalog v1",
-	"description": "Canonical latest catalog data.",
-	"type": "object",
-	"required": [
-		"attributes",
-		"elements",
-		"schema_version"
-	],
-	"properties": {
-		"attributes": {
-			"description": "Attribute definitions, sorted by canonical name.",
-			"type": "array",
-			"items": {
-				"$ref": "#/$defs/CatalogAttribute"
-			}
-		},
-		"elements": {
-			"description": "Element definitions, sorted by name.",
-			"type": "array",
-			"items": {
-				"$ref": "#/$defs/CatalogElement"
-			}
-		},
-		"schema_version": {
-			"const": 1
-		}
-	}
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "CatalogAttribute": {
+      "description": "One attribute's spec-derived catalog entry.",
+      "type": "object",
+      "required": [
+        "animatable",
+        "applicability",
+        "name",
+        "values"
+      ],
+      "properties": {
+        "animatable": {
+          "description": "Whether the spec marks the attribute animatable.",
+          "type": "boolean"
+        },
+        "applicability": {
+          "$ref": "#/$defs/CatalogAttributeApplicability",
+          "description": "Which elements accept the attribute."
+        },
+        "baseline": {
+          "description": "Web-platform baseline status, when known.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CatalogBaselineStatus"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "browser_support": {
+          "description": "Per-browser support data, when known.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CatalogBrowserSupport"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "deprecated": {
+          "description": "Whether compat data marks the attribute deprecated.",
+          "type": "boolean"
+        },
+        "description": {
+          "description": "Short human-readable description from spec prose.",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "element_compat": {
+          "description": "Element-scoped compat facts for attributes whose BCD data differs by bearer.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CatalogAttributeElementCompat"
+          }
+        },
+        "element_values": {
+          "description": "Element-scoped value-space overrides for attributes whose value grammar\ngenuinely differs by bearer element within the same profile (e.g.\n`operator` on `feComposite` vs `feMorphology`).",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CatalogAttributeElementValues"
+          }
+        },
+        "experimental": {
+          "description": "Whether compat data marks the attribute experimental.",
+          "type": "boolean"
+        },
+        "mdn_url": {
+          "description": "MDN reference URL.",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "name": {
+          "description": "Canonical attribute name (`xlink:href` collapses to `href`).",
+          "type": "string"
+        },
+        "presentation_attribute": {
+          "description": "Backing CSS property name when this is a presentation attribute.",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "spec_url": {
+          "description": "Resolved spec permalink.",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "standard_track": {
+          "description": "Whether compat data marks the attribute as standards-track.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "values": {
+          "$ref": "#/$defs/CatalogAttributeValues",
+          "description": "Attribute value space."
+        }
+      }
+    },
+    "CatalogAttributeApplicability": {
+      "description": "Which elements an attribute can appear on.",
+      "oneOf": [
+        {
+          "description": "Applies to every element that accepts global SVG attributes.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "global"
+            }
+          }
+        },
+        {
+          "description": "Applies only to the listed element names.",
+          "type": "object",
+          "required": [
+            "elements",
+            "kind"
+          ],
+          "properties": {
+            "elements": {
+              "description": "Bearer element names.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "kind": {
+              "type": "string",
+              "const": "elements"
+            }
+          }
+        },
+        {
+          "description": "Known attribute that applies to no elements in this catalog.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "none"
+            }
+          }
+        }
+      ]
+    },
+    "CatalogAttributeElementCompat": {
+      "description": "Attribute compat facts scoped to one element bearer.",
+      "type": "object",
+      "required": [
+        "element"
+      ],
+      "properties": {
+        "baseline": {
+          "description": "Web-platform baseline status, when known.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CatalogBaselineStatus"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "browser_support": {
+          "description": "Per-browser support data, when known.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CatalogBrowserSupport"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "deprecated": {
+          "description": "Whether compat data marks the feature deprecated.",
+          "type": "boolean"
+        },
+        "element": {
+          "description": "Element name this compat record applies to.",
+          "type": "string"
+        },
+        "experimental": {
+          "description": "Whether compat data marks the feature experimental.",
+          "type": "boolean"
+        },
+        "mdn_url": {
+          "description": "MDN reference URL.",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "standard_track": {
+          "description": "Whether compat data marks the feature as standards-track.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      }
+    },
+    "CatalogAttributeElementValues": {
+      "description": "One element-scoped value-space override for an attribute whose value grammar\ngenuinely differs by bearer element within the same profile.\n\nThe canonical [`CatalogAttribute::values`] holds the value space of the\nfirst bearer (by sorted element name); each diverging bearer is recorded\nhere so no spec-defined value space is lost.",
+      "type": "object",
+      "required": [
+        "element",
+        "values"
+      ],
+      "properties": {
+        "element": {
+          "description": "Element this value-space override applies to.",
+          "type": "string"
+        },
+        "values": {
+          "$ref": "#/$defs/CatalogAttributeValues",
+          "description": "Value space when the attribute is borne by `element`."
+        }
+      }
+    },
+    "CatalogAttributeValues": {
+      "description": "The runtime value-space shapes the catalog emits.",
+      "oneOf": [
+        {
+          "description": "One of the listed keyword values.",
+          "type": "object",
+          "required": [
+            "kind",
+            "values"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "enum"
+            },
+            "values": {
+              "description": "Allowed keyword values.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "description": "A transform list; functions are completion hints.",
+          "type": "object",
+          "required": [
+            "functions",
+            "kind"
+          ],
+          "properties": {
+            "functions": {
+              "description": "Transform function names.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "kind": {
+              "type": "string",
+              "const": "transform"
+            }
+          }
+        },
+        {
+          "description": "A CSS/SVG color value.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "color"
+            }
+          }
+        },
+        {
+          "description": "A length or length-percentage value.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "length"
+            }
+          }
+        },
+        {
+          "description": "A URL / fragment reference.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "url"
+            }
+          }
+        },
+        {
+          "description": "A number or percentage.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "number_or_percentage"
+            }
+          }
+        },
+        {
+          "description": "A structured CSS value grammar that is richer than the runtime's\nspecialized variants.",
+          "type": "object",
+          "required": [
+            "grammar",
+            "graph",
+            "kind"
+          ],
+          "properties": {
+            "grammar": {
+              "description": "Raw grammar text from the defining spec.",
+              "type": "string"
+            },
+            "graph": {
+              "$ref": "#/$defs/CatalogCssGrammarGraph",
+              "description": "Token graph extracted from the grammar."
+            },
+            "kind": {
+              "type": "string",
+              "const": "css_grammar"
+            }
+          }
+        },
+        {
+          "description": "Free-form text with no constrained grammar.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "free_text"
+            }
+          }
+        }
+      ]
+    },
+    "CatalogBaselineQualifier": {
+      "description": "Inexactness qualifier on a baseline / version date.",
+      "oneOf": [
+        {
+          "description": "The date is an \"on or before\" upper bound.",
+          "type": "string",
+          "const": "before"
+        },
+        {
+          "description": "The date is an \"on or after\" lower bound.",
+          "type": "string",
+          "const": "after"
+        },
+        {
+          "description": "The date is approximate.",
+          "type": "string",
+          "const": "approximately"
+        }
+      ]
+    },
+    "CatalogBaselineStatus": {
+      "description": "Web-platform baseline status of a feature.",
+      "oneOf": [
+        {
+          "description": "Widely available across engines.",
+          "type": "object",
+          "required": [
+            "kind",
+            "since"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "widely"
+            },
+            "qualifier": {
+              "description": "Qualifier when the upstream date was inexact.",
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/CatalogBaselineQualifier"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "since": {
+              "description": "Year it reached widely-available baseline.",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 65535,
+              "format": "uint16"
+            }
+          }
+        },
+        {
+          "description": "Newly available, not yet widely available.",
+          "type": "object",
+          "required": [
+            "kind",
+            "since"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "newly"
+            },
+            "qualifier": {
+              "description": "Qualifier when the upstream date was inexact.",
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/CatalogBaselineQualifier"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "since": {
+              "description": "Year it reached newly-available baseline.",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 65535,
+              "format": "uint16"
+            }
+          }
+        },
+        {
+          "description": "Limited availability.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "limited"
+            }
+          }
+        }
+      ]
+    },
+    "CatalogBrowserFlag": {
+      "description": "A runtime flag a browser gates a feature behind.",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "description": "Flag/preference name.",
+          "type": "string"
+        }
+      }
+    },
+    "CatalogBrowserSupport": {
+      "description": "Per-browser support across the four tracked engines.",
+      "type": "object",
+      "properties": {
+        "chrome": {
+          "description": "Chrome support.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CatalogBrowserVersion"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "edge": {
+          "description": "Edge support.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CatalogBrowserVersion"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "firefox": {
+          "description": "Firefox support.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CatalogBrowserVersion"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "safari": {
+          "description": "Safari support.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CatalogBrowserVersion"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "CatalogBrowserVersion": {
+      "description": "Baked support detail for one browser.",
+      "type": "object",
+      "properties": {
+        "alternative_name": {
+          "description": "Alternative name the browser ships under, when any.",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "flags": {
+          "description": "Runtime flags gating the feature.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CatalogBrowserFlag"
+          }
+        },
+        "notes": {
+          "description": "Upstream notes.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "partial_implementation": {
+          "description": "Whether support is partial.",
+          "type": "boolean"
+        },
+        "prefix": {
+          "description": "Vendor prefix required, when any.",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "supported": {
+          "description": "Explicit support flag, when the data states one (`false` = unsupported).",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "version_added": {
+          "description": "First version (`\"15\"`, `\"<=37\"`), when known.",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "version_qualifier": {
+          "description": "Qualifier on the added version's date inexactness.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CatalogBaselineQualifier"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "version_removed": {
+          "description": "Version support was removed in, when any.",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "version_removed_qualifier": {
+          "description": "Qualifier on the removed version's date inexactness.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CatalogBaselineQualifier"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "CatalogContentModel": {
+      "description": "The runtime content-model shapes the catalog emits. The spec's category\ntaxonomy is already flattened into [`Self::ChildrenSet`].",
+      "oneOf": [
+        {
+          "description": "Accepts exactly the listed child element names.",
+          "type": "object",
+          "required": [
+            "elements",
+            "kind"
+          ],
+          "properties": {
+            "elements": {
+              "description": "Allowed child element names (sorted, deduped).",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "kind": {
+              "type": "string",
+              "const": "children_set"
+            }
+          }
+        },
+        {
+          "description": "Accepts any element from the SVG namespace.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "any_svg"
+            }
+          }
+        },
+        {
+          "description": "Hosts arbitrary foreign-namespace content (the spec's `any` model:\n\"any elements or character data\"), e.g. HTML in `foreignObject`.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "foreign"
+            }
+          }
+        },
+        {
+          "description": "Primarily character data.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "text"
+            }
+          }
+        }
+      ]
+    },
+    "CatalogCssGrammarEdge": {
+      "description": "One directed edge in a CSS grammar graph.",
+      "type": "object",
+      "required": [
+        "from",
+        "kind",
+        "to"
+      ],
+      "properties": {
+        "from": {
+          "description": "Source node id.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535,
+          "format": "uint16"
+        },
+        "kind": {
+          "$ref": "#/$defs/CatalogCssGrammarEdgeKind",
+          "description": "Edge kind."
+        },
+        "to": {
+          "description": "Target node id.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535,
+          "format": "uint16"
+        }
+      }
+    },
+    "CatalogCssGrammarEdgeKind": {
+      "description": "CSS grammar edge kinds.",
+      "oneOf": [
+        {
+          "description": "Parent/group containment.",
+          "type": "string",
+          "const": "contains"
+        },
+        {
+          "description": "Sibling order within a parent/group.",
+          "type": "string",
+          "const": "next"
+        }
+      ]
+    },
+    "CatalogCssGrammarGraph": {
+      "description": "Graph representation of a CSS value grammar.",
+      "type": "object",
+      "required": [
+        "edges",
+        "nodes",
+        "root"
+      ],
+      "properties": {
+        "edges": {
+          "description": "Grammar edges.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CatalogCssGrammarEdge"
+          }
+        },
+        "nodes": {
+          "description": "Grammar nodes.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CatalogCssGrammarNode"
+          }
+        },
+        "root": {
+          "description": "Root node id.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535,
+          "format": "uint16"
+        }
+      }
+    },
+    "CatalogCssGrammarNode": {
+      "description": "One node in a CSS grammar graph.",
+      "type": "object",
+      "required": [
+        "id",
+        "kind"
+      ],
+      "properties": {
+        "id": {
+          "description": "Stable node id within the graph.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535,
+          "format": "uint16"
+        },
+        "kind": {
+          "$ref": "#/$defs/CatalogCssGrammarNodeKind",
+          "description": "Node kind."
+        },
+        "text": {
+          "description": "Token text, when the node carries one.",
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      }
+    },
+    "CatalogCssGrammarNodeKind": {
+      "description": "CSS grammar node kinds.",
+      "oneOf": [
+        {
+          "description": "Synthetic root.",
+          "type": "string",
+          "const": "root"
+        },
+        {
+          "description": "Bracketed group.",
+          "type": "string",
+          "const": "group"
+        },
+        {
+          "description": "CSS keyword token.",
+          "type": "string",
+          "const": "keyword"
+        },
+        {
+          "description": "CSS type token, e.g. `<length>`.",
+          "type": "string",
+          "const": "type"
+        },
+        {
+          "description": "Functional notation token, e.g. `url()`.",
+          "type": "string",
+          "const": "function"
+        },
+        {
+          "description": "CSS grammar operator or multiplier.",
+          "type": "string",
+          "const": "operator"
+        }
+      ]
+    },
+    "CatalogElement": {
+      "description": "One element's spec-derived catalog entry.",
+      "type": "object",
+      "required": [
+        "attrs",
+        "content_model",
+        "global_attrs",
+        "name"
+      ],
+      "properties": {
+        "attrs": {
+          "description": "Element-specific attribute names (sorted, deduped).",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "baseline": {
+          "description": "Web-platform baseline status, when known.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CatalogBaselineStatus"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "browser_support": {
+          "description": "Per-browser support data, when known.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CatalogBrowserSupport"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "content_model": {
+          "$ref": "#/$defs/CatalogContentModel",
+          "description": "Structural child-content model."
+        },
+        "deprecated": {
+          "description": "Whether compat data marks the element deprecated.",
+          "type": "boolean"
+        },
+        "description": {
+          "description": "Short human-readable description from spec prose.",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "experimental": {
+          "description": "Whether compat data marks the element experimental.",
+          "type": "boolean"
+        },
+        "global_attrs": {
+          "description": "Whether the element carries the SVG global (`core`) attributes.",
+          "type": "boolean"
+        },
+        "mdn_url": {
+          "description": "MDN reference URL.",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "name": {
+          "description": "Element tag name.",
+          "type": "string"
+        },
+        "spec_url": {
+          "description": "Resolved spec permalink (the module's anchor base joined with the href).",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "standard_track": {
+          "description": "Whether compat data marks the element as standards-track.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      }
+    }
+  },
+  "title": "svg-data core catalog v1",
+  "description": "Canonical latest catalog data.",
+  "type": "object",
+  "required": [
+    "attributes",
+    "elements",
+    "schema_version"
+  ],
+  "properties": {
+    "attributes": {
+      "description": "Attribute definitions, sorted by canonical name.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/CatalogAttribute"
+      }
+    },
+    "elements": {
+      "description": "Element definitions, sorted by name.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/CatalogElement"
+      }
+    },
+    "schema_version": {
+      "const": 1
+    }
+  }
 }

@@ -9,7 +9,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use crate::{
     chapter::{self, PropertyValueDef},
-    extract::Definitions,
+    extract::{AttributeRef, Definitions},
     fetch,
 };
 
@@ -45,7 +45,12 @@ pub fn fetch_external_property_defs(
 ) -> Fallible<ExternalPropertyDefinitions> {
     let pages = external_property_pages(modules, editors_draft_base);
     let requested_count = pages.values().map(BTreeSet::len).sum();
-    let mut properties_by_name: BTreeMap<String, PropertyValueDef> = BTreeMap::new();
+    // Key on `(name, bearer element)` so element-scoped attribute definitions
+    // whose value grammar diverges by bearer (e.g. `operator` on `feComposite`
+    // vs `feMorphology`) are all retained; same-name definitions that share a
+    // bearer (or carry none) still collapse to one.
+    let mut properties_by_key: BTreeMap<(String, Option<String>), PropertyValueDef> =
+        BTreeMap::new();
     let mut reports = Vec::new();
 
     for (url, requested_names) in pages {
@@ -62,7 +67,7 @@ pub fn fetch_external_property_defs(
         }
         let matched = properties.len();
         for property in properties {
-            properties_by_name.insert(property.name.clone(), property);
+            properties_by_key.insert((property.name.clone(), property.dfn_for.clone()), property);
         }
         reports.push(ExternalPropertyPageReport {
             url,
@@ -72,7 +77,7 @@ pub fn fetch_external_property_defs(
     }
 
     Ok(ExternalPropertyDefinitions {
-        properties: properties_by_name.into_values().collect(),
+        properties: properties_by_key.into_values().collect(),
         pages: reports,
         requested_count,
     })
@@ -102,6 +107,15 @@ fn external_property_pages(
                 requested_by_name.insert(normalized_property_name(&property.name), url.to_owned());
             }
         }
+        for attribute in external_attribute_refs(module) {
+            let Some(href) = attribute.href.as_deref() else {
+                continue;
+            };
+            let url = resolve_url(base, href);
+            if should_fetch_external_attribute_url(&url, editors_draft_base) {
+                requested_by_name.insert(normalized_property_name(&attribute.name), url);
+            }
+        }
     }
 
     let mut pages: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
@@ -109,6 +123,24 @@ fn external_property_pages(
         pages.entry(page_url(&url)).or_default().insert(name);
     }
     pages
+}
+
+fn external_attribute_refs(module: &Definitions) -> impl Iterator<Item = &AttributeRef> {
+    module
+        .global_attributes
+        .iter()
+        .chain(
+            module
+                .attribute_categories
+                .iter()
+                .flat_map(|category| category.attributes.iter()),
+        )
+        .chain(
+            module
+                .elements
+                .iter()
+                .flat_map(|element| element.attributes.iter()),
+        )
 }
 
 fn presentation_property_names(modules: &[Definitions]) -> BTreeSet<&str> {
@@ -151,7 +183,30 @@ fn missing_requested_names(
 }
 
 fn should_fetch_external_property_url(url: &str, editors_draft_base: &str) -> bool {
-    is_absolute_url(url) && (editors_draft_base.is_empty() || !url.starts_with(editors_draft_base))
+    is_absolute_url(url)
+        && (editors_draft_base.is_empty() || !same_editor_draft_base(url, editors_draft_base))
+}
+
+fn should_fetch_external_attribute_url(url: &str, editors_draft_base: &str) -> bool {
+    should_fetch_external_property_url(url, editors_draft_base) && is_css_spec_url(url)
+}
+
+fn is_css_spec_url(url: &str) -> bool {
+    let lower = url.to_ascii_lowercase();
+    if lower.contains("wai-aria") || lower.contains("/svg") {
+        return false;
+    }
+    lower.contains("drafts.csswg.org") || (lower.contains("w3.org/tr/") && lower.contains("css"))
+}
+
+fn same_editor_draft_base(url: &str, editors_draft_base: &str) -> bool {
+    strip_scheme(url).starts_with(strip_scheme(editors_draft_base))
+}
+
+fn strip_scheme(url: &str) -> &str {
+    url.strip_prefix("https://")
+        .or_else(|| url.strip_prefix("http://"))
+        .unwrap_or(url)
 }
 
 fn prose_backed_external_property_url(name: &str, href: &str) -> Option<&'static str> {
@@ -193,7 +248,7 @@ fn page_url(url: &str) -> String {
 }
 
 fn normalized_property_name(name: &str) -> String {
-    name.trim().trim_matches('\'').to_ascii_lowercase()
+    name.trim().trim_matches('\'').to_owned()
 }
 
 #[cfg(test)]

@@ -55,6 +55,11 @@ pub struct Example {
 pub struct PropertyValueDef {
     /// Property name (the `Name:` row).
     pub name: String,
+    /// The bearer element this definition is scoped to, from the source
+    /// `data-dfn-for` element attribute. Element-attrdef rows carry the element
+    /// they belong to (e.g. `feComposite`); property/global tables that have no
+    /// single bearer leave this `None`.
+    pub dfn_for: Option<String>,
     /// The property's definition anchor id, when its `<dfn>` has one.
     pub id: Option<String>,
     /// The raw value grammar (the `Value:` row), e.g. `start | middle | end`.
@@ -216,6 +221,11 @@ pub fn extract_chapter(name: &str, html: &str, macros: &MacroIndex) -> Fallible<
                     chapter.properties.push(property);
                 }
             }
+            "table" if has_class(tag, "attrdef") => {
+                chapter
+                    .properties
+                    .extend(extract_attrdef_table(tag, parser));
+            }
             "dl" if has_class(tag, "definitions") => {
                 extract_definition_list(tag, parser, macros, &mut chapter.term_definitions);
             }
@@ -226,10 +236,17 @@ pub fn extract_chapter(name: &str, html: &str, macros: &MacroIndex) -> Fallible<
                     macros,
                     &mut chapter.anchor_descriptions,
                 );
+                chapter
+                    .properties
+                    .extend(extract_svg2_attrdef_list(tag, parser));
             }
             _ => {}
         }
     }
+
+    chapter
+        .properties
+        .extend(extract_legacy_adef_dt_assignments(html));
 
     Ok(chapter)
 }
@@ -262,6 +279,7 @@ pub fn extract_property_definitions(html: &str) -> Vec<PropertyValueDef> {
         offset = end;
     }
     properties.extend(extract_css2_propinfo_definitions(html));
+    properties.extend(extract_raw_element_attrdef_assignments(html));
     properties
 }
 
@@ -309,6 +327,7 @@ fn extract_raw_propdef(table_html: &str) -> Option<PropertyValueDef> {
     let keywords = value.as_deref().map(value_keywords).unwrap_or_default();
     Some(PropertyValueDef {
         name,
+        dfn_for: None,
         id,
         value,
         keywords,
@@ -381,6 +400,7 @@ fn extract_raw_propinfo_propdef(block_html: &str) -> Option<PropertyValueDef> {
     let keywords = value.as_deref().map(value_keywords).unwrap_or_default();
     Some(PropertyValueDef {
         name,
+        dfn_for: None,
         id: Some(id),
         value,
         keywords,
@@ -390,6 +410,253 @@ fn extract_raw_propinfo_propdef(block_html: &str) -> Option<PropertyValueDef> {
         computed_value,
         animation_type,
     })
+}
+
+fn extract_legacy_adef_dt_assignments(html: &str) -> Vec<PropertyValueDef> {
+    let mut definitions = Vec::new();
+    let mut offset = 0;
+    while let Some(relative_start) = html[offset..].find("<dt") {
+        let start = offset + relative_start;
+        let Some(open_end) = raw_tag_open_end(html, start) else {
+            break;
+        };
+        let Some(relative_close) = html[open_end..].find("</dt>") else {
+            offset = open_end;
+            continue;
+        };
+        let close = open_end + relative_close;
+        let block = &html[open_end..close];
+        offset = close + "</dt>".len();
+        if !is_inline_legacy_adef_dt(block) {
+            continue;
+        }
+        let Some(name) = legacy_adef_name(block) else {
+            continue;
+        };
+        let Some(value) = legacy_adef_assignment_value(block) else {
+            continue;
+        };
+        let keywords = value_keywords(&value);
+        definitions.push(PropertyValueDef {
+            name,
+            dfn_for: None,
+            id: raw_attr(&html[start..open_end], "id"),
+            value: Some(value),
+            keywords,
+            initial: None,
+            applies_to: None,
+            inherited: None,
+            computed_value: None,
+            animation_type: None,
+        });
+    }
+    definitions
+}
+
+fn legacy_adef_name(block: &str) -> Option<String> {
+    let marker = r#"class="adef""#;
+    let start = block.find(marker)? + marker.len();
+    let after_open = block[start..].find('>')? + start + 1;
+    let close = block[after_open..].find("</span>")? + after_open;
+    let name = normalize_ws(&strip_tags(&block[after_open..close]));
+    (!name.is_empty()).then_some(name)
+}
+
+fn is_inline_legacy_adef_dt(block: &str) -> bool {
+    block.contains(r#"class="adef""#) && (block.contains("</span> =") || block.contains("</span>="))
+}
+
+fn legacy_adef_assignment_value(block: &str) -> Option<String> {
+    let marker = r#"class="adef""#;
+    let start = block.find(marker)? + marker.len();
+    let after_open = block[start..].find('>')? + start + 1;
+    let close = block[after_open..].find("</span>")? + after_open + "</span>".len();
+    let after_name = &block[close..];
+    let equals = after_name.find('=')?;
+    let value = after_name[equals + 1..].trim_start();
+    let quote = value.chars().next().filter(|ch| matches!(ch, '"' | '\''))?;
+    let body = &value[quote.len_utf8()..];
+    let end = raw_quoted_html_value_end(body, quote)?;
+    let value = attrdef_assignment_value_from_raw_html(&body[..end]);
+    (!value.is_empty()).then_some(value)
+}
+
+fn extract_raw_element_attrdef_assignments(html: &str) -> Vec<PropertyValueDef> {
+    let mut definitions = Vec::new();
+    let mut offset = 0;
+    while let Some(relative_start) = html[offset..].find("<dfn") {
+        let start = offset + relative_start;
+        let Some(open_end) = raw_tag_open_end(html, start) else {
+            break;
+        };
+        let tag_head = &html[start..open_end];
+        let Some(relative_close) = html[open_end..].find("</dfn>") else {
+            offset = open_end;
+            continue;
+        };
+        let close = open_end + relative_close;
+        offset = close + "</dfn>".len();
+
+        if raw_attr(tag_head, "data-dfn-type").as_deref() != Some("element-attr") {
+            continue;
+        }
+        let name = normalize_ws(&strip_tags(&html[open_end..close]));
+        if name.is_empty() {
+            continue;
+        }
+        let Some(value) = raw_attrdef_assignment_value(&html[offset..]) else {
+            continue;
+        };
+        let keywords = value_keywords(&value);
+        definitions.push(PropertyValueDef {
+            name,
+            dfn_for: raw_attr(tag_head, "data-dfn-for"),
+            id: raw_attr(tag_head, "id"),
+            value: Some(value),
+            keywords,
+            initial: None,
+            applies_to: None,
+            inherited: None,
+            computed_value: None,
+            animation_type: None,
+        });
+    }
+    definitions
+}
+
+fn raw_attrdef_assignment_value(after_dfn: &str) -> Option<String> {
+    let limit = find_first(after_dfn, &["<dd", "<dt", "\n"]).unwrap_or(after_dfn.len());
+    let head = &after_dfn[..limit];
+    let equals = head.find('=')?;
+    let value = head[equals + 1..].trim_start();
+    let quote = value.chars().next().filter(|ch| matches!(ch, '"' | '\''))?;
+    let body = &value[quote.len_utf8()..];
+    let end = raw_quoted_html_value_end(body, quote)?;
+    let value = attrdef_assignment_value_from_raw_html(&body[..end]);
+    (!value.is_empty()).then_some(value)
+}
+
+/// Extract an attribute's value grammar from the still-entity-encoded HTML of a
+/// `<dfn …> = "…"` assignment.
+///
+/// `raw` MUST be the pre-decode HTML: real markup tags appear as literal `<…>`
+/// while CSS type references the spec writes inline are entity-escaped (`&lt;…>`)
+/// or wrapped in a `class="css production"` anchor. Decoding first would erase
+/// that distinction, making an `<em>`/`<code>` markup wrapper indistinguishable
+/// from a `<length>` production and corrupting keyword grammars (e.g. `<em>R | G
+/// | B | A</em>`) into the bare tag name. Working on `raw` keeps both apart.
+fn attrdef_assignment_value_from_raw_html(raw: &str) -> String {
+    let stripped = normalize_ws(&crate::util::decode_html_entities(&strip_markup_tags(raw)));
+    if let Some(production) = number_list_prose_production(&stripped) {
+        return production;
+    }
+    css_production_assignment_value(raw).unwrap_or(stripped)
+}
+
+/// Canonicalize the SVG spec's prose "list of numbers" idiom into a real CSS
+/// production (`<number>+`) so downstream graph/classification treats it as the
+/// number list it is, rather than losing the list shape.
+///
+/// The spec writes this grammar several prose ways, all of which otherwise
+/// degrade to a scalar `<number>` (the `class="css production"` anchor path
+/// keeps only the inner type reference, discarding the "list of" prose) or to
+/// garbled keyword tokens (`<list of numbers>` survives entity-decoding as the
+/// mangled `<list> of numbers>`). Verbatim from drafts.csswg.org/filter-effects-1:
+///
+/// * `list of <number>s`   — `feColorMatrix/values`.
+/// * `(list of <number>s)` — `feComponentTransfer/tableValues` (paren-wrapped).
+/// * `<list of numbers>`   — `feConvolveMatrix/kernelMatrix` (whole-phrase prose).
+///
+/// All denote one-or-more whitespace/comma-separated numbers. Matching is on the
+/// grammar *shape* (the "list of" phrasing wrapping the `number` type), not on
+/// any attribute name, so new spec attributes with the same prose are covered
+/// automatically.
+fn number_list_prose_production(stripped: &str) -> Option<String> {
+    let mut inner = stripped.trim().to_ascii_lowercase();
+    // Drop surrounding parentheses (`(list of <number>s)`).
+    if let Some(unparen) = inner
+        .strip_prefix('(')
+        .and_then(|rest| rest.strip_suffix(')'))
+    {
+        inner = unparen.trim().to_owned();
+    }
+    // Drop the angle brackets of the whole-phrase form (`<list of numbers>`).
+    if let Some(unwrapped) = inner
+        .strip_prefix('<')
+        .and_then(|rest| rest.strip_suffix('>'))
+    {
+        inner = unwrapped.trim().to_owned();
+    }
+    let rest = inner.strip_prefix("list of ")?.trim();
+    // The remaining noun is `number`/`numbers`, optionally as the `<number>`
+    // production and/or pluralized (`<number>s`).
+    let noun = rest
+        .strip_prefix('<')
+        .and_then(|body| body.strip_suffix('>').or_else(|| body.strip_suffix(">s")))
+        .unwrap_or(rest);
+    matches!(noun, "number" | "numbers").then(|| "<number>+".to_owned())
+}
+
+/// The single `class="css production"` type reference of an assignment whose
+/// whole value is one production anchor (e.g. `&lt;length-percentage>`), read
+/// from the still-encoded `raw` HTML so the anchor's escaped `&lt;…>` body is
+/// recovered intact rather than colliding with later markup tags.
+fn css_production_assignment_value(raw: &str) -> Option<String> {
+    let marker = r#"class="css production""#;
+    let start = raw.find(marker)? + marker.len();
+    let after_open = raw[start..].find('>')? + start + 1;
+    let close = raw[after_open..].find('<')? + after_open;
+    let value = normalize_ws(&crate::util::decode_html_entities(&raw[after_open..close]));
+    value.starts_with('<').then_some(value)
+}
+
+/// Strip HTML markup tags from `html`, treating `>` as a tag terminator only
+/// while inside a tag. Unlike [`strip_tags`], a `>` encountered outside a tag is
+/// preserved as text, so an entity-escaped CSS production (`&lt;list of
+/// numbers>`) keeps its closing `>` after the surrounding `<em>`/`<a>` wrappers
+/// are removed. Markup tags always open with a literal `<`; escaped productions
+/// never do, so the two are never confused.
+fn strip_markup_tags(html: &str) -> String {
+    let mut text = String::with_capacity(html.len());
+    let mut in_tag = false;
+    for ch in html.chars() {
+        match (in_tag, ch) {
+            (false, '<') => in_tag = true,
+            (true, '>') => in_tag = false,
+            (false, _) => text.push(ch),
+            (true, _) => {}
+        }
+    }
+    text
+}
+
+fn raw_quoted_html_value_end(value: &str, quote: char) -> Option<usize> {
+    let mut in_tag = false;
+    let mut tag_quote = None;
+    for (offset, ch) in value.char_indices() {
+        match (in_tag, tag_quote, ch) {
+            (true, Some(current), found) if found == current => tag_quote = None,
+            (true, None, '"' | '\'') => tag_quote = Some(ch),
+            (true, None, '>') => in_tag = false,
+            (false, _, '<') => in_tag = true,
+            (false, _, found) if found == quote => return Some(offset),
+            _ => {}
+        }
+    }
+    None
+}
+
+fn raw_tag_open_end(html: &str, start: usize) -> Option<usize> {
+    let mut quote = None;
+    for (offset, ch) in html[start..].char_indices() {
+        match (quote, ch) {
+            (Some(current), found) if found == current => quote = None,
+            (None, '"' | '\'') => quote = Some(ch),
+            (None, '>') => return Some(start + offset + ch.len_utf8()),
+            _ => {}
+        }
+    }
+    None
 }
 
 fn raw_rows(table_html: &str) -> Vec<&str> {
@@ -764,6 +1031,7 @@ fn extract_propdef(table: &HTMLTag, parser: &Parser) -> Option<PropertyValueDef>
     let keywords = value.as_deref().map(value_keywords).unwrap_or_default();
     Some(PropertyValueDef {
         name,
+        dfn_for: None,
         id,
         value,
         keywords,
@@ -773,6 +1041,275 @@ fn extract_propdef(table: &HTMLTag, parser: &Parser) -> Option<PropertyValueDef>
         computed_value,
         animation_type,
     })
+}
+
+/// Extract SVG attribute definition tables that use a horizontal
+/// `Name / Value / Initial value / Animatable` layout.
+fn extract_attrdef_table(table: &HTMLTag, parser: &Parser) -> Vec<PropertyValueDef> {
+    let Some(rows) = table.query_selector(parser, "tr") else {
+        return Vec::new();
+    };
+    let mut header: Option<AttrdefHeader> = None;
+    let mut definitions = Vec::new();
+
+    for handle in rows {
+        let Some(row) = handle.get(parser).and_then(|node| node.as_tag()) else {
+            continue;
+        };
+        let th = row_cell_texts(row, parser, "th");
+        if !th.is_empty() {
+            header = AttrdefHeader::from_cells(&th);
+            continue;
+        }
+
+        let Some(header) = header else {
+            continue;
+        };
+        let Some(td_handles) = row_cell_handles(row, parser, "td") else {
+            continue;
+        };
+        if td_handles.len() <= header.name || td_handles.len() <= header.value {
+            continue;
+        }
+        let names = td_handles
+            .get(header.name)
+            .and_then(|handle| handle.get(parser))
+            .and_then(|node| node.as_tag())
+            .map_or_else(Vec::new, |cell| attrdef_names(cell, parser));
+        if names.is_empty() {
+            continue;
+        }
+
+        let value = row_cell_text(&td_handles, parser, header.value);
+        let initial = header
+            .initial
+            .and_then(|index| row_cell_text(&td_handles, parser, index));
+        let animation_type = header
+            .animatable
+            .and_then(|index| row_cell_text(&td_handles, parser, index));
+        definitions.extend(names.into_iter().map(|(name, id)| {
+            property_from_attrdef(
+                name,
+                id,
+                value.clone(),
+                initial.clone(),
+                animation_type.clone(),
+            )
+        }));
+    }
+
+    definitions
+}
+
+/// Extract SVG 2 attribute definition lists of the form:
+///
+/// `<dt id=...><span class=adef>name</span></dt><dd><dl class=attrdef-svg2>...`.
+fn extract_svg2_attrdef_list(dl: &HTMLTag, parser: &Parser) -> Vec<PropertyValueDef> {
+    let mut pending_names = Vec::new();
+    let mut definitions = Vec::new();
+
+    for handle in dl.children().top().iter() {
+        let Some(child) = handle.get(parser).and_then(|node| node.as_tag()) else {
+            continue;
+        };
+        match child.name().as_utf8_str().as_ref() {
+            "dt" => pending_names = attrdef_names(child, parser),
+            "dd" if !pending_names.is_empty() => {
+                if let Some(definition) = extract_svg2_attrdef_metadata(child, parser) {
+                    definitions.extend(pending_names.iter().cloned().map(|(name, id)| {
+                        property_from_attrdef(
+                            name,
+                            id,
+                            Some(definition.value.clone()),
+                            definition.initial.clone(),
+                            definition.animation_type.clone(),
+                        )
+                    }));
+                }
+                pending_names.clear();
+            }
+            _ => {}
+        }
+    }
+
+    definitions
+}
+
+#[derive(Clone, Copy)]
+struct AttrdefHeader {
+    name: usize,
+    value: usize,
+    initial: Option<usize>,
+    animatable: Option<usize>,
+}
+
+impl AttrdefHeader {
+    fn from_cells(cells: &[String]) -> Option<Self> {
+        let mut name = None;
+        let mut value = None;
+        let mut initial = None;
+        let mut animatable = None;
+        for (index, cell) in cells.iter().enumerate() {
+            match cell
+                .trim_end_matches(':')
+                .trim()
+                .to_ascii_lowercase()
+                .as_str()
+            {
+                "name" => name = Some(index),
+                "value" => value = Some(index),
+                "initial value" | "initial" => initial = Some(index),
+                "animatable" => animatable = Some(index),
+                _ => {}
+            }
+        }
+        Some(Self {
+            name: name?,
+            value: value?,
+            initial,
+            animatable,
+        })
+    }
+}
+
+struct Svg2AttrdefMetadata {
+    value: String,
+    initial: Option<String>,
+    animation_type: Option<String>,
+}
+
+fn extract_svg2_attrdef_metadata(dd: &HTMLTag, parser: &Parser) -> Option<Svg2AttrdefMetadata> {
+    let mut lists = dd.query_selector(parser, "dl")?;
+    let list = lists.find_map(|handle| {
+        handle
+            .get(parser)
+            .and_then(|node| node.as_tag())
+            .filter(|tag| has_class(tag, "attrdef-svg2"))
+    })?;
+    let mut pending_label = None;
+    let mut value = None;
+    let mut initial = None;
+    let mut animation_type = None;
+
+    for handle in list.children().top().iter() {
+        let Some(child) = handle.get(parser).and_then(|node| node.as_tag()) else {
+            continue;
+        };
+        match child.name().as_utf8_str().as_ref() {
+            "dt" => pending_label = Some(normalize_ws(&child.inner_text(parser))),
+            "dd" => {
+                let Some(label) = pending_label.take() else {
+                    continue;
+                };
+                let text = normalize_ws(&child.inner_text(parser));
+                match label
+                    .trim_end_matches(':')
+                    .trim()
+                    .to_ascii_lowercase()
+                    .as_str()
+                {
+                    "value" => value = Some(text),
+                    "initial value" | "initial" => initial = Some(text),
+                    "animatable" => animation_type = Some(text),
+                    _ => {}
+                }
+            }
+            _ => {}
+        }
+    }
+
+    Some(Svg2AttrdefMetadata {
+        value: value?,
+        initial,
+        animation_type,
+    })
+}
+
+fn row_cell_handles(row: &HTMLTag, parser: &Parser, selector: &str) -> Option<Vec<tl::NodeHandle>> {
+    Some(row.query_selector(parser, selector)?.collect())
+}
+
+fn row_cell_texts(row: &HTMLTag, parser: &Parser, selector: &str) -> Vec<String> {
+    row_cell_handles(row, parser, selector)
+        .unwrap_or_default()
+        .iter()
+        .filter_map(|handle| handle_text(*handle, parser))
+        .collect()
+}
+
+fn row_cell_text(handles: &[tl::NodeHandle], parser: &Parser, index: usize) -> Option<String> {
+    handles
+        .get(index)
+        .and_then(|handle| handle_text(*handle, parser))
+        .filter(|text| !text.is_empty())
+}
+
+fn attrdef_names(tag: &HTMLTag, parser: &Parser) -> Vec<(String, Option<String>)> {
+    let mut names = Vec::new();
+    if let Some(handles) = tag.query_selector(parser, "dfn") {
+        names.extend(handles.filter_map(|handle| {
+            let dfn = handle.get(parser)?.as_tag()?;
+            let name = normalize_attr_name(&dfn.inner_text(parser))?;
+            Some((name, attr(dfn, "id").or_else(|| attr(tag, "id"))))
+        }));
+    }
+    if names.is_empty()
+        && let Some(handles) = tag.query_selector(parser, "span")
+    {
+        names.extend(handles.filter_map(|handle| {
+            let span = handle.get(parser)?.as_tag()?;
+            if !has_class(span, "adef") {
+                return None;
+            }
+            let name = normalize_attr_name(&span.inner_text(parser))?;
+            Some((name, attr(span, "id").or_else(|| attr(tag, "id"))))
+        }));
+    }
+    if names.is_empty() {
+        names.extend(
+            split_attr_names(&normalize_ws(&tag.inner_text(parser))).map(|name| {
+                let id = attr(tag, "id");
+                (name, id)
+            }),
+        );
+    }
+    names
+}
+
+fn split_attr_names(text: &str) -> impl Iterator<Item = String> + '_ {
+    text.split(',').filter_map(normalize_attr_name)
+}
+
+fn normalize_attr_name(name: &str) -> Option<String> {
+    let name = name
+        .trim()
+        .trim_matches('\'')
+        .trim_matches('"')
+        .trim()
+        .to_owned();
+    (!name.is_empty()).then_some(name)
+}
+
+fn property_from_attrdef(
+    name: String,
+    id: Option<String>,
+    value: Option<String>,
+    initial: Option<String>,
+    animation_type: Option<String>,
+) -> PropertyValueDef {
+    let keywords = value.as_deref().map(value_keywords).unwrap_or_default();
+    PropertyValueDef {
+        name,
+        dfn_for: None,
+        id,
+        value,
+        keywords,
+        initial,
+        applies_to: None,
+        inherited: None,
+        computed_value: None,
+        animation_type,
+    }
 }
 
 /// The bare keyword alternatives in a value grammar (the enum members).
@@ -1090,6 +1627,138 @@ table-cell | table-caption | none | <a href="cascade.html#value-def-inherit" cla
         assert!(!prop.keywords.contains(&"run-in".to_owned()));
         assert_eq!(prop.initial.as_deref(), Some("inline"));
         assert_eq!(prop.inherited.as_deref(), Some("no"));
+    }
+
+    #[test]
+    fn extracts_legacy_adef_dt_assignments() {
+        let html = r#"
+<dt id="RadialGradientElementFXAttribute">
+  <span class="adef">fx</span> =
+  "<span class="attr-value"><a>&lt;length&gt;</a></span>"
+</dt>
+"#;
+        let properties = extract_legacy_adef_dt_assignments(html);
+
+        assert_eq!(properties.len(), 1);
+        assert_eq!(properties[0].name, "fx");
+        assert_eq!(
+            properties[0].id.as_deref(),
+            Some("RadialGradientElementFXAttribute")
+        );
+        assert_eq!(properties[0].value.as_deref(), Some("<length>"));
+    }
+
+    #[test]
+    fn extracts_bikeshed_element_attrdef_assignments() {
+        let html = r#"
+<dl>
+  <dt data-md><dfn class="dfn-paneled" data-dfn-for="mask" data-dfn-type="element-attr" data-export id="element-attrdef-mask-x"><code>x</code></dfn> = "<a class="css production" data-link-type="type" href="https://drafts.csswg.org/css-values-4/#typedef-length-percentage">&lt;length-percentage></a>"
+  <dd data-md><p>The x-axis coordinate.</p>
+</dl>
+"#;
+        let properties = extract_property_definitions(html);
+
+        assert_eq!(properties.len(), 1);
+        assert_eq!(properties[0].name, "x");
+        assert_eq!(properties[0].id.as_deref(), Some("element-attrdef-mask-x"));
+        assert_eq!(properties[0].value.as_deref(), Some("<length-percentage>"));
+    }
+
+    /// Filter attrdef values whose grammar is wrapped in inline markup
+    /// (`<em>`, `<span>`, `<dfn><code>…`) must keep their real keyword/type
+    /// grammar rather than collapsing to the wrapper tag name. The snippets are
+    /// verbatim from drafts.csswg.org/filter-effects-1 (with whitespace trimmed
+    /// to one attrdef per `<dt>`).
+    #[test]
+    fn markup_wrapped_attrdef_values_keep_their_grammar() {
+        let html = r##"
+<dl>
+  <dt data-md><dfn class="dfn-paneled" data-dfn-for="feComposite" data-dfn-type="element-attr" data-export id="element-attrdef-fecomposite-operator"><code>operator</code></dfn> = "<span><dfn class="dfn-paneled" data-dfn-for="feComposite/operator" data-dfn-type="attr-value" data-export id="attr-valuedef-fecomposite-operator-over"><code>over</code></dfn> | <dfn data-dfn-type="attr-value" id="attr-valuedef-fecomposite-operator-in"><code>in</code></dfn> | <dfn data-dfn-type="attr-value" id="attr-valuedef-fecomposite-operator-out"><code>out</code></dfn> | <dfn data-dfn-type="attr-value" id="attr-valuedef-fecomposite-operator-atop"><code>atop</code></dfn> | <dfn data-dfn-type="attr-value" id="attr-valuedef-fecomposite-operator-xor"><code>xor</code></dfn> | <dfn data-dfn-type="attr-value" id="attr-valuedef-fecomposite-operator-lighter"><code>lighter</code></dfn> | <dfn data-dfn-type="attr-value" id="attr-valuedef-fecomposite-operator-arithmetic"><code>arithmetic</code></dfn></span>"
+  <dd data-md><p>The compositing operation.</p>
+  <dt data-md><dfn class="dfn-paneled" data-dfn-for="feDisplacementMap" data-dfn-type="element-attr" data-export id="element-attrdef-fedisplacementmap-xchannelselector"><code>xChannelSelector</code></dfn> = "<em>R | G | B | A</em>"
+  <dd data-md><p>Which channel selects the x displacement.</p>
+  <dt data-md><dfn class="dfn-paneled" data-dfn-for="feBlend" data-dfn-type="element-attr" data-export id="element-attrdef-feblend-in2"><code>in2</code></dfn> = "<em>(see <a data-link-type="element-attr" href="#element-attrdef-filter-primitive-in" id="ref-for-element-attrdef-filter-primitive-in">in</a> attribute)</em>"
+  <dd data-md><p>The second input.</p>
+  <dt data-md><dfn class="dfn-paneled" data-dfn-for="feTurbulence" data-dfn-type="element-attr" data-export id="element-attrdef-feturbulence-stitchtiles"><code>stitchTiles</code></dfn> = "<em>stitch | noStitch</em>"
+  <dd data-md><p>Tile stitching behavior.</p>
+  <dt data-md><dfn class="dfn-paneled" data-dfn-for="feConvolveMatrix" data-dfn-type="element-attr" data-export id="element-attrdef-feconvolvematrix-kernelmatrix"><code>kernelMatrix</code></dfn> = "<em>&lt;list of numbers></em>"
+  <dd data-md><p>The convolution kernel.</p>
+  <dt data-md><dfn class="dfn-paneled" data-dfn-for="filter" data-dfn-type="element-attr" data-export id="element-attrdef-filter-filterunits"><code>filterUnits</code></dfn> = "<dfn class="dfn-paneled" data-dfn-type="attr-value" id="attr-valuedef-filterunits-userspaceonuse"><code>userSpaceOnUse</code></dfn> | <dfn data-dfn-type="attr-value" id="attr-valuedef-filterunits-objectboundingbox"><code>objectBoundingBox</code></dfn>"
+  <dd data-md><p>The filter region coordinate system.</p>
+</dl>
+"##;
+        let values: std::collections::BTreeMap<_, _> = extract_property_definitions(html)
+            .into_iter()
+            .map(|property| (property.name, property.value))
+            .collect();
+
+        assert_eq!(
+            values.get("operator").and_then(Option::as_deref),
+            Some("over | in | out | atop | xor | lighter | arithmetic")
+        );
+        assert_eq!(
+            values.get("xChannelSelector").and_then(Option::as_deref),
+            Some("R | G | B | A")
+        );
+        assert_eq!(
+            values.get("in2").and_then(Option::as_deref),
+            Some("(see in attribute)")
+        );
+        assert_eq!(
+            values.get("stitchTiles").and_then(Option::as_deref),
+            Some("stitch | noStitch")
+        );
+        // The spec's `<list of numbers>` prose canonicalizes to a real CSS
+        // number-list production rather than surviving as garbled keyword
+        // tokens (`<list> of numbers>`) that would lose the list shape.
+        assert_eq!(
+            values.get("kernelMatrix").and_then(Option::as_deref),
+            Some("<number>+")
+        );
+        assert_eq!(
+            values.get("filterUnits").and_then(Option::as_deref),
+            Some("userSpaceOnUse | objectBoundingBox")
+        );
+    }
+
+    /// A whole-value `class="css production"` anchor resolves to its single
+    /// type reference, while the spec's `list of <number>s` prose (and its
+    /// paren-wrapped variant) keeps its list shape (canonicalized to `<number>+`)
+    /// rather than being truncated to the bare `<number>` production by the
+    /// anchor-extraction path.
+    #[test]
+    fn css_production_anchor_attrdef_values_resolve_to_type_refs() {
+        let html = r##"
+<dl>
+  <dt data-md><dfn class="dfn-paneled" data-dfn-type="element-attr" data-export id="element-attrdef-filter-filterres"><code>filterRes</code></dfn> = "<a class="css production" data-link-type="type" href="#typedef-number-optional-number">&lt;number-optional-number></a>"
+  <dd data-md><p>The filter resolution.</p>
+  <dt data-md><dfn class="dfn-paneled" data-dfn-type="element-attr" data-export id="element-attrdef-fecolormatrix-values"><code>values</code></dfn> = "<em>list of <a class="css production" data-link-type="type" href="#typedef-number">&lt;number></a>s</em>"
+  <dd data-md><p>The matrix values.</p>
+  <dt data-md><dfn class="dfn-paneled" data-dfn-type="element-attr" data-export id="element-attrdef-fecomponenttransfer-tablevalues"><code>tableValues</code></dfn> = "<em>(list of <a class="css production" data-link-type="type" href="#typedef-number">&lt;number></a>s)</em>"
+  <dd data-md><p>The transfer function table.</p>
+</dl>
+"##;
+        let values: std::collections::BTreeMap<_, _> = extract_property_definitions(html)
+            .into_iter()
+            .map(|property| (property.name, property.value))
+            .collect();
+
+        assert_eq!(
+            values.get("filterRes").and_then(Option::as_deref),
+            Some("<number-optional-number>")
+        );
+        // `list of <number>s` (verbatim spec phrasing, plural trailing `s`)
+        // keeps its list shape instead of truncating to the bare `<number>`
+        // production that the `class="css production"` anchor path would extract.
+        assert_eq!(
+            values.get("values").and_then(Option::as_deref),
+            Some("<number>+")
+        );
+        // The paren-wrapped variant (`(list of <number>s)`) canonicalizes too.
+        assert_eq!(
+            values.get("tableValues").and_then(Option::as_deref),
+            Some("<number>+")
+        );
     }
 
     #[test]

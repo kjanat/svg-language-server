@@ -1,389 +1,389 @@
 {
-	"$schema": "https://json-schema.org/draft/2020-12/schema",
-	"$defs": {
-		"CatalogBaselineQualifier": {
-			"description": "Inexactness qualifier on a baseline / version date.",
-			"oneOf": [
-				{
-					"description": "The date is an \"on or before\" upper bound.",
-					"type": "string",
-					"const": "before"
-				},
-				{
-					"description": "The date is an \"on or after\" lower bound.",
-					"type": "string",
-					"const": "after"
-				},
-				{
-					"description": "The date is approximate.",
-					"type": "string",
-					"const": "approximately"
-				}
-			]
-		},
-		"CatalogBaselineStatus": {
-			"description": "Web-platform baseline status of a feature.",
-			"oneOf": [
-				{
-					"description": "Widely available across engines.",
-					"type": "object",
-					"required": [
-						"kind",
-						"since"
-					],
-					"properties": {
-						"kind": {
-							"type": "string",
-							"const": "widely"
-						},
-						"qualifier": {
-							"description": "Qualifier when the upstream date was inexact.",
-							"anyOf": [
-								{
-									"$ref": "#/$defs/CatalogBaselineQualifier"
-								},
-								{
-									"type": "null"
-								}
-							]
-						},
-						"since": {
-							"description": "Year it reached widely-available baseline.",
-							"type": "integer",
-							"minimum": 0,
-							"maximum": 65535,
-							"format": "uint16"
-						}
-					}
-				},
-				{
-					"description": "Newly available, not yet widely available.",
-					"type": "object",
-					"required": [
-						"kind",
-						"since"
-					],
-					"properties": {
-						"kind": {
-							"type": "string",
-							"const": "newly"
-						},
-						"qualifier": {
-							"description": "Qualifier when the upstream date was inexact.",
-							"anyOf": [
-								{
-									"$ref": "#/$defs/CatalogBaselineQualifier"
-								},
-								{
-									"type": "null"
-								}
-							]
-						},
-						"since": {
-							"description": "Year it reached newly-available baseline.",
-							"type": "integer",
-							"minimum": 0,
-							"maximum": 65535,
-							"format": "uint16"
-						}
-					}
-				},
-				{
-					"description": "Limited availability.",
-					"type": "object",
-					"required": [
-						"kind"
-					],
-					"properties": {
-						"kind": {
-							"type": "string",
-							"const": "limited"
-						}
-					}
-				}
-			]
-		},
-		"CatalogBrowserFlag": {
-			"description": "A runtime flag a browser gates a feature behind.",
-			"type": "object",
-			"required": [
-				"name"
-			],
-			"properties": {
-				"name": {
-					"description": "Flag/preference name.",
-					"type": "string"
-				}
-			}
-		},
-		"CatalogBrowserSupport": {
-			"description": "Per-browser support across the four tracked engines.",
-			"type": "object",
-			"properties": {
-				"chrome": {
-					"description": "Chrome support.",
-					"anyOf": [
-						{
-							"$ref": "#/$defs/CatalogBrowserVersion"
-						},
-						{
-							"type": "null"
-						}
-					]
-				},
-				"edge": {
-					"description": "Edge support.",
-					"anyOf": [
-						{
-							"$ref": "#/$defs/CatalogBrowserVersion"
-						},
-						{
-							"type": "null"
-						}
-					]
-				},
-				"firefox": {
-					"description": "Firefox support.",
-					"anyOf": [
-						{
-							"$ref": "#/$defs/CatalogBrowserVersion"
-						},
-						{
-							"type": "null"
-						}
-					]
-				},
-				"safari": {
-					"description": "Safari support.",
-					"anyOf": [
-						{
-							"$ref": "#/$defs/CatalogBrowserVersion"
-						},
-						{
-							"type": "null"
-						}
-					]
-				}
-			}
-		},
-		"CatalogBrowserVersion": {
-			"description": "Baked support detail for one browser.",
-			"type": "object",
-			"properties": {
-				"alternative_name": {
-					"description": "Alternative name the browser ships under, when any.",
-					"type": [
-						"null",
-						"string"
-					]
-				},
-				"flags": {
-					"description": "Runtime flags gating the feature.",
-					"type": "array",
-					"items": {
-						"$ref": "#/$defs/CatalogBrowserFlag"
-					}
-				},
-				"notes": {
-					"description": "Upstream notes.",
-					"type": "array",
-					"items": {
-						"type": "string"
-					}
-				},
-				"partial_implementation": {
-					"description": "Whether support is partial.",
-					"type": "boolean"
-				},
-				"prefix": {
-					"description": "Vendor prefix required, when any.",
-					"type": [
-						"null",
-						"string"
-					]
-				},
-				"supported": {
-					"description": "Explicit support flag, when the data states one (`false` = unsupported).",
-					"type": [
-						"boolean",
-						"null"
-					]
-				},
-				"version_added": {
-					"description": "First version (`\"15\"`, `\"<=37\"`), when known.",
-					"type": [
-						"null",
-						"string"
-					]
-				},
-				"version_qualifier": {
-					"description": "Qualifier on the added version's date inexactness.",
-					"anyOf": [
-						{
-							"$ref": "#/$defs/CatalogBaselineQualifier"
-						},
-						{
-							"type": "null"
-						}
-					]
-				},
-				"version_removed": {
-					"description": "Version support was removed in, when any.",
-					"type": [
-						"null",
-						"string"
-					]
-				},
-				"version_removed_qualifier": {
-					"description": "Qualifier on the removed version's date inexactness.",
-					"anyOf": [
-						{
-							"$ref": "#/$defs/CatalogBaselineQualifier"
-						},
-						{
-							"type": "null"
-						}
-					]
-				}
-			}
-		},
-		"CatalogCompatSubfeature": {
-			"description": "A BCD feature below an SVG element that is not an element or attribute.",
-			"type": "object",
-			"required": [
-				"compat_key",
-				"element",
-				"kind",
-				"name"
-			],
-			"properties": {
-				"baseline": {
-					"description": "Web-platform baseline status, when known.",
-					"anyOf": [
-						{
-							"$ref": "#/$defs/CatalogBaselineStatus"
-						},
-						{
-							"type": "null"
-						}
-					]
-				},
-				"browser_support": {
-					"description": "Per-browser support data, when known.",
-					"anyOf": [
-						{
-							"$ref": "#/$defs/CatalogBrowserSupport"
-						},
-						{
-							"type": "null"
-						}
-					]
-				},
-				"compat_key": {
-					"description": "Full BCD compat key, e.g. `svg.elements.use.data_uri`.",
-					"type": "string"
-				},
-				"deprecated": {
-					"description": "Whether compat data marks the feature deprecated.",
-					"type": "boolean"
-				},
-				"element": {
-					"description": "Owning SVG element name.",
-					"type": "string"
-				},
-				"experimental": {
-					"description": "Whether compat data marks the feature experimental.",
-					"type": "boolean"
-				},
-				"kind": {
-					"$ref": "#/$defs/CatalogCompatSubfeatureKind",
-					"description": "Why this was not modeled as a normal attribute/element."
-				},
-				"mdn_url": {
-					"description": "MDN reference URL.",
-					"type": [
-						"null",
-						"string"
-					]
-				},
-				"name": {
-					"description": "BCD child feature name.",
-					"type": "string"
-				},
-				"standard_track": {
-					"description": "Whether compat data marks the feature as standards-track.",
-					"type": [
-						"boolean",
-						"null"
-					]
-				}
-			}
-		},
-		"CatalogCompatSubfeatureKind": {
-			"description": "Why a BCD child feature is kept out of the attribute catalog.",
-			"oneOf": [
-				{
-					"description": "A behavior or value-shape feature, not an attribute name.",
-					"type": "string",
-					"const": "behavior"
-				},
-				{
-					"description": "A legacy `xlink:*` alias that needs profile-scoped alias modeling.",
-					"type": "string",
-					"const": "legacy_xlink_alias"
-				}
-			]
-		},
-		"CatalogPackageSource": {
-			"description": "One npm package source used during regeneration.",
-			"type": "object",
-			"required": [
-				"name",
-				"url",
-				"version"
-			],
-			"properties": {
-				"name": {
-					"description": "Package name.",
-					"type": "string"
-				},
-				"url": {
-					"description": "Exact data URL fetched.",
-					"type": "string"
-				},
-				"version": {
-					"description": "Resolved package version.",
-					"type": "string"
-				}
-			}
-		}
-	},
-	"title": "svg-data compat catalog v1",
-	"description": "Browser-compat provenance and retained non-catalogued compat features.",
-	"type": "object",
-	"required": [
-		"browser_compat_data",
-		"schema_version",
-		"web_features"
-	],
-	"properties": {
-		"browser_compat_data": {
-			"$ref": "#/$defs/CatalogPackageSource",
-			"description": "MDN browser-compat-data package source."
-		},
-		"schema_version": {
-			"const": 1
-		},
-		"unmodeled_features": {
-			"description": "BCD features intentionally not modeled as elements/attributes.",
-			"type": "array",
-			"items": {
-				"$ref": "#/$defs/CatalogCompatSubfeature"
-			}
-		},
-		"web_features": {
-			"$ref": "#/$defs/CatalogPackageSource",
-			"description": "web-features package source."
-		}
-	}
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "CatalogBaselineQualifier": {
+      "description": "Inexactness qualifier on a baseline / version date.",
+      "oneOf": [
+        {
+          "description": "The date is an \"on or before\" upper bound.",
+          "type": "string",
+          "const": "before"
+        },
+        {
+          "description": "The date is an \"on or after\" lower bound.",
+          "type": "string",
+          "const": "after"
+        },
+        {
+          "description": "The date is approximate.",
+          "type": "string",
+          "const": "approximately"
+        }
+      ]
+    },
+    "CatalogBaselineStatus": {
+      "description": "Web-platform baseline status of a feature.",
+      "oneOf": [
+        {
+          "description": "Widely available across engines.",
+          "type": "object",
+          "required": [
+            "kind",
+            "since"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "widely"
+            },
+            "qualifier": {
+              "description": "Qualifier when the upstream date was inexact.",
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/CatalogBaselineQualifier"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "since": {
+              "description": "Year it reached widely-available baseline.",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 65535,
+              "format": "uint16"
+            }
+          }
+        },
+        {
+          "description": "Newly available, not yet widely available.",
+          "type": "object",
+          "required": [
+            "kind",
+            "since"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "newly"
+            },
+            "qualifier": {
+              "description": "Qualifier when the upstream date was inexact.",
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/CatalogBaselineQualifier"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "since": {
+              "description": "Year it reached newly-available baseline.",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 65535,
+              "format": "uint16"
+            }
+          }
+        },
+        {
+          "description": "Limited availability.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "limited"
+            }
+          }
+        }
+      ]
+    },
+    "CatalogBrowserFlag": {
+      "description": "A runtime flag a browser gates a feature behind.",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "description": "Flag/preference name.",
+          "type": "string"
+        }
+      }
+    },
+    "CatalogBrowserSupport": {
+      "description": "Per-browser support across the four tracked engines.",
+      "type": "object",
+      "properties": {
+        "chrome": {
+          "description": "Chrome support.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CatalogBrowserVersion"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "edge": {
+          "description": "Edge support.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CatalogBrowserVersion"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "firefox": {
+          "description": "Firefox support.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CatalogBrowserVersion"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "safari": {
+          "description": "Safari support.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CatalogBrowserVersion"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "CatalogBrowserVersion": {
+      "description": "Baked support detail for one browser.",
+      "type": "object",
+      "properties": {
+        "alternative_name": {
+          "description": "Alternative name the browser ships under, when any.",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "flags": {
+          "description": "Runtime flags gating the feature.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CatalogBrowserFlag"
+          }
+        },
+        "notes": {
+          "description": "Upstream notes.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "partial_implementation": {
+          "description": "Whether support is partial.",
+          "type": "boolean"
+        },
+        "prefix": {
+          "description": "Vendor prefix required, when any.",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "supported": {
+          "description": "Explicit support flag, when the data states one (`false` = unsupported).",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "version_added": {
+          "description": "First version (`\"15\"`, `\"<=37\"`), when known.",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "version_qualifier": {
+          "description": "Qualifier on the added version's date inexactness.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CatalogBaselineQualifier"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "version_removed": {
+          "description": "Version support was removed in, when any.",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "version_removed_qualifier": {
+          "description": "Qualifier on the removed version's date inexactness.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CatalogBaselineQualifier"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "CatalogCompatSubfeature": {
+      "description": "A BCD feature below an SVG element that is not an element or attribute.",
+      "type": "object",
+      "required": [
+        "compat_key",
+        "element",
+        "kind",
+        "name"
+      ],
+      "properties": {
+        "baseline": {
+          "description": "Web-platform baseline status, when known.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CatalogBaselineStatus"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "browser_support": {
+          "description": "Per-browser support data, when known.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CatalogBrowserSupport"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "compat_key": {
+          "description": "Full BCD compat key, e.g. `svg.elements.use.data_uri`.",
+          "type": "string"
+        },
+        "deprecated": {
+          "description": "Whether compat data marks the feature deprecated.",
+          "type": "boolean"
+        },
+        "element": {
+          "description": "Owning SVG element name.",
+          "type": "string"
+        },
+        "experimental": {
+          "description": "Whether compat data marks the feature experimental.",
+          "type": "boolean"
+        },
+        "kind": {
+          "$ref": "#/$defs/CatalogCompatSubfeatureKind",
+          "description": "Why this was not modeled as a normal attribute/element."
+        },
+        "mdn_url": {
+          "description": "MDN reference URL.",
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "name": {
+          "description": "BCD child feature name.",
+          "type": "string"
+        },
+        "standard_track": {
+          "description": "Whether compat data marks the feature as standards-track.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      }
+    },
+    "CatalogCompatSubfeatureKind": {
+      "description": "Why a BCD child feature is kept out of the attribute catalog.",
+      "oneOf": [
+        {
+          "description": "A behavior or value-shape feature, not an attribute name.",
+          "type": "string",
+          "const": "behavior"
+        },
+        {
+          "description": "A legacy `xlink:*` alias that needs profile-scoped alias modeling.",
+          "type": "string",
+          "const": "legacy_xlink_alias"
+        }
+      ]
+    },
+    "CatalogPackageSource": {
+      "description": "One npm package source used during regeneration.",
+      "type": "object",
+      "required": [
+        "name",
+        "url",
+        "version"
+      ],
+      "properties": {
+        "name": {
+          "description": "Package name.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Exact data URL fetched.",
+          "type": "string"
+        },
+        "version": {
+          "description": "Resolved package version.",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "title": "svg-data compat catalog v1",
+  "description": "Browser-compat provenance and retained non-catalogued compat features.",
+  "type": "object",
+  "required": [
+    "browser_compat_data",
+    "schema_version",
+    "web_features"
+  ],
+  "properties": {
+    "browser_compat_data": {
+      "$ref": "#/$defs/CatalogPackageSource",
+      "description": "MDN browser-compat-data package source."
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "unmodeled_features": {
+      "description": "BCD features intentionally not modeled as elements/attributes.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/CatalogCompatSubfeature"
+      }
+    },
+    "web_features": {
+      "$ref": "#/$defs/CatalogPackageSource",
+      "description": "web-features package source."
+    }
+  }
 }

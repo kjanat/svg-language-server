@@ -22,8 +22,10 @@ mod extract;
 mod fetch;
 mod inventory;
 mod legacy;
+mod paths;
 mod provenance;
 mod schema;
+mod treesitter;
 mod util;
 
 use std::{
@@ -120,45 +122,15 @@ fn report(provenance: &Provenance, graph: &PublishGraph) -> Fallible<()> {
         graph.appendices.len()
     );
 
-    println!("\n## definitions extraction (at pinned commit)");
     // REGEN_SAMPLE=<name> prints the element, property, and/or term with that
     // name as a JSON sample (whichever exist). Unset: the first of each kind.
     let want_sample = std::env::var("REGEN_SAMPLE").ok();
-    let mut totals = Totals::default();
-    let mut sample: Option<extract::ElementDef> = None;
-    let mut macros = chapter::MacroIndex::default();
-    let mut all_defs: Vec<extract::Definitions> = Vec::new();
-    for module in &graph.definitions {
-        let path = fetch::resolve_repo_path(PUBLISH_DIR, &module.href)?;
-        let xml = fetch::raw_file(REPO_SLUG, &provenance.commit_sha, &path)?;
-        let defs = extract::extract_definitions(&xml, module.base.clone())?;
-        println!(
-            "  {path:<44} {:>3} el  {:>3} attr  {:>3} prop  {:>2} elcat  {:>2} attrcat",
-            defs.elements.len(),
-            defs.global_attributes.len(),
-            defs.properties.len(),
-            defs.element_categories.len(),
-            defs.attribute_categories.len(),
-        );
-        totals.add(&defs);
-        index_categories(&defs, &mut macros);
-        if sample.is_none() {
-            sample = match &want_sample {
-                Some(name) => defs.elements.iter().find(|el| &el.name == name).cloned(),
-                None => defs.elements.first().cloned(),
-            };
-        }
-        all_defs.push(defs);
-    }
-    println!(
-        "  {:-<44} {:>3} el  {:>3} attr  {:>3} prop  {:>2} elcat  {:>2} attrcat",
-        "TOTAL ",
-        totals.elements,
-        totals.global_attributes,
-        totals.properties,
-        totals.element_categories,
-        totals.attribute_categories,
-    );
+    let extracted = extract_definitions_modules(provenance, graph, want_sample.as_deref())?;
+    let DefinitionsExtraction {
+        modules: all_defs,
+        macros,
+        sample,
+    } = extracted;
 
     if let Some(element) = &sample {
         println!("\n## sample extracted element (as JSON)");
@@ -175,6 +147,8 @@ fn report(provenance: &Provenance, graph: &PublishGraph) -> Fallible<()> {
     let compat = fetch_and_report_compat()?;
     let legacy = fetch_and_report_legacy_value_overrides()?;
     let inventories = fetch_and_report_inventories(&all_defs)?;
+    let grammar_inputs =
+        fetch_and_report_grammar_projection_inputs(REPO_SLUG, &provenance.commit_sha)?;
     let chapter_report = chapter_report.with_external_properties(external_properties.properties);
 
     let built = build_committed_catalog(
@@ -182,13 +156,71 @@ fn report(provenance: &Provenance, graph: &PublishGraph) -> Fallible<()> {
         &chapter_report,
         editors_draft,
         &provenance.commit_sha,
-        &compat,
-        &legacy,
-        &inventories,
-    );
+        Some(&compat),
+        catalog::CatalogLegacyInputs {
+            sources: &legacy.sources,
+            value_overrides: &legacy.attributes,
+            inventories: &inventories,
+            grammar_inputs: Some(&grammar_inputs),
+        },
+    )?;
     let path = write_catalog(&built, &inventories)?;
     print_catalog_written(&built, &path);
     Ok(())
+}
+
+struct DefinitionsExtraction {
+    modules: Vec<extract::Definitions>,
+    macros: chapter::MacroIndex,
+    sample: Option<extract::ElementDef>,
+}
+
+fn extract_definitions_modules(
+    provenance: &Provenance,
+    graph: &PublishGraph,
+    want_sample: Option<&str>,
+) -> Fallible<DefinitionsExtraction> {
+    println!("\n## definitions extraction (at pinned commit)");
+    let mut totals = Totals::default();
+    let mut sample = None;
+    let mut macros = chapter::MacroIndex::default();
+    let mut modules = Vec::new();
+    for module in &graph.definitions {
+        let path = fetch::resolve_repo_path(PUBLISH_DIR, &module.href)?;
+        let xml = fetch::raw_file(REPO_SLUG, &provenance.commit_sha, &path)?;
+        let defs = extract::extract_definitions(&xml, module.base.clone())?;
+        println!(
+            "  {path:<44} {:>3} el  {:>3} attr  {:>3} prop  {:>2} elcat  {:>2} attrcat",
+            defs.elements.len(),
+            defs.global_attributes.len(),
+            defs.properties.len(),
+            defs.element_categories.len(),
+            defs.attribute_categories.len(),
+        );
+        totals.add(&defs);
+        index_categories(&defs, &mut macros);
+        if sample.is_none() {
+            sample = match want_sample {
+                Some(name) => defs.elements.iter().find(|el| el.name == name).cloned(),
+                None => defs.elements.first().cloned(),
+            };
+        }
+        modules.push(defs);
+    }
+    println!(
+        "  {:-<44} {:>3} el  {:>3} attr  {:>3} prop  {:>2} elcat  {:>2} attrcat",
+        "TOTAL ",
+        totals.elements,
+        totals.global_attributes,
+        totals.properties,
+        totals.element_categories,
+        totals.attribute_categories,
+    );
+    Ok(DefinitionsExtraction {
+        modules,
+        macros,
+        sample,
+    })
 }
 
 fn print_catalog_written(built: &catalog::Catalog, path: &Path) {
@@ -206,23 +238,33 @@ fn build_committed_catalog(
     chapter_report: &ChapterReport,
     editors_draft_base: &str,
     commit: &str,
-    compat: &compat::CompatCatalog,
-    legacy: &legacy::LegacyValueOverrides,
-    inventories: &[catalog::CatalogInventory],
-) -> catalog::Catalog {
+    compat: Option<&compat::CompatCatalog>,
+    legacy: catalog::CatalogLegacyInputs<'_>,
+) -> Fallible<catalog::Catalog> {
     catalog::build_catalog(
         definitions,
         &chapter_report.properties,
         &chapter_report.descriptions,
         editors_draft_base,
         commit,
-        Some(compat),
-        catalog::CatalogLegacyInputs {
-            sources: &legacy.sources,
-            value_overrides: &legacy.attributes,
-            inventories,
-        },
+        compat,
+        legacy,
     )
+}
+
+fn fetch_and_report_grammar_projection_inputs(
+    repo_slug: &str,
+    commit_sha: &str,
+) -> Fallible<treesitter::GrammarProjectionInputs> {
+    println!("\n## tree-sitter grammar projection inputs");
+    let inputs = treesitter::fetch_grammar_projection_inputs(repo_slug, commit_sha)?;
+    println!("  @webref/css extracted");
+    println!(
+        "  paths.html -> {} path command letter(s), d property = `{}`",
+        inputs.paths.path_command_letters.len(),
+        inputs.paths.path_data_property
+    );
+    Ok(inputs)
 }
 
 fn fetch_and_report_external_property_defs(
@@ -334,6 +376,10 @@ fn write_catalog_components(data_dir: &Path, built: &catalog::Catalog) -> Fallib
     write_json(
         &resolve_data_ref_for_write(data_dir, catalog::CATALOG_GRAPH_HREF)?,
         &built.graph_document(),
+    )?;
+    write_json(
+        &resolve_data_ref_for_write(data_dir, catalog::CATALOG_TREE_SITTER_HREF)?,
+        built.tree_sitter_document(),
     )?;
     Ok(())
 }

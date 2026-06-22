@@ -5,6 +5,7 @@ use serde_json::{Value, json};
 
 use crate::catalog::{
     CatalogCompatDocument, CatalogCore, CatalogGraphDocument, CatalogManifest, CatalogSnapshot,
+    CatalogTreeSitterDocument,
 };
 
 /// Version of the `catalog.json` data contract.
@@ -18,6 +19,8 @@ pub const CATALOG_CORE_SCHEMA_FILE: &str = "catalog.core.schema.json";
 pub const CATALOG_COMPAT_SCHEMA_FILE: &str = "catalog.compat.schema.json";
 /// File name for the generated graph catalog JSON Schema.
 pub const CATALOG_GRAPH_SCHEMA_FILE: &str = "catalog.graph.schema.json";
+/// File name for the generated tree-sitter projection JSON Schema.
+pub const CATALOG_TREE_SITTER_SCHEMA_FILE: &str = "catalog.tree-sitter.schema.json";
 /// File name for the generated snapshot overlay JSON Schema.
 pub const CATALOG_SNAPSHOT_SCHEMA_FILE: &str = "catalog.snapshot.schema.json";
 
@@ -29,6 +32,7 @@ const CATALOG_SCHEMA_TITLE: &str = "svg-data catalog v1";
 const CATALOG_CORE_SCHEMA_TITLE: &str = "svg-data core catalog v1";
 const CATALOG_COMPAT_SCHEMA_TITLE: &str = "svg-data compat catalog v1";
 const CATALOG_GRAPH_SCHEMA_TITLE: &str = "svg-data graph catalog v1";
+const CATALOG_TREE_SITTER_SCHEMA_TITLE: &str = "svg-data tree-sitter catalog v1";
 const CATALOG_SNAPSHOT_SCHEMA_TITLE: &str = "svg-data snapshot overlay v1";
 
 /// One generated schema document to write under `svg-data/data`.
@@ -48,6 +52,7 @@ pub fn catalog_schema_json() -> Result<String, serde_json::Error> {
     merge_document_schema::<CatalogCore<'static>>(&mut schema, "CatalogCore")?;
     merge_document_schema::<CatalogCompatDocument<'static>>(&mut schema, "CatalogCompatDocument")?;
     merge_document_schema::<CatalogGraphDocument<'static>>(&mut schema, "CatalogGraphDocument")?;
+    merge_document_schema::<CatalogTreeSitterDocument>(&mut schema, "CatalogTreeSitterDocument")?;
     merge_document_schema::<CatalogSnapshot>(&mut schema, "CatalogSnapshot")?;
     apply_catalog_schema_id(&mut schema);
     schema_text(schema)
@@ -74,6 +79,10 @@ pub fn catalog_schema_documents() -> Result<Vec<CatalogSchemaDocument>, serde_js
         CatalogSchemaDocument {
             file_name: CATALOG_GRAPH_SCHEMA_FILE,
             json: schema_json::<CatalogGraphDocument<'static>>(CATALOG_GRAPH_SCHEMA_TITLE)?,
+        },
+        CatalogSchemaDocument {
+            file_name: CATALOG_TREE_SITTER_SCHEMA_FILE,
+            json: schema_json::<CatalogTreeSitterDocument>(CATALOG_TREE_SITTER_SCHEMA_TITLE)?,
         },
         CatalogSchemaDocument {
             file_name: CATALOG_SNAPSHOT_SCHEMA_FILE,
@@ -185,7 +194,8 @@ mod tests {
                 "core",
                 "graph",
                 "schema_version",
-                "snapshots"
+                "snapshots",
+                "tree_sitter",
             ]
         );
         assert!(
@@ -221,6 +231,7 @@ mod tests {
                 CATALOG_CORE_SCHEMA_FILE,
                 CATALOG_COMPAT_SCHEMA_FILE,
                 CATALOG_GRAPH_SCHEMA_FILE,
+                CATALOG_TREE_SITTER_SCHEMA_FILE,
                 CATALOG_SNAPSHOT_SCHEMA_FILE,
             ]
         );
@@ -236,6 +247,10 @@ mod tests {
                 ["browser_compat_data", "web_features"].as_slice(),
             ),
             (CATALOG_GRAPH_SCHEMA_FILE, ["edges", "nodes"].as_slice()),
+            (
+                CATALOG_TREE_SITTER_SCHEMA_FILE,
+                ["attribute_buckets", "tokens"].as_slice(),
+            ),
             (
                 CATALOG_SNAPSHOT_SCHEMA_FILE,
                 ["inventory", "profile"].as_slice(),

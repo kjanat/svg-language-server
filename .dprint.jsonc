@@ -4,16 +4,21 @@
 	"extends": "https://github.com/kjanat/kjanat/raw/715d59c6fc69e8020ae0016932782b7bb64d969a/configs/dprint.remote.json",
 	"useTabs": true,
 	"jsonSchemaSort": { "associations": ["**/schema.json", "**/*.schema.json"] },
-	"json": { "trailingCommas": "maintain", "associations": ["**/*.json", "**/*.jsonc"] },
+	"json": {
+		"trailingCommas": "maintain",
+		"associations": ["**/*.json", "**/*.jsonc", "!crates/svg-data/data/**/*.json"]
+	},
 	"markdown": { "textWrap": "always", "emphasisKind": "asterisks", "lineWidth": 80 },
 	"markup": { "associations": ["!**/*.svg"] },
 	"yaml": { "printWidth": 160 },
 	"exec": {
-		"associations": ["justfile", "**/*.rs", "**/*.toml"], // "*.svg"
+		"associations": ["justfile", "**/*.rs", "**/*.toml", "**/*.zig", "**/*.zon"], // "*.svg"
 		"commands": [
 			{ "command": "tombi format - --stdin-filename {{file_path}}", "exts": ["toml"] },
 			{ "command": "rustfmt --edition 2024", "exts": ["rs"] },
 			{ "command": "just --dump --justfile {{file_path}}", "fileNames": ["justfile"] },
+			{ "command": "zig fmt --color off --stdin", "exts": ["zig"] },
+			{ "command": "zig fmt --zon --color off --stdin", "exts": ["zon"] }
 			// { "command": "cargo fmt-svg", "exts": ["svg"] },
 		],
 	},

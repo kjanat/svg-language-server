@@ -39,6 +39,9 @@
 						"fileMatch": ["catalog.graph.json"],
 						"url": "./crates/svg-data/data/catalog.graph.schema.json"
 					}, {
+						"fileMatch": ["catalog.tree-sitter.json"],
+						"url": "./crates/svg-data/data/catalog.tree-sitter.schema.json"
+					}, {
 						"fileMatch": ["**/snapshots/*.json"],
 						"url": "./crates/svg-data/data/catalog.snapshot.schema.json"
 					}, {

@@ -39,11 +39,10 @@ Embedded style, script and foreignObject
       (element
         (start_tag
           name: (name)
-          (attribute
-            (generic_attribute
-              name: (attribute_name)
-              value: (quoted_attribute_value
-                (attribute_text_double)))))
+          (generic_attribute
+            name: (attribute_name)
+            value: (quoted_attribute_value
+              (attribute_text_double))))
         (text)
         (end_tag
           name: (name)))
@@ -112,59 +111,52 @@ Typed style and event attributes
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (id_attribute
-            name: (id_attribute_name)
-            value: (id_attribute_value
-              (id_token))))
-        (attribute
-          (style_attribute
-            name: (style_attribute_name)
-            value: (style_attribute_value
-              (double_quoted_style_value
-                content: (style_text_double)))))
-        (attribute
-          (event_attribute
-            name: (event_attribute_name)
-            value: (event_attribute_value
-              content: (script_text_double))))))
+        (id_attribute
+          name: (id_attribute_name)
+          value: (id_attribute_value
+            (id_token)))
+        (style_attribute
+          name: (style_attribute_name)
+          value: (style_attribute_value
+            (double_quoted_style_value
+              content: (style_text_double))))
+        (event_attribute
+          name: (event_attribute_name)
+          value: (event_attribute_value
+            content: (script_text_double)))))
     (text)
     (element
       (start_tag
         name: (name)
-        (attribute
-          (event_attribute
-            name: (event_attribute_name)
-            value: (event_attribute_value
-              content: (script_text_single)))))
+        (event_attribute
+          name: (event_attribute_name)
+          value: (event_attribute_value
+            content: (script_text_single))))
       (text)
       (element
         (self_closing_tag
           name: (name)
-          (attribute
-            (length_attribute
-              name: (length_attribute_name)
-              value: (length_attribute_value
-                (length_or_percentage_or_auto
-                  (length_or_percentage
-                    (length
-                      (number)))))))
-          (attribute
-            (length_attribute
-              name: (length_attribute_name)
-              value: (length_attribute_value
-                (length_or_percentage_or_auto
-                  (length_or_percentage
-                    (length
-                      (number)))))))
-          (attribute
-            (length_attribute
-              name: (length_attribute_name)
-              value: (length_attribute_value
-                (length_or_percentage_or_auto
-                  (length_or_percentage
-                    (length
-                      (number)))))))))
+          (length_attribute
+            name: (length_attribute_name)
+            value: (length_attribute_value
+              (length_or_percentage_or_auto
+                (length_or_percentage
+                  (length
+                    (number))))))
+          (length_attribute
+            name: (length_attribute_name)
+            value: (length_attribute_value
+              (length_or_percentage_or_auto
+                (length_or_percentage
+                  (length
+                    (number))))))
+          (length_attribute
+            name: (length_attribute_name)
+            value: (length_attribute_value
+              (length_or_percentage_or_auto
+                (length_or_percentage
+                  (length
+                    (number))))))))
       (text)
       (end_tag
         name: (name)))
@@ -201,20 +193,18 @@ Typed references and paint servers
       (element
         (self_closing_tag
           name: (name)
-          (attribute
-            (id_attribute
-              name: (id_attribute_name)
-              value: (id_attribute_value
-                (id_token))))))
+          (id_attribute
+            name: (id_attribute_name)
+            value: (id_attribute_value
+              (id_token)))))
       (text)
       (element
         (self_closing_tag
           name: (name)
-          (attribute
-            (id_attribute
-              name: (id_attribute_name)
-              value: (id_attribute_value
-                (id_token))))))
+          (id_attribute
+            name: (id_attribute_name)
+            value: (id_attribute_value
+              (id_token)))))
       (text)
       (end_tag
         name: (name)))
@@ -222,32 +212,28 @@ Typed references and paint servers
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (paint_attribute
-            name: (paint_attribute_name)
-            value: (paint_attribute_value
-              (paint_value
-                (paint_server
-                  (iri_reference)
-                  (wsp)
-                  (color_value
-                    (hex_color)))))))
-        (attribute
-          (functional_iri_attribute
-            name: (functional_iri_attribute_name)
-            value: (functional_iri_attribute_value
-              (functional_iri
-                (iri_reference)))))))
+        (paint_attribute
+          name: (paint_attribute_name)
+          value: (paint_attribute_value
+            (paint_value
+              (paint_server
+                (iri_reference)
+                (wsp)
+                (hex_color)))))
+        (functional_iri_attribute
+          name: (functional_iri_attribute_name)
+          value: (functional_iri_attribute_value
+            (functional_iri
+              (iri_reference))))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (href_attribute
-            name: (href_attribute_name)
-            value: (href_attribute_value
-              (href_reference
-                (iri_reference)))))))
+        (href_attribute
+          name: (href_attribute_name)
+          value: (href_attribute_value
+            (href_reference
+              (iri_reference))))))
     (text)
     (end_tag
       name: (name)))
@@ -269,19 +255,18 @@ Structured data URI href values
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (href_attribute
-            name: (href_attribute_name)
-            value: (href_attribute_value
-              (href_reference
-                (data_uri
-                  media_type: (data_uri_media_type
-                    (mime_type))
-                  parameter: (data_uri_parameter
-                    name: (data_uri_parameter_name)
-                    value: (data_uri_parameter_value))
-                  encoding: (data_uri_encoding)
-                  payload: (data_uri_payload))))))))
+        (href_attribute
+          name: (href_attribute_name)
+          value: (href_attribute_value
+            (href_reference
+              (data_uri
+                media_type: (data_uri_media_type
+                  (mime_type))
+                parameter: (data_uri_parameter
+                  name: (data_uri_parameter_name)
+                  value: (data_uri_parameter_value))
+                encoding: (data_uri_encoding)
+                payload: (data_uri_payload)))))))
     (end_tag
       name: (name)))
   (text))
@@ -319,28 +304,24 @@ Shape content allows animation and descriptive only
       (element
         (self_closing_tag
           name: (name)
-          (attribute
-            (generic_attribute
-              name: (attribute_name)
-              value: (quoted_attribute_value
-                (attribute_text_double))))
-          (attribute
-            (generic_attribute
-              name: (attribute_name)
-              value: (quoted_attribute_value
-                (attribute_text_double))))
-          (attribute
-            (generic_attribute
-              name: (attribute_name)
-              value: (quoted_attribute_value
-                (attribute_text_double))))
-          (attribute
-            (duration_attribute
-              name: (duration_attribute_name)
-              value: (duration_attribute_value
-                (time_value
-                  (number)
-                  (time_unit)))))))
+          (generic_attribute
+            name: (attribute_name)
+            value: (quoted_attribute_value
+              (attribute_text_double)))
+          (generic_attribute
+            name: (attribute_name)
+            value: (quoted_attribute_value
+              (attribute_text_double)))
+          (generic_attribute
+            name: (attribute_name)
+            value: (quoted_attribute_value
+              (attribute_text_double)))
+          (duration_attribute
+            name: (duration_attribute_name)
+            value: (duration_attribute_value
+              (time_value
+                (number)
+                (time_unit))))))
       (text)
       (end_tag
         name: (name)))
@@ -374,11 +355,10 @@ Defs accepts generic children
       (element
         (self_closing_tag
           name: (name)
-          (attribute
-            (id_attribute
-              name: (id_attribute_name)
-              value: (id_attribute_value
-                (id_token))))))
+          (id_attribute
+            name: (id_attribute_name)
+            value: (id_attribute_value
+              (id_token)))))
       (text)
       (end_tag
         name: (name)))
@@ -425,29 +405,26 @@ Scoped filter primitives and text links
       (element
         (start_tag
           name: (name)
-          (attribute
-            (id_attribute
-              name: (id_attribute_name)
-              value: (id_attribute_value
-                (id_token)))))
+          (id_attribute
+            name: (id_attribute_name)
+            value: (id_attribute_value
+              (id_token))))
         (text)
         (element
           (self_closing_tag
             name: (name)
-            (attribute
-              (generic_attribute
-                name: (attribute_name)
-                value: (quoted_attribute_value
-                  (attribute_text_double))))))
+            (css_text_attribute
+              name: (css_text_attribute_name)
+              value: (css_text_attribute_value
+                content: (css_attribute_text_double)))))
         (text)
         (element
           (self_closing_tag
             name: (name)
-            (attribute
-              (generic_attribute
-                name: (attribute_name)
-                value: (quoted_attribute_value
-                  (attribute_text_double))))))
+            (css_text_attribute
+              name: (css_text_attribute_name)
+              value: (css_text_attribute_value
+                content: (css_attribute_text_double)))))
         (text)
         (element
           (start_tag
@@ -456,11 +433,10 @@ Scoped filter primitives and text links
           (element
             (self_closing_tag
               name: (name)
-              (attribute
-                (generic_attribute
-                  name: (attribute_name)
-                  value: (quoted_attribute_value
-                    (attribute_text_double))))))
+              (css_text_attribute
+                name: (css_text_attribute_name)
+                value: (css_text_attribute_value
+                  content: (css_attribute_text_double)))))
           (text)
           (end_tag
             name: (name)))
@@ -499,12 +475,11 @@ Scoped filter primitives and text links
       (element
         (start_tag
           name: (name)
-          (attribute
-            (href_attribute
-              name: (href_attribute_name)
-              value: (href_attribute_value
-                (href_reference
-                  (iri_reference))))))
+          (href_attribute
+            name: (href_attribute_name)
+            value: (href_attribute_value
+              (href_reference
+                (iri_reference)))))
         (element
           (start_tag
             name: (name))
@@ -553,33 +528,30 @@ Defs, gradients, filter primitives, text containers, linking type
       (element
         (start_tag
           name: (name)
-          (attribute
-            (id_attribute
-              name: (id_attribute_name)
-              value: (id_attribute_value
-                (id_token)))))
+          (id_attribute
+            name: (id_attribute_name)
+            value: (id_attribute_value
+              (id_token))))
         (text)
         (element
           (self_closing_tag
             name: (name)
-            (attribute
-              (offset_attribute
-                name: (offset_attribute_name)
-                value: (offset_attribute_value
-                  (number_or_percentage
-                    (percentage
-                      (number))))))))
+            (offset_attribute
+              name: (offset_attribute_name)
+              value: (offset_attribute_value
+                (number_or_percentage
+                  (percentage
+                    (number)))))))
         (text)
         (element
           (self_closing_tag
             name: (name)
-            (attribute
-              (offset_attribute
-                name: (offset_attribute_name)
-                value: (offset_attribute_value
-                  (number_or_percentage
-                    (percentage
-                      (number))))))))
+            (offset_attribute
+              name: (offset_attribute_name)
+              value: (offset_attribute_value
+                (number_or_percentage
+                  (percentage
+                    (number)))))))
         (text)
         (end_tag
           name: (name)))
@@ -587,20 +559,18 @@ Defs, gradients, filter primitives, text containers, linking type
       (element
         (start_tag
           name: (name)
-          (attribute
-            (id_attribute
-              name: (id_attribute_name)
-              value: (id_attribute_value
-                (id_token)))))
+          (id_attribute
+            name: (id_attribute_name)
+            value: (id_attribute_value
+              (id_token))))
         (text)
         (element
           (self_closing_tag
             name: (name)
-            (attribute
-              (generic_attribute
-                name: (attribute_name)
-                value: (quoted_attribute_value
-                  (attribute_text_double))))))
+            (css_text_attribute
+              name: (css_text_attribute_name)
+              value: (css_text_attribute_value
+                content: (css_attribute_text_double)))))
         (text)
         (end_tag
           name: (name)))
@@ -623,17 +593,15 @@ Defs, gradients, filter primitives, text containers, linking type
     (element
       (start_tag
         name: (name)
-        (attribute
-          (href_attribute
-            name: (href_attribute_name)
-            value: (href_attribute_value
-              (href_reference
-                (iri_reference)))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double)))))
+        (href_attribute
+          name: (href_attribute_name)
+          value: (href_attribute_value
+            (href_reference
+              (iri_reference))))
+        (css_text_attribute
+          name: (css_text_attribute_name)
+          value: (css_text_attribute_value
+            content: (css_attribute_text_double))))
       (text)
       (end_tag
         name: (name)))

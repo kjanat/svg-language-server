@@ -5,8 +5,7 @@
 
 ; Attributes
 (attribute) @parameter.around
-(attribute
-  (_ value: (_) @parameter.inside))
+(attribute value: (_) @parameter.inside)
 
 ; Comments
 (comment) @comment.around

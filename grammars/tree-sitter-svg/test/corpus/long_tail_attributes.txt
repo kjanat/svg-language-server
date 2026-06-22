@@ -11,26 +11,22 @@ ARIA attribute set
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double)))))
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double)))
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double)))
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double)))
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double))))
     (end_tag
       name: (name)))
   (text))
@@ -65,87 +61,79 @@ Animation attribute set
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (duration_attribute
-            name: (duration_attribute_name)
-            value: (duration_attribute_value
-              (time_value
+        (generic_attribute
+          name: (attribute_name)
+          value: (quoted_attribute_value
+            (attribute_text_double)))
+        (generic_attribute
+          name: (attribute_name)
+          value: (quoted_attribute_value
+            (attribute_text_double)))
+        (duration_attribute
+          name: (duration_attribute_name)
+          value: (duration_attribute_value
+            (time_value
+              (number)
+              (time_unit))))
+        (generic_attribute
+          name: (attribute_name)
+          value: (quoted_attribute_value
+            (attribute_text_double)))
+        (key_times_attribute
+          name: (key_times_attribute_name)
+          value: (key_times_attribute_value
+            (semicolon_number_list
+              (number)
+              (number)
+              (number))))
+        (key_splines_attribute
+          name: (key_splines_attribute_name)
+          value: (key_splines_attribute_value
+            (key_splines_list
+              (key_spline_value
                 (number)
-                (time_unit)))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (key_times_attribute
-            name: (key_times_attribute_name)
-            value: (key_times_attribute_value
-              (semicolon_number_list
+                (comma_wsp
+                  (wsp))
                 (number)
+                (comma_wsp
+                  (wsp))
                 (number)
+                (comma_wsp
+                  (wsp))
+                (number))
+              (key_spline_value
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number)
+                (comma_wsp
+                  (wsp))
                 (number)))))
-        (attribute
-          (key_splines_attribute
-            name: (key_splines_attribute_name)
-            value: (key_splines_attribute_value
-              (key_splines_list
-                (key_spline_value
-                  (number)
-                  (comma_wsp
-                    (wsp))
-                  (number)
-                  (comma_wsp
-                    (wsp))
-                  (number)
-                  (comma_wsp
-                    (wsp))
-                  (number))
-                (key_spline_value
-                  (number)
-                  (comma_wsp
-                    (wsp))
-                  (number)
-                  (comma_wsp
-                    (wsp))
-                  (number)
-                  (comma_wsp
-                    (wsp))
-                  (number))))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (repeat_count_attribute
-            name: (repeat_count_attribute_name)
-            value: (repeat_count_attribute_value)))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))))
+        (number_list_attribute
+          name: (number_list_attribute_name)
+          value: (number_list_attribute_value
+            (semicolon_number_list
+              (number)
+              (number)
+              (number))))
+        (repeat_count_attribute
+          name: (repeat_count_attribute_name)
+          value: (repeat_count_attribute_value))
+        (generic_attribute
+          name: (attribute_name)
+          value: (quoted_attribute_value
+            (attribute_text_double)))
+        (generic_attribute
+          name: (attribute_name)
+          value: (quoted_attribute_value
+            (attribute_text_double)))
+        (generic_attribute
+          name: (attribute_name)
+          value: (quoted_attribute_value
+            (attribute_text_double)))))
     (text)
     (end_tag
       name: (name)))
@@ -174,112 +162,121 @@ Filter effect attribute set
     (element
       (start_tag
         name: (name)
-        (attribute
-          (id_attribute
-            name: (id_attribute_name)
-            value: (id_attribute_value
-              (id_token)))))
+        (id_attribute
+          name: (id_attribute_name)
+          value: (id_attribute_value
+            (id_token))))
       (text)
       (element
         (self_closing_tag
           name: (name)
-          (attribute
-            (number_list_attribute
-              name: (number_list_attribute_name)
-              value: (number_list_attribute_value
-                (number_list
-                  (number)
-                  (comma_wsp
-                    (wsp))
-                  (number)))))
-          (attribute
-            (number_attribute
-              name: (number_attribute_name)
-              value: (number_attribute_value
+          (number_optional_number_attribute
+            name: (number_optional_number_attribute_name)
+            value: (number_optional_number_attribute_value
+              (number_optional_number
+                (number)
+                (wsp)
                 (number))))
-          (attribute
-            (number_attribute
-              name: (number_attribute_name)
-              value: (number_attribute_value
-                (number))))
-          (attribute
-            (generic_attribute
-              name: (attribute_name)
-              value: (quoted_attribute_value
-                (attribute_text_double))))
-          (attribute
-            (generic_attribute
-              name: (attribute_name)
-              value: (quoted_attribute_value
-                (attribute_text_double))))))
+          (number_attribute
+            name: (number_attribute_name)
+            value: (number_attribute_value
+              (number)))
+          (number_attribute
+            name: (number_attribute_name)
+            value: (number_attribute_value
+              (number)))
+          (keyword_attribute
+            name: (keyword_attribute_name)
+            value: (keyword_attribute_value
+              (keyword_value)))
+          (css_text_attribute
+            name: (css_text_attribute_name)
+            value: (css_text_attribute_value
+              content: (css_attribute_text_double)))))
       (text)
       (element
         (self_closing_tag
           name: (name)
-          (attribute
-            (generic_attribute
-              name: (attribute_name)
-              value: (quoted_attribute_value
-                (attribute_text_double))))
-          (attribute
-            (generic_attribute
-              name: (attribute_name)
-              value: (quoted_attribute_value
-                (attribute_text_double))))
-          (attribute
-            (number_attribute
-              name: (number_attribute_name)
-              value: (number_attribute_value
-                (number))))
-          (attribute
-            (generic_attribute
-              name: (attribute_name)
-              value: (quoted_attribute_value
-                (attribute_text_double))))
-          (attribute
-            (generic_attribute
-              name: (attribute_name)
-              value: (quoted_attribute_value
-                (attribute_text_double))))))
+          (css_text_attribute
+            name: (css_text_attribute_name)
+            value: (css_text_attribute_value
+              content: (css_attribute_text_double)))
+          (css_text_attribute
+            name: (css_text_attribute_name)
+            value: (css_text_attribute_value
+              content: (css_attribute_text_double)))
+          (number_attribute
+            name: (number_attribute_name)
+            value: (number_attribute_value
+              (number)))
+          (keyword_attribute
+            name: (keyword_attribute_name)
+            value: (keyword_attribute_value
+              (keyword_value)))
+          (keyword_attribute
+            name: (keyword_attribute_name)
+            value: (keyword_attribute_value
+              (keyword_value)))))
       (text)
       (element
         (self_closing_tag
           name: (name)
-          (attribute
-            (generic_attribute
-              name: (attribute_name)
-              value: (quoted_attribute_value
-                (attribute_text_double))))
-          (attribute
-            (generic_attribute
-              name: (attribute_name)
-              value: (quoted_attribute_value
-                (attribute_text_double))))
-          (attribute
-            (number_attribute
-              name: (number_attribute_name)
-              value: (number_attribute_value
+          (number_list_attribute
+            name: (number_list_attribute_name)
+            value: (number_list_attribute_value
+              (number_list
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number)
+                (comma_wsp
+                  (wsp))
                 (number))))
-          (attribute
-            (number_attribute
-              name: (number_attribute_name)
-              value: (number_attribute_value
+          (number_optional_number_attribute
+            name: (number_optional_number_attribute_name)
+            value: (number_optional_number_attribute_value
+              (number_optional_number
+                (number)
+                (wsp)
                 (number))))
-          (attribute
-            (generic_attribute
-              name: (attribute_name)
-              value: (quoted_attribute_value
-                (attribute_text_double))))
-          (attribute
-            (generic_attribute
-              name: (attribute_name)
-              value: (quoted_attribute_value
-                (attribute_text_double))))
-          (attribute
-            (generic_attribute
-              name: (attribute_name)
-              value: (quoted_attribute_value
-                (attribute_text_double))))))
+          (number_attribute
+            name: (number_attribute_name)
+            value: (number_attribute_value
+              (number)))
+          (number_attribute
+            name: (number_attribute_name)
+            value: (number_attribute_value
+              (number)))
+          (number_attribute
+            name: (number_attribute_name)
+            value: (number_attribute_value
+              (number)))
+          (number_attribute
+            name: (number_attribute_name)
+            value: (number_attribute_value
+              (number)))
+          (keyword_attribute
+            name: (keyword_attribute_name)
+            value: (keyword_attribute_value
+              (keyword_value)))))
       (text)
       (end_tag
         name: (name)))
@@ -330,144 +327,132 @@ Text layout and typography attributes
     (element
       (start_tag
         name: (name)
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (length_list_attribute
-            name: (length_list_attribute_name)
-            value: (length_list_attribute_value
-              (length_list
-                (length_or_percentage
-                  (length
-                    (number)))
-                (comma_wsp
-                  (wsp))
-                (length_or_percentage
-                  (length
-                    (number)))
-                (comma_wsp
-                  (wsp))
-                (length_or_percentage
-                  (length
-                    (number)))))))
-        (attribute
-          (length_list_attribute
-            name: (length_list_attribute_name)
-            value: (length_list_attribute_value
-              (length_list
-                (length_or_percentage
-                  (length
-                    (number)))
-                (comma_wsp
-                  (wsp))
-                (length_or_percentage
-                  (length
-                    (number)))))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (number_list_attribute
-            name: (number_list_attribute_name)
-            value: (number_list_attribute_value
-              (number_list
-                (number)
-                (comma_wsp
-                  (wsp))
-                (number)
-                (comma_wsp
-                  (wsp))
-                (number)))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double)))))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_keyword_value
+              (keyword_value))))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (length_list_attribute
+          name: (length_list_attribute_name)
+          value: (length_list_attribute_value
+            (length_list
+              (length_or_percentage
+                (length
+                  (number)))
+              (comma_wsp
+                (wsp))
+              (length_or_percentage
+                (length
+                  (number)))
+              (comma_wsp
+                (wsp))
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_list_attribute
+          name: (length_list_attribute_name)
+          value: (length_list_attribute_value
+            (length_list
+              (length_or_percentage
+                (length
+                  (number)))
+              (comma_wsp
+                (wsp))
+              (length_or_percentage
+                (length
+                  (number))))))
+        (css_text_attribute
+          name: (css_text_attribute_name)
+          value: (css_text_attribute_value
+            content: (css_attribute_text_double)))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (number)))
+        (generic_attribute
+          name: (attribute_name)
+          value: (quoted_attribute_value
+            (attribute_text_double)))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (number_list_attribute
+          name: (number_list_attribute_name)
+          value: (number_list_attribute_value
+            (number_list
+              (number)
+              (comma_wsp
+                (wsp))
+              (number)
+              (comma_wsp
+                (wsp))
+              (number))))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (generic_attribute
+          name: (attribute_name)
+          value: (quoted_attribute_value
+            (attribute_text_double)))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value))))
       (text)
       (end_tag
         name: (name)))
@@ -475,21 +460,18 @@ Text layout and typography attributes
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))))
     (text)
     (end_tag
       name: (name)))
@@ -533,125 +515,105 @@ Coord system and linking/media attributes
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double)))))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (css_text_attribute
+        name: (css_text_attribute_name)
+        value: (css_text_attribute_value
+          content: (css_attribute_text_double)))
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double)))
+      (length_attribute
+        name: (length_attribute_name)
+        value: (length_attribute_value
+          (length_or_percentage_or_auto
+            (length_or_percentage
+              (percentage
+                (number))))))
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (css_text_attribute
+          name: (css_text_attribute_name)
+          value: (css_text_attribute_value
+            content: (css_attribute_text_double)))
+        (css_text_attribute
+          name: (css_text_attribute_name)
+          value: (css_text_attribute_value
+            content: (css_attribute_text_double)))
+        (css_text_attribute
+          name: (css_text_attribute_name)
+          value: (css_text_attribute_value
+            content: (css_attribute_text_double)))
+        (css_text_attribute
+          name: (css_text_attribute_name)
+          value: (css_text_attribute_value
+            content: (css_attribute_text_double)))
+        (css_text_attribute
+          name: (css_text_attribute_name)
+          value: (css_text_attribute_value
+            content: (css_attribute_text_double)))
+        (css_text_attribute
+          name: (css_text_attribute_name)
+          value: (css_text_attribute_value
+            content: (css_attribute_text_double)))
+        (css_text_attribute
+          name: (css_text_attribute_name)
+          value: (css_text_attribute_value
+            content: (css_attribute_text_double)))
+        (css_text_attribute
+          name: (css_text_attribute_name)
+          value: (css_text_attribute_value
+            content: (css_attribute_text_double)))))
     (text)
     (end_tag
       name: (name)))
@@ -687,115 +649,101 @@ Other regular long-tail attributes
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (offset_attribute
-          name: (offset_attribute_name)
-          value: (offset_attribute_value
-            (number_or_percentage
-              (percentage
-                (number))))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (d_attribute
-          name: (d_attribute_name)
-          value: (d_attribute_value
-            (double_quoted_path_data
-              (path_data_content
-                (path_data
-                  (moveto_segment
-                    command: (path_command)
-                    (path_coordinate_pair
-                      (path_coordinate
-                        (path_number))
-                      (path_comma_wsp
-                        (path_wsp))
-                      (path_coordinate
-                        (path_number))))
-                  (path_wsp)
-                  (path_segment
-                    (lineto_segment
-                      command: (path_command)
-                      (path_coordinate_pair
-                        (path_coordinate
-                          (path_number))
-                        (path_comma_wsp
-                          (path_wsp))
-                        (path_coordinate
-                          (path_number)))))))))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (number_attribute
-          name: (number_attribute_name)
-          value: (number_attribute_value
-            (number)))))
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double)))
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (offset_attribute
+        name: (offset_attribute_name)
+        value: (offset_attribute_value
+          (number_or_percentage
+            (percentage
+              (number)))))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)
+          (wsp)
+          (keyword_value)
+          (wsp)
+          (keyword_value)))
+      (d_attribute
+        name: (d_attribute_name)
+        value: (d_attribute_value
+          (double_quoted_path_data
+            (path_data_content
+              (path_data
+                (moveto_segment
+                  command: (path_command)
+                  (path_coordinate_pair
+                    (path_coordinate
+                      (path_number))
+                    (path_comma_wsp
+                      (path_wsp))
+                    (path_coordinate
+                      (path_number))))
+                (path_wsp)
+                (lineto_segment
+                  command: (path_command)
+                  (path_coordinate_pair
+                    (path_coordinate
+                      (path_number))
+                    (path_comma_wsp
+                      (path_wsp))
+                    (path_coordinate
+                      (path_number)))))))))
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double)))
+      (number_attribute
+        name: (number_attribute_name)
+        value: (number_attribute_value
+          (number)))
+      (number_attribute
+        name: (number_attribute_name)
+        value: (number_attribute_value
+          (number)))
+      (number_attribute
+        name: (number_attribute_name)
+        value: (number_attribute_value
+          (number)))
+      (css_text_attribute
+        name: (css_text_attribute_name)
+        value: (css_text_attribute_value
+          content: (css_attribute_text_double)))
+      (css_text_attribute
+        name: (css_text_attribute_name)
+        value: (css_text_attribute_value
+          content: (css_attribute_text_double)))
+      (css_text_attribute
+        name: (css_text_attribute_name)
+        value: (css_text_attribute_value
+          content: (css_attribute_text_double)))
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double)))
+      (css_text_attribute
+        name: (css_text_attribute_name)
+        value: (css_text_attribute_value
+          content: (css_attribute_text_double)))
+      (css_text_attribute
+        name: (css_text_attribute_name)
+        value: (css_text_attribute_value
+          content: (css_attribute_text_double)))
+      (number_attribute
+        name: (number_attribute_name)
+        value: (number_attribute_value
+          (number))))
     (end_tag
       name: (name)))
   (text))

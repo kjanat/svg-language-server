@@ -28,6 +28,7 @@
 (attribute_name) @attribute
 (class_attribute_name) @attribute
 (clip_attribute_name) @attribute
+(css_text_attribute_name) @attribute
 (d_attribute_name) @attribute
 (duration_attribute_name) @attribute
 (enable_background_attribute_name) @attribute
@@ -40,6 +41,7 @@
 (length_attribute_name) @attribute
 (length_list_attribute_name) @attribute
 (number_attribute_name) @attribute
+(number_optional_number_attribute_name) @attribute
 (number_list_attribute_name) @attribute
 (offset_attribute_name) @attribute
 (opacity_attribute_name) @attribute
@@ -67,6 +69,7 @@
 [(quoted_attribute_value)
  (class_attribute_value)
  (clip_attribute_value)
+ (css_text_attribute_value)
  (d_attribute_value)
  (duration_attribute_value)
  (enable_background_attribute_value)
@@ -79,6 +82,7 @@
  (length_attribute_value)
  (length_list_attribute_value)
  (number_attribute_value)
+ (number_optional_number_attribute_value)
  (number_list_attribute_value)
  (offset_attribute_value)
  (opacity_attribute_value)

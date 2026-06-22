@@ -1,5 +1,225 @@
 [
   {
+    "type": "attribute",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "class_attribute",
+        "named": true
+      },
+      {
+        "type": "clip_attribute",
+        "named": true
+      },
+      {
+        "type": "css_text_attribute",
+        "named": true
+      },
+      {
+        "type": "d_attribute",
+        "named": true
+      },
+      {
+        "type": "duration_attribute",
+        "named": true
+      },
+      {
+        "type": "enable_background_attribute",
+        "named": true
+      },
+      {
+        "type": "event_attribute",
+        "named": true
+      },
+      {
+        "type": "functional_iri_attribute",
+        "named": true
+      },
+      {
+        "type": "generic_attribute",
+        "named": true
+      },
+      {
+        "type": "href_attribute",
+        "named": true
+      },
+      {
+        "type": "id_attribute",
+        "named": true
+      },
+      {
+        "type": "key_splines_attribute",
+        "named": true
+      },
+      {
+        "type": "key_times_attribute",
+        "named": true
+      },
+      {
+        "type": "keyword_attribute",
+        "named": true
+      },
+      {
+        "type": "length_attribute",
+        "named": true
+      },
+      {
+        "type": "length_list_attribute",
+        "named": true
+      },
+      {
+        "type": "number_attribute",
+        "named": true
+      },
+      {
+        "type": "number_list_attribute",
+        "named": true
+      },
+      {
+        "type": "number_optional_number_attribute",
+        "named": true
+      },
+      {
+        "type": "offset_attribute",
+        "named": true
+      },
+      {
+        "type": "opacity_attribute",
+        "named": true
+      },
+      {
+        "type": "paint_attribute",
+        "named": true
+      },
+      {
+        "type": "points_attribute",
+        "named": true
+      },
+      {
+        "type": "preserve_aspect_ratio_attribute",
+        "named": true
+      },
+      {
+        "type": "repeat_count_attribute",
+        "named": true
+      },
+      {
+        "type": "stroke_dasharray_attribute",
+        "named": true
+      },
+      {
+        "type": "style_attribute",
+        "named": true
+      },
+      {
+        "type": "transform_attribute",
+        "named": true
+      },
+      {
+        "type": "viewbox_attribute",
+        "named": true
+      }
+    ]
+  },
+  {
+    "type": "color_value",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "functional_color",
+        "named": true
+      },
+      {
+        "type": "hex_color",
+        "named": true
+      },
+      {
+        "type": "named_color",
+        "named": true
+      }
+    ]
+  },
+  {
+    "type": "path_segment",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "closepath_segment",
+        "named": true
+      },
+      {
+        "type": "curveto_segment",
+        "named": true
+      },
+      {
+        "type": "elliptical_arc_segment",
+        "named": true
+      },
+      {
+        "type": "horizontal_lineto_segment",
+        "named": true
+      },
+      {
+        "type": "implicit_lineto_segment",
+        "named": true
+      },
+      {
+        "type": "lineto_segment",
+        "named": true
+      },
+      {
+        "type": "moveto_segment",
+        "named": true
+      },
+      {
+        "type": "quadratic_bezier_curveto_segment",
+        "named": true
+      },
+      {
+        "type": "smooth_curveto_segment",
+        "named": true
+      },
+      {
+        "type": "smooth_quadratic_bezier_curveto_segment",
+        "named": true
+      },
+      {
+        "type": "vertical_lineto_segment",
+        "named": true
+      }
+    ]
+  },
+  {
+    "type": "transform_function",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "matrix_transform",
+        "named": true
+      },
+      {
+        "type": "rotate_transform",
+        "named": true
+      },
+      {
+        "type": "scale_transform",
+        "named": true
+      },
+      {
+        "type": "skew_x_transform",
+        "named": true
+      },
+      {
+        "type": "skew_y_transform",
+        "named": true
+      },
+      {
+        "type": "translate_transform",
+        "named": true
+      }
+    ]
+  },
+  {
     "type": "align_keyword",
     "named": true,
     "fields": {}
@@ -8,121 +228,6 @@
     "type": "angle_unit",
     "named": true,
     "fields": {}
-  },
-  {
-    "type": "attribute",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "class_attribute",
-          "named": true
-        },
-        {
-          "type": "clip_attribute",
-          "named": true
-        },
-        {
-          "type": "d_attribute",
-          "named": true
-        },
-        {
-          "type": "duration_attribute",
-          "named": true
-        },
-        {
-          "type": "enable_background_attribute",
-          "named": true
-        },
-        {
-          "type": "event_attribute",
-          "named": true
-        },
-        {
-          "type": "functional_iri_attribute",
-          "named": true
-        },
-        {
-          "type": "generic_attribute",
-          "named": true
-        },
-        {
-          "type": "href_attribute",
-          "named": true
-        },
-        {
-          "type": "id_attribute",
-          "named": true
-        },
-        {
-          "type": "key_splines_attribute",
-          "named": true
-        },
-        {
-          "type": "key_times_attribute",
-          "named": true
-        },
-        {
-          "type": "length_attribute",
-          "named": true
-        },
-        {
-          "type": "length_list_attribute",
-          "named": true
-        },
-        {
-          "type": "number_attribute",
-          "named": true
-        },
-        {
-          "type": "number_list_attribute",
-          "named": true
-        },
-        {
-          "type": "offset_attribute",
-          "named": true
-        },
-        {
-          "type": "opacity_attribute",
-          "named": true
-        },
-        {
-          "type": "paint_attribute",
-          "named": true
-        },
-        {
-          "type": "points_attribute",
-          "named": true
-        },
-        {
-          "type": "preserve_aspect_ratio_attribute",
-          "named": true
-        },
-        {
-          "type": "repeat_count_attribute",
-          "named": true
-        },
-        {
-          "type": "stroke_dasharray_attribute",
-          "named": true
-        },
-        {
-          "type": "style_attribute",
-          "named": true
-        },
-        {
-          "type": "transform_attribute",
-          "named": true
-        },
-        {
-          "type": "viewbox_attribute",
-          "named": true
-        }
-      ]
-    }
   },
   {
     "type": "attribute_name",
@@ -208,6 +313,11 @@
         }
       ]
     }
+  },
+  {
+    "type": "class_name",
+    "named": true,
+    "fields": {}
   },
   {
     "type": "clip_attribute",
@@ -363,29 +473,6 @@
     }
   },
   {
-    "type": "color_value",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "functional_color",
-          "named": true
-        },
-        {
-          "type": "hex_color",
-          "named": true
-        },
-        {
-          "type": "named_color",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "comma_wsp",
     "named": true,
     "fields": {},
@@ -457,6 +544,67 @@
           "named": true
         }
       ]
+    }
+  },
+  {
+    "type": "css_attribute_text_double",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "css_attribute_text_single",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "css_text_attribute",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "css_text_attribute_name",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "css_text_attribute_value",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "css_text_attribute_name",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "css_text_attribute_value",
+    "named": true,
+    "fields": {
+      "content": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "css_attribute_text_double",
+            "named": true
+          },
+          {
+            "type": "css_attribute_text_single",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
@@ -1482,6 +1630,65 @@
     }
   },
   {
+    "type": "keyword_attribute",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "keyword_attribute_name",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "keyword_attribute_value",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "keyword_attribute_name",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "keyword_attribute_value",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "keyword_value",
+          "named": true
+        },
+        {
+          "type": "number",
+          "named": true
+        },
+        {
+          "type": "wsp",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "keyword_value",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "length",
     "named": true,
     "fields": {},
@@ -1540,7 +1747,34 @@
       "required": false,
       "types": [
         {
+          "type": "length_keyword_value",
+          "named": true
+        },
+        {
           "type": "length_or_percentage_or_auto",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "length_keyword_value",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "keyword_value",
+          "named": true
+        },
+        {
+          "type": "length_or_percentage",
+          "named": true
+        },
+        {
+          "type": "wsp",
           "named": true
         }
       ]
@@ -1863,6 +2097,75 @@
         {
           "type": "number_list",
           "named": true
+        },
+        {
+          "type": "semicolon_number_list",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "number_optional_number",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "number",
+          "named": true
+        },
+        {
+          "type": "wsp",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "number_optional_number_attribute",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "number_optional_number_attribute_name",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "number_optional_number_attribute_value",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "number_optional_number_attribute_name",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "number_optional_number_attribute_value",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "number_optional_number",
+          "named": true
         }
       ]
     }
@@ -2133,10 +2436,6 @@
       "required": true,
       "types": [
         {
-          "type": "moveto_segment",
-          "named": true
-        },
-        {
           "type": "path_segment",
           "named": true
         },
@@ -2181,61 +2480,6 @@
       "types": [
         {
           "type": "path_number",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "path_segment",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "closepath_segment",
-          "named": true
-        },
-        {
-          "type": "curveto_segment",
-          "named": true
-        },
-        {
-          "type": "elliptical_arc_segment",
-          "named": true
-        },
-        {
-          "type": "horizontal_lineto_segment",
-          "named": true
-        },
-        {
-          "type": "implicit_lineto_segment",
-          "named": true
-        },
-        {
-          "type": "lineto_segment",
-          "named": true
-        },
-        {
-          "type": "moveto_segment",
-          "named": true
-        },
-        {
-          "type": "quadratic_bezier_curveto_segment",
-          "named": true
-        },
-        {
-          "type": "smooth_curveto_segment",
-          "named": true
-        },
-        {
-          "type": "smooth_quadratic_bezier_curveto_segment",
-          "named": true
-        },
-        {
-          "type": "vertical_lineto_segment",
           "named": true
         }
       ]
@@ -3041,41 +3285,6 @@
     }
   },
   {
-    "type": "transform_function",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "matrix_transform",
-          "named": true
-        },
-        {
-          "type": "rotate_transform",
-          "named": true
-        },
-        {
-          "type": "scale_transform",
-          "named": true
-        },
-        {
-          "type": "skew_x_transform",
-          "named": true
-        },
-        {
-          "type": "skew_y_transform",
-          "named": true
-        },
-        {
-          "type": "translate_transform",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "transform_list",
     "named": true,
     "fields": {},
@@ -3431,6 +3640,14 @@
     "named": false
   },
   {
+    "type": "alignment-baseline",
+    "named": false
+  },
+  {
+    "type": "amplitude",
+    "named": false
+  },
+  {
     "type": "attribute_text_double",
     "named": true
   },
@@ -3443,6 +3660,10 @@
     "named": false
   },
   {
+    "type": "autofocus",
+    "named": false
+  },
+  {
     "type": "azimuth",
     "named": false
   },
@@ -3451,7 +3672,15 @@
     "named": false
   },
   {
+    "type": "baseline-shift",
+    "named": false
+  },
+  {
     "type": "bias",
+    "named": false
+  },
+  {
+    "type": "cap",
     "named": false
   },
   {
@@ -3463,11 +3692,15 @@
     "named": true
   },
   {
-    "type": "class_name",
-    "named": true
+    "type": "clip-path",
+    "named": false
   },
   {
-    "type": "clip-path",
+    "type": "clip-rule",
+    "named": false
+  },
+  {
+    "type": "clipPathUnits",
     "named": false
   },
   {
@@ -3480,6 +3713,14 @@
   },
   {
     "type": "color",
+    "named": false
+  },
+  {
+    "type": "color-interpolation",
+    "named": false
+  },
+  {
+    "type": "color-interpolation-filters",
     "named": false
   },
   {
@@ -3516,6 +3757,10 @@
   },
   {
     "type": "context-stroke",
+    "named": false
+  },
+  {
+    "type": "crossorigin",
     "named": false
   },
   {
@@ -3571,6 +3816,14 @@
     "named": false
   },
   {
+    "type": "direction",
+    "named": false
+  },
+  {
+    "type": "display",
+    "named": false
+  },
+  {
     "type": "divisor",
     "named": false
   },
@@ -3579,7 +3832,39 @@
     "named": true
   },
   {
+    "type": "dominant-baseline",
+    "named": false
+  },
+  {
+    "type": "download",
+    "named": false
+  },
+  {
     "type": "dur",
+    "named": false
+  },
+  {
+    "type": "dvb",
+    "named": false
+  },
+  {
+    "type": "dvh",
+    "named": false
+  },
+  {
+    "type": "dvi",
+    "named": false
+  },
+  {
+    "type": "dvmax",
+    "named": false
+  },
+  {
+    "type": "dvmin",
+    "named": false
+  },
+  {
+    "type": "dvw",
     "named": false
   },
   {
@@ -3588,6 +3873,10 @@
   },
   {
     "type": "dy",
+    "named": false
+  },
+  {
+    "type": "edgeMode",
     "named": false
   },
   {
@@ -3615,6 +3904,10 @@
     "named": false
   },
   {
+    "type": "exponent",
+    "named": false
+  },
+  {
     "type": "fill",
     "named": false
   },
@@ -3623,7 +3916,15 @@
     "named": false
   },
   {
+    "type": "fill-rule",
+    "named": false
+  },
+  {
     "type": "filter",
+    "named": false
+  },
+  {
+    "type": "filterUnits",
     "named": false
   },
   {
@@ -3635,7 +3936,35 @@
     "named": false
   },
   {
+    "type": "font-family",
+    "named": false
+  },
+  {
     "type": "font-size",
+    "named": false
+  },
+  {
+    "type": "font-size-adjust",
+    "named": false
+  },
+  {
+    "type": "font-stretch",
+    "named": false
+  },
+  {
+    "type": "font-style",
+    "named": false
+  },
+  {
+    "type": "font-variant",
+    "named": false
+  },
+  {
+    "type": "font-weight",
+    "named": false
+  },
+  {
+    "type": "fr",
     "named": false
   },
   {
@@ -3647,11 +3976,19 @@
     "named": false
   },
   {
+    "type": "glyph-orientation-vertical",
+    "named": false
+  },
+  {
     "type": "grad",
     "named": false
   },
   {
     "type": "gradientTransform",
+    "named": false
+  },
+  {
+    "type": "gradientUnits",
     "named": false
   },
   {
@@ -3671,11 +4008,27 @@
     "named": false
   },
   {
+    "type": "hreflang",
+    "named": false
+  },
+  {
+    "type": "ic",
+    "named": false
+  },
+  {
     "type": "id_attribute_name",
     "named": true
   },
   {
+    "type": "image-rendering",
+    "named": false
+  },
+  {
     "type": "in",
+    "named": false
+  },
+  {
+    "type": "in2",
     "named": false
   },
   {
@@ -3684,6 +4037,14 @@
   },
   {
     "type": "inherit",
+    "named": false
+  },
+  {
+    "type": "inline-size",
+    "named": false
+  },
+  {
+    "type": "intercept",
     "named": false
   },
   {
@@ -3707,6 +4068,14 @@
     "named": false
   },
   {
+    "type": "kernelMatrix",
+    "named": false
+  },
+  {
+    "type": "kernelUnitLength",
+    "named": false
+  },
+  {
     "type": "key_splines_attribute_name",
     "named": true
   },
@@ -3715,11 +4084,55 @@
     "named": true
   },
   {
+    "type": "lang",
+    "named": false
+  },
+  {
+    "type": "lengthAdjust",
+    "named": false
+  },
+  {
+    "type": "letter-spacing",
+    "named": false
+  },
+  {
+    "type": "lh",
+    "named": false
+  },
+  {
     "type": "lighting-color",
     "named": false
   },
   {
     "type": "limitingConeAngle",
+    "named": false
+  },
+  {
+    "type": "lvb",
+    "named": false
+  },
+  {
+    "type": "lvh",
+    "named": false
+  },
+  {
+    "type": "lvi",
+    "named": false
+  },
+  {
+    "type": "lvmax",
+    "named": false
+  },
+  {
+    "type": "lvmin",
+    "named": false
+  },
+  {
+    "type": "lvw",
+    "named": false
+  },
+  {
+    "type": "marker",
     "named": false
   },
   {
@@ -3739,11 +4152,27 @@
     "named": false
   },
   {
+    "type": "markerUnits",
+    "named": false
+  },
+  {
     "type": "markerWidth",
     "named": false
   },
   {
     "type": "mask",
+    "named": false
+  },
+  {
+    "type": "mask-type",
+    "named": false
+  },
+  {
+    "type": "maskContentUnits",
+    "named": false
+  },
+  {
+    "type": "maskUnits",
     "named": false
   },
   {
@@ -3759,6 +4188,10 @@
     "named": false
   },
   {
+    "type": "method",
+    "named": false
+  },
+  {
     "type": "mime_type",
     "named": true
   },
@@ -3768,6 +4201,10 @@
   },
   {
     "type": "mm",
+    "named": false
+  },
+  {
+    "type": "mode",
     "named": false
   },
   {
@@ -3795,11 +4232,47 @@
     "named": true
   },
   {
+    "type": "onbegin",
+    "named": false
+  },
+  {
+    "type": "onend",
+    "named": false
+  },
+  {
+    "type": "onrepeat",
+    "named": false
+  },
+  {
     "type": "opacity",
     "named": false
   },
   {
+    "type": "operator",
+    "named": false
+  },
+  {
+    "type": "order",
+    "named": false
+  },
+  {
+    "type": "orient",
+    "named": false
+  },
+  {
+    "type": "overflow",
+    "named": false
+  },
+  {
+    "type": "paint-order",
+    "named": false
+  },
+  {
     "type": "path",
+    "named": false
+  },
+  {
+    "type": "path-length",
     "named": false
   },
   {
@@ -3815,7 +4288,15 @@
     "named": true
   },
   {
+    "type": "patternContentUnits",
+    "named": false
+  },
+  {
     "type": "patternTransform",
+    "named": false
+  },
+  {
+    "type": "patternUnits",
     "named": false
   },
   {
@@ -3827,12 +4308,40 @@
     "named": true
   },
   {
+    "type": "ping",
+    "named": false
+  },
+  {
+    "type": "pointer-events",
+    "named": false
+  },
+  {
+    "type": "pointsAtX",
+    "named": false
+  },
+  {
+    "type": "pointsAtY",
+    "named": false
+  },
+  {
+    "type": "pointsAtZ",
+    "named": false
+  },
+  {
     "type": "points_attribute_name",
     "named": true
   },
   {
+    "type": "preserveAlpha",
+    "named": false
+  },
+  {
     "type": "preserve_aspect_ratio_attribute_name",
     "named": true
+  },
+  {
+    "type": "primitiveUnits",
+    "named": false
   },
   {
     "type": "pt",
@@ -3840,10 +4349,6 @@
   },
   {
     "type": "px",
-    "named": false
-  },
-  {
-    "type": "q",
     "named": false
   },
   {
@@ -3863,6 +4368,14 @@
     "named": true
   },
   {
+    "type": "rcap",
+    "named": false
+  },
+  {
+    "type": "rch",
+    "named": false
+  },
+  {
     "type": "rect",
     "named": false
   },
@@ -3872,6 +4385,14 @@
   },
   {
     "type": "refY",
+    "named": false
+  },
+  {
+    "type": "referrerpolicy",
+    "named": false
+  },
+  {
+    "type": "rel",
     "named": false
   },
   {
@@ -3885,6 +4406,30 @@
   {
     "type": "repeat_count_attribute_name",
     "named": true
+  },
+  {
+    "type": "requiredExtensions",
+    "named": false
+  },
+  {
+    "type": "result",
+    "named": false
+  },
+  {
+    "type": "rex",
+    "named": false
+  },
+  {
+    "type": "ric",
+    "named": false
+  },
+  {
+    "type": "rlh",
+    "named": false
+  },
+  {
+    "type": "role",
+    "named": false
   },
   {
     "type": "rotate",
@@ -3911,6 +4456,14 @@
     "named": false
   },
   {
+    "type": "shape-rendering",
+    "named": false
+  },
+  {
+    "type": "side",
+    "named": false
+  },
+  {
     "type": "skewX",
     "named": false
   },
@@ -3923,6 +4476,14 @@
     "named": false
   },
   {
+    "type": "slope",
+    "named": false
+  },
+  {
+    "type": "spacing",
+    "named": false
+  },
+  {
     "type": "specularConstant",
     "named": false
   },
@@ -3931,11 +4492,19 @@
     "named": false
   },
   {
+    "type": "spreadMethod",
+    "named": false
+  },
+  {
     "type": "startOffset",
     "named": false
   },
   {
     "type": "stdDeviation",
+    "named": false
+  },
+  {
+    "type": "stitchTiles",
     "named": false
   },
   {
@@ -3952,6 +4521,14 @@
   },
   {
     "type": "stroke-dashoffset",
+    "named": false
+  },
+  {
+    "type": "stroke-linecap",
+    "named": false
+  },
+  {
+    "type": "stroke-linejoin",
     "named": false
   },
   {
@@ -3979,15 +4556,79 @@
     "named": false
   },
   {
+    "type": "svb",
+    "named": false
+  },
+  {
+    "type": "svh",
+    "named": false
+  },
+  {
+    "type": "svi",
+    "named": false
+  },
+  {
+    "type": "svmax",
+    "named": false
+  },
+  {
+    "type": "svmin",
+    "named": false
+  },
+  {
+    "type": "svw",
+    "named": false
+  },
+  {
+    "type": "systemLanguage",
+    "named": false
+  },
+  {
+    "type": "tabindex",
+    "named": false
+  },
+  {
+    "type": "tableValues",
+    "named": false
+  },
+  {
+    "type": "target",
+    "named": false
+  },
+  {
+    "type": "targetX",
+    "named": false
+  },
+  {
+    "type": "targetY",
+    "named": false
+  },
+  {
     "type": "text",
     "named": true
+  },
+  {
+    "type": "text-anchor",
+    "named": false
+  },
+  {
+    "type": "text-rendering",
+    "named": false
   },
   {
     "type": "textLength",
     "named": false
   },
   {
+    "type": "title",
+    "named": false
+  },
+  {
     "type": "transform",
+    "named": false
+  },
+  {
+    "type": "transform-origin",
     "named": false
   },
   {
@@ -3999,7 +4640,27 @@
     "named": false
   },
   {
+    "type": "type",
+    "named": false
+  },
+  {
+    "type": "unicode-bidi",
+    "named": false
+  },
+  {
     "type": "url(",
+    "named": false
+  },
+  {
+    "type": "values",
+    "named": false
+  },
+  {
+    "type": "vb",
+    "named": false
+  },
+  {
+    "type": "vector-effect",
     "named": false
   },
   {
@@ -4007,8 +4668,16 @@
     "named": false
   },
   {
+    "type": "vi",
+    "named": false
+  },
+  {
     "type": "viewbox_attribute_name",
     "named": true
+  },
+  {
+    "type": "visibility",
+    "named": false
   },
   {
     "type": "vmax",
@@ -4027,6 +4696,14 @@
     "named": false
   },
   {
+    "type": "word-spacing",
+    "named": false
+  },
+  {
+    "type": "writing-mode",
+    "named": false
+  },
+  {
     "type": "x",
     "named": false
   },
@@ -4036,6 +4713,10 @@
   },
   {
     "type": "x2",
+    "named": false
+  },
+  {
+    "type": "xChannelSelector",
     "named": false
   },
   {
@@ -4079,6 +4760,14 @@
     "named": false
   },
   {
+    "type": "xlink:title",
+    "named": false
+  },
+  {
+    "type": "xml:space",
+    "named": false
+  },
+  {
     "type": "xml_encoding_attribute_name",
     "named": true
   },
@@ -4100,6 +4789,10 @@
   },
   {
     "type": "y2",
+    "named": false
+  },
+  {
+    "type": "yChannelSelector",
     "named": false
   },
   {

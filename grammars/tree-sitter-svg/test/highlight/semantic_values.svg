@@ -15,7 +15,8 @@
   <!--         ^ number -->
   <!--          ^^ type -->
   <text font-size="14" font-weight="bold"/>
-  <!--             ^^ number -->
+  <!--             ^^ string -->
+  <!-- font-size is a keyword|length-percentage union -> css_text string, not number -->
   <!--                          ^^^^ !number -->
   <g transform="translate(10)"/>
   <!--                   ^ punctuation.bracket -->

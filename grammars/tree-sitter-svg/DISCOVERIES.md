@@ -182,6 +182,43 @@
 - With many specialized externals, choose token symbol *after* scanning the full
   name against all valid symbols; pairwise ambiguity guards do not scale
 
+## Supertypes & Inline
+
+- A tree-sitter `supertypes: $ => [...]` member is NOT a hidden-but-present
+  wrapper — promoting a visible `choice` rule (e.g. `attribute`, `path_segment`,
+  `transform_function`, `color_value`) to a supertype makes that wrapper node
+  TRANSPARENT: the concrete subtype appears DIRECTLY in the CST with no extra
+  level, and node-types.json links it via a `subtypes` array. So the visible
+  tree is NOT byte-identical — every corpus expectation loses the wrapper level
+  (`(attribute (id_attribute …))` → `(id_attribute …)`), and any query that
+  nested a subtype under the supertype must drop that level. The payoff:
+  `(attribute) @x` / `(path_segment) @x` single-capture queries match all kinds
+  at once, and `(attribute value: (_) @v)` resolves the field through the
+  supertype to whichever concrete subtype matched. Queries referencing concrete
+  subtype names directly (`(id_attribute …)`, `(href_attribute …)`,
+  `*_attribute_name`/`*_attribute_value`) are unaffected. Measured cost of the 4
+  SVG supertypes: ZERO extra LR states (1250 → 1250).
+- `inline: $ => [...]` is only a net win for SINGLE-USE hidden wrappers. The 9
+  single-use color-function wrappers (`_rgb_color`…`_color_mix_function`) inline
+  cleanly (−116 states, smaller parser.c). But inlining MULTI-USE hidden
+  dispatchers DUPLICATES their body at every use site and EXPLODES the state
+  count: adding `_color_component` (×15), `_color_alpha` (×8),
+  `_color_hue_component` (×3) drove STATE_COUNT 1250 → 2101 (parser.c 48K → 58K
+  lines) — the exact opposite of inline's intended state reduction. Rule of
+  thumb: inline single-use indirection; keep multi-use rules as shared hidden
+  rules. (None of these change the visible tree — all are `_`-hidden — so the
+  choice is purely state-count economics, measure before committing a multi-use
+  rule to `inline`.)
+- The grammar needs neither `word:` nor extra `token.immediate`. Longest-match
+  over the single combined DFA already extracts keywords correctly
+  (`fill="context-fill-extra"` → one `named_color`, not literal `context-fill` +
+  ERROR; `fill-opacity` → one name, not `fill` + `-opacity`), so `word` is
+  redundant. With `extras: () => []` there is no whitespace-skipping for
+  `token.immediate` to defend against, and every multi-char XML delimiter is an
+  atomic STRING terminal; loose forms (`< /svg>`, `<svg / >`) already ERROR,
+  while spec-valid `</svg >` (ETag `S?`) correctly parses — adding immediacy
+  would wrongly reject it.
+
 ## Architecture: Parse Structure Not Schema
 
 - Encoding SVG element categories × attribute combinations in the grammar causes
@@ -208,6 +245,44 @@
   to the scan start — advance() calls are undone. This enables peek-ahead
   patterns: advance past potential delimiters, return false if found (letting
   the grammar match the literal), return true with mark_end if not
+- The `svg-data-regen` keyword-bucket classifier must reject scraped spec prose.
+  Attributes whose catalog grammar is an English cross-reference or prose
+  placeholder (`(see below)`, `(see in attribute)`, `Language-Tag [ABNF]`,
+  `space-separated valid non-empty URL tokens [HTML]`) arrive as several
+  juxtaposed `keyword` graph nodes with NO alternation operator. A genuine bare
+  enum is alternatives joined by `|`/`||` (`anonymous | use-credentials`,
+  `normal | [ fill || stroke || markers ]`) or a single keyword. Treating prose
+  as an enum routes real values like `type="text/javascript"` / `media="screen"`
+  through the single-token keyword rule and ERRORs. Fix lives in
+  `GrammarAnalysis::is_bare_keyword_enum` (requires `|`/`||` for 2+ keywords);
+  prose falls through to the `css_text` opaque catch-all.
+- Union value spaces (keyword | length/number) need the typed value rule to
+  accept the keyword arm too. `length` bucket attributes like `baseline-shift`
+  (`sub | super | <length-percentage>`), `letter-spacing`/`word-spacing`
+  (`normal | <length>`), `refX`/`refY` (`<length> | left | center | …`) carry
+  keyword values; `length_attribute_value` adds a `length_keyword_value` arm
+  (keyword-led, or length-led with a trailing item) so the plain single-length
+  shape is untouched and pure-length attrs keep their exact CST.
+- `font-size` (`<absolute-size> | <relative-size> | <length-percentage>`) is a
+  three-way union with no clean home in `length` (size keywords break it) or
+  `keyword` (lengths break it). It routes to the `css_text` opaque bucket:
+  `font-size="16px"`, `"small"`, `"larger"`, `"1.2em"`, `"50%"` all parse
+  losslessly as `css_text_attribute` content. Same treatment for other unions
+  the catalog cannot disambiguate (MIME `type`, media queries).
+- `values`/`tableValues`/`kernelMatrix` are number *lists*, but the spec writes
+  their grammar as prose (`list of <number>s`, `(list of <number>s)`,
+  `<list of numbers>`) which the scraper used to degrade to a bare `<number>`
+  (or garbled keyword tokens). Root-caused in `svg-data-regen`:
+  `chapter::number_list_prose_production` canonicalizes those prose idioms to a
+  real `<number>+` production (shape-based, no attribute-name allowlist), so the
+  catalog now routes all three to the `number_list` bucket. The grammar's
+  `number_list_attribute_value` is `choice(number_list, semicolon_number_list)`
+  so the same `values` attribute parses both the filter wsp/comma list
+  (`values="1 0 0 0 0"`) and the SMIL animation `;` list (`values="0;10;20"`); a
+  lone number is the shared list-of-one, declared as a GLR `conflicts` pair.
+  Plain `number_attribute_value` is back to a bare single `<number>` — no
+  separated tail — because genuine scalars (`bias`, `divisor`, `seed`) never
+  list.
 
 ## 2026-03-22: Helix 25.07.1 rejects `#strip!` in SVG queries
 

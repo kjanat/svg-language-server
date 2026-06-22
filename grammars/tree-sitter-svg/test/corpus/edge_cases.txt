@@ -15,105 +15,92 @@ Single-quoted typed attribute values
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (viewbox_attribute
-          name: (viewbox_attribute_name)
-          value: (viewbox_attribute_value
-            (viewbox_value
-              (number)
-              (comma_wsp
-                (wsp))
-              (number)
-              (comma_wsp
-                (wsp))
-              (number)
-              (comma_wsp
-                (wsp))
-              (number)))))
-      (attribute
-        (preserve_aspect_ratio_attribute
-          name: (preserve_aspect_ratio_attribute_name)
-          value: (preserve_aspect_ratio_attribute_value
-            (preserve_aspect_ratio_value
-              (align_keyword)
-              (wsp)
-              (meet_or_slice_keyword))))))
+      (viewbox_attribute
+        name: (viewbox_attribute_name)
+        value: (viewbox_attribute_value
+          (viewbox_value
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number))))
+      (preserve_aspect_ratio_attribute
+        name: (preserve_aspect_ratio_attribute_name)
+        value: (preserve_aspect_ratio_attribute_value
+          (preserve_aspect_ratio_value
+            (align_keyword)
+            (wsp)
+            (meet_or_slice_keyword)))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)))))))
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)))))))
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)))))))
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)))))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (paint_attribute
-            name: (paint_attribute_name)
-            value: (paint_attribute_value
-              (paint_value
-                (color_value
-                  (named_color))))))
-        (attribute
-          (paint_attribute
-            name: (paint_attribute_name)
-            value: (paint_attribute_value
-              (paint_value
-                (color_value
-                  (named_color))))))
-        (attribute
-          (opacity_attribute
-            name: (opacity_attribute_name)
-            value: (opacity_attribute_value
-              (number_or_percentage
-                (number)))))))
+        (paint_attribute
+          name: (paint_attribute_name)
+          value: (paint_attribute_value
+            (paint_value
+              (named_color))))
+        (paint_attribute
+          name: (paint_attribute_name)
+          value: (paint_attribute_value
+            (paint_value
+              (named_color))))
+        (opacity_attribute
+          name: (opacity_attribute_name)
+          value: (opacity_attribute_value
+            (number_or_percentage
+              (number))))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (href_attribute
-            name: (href_attribute_name)
-            value: (href_attribute_value
-              (href_reference
-                (iri_reference)))))
-        (attribute
-          (functional_iri_attribute
-            name: (functional_iri_attribute_name)
-            value: (functional_iri_attribute_value
-              (functional_iri
-                (iri_reference)))))))
+        (href_attribute
+          name: (href_attribute_name)
+          value: (href_attribute_value
+            (href_reference
+              (iri_reference))))
+        (functional_iri_attribute
+          name: (functional_iri_attribute_name)
+          value: (functional_iri_attribute_value
+            (functional_iri
+              (iri_reference))))))
     (text)
     (end_tag
       name: (name)))
@@ -135,40 +122,34 @@ Empty typed attribute values
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (viewbox_attribute
-          name: (viewbox_attribute_name)
-          value: (viewbox_attribute_value))))
+      (viewbox_attribute
+        name: (viewbox_attribute_name)
+        value: (viewbox_attribute_value)))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (d_attribute
-            name: (d_attribute_name)
-            value: (d_attribute_value
-              (double_quoted_path_data))))))
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data)))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (style_attribute
-            name: (style_attribute_name)
-            value: (style_attribute_value
-              (double_quoted_style_value))))
-        (attribute
-          (paint_attribute
-            name: (paint_attribute_name)
-            value: (paint_attribute_value)))
-        (attribute
-          (opacity_attribute
-            name: (opacity_attribute_name)
-            value: (opacity_attribute_value)))
-        (attribute
-          (class_attribute
-            name: (class_attribute_name)
-            value: (class_attribute_value)))))
+        (style_attribute
+          name: (style_attribute_name)
+          value: (style_attribute_value
+            (double_quoted_style_value)))
+        (paint_attribute
+          name: (paint_attribute_name)
+          value: (paint_attribute_value))
+        (opacity_attribute
+          name: (opacity_attribute_name)
+          value: (opacity_attribute_value))
+        (class_attribute
+          name: (class_attribute_name)
+          value: (class_attribute_value))))
     (text)
     (end_tag
       name: (name)))
@@ -189,25 +170,22 @@ Length attribute auto keyword
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (length_attribute
-          name: (length_attribute_name)
-          value: (length_attribute_value
-            (length_or_percentage_or_auto))))
-      (attribute
-        (length_attribute
-          name: (length_attribute_name)
-          value: (length_attribute_value
-            (length_or_percentage_or_auto)))))
+      (length_attribute
+        name: (length_attribute_name)
+        value: (length_attribute_value
+          (length_or_percentage_or_auto)))
+      (length_attribute
+        name: (length_attribute_name)
+        value: (length_attribute_value
+          (length_or_percentage_or_auto))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto)))))
     (text)
     (end_tag
       name: (name)))
@@ -234,95 +212,82 @@ Length units variety
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)
-                    (length_unit)))))))
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)
-                    (length_unit)))))))
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)
-                    (length_unit)))))))
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)
-                    (length_unit)))))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number)
+                  (length_unit))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number)
+                  (length_unit))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number)
+                  (length_unit))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number)
+                  (length_unit))))))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)
-                    (length_unit)))))))
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)
-                    (length_unit)))))))
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)
-                    (length_unit)))))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number)
+                  (length_unit))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number)
+                  (length_unit))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number)
+                  (length_unit))))))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)
-                    (length_unit)))))))
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)
-                    (length_unit)))))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number)
+                  (length_unit))))))
+        (css_text_attribute
+          name: (css_text_attribute_name)
+          value: (css_text_attribute_value
+            content: (css_attribute_text_double)))))
     (text)
     (end_tag
       name: (name)))
@@ -344,85 +309,77 @@ Negative numbers in viewBox and coordinates
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (viewbox_attribute
-          name: (viewbox_attribute_name)
-          value: (viewbox_attribute_value
-            (viewbox_value
-              (number)
-              (comma_wsp
-                (wsp))
-              (number)
-              (comma_wsp
-                (wsp))
-              (number)
-              (comma_wsp
-                (wsp))
-              (number))))))
+      (viewbox_attribute
+        name: (viewbox_attribute_name)
+        value: (viewbox_attribute_value
+          (viewbox_value
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)))))))
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)))))))
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)))))))
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)))))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)))))))
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)))))))
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)))))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))))
     (text)
     (end_tag
       name: (name)))
@@ -441,18 +398,17 @@ ViewBox comma-separated
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (viewbox_attribute
-          name: (viewbox_attribute_name)
-          value: (viewbox_attribute_value
-            (viewbox_value
-              (number)
-              (comma_wsp)
-              (number)
-              (comma_wsp)
-              (number)
-              (comma_wsp)
-              (number))))))
+      (viewbox_attribute
+        name: (viewbox_attribute_name)
+        value: (viewbox_attribute_value
+          (viewbox_value
+            (number)
+            (comma_wsp)
+            (number)
+            (comma_wsp)
+            (number)
+            (comma_wsp)
+            (number)))))
     (end_tag
       name: (name)))
   (text))
@@ -470,20 +426,19 @@ ViewBox mixed separators
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (viewbox_attribute
-          name: (viewbox_attribute_name)
-          value: (viewbox_attribute_value
-            (viewbox_value
-              (number)
-              (comma_wsp
-                (wsp))
-              (number)
-              (comma_wsp)
-              (number)
-              (comma_wsp
-                (wsp))
-              (number))))))
+      (viewbox_attribute
+        name: (viewbox_attribute_name)
+        value: (viewbox_attribute_value
+          (viewbox_value
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp)
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)))))
     (end_tag
       name: (name)))
   (text))
@@ -501,12 +456,11 @@ PreserveAspectRatio none
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (preserve_aspect_ratio_attribute
-          name: (preserve_aspect_ratio_attribute_name)
-          value: (preserve_aspect_ratio_attribute_value
-            (preserve_aspect_ratio_value
-              (align_keyword))))))
+      (preserve_aspect_ratio_attribute
+        name: (preserve_aspect_ratio_attribute_name)
+        value: (preserve_aspect_ratio_attribute_value
+          (preserve_aspect_ratio_value
+            (align_keyword)))))
     (end_tag
       name: (name)))
   (text))
@@ -539,106 +493,96 @@ PreserveAspectRatio all alignment values
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (preserve_aspect_ratio_attribute
-            name: (preserve_aspect_ratio_attribute_name)
-            value: (preserve_aspect_ratio_attribute_value
-              (preserve_aspect_ratio_value
-                (align_keyword)))))))
+        (preserve_aspect_ratio_attribute
+          name: (preserve_aspect_ratio_attribute_name)
+          value: (preserve_aspect_ratio_attribute_value
+            (preserve_aspect_ratio_value
+              (align_keyword))))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (preserve_aspect_ratio_attribute
-            name: (preserve_aspect_ratio_attribute_name)
-            value: (preserve_aspect_ratio_attribute_value
-              (preserve_aspect_ratio_value
-                (align_keyword)))))))
+        (preserve_aspect_ratio_attribute
+          name: (preserve_aspect_ratio_attribute_name)
+          value: (preserve_aspect_ratio_attribute_value
+            (preserve_aspect_ratio_value
+              (align_keyword))))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (preserve_aspect_ratio_attribute
-            name: (preserve_aspect_ratio_attribute_name)
-            value: (preserve_aspect_ratio_attribute_value
-              (preserve_aspect_ratio_value
-                (align_keyword)))))))
+        (preserve_aspect_ratio_attribute
+          name: (preserve_aspect_ratio_attribute_name)
+          value: (preserve_aspect_ratio_attribute_value
+            (preserve_aspect_ratio_value
+              (align_keyword))))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (preserve_aspect_ratio_attribute
-            name: (preserve_aspect_ratio_attribute_name)
-            value: (preserve_aspect_ratio_attribute_value
-              (preserve_aspect_ratio_value
-                (align_keyword)))))))
+        (preserve_aspect_ratio_attribute
+          name: (preserve_aspect_ratio_attribute_name)
+          value: (preserve_aspect_ratio_attribute_value
+            (preserve_aspect_ratio_value
+              (align_keyword))))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (preserve_aspect_ratio_attribute
-            name: (preserve_aspect_ratio_attribute_name)
-            value: (preserve_aspect_ratio_attribute_value
-              (preserve_aspect_ratio_value
-                (align_keyword)))))))
+        (preserve_aspect_ratio_attribute
+          name: (preserve_aspect_ratio_attribute_name)
+          value: (preserve_aspect_ratio_attribute_value
+            (preserve_aspect_ratio_value
+              (align_keyword))))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (preserve_aspect_ratio_attribute
-            name: (preserve_aspect_ratio_attribute_name)
-            value: (preserve_aspect_ratio_attribute_value
-              (preserve_aspect_ratio_value
-                (align_keyword)))))))
+        (preserve_aspect_ratio_attribute
+          name: (preserve_aspect_ratio_attribute_name)
+          value: (preserve_aspect_ratio_attribute_value
+            (preserve_aspect_ratio_value
+              (align_keyword))))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (preserve_aspect_ratio_attribute
-            name: (preserve_aspect_ratio_attribute_name)
-            value: (preserve_aspect_ratio_attribute_value
-              (preserve_aspect_ratio_value
-                (align_keyword)))))))
+        (preserve_aspect_ratio_attribute
+          name: (preserve_aspect_ratio_attribute_name)
+          value: (preserve_aspect_ratio_attribute_value
+            (preserve_aspect_ratio_value
+              (align_keyword))))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (preserve_aspect_ratio_attribute
-            name: (preserve_aspect_ratio_attribute_name)
-            value: (preserve_aspect_ratio_attribute_value
-              (preserve_aspect_ratio_value
-                (align_keyword)))))))
+        (preserve_aspect_ratio_attribute
+          name: (preserve_aspect_ratio_attribute_name)
+          value: (preserve_aspect_ratio_attribute_value
+            (preserve_aspect_ratio_value
+              (align_keyword))))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (preserve_aspect_ratio_attribute
-            name: (preserve_aspect_ratio_attribute_name)
-            value: (preserve_aspect_ratio_attribute_value
-              (preserve_aspect_ratio_value
-                (align_keyword)
-                (wsp)
-                (meet_or_slice_keyword)))))))
+        (preserve_aspect_ratio_attribute
+          name: (preserve_aspect_ratio_attribute_name)
+          value: (preserve_aspect_ratio_attribute_value
+            (preserve_aspect_ratio_value
+              (align_keyword)
+              (wsp)
+              (meet_or_slice_keyword))))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (preserve_aspect_ratio_attribute
-            name: (preserve_aspect_ratio_attribute_name)
-            value: (preserve_aspect_ratio_attribute_value
-              (preserve_aspect_ratio_value
-                (align_keyword)
-                (wsp)
-                (meet_or_slice_keyword)))))))
+        (preserve_aspect_ratio_attribute
+          name: (preserve_aspect_ratio_attribute_name)
+          value: (preserve_aspect_ratio_attribute_value
+            (preserve_aspect_ratio_value
+              (align_keyword)
+              (wsp)
+              (meet_or_slice_keyword))))))
     (text)
     (end_tag
       name: (name)))
@@ -666,60 +610,52 @@ Transform single-arg translate and multi-arg rotate
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (transform_attribute
-            name: (transform_attribute_name)
-            value: (transform_attribute_value
-              (transform_list
-                (transform_function
-                  (translate_transform
-                    (number)))))))))
+        (transform_attribute
+          name: (transform_attribute_name)
+          value: (transform_attribute_value
+            (transform_list
+              (translate_transform
+                (number)))))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (transform_attribute
-            name: (transform_attribute_name)
-            value: (transform_attribute_value
-              (transform_list
-                (transform_function
-                  (rotate_transform
-                    (number)
-                    (comma_wsp)
-                    (number)
-                    (comma_wsp)
-                    (number)))))))))
+        (transform_attribute
+          name: (transform_attribute_name)
+          value: (transform_attribute_value
+            (transform_list
+              (rotate_transform
+                (number)
+                (comma_wsp)
+                (number)
+                (comma_wsp)
+                (number)))))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (transform_attribute
-            name: (transform_attribute_name)
-            value: (transform_attribute_value
-              (transform_list
-                (transform_function
-                  (translate_transform
-                    (number)
-                    (comma_wsp
-                      (wsp))
-                    (number)))))))))
+        (transform_attribute
+          name: (transform_attribute_name)
+          value: (transform_attribute_value
+            (transform_list
+              (translate_transform
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number)))))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (transform_attribute
-            name: (transform_attribute_name)
-            value: (transform_attribute_value
-              (transform_list
-                (transform_function
-                  (scale_transform
-                    (number)
-                    (comma_wsp
-                      (wsp))
-                    (number)))))))))
+        (transform_attribute
+          name: (transform_attribute_name)
+          value: (transform_attribute_value
+            (transform_list
+              (scale_transform
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number)))))))
     (text)
     (end_tag
       name: (name)))
@@ -738,26 +674,22 @@ Paint inherit and context keywords
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (paint_attribute
-          name: (paint_attribute_name)
-          value: (paint_attribute_value
-            (paint_value))))
-      (attribute
-        (paint_attribute
-          name: (paint_attribute_name)
-          value: (paint_attribute_value
-            (paint_value))))
-      (attribute
-        (paint_attribute
-          name: (paint_attribute_name)
-          value: (paint_attribute_value
-            (paint_value))))
-      (attribute
-        (paint_attribute
-          name: (paint_attribute_name)
-          value: (paint_attribute_value
-            (paint_value)))))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_value)))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_value)))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_value)))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_value))))
     (end_tag
       name: (name)))
   (text))
@@ -775,34 +707,26 @@ Paint hex colors
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (paint_attribute
-          name: (paint_attribute_name)
-          value: (paint_attribute_value
-            (paint_value
-              (color_value
-                (hex_color))))))
-      (attribute
-        (paint_attribute
-          name: (paint_attribute_name)
-          value: (paint_attribute_value
-            (paint_value
-              (color_value
-                (hex_color))))))
-      (attribute
-        (paint_attribute
-          name: (paint_attribute_name)
-          value: (paint_attribute_value
-            (paint_value
-              (color_value
-                (hex_color))))))
-      (attribute
-        (paint_attribute
-          name: (paint_attribute_name)
-          value: (paint_attribute_value
-            (paint_value
-              (color_value
-                (hex_color)))))))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_value
+            (hex_color))))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_value
+            (hex_color))))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_value
+            (hex_color))))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_value
+            (hex_color)))))
     (end_tag
       name: (name)))
   (text))
@@ -820,22 +744,20 @@ Paint url with fallback keywords
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (paint_attribute
-          name: (paint_attribute_name)
-          value: (paint_attribute_value
-            (paint_value
-              (paint_server
-                (iri_reference)
-                (wsp))))))
-      (attribute
-        (paint_attribute
-          name: (paint_attribute_name)
-          value: (paint_attribute_value
-            (paint_value
-              (paint_server
-                (iri_reference)
-                (wsp)))))))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_value
+            (paint_server
+              (iri_reference)
+              (wsp)))))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_value
+            (paint_server
+              (iri_reference)
+              (wsp))))))
     (end_tag
       name: (name)))
   (text))
@@ -853,46 +775,42 @@ Functional color variants rgba and hsla
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (paint_attribute
-          name: (paint_attribute_name)
-          value: (paint_attribute_value
-            (paint_value
-              (color_value
-                (functional_color
-                  (color_function_name)
-                  (number_or_percentage
-                    (number))
-                  (comma_wsp)
-                  (number_or_percentage
-                    (number))
-                  (comma_wsp)
-                  (number_or_percentage
-                    (number))
-                  (comma_wsp)
-                  (number_or_percentage
-                    (number))))))))
-      (attribute
-        (paint_attribute
-          name: (paint_attribute_name)
-          value: (paint_attribute_value
-            (paint_value
-              (color_value
-                (functional_color
-                  (color_function_name)
-                  (hue_value
-                    (number))
-                  (comma_wsp)
-                  (number_or_percentage
-                    (percentage
-                      (number)))
-                  (comma_wsp)
-                  (number_or_percentage
-                    (percentage
-                      (number)))
-                  (comma_wsp)
-                  (number_or_percentage
-                    (number)))))))))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_value
+            (functional_color
+              (color_function_name)
+              (number_or_percentage
+                (number))
+              (comma_wsp)
+              (number_or_percentage
+                (number))
+              (comma_wsp)
+              (number_or_percentage
+                (number))
+              (comma_wsp)
+              (number_or_percentage
+                (number))))))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_value
+            (functional_color
+              (color_function_name)
+              (hue_value
+                (number))
+              (comma_wsp)
+              (number_or_percentage
+                (percentage
+                  (number)))
+              (comma_wsp)
+              (number_or_percentage
+                (percentage
+                  (number)))
+              (comma_wsp)
+              (number_or_percentage
+                (number)))))))
     (end_tag
       name: (name)))
   (text))
@@ -916,31 +834,26 @@ Multiple event attributes
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (event_attribute
-            name: (event_attribute_name)
-            value: (event_attribute_value
-              content: (script_text_double))))
-        (attribute
-          (event_attribute
-            name: (event_attribute_name)
-            value: (event_attribute_value
-              content: (script_text_double))))
-        (attribute
-          (event_attribute
-            name: (event_attribute_name)
-            value: (event_attribute_value
-              content: (script_text_double))))
-        (attribute
-          (event_attribute
-            name: (event_attribute_name)
-            value: (event_attribute_value
-              content: (script_text_double))))
-        (attribute
-          (event_attribute
-            name: (event_attribute_name)
-            value: (event_attribute_value
-              content: (script_text_double))))))
+        (event_attribute
+          name: (event_attribute_name)
+          value: (event_attribute_value
+            content: (script_text_double)))
+        (event_attribute
+          name: (event_attribute_name)
+          value: (event_attribute_value
+            content: (script_text_double)))
+        (event_attribute
+          name: (event_attribute_name)
+          value: (event_attribute_value
+            content: (script_text_double)))
+        (event_attribute
+          name: (event_attribute_name)
+          value: (event_attribute_value
+            content: (script_text_double)))
+        (event_attribute
+          name: (event_attribute_name)
+          value: (event_attribute_value
+            content: (script_text_double)))))
     (text)
     (end_tag
       name: (name)))
@@ -965,11 +878,10 @@ Event attribute single-quoted with double-quotes inside
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (event_attribute
-            name: (event_attribute_name)
-            value: (event_attribute_value
-              content: (script_text_single))))))
+        (event_attribute
+          name: (event_attribute_name)
+          value: (event_attribute_value
+            content: (script_text_single)))))
     (text)
     (end_tag
       name: (name)))
@@ -991,11 +903,10 @@ Script element with attributes and raw text
     (element
       (start_tag
         name: (name)
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double)))))
+        (css_text_attribute
+          name: (css_text_attribute_name)
+          value: (css_text_attribute_value
+            content: (css_attribute_text_double))))
       (raw_text)
       (end_tag
         name: (name)))
@@ -1019,16 +930,14 @@ Style element with media attribute
     (element
       (start_tag
         name: (name)
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double)))))
+        (css_text_attribute
+          name: (css_text_attribute_name)
+          value: (css_text_attribute_value
+            content: (css_attribute_text_double)))
+        (css_text_attribute
+          name: (css_text_attribute_name)
+          value: (css_text_attribute_value
+            content: (css_attribute_text_double))))
       (raw_text)
       (end_tag
         name: (name)))
@@ -1258,31 +1167,27 @@ Multiple namespace prefixes
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double)))))
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double)))
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double)))
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (href_attribute
-            name: (href_attribute_name)
-            value: (href_attribute_value
-              (href_reference
-                (iri_reference)))))))
+        (href_attribute
+          name: (href_attribute_name)
+          value: (href_attribute_value
+            (href_reference
+              (iri_reference))))))
     (text)
     (end_tag
       name: (name)))
@@ -1427,15 +1332,14 @@ Data URI without charset or base64
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (href_attribute
-            name: (href_attribute_name)
-            value: (href_attribute_value
-              (href_reference
-                (data_uri
-                  media_type: (data_uri_media_type
-                    (mime_type))
-                  payload: (data_uri_payload))))))))
+        (href_attribute
+          name: (href_attribute_name)
+          value: (href_attribute_value
+            (href_reference
+              (data_uri
+                media_type: (data_uri_media_type
+                  (mime_type))
+                payload: (data_uri_payload)))))))
     (end_tag
       name: (name)))
   (text))
@@ -1456,18 +1360,17 @@ Data URI with charset no base64
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (href_attribute
-            name: (href_attribute_name)
-            value: (href_attribute_value
-              (href_reference
-                (data_uri
-                  media_type: (data_uri_media_type
-                    (mime_type))
-                  parameter: (data_uri_parameter
-                    name: (data_uri_parameter_name)
-                    value: (data_uri_parameter_value))
-                  payload: (data_uri_payload))))))))
+        (href_attribute
+          name: (href_attribute_name)
+          value: (href_attribute_value
+            (href_reference
+              (data_uri
+                media_type: (data_uri_media_type
+                  (mime_type))
+                parameter: (data_uri_parameter
+                  name: (data_uri_parameter_name)
+                  value: (data_uri_parameter_value))
+                payload: (data_uri_payload)))))))
     (end_tag
       name: (name)))
   (text))
@@ -1488,12 +1391,11 @@ Href external URL
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (href_attribute
-            name: (href_attribute_name)
-            value: (href_attribute_value
-              (href_reference
-                (iri_reference)))))))
+        (href_attribute
+          name: (href_attribute_name)
+          value: (href_attribute_value
+            (href_reference
+              (iri_reference))))))
     (end_tag
       name: (name)))
   (text))
@@ -1514,12 +1416,11 @@ Href empty fragment
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (href_attribute
-            name: (href_attribute_name)
-            value: (href_attribute_value
-              (href_reference
-                (iri_reference)))))))
+        (href_attribute
+          name: (href_attribute_name)
+          value: (href_attribute_value
+            (href_reference
+              (iri_reference))))))
     (end_tag
       name: (name)))
   (text))
@@ -1537,12 +1438,11 @@ Class single value
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (class_attribute
-          name: (class_attribute_name)
-          value: (class_attribute_value
-            (class_list
-              (class_name))))))
+      (class_attribute
+        name: (class_attribute_name)
+        value: (class_attribute_value
+          (class_list
+            (class_name)))))
     (end_tag
       name: (name)))
   (text))
@@ -1560,16 +1460,15 @@ Class with hyphens and numbers
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (class_attribute
-          name: (class_attribute_name)
-          value: (class_attribute_value
-            (class_list
-              (class_name)
-              (wsp)
-              (class_name)
-              (wsp)
-              (class_name))))))
+      (class_attribute
+        name: (class_attribute_name)
+        value: (class_attribute_value
+          (class_list
+            (class_name)
+            (wsp)
+            (class_name)
+            (wsp)
+            (class_name)))))
     (end_tag
       name: (name)))
   (text))
@@ -1590,19 +1489,17 @@ ID with unicode characters
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (id_attribute
-            name: (id_attribute_name)
-            value: (id_attribute_value
-              (id_token))))))
+        (id_attribute
+          name: (id_attribute_name)
+          value: (id_attribute_value
+            (id_token)))))
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (id_attribute
-            name: (id_attribute_name)
-            value: (id_attribute_value
-              (id_token))))))
+        (id_attribute
+          name: (id_attribute_name)
+          value: (id_attribute_value
+            (id_token)))))
     (end_tag
       name: (name)))
   (text))
@@ -1623,81 +1520,69 @@ Path element with mixed typed attributes
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (id_attribute
-            name: (id_attribute_name)
-            value: (id_attribute_value
-              (id_token))))
-        (attribute
-          (d_attribute
-            name: (d_attribute_name)
-            value: (d_attribute_value
-              (double_quoted_path_data
-                (path_data_content
-                  (path_data
-                    (moveto_segment
-                      command: (path_command)
-                      (path_coordinate_pair
-                        (path_coordinate
-                          (path_number))
-                        (path_comma_wsp
-                          (path_wsp))
-                        (path_coordinate
-                          (path_number))))
-                    (path_segment
-                      (lineto_segment
-                        command: (path_command)
-                        (path_coordinate_pair
-                          (path_coordinate
-                            (path_number))
-                          (path_comma_wsp
-                            (path_wsp))
-                          (path_coordinate
-                            (path_number)))))))))))
-        (attribute
-          (paint_attribute
-            name: (paint_attribute_name)
-            value: (paint_attribute_value
-              (paint_value
-                (color_value
-                  (named_color))))))
-        (attribute
-          (paint_attribute
-            name: (paint_attribute_name)
-            value: (paint_attribute_value
-              (paint_value
-                (color_value
-                  (hex_color))))))
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)))))))
-        (attribute
-          (class_attribute
-            name: (class_attribute_name)
-            value: (class_attribute_value
-              (class_list
-                (class_name)))))
-        (attribute
-          (transform_attribute
-            name: (transform_attribute_name)
-            value: (transform_attribute_value
-              (transform_list
-                (transform_function
-                  (translate_transform
-                    (number)
-                    (comma_wsp)
-                    (number)))))))
-        (attribute
-          (opacity_attribute
-            name: (opacity_attribute_name)
-            value: (opacity_attribute_value
-              (number_or_percentage
-                (number)))))))
+        (id_attribute
+          name: (id_attribute_name)
+          value: (id_attribute_value
+            (id_token)))
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data
+              (path_data_content
+                (path_data
+                  (moveto_segment
+                    command: (path_command)
+                    (path_coordinate_pair
+                      (path_coordinate
+                        (path_number))
+                      (path_comma_wsp
+                        (path_wsp))
+                      (path_coordinate
+                        (path_number))))
+                  (lineto_segment
+                    command: (path_command)
+                    (path_coordinate_pair
+                      (path_coordinate
+                        (path_number))
+                      (path_comma_wsp
+                        (path_wsp))
+                      (path_coordinate
+                        (path_number)))))))))
+        (paint_attribute
+          name: (paint_attribute_name)
+          value: (paint_attribute_value
+            (paint_value
+              (named_color))))
+        (paint_attribute
+          name: (paint_attribute_name)
+          value: (paint_attribute_value
+            (paint_value
+              (hex_color))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (class_attribute
+          name: (class_attribute_name)
+          value: (class_attribute_value
+            (class_list
+              (class_name))))
+        (transform_attribute
+          name: (transform_attribute_name)
+          value: (transform_attribute_value
+            (transform_list
+              (translate_transform
+                (number)
+                (comma_wsp)
+                (number)))))
+        (opacity_attribute
+          name: (opacity_attribute_name)
+          value: (opacity_attribute_value
+            (number_or_percentage
+              (number))))))
     (end_tag
       name: (name)))
   (text))
@@ -1715,90 +1600,77 @@ All typed attributes on root svg
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (id_attribute
-          name: (id_attribute_name)
-          value: (id_attribute_value
-            (id_token))))
-      (attribute
-        (class_attribute
-          name: (class_attribute_name)
-          value: (class_attribute_value
-            (class_list
-              (class_name)))))
-      (attribute
-        (viewbox_attribute
-          name: (viewbox_attribute_name)
-          value: (viewbox_attribute_value
-            (viewbox_value
+      (id_attribute
+        name: (id_attribute_name)
+        value: (id_attribute_value
+          (id_token)))
+      (class_attribute
+        name: (class_attribute_name)
+        value: (class_attribute_value
+          (class_list
+            (class_name))))
+      (viewbox_attribute
+        name: (viewbox_attribute_name)
+        value: (viewbox_attribute_value
+          (viewbox_value
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number))))
+      (preserve_aspect_ratio_attribute
+        name: (preserve_aspect_ratio_attribute_name)
+        value: (preserve_aspect_ratio_attribute_value
+          (preserve_aspect_ratio_value
+            (align_keyword)
+            (wsp)
+            (meet_or_slice_keyword))))
+      (length_attribute
+        name: (length_attribute_name)
+        value: (length_attribute_value
+          (length_or_percentage_or_auto
+            (length_or_percentage
+              (length
+                (number))))))
+      (length_attribute
+        name: (length_attribute_name)
+        value: (length_attribute_value
+          (length_or_percentage_or_auto
+            (length_or_percentage
+              (length
+                (number))))))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_value)))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_value
+            (named_color))))
+      (opacity_attribute
+        name: (opacity_attribute_name)
+        value: (opacity_attribute_value
+          (number_or_percentage
+            (number))))
+      (transform_attribute
+        name: (transform_attribute_name)
+        value: (transform_attribute_value
+          (transform_list
+            (translate_transform
               (number)
-              (comma_wsp
-                (wsp))
-              (number)
-              (comma_wsp
-                (wsp))
-              (number)
-              (comma_wsp
-                (wsp))
+              (comma_wsp)
               (number)))))
-      (attribute
-        (preserve_aspect_ratio_attribute
-          name: (preserve_aspect_ratio_attribute_name)
-          value: (preserve_aspect_ratio_attribute_value
-            (preserve_aspect_ratio_value
-              (align_keyword)
-              (wsp)
-              (meet_or_slice_keyword)))))
-      (attribute
-        (length_attribute
-          name: (length_attribute_name)
-          value: (length_attribute_value
-            (length_or_percentage_or_auto
-              (length_or_percentage
-                (length
-                  (number)))))))
-      (attribute
-        (length_attribute
-          name: (length_attribute_name)
-          value: (length_attribute_value
-            (length_or_percentage_or_auto
-              (length_or_percentage
-                (length
-                  (number)))))))
-      (attribute
-        (paint_attribute
-          name: (paint_attribute_name)
-          value: (paint_attribute_value
-            (paint_value))))
-      (attribute
-        (paint_attribute
-          name: (paint_attribute_name)
-          value: (paint_attribute_value
-            (paint_value
-              (color_value
-                (named_color))))))
-      (attribute
-        (opacity_attribute
-          name: (opacity_attribute_name)
-          value: (opacity_attribute_value
-            (number_or_percentage
-              (number)))))
-      (attribute
-        (transform_attribute
-          name: (transform_attribute_name)
-          value: (transform_attribute_value
-            (transform_list
-              (transform_function
-                (translate_transform
-                  (number)
-                  (comma_wsp)
-                  (number)))))))
-      (attribute
-        (style_attribute
-          name: (style_attribute_name)
-          value: (style_attribute_value
-            (double_quoted_style_value
-              content: (style_text_double))))))
+      (style_attribute
+        name: (style_attribute_name)
+        value: (style_attribute_value
+          (double_quoted_style_value
+            content: (style_text_double)))))
     (end_tag
       name: (name)))
   (text))
@@ -1824,78 +1696,75 @@ Points with various separators
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (points_attribute
-            name: (points_attribute_name)
-            value: (points_attribute_value
-              (coordinate_pair_list
-                (coordinate_pair
-                  (number)
-                  (comma_wsp)
-                  (number))
-                (comma_wsp
-                  (wsp))
-                (coordinate_pair
-                  (number)
-                  (comma_wsp)
-                  (number))
-                (comma_wsp
-                  (wsp))
-                (coordinate_pair
-                  (number)
-                  (comma_wsp)
-                  (number))))))))
+        (points_attribute
+          name: (points_attribute_name)
+          value: (points_attribute_value
+            (coordinate_pair_list
+              (coordinate_pair
+                (number)
+                (comma_wsp)
+                (number))
+              (comma_wsp
+                (wsp))
+              (coordinate_pair
+                (number)
+                (comma_wsp)
+                (number))
+              (comma_wsp
+                (wsp))
+              (coordinate_pair
+                (number)
+                (comma_wsp)
+                (number)))))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (points_attribute
-            name: (points_attribute_name)
-            value: (points_attribute_value
-              (coordinate_pair_list
-                (coordinate_pair
-                  (number)
-                  (comma_wsp
-                    (wsp))
-                  (number))
-                (comma_wsp)
-                (coordinate_pair
-                  (number)
-                  (comma_wsp
-                    (wsp))
-                  (number))
-                (comma_wsp)
-                (coordinate_pair
-                  (number)
-                  (comma_wsp
-                    (wsp))
-                  (number))))))))
+        (points_attribute
+          name: (points_attribute_name)
+          value: (points_attribute_value
+            (coordinate_pair_list
+              (coordinate_pair
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number))
+              (comma_wsp)
+              (coordinate_pair
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number))
+              (comma_wsp)
+              (coordinate_pair
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number)))))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (points_attribute
-            name: (points_attribute_name)
-            value: (points_attribute_value
-              (coordinate_pair_list
-                (coordinate_pair
-                  (number)
-                  (comma_wsp)
-                  (number))
-                (comma_wsp
-                  (wsp))
-                (coordinate_pair
-                  (number)
-                  (comma_wsp)
-                  (number))
-                (comma_wsp
-                  (wsp))
-                (coordinate_pair
-                  (number)
-                  (comma_wsp)
-                  (number))))))))
+        (points_attribute
+          name: (points_attribute_name)
+          value: (points_attribute_value
+            (coordinate_pair_list
+              (coordinate_pair
+                (number)
+                (comma_wsp)
+                (number))
+              (comma_wsp
+                (wsp))
+              (coordinate_pair
+                (number)
+                (comma_wsp)
+                (number))
+              (comma_wsp
+                (wsp))
+              (coordinate_pair
+                (number)
+                (comma_wsp)
+                (number)))))))
     (text)
     (end_tag
       name: (name)))
@@ -1914,18 +1783,15 @@ Functional IRI none keyword
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (functional_iri_attribute
-          name: (functional_iri_attribute_name)
-          value: (functional_iri_attribute_value)))
-      (attribute
-        (functional_iri_attribute
-          name: (functional_iri_attribute_name)
-          value: (functional_iri_attribute_value)))
-      (attribute
-        (functional_iri_attribute
-          name: (functional_iri_attribute_name)
-          value: (functional_iri_attribute_value))))
+      (functional_iri_attribute
+        name: (functional_iri_attribute_name)
+        value: (functional_iri_attribute_value))
+      (functional_iri_attribute
+        name: (functional_iri_attribute_name)
+        value: (functional_iri_attribute_value))
+      (functional_iri_attribute
+        name: (functional_iri_attribute_name)
+        value: (functional_iri_attribute_value)))
     (end_tag
       name: (name)))
   (text))
@@ -1946,36 +1812,31 @@ Multiple functional IRI attributes on one element
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (functional_iri_attribute
-            name: (functional_iri_attribute_name)
-            value: (functional_iri_attribute_value
-              (functional_iri
-                (iri_reference)))))
-        (attribute
-          (functional_iri_attribute
-            name: (functional_iri_attribute_name)
-            value: (functional_iri_attribute_value
-              (functional_iri
-                (iri_reference)))))
-        (attribute
-          (functional_iri_attribute
-            name: (functional_iri_attribute_name)
-            value: (functional_iri_attribute_value
-              (functional_iri
-                (iri_reference)))))
-        (attribute
-          (functional_iri_attribute
-            name: (functional_iri_attribute_name)
-            value: (functional_iri_attribute_value
-              (functional_iri
-                (iri_reference)))))
-        (attribute
-          (functional_iri_attribute
-            name: (functional_iri_attribute_name)
-            value: (functional_iri_attribute_value
-              (functional_iri
-                (iri_reference)))))))
+        (functional_iri_attribute
+          name: (functional_iri_attribute_name)
+          value: (functional_iri_attribute_value
+            (functional_iri
+              (iri_reference))))
+        (functional_iri_attribute
+          name: (functional_iri_attribute_name)
+          value: (functional_iri_attribute_value
+            (functional_iri
+              (iri_reference))))
+        (functional_iri_attribute
+          name: (functional_iri_attribute_name)
+          value: (functional_iri_attribute_value
+            (functional_iri
+              (iri_reference))))
+        (functional_iri_attribute
+          name: (functional_iri_attribute_name)
+          value: (functional_iri_attribute_value
+            (functional_iri
+              (iri_reference))))
+        (functional_iri_attribute
+          name: (functional_iri_attribute_name)
+          value: (functional_iri_attribute_value
+            (functional_iri
+              (iri_reference))))))
     (end_tag
       name: (name)))
   (text))
@@ -1993,25 +1854,23 @@ Paint with rgb and url fallback combined
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (paint_attribute
-          name: (paint_attribute_name)
-          value: (paint_attribute_value
-            (paint_value
-              (paint_server
-                (iri_reference)
-                (wsp)
-                (color_value
-                  (functional_color
-                    (color_function_name)
-                    (number_or_percentage
-                      (number))
-                    (comma_wsp)
-                    (number_or_percentage
-                      (number))
-                    (comma_wsp)
-                    (number_or_percentage
-                      (number))))))))))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_value
+            (paint_server
+              (iri_reference)
+              (wsp)
+              (functional_color
+                (color_function_name)
+                (number_or_percentage
+                  (number))
+                (comma_wsp)
+                (number_or_percentage
+                  (number))
+                (comma_wsp)
+                (number_or_percentage
+                  (number))))))))
     (end_tag
       name: (name)))
   (text))
@@ -2037,40 +1896,34 @@ Transform attribute aliases
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (transform_attribute
-            name: (transform_attribute_name)
-            value: (transform_attribute_value
-              (transform_list
-                (transform_function
-                  (translate_transform
-                    (number)))))))))
+        (transform_attribute
+          name: (transform_attribute_name)
+          value: (transform_attribute_value
+            (transform_list
+              (translate_transform
+                (number)))))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (transform_attribute
-            name: (transform_attribute_name)
-            value: (transform_attribute_value
-              (transform_list
-                (transform_function
-                  (rotate_transform
-                    (number)))))))))
+        (transform_attribute
+          name: (transform_attribute_name)
+          value: (transform_attribute_value
+            (transform_list
+              (rotate_transform
+                (number)))))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (transform_attribute
-            name: (transform_attribute_name)
-            value: (transform_attribute_value
-              (transform_list
-                (transform_function
-                  (scale_transform
-                    (number)
-                    (comma_wsp)
-                    (number)))))))))
+        (transform_attribute
+          name: (transform_attribute_name)
+          value: (transform_attribute_value
+            (transform_list
+              (scale_transform
+                (number)
+                (comma_wsp)
+                (number)))))))
     (text)
     (end_tag
       name: (name)))
@@ -2089,30 +1942,26 @@ Opacity zero and one boundaries
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (opacity_attribute
-          name: (opacity_attribute_name)
-          value: (opacity_attribute_value
-            (number_or_percentage
-              (number)))))
-      (attribute
-        (opacity_attribute
-          name: (opacity_attribute_name)
-          value: (opacity_attribute_value
-            (number_or_percentage
-              (number)))))
-      (attribute
-        (opacity_attribute
-          name: (opacity_attribute_name)
-          value: (opacity_attribute_value
-            (number_or_percentage
-              (number)))))
-      (attribute
-        (opacity_attribute
-          name: (opacity_attribute_name)
-          value: (opacity_attribute_value
-            (number_or_percentage
-              (number))))))
+      (opacity_attribute
+        name: (opacity_attribute_name)
+        value: (opacity_attribute_value
+          (number_or_percentage
+            (number))))
+      (opacity_attribute
+        name: (opacity_attribute_name)
+        value: (opacity_attribute_value
+          (number_or_percentage
+            (number))))
+      (opacity_attribute
+        name: (opacity_attribute_name)
+        value: (opacity_attribute_value
+          (number_or_percentage
+            (number))))
+      (opacity_attribute
+        name: (opacity_attribute_name)
+        value: (opacity_attribute_value
+          (number_or_percentage
+            (number)))))
     (end_tag
       name: (name)))
   (text))
@@ -2130,27 +1979,24 @@ Opacity percentage boundaries
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (opacity_attribute
-          name: (opacity_attribute_name)
-          value: (opacity_attribute_value
-            (number_or_percentage
-              (percentage
-                (number))))))
-      (attribute
-        (opacity_attribute
-          name: (opacity_attribute_name)
-          value: (opacity_attribute_value
-            (number_or_percentage
-              (percentage
-                (number))))))
-      (attribute
-        (opacity_attribute
-          name: (opacity_attribute_name)
-          value: (opacity_attribute_value
-            (number_or_percentage
-              (percentage
-                (number)))))))
+      (opacity_attribute
+        name: (opacity_attribute_name)
+        value: (opacity_attribute_value
+          (number_or_percentage
+            (percentage
+              (number)))))
+      (opacity_attribute
+        name: (opacity_attribute_name)
+        value: (opacity_attribute_value
+          (number_or_percentage
+            (percentage
+              (number)))))
+      (opacity_attribute
+        name: (opacity_attribute_name)
+        value: (opacity_attribute_value
+          (number_or_percentage
+            (percentage
+              (number))))))
     (end_tag
       name: (name)))
   (text))
@@ -2205,22 +2051,21 @@ Mixed self-closing and paired elements
       (element
         (self_closing_tag
           name: (name)
-          (attribute
-            (d_attribute
-              name: (d_attribute_name)
-              value: (d_attribute_value
-                (double_quoted_path_data
-                  (path_data_content
-                    (path_data
-                      (moveto_segment
-                        command: (path_command)
-                        (path_coordinate_pair
-                          (path_coordinate
-                            (path_number))
-                          (path_comma_wsp
-                            (path_wsp))
-                          (path_coordinate
-                            (path_number))))))))))))
+          (d_attribute
+            name: (d_attribute_name)
+            value: (d_attribute_value
+              (double_quoted_path_data
+                (path_data_content
+                  (path_data
+                    (moveto_segment
+                      command: (path_command)
+                      (path_coordinate_pair
+                        (path_coordinate
+                          (path_number))
+                        (path_comma_wsp
+                          (path_wsp))
+                        (path_coordinate
+                          (path_number)))))))))))
       (text)
       (end_tag
         name: (name)))
@@ -2248,12 +2093,11 @@ Style attribute with complex CSS
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (style_attribute
-            name: (style_attribute_name)
-            value: (style_attribute_value
-              (double_quoted_style_value
-                content: (style_text_double)))))))
+        (style_attribute
+          name: (style_attribute_name)
+          value: (style_attribute_value
+            (double_quoted_style_value
+              content: (style_text_double))))))
     (text)
     (end_tag
       name: (name)))
@@ -2282,47 +2126,42 @@ ForeignObject handled as generic element with nested HTML-like content
     (element
       (start_tag
         name: (name)
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)))))))
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)))))))
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)))))))
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number))))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number)))))))
       (text)
       (element
         (start_tag
           name: (name)
-          (attribute
-            (generic_attribute
-              name: (attribute_name)
-              value: (quoted_attribute_value
-                (attribute_text_double)))))
+          (generic_attribute
+            name: (attribute_name)
+            value: (quoted_attribute_value
+              (attribute_text_double))))
         (text)
         (element
           (start_tag
@@ -2403,21 +2242,20 @@ Tab and newline in attribute value
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (viewbox_attribute
-          name: (viewbox_attribute_name)
-          value: (viewbox_attribute_value
-            (viewbox_value
-              (number)
-              (comma_wsp
-                (wsp))
-              (number)
-              (comma_wsp
-                (wsp))
-              (number)
-              (comma_wsp
-                (wsp))
-              (number))))))
+      (viewbox_attribute
+        name: (viewbox_attribute_name)
+        value: (viewbox_attribute_value
+          (viewbox_value
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)))))
     (end_tag
       name: (name)))
   (text))
@@ -2505,11 +2343,10 @@ Namespaced element
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (generic_attribute
-            name: (attribute_name)
-            value: (quoted_attribute_value
-              (attribute_text_double))))))
+        (generic_attribute
+          name: (attribute_name)
+          value: (quoted_attribute_value
+            (attribute_text_double)))))
     (end_tag
       name: (name)))
   (text))
@@ -2592,21 +2429,20 @@ Multiline attribute value
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (viewbox_attribute
-          name: (viewbox_attribute_name)
-          value: (viewbox_attribute_value
-            (viewbox_value
-              (number)
-              (comma_wsp
-                (wsp))
-              (number)
-              (comma_wsp
-                (wsp))
-              (number)
-              (comma_wsp
-                (wsp))
-              (number))))))
+      (viewbox_attribute
+        name: (viewbox_attribute_name)
+        value: (viewbox_attribute_value
+          (viewbox_value
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)))))
     (end_tag
       name: (name)))
   (text))
@@ -2627,21 +2463,20 @@ Nested svg with viewBox
     (element
       (start_tag
         (name)
-        (attribute
-          (viewbox_attribute
-            (viewbox_attribute_name)
-            (viewbox_attribute_value
-              (viewbox_value
-                (number)
-                (comma_wsp
-                  (wsp))
-                (number)
-                (comma_wsp
-                  (wsp))
-                (number)
-                (comma_wsp
-                  (wsp))
-                (number))))))
+        (viewbox_attribute
+          (viewbox_attribute_name)
+          (viewbox_attribute_value
+            (viewbox_value
+              (number)
+              (comma_wsp
+                (wsp))
+              (number)
+              (comma_wsp
+                (wsp))
+              (number)
+              (comma_wsp
+                (wsp))
+              (number)))))
       (element
         (self_closing_tag
           (name)))
@@ -2670,11 +2505,10 @@ ForeignObject with HTML content
       (element
         (start_tag
           (name)
-          (attribute
-            (generic_attribute
-              (attribute_name)
-              (quoted_attribute_value
-                (attribute_text_double)))))
+          (generic_attribute
+            (attribute_name)
+            (quoted_attribute_value
+              (attribute_text_double))))
         (text)
         (end_tag
           (name)))
@@ -2747,10 +2581,9 @@ Empty attribute value
     (element
       (self_closing_tag
         (name)
-        (attribute
-          (class_attribute
-            (class_attribute_name)
-            (class_attribute_value)))))
+        (class_attribute
+          (class_attribute_name)
+          (class_attribute_value))))
     (end_tag
       (name)))
   (text))

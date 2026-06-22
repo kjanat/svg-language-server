@@ -7,8 +7,13 @@
 /// <reference types="tree-sitter-cli/dsl" />
 // @ts-check
 
+import grammarData from '#grammarData' with { type: 'json' };
+import { D_ATTRIBUTE_NAMES } from '#grammarFixtures';
+
 const PATH_COMMAND = /[MmZzLlHhVvCcSsQqTtAa]/;
 const NUMBER_PATTERN = /[+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?/;
+const ATTRIBUTE_BUCKETS = grammarData.attribute_buckets;
+const TOKENS = grammarData.tokens;
 
 /** @param {RuleOrLiteral} value */
 function quoted(value) {
@@ -16,6 +21,18 @@ function quoted(value) {
 		seq('"', optional(value), '"'),
 		seq("'", optional(value), "'"),
 	);
+}
+
+// Data-driven alternation over a catalog-derived list (attribute spellings,
+// unit tokens, etc.). A one-element bucket (e.g. `view_box: ['viewBox']`) must
+// collapse to the bare member: `choice(x)` is a single-element CHOICE that
+// tree-sitter flags as unnecessary and that wraps the CST in a spurious node.
+// Keeping it data-driven means a future re-scrape that adds a second spelling
+// promotes the same rule to a real `choice` with no grammar edit.
+/** @param {readonly RuleOrLiteral[]} members */
+function oneOf(members) {
+	const [first, ...rest] = members;
+	return rest.length === 0 ? first : choice(first, ...rest);
 }
 
 export default grammar({
@@ -38,6 +55,51 @@ export default grammar({
 	],
 
 	extras: () => [],
+
+	// A lone number (`values="0"`) is a list-of-one shared by the whitespace/
+	// comma-separated `number_list` (filter context) and the `;`-separated
+	// `semicolon_number_list` (SMIL animation context). Both are valid for the
+	// `values` attribute; the GLR parser keeps both stacks until the first
+	// separator selects the arm.
+	conflicts: $ => [[$.number_list, $.semicolon_number_list]],
+
+	// Each rule here was a visible `choice` wrapper over single named symbols;
+	// promoting it to a supertype makes that wrapper node TRANSPARENT in the
+	// CST (the concrete subtype appears directly, no extra level) while
+	// node-types.json links it via a `subtypes` array. Consumers query the
+	// supertype name to match all kinds in one capture — e.g. `(attribute)`,
+	// `(path_segment)` — or switch on the concrete subtype. Because the wrapper
+	// level is removed, queries that nested a subtype under the supertype
+	// (`(attribute (id_attribute ...))`) must drop that level
+	// (`(id_attribute ...)`), and corpus expectations lose the wrapper node.
+	supertypes: $ => [
+		$.attribute,
+		$.path_segment,
+		$.transform_function,
+		$.color_value,
+	],
+
+	// Hidden single-use wrapper rules substituted at their (one) use site. Each
+	// is referenced exactly once and bears no `field()`, so inlining removes a
+	// hidden node-type and a few LR states with no visible-tree change. Limited
+	// to single-use rules ON PURPOSE: inlining the multi-use color components
+	// (`_color_component` ×15, `_color_alpha` ×8, `_color_hue_component` ×3)
+	// DUPLICATES their choice bodies across all nine color functions and
+	// EXPLODES the state count (~+850 states, measured) — the opposite of the
+	// goal — so they stay as hidden shared rules. `_length_or_keyword_item`
+	// (×2) is state-neutral but a thin dispatcher, kept for node-type clarity.
+	inline: $ => [
+		$._rgb_color,
+		$._hsl_color,
+		$._hwb_color,
+		$._lab_color,
+		$._oklab_color,
+		$._lch_color,
+		$._oklch_color,
+		$._color_function,
+		$._color_mix_function,
+		$._length_or_keyword_item,
+	],
 
 	rules: {
 		source_file: $ =>
@@ -354,13 +416,12 @@ export default grammar({
 
 		// ─── Attributes ─────────────────────────────────────────────
 
+		// Supertype over every concrete attribute bucket. The members are a
+		// flat choice of single named symbols (28 typed + generic) so the
+		// tree-sitter supertype validator accepts it; the former hidden
+		// `_typed_attribute` intermediate produced zero CST nodes, so
+		// flattening it here is tree-identical.
 		attribute: $ =>
-			choice(
-				$._typed_attribute,
-				$.generic_attribute,
-			),
-
-		_typed_attribute: $ =>
 			choice(
 				$.d_attribute,
 				$.viewbox_attribute,
@@ -375,8 +436,11 @@ export default grammar({
 				$.length_attribute,
 				$.offset_attribute,
 				$.number_attribute,
+				$.number_optional_number_attribute,
 				$.length_list_attribute,
 				$.stroke_dasharray_attribute,
+				$.keyword_attribute,
+				$.css_text_attribute,
 				$.number_list_attribute,
 				$.duration_attribute,
 				$.repeat_count_attribute,
@@ -387,6 +451,7 @@ export default grammar({
 				$.id_attribute,
 				$.class_attribute,
 				$.event_attribute,
+				$.generic_attribute,
 			),
 
 		// ─── d attribute (path data sub-grammar) ────────────────────
@@ -398,7 +463,7 @@ export default grammar({
 				field('value', $.d_attribute_value),
 			),
 
-		d_attribute_name: _ => choice('d', 'path'),
+		d_attribute_name: _ => oneOf(D_ATTRIBUTE_NAMES),
 
 		d_attribute_value: $ =>
 			choice(
@@ -671,7 +736,7 @@ export default grammar({
 				field('value', $.viewbox_attribute_value),
 			),
 
-		viewbox_attribute_name: _ => 'viewBox',
+		viewbox_attribute_name: _ => oneOf(ATTRIBUTE_BUCKETS.view_box),
 
 		viewbox_attribute_value: $ => quoted($.viewbox_value),
 
@@ -838,7 +903,7 @@ export default grammar({
 				field('value', $.points_attribute_value),
 			),
 
-		points_attribute_name: _ => 'points',
+		points_attribute_name: _ => oneOf(ATTRIBUTE_BUCKETS.coordinate_pair_list),
 
 		points_attribute_value: $ => quoted($.coordinate_pair_list),
 
@@ -859,15 +924,7 @@ export default grammar({
 				field('value', $.paint_attribute_value),
 			),
 
-		paint_attribute_name: _ =>
-			choice(
-				'fill',
-				'stroke',
-				'color',
-				'stop-color',
-				'flood-color',
-				'lighting-color',
-			),
+		paint_attribute_name: _ => oneOf(ATTRIBUTE_BUCKETS.color),
 
 		paint_attribute_value: $ => quoted($.paint_value),
 
@@ -1061,44 +1118,14 @@ export default grammar({
 				optional(seq($.wsp, $.color_hue_interpolation)),
 			)),
 
-		// Predefined color() colorspaces (rectangular, XYZ).
-		color_colorspace: _ =>
-			token(choice(
-				'srgb-linear',
-				'srgb',
-				'display-p3',
-				'a98-rgb',
-				'prophoto-rgb',
-				'rec2020',
-				'xyz-d50',
-				'xyz-d65',
-				'xyz',
-			)),
+		color_colorspace: _ => token(choice(...TOKENS.color_spaces)),
 
-		// color-mix interpolation spaces (rectangular + polar + predefined).
-		color_interpolation_space: _ =>
-			token(choice(
-				'srgb-linear',
-				'srgb',
-				'display-p3',
-				'a98-rgb',
-				'prophoto-rgb',
-				'rec2020',
-				'xyz-d50',
-				'xyz-d65',
-				'xyz',
-				'hsl',
-				'hwb',
-				'lab',
-				'lch',
-				'oklab',
-				'oklch',
-			)),
+		color_interpolation_space: _ => token(choice(...TOKENS.color_interpolation_spaces)),
 
 		color_hue_interpolation: $ =>
 			seq(
 				alias(
-					token(choice('shorter', 'longer', 'increasing', 'decreasing')),
+					token(choice(...TOKENS.hue_interpolation_methods)),
 					$.color_hue_direction,
 				),
 				$.wsp,
@@ -1139,7 +1166,7 @@ export default grammar({
 
 		hue_value: $ => seq($.number, optional($.angle_unit)),
 
-		angle_unit: _ => choice('deg', 'rad', 'grad', 'turn'),
+		angle_unit: _ => choice(...TOKENS.angle_units),
 
 		named_color: _ => token(/[A-Za-z][A-Za-z-]*/),
 
@@ -1152,16 +1179,7 @@ export default grammar({
 				field('value', $.functional_iri_attribute_value),
 			),
 
-		functional_iri_attribute_name: _ =>
-			choice(
-				'clip-path',
-				'mask',
-				'filter',
-				'marker-start',
-				'marker-mid',
-				'marker-end',
-				'cursor',
-			),
+		functional_iri_attribute_name: _ => oneOf(ATTRIBUTE_BUCKETS.functional_iri),
 
 		functional_iri_attribute_value: $ => quoted(choice('none', $.functional_iri, $.iri_reference)),
 
@@ -1205,14 +1223,7 @@ export default grammar({
 				field('value', $.opacity_attribute_value),
 			),
 
-		opacity_attribute_name: _ =>
-			choice(
-				'opacity',
-				'fill-opacity',
-				'stroke-opacity',
-				'stop-opacity',
-				'flood-opacity',
-			),
+		opacity_attribute_name: _ => oneOf(ATTRIBUTE_BUCKETS.number_or_percentage),
 
 		opacity_attribute_value: $ => quoted($.number_or_percentage),
 
@@ -1225,35 +1236,33 @@ export default grammar({
 				field('value', $.length_attribute_value),
 			),
 
-		length_attribute_name: _ =>
+		length_attribute_name: _ => oneOf(ATTRIBUTE_BUCKETS.length),
+
+		// The `length` bucket holds attributes whose value space is a length or
+		// percentage, but many spec grammars are a union with keyword alternatives
+		// or keyword/length combinations: `baseline-shift` (`sub | super |
+		// <length-percentage>`), `letter-spacing`/`word-spacing` (`normal |
+		// <length>`), `font-size-adjust` (`none | <number>`), `refX`/`refY`
+		// (`<length> | left | center | …`), and `transform-origin`
+		// (`[ left | center | … | <length-percentage> ]…`). The plain
+		// length/percentage/auto value keeps its existing shape; a keyword-bearing
+		// value (one or more whitespace-separated keywords, optionally mixed with
+		// lengths) is the alternative. A genuine pure-length attribute (`x`,
+		// `width`) never carries a keyword in valid SVG, so this superset is
+		// lossless and keeps the value typed.
+		length_attribute_value: $ => quoted(choice($.length_or_percentage_or_auto, $.length_keyword_value)),
+
+		// Distinct from the plain length/percentage/auto branch: this fires only
+		// when a keyword participates, so a bare single length never matches both
+		// branches. Either it leads with a keyword, or it leads with a length that
+		// is followed by at least one more whitespace-separated item.
+		length_keyword_value: $ =>
 			choice(
-				'x',
-				'y',
-				'width',
-				'height',
-				'cx',
-				'cy',
-				'r',
-				'rx',
-				'ry',
-				'x1',
-				'y1',
-				'x2',
-				'y2',
-				'fx',
-				'fy',
-				'refX',
-				'refY',
-				'markerWidth',
-				'markerHeight',
-				'stroke-width',
-				'stroke-dashoffset',
-				'font-size',
-				'startOffset',
-				'textLength',
+				seq($.keyword_value, repeat(seq($.wsp, $._length_or_keyword_item))),
+				seq($.length_or_percentage, repeat1(seq($.wsp, $._length_or_keyword_item))),
 			),
 
-		length_attribute_value: $ => quoted($.length_or_percentage_or_auto),
+		_length_or_keyword_item: $ => choice($.length_or_percentage, $.keyword_value),
 
 		// ─── offset attribute (number or percentage, no units) ──────
 
@@ -1277,30 +1286,32 @@ export default grammar({
 				field('value', $.number_attribute_value),
 			),
 
-		number_attribute_name: _ =>
-			choice(
-				'pathLength',
-				'stroke-miterlimit',
-				'k1',
-				'k2',
-				'k3',
-				'k4',
-				'seed',
-				'scale',
-				'azimuth',
-				'elevation',
-				'z',
-				'numOctaves',
-				'divisor',
-				'bias',
-				'surfaceScale',
-				'diffuseConstant',
-				'specularConstant',
-				'specularExponent',
-				'limitingConeAngle',
+		number_attribute_name: _ => oneOf(ATTRIBUTE_BUCKETS.number),
+
+		// A bare single `<number>`. The spec's number *lists* (`kernelMatrix`,
+		// feColorMatrix `values`, `tableValues`) now carry their list shape
+		// through the catalog (`<number>+`) and route to `number_list_attribute`,
+		// so this bucket holds only genuine scalar attributes (`bias`, `divisor`,
+		// `seed`, …) and needs no separated tail.
+		number_attribute_value: $ => quoted($.number),
+
+		// ── number-optional-number attribute (one or two numbers) ──
+		// SVG <number-optional-number>: a single number, optionally
+		// followed by whitespace and a second number (e.g. stdDeviation,
+		// baseFrequency, kernelUnitLength, order, radius).
+
+		number_optional_number_attribute: $ =>
+			seq(
+				field('name', $.number_optional_number_attribute_name),
+				$._eq,
+				field('value', $.number_optional_number_attribute_value),
 			),
 
-		number_attribute_value: $ => quoted($.number),
+		number_optional_number_attribute_name: _ => oneOf(ATTRIBUTE_BUCKETS.number_optional_number),
+
+		number_optional_number_attribute_value: $ => quoted($.number_optional_number),
+
+		number_optional_number: $ => seq($.number, optional(seq($.wsp, $.number))),
 
 		// ─── length-list attribute (dx, dy, stroke-dasharray) ───────
 
@@ -1311,11 +1322,7 @@ export default grammar({
 				field('value', $.length_list_attribute_value),
 			),
 
-		length_list_attribute_name: _ =>
-			choice(
-				'dx',
-				'dy',
-			),
+		length_list_attribute_name: _ => oneOf(ATTRIBUTE_BUCKETS.length_list),
 
 		length_list_attribute_value: $ => quoted($.length_list),
 
@@ -1334,9 +1341,48 @@ export default grammar({
 				field('value', $.stroke_dasharray_attribute_value),
 			),
 
-		stroke_dasharray_attribute_name: _ => 'stroke-dasharray',
+		stroke_dasharray_attribute_name: _ => oneOf(ATTRIBUTE_BUCKETS.length_list_or_none),
 
 		stroke_dasharray_attribute_value: $ => quoted(choice('none', 'inherit', $.length_list)),
+
+		// ─── keyword-valued presentation attributes ─────────────────
+
+		keyword_attribute: $ =>
+			seq(
+				field('name', $.keyword_attribute_name),
+				$._eq,
+				field('value', $.keyword_attribute_value),
+			),
+
+		keyword_attribute_name: _ => oneOf(ATTRIBUTE_BUCKETS.keyword),
+
+		// Most keyword attributes carry a single enum value, but CSS `||`
+		// combinators (e.g. `paint-order="stroke fill markers"`) accept several
+		// whitespace-separated keywords in any order. Allow a one-or-more
+		// keyword list so both shapes parse; a single keyword is the list of one.
+		keyword_attribute_value: $ => quoted(choice($.number, seq($.keyword_value, repeat(seq($.wsp, $.keyword_value))))),
+
+		keyword_value: _ => token(/[A-Za-z_][A-Za-z0-9_-]*/),
+
+		// ─── CSS-text presentation attributes ───────────────────────
+
+		css_text_attribute: $ =>
+			seq(
+				field('name', $.css_text_attribute_name),
+				$._eq,
+				field('value', $.css_text_attribute_value),
+			),
+
+		css_text_attribute_name: _ => oneOf(ATTRIBUTE_BUCKETS.css_text),
+
+		css_text_attribute_value: $ =>
+			choice(
+				seq('"', optional(field('content', $.css_attribute_text_double)), '"'),
+				seq("'", optional(field('content', $.css_attribute_text_single)), "'"),
+			),
+
+		css_attribute_text_double: _ => token(/[^"]+/),
+		css_attribute_text_single: _ => token(/[^']+/),
 
 		// ─── number-list attribute (bare numbers, no units) ─────────
 
@@ -1347,15 +1393,14 @@ export default grammar({
 				field('value', $.number_list_attribute_value),
 			),
 
-		number_list_attribute_name: _ =>
-			choice(
-				'rotate',
-				'radius',
-				'stdDeviation',
-				'baseFrequency',
-			),
+		number_list_attribute_name: _ => oneOf(ATTRIBUTE_BUCKETS.number_list),
 
-		number_list_attribute_value: $ => quoted($.number_list),
+		// A number list separates with whitespace/commas in the filter context
+		// (`kernelMatrix`, feColorMatrix `values`, `tableValues`) but with `;`
+		// when the same `values` attribute drives SMIL animation
+		// (`values="0;10;20"`). Accept either separator style; a single number is
+		// the list-of-one shared by both arms.
+		number_list_attribute_value: $ => quoted(choice($.number_list, $.semicolon_number_list)),
 
 		number_list: $ =>
 			seq(
@@ -1587,33 +1632,9 @@ export default grammar({
 
 		percentage: $ => seq($.number, '%'),
 
-		length_unit: _ =>
-			choice(
-				'em',
-				'ex',
-				'px',
-				'cm',
-				'mm',
-				'in',
-				'pt',
-				'pc',
-				'Q',
-				'q',
-				'rem',
-				'ch',
-				'vh',
-				'vw',
-				'vmin',
-				'vmax',
-			),
+		length_unit: _ => choice(...TOKENS.length_units),
 
-		time_unit: _ =>
-			choice(
-				's',
-				'ms',
-				'min',
-				'h',
-			),
+		time_unit: _ => choice(...TOKENS.time_units),
 
 		number: _ => token(NUMBER_PATTERN),
 

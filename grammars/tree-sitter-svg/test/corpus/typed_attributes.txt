@@ -13,75 +13,67 @@ Geometry length and percentage attributes
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (length_attribute
-          name: (length_attribute_name)
-          value: (length_attribute_value
-            (length_or_percentage_or_auto
-              (length_or_percentage
-                (length
-                  (number)))))))
-      (attribute
-        (length_attribute
-          name: (length_attribute_name)
-          value: (length_attribute_value
-            (length_or_percentage_or_auto
-              (length_or_percentage
-                (length
-                  (number)))))))
-      (attribute
-        (length_attribute
-          name: (length_attribute_name)
-          value: (length_attribute_value
-            (length_or_percentage_or_auto
-              (length_or_percentage
-                (length
-                  (number)
-                  (length_unit)))))))
-      (attribute
-        (length_attribute
-          name: (length_attribute_name)
-          value: (length_attribute_value
-            (length_or_percentage_or_auto
-              (length_or_percentage
-                (percentage
-                  (number))))))))
+      (length_attribute
+        name: (length_attribute_name)
+        value: (length_attribute_value
+          (length_or_percentage_or_auto
+            (length_or_percentage
+              (length
+                (number))))))
+      (length_attribute
+        name: (length_attribute_name)
+        value: (length_attribute_value
+          (length_or_percentage_or_auto
+            (length_or_percentage
+              (length
+                (number))))))
+      (length_attribute
+        name: (length_attribute_name)
+        value: (length_attribute_value
+          (length_or_percentage_or_auto
+            (length_or_percentage
+              (length
+                (number)
+                (length_unit))))))
+      (length_attribute
+        name: (length_attribute_name)
+        value: (length_attribute_value
+          (length_or_percentage_or_auto
+            (length_or_percentage
+              (percentage
+                (number)))))))
     (text)
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)))))))
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)))))))
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)))))))
-        (attribute
-          (length_attribute
-            name: (length_attribute_name)
-            value: (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)))))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))))
     (text)
     (end_tag
       name: (name)))
@@ -100,30 +92,28 @@ ViewBox and preserveAspectRatio forms
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (viewbox_attribute
-          name: (viewbox_attribute_name)
-          value: (viewbox_attribute_value
-            (viewbox_value
-              (number)
-              (comma_wsp
-                (wsp))
-              (number)
-              (comma_wsp
-                (wsp))
-              (number)
-              (comma_wsp
-                (wsp))
-              (number)))))
-      (attribute
-        (preserve_aspect_ratio_attribute
-          name: (preserve_aspect_ratio_attribute_name)
-          value: (preserve_aspect_ratio_attribute_value
-            (preserve_aspect_ratio_value
-              (wsp)
-              (align_keyword)
-              (wsp)
-              (meet_or_slice_keyword))))))
+      (viewbox_attribute
+        name: (viewbox_attribute_name)
+        value: (viewbox_attribute_value
+          (viewbox_value
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number))))
+      (preserve_aspect_ratio_attribute
+        name: (preserve_aspect_ratio_attribute_name)
+        value: (preserve_aspect_ratio_attribute_value
+          (preserve_aspect_ratio_value
+            (wsp)
+            (align_keyword)
+            (wsp)
+            (meet_or_slice_keyword)))))
     (end_tag
       name: (name)))
   (text))
@@ -141,56 +131,49 @@ Transform lists
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (transform_attribute
-          name: (transform_attribute_name)
-          value: (transform_attribute_value
-            (transform_list
-              (transform_function
-                (translate_transform
-                  (number)
-                  (comma_wsp)
-                  (number)))
+      (transform_attribute
+        name: (transform_attribute_name)
+        value: (transform_attribute_value
+          (transform_list
+            (translate_transform
+              (number)
+              (comma_wsp)
+              (number))
+            (comma_wsp
+              (wsp))
+            (rotate_transform
+              (number))
+            (comma_wsp
+              (wsp))
+            (scale_transform
+              (number))
+            (comma_wsp
+              (wsp))
+            (skew_x_transform
+              (number))
+            (comma_wsp
+              (wsp))
+            (skew_y_transform
+              (number))
+            (comma_wsp
+              (wsp))
+            (matrix_transform
+              (number)
               (comma_wsp
                 (wsp))
-              (transform_function
-                (rotate_transform
-                  (number)))
+              (number)
               (comma_wsp
                 (wsp))
-              (transform_function
-                (scale_transform
-                  (number)))
+              (number)
               (comma_wsp
                 (wsp))
-              (transform_function
-                (skew_x_transform
-                  (number)))
+              (number)
               (comma_wsp
                 (wsp))
-              (transform_function
-                (skew_y_transform
-                  (number)))
+              (number)
               (comma_wsp
                 (wsp))
-              (transform_function
-                (matrix_transform
-                  (number)
-                  (comma_wsp
-                    (wsp))
-                  (number)
-                  (comma_wsp
-                    (wsp))
-                  (number)
-                  (comma_wsp
-                    (wsp))
-                  (number)
-                  (comma_wsp
-                    (wsp))
-                  (number)
-                  (comma_wsp
-                    (wsp))
-                  (number))))))))
+              (number))))))
     (end_tag
       name: (name)))
   (text))
@@ -211,27 +194,26 @@ Points list
     (element
       (self_closing_tag
         name: (name)
-        (attribute
-          (points_attribute
-            name: (points_attribute_name)
-            value: (points_attribute_value
-              (coordinate_pair_list
-                (coordinate_pair
-                  (number)
-                  (comma_wsp)
-                  (number))
-                (comma_wsp
-                  (wsp))
-                (coordinate_pair
-                  (number)
-                  (comma_wsp)
-                  (number))
-                (comma_wsp
-                  (wsp))
-                (coordinate_pair
-                  (number)
-                  (comma_wsp)
-                  (number))))))))
+        (points_attribute
+          name: (points_attribute_name)
+          value: (points_attribute_value
+            (coordinate_pair_list
+              (coordinate_pair
+                (number)
+                (comma_wsp)
+                (number))
+              (comma_wsp
+                (wsp))
+              (coordinate_pair
+                (number)
+                (comma_wsp)
+                (number))
+              (comma_wsp
+                (wsp))
+              (coordinate_pair
+                (number)
+                (comma_wsp)
+                (number)))))))
     (end_tag
       name: (name)))
   (text))
@@ -249,50 +231,44 @@ Paint keywords and functions
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (paint_attribute
-          name: (paint_attribute_name)
-          value: (paint_attribute_value
-            (paint_value))))
-      (attribute
-        (paint_attribute
-          name: (paint_attribute_name)
-          value: (paint_attribute_value
-            (paint_value
-              (color_value
-                (functional_color
-                  (color_function_name)
-                  (number_or_percentage
-                    (number))
-                  (comma_wsp)
-                  (number_or_percentage
-                    (number))
-                  (comma_wsp)
-                  (number_or_percentage
-                    (number))))))))
-      (attribute
-        (paint_attribute
-          name: (paint_attribute_name)
-          value: (paint_attribute_value
-            (paint_value))))
-      (attribute
-        (paint_attribute
-          name: (paint_attribute_name)
-          value: (paint_attribute_value
-            (paint_value
-              (color_value
-                (functional_color
-                  (color_function_name)
-                  (hue_value
-                    (number))
-                  (comma_wsp)
-                  (number_or_percentage
-                    (percentage
-                      (number)))
-                  (comma_wsp)
-                  (number_or_percentage
-                    (percentage
-                      (number))))))))))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_value)))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_value
+            (functional_color
+              (color_function_name)
+              (number_or_percentage
+                (number))
+              (comma_wsp)
+              (number_or_percentage
+                (number))
+              (comma_wsp)
+              (number_or_percentage
+                (number))))))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_value)))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_value
+            (functional_color
+              (color_function_name)
+              (hue_value
+                (number))
+              (comma_wsp)
+              (number_or_percentage
+                (percentage
+                  (number)))
+              (comma_wsp)
+              (number_or_percentage
+                (percentage
+                  (number))))))))
     (end_tag
       name: (name)))
   (text))
@@ -310,28 +286,26 @@ CSS Color 4 oklch with slash alpha and none channel
   root: (svg_root_element
     (self_closing_tag
       name: (name)
-      (attribute
-        (paint_attribute
-          name: (paint_attribute_name)
-          value: (paint_attribute_value
-            (paint_value
-              (color_value
-                (functional_color
-                  (color_function_name)
-                  (number_or_percentage
-                    (percentage
-                      (number)))
-                  (comma_wsp
-                    (wsp))
-                  (number_or_percentage
-                    (number))
-                  (comma_wsp
-                    (wsp))
-                  (color_none)
-                  (wsp)
-                  (wsp)
-                  (number_or_percentage
-                    (number))))))))))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_value
+            (functional_color
+              (color_function_name)
+              (number_or_percentage
+                (percentage
+                  (number)))
+              (comma_wsp
+                (wsp))
+              (number_or_percentage
+                (number))
+              (comma_wsp
+                (wsp))
+              (color_none)
+              (wsp)
+              (wsp)
+              (number_or_percentage
+                (number))))))))
   (text))
 
 ==================
@@ -347,24 +321,22 @@ CSS Color 4 color() with predefined colorspace
   root: (svg_root_element
     (self_closing_tag
       name: (name)
-      (attribute
-        (paint_attribute
-          name: (paint_attribute_name)
-          value: (paint_attribute_value
-            (paint_value
-              (color_value
-                (functional_color
-                  (color_function_name)
-                  (color_colorspace)
-                  (wsp)
-                  (number_or_percentage
-                    (number))
-                  (wsp)
-                  (number_or_percentage
-                    (number))
-                  (wsp)
-                  (number_or_percentage
-                    (number))))))))))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_value
+            (functional_color
+              (color_function_name)
+              (color_colorspace)
+              (wsp)
+              (number_or_percentage
+                (number))
+              (wsp)
+              (number_or_percentage
+                (number))
+              (wsp)
+              (number_or_percentage
+                (number))))))))
   (text))
 
 ==================
@@ -380,36 +352,32 @@ CSS Color 5 color-mix with hue interpolation method
   root: (svg_root_element
     (self_closing_tag
       name: (name)
-      (attribute
-        (paint_attribute
-          name: (paint_attribute_name)
-          value: (paint_attribute_value
-            (paint_value
-              (color_value
-                (functional_color
-                  (color_function_name)
-                  (color_interpolation_method
-                    (color_mix_in_keyword)
-                    (wsp)
-                    (color_interpolation_space)
-                    (wsp)
-                    (color_hue_interpolation
-                      (color_hue_direction)
-                      (wsp)
-                      (color_hue_keyword)))
-                  (comma_wsp
-                    (wsp))
-                  (color_mix_component
-                    (color_value
-                      (named_color))
-                    (wsp)
-                    (percentage
-                      (number)))
-                  (comma_wsp
-                    (wsp))
-                  (color_mix_component
-                    (color_value
-                      (named_color)))))))))))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_value
+            (functional_color
+              (color_function_name)
+              (color_interpolation_method
+                (color_mix_in_keyword)
+                (wsp)
+                (color_interpolation_space)
+                (wsp)
+                (color_hue_interpolation
+                  (color_hue_direction)
+                  (wsp)
+                  (color_hue_keyword)))
+              (comma_wsp
+                (wsp))
+              (color_mix_component
+                (named_color)
+                (wsp)
+                (percentage
+                  (number)))
+              (comma_wsp
+                (wsp))
+              (color_mix_component
+                (named_color))))))))
   (text))
 
 ==================
@@ -425,51 +393,46 @@ Opacity and stroke dasharray
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (opacity_attribute
-          name: (opacity_attribute_name)
-          value: (opacity_attribute_value
-            (number_or_percentage
+      (opacity_attribute
+        name: (opacity_attribute_name)
+        value: (opacity_attribute_value
+          (number_or_percentage
+            (number))))
+      (opacity_attribute
+        name: (opacity_attribute_name)
+        value: (opacity_attribute_value
+          (number_or_percentage
+            (percentage
               (number)))))
-      (attribute
-        (opacity_attribute
-          name: (opacity_attribute_name)
-          value: (opacity_attribute_value
-            (number_or_percentage
-              (percentage
+      (opacity_attribute
+        name: (opacity_attribute_name)
+        value: (opacity_attribute_value
+          (number_or_percentage
+            (number))))
+      (stroke_dasharray_attribute
+        name: (stroke_dasharray_attribute_name)
+        value: (stroke_dasharray_attribute_value
+          (length_list
+            (length_or_percentage
+              (length
+                (number)))
+            (comma_wsp
+              (wsp))
+            (length_or_percentage
+              (length
+                (number)))
+            (comma_wsp
+              (wsp))
+            (length_or_percentage
+              (length
                 (number))))))
-      (attribute
-        (opacity_attribute
-          name: (opacity_attribute_name)
-          value: (opacity_attribute_value
-            (number_or_percentage
-              (number)))))
-      (attribute
-        (stroke_dasharray_attribute
-          name: (stroke_dasharray_attribute_name)
-          value: (stroke_dasharray_attribute_value
-            (length_list
-              (length_or_percentage
-                (length
-                  (number)))
-              (comma_wsp
-                (wsp))
-              (length_or_percentage
-                (length
-                  (number)))
-              (comma_wsp
-                (wsp))
-              (length_or_percentage
-                (length
-                  (number)))))))
-      (attribute
-        (length_attribute
-          name: (length_attribute_name)
-          value: (length_attribute_value
-            (length_or_percentage_or_auto
-              (length_or_percentage
-                (length
-                  (number))))))))
+      (length_attribute
+        name: (length_attribute_name)
+        value: (length_attribute_value
+          (length_or_percentage_or_auto
+            (length_or_percentage
+              (length
+                (number)))))))
     (end_tag
       name: (name)))
   (text))
@@ -487,46 +450,38 @@ Enumerated rendering attributes
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double)))))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value))))
     (end_tag
       name: (name)))
   (text))
@@ -544,36 +499,31 @@ Identity and language attributes
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (id_attribute
-          name: (id_attribute_name)
-          value: (id_attribute_value
-            (id_token))))
-      (attribute
-        (class_attribute
-          name: (class_attribute_name)
-          value: (class_attribute_value
-            (class_list
-              (class_name)
-              (wsp)
-              (class_name)
-              (wsp)
-              (class_name)))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double)))))
+      (id_attribute
+        name: (id_attribute_name)
+        value: (id_attribute_value
+          (id_token)))
+      (class_attribute
+        name: (class_attribute_name)
+        value: (class_attribute_value
+          (class_list
+            (class_name)
+            (wsp)
+            (class_name)
+            (wsp)
+            (class_name))))
+      (css_text_attribute
+        name: (css_text_attribute_name)
+        value: (css_text_attribute_value
+          content: (css_attribute_text_double)))
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double)))
+      (css_text_attribute
+        name: (css_text_attribute_name)
+        value: (css_text_attribute_value
+          content: (css_attribute_text_double))))
     (end_tag
       name: (name)))
   (text))
@@ -591,56 +541,47 @@ IRI attributes
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (href_attribute
-          name: (href_attribute_name)
-          value: (href_attribute_value
-            (href_reference
-              (iri_reference)))))
-      (attribute
-        (href_attribute
-          name: (href_attribute_name)
-          value: (href_attribute_value
-            (href_reference
-              (iri_reference)))))
-      (attribute
-        (functional_iri_attribute
-          name: (functional_iri_attribute_name)
-          value: (functional_iri_attribute_value
-            (functional_iri
-              (iri_reference)))))
-      (attribute
-        (functional_iri_attribute
-          name: (functional_iri_attribute_name)
-          value: (functional_iri_attribute_value)))
-      (attribute
-        (functional_iri_attribute
-          name: (functional_iri_attribute_name)
-          value: (functional_iri_attribute_value
+      (href_attribute
+        name: (href_attribute_name)
+        value: (href_attribute_value
+          (href_reference
             (iri_reference))))
-      (attribute
-        (functional_iri_attribute
-          name: (functional_iri_attribute_name)
-          value: (functional_iri_attribute_value
-            (functional_iri
-              (iri_reference)))))
-      (attribute
-        (functional_iri_attribute
-          name: (functional_iri_attribute_name)
-          value: (functional_iri_attribute_value
+      (href_attribute
+        name: (href_attribute_name)
+        value: (href_attribute_value
+          (href_reference
             (iri_reference))))
-      (attribute
-        (functional_iri_attribute
-          name: (functional_iri_attribute_name)
-          value: (functional_iri_attribute_value
-            (functional_iri
-              (iri_reference)))))
-      (attribute
-        (functional_iri_attribute
-          name: (functional_iri_attribute_name)
-          value: (functional_iri_attribute_value
-            (functional_iri
-              (iri_reference))))))
+      (functional_iri_attribute
+        name: (functional_iri_attribute_name)
+        value: (functional_iri_attribute_value
+          (functional_iri
+            (iri_reference))))
+      (functional_iri_attribute
+        name: (functional_iri_attribute_name)
+        value: (functional_iri_attribute_value))
+      (functional_iri_attribute
+        name: (functional_iri_attribute_name)
+        value: (functional_iri_attribute_value
+          (iri_reference)))
+      (functional_iri_attribute
+        name: (functional_iri_attribute_name)
+        value: (functional_iri_attribute_value
+          (functional_iri
+            (iri_reference))))
+      (functional_iri_attribute
+        name: (functional_iri_attribute_name)
+        value: (functional_iri_attribute_value
+          (iri_reference)))
+      (functional_iri_attribute
+        name: (functional_iri_attribute_name)
+        value: (functional_iri_attribute_value
+          (functional_iri
+            (iri_reference))))
+      (functional_iri_attribute
+        name: (functional_iri_attribute_name)
+        value: (functional_iri_attribute_value
+          (functional_iri
+            (iri_reference)))))
     (end_tag
       name: (name)))
   (text))
@@ -658,21 +599,20 @@ ViewBox with decimal values
   (svg_root_element
     (start_tag
       (name)
-      (attribute
-        (viewbox_attribute
-          (viewbox_attribute_name)
-          (viewbox_attribute_value
-            (viewbox_value
-              (number)
-              (comma_wsp
-                (wsp))
-              (number)
-              (comma_wsp
-                (wsp))
-              (number)
-              (comma_wsp
-                (wsp))
-              (number))))))
+      (viewbox_attribute
+        (viewbox_attribute_name)
+        (viewbox_attribute_value
+          (viewbox_value
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)))))
     (end_tag
       (name)))
   (text))
@@ -693,18 +633,17 @@ Href with base64-like parameter
     (element
       (self_closing_tag
         (name)
-        (attribute
-          (href_attribute
-            (href_attribute_name)
-            (href_attribute_value
-              (href_reference
-                (data_uri
-                  (data_uri_media_type
-                    (mime_type))
-                  (data_uri_parameter
-                    (data_uri_parameter_name)
-                    (data_uri_parameter_value))
-                  (data_uri_payload))))))))
+        (href_attribute
+          (href_attribute_name)
+          (href_attribute_value
+            (href_reference
+              (data_uri
+                (data_uri_media_type
+                  (mime_type))
+                (data_uri_parameter
+                  (data_uri_parameter_name)
+                  (data_uri_parameter_value))
+                (data_uri_payload)))))))
     (end_tag
       (name)))
   (text))
@@ -725,17 +664,16 @@ Href with base64-prefixed bare parameter
     (element
       (self_closing_tag
         (name)
-        (attribute
-          (href_attribute
-            (href_attribute_name)
-            (href_attribute_value
-              (href_reference
-                (data_uri
-                  (data_uri_media_type
-                    (mime_type))
-                  (data_uri_parameter
-                    (data_uri_parameter_name))
-                  (data_uri_payload))))))))
+        (href_attribute
+          (href_attribute_name)
+          (href_attribute_value
+            (href_reference
+              (data_uri
+                (data_uri_media_type
+                  (mime_type))
+                (data_uri_parameter
+                  (data_uri_parameter_name))
+                (data_uri_payload)))))))
     (end_tag
       (name)))
   (text))
@@ -756,26 +694,22 @@ Transform multiple functions
     (element
       (start_tag
         (name)
-        (attribute
-          (transform_attribute
-            (transform_attribute_name)
-            (transform_attribute_value
-              (transform_list
-                (transform_function
-                  (translate_transform
-                    (number)
-                    (comma_wsp)
-                    (number)))
-                (comma_wsp
-                  (wsp))
-                (transform_function
-                  (rotate_transform
-                    (number)))
-                (comma_wsp
-                  (wsp))
-                (transform_function
-                  (scale_transform
-                    (number))))))))
+        (transform_attribute
+          (transform_attribute_name)
+          (transform_attribute_value
+            (transform_list
+              (translate_transform
+                (number)
+                (comma_wsp)
+                (number))
+              (comma_wsp
+                (wsp))
+              (rotate_transform
+                (number))
+              (comma_wsp
+                (wsp))
+              (scale_transform
+                (number))))))
       (end_tag
         (name)))
     (end_tag
@@ -798,16 +732,14 @@ Paint with url fallback
     (element
       (self_closing_tag
         (name)
-        (attribute
-          (paint_attribute
-            (paint_attribute_name)
-            (paint_attribute_value
-              (paint_value
-                (paint_server
-                  (iri_reference)
-                  (wsp)
-                  (color_value
-                    (named_color)))))))))
+        (paint_attribute
+          (paint_attribute_name)
+          (paint_attribute_value
+            (paint_value
+              (paint_server
+                (iri_reference)
+                (wsp)
+                (named_color)))))))
     (end_tag
       (name)))
   (text))
@@ -828,23 +760,21 @@ Length with percentage and units
     (element
       (self_closing_tag
         (name)
-        (attribute
-          (length_attribute
-            (length_attribute_name)
-            (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (percentage
-                    (number)))))))
-        (attribute
-          (length_attribute
-            (length_attribute_name)
-            (length_attribute_value
-              (length_or_percentage_or_auto
-                (length_or_percentage
-                  (length
-                    (number)
-                    (length_unit)))))))))
+        (length_attribute
+          (length_attribute_name)
+          (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (percentage
+                  (number))))))
+        (length_attribute
+          (length_attribute_name)
+          (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number)
+                  (length_unit))))))))
     (end_tag
       (name)))
   (text))
@@ -865,22 +795,21 @@ Stroke dasharray
     (element
       (self_closing_tag
         (name)
-        (attribute
-          (stroke_dasharray_attribute
-            (stroke_dasharray_attribute_name)
-            (stroke_dasharray_attribute_value
-              (length_list
-                (length_or_percentage
-                  (length
-                    (number)))
-                (comma_wsp)
-                (length_or_percentage
-                  (length
-                    (number)))
-                (comma_wsp)
-                (length_or_percentage
-                  (length
-                    (number)))))))))
+        (stroke_dasharray_attribute
+          (stroke_dasharray_attribute_name)
+          (stroke_dasharray_attribute_value
+            (length_list
+              (length_or_percentage
+                (length
+                  (number)))
+              (comma_wsp)
+              (length_or_percentage
+                (length
+                  (number)))
+              (comma_wsp)
+              (length_or_percentage
+                (length
+                  (number))))))))
     (end_tag
       (name)))
   (text))
@@ -901,12 +830,11 @@ Href with fragment reference
     (element
       (self_closing_tag
         (name)
-        (attribute
-          (href_attribute
-            (href_attribute_name)
-            (href_attribute_value
-              (href_reference
-                (iri_reference)))))))
+        (href_attribute
+          (href_attribute_name)
+          (href_attribute_value
+            (href_reference
+              (iri_reference))))))
     (end_tag
       (name)))
   (text))
@@ -927,12 +855,11 @@ Href with external file reference
     (element
       (self_closing_tag
         (name)
-        (attribute
-          (href_attribute
-            (href_attribute_name)
-            (href_attribute_value
-              (href_reference
-                (iri_reference)))))))
+        (href_attribute
+          (href_attribute_name)
+          (href_attribute_value
+            (href_reference
+              (iri_reference))))))
     (end_tag
       (name)))
   (text))
@@ -953,16 +880,15 @@ Href with data URI
     (element
       (self_closing_tag
         (name)
-        (attribute
-          (href_attribute
-            (href_attribute_name)
-            (href_attribute_value
-              (href_reference
-                (data_uri
-                  (data_uri_media_type
-                    (mime_type))
-                  (data_uri_encoding)
-                  (data_uri_payload))))))))
+        (href_attribute
+          (href_attribute_name)
+          (href_attribute_value
+            (href_reference
+              (data_uri
+                (data_uri_media_type
+                  (mime_type))
+                (data_uri_encoding)
+                (data_uri_payload)))))))
     (end_tag
       (name)))
   (text))

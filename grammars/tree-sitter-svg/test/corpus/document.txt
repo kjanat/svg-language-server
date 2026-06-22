@@ -30,83 +30,75 @@ XML declaration + doctype + svg root
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (viewbox_attribute
-          name: (viewbox_attribute_name)
-          value: (viewbox_attribute_value
-            (viewbox_value
-              (number)
-              (comma_wsp
-                (wsp))
-              (number)
-              (comma_wsp
-                (wsp))
-              (number)
-              (comma_wsp
-                (wsp))
-              (number))))))
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double)))
+      (viewbox_attribute
+        name: (viewbox_attribute_name)
+        value: (viewbox_attribute_value
+          (viewbox_value
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)))))
     (text)
     (element
       (start_tag
         name: (name)
-        (attribute
-          (id_attribute
-            name: (id_attribute_name)
-            value: (id_attribute_value
-              (id_token)))))
+        (id_attribute
+          name: (id_attribute_name)
+          value: (id_attribute_value
+            (id_token))))
       (text)
       (element
         (self_closing_tag
           name: (name)
-          (attribute
-            (length_attribute
-              name: (length_attribute_name)
-              value: (length_attribute_value
-                (length_or_percentage_or_auto
-                  (length_or_percentage
-                    (length
-                      (number)))))))
-          (attribute
-            (length_attribute
-              name: (length_attribute_name)
-              value: (length_attribute_value
-                (length_or_percentage_or_auto
-                  (length_or_percentage
-                    (length
-                      (number)))))))
-          (attribute
-            (length_attribute
-              name: (length_attribute_name)
-              value: (length_attribute_value
-                (length_or_percentage_or_auto
-                  (length_or_percentage
-                    (length
-                      (number)))))))))
+          (length_attribute
+            name: (length_attribute_name)
+            value: (length_attribute_value
+              (length_or_percentage_or_auto
+                (length_or_percentage
+                  (length
+                    (number))))))
+          (length_attribute
+            name: (length_attribute_name)
+            value: (length_attribute_value
+              (length_or_percentage_or_auto
+                (length_or_percentage
+                  (length
+                    (number))))))
+          (length_attribute
+            name: (length_attribute_name)
+            value: (length_attribute_value
+              (length_or_percentage_or_auto
+                (length_or_percentage
+                  (length
+                    (number))))))))
       (text)
       (element
         (start_tag
           name: (name)
-          (attribute
-            (length_attribute
-              name: (length_attribute_name)
-              value: (length_attribute_value
-                (length_or_percentage_or_auto
-                  (length_or_percentage
-                    (length
-                      (number)))))))
-          (attribute
-            (length_attribute
-              name: (length_attribute_name)
-              value: (length_attribute_value
-                (length_or_percentage_or_auto
-                  (length_or_percentage
-                    (length
-                      (number))))))))
+          (length_attribute
+            name: (length_attribute_name)
+            value: (length_attribute_value
+              (length_or_percentage_or_auto
+                (length_or_percentage
+                  (length
+                    (number))))))
+          (length_attribute
+            name: (length_attribute_name)
+            value: (length_attribute_value
+              (length_or_percentage_or_auto
+                (length_or_percentage
+                  (length
+                    (number)))))))
         (text)
         (entity_reference)
         (text)
@@ -139,26 +131,24 @@ Namespaced svg root and nested svg
   root: (svg_root_element
     (start_tag
       name: (name)
-      (attribute
-        (generic_attribute
-          name: (attribute_name)
-          value: (quoted_attribute_value
-            (attribute_text_double))))
-      (attribute
-        (viewbox_attribute
-          name: (viewbox_attribute_name)
-          value: (viewbox_attribute_value
-            (viewbox_value
-              (number)
-              (comma_wsp
-                (wsp))
-              (number)
-              (comma_wsp
-                (wsp))
-              (number)
-              (comma_wsp
-                (wsp))
-              (number))))))
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double)))
+      (viewbox_attribute
+        name: (viewbox_attribute_name)
+        value: (viewbox_attribute_value
+          (viewbox_value
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)))))
     (text)
     (element
       (start_tag
@@ -167,31 +157,59 @@ Namespaced svg root and nested svg
       (element
         (start_tag
           name: (name)
-          (attribute
+          (length_attribute
+            name: (length_attribute_name)
+            value: (length_attribute_value
+              (length_or_percentage_or_auto
+                (length_or_percentage
+                  (length
+                    (number))))))
+          (length_attribute
+            name: (length_attribute_name)
+            value: (length_attribute_value
+              (length_or_percentage_or_auto
+                (length_or_percentage
+                  (length
+                    (number))))))
+          (length_attribute
+            name: (length_attribute_name)
+            value: (length_attribute_value
+              (length_or_percentage_or_auto
+                (length_or_percentage
+                  (length
+                    (number))))))
+          (length_attribute
+            name: (length_attribute_name)
+            value: (length_attribute_value
+              (length_or_percentage_or_auto
+                (length_or_percentage
+                  (length
+                    (number)))))))
+        (text)
+        (element
+          (self_closing_tag
+            name: (name)
             (length_attribute
               name: (length_attribute_name)
               value: (length_attribute_value
                 (length_or_percentage_or_auto
                   (length_or_percentage
                     (length
-                      (number)))))))
-          (attribute
+                      (number))))))
             (length_attribute
               name: (length_attribute_name)
               value: (length_attribute_value
                 (length_or_percentage_or_auto
                   (length_or_percentage
                     (length
-                      (number)))))))
-          (attribute
+                      (number))))))
             (length_attribute
               name: (length_attribute_name)
               value: (length_attribute_value
                 (length_or_percentage_or_auto
                   (length_or_percentage
                     (length
-                      (number)))))))
-          (attribute
+                      (number))))))
             (length_attribute
               name: (length_attribute_name)
               value: (length_attribute_value
@@ -199,42 +217,6 @@ Namespaced svg root and nested svg
                   (length_or_percentage
                     (length
                       (number))))))))
-        (text)
-        (element
-          (self_closing_tag
-            name: (name)
-            (attribute
-              (length_attribute
-                name: (length_attribute_name)
-                value: (length_attribute_value
-                  (length_or_percentage_or_auto
-                    (length_or_percentage
-                      (length
-                        (number)))))))
-            (attribute
-              (length_attribute
-                name: (length_attribute_name)
-                value: (length_attribute_value
-                  (length_or_percentage_or_auto
-                    (length_or_percentage
-                      (length
-                        (number)))))))
-            (attribute
-              (length_attribute
-                name: (length_attribute_name)
-                value: (length_attribute_value
-                  (length_or_percentage_or_auto
-                    (length_or_percentage
-                      (length
-                        (number)))))))
-            (attribute
-              (length_attribute
-                name: (length_attribute_name)
-                value: (length_attribute_value
-                  (length_or_percentage_or_auto
-                    (length_or_percentage
-                      (length
-                        (number)))))))))
         (text)
         (end_tag
           name: (name)))
@@ -259,22 +241,20 @@ Self-closing root with spaced Eq
   root: (svg_root_element
     (self_closing_tag
       name: (name)
-      (attribute
-        (length_attribute
-          name: (length_attribute_name)
-          value: (length_attribute_value
-            (length_or_percentage_or_auto
-              (length_or_percentage
-                (length
-                  (number)))))))
-      (attribute
-        (length_attribute
-          name: (length_attribute_name)
-          value: (length_attribute_value
-            (length_or_percentage_or_auto
-              (length_or_percentage
-                (length
-                  (number)))))))))
+      (length_attribute
+        name: (length_attribute_name)
+        value: (length_attribute_value
+          (length_or_percentage_or_auto
+            (length_or_percentage
+              (length
+                (number))))))
+      (length_attribute
+        name: (length_attribute_name)
+        value: (length_attribute_value
+          (length_or_percentage_or_auto
+            (length_or_percentage
+              (length
+                (number))))))))
   (text))
 
 ==================

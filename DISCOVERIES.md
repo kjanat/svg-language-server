@@ -17,6 +17,12 @@
   `attribute_name`. Hover/completion handlers must check **all** attribute name
   kinds, not just the typed ones.
 
+- `attribute` is a tree-sitter supertype, not a stable visible CST wrapper.
+  Concrete trees expose `generic_attribute` or typed `*_attribute` nodes (for
+  example `href_attribute`, `duration_attribute`, `id_attribute`). Consumers
+  must use `svg_tree::is_attribute_node_kind`, not `kind() == "attribute"`, or
+  completions/lints silently miss typed attributes.
+
 - Element tag names live inside `start_tag`/`self_closing_tag`/`end_tag` as a
   child `"name"` node. The element node itself is `element`, `svg_element`,
   `path_element`, `style_element`, or `script_element` — you need to descend

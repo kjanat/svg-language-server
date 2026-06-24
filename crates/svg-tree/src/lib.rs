@@ -113,6 +113,16 @@ pub fn is_attribute_name_kind(kind: &str) -> bool {
     kind == "attribute_name" || kind.ends_with("_attribute_name")
 }
 
+/// Check whether a node kind is an attribute wrapper.
+///
+/// `attribute` is a tree-sitter supertype in tree-sitter-svg, so concrete parse
+/// trees usually expose `generic_attribute` or typed `*_attribute` nodes instead
+/// of a visible `attribute` wrapper.
+#[must_use]
+pub fn is_attribute_node_kind(kind: &str) -> bool {
+    kind == "attribute" || kind == "generic_attribute" || kind.ends_with("_attribute")
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -190,6 +200,16 @@ mod tests {
         assert!(is_attribute_name_kind("viewBox_attribute_name"));
         assert!(!is_attribute_name_kind("attribute_value"));
         assert!(!is_attribute_name_kind("element"));
+    }
+
+    #[test]
+    fn is_attribute_node_kind_matches() {
+        assert!(is_attribute_node_kind("attribute"));
+        assert!(is_attribute_node_kind("generic_attribute"));
+        assert!(is_attribute_node_kind("href_attribute"));
+        assert!(!is_attribute_node_kind("href_attribute_value"));
+        assert!(!is_attribute_node_kind("href_attribute_name"));
+        assert!(!is_attribute_node_kind("element"));
     }
 
     #[test]

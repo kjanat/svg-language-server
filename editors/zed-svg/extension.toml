@@ -10,7 +10,7 @@ repository     = "https://github.com/kjanat/svg"
 languages      = ["languages/svg"]
 
 [grammars.svg]
-repository = "https://github.com/kjanat/svg-language-server"
+repository = "https://github.com/kjanat/svg"
 rev        = "d046b901d70df1fee170a2fd811aedb98da60452"
 path       = "grammars/tree-sitter-svg"
 

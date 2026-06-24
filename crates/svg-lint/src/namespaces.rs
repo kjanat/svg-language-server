@@ -1,4 +1,4 @@
-use svg_tree::is_attribute_name_kind;
+use svg_tree::{is_attribute_name_kind, is_attribute_node_kind};
 use tree_sitter::Node;
 
 pub const SVG_NAMESPACE_URI: &str = "http://www.w3.org/2000/svg";
@@ -46,7 +46,7 @@ pub fn scope_for_tag<'a>(
     let mut scope = parent.clone();
     let mut cursor = tag.walk();
     for attr_node in tag.children(&mut cursor) {
-        if attr_node.kind() != "attribute" {
+        if !is_attribute_node_kind(attr_node.kind()) {
             continue;
         }
         let Some(name_node) = find_attr_name(attr_node) else {
@@ -78,7 +78,7 @@ pub fn scope_for_tag<'a>(
 pub fn declares_default_namespace(source: &[u8], tag: Node) -> bool {
     let mut cursor = tag.walk();
     for attr_node in tag.children(&mut cursor) {
-        if attr_node.kind() != "attribute" {
+        if !is_attribute_node_kind(attr_node.kind()) {
             continue;
         }
         let Some(name_node) = find_attr_name(attr_node) else {

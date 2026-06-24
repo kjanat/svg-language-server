@@ -24,15 +24,14 @@ function quoted(value) {
 }
 
 // Data-driven alternation over a catalog-derived list (attribute spellings,
-// unit tokens, etc.). A one-element bucket (e.g. `view_box: ['viewBox']`) must
-// collapse to the bare member: `choice(x)` is a single-element CHOICE that
-// tree-sitter flags as unnecessary and that wraps the CST in a spurious node.
-// Keeping it data-driven means a future re-scrape that adds a second spelling
-// promotes the same rule to a real `choice` with no grammar edit.
+// unit tokens, etc.). Wrap the bucket in one token so tree-sitter emits one
+// compact lexer branch instead of one token per spelling. A one-element bucket
+// (e.g. `view_box: ['viewBox']`) still avoids `choice(x)`, which tree-sitter
+// flags as unnecessary.
 /** @param {readonly RuleOrLiteral[]} members */
 function oneOf(members) {
 	const [first, ...rest] = members;
-	return rest.length === 0 ? first : choice(first, ...rest);
+	return token(rest.length === 0 ? first : choice(first, ...rest));
 }
 
 export default grammar({
@@ -169,7 +168,7 @@ export default grammar({
 			),
 
 		xml_standalone_attribute_name: _ => 'standalone',
-		xml_standalone_attribute_value: _ => choice('"yes"', '"no"', "'yes'", "'no'"),
+		xml_standalone_attribute_value: _ => token(choice('"yes"', '"no"', "'yes'", "'no'")),
 
 		doctype: $ =>
 			seq(
@@ -772,7 +771,7 @@ export default grammar({
 			),
 
 		align_keyword: _ =>
-			choice(
+			token(choice(
 				'none',
 				'xMinYMin',
 				'xMidYMin',
@@ -783,9 +782,9 @@ export default grammar({
 				'xMinYMax',
 				'xMidYMax',
 				'xMaxYMax',
-			),
+			)),
 
-		meet_or_slice_keyword: _ => choice('meet', 'slice'),
+		meet_or_slice_keyword: _ => token(choice('meet', 'slice')),
 
 		// ─── transform attribute ────────────────────────────────────
 
@@ -797,11 +796,11 @@ export default grammar({
 			),
 
 		transform_attribute_name: _ =>
-			choice(
+			token(choice(
 				'transform',
 				'gradientTransform',
 				'patternTransform',
-			),
+			)),
 
 		transform_attribute_value: $ => quoted($.transform_list),
 
@@ -1166,7 +1165,7 @@ export default grammar({
 
 		hue_value: $ => seq($.number, optional($.angle_unit)),
 
-		angle_unit: _ => choice(...TOKENS.angle_units),
+		angle_unit: _ => token(choice(...TOKENS.angle_units)),
 
 		named_color: _ => token(/[A-Za-z][A-Za-z-]*/),
 
@@ -1417,7 +1416,7 @@ export default grammar({
 				field('value', $.duration_attribute_value),
 			),
 
-		duration_attribute_name: _ => choice('dur', 'repeatDur'),
+		duration_attribute_name: _ => token(choice('dur', 'repeatDur')),
 
 		duration_attribute_value: $ => quoted(choice($.time_value, 'indefinite', 'media')),
 
@@ -1504,7 +1503,7 @@ export default grammar({
 				field('value', $.href_attribute_value),
 			),
 
-		href_attribute_name: _ => choice('href', 'xlink:href'),
+		href_attribute_name: _ => token(choice('href', 'xlink:href')),
 
 		href_attribute_value: $ => quoted($.href_reference),
 
@@ -1632,9 +1631,9 @@ export default grammar({
 
 		percentage: $ => seq($.number, '%'),
 
-		length_unit: _ => choice(...TOKENS.length_units),
+		length_unit: _ => token(choice(...TOKENS.length_units)),
 
-		time_unit: _ => choice(...TOKENS.time_units),
+		time_unit: _ => token(choice(...TOKENS.time_units)),
 
 		number: _ => token(NUMBER_PATTERN),
 

@@ -280,25 +280,28 @@
       "value": "standalone"
     },
     "xml_standalone_attribute_value": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "\"yes\""
-        },
-        {
-          "type": "STRING",
-          "value": "\"no\""
-        },
-        {
-          "type": "STRING",
-          "value": "'yes'"
-        },
-        {
-          "type": "STRING",
-          "value": "'no'"
-        }
-      ]
+      "type": "TOKEN",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "\"yes\""
+          },
+          {
+            "type": "STRING",
+            "value": "\"no\""
+          },
+          {
+            "type": "STRING",
+            "value": "'yes'"
+          },
+          {
+            "type": "STRING",
+            "value": "'no'"
+          }
+        ]
+      }
     },
     "doctype": {
       "type": "SEQ",
@@ -1653,17 +1656,20 @@
       ]
     },
     "d_attribute_name": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "d"
-        },
-        {
-          "type": "STRING",
-          "value": "path"
-        }
-      ]
+      "type": "TOKEN",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "d"
+          },
+          {
+            "type": "STRING",
+            "value": "path"
+          }
+        ]
+      }
     },
     "d_attribute_value": {
       "type": "CHOICE",
@@ -2926,8 +2932,11 @@
       ]
     },
     "viewbox_attribute_name": {
-      "type": "STRING",
-      "value": "viewBox"
+      "type": "TOKEN",
+      "content": {
+        "type": "STRING",
+        "value": "viewBox"
+      }
     },
     "viewbox_attribute_value": {
       "type": "CHOICE",
@@ -3153,62 +3162,68 @@
       ]
     },
     "align_keyword": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "none"
-        },
-        {
-          "type": "STRING",
-          "value": "xMinYMin"
-        },
-        {
-          "type": "STRING",
-          "value": "xMidYMin"
-        },
-        {
-          "type": "STRING",
-          "value": "xMaxYMin"
-        },
-        {
-          "type": "STRING",
-          "value": "xMinYMid"
-        },
-        {
-          "type": "STRING",
-          "value": "xMidYMid"
-        },
-        {
-          "type": "STRING",
-          "value": "xMaxYMid"
-        },
-        {
-          "type": "STRING",
-          "value": "xMinYMax"
-        },
-        {
-          "type": "STRING",
-          "value": "xMidYMax"
-        },
-        {
-          "type": "STRING",
-          "value": "xMaxYMax"
-        }
-      ]
+      "type": "TOKEN",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "none"
+          },
+          {
+            "type": "STRING",
+            "value": "xMinYMin"
+          },
+          {
+            "type": "STRING",
+            "value": "xMidYMin"
+          },
+          {
+            "type": "STRING",
+            "value": "xMaxYMin"
+          },
+          {
+            "type": "STRING",
+            "value": "xMinYMid"
+          },
+          {
+            "type": "STRING",
+            "value": "xMidYMid"
+          },
+          {
+            "type": "STRING",
+            "value": "xMaxYMid"
+          },
+          {
+            "type": "STRING",
+            "value": "xMinYMax"
+          },
+          {
+            "type": "STRING",
+            "value": "xMidYMax"
+          },
+          {
+            "type": "STRING",
+            "value": "xMaxYMax"
+          }
+        ]
+      }
     },
     "meet_or_slice_keyword": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "meet"
-        },
-        {
-          "type": "STRING",
-          "value": "slice"
-        }
-      ]
+      "type": "TOKEN",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "meet"
+          },
+          {
+            "type": "STRING",
+            "value": "slice"
+          }
+        ]
+      }
     },
     "transform_attribute": {
       "type": "SEQ",
@@ -3236,21 +3251,24 @@
       ]
     },
     "transform_attribute_name": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "transform"
-        },
-        {
-          "type": "STRING",
-          "value": "gradientTransform"
-        },
-        {
-          "type": "STRING",
-          "value": "patternTransform"
-        }
-      ]
+      "type": "TOKEN",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "transform"
+          },
+          {
+            "type": "STRING",
+            "value": "gradientTransform"
+          },
+          {
+            "type": "STRING",
+            "value": "patternTransform"
+          }
+        ]
+      }
     },
     "transform_attribute_value": {
       "type": "CHOICE",
@@ -3768,8 +3786,11 @@
       ]
     },
     "points_attribute_name": {
-      "type": "STRING",
-      "value": "points"
+      "type": "TOKEN",
+      "content": {
+        "type": "STRING",
+        "value": "points"
+      }
     },
     "points_attribute_value": {
       "type": "CHOICE",
@@ -3902,33 +3923,36 @@
       ]
     },
     "paint_attribute_name": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "color"
-        },
-        {
-          "type": "STRING",
-          "value": "fill"
-        },
-        {
-          "type": "STRING",
-          "value": "flood-color"
-        },
-        {
-          "type": "STRING",
-          "value": "lighting-color"
-        },
-        {
-          "type": "STRING",
-          "value": "stop-color"
-        },
-        {
-          "type": "STRING",
-          "value": "stroke"
-        }
-      ]
+      "type": "TOKEN",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "color"
+          },
+          {
+            "type": "STRING",
+            "value": "fill"
+          },
+          {
+            "type": "STRING",
+            "value": "flood-color"
+          },
+          {
+            "type": "STRING",
+            "value": "lighting-color"
+          },
+          {
+            "type": "STRING",
+            "value": "stop-color"
+          },
+          {
+            "type": "STRING",
+            "value": "stroke"
+          }
+        ]
+      }
     },
     "paint_attribute_value": {
       "type": "CHOICE",
@@ -5303,25 +5327,28 @@
       ]
     },
     "angle_unit": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "deg"
-        },
-        {
-          "type": "STRING",
-          "value": "grad"
-        },
-        {
-          "type": "STRING",
-          "value": "rad"
-        },
-        {
-          "type": "STRING",
-          "value": "turn"
-        }
-      ]
+      "type": "TOKEN",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "deg"
+          },
+          {
+            "type": "STRING",
+            "value": "grad"
+          },
+          {
+            "type": "STRING",
+            "value": "rad"
+          },
+          {
+            "type": "STRING",
+            "value": "turn"
+          }
+        ]
+      }
     },
     "named_color": {
       "type": "TOKEN",
@@ -5356,41 +5383,44 @@
       ]
     },
     "functional_iri_attribute_name": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "clip-path"
-        },
-        {
-          "type": "STRING",
-          "value": "cursor"
-        },
-        {
-          "type": "STRING",
-          "value": "filter"
-        },
-        {
-          "type": "STRING",
-          "value": "marker"
-        },
-        {
-          "type": "STRING",
-          "value": "marker-end"
-        },
-        {
-          "type": "STRING",
-          "value": "marker-mid"
-        },
-        {
-          "type": "STRING",
-          "value": "marker-start"
-        },
-        {
-          "type": "STRING",
-          "value": "mask"
-        }
-      ]
+      "type": "TOKEN",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "clip-path"
+          },
+          {
+            "type": "STRING",
+            "value": "cursor"
+          },
+          {
+            "type": "STRING",
+            "value": "filter"
+          },
+          {
+            "type": "STRING",
+            "value": "marker"
+          },
+          {
+            "type": "STRING",
+            "value": "marker-end"
+          },
+          {
+            "type": "STRING",
+            "value": "marker-mid"
+          },
+          {
+            "type": "STRING",
+            "value": "marker-start"
+          },
+          {
+            "type": "STRING",
+            "value": "mask"
+          }
+        ]
+      }
     },
     "functional_iri_attribute_value": {
       "type": "CHOICE",
@@ -5719,29 +5749,32 @@
       ]
     },
     "opacity_attribute_name": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "fill-opacity"
-        },
-        {
-          "type": "STRING",
-          "value": "flood-opacity"
-        },
-        {
-          "type": "STRING",
-          "value": "opacity"
-        },
-        {
-          "type": "STRING",
-          "value": "stop-opacity"
-        },
-        {
-          "type": "STRING",
-          "value": "stroke-opacity"
-        }
-      ]
+      "type": "TOKEN",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "fill-opacity"
+          },
+          {
+            "type": "STRING",
+            "value": "flood-opacity"
+          },
+          {
+            "type": "STRING",
+            "value": "opacity"
+          },
+          {
+            "type": "STRING",
+            "value": "stop-opacity"
+          },
+          {
+            "type": "STRING",
+            "value": "stroke-opacity"
+          }
+        ]
+      }
     },
     "opacity_attribute_value": {
       "type": "CHOICE",
@@ -5824,133 +5857,136 @@
       ]
     },
     "length_attribute_name": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "baseline-shift"
-        },
-        {
-          "type": "STRING",
-          "value": "cx"
-        },
-        {
-          "type": "STRING",
-          "value": "cy"
-        },
-        {
-          "type": "STRING",
-          "value": "font-size-adjust"
-        },
-        {
-          "type": "STRING",
-          "value": "fr"
-        },
-        {
-          "type": "STRING",
-          "value": "fx"
-        },
-        {
-          "type": "STRING",
-          "value": "fy"
-        },
-        {
-          "type": "STRING",
-          "value": "height"
-        },
-        {
-          "type": "STRING",
-          "value": "inline-size"
-        },
-        {
-          "type": "STRING",
-          "value": "letter-spacing"
-        },
-        {
-          "type": "STRING",
-          "value": "markerHeight"
-        },
-        {
-          "type": "STRING",
-          "value": "markerWidth"
-        },
-        {
-          "type": "STRING",
-          "value": "path-length"
-        },
-        {
-          "type": "STRING",
-          "value": "r"
-        },
-        {
-          "type": "STRING",
-          "value": "refX"
-        },
-        {
-          "type": "STRING",
-          "value": "refY"
-        },
-        {
-          "type": "STRING",
-          "value": "rx"
-        },
-        {
-          "type": "STRING",
-          "value": "ry"
-        },
-        {
-          "type": "STRING",
-          "value": "startOffset"
-        },
-        {
-          "type": "STRING",
-          "value": "stroke-dashoffset"
-        },
-        {
-          "type": "STRING",
-          "value": "stroke-width"
-        },
-        {
-          "type": "STRING",
-          "value": "textLength"
-        },
-        {
-          "type": "STRING",
-          "value": "transform-origin"
-        },
-        {
-          "type": "STRING",
-          "value": "width"
-        },
-        {
-          "type": "STRING",
-          "value": "word-spacing"
-        },
-        {
-          "type": "STRING",
-          "value": "x"
-        },
-        {
-          "type": "STRING",
-          "value": "x1"
-        },
-        {
-          "type": "STRING",
-          "value": "x2"
-        },
-        {
-          "type": "STRING",
-          "value": "y"
-        },
-        {
-          "type": "STRING",
-          "value": "y1"
-        },
-        {
-          "type": "STRING",
-          "value": "y2"
-        }
-      ]
+      "type": "TOKEN",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "baseline-shift"
+          },
+          {
+            "type": "STRING",
+            "value": "cx"
+          },
+          {
+            "type": "STRING",
+            "value": "cy"
+          },
+          {
+            "type": "STRING",
+            "value": "font-size-adjust"
+          },
+          {
+            "type": "STRING",
+            "value": "fr"
+          },
+          {
+            "type": "STRING",
+            "value": "fx"
+          },
+          {
+            "type": "STRING",
+            "value": "fy"
+          },
+          {
+            "type": "STRING",
+            "value": "height"
+          },
+          {
+            "type": "STRING",
+            "value": "inline-size"
+          },
+          {
+            "type": "STRING",
+            "value": "letter-spacing"
+          },
+          {
+            "type": "STRING",
+            "value": "markerHeight"
+          },
+          {
+            "type": "STRING",
+            "value": "markerWidth"
+          },
+          {
+            "type": "STRING",
+            "value": "path-length"
+          },
+          {
+            "type": "STRING",
+            "value": "r"
+          },
+          {
+            "type": "STRING",
+            "value": "refX"
+          },
+          {
+            "type": "STRING",
+            "value": "refY"
+          },
+          {
+            "type": "STRING",
+            "value": "rx"
+          },
+          {
+            "type": "STRING",
+            "value": "ry"
+          },
+          {
+            "type": "STRING",
+            "value": "startOffset"
+          },
+          {
+            "type": "STRING",
+            "value": "stroke-dashoffset"
+          },
+          {
+            "type": "STRING",
+            "value": "stroke-width"
+          },
+          {
+            "type": "STRING",
+            "value": "textLength"
+          },
+          {
+            "type": "STRING",
+            "value": "transform-origin"
+          },
+          {
+            "type": "STRING",
+            "value": "width"
+          },
+          {
+            "type": "STRING",
+            "value": "word-spacing"
+          },
+          {
+            "type": "STRING",
+            "value": "x"
+          },
+          {
+            "type": "STRING",
+            "value": "x1"
+          },
+          {
+            "type": "STRING",
+            "value": "x2"
+          },
+          {
+            "type": "STRING",
+            "value": "y"
+          },
+          {
+            "type": "STRING",
+            "value": "y1"
+          },
+          {
+            "type": "STRING",
+            "value": "y2"
+          }
+        ]
+      }
     },
     "length_attribute_value": {
       "type": "CHOICE",
@@ -6203,121 +6239,124 @@
       ]
     },
     "number_attribute_name": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "amplitude"
-        },
-        {
-          "type": "STRING",
-          "value": "azimuth"
-        },
-        {
-          "type": "STRING",
-          "value": "bias"
-        },
-        {
-          "type": "STRING",
-          "value": "diffuseConstant"
-        },
-        {
-          "type": "STRING",
-          "value": "divisor"
-        },
-        {
-          "type": "STRING",
-          "value": "elevation"
-        },
-        {
-          "type": "STRING",
-          "value": "exponent"
-        },
-        {
-          "type": "STRING",
-          "value": "intercept"
-        },
-        {
-          "type": "STRING",
-          "value": "k1"
-        },
-        {
-          "type": "STRING",
-          "value": "k2"
-        },
-        {
-          "type": "STRING",
-          "value": "k3"
-        },
-        {
-          "type": "STRING",
-          "value": "k4"
-        },
-        {
-          "type": "STRING",
-          "value": "limitingConeAngle"
-        },
-        {
-          "type": "STRING",
-          "value": "numOctaves"
-        },
-        {
-          "type": "STRING",
-          "value": "pathLength"
-        },
-        {
-          "type": "STRING",
-          "value": "pointsAtX"
-        },
-        {
-          "type": "STRING",
-          "value": "pointsAtY"
-        },
-        {
-          "type": "STRING",
-          "value": "pointsAtZ"
-        },
-        {
-          "type": "STRING",
-          "value": "scale"
-        },
-        {
-          "type": "STRING",
-          "value": "seed"
-        },
-        {
-          "type": "STRING",
-          "value": "slope"
-        },
-        {
-          "type": "STRING",
-          "value": "specularConstant"
-        },
-        {
-          "type": "STRING",
-          "value": "specularExponent"
-        },
-        {
-          "type": "STRING",
-          "value": "stroke-miterlimit"
-        },
-        {
-          "type": "STRING",
-          "value": "surfaceScale"
-        },
-        {
-          "type": "STRING",
-          "value": "targetX"
-        },
-        {
-          "type": "STRING",
-          "value": "targetY"
-        },
-        {
-          "type": "STRING",
-          "value": "z"
-        }
-      ]
+      "type": "TOKEN",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "amplitude"
+          },
+          {
+            "type": "STRING",
+            "value": "azimuth"
+          },
+          {
+            "type": "STRING",
+            "value": "bias"
+          },
+          {
+            "type": "STRING",
+            "value": "diffuseConstant"
+          },
+          {
+            "type": "STRING",
+            "value": "divisor"
+          },
+          {
+            "type": "STRING",
+            "value": "elevation"
+          },
+          {
+            "type": "STRING",
+            "value": "exponent"
+          },
+          {
+            "type": "STRING",
+            "value": "intercept"
+          },
+          {
+            "type": "STRING",
+            "value": "k1"
+          },
+          {
+            "type": "STRING",
+            "value": "k2"
+          },
+          {
+            "type": "STRING",
+            "value": "k3"
+          },
+          {
+            "type": "STRING",
+            "value": "k4"
+          },
+          {
+            "type": "STRING",
+            "value": "limitingConeAngle"
+          },
+          {
+            "type": "STRING",
+            "value": "numOctaves"
+          },
+          {
+            "type": "STRING",
+            "value": "pathLength"
+          },
+          {
+            "type": "STRING",
+            "value": "pointsAtX"
+          },
+          {
+            "type": "STRING",
+            "value": "pointsAtY"
+          },
+          {
+            "type": "STRING",
+            "value": "pointsAtZ"
+          },
+          {
+            "type": "STRING",
+            "value": "scale"
+          },
+          {
+            "type": "STRING",
+            "value": "seed"
+          },
+          {
+            "type": "STRING",
+            "value": "slope"
+          },
+          {
+            "type": "STRING",
+            "value": "specularConstant"
+          },
+          {
+            "type": "STRING",
+            "value": "specularExponent"
+          },
+          {
+            "type": "STRING",
+            "value": "stroke-miterlimit"
+          },
+          {
+            "type": "STRING",
+            "value": "surfaceScale"
+          },
+          {
+            "type": "STRING",
+            "value": "targetX"
+          },
+          {
+            "type": "STRING",
+            "value": "targetY"
+          },
+          {
+            "type": "STRING",
+            "value": "z"
+          }
+        ]
+      }
     },
     "number_attribute_value": {
       "type": "CHOICE",
@@ -6400,29 +6439,32 @@
       ]
     },
     "number_optional_number_attribute_name": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "baseFrequency"
-        },
-        {
-          "type": "STRING",
-          "value": "kernelUnitLength"
-        },
-        {
-          "type": "STRING",
-          "value": "order"
-        },
-        {
-          "type": "STRING",
-          "value": "radius"
-        },
-        {
-          "type": "STRING",
-          "value": "stdDeviation"
-        }
-      ]
+      "type": "TOKEN",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "baseFrequency"
+          },
+          {
+            "type": "STRING",
+            "value": "kernelUnitLength"
+          },
+          {
+            "type": "STRING",
+            "value": "order"
+          },
+          {
+            "type": "STRING",
+            "value": "radius"
+          },
+          {
+            "type": "STRING",
+            "value": "stdDeviation"
+          }
+        ]
+      }
     },
     "number_optional_number_attribute_value": {
       "type": "CHOICE",
@@ -6535,17 +6577,20 @@
       ]
     },
     "length_list_attribute_name": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "dx"
-        },
-        {
-          "type": "STRING",
-          "value": "dy"
-        }
-      ]
+      "type": "TOKEN",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "dx"
+          },
+          {
+            "type": "STRING",
+            "value": "dy"
+          }
+        ]
+      }
     },
     "length_list_attribute_value": {
       "type": "CHOICE",
@@ -6653,8 +6698,11 @@
       ]
     },
     "stroke_dasharray_attribute_name": {
-      "type": "STRING",
-      "value": "stroke-dasharray"
+      "type": "TOKEN",
+      "content": {
+        "type": "STRING",
+        "value": "stroke-dasharray"
+      }
     },
     "stroke_dasharray_attribute_value": {
       "type": "CHOICE",
@@ -6763,205 +6811,208 @@
       ]
     },
     "keyword_attribute_name": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "alignment-baseline"
-        },
-        {
-          "type": "STRING",
-          "value": "clip-rule"
-        },
-        {
-          "type": "STRING",
-          "value": "clipPathUnits"
-        },
-        {
-          "type": "STRING",
-          "value": "color-interpolation"
-        },
-        {
-          "type": "STRING",
-          "value": "color-interpolation-filters"
-        },
-        {
-          "type": "STRING",
-          "value": "crossorigin"
-        },
-        {
-          "type": "STRING",
-          "value": "direction"
-        },
-        {
-          "type": "STRING",
-          "value": "display"
-        },
-        {
-          "type": "STRING",
-          "value": "dominant-baseline"
-        },
-        {
-          "type": "STRING",
-          "value": "edgeMode"
-        },
-        {
-          "type": "STRING",
-          "value": "fill-rule"
-        },
-        {
-          "type": "STRING",
-          "value": "filterUnits"
-        },
-        {
-          "type": "STRING",
-          "value": "font-stretch"
-        },
-        {
-          "type": "STRING",
-          "value": "font-style"
-        },
-        {
-          "type": "STRING",
-          "value": "font-variant"
-        },
-        {
-          "type": "STRING",
-          "value": "font-weight"
-        },
-        {
-          "type": "STRING",
-          "value": "glyph-orientation-vertical"
-        },
-        {
-          "type": "STRING",
-          "value": "gradientUnits"
-        },
-        {
-          "type": "STRING",
-          "value": "image-rendering"
-        },
-        {
-          "type": "STRING",
-          "value": "lengthAdjust"
-        },
-        {
-          "type": "STRING",
-          "value": "markerUnits"
-        },
-        {
-          "type": "STRING",
-          "value": "mask-type"
-        },
-        {
-          "type": "STRING",
-          "value": "maskContentUnits"
-        },
-        {
-          "type": "STRING",
-          "value": "maskUnits"
-        },
-        {
-          "type": "STRING",
-          "value": "method"
-        },
-        {
-          "type": "STRING",
-          "value": "mode"
-        },
-        {
-          "type": "STRING",
-          "value": "operator"
-        },
-        {
-          "type": "STRING",
-          "value": "overflow"
-        },
-        {
-          "type": "STRING",
-          "value": "paint-order"
-        },
-        {
-          "type": "STRING",
-          "value": "patternContentUnits"
-        },
-        {
-          "type": "STRING",
-          "value": "patternUnits"
-        },
-        {
-          "type": "STRING",
-          "value": "pointer-events"
-        },
-        {
-          "type": "STRING",
-          "value": "preserveAlpha"
-        },
-        {
-          "type": "STRING",
-          "value": "primitiveUnits"
-        },
-        {
-          "type": "STRING",
-          "value": "shape-rendering"
-        },
-        {
-          "type": "STRING",
-          "value": "side"
-        },
-        {
-          "type": "STRING",
-          "value": "spacing"
-        },
-        {
-          "type": "STRING",
-          "value": "spreadMethod"
-        },
-        {
-          "type": "STRING",
-          "value": "stitchTiles"
-        },
-        {
-          "type": "STRING",
-          "value": "stroke-linecap"
-        },
-        {
-          "type": "STRING",
-          "value": "stroke-linejoin"
-        },
-        {
-          "type": "STRING",
-          "value": "text-anchor"
-        },
-        {
-          "type": "STRING",
-          "value": "text-rendering"
-        },
-        {
-          "type": "STRING",
-          "value": "unicode-bidi"
-        },
-        {
-          "type": "STRING",
-          "value": "vector-effect"
-        },
-        {
-          "type": "STRING",
-          "value": "visibility"
-        },
-        {
-          "type": "STRING",
-          "value": "writing-mode"
-        },
-        {
-          "type": "STRING",
-          "value": "xChannelSelector"
-        },
-        {
-          "type": "STRING",
-          "value": "yChannelSelector"
-        }
-      ]
+      "type": "TOKEN",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "alignment-baseline"
+          },
+          {
+            "type": "STRING",
+            "value": "clip-rule"
+          },
+          {
+            "type": "STRING",
+            "value": "clipPathUnits"
+          },
+          {
+            "type": "STRING",
+            "value": "color-interpolation"
+          },
+          {
+            "type": "STRING",
+            "value": "color-interpolation-filters"
+          },
+          {
+            "type": "STRING",
+            "value": "crossorigin"
+          },
+          {
+            "type": "STRING",
+            "value": "direction"
+          },
+          {
+            "type": "STRING",
+            "value": "display"
+          },
+          {
+            "type": "STRING",
+            "value": "dominant-baseline"
+          },
+          {
+            "type": "STRING",
+            "value": "edgeMode"
+          },
+          {
+            "type": "STRING",
+            "value": "fill-rule"
+          },
+          {
+            "type": "STRING",
+            "value": "filterUnits"
+          },
+          {
+            "type": "STRING",
+            "value": "font-stretch"
+          },
+          {
+            "type": "STRING",
+            "value": "font-style"
+          },
+          {
+            "type": "STRING",
+            "value": "font-variant"
+          },
+          {
+            "type": "STRING",
+            "value": "font-weight"
+          },
+          {
+            "type": "STRING",
+            "value": "glyph-orientation-vertical"
+          },
+          {
+            "type": "STRING",
+            "value": "gradientUnits"
+          },
+          {
+            "type": "STRING",
+            "value": "image-rendering"
+          },
+          {
+            "type": "STRING",
+            "value": "lengthAdjust"
+          },
+          {
+            "type": "STRING",
+            "value": "markerUnits"
+          },
+          {
+            "type": "STRING",
+            "value": "mask-type"
+          },
+          {
+            "type": "STRING",
+            "value": "maskContentUnits"
+          },
+          {
+            "type": "STRING",
+            "value": "maskUnits"
+          },
+          {
+            "type": "STRING",
+            "value": "method"
+          },
+          {
+            "type": "STRING",
+            "value": "mode"
+          },
+          {
+            "type": "STRING",
+            "value": "operator"
+          },
+          {
+            "type": "STRING",
+            "value": "overflow"
+          },
+          {
+            "type": "STRING",
+            "value": "paint-order"
+          },
+          {
+            "type": "STRING",
+            "value": "patternContentUnits"
+          },
+          {
+            "type": "STRING",
+            "value": "patternUnits"
+          },
+          {
+            "type": "STRING",
+            "value": "pointer-events"
+          },
+          {
+            "type": "STRING",
+            "value": "preserveAlpha"
+          },
+          {
+            "type": "STRING",
+            "value": "primitiveUnits"
+          },
+          {
+            "type": "STRING",
+            "value": "shape-rendering"
+          },
+          {
+            "type": "STRING",
+            "value": "side"
+          },
+          {
+            "type": "STRING",
+            "value": "spacing"
+          },
+          {
+            "type": "STRING",
+            "value": "spreadMethod"
+          },
+          {
+            "type": "STRING",
+            "value": "stitchTiles"
+          },
+          {
+            "type": "STRING",
+            "value": "stroke-linecap"
+          },
+          {
+            "type": "STRING",
+            "value": "stroke-linejoin"
+          },
+          {
+            "type": "STRING",
+            "value": "text-anchor"
+          },
+          {
+            "type": "STRING",
+            "value": "text-rendering"
+          },
+          {
+            "type": "STRING",
+            "value": "unicode-bidi"
+          },
+          {
+            "type": "STRING",
+            "value": "vector-effect"
+          },
+          {
+            "type": "STRING",
+            "value": "visibility"
+          },
+          {
+            "type": "STRING",
+            "value": "writing-mode"
+          },
+          {
+            "type": "STRING",
+            "value": "xChannelSelector"
+          },
+          {
+            "type": "STRING",
+            "value": "yChannelSelector"
+          }
+        ]
+      }
     },
     "keyword_attribute_value": {
       "type": "CHOICE",
@@ -7111,113 +7162,116 @@
       ]
     },
     "css_text_attribute_name": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "autofocus"
-        },
-        {
-          "type": "STRING",
-          "value": "download"
-        },
-        {
-          "type": "STRING",
-          "value": "font-family"
-        },
-        {
-          "type": "STRING",
-          "value": "font-size"
-        },
-        {
-          "type": "STRING",
-          "value": "hreflang"
-        },
-        {
-          "type": "STRING",
-          "value": "in"
-        },
-        {
-          "type": "STRING",
-          "value": "in2"
-        },
-        {
-          "type": "STRING",
-          "value": "lang"
-        },
-        {
-          "type": "STRING",
-          "value": "media"
-        },
-        {
-          "type": "STRING",
-          "value": "onbegin"
-        },
-        {
-          "type": "STRING",
-          "value": "onend"
-        },
-        {
-          "type": "STRING",
-          "value": "onrepeat"
-        },
-        {
-          "type": "STRING",
-          "value": "orient"
-        },
-        {
-          "type": "STRING",
-          "value": "ping"
-        },
-        {
-          "type": "STRING",
-          "value": "referrerpolicy"
-        },
-        {
-          "type": "STRING",
-          "value": "rel"
-        },
-        {
-          "type": "STRING",
-          "value": "requiredExtensions"
-        },
-        {
-          "type": "STRING",
-          "value": "result"
-        },
-        {
-          "type": "STRING",
-          "value": "role"
-        },
-        {
-          "type": "STRING",
-          "value": "systemLanguage"
-        },
-        {
-          "type": "STRING",
-          "value": "tabindex"
-        },
-        {
-          "type": "STRING",
-          "value": "target"
-        },
-        {
-          "type": "STRING",
-          "value": "title"
-        },
-        {
-          "type": "STRING",
-          "value": "type"
-        },
-        {
-          "type": "STRING",
-          "value": "xlink:title"
-        },
-        {
-          "type": "STRING",
-          "value": "xml:space"
-        }
-      ]
+      "type": "TOKEN",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "autofocus"
+          },
+          {
+            "type": "STRING",
+            "value": "download"
+          },
+          {
+            "type": "STRING",
+            "value": "font-family"
+          },
+          {
+            "type": "STRING",
+            "value": "font-size"
+          },
+          {
+            "type": "STRING",
+            "value": "hreflang"
+          },
+          {
+            "type": "STRING",
+            "value": "in"
+          },
+          {
+            "type": "STRING",
+            "value": "in2"
+          },
+          {
+            "type": "STRING",
+            "value": "lang"
+          },
+          {
+            "type": "STRING",
+            "value": "media"
+          },
+          {
+            "type": "STRING",
+            "value": "onbegin"
+          },
+          {
+            "type": "STRING",
+            "value": "onend"
+          },
+          {
+            "type": "STRING",
+            "value": "onrepeat"
+          },
+          {
+            "type": "STRING",
+            "value": "orient"
+          },
+          {
+            "type": "STRING",
+            "value": "ping"
+          },
+          {
+            "type": "STRING",
+            "value": "referrerpolicy"
+          },
+          {
+            "type": "STRING",
+            "value": "rel"
+          },
+          {
+            "type": "STRING",
+            "value": "requiredExtensions"
+          },
+          {
+            "type": "STRING",
+            "value": "result"
+          },
+          {
+            "type": "STRING",
+            "value": "role"
+          },
+          {
+            "type": "STRING",
+            "value": "systemLanguage"
+          },
+          {
+            "type": "STRING",
+            "value": "tabindex"
+          },
+          {
+            "type": "STRING",
+            "value": "target"
+          },
+          {
+            "type": "STRING",
+            "value": "title"
+          },
+          {
+            "type": "STRING",
+            "value": "type"
+          },
+          {
+            "type": "STRING",
+            "value": "xlink:title"
+          },
+          {
+            "type": "STRING",
+            "value": "xml:space"
+          }
+        ]
+      }
     },
     "css_text_attribute_value": {
       "type": "CHOICE",
@@ -7322,25 +7376,28 @@
       ]
     },
     "number_list_attribute_name": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "kernelMatrix"
-        },
-        {
-          "type": "STRING",
-          "value": "rotate"
-        },
-        {
-          "type": "STRING",
-          "value": "tableValues"
-        },
-        {
-          "type": "STRING",
-          "value": "values"
-        }
-      ]
+      "type": "TOKEN",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "kernelMatrix"
+          },
+          {
+            "type": "STRING",
+            "value": "rotate"
+          },
+          {
+            "type": "STRING",
+            "value": "tableValues"
+          },
+          {
+            "type": "STRING",
+            "value": "values"
+          }
+        ]
+      }
     },
     "number_list_attribute_value": {
       "type": "CHOICE",
@@ -7466,17 +7523,20 @@
       ]
     },
     "duration_attribute_name": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "dur"
-        },
-        {
-          "type": "STRING",
-          "value": "repeatDur"
-        }
-      ]
+      "type": "TOKEN",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "dur"
+          },
+          {
+            "type": "STRING",
+            "value": "repeatDur"
+          }
+        ]
+      }
     },
     "duration_attribute_value": {
       "type": "CHOICE",
@@ -8163,17 +8223,20 @@
       ]
     },
     "href_attribute_name": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "href"
-        },
-        {
-          "type": "STRING",
-          "value": "xlink:href"
-        }
-      ]
+      "type": "TOKEN",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "href"
+          },
+          {
+            "type": "STRING",
+            "value": "xlink:href"
+          }
+        ]
+      }
     },
     "href_attribute_value": {
       "type": "CHOICE",
@@ -8929,202 +8992,208 @@
       ]
     },
     "length_unit": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "em"
-        },
-        {
-          "type": "STRING",
-          "value": "rem"
-        },
-        {
-          "type": "STRING",
-          "value": "ex"
-        },
-        {
-          "type": "STRING",
-          "value": "rex"
-        },
-        {
-          "type": "STRING",
-          "value": "cap"
-        },
-        {
-          "type": "STRING",
-          "value": "rcap"
-        },
-        {
-          "type": "STRING",
-          "value": "ch"
-        },
-        {
-          "type": "STRING",
-          "value": "rch"
-        },
-        {
-          "type": "STRING",
-          "value": "ic"
-        },
-        {
-          "type": "STRING",
-          "value": "ric"
-        },
-        {
-          "type": "STRING",
-          "value": "lh"
-        },
-        {
-          "type": "STRING",
-          "value": "rlh"
-        },
-        {
-          "type": "STRING",
-          "value": "vw"
-        },
-        {
-          "type": "STRING",
-          "value": "svw"
-        },
-        {
-          "type": "STRING",
-          "value": "lvw"
-        },
-        {
-          "type": "STRING",
-          "value": "dvw"
-        },
-        {
-          "type": "STRING",
-          "value": "vh"
-        },
-        {
-          "type": "STRING",
-          "value": "svh"
-        },
-        {
-          "type": "STRING",
-          "value": "lvh"
-        },
-        {
-          "type": "STRING",
-          "value": "dvh"
-        },
-        {
-          "type": "STRING",
-          "value": "vi"
-        },
-        {
-          "type": "STRING",
-          "value": "svi"
-        },
-        {
-          "type": "STRING",
-          "value": "lvi"
-        },
-        {
-          "type": "STRING",
-          "value": "dvi"
-        },
-        {
-          "type": "STRING",
-          "value": "vb"
-        },
-        {
-          "type": "STRING",
-          "value": "svb"
-        },
-        {
-          "type": "STRING",
-          "value": "lvb"
-        },
-        {
-          "type": "STRING",
-          "value": "dvb"
-        },
-        {
-          "type": "STRING",
-          "value": "vmin"
-        },
-        {
-          "type": "STRING",
-          "value": "svmin"
-        },
-        {
-          "type": "STRING",
-          "value": "lvmin"
-        },
-        {
-          "type": "STRING",
-          "value": "dvmin"
-        },
-        {
-          "type": "STRING",
-          "value": "vmax"
-        },
-        {
-          "type": "STRING",
-          "value": "svmax"
-        },
-        {
-          "type": "STRING",
-          "value": "lvmax"
-        },
-        {
-          "type": "STRING",
-          "value": "dvmax"
-        },
-        {
-          "type": "STRING",
-          "value": "cm"
-        },
-        {
-          "type": "STRING",
-          "value": "mm"
-        },
-        {
-          "type": "STRING",
-          "value": "Q"
-        },
-        {
-          "type": "STRING",
-          "value": "in"
-        },
-        {
-          "type": "STRING",
-          "value": "pc"
-        },
-        {
-          "type": "STRING",
-          "value": "pt"
-        },
-        {
-          "type": "STRING",
-          "value": "px"
-        }
-      ]
+      "type": "TOKEN",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "em"
+          },
+          {
+            "type": "STRING",
+            "value": "rem"
+          },
+          {
+            "type": "STRING",
+            "value": "ex"
+          },
+          {
+            "type": "STRING",
+            "value": "rex"
+          },
+          {
+            "type": "STRING",
+            "value": "cap"
+          },
+          {
+            "type": "STRING",
+            "value": "rcap"
+          },
+          {
+            "type": "STRING",
+            "value": "ch"
+          },
+          {
+            "type": "STRING",
+            "value": "rch"
+          },
+          {
+            "type": "STRING",
+            "value": "ic"
+          },
+          {
+            "type": "STRING",
+            "value": "ric"
+          },
+          {
+            "type": "STRING",
+            "value": "lh"
+          },
+          {
+            "type": "STRING",
+            "value": "rlh"
+          },
+          {
+            "type": "STRING",
+            "value": "vw"
+          },
+          {
+            "type": "STRING",
+            "value": "svw"
+          },
+          {
+            "type": "STRING",
+            "value": "lvw"
+          },
+          {
+            "type": "STRING",
+            "value": "dvw"
+          },
+          {
+            "type": "STRING",
+            "value": "vh"
+          },
+          {
+            "type": "STRING",
+            "value": "svh"
+          },
+          {
+            "type": "STRING",
+            "value": "lvh"
+          },
+          {
+            "type": "STRING",
+            "value": "dvh"
+          },
+          {
+            "type": "STRING",
+            "value": "vi"
+          },
+          {
+            "type": "STRING",
+            "value": "svi"
+          },
+          {
+            "type": "STRING",
+            "value": "lvi"
+          },
+          {
+            "type": "STRING",
+            "value": "dvi"
+          },
+          {
+            "type": "STRING",
+            "value": "vb"
+          },
+          {
+            "type": "STRING",
+            "value": "svb"
+          },
+          {
+            "type": "STRING",
+            "value": "lvb"
+          },
+          {
+            "type": "STRING",
+            "value": "dvb"
+          },
+          {
+            "type": "STRING",
+            "value": "vmin"
+          },
+          {
+            "type": "STRING",
+            "value": "svmin"
+          },
+          {
+            "type": "STRING",
+            "value": "lvmin"
+          },
+          {
+            "type": "STRING",
+            "value": "dvmin"
+          },
+          {
+            "type": "STRING",
+            "value": "vmax"
+          },
+          {
+            "type": "STRING",
+            "value": "svmax"
+          },
+          {
+            "type": "STRING",
+            "value": "lvmax"
+          },
+          {
+            "type": "STRING",
+            "value": "dvmax"
+          },
+          {
+            "type": "STRING",
+            "value": "cm"
+          },
+          {
+            "type": "STRING",
+            "value": "mm"
+          },
+          {
+            "type": "STRING",
+            "value": "Q"
+          },
+          {
+            "type": "STRING",
+            "value": "in"
+          },
+          {
+            "type": "STRING",
+            "value": "pc"
+          },
+          {
+            "type": "STRING",
+            "value": "pt"
+          },
+          {
+            "type": "STRING",
+            "value": "px"
+          }
+        ]
+      }
     },
     "time_unit": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "h"
-        },
-        {
-          "type": "STRING",
-          "value": "min"
-        },
-        {
-          "type": "STRING",
-          "value": "s"
-        },
-        {
-          "type": "STRING",
-          "value": "ms"
-        }
-      ]
+      "type": "TOKEN",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "h"
+          },
+          {
+            "type": "STRING",
+            "value": "min"
+          },
+          {
+            "type": "STRING",
+            "value": "s"
+          },
+          {
+            "type": "STRING",
+            "value": "ms"
+          }
+        ]
+      }
     },
     "number": {
       "type": "TOKEN",

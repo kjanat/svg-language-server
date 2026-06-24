@@ -220,16 +220,6 @@
     ]
   },
   {
-    "type": "align_keyword",
-    "named": true,
-    "fields": {}
-  },
-  {
-    "type": "angle_unit",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "attribute_name",
     "named": true,
     "fields": {}
@@ -583,11 +573,6 @@
     }
   },
   {
-    "type": "css_text_attribute_name",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "css_text_attribute_value",
     "named": true,
     "fields": {
@@ -681,11 +666,6 @@
         ]
       }
     }
-  },
-  {
-    "type": "d_attribute_name",
-    "named": true,
-    "fields": {}
   },
   {
     "type": "d_attribute_value",
@@ -890,11 +870,6 @@
         ]
       }
     }
-  },
-  {
-    "type": "duration_attribute_name",
-    "named": true,
-    "fields": {}
   },
   {
     "type": "duration_attribute_value",
@@ -1281,11 +1256,6 @@
     }
   },
   {
-    "type": "functional_iri_attribute_name",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "functional_iri_attribute_value",
     "named": true,
     "fields": {},
@@ -1385,11 +1355,6 @@
         ]
       }
     }
-  },
-  {
-    "type": "href_attribute_name",
-    "named": true,
-    "fields": {}
   },
   {
     "type": "href_attribute_value",
@@ -1656,11 +1621,6 @@
     }
   },
   {
-    "type": "keyword_attribute_name",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "keyword_attribute_value",
     "named": true,
     "fields": {},
@@ -1732,11 +1692,6 @@
         ]
       }
     }
-  },
-  {
-    "type": "length_attribute_name",
-    "named": true,
-    "fields": {}
   },
   {
     "type": "length_attribute_value",
@@ -1826,11 +1781,6 @@
     }
   },
   {
-    "type": "length_list_attribute_name",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "length_list_attribute_value",
     "named": true,
     "fields": {},
@@ -1878,11 +1828,6 @@
         }
       ]
     }
-  },
-  {
-    "type": "length_unit",
-    "named": true,
-    "fields": {}
   },
   {
     "type": "lineto_segment",
@@ -1940,11 +1885,6 @@
         }
       ]
     }
-  },
-  {
-    "type": "meet_or_slice_keyword",
-    "named": true,
-    "fields": {}
   },
   {
     "type": "moveto_segment",
@@ -2017,11 +1957,6 @@
     }
   },
   {
-    "type": "number_attribute_name",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "number_attribute_value",
     "named": true,
     "fields": {},
@@ -2080,11 +2015,6 @@
         ]
       }
     }
-  },
-  {
-    "type": "number_list_attribute_name",
-    "named": true,
-    "fields": {}
   },
   {
     "type": "number_list_attribute_value",
@@ -2149,11 +2079,6 @@
         ]
       }
     }
-  },
-  {
-    "type": "number_optional_number_attribute_name",
-    "named": true,
-    "fields": {}
   },
   {
     "type": "number_optional_number_attribute_value",
@@ -2257,11 +2182,6 @@
     }
   },
   {
-    "type": "opacity_attribute_name",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "opacity_attribute_value",
     "named": true,
     "fields": {},
@@ -2301,11 +2221,6 @@
         ]
       }
     }
-  },
-  {
-    "type": "paint_attribute_name",
-    "named": true,
-    "fields": {}
   },
   {
     "type": "paint_attribute_value",
@@ -3215,11 +3130,6 @@
     }
   },
   {
-    "type": "time_unit",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "time_value",
     "named": true,
     "fields": {},
@@ -3263,11 +3173,6 @@
         ]
       }
     }
-  },
-  {
-    "type": "transform_attribute_name",
-    "named": true,
-    "fields": {}
   },
   {
     "type": "transform_attribute_value",
@@ -3497,11 +3402,6 @@
     }
   },
   {
-    "type": "xml_standalone_attribute_value",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "xml_version_attribute",
     "named": true,
     "fields": {
@@ -3532,27 +3432,11 @@
     "named": false
   },
   {
-    "type": "\"no\"",
-    "named": false
-  },
-  {
-    "type": "\"yes\"",
-    "named": false
-  },
-  {
     "type": "%",
     "named": false
   },
   {
     "type": "'",
-    "named": false
-  },
-  {
-    "type": "'no'",
-    "named": false
-  },
-  {
-    "type": "'yes'",
     "named": false
   },
   {
@@ -3620,10 +3504,6 @@
     "named": false
   },
   {
-    "type": "Q",
-    "named": false
-  },
-  {
     "type": "[",
     "named": false
   },
@@ -3640,12 +3520,12 @@
     "named": false
   },
   {
-    "type": "alignment-baseline",
-    "named": false
+    "type": "align_keyword",
+    "named": true
   },
   {
-    "type": "amplitude",
-    "named": false
+    "type": "angle_unit",
+    "named": true
   },
   {
     "type": "attribute_text_double",
@@ -3660,68 +3540,12 @@
     "named": false
   },
   {
-    "type": "autofocus",
-    "named": false
-  },
-  {
-    "type": "azimuth",
-    "named": false
-  },
-  {
-    "type": "baseFrequency",
-    "named": false
-  },
-  {
-    "type": "baseline-shift",
-    "named": false
-  },
-  {
-    "type": "bias",
-    "named": false
-  },
-  {
-    "type": "cap",
-    "named": false
-  },
-  {
-    "type": "ch",
-    "named": false
-  },
-  {
     "type": "class_attribute_name",
     "named": true
   },
   {
-    "type": "clip-path",
-    "named": false
-  },
-  {
-    "type": "clip-rule",
-    "named": false
-  },
-  {
-    "type": "clipPathUnits",
-    "named": false
-  },
-  {
     "type": "clip_attribute_name",
     "named": true
-  },
-  {
-    "type": "cm",
-    "named": false
-  },
-  {
-    "type": "color",
-    "named": false
-  },
-  {
-    "type": "color-interpolation",
-    "named": false
-  },
-  {
-    "type": "color-interpolation-filters",
-    "named": false
   },
   {
     "type": "color_colorspace",
@@ -3760,28 +3584,16 @@
     "named": false
   },
   {
-    "type": "crossorigin",
-    "named": false
+    "type": "css_text_attribute_name",
+    "named": true
   },
   {
     "type": "currentColor",
     "named": false
   },
   {
-    "type": "cursor",
-    "named": false
-  },
-  {
-    "type": "cx",
-    "named": false
-  },
-  {
-    "type": "cy",
-    "named": false
-  },
-  {
-    "type": "d",
-    "named": false
+    "type": "d_attribute_name",
+    "named": true
   },
   {
     "type": "data:",
@@ -3808,84 +3620,12 @@
     "named": false
   },
   {
-    "type": "deg",
-    "named": false
-  },
-  {
-    "type": "diffuseConstant",
-    "named": false
-  },
-  {
-    "type": "direction",
-    "named": false
-  },
-  {
-    "type": "display",
-    "named": false
-  },
-  {
-    "type": "divisor",
-    "named": false
-  },
-  {
     "type": "doctype_external_id",
     "named": true
   },
   {
-    "type": "dominant-baseline",
-    "named": false
-  },
-  {
-    "type": "download",
-    "named": false
-  },
-  {
-    "type": "dur",
-    "named": false
-  },
-  {
-    "type": "dvb",
-    "named": false
-  },
-  {
-    "type": "dvh",
-    "named": false
-  },
-  {
-    "type": "dvi",
-    "named": false
-  },
-  {
-    "type": "dvmax",
-    "named": false
-  },
-  {
-    "type": "dvmin",
-    "named": false
-  },
-  {
-    "type": "dvw",
-    "named": false
-  },
-  {
-    "type": "dx",
-    "named": false
-  },
-  {
-    "type": "dy",
-    "named": false
-  },
-  {
-    "type": "edgeMode",
-    "named": false
-  },
-  {
-    "type": "elevation",
-    "named": false
-  },
-  {
-    "type": "em",
-    "named": false
+    "type": "duration_attribute_name",
+    "named": true
   },
   {
     "type": "enable_background_attribute_name",
@@ -3900,136 +3640,20 @@
     "named": true
   },
   {
-    "type": "ex",
-    "named": false
-  },
-  {
-    "type": "exponent",
-    "named": false
-  },
-  {
-    "type": "fill",
-    "named": false
-  },
-  {
-    "type": "fill-opacity",
-    "named": false
-  },
-  {
-    "type": "fill-rule",
-    "named": false
-  },
-  {
-    "type": "filter",
-    "named": false
-  },
-  {
-    "type": "filterUnits",
-    "named": false
-  },
-  {
-    "type": "flood-color",
-    "named": false
-  },
-  {
-    "type": "flood-opacity",
-    "named": false
-  },
-  {
-    "type": "font-family",
-    "named": false
-  },
-  {
-    "type": "font-size",
-    "named": false
-  },
-  {
-    "type": "font-size-adjust",
-    "named": false
-  },
-  {
-    "type": "font-stretch",
-    "named": false
-  },
-  {
-    "type": "font-style",
-    "named": false
-  },
-  {
-    "type": "font-variant",
-    "named": false
-  },
-  {
-    "type": "font-weight",
-    "named": false
-  },
-  {
-    "type": "fr",
-    "named": false
-  },
-  {
-    "type": "fx",
-    "named": false
-  },
-  {
-    "type": "fy",
-    "named": false
-  },
-  {
-    "type": "glyph-orientation-vertical",
-    "named": false
-  },
-  {
-    "type": "grad",
-    "named": false
-  },
-  {
-    "type": "gradientTransform",
-    "named": false
-  },
-  {
-    "type": "gradientUnits",
-    "named": false
-  },
-  {
-    "type": "h",
-    "named": false
-  },
-  {
-    "type": "height",
-    "named": false
+    "type": "functional_iri_attribute_name",
+    "named": true
   },
   {
     "type": "hex_color",
     "named": true
   },
   {
-    "type": "href",
-    "named": false
-  },
-  {
-    "type": "hreflang",
-    "named": false
-  },
-  {
-    "type": "ic",
-    "named": false
+    "type": "href_attribute_name",
+    "named": true
   },
   {
     "type": "id_attribute_name",
     "named": true
-  },
-  {
-    "type": "image-rendering",
-    "named": false
-  },
-  {
-    "type": "in",
-    "named": false
-  },
-  {
-    "type": "in2",
-    "named": false
   },
   {
     "type": "indefinite",
@@ -4040,40 +3664,8 @@
     "named": false
   },
   {
-    "type": "inline-size",
-    "named": false
-  },
-  {
-    "type": "intercept",
-    "named": false
-  },
-  {
     "type": "iri_reference",
     "named": true
-  },
-  {
-    "type": "k1",
-    "named": false
-  },
-  {
-    "type": "k2",
-    "named": false
-  },
-  {
-    "type": "k3",
-    "named": false
-  },
-  {
-    "type": "k4",
-    "named": false
-  },
-  {
-    "type": "kernelMatrix",
-    "named": false
-  },
-  {
-    "type": "kernelUnitLength",
-    "named": false
   },
   {
     "type": "key_splines_attribute_name",
@@ -4084,96 +3676,20 @@
     "named": true
   },
   {
-    "type": "lang",
-    "named": false
+    "type": "keyword_attribute_name",
+    "named": true
   },
   {
-    "type": "lengthAdjust",
-    "named": false
+    "type": "length_attribute_name",
+    "named": true
   },
   {
-    "type": "letter-spacing",
-    "named": false
+    "type": "length_list_attribute_name",
+    "named": true
   },
   {
-    "type": "lh",
-    "named": false
-  },
-  {
-    "type": "lighting-color",
-    "named": false
-  },
-  {
-    "type": "limitingConeAngle",
-    "named": false
-  },
-  {
-    "type": "lvb",
-    "named": false
-  },
-  {
-    "type": "lvh",
-    "named": false
-  },
-  {
-    "type": "lvi",
-    "named": false
-  },
-  {
-    "type": "lvmax",
-    "named": false
-  },
-  {
-    "type": "lvmin",
-    "named": false
-  },
-  {
-    "type": "lvw",
-    "named": false
-  },
-  {
-    "type": "marker",
-    "named": false
-  },
-  {
-    "type": "marker-end",
-    "named": false
-  },
-  {
-    "type": "marker-mid",
-    "named": false
-  },
-  {
-    "type": "marker-start",
-    "named": false
-  },
-  {
-    "type": "markerHeight",
-    "named": false
-  },
-  {
-    "type": "markerUnits",
-    "named": false
-  },
-  {
-    "type": "markerWidth",
-    "named": false
-  },
-  {
-    "type": "mask",
-    "named": false
-  },
-  {
-    "type": "mask-type",
-    "named": false
-  },
-  {
-    "type": "maskContentUnits",
-    "named": false
-  },
-  {
-    "type": "maskUnits",
-    "named": false
+    "type": "length_unit",
+    "named": true
   },
   {
     "type": "matrix",
@@ -4184,32 +3700,12 @@
     "named": false
   },
   {
-    "type": "meet",
-    "named": false
-  },
-  {
-    "type": "method",
-    "named": false
+    "type": "meet_or_slice_keyword",
+    "named": true
   },
   {
     "type": "mime_type",
     "named": true
-  },
-  {
-    "type": "min",
-    "named": false
-  },
-  {
-    "type": "mm",
-    "named": false
-  },
-  {
-    "type": "mode",
-    "named": false
-  },
-  {
-    "type": "ms",
-    "named": false
   },
   {
     "type": "named_color",
@@ -4224,60 +3720,28 @@
     "named": false
   },
   {
-    "type": "numOctaves",
-    "named": false
+    "type": "number_attribute_name",
+    "named": true
+  },
+  {
+    "type": "number_list_attribute_name",
+    "named": true
+  },
+  {
+    "type": "number_optional_number_attribute_name",
+    "named": true
   },
   {
     "type": "offset_attribute_name",
     "named": true
   },
   {
-    "type": "onbegin",
-    "named": false
+    "type": "opacity_attribute_name",
+    "named": true
   },
   {
-    "type": "onend",
-    "named": false
-  },
-  {
-    "type": "onrepeat",
-    "named": false
-  },
-  {
-    "type": "opacity",
-    "named": false
-  },
-  {
-    "type": "operator",
-    "named": false
-  },
-  {
-    "type": "order",
-    "named": false
-  },
-  {
-    "type": "orient",
-    "named": false
-  },
-  {
-    "type": "overflow",
-    "named": false
-  },
-  {
-    "type": "paint-order",
-    "named": false
-  },
-  {
-    "type": "path",
-    "named": false
-  },
-  {
-    "type": "path-length",
-    "named": false
-  },
-  {
-    "type": "pathLength",
-    "named": false
+    "type": "paint_attribute_name",
+    "named": true
   },
   {
     "type": "path_command",
@@ -4288,119 +3752,23 @@
     "named": true
   },
   {
-    "type": "patternContentUnits",
-    "named": false
-  },
-  {
-    "type": "patternTransform",
-    "named": false
-  },
-  {
-    "type": "patternUnits",
-    "named": false
-  },
-  {
-    "type": "pc",
-    "named": false
-  },
-  {
     "type": "pi_content",
     "named": true
-  },
-  {
-    "type": "ping",
-    "named": false
-  },
-  {
-    "type": "pointer-events",
-    "named": false
-  },
-  {
-    "type": "pointsAtX",
-    "named": false
-  },
-  {
-    "type": "pointsAtY",
-    "named": false
-  },
-  {
-    "type": "pointsAtZ",
-    "named": false
   },
   {
     "type": "points_attribute_name",
     "named": true
   },
   {
-    "type": "preserveAlpha",
-    "named": false
-  },
-  {
     "type": "preserve_aspect_ratio_attribute_name",
     "named": true
-  },
-  {
-    "type": "primitiveUnits",
-    "named": false
-  },
-  {
-    "type": "pt",
-    "named": false
-  },
-  {
-    "type": "px",
-    "named": false
-  },
-  {
-    "type": "r",
-    "named": false
-  },
-  {
-    "type": "rad",
-    "named": false
-  },
-  {
-    "type": "radius",
-    "named": false
   },
   {
     "type": "raw_text",
     "named": true
   },
   {
-    "type": "rcap",
-    "named": false
-  },
-  {
-    "type": "rch",
-    "named": false
-  },
-  {
     "type": "rect",
-    "named": false
-  },
-  {
-    "type": "refX",
-    "named": false
-  },
-  {
-    "type": "refY",
-    "named": false
-  },
-  {
-    "type": "referrerpolicy",
-    "named": false
-  },
-  {
-    "type": "rel",
-    "named": false
-  },
-  {
-    "type": "rem",
-    "named": false
-  },
-  {
-    "type": "repeatDur",
     "named": false
   },
   {
@@ -4408,59 +3776,11 @@
     "named": true
   },
   {
-    "type": "requiredExtensions",
-    "named": false
-  },
-  {
-    "type": "result",
-    "named": false
-  },
-  {
-    "type": "rex",
-    "named": false
-  },
-  {
-    "type": "ric",
-    "named": false
-  },
-  {
-    "type": "rlh",
-    "named": false
-  },
-  {
-    "type": "role",
-    "named": false
-  },
-  {
     "type": "rotate",
     "named": false
   },
   {
-    "type": "rx",
-    "named": false
-  },
-  {
-    "type": "ry",
-    "named": false
-  },
-  {
-    "type": "s",
-    "named": false
-  },
-  {
     "type": "scale",
-    "named": false
-  },
-  {
-    "type": "seed",
-    "named": false
-  },
-  {
-    "type": "shape-rendering",
-    "named": false
-  },
-  {
-    "type": "side",
     "named": false
   },
   {
@@ -4472,78 +3792,6 @@
     "named": false
   },
   {
-    "type": "slice",
-    "named": false
-  },
-  {
-    "type": "slope",
-    "named": false
-  },
-  {
-    "type": "spacing",
-    "named": false
-  },
-  {
-    "type": "specularConstant",
-    "named": false
-  },
-  {
-    "type": "specularExponent",
-    "named": false
-  },
-  {
-    "type": "spreadMethod",
-    "named": false
-  },
-  {
-    "type": "startOffset",
-    "named": false
-  },
-  {
-    "type": "stdDeviation",
-    "named": false
-  },
-  {
-    "type": "stitchTiles",
-    "named": false
-  },
-  {
-    "type": "stop-color",
-    "named": false
-  },
-  {
-    "type": "stop-opacity",
-    "named": false
-  },
-  {
-    "type": "stroke",
-    "named": false
-  },
-  {
-    "type": "stroke-dashoffset",
-    "named": false
-  },
-  {
-    "type": "stroke-linecap",
-    "named": false
-  },
-  {
-    "type": "stroke-linejoin",
-    "named": false
-  },
-  {
-    "type": "stroke-miterlimit",
-    "named": false
-  },
-  {
-    "type": "stroke-opacity",
-    "named": false
-  },
-  {
-    "type": "stroke-width",
-    "named": false
-  },
-  {
     "type": "stroke_dasharray_attribute_name",
     "named": true
   },
@@ -4552,99 +3800,19 @@
     "named": true
   },
   {
-    "type": "surfaceScale",
-    "named": false
-  },
-  {
-    "type": "svb",
-    "named": false
-  },
-  {
-    "type": "svh",
-    "named": false
-  },
-  {
-    "type": "svi",
-    "named": false
-  },
-  {
-    "type": "svmax",
-    "named": false
-  },
-  {
-    "type": "svmin",
-    "named": false
-  },
-  {
-    "type": "svw",
-    "named": false
-  },
-  {
-    "type": "systemLanguage",
-    "named": false
-  },
-  {
-    "type": "tabindex",
-    "named": false
-  },
-  {
-    "type": "tableValues",
-    "named": false
-  },
-  {
-    "type": "target",
-    "named": false
-  },
-  {
-    "type": "targetX",
-    "named": false
-  },
-  {
-    "type": "targetY",
-    "named": false
-  },
-  {
     "type": "text",
     "named": true
   },
   {
-    "type": "text-anchor",
-    "named": false
+    "type": "time_unit",
+    "named": true
   },
   {
-    "type": "text-rendering",
-    "named": false
-  },
-  {
-    "type": "textLength",
-    "named": false
-  },
-  {
-    "type": "title",
-    "named": false
-  },
-  {
-    "type": "transform",
-    "named": false
-  },
-  {
-    "type": "transform-origin",
-    "named": false
+    "type": "transform_attribute_name",
+    "named": true
   },
   {
     "type": "translate",
-    "named": false
-  },
-  {
-    "type": "turn",
-    "named": false
-  },
-  {
-    "type": "type",
-    "named": false
-  },
-  {
-    "type": "unicode-bidi",
     "named": false
   },
   {
@@ -4652,120 +3820,8 @@
     "named": false
   },
   {
-    "type": "values",
-    "named": false
-  },
-  {
-    "type": "vb",
-    "named": false
-  },
-  {
-    "type": "vector-effect",
-    "named": false
-  },
-  {
-    "type": "vh",
-    "named": false
-  },
-  {
-    "type": "vi",
-    "named": false
-  },
-  {
     "type": "viewbox_attribute_name",
     "named": true
-  },
-  {
-    "type": "visibility",
-    "named": false
-  },
-  {
-    "type": "vmax",
-    "named": false
-  },
-  {
-    "type": "vmin",
-    "named": false
-  },
-  {
-    "type": "vw",
-    "named": false
-  },
-  {
-    "type": "width",
-    "named": false
-  },
-  {
-    "type": "word-spacing",
-    "named": false
-  },
-  {
-    "type": "writing-mode",
-    "named": false
-  },
-  {
-    "type": "x",
-    "named": false
-  },
-  {
-    "type": "x1",
-    "named": false
-  },
-  {
-    "type": "x2",
-    "named": false
-  },
-  {
-    "type": "xChannelSelector",
-    "named": false
-  },
-  {
-    "type": "xMaxYMax",
-    "named": false
-  },
-  {
-    "type": "xMaxYMid",
-    "named": false
-  },
-  {
-    "type": "xMaxYMin",
-    "named": false
-  },
-  {
-    "type": "xMidYMax",
-    "named": false
-  },
-  {
-    "type": "xMidYMid",
-    "named": false
-  },
-  {
-    "type": "xMidYMin",
-    "named": false
-  },
-  {
-    "type": "xMinYMax",
-    "named": false
-  },
-  {
-    "type": "xMinYMid",
-    "named": false
-  },
-  {
-    "type": "xMinYMin",
-    "named": false
-  },
-  {
-    "type": "xlink:href",
-    "named": false
-  },
-  {
-    "type": "xlink:title",
-    "named": false
-  },
-  {
-    "type": "xml:space",
-    "named": false
   },
   {
     "type": "xml_encoding_attribute_name",
@@ -4776,27 +3832,11 @@
     "named": true
   },
   {
-    "type": "xml_version_attribute_name",
+    "type": "xml_standalone_attribute_value",
     "named": true
   },
   {
-    "type": "y",
-    "named": false
-  },
-  {
-    "type": "y1",
-    "named": false
-  },
-  {
-    "type": "y2",
-    "named": false
-  },
-  {
-    "type": "yChannelSelector",
-    "named": false
-  },
-  {
-    "type": "z",
-    "named": false
+    "type": "xml_version_attribute_name",
+    "named": true
   }
 ]

@@ -3,31 +3,39 @@ import { copyFileSync, existsSync, mkdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 
-function ensureBunTreeSitterPrebuild() {
-	if (typeof process.versions.bun !== 'string') {
-		return;
-	}
-
-	const require = createRequire(import.meta.url);
-	const treeSitterPackageJson = require.resolve('tree-sitter/package.json');
-	const treeSitterRoot = dirname(treeSitterPackageJson);
-	const prebuildDir = join(treeSitterRoot, 'prebuilds', `${process.platform}-${process.arch}`);
-	const prebuildPath = join(prebuildDir, 'tree-sitter.node');
+function ensureBunPrebuild(packageRoot, builtName, prebuildName) {
+	const prebuildDir = join(packageRoot, 'prebuilds', `${process.platform}-${process.arch}`);
+	const prebuildPath = join(prebuildDir, `${prebuildName}.node`);
 
 	if (existsSync(prebuildPath)) {
 		return;
 	}
 
-	const runtimeBinding = join(treeSitterRoot, 'build', 'Release', 'tree_sitter_runtime_binding.node');
-	assert.equal(existsSync(runtimeBinding), true, `Missing runtime binding: ${runtimeBinding}`);
+	const builtPath = join(packageRoot, 'build', 'Release', builtName);
+	assert.equal(existsSync(builtPath), true, `Missing runtime binding: ${builtPath}`);
 
 	mkdirSync(prebuildDir, { recursive: true });
-	copyFileSync(runtimeBinding, prebuildPath);
+	copyFileSync(builtPath, prebuildPath);
+}
+
+function ensureBunPrebuilds() {
+	if (typeof process.versions.bun !== 'string') {
+		return;
+	}
+
+	const grammarRoot = fileURLToPath(new URL('../..', import.meta.url));
+	ensureBunPrebuild(grammarRoot, 'tree_sitter_svg_binding.node', 'tree-sitter-svg');
+
+	const require = createRequire(import.meta.url);
+	const treeSitterPackageJson = require.resolve('tree-sitter/package.json');
+	const treeSitterRoot = dirname(treeSitterPackageJson);
+	ensureBunPrebuild(treeSitterRoot, 'tree_sitter_runtime_binding.node', 'tree-sitter');
 }
 
 test('can load grammar', async () => {
-	ensureBunTreeSitterPrebuild();
+	ensureBunPrebuilds();
 
 	const treeSitterModule = await import('tree-sitter');
 	const Parser = treeSitterModule.default;

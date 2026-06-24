@@ -11,7 +11,7 @@ languages      = ["languages/svg"]
 
 [grammars.svg]
 repository = "https://github.com/kjanat/svg"
-rev        = "d046b901d70df1fee170a2fd811aedb98da60452"
+rev        = "ac4ef61dd0677ca5d31563cefefd778cd38364f3"
 path       = "grammars/tree-sitter-svg"
 
 [language_servers.svg-language-server]

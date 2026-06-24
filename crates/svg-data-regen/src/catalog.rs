@@ -2537,8 +2537,40 @@ fn values_for_property(property: &PropertyValueDef) -> CatalogAttributeValues {
     ) {
         return CatalogAttributeValues::Length;
     }
+    if is_spec_prose_value_grammar(value) {
+        return CatalogAttributeValues::FreeText;
+    }
     let graph = css_grammar_graph(value);
     CatalogAttributeValues::CssGrammar { grammar, graph }
+}
+
+/// Whether the scraped `Value:` text is spec prose/citation text instead of a
+/// CSS value grammar. These must not be tokenized into bogus keyword hints like
+/// `see | below` or `HTML | set | of`.
+fn is_spec_prose_value_grammar(value: &str) -> bool {
+    let trimmed = value.trim();
+    let unwrapped = trimmed
+        .strip_prefix('(')
+        .and_then(|inner| inner.strip_suffix(')'))
+        .map(str::trim)
+        .unwrap_or(trimmed);
+    let lower = unwrapped.to_ascii_lowercase();
+    lower == "see below" || lower.starts_with("see ") || has_trailing_spec_citation(unwrapped)
+}
+
+fn has_trailing_spec_citation(value: &str) -> bool {
+    let trimmed = value.trim_end();
+    let Some(without_close) = trimmed.strip_suffix(']') else {
+        return false;
+    };
+    let Some(open) = without_close.rfind('[') else {
+        return false;
+    };
+    let citation = without_close[open + 1..].trim();
+    !citation.is_empty()
+        && citation
+            .chars()
+            .all(|ch| ch.is_ascii_uppercase() || ch.is_ascii_digit() || ch == '-')
 }
 
 /// Whether the raw value grammar is just bare keyword alternatives.
@@ -3637,6 +3669,24 @@ mod tests {
             CatalogCssGrammarNodeKind::Function,
             "url"
         ));
+    }
+
+    #[test]
+    fn spec_prose_values_are_free_text() {
+        for value in [
+            "(see below)",
+            "set of space-separated tokens [HTML]",
+            "Language-Tag [ABNF]",
+            "A BCP 47 language tag string [HTML]",
+            "space-separated valid non-empty URL tokens [HTML]",
+            "valid integer [HTML]",
+        ] {
+            assert_eq!(
+                values_for_property(&property("attr", value, &[])),
+                CatalogAttributeValues::FreeText,
+                "{value} must not become a CSS grammar"
+            );
+        }
     }
 
     #[test]

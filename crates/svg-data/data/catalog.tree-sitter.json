@@ -105,10 +105,7 @@
       "y1",
       "y2"
     ],
-    "length_list": [
-      "dx",
-      "dy"
-    ],
+    "length_list": [],
     "length_list_or_none": [
       "stroke-dasharray"
     ],
@@ -183,32 +180,18 @@
       "mask"
     ],
     "css_text": [
-      "autofocus",
       "download",
+      "dx",
+      "dy",
       "font-family",
       "font-size",
-      "hreflang",
       "in",
       "in2",
-      "lang",
-      "media",
-      "onbegin",
-      "onend",
-      "onrepeat",
       "orient",
-      "ping",
-      "referrerpolicy",
-      "rel",
-      "requiredExtensions",
       "result",
-      "role",
-      "systemLanguage",
-      "tabindex",
       "target",
-      "title",
       "type",
-      "xlink:title",
-      "xml:space"
+      "xlink:title"
     ]
   },
   "tokens": {

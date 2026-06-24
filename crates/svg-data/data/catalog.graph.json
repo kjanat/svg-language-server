@@ -4424,7 +4424,7 @@
     {
       "id": "value:autofocus",
       "kind": "value_grammar",
-      "name": "autofocus (css_grammar)"
+      "name": "autofocus (free_text)"
     },
     {
       "id": "value:azimuth",
@@ -4489,7 +4489,7 @@
     {
       "id": "value:class",
       "kind": "value_grammar",
-      "name": "class (css_grammar)"
+      "name": "class (free_text)"
     },
     {
       "id": "value:clip",
@@ -4914,12 +4914,12 @@
     {
       "id": "value:href",
       "kind": "value_grammar",
-      "name": "href (css_grammar)"
+      "name": "href (free_text)"
     },
     {
       "id": "value:hreflang",
       "kind": "value_grammar",
-      "name": "hreflang (css_grammar)"
+      "name": "hreflang (free_text)"
     },
     {
       "id": "value:hyphens",
@@ -4929,7 +4929,7 @@
     {
       "id": "value:id",
       "kind": "value_grammar",
-      "name": "id (css_grammar)"
+      "name": "id (free_text)"
     },
     {
       "id": "value:image-rendering",
@@ -5029,7 +5029,7 @@
     {
       "id": "value:lang",
       "kind": "value_grammar",
-      "name": "lang (css_grammar)"
+      "name": "lang (free_text)"
     },
     {
       "id": "value:lengthAdjust",
@@ -5134,7 +5134,7 @@
     {
       "id": "value:media",
       "kind": "value_grammar",
-      "name": "media (css_grammar)"
+      "name": "media (free_text)"
     },
     {
       "id": "value:method",
@@ -5194,7 +5194,7 @@
     {
       "id": "value:onbegin",
       "kind": "value_grammar",
-      "name": "onbegin (css_grammar)"
+      "name": "onbegin (free_text)"
     },
     {
       "id": "value:oncancel",
@@ -5299,7 +5299,7 @@
     {
       "id": "value:onend",
       "kind": "value_grammar",
-      "name": "onend (css_grammar)"
+      "name": "onend (free_text)"
     },
     {
       "id": "value:onended",
@@ -5464,7 +5464,7 @@
     {
       "id": "value:onrepeat",
       "kind": "value_grammar",
-      "name": "onrepeat (css_grammar)"
+      "name": "onrepeat (free_text)"
     },
     {
       "id": "value:onreset",
@@ -5639,7 +5639,7 @@
     {
       "id": "value:ping",
       "kind": "value_grammar",
-      "name": "ping (css_grammar)"
+      "name": "ping (free_text)"
     },
     {
       "id": "value:playbackorder",
@@ -5719,12 +5719,12 @@
     {
       "id": "value:referrerpolicy",
       "kind": "value_grammar",
-      "name": "referrerpolicy (css_grammar)"
+      "name": "referrerpolicy (free_text)"
     },
     {
       "id": "value:rel",
       "kind": "value_grammar",
-      "name": "rel (css_grammar)"
+      "name": "rel (free_text)"
     },
     {
       "id": "value:repeatCount",
@@ -5739,7 +5739,7 @@
     {
       "id": "value:requiredExtensions",
       "kind": "value_grammar",
-      "name": "requiredExtensions (css_grammar)"
+      "name": "requiredExtensions (free_text)"
     },
     {
       "id": "value:restart",
@@ -5754,7 +5754,7 @@
     {
       "id": "value:role",
       "kind": "value_grammar",
-      "name": "role (css_grammar)"
+      "name": "role (free_text)"
     },
     {
       "id": "value:rotate",
@@ -5914,7 +5914,7 @@
     {
       "id": "value:style",
       "kind": "value_grammar",
-      "name": "style (css_grammar)"
+      "name": "style (free_text)"
     },
     {
       "id": "value:surfaceScale",
@@ -5924,7 +5924,7 @@
     {
       "id": "value:systemLanguage",
       "kind": "value_grammar",
-      "name": "systemLanguage (css_grammar)"
+      "name": "systemLanguage (free_text)"
     },
     {
       "id": "value:tab-size",
@@ -5934,7 +5934,7 @@
     {
       "id": "value:tabindex",
       "kind": "value_grammar",
-      "name": "tabindex (css_grammar)"
+      "name": "tabindex (free_text)"
     },
     {
       "id": "value:tableValues",
@@ -6054,7 +6054,7 @@
     {
       "id": "value:title",
       "kind": "value_grammar",
-      "name": "title (css_grammar)"
+      "name": "title (free_text)"
     },
     {
       "id": "value:to",
@@ -6079,7 +6079,7 @@
     {
       "id": "value:type",
       "kind": "value_grammar",
-      "name": "type (css_grammar)"
+      "name": "type (free_text)"
     },
     {
       "id": "value:unicode-bidi",
@@ -6224,7 +6224,7 @@
     {
       "id": "value:xml:space",
       "kind": "value_grammar",
-      "name": "xml:space (css_grammar)"
+      "name": "xml:space (free_text)"
     },
     {
       "id": "value:y",

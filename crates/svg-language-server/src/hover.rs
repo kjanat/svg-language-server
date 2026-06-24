@@ -1236,6 +1236,27 @@ mod tests {
     }
 
     #[test]
+    fn prose_value_grammars_do_not_render_constraints() {
+        for name in ["class", "id"] {
+            let Some(attribute) = svg_data::attribute(name) else {
+                panic!("missing {name} attribute");
+            };
+            let hover = format_attribute_hover_with_profile_name(
+                attribute,
+                name,
+                None,
+                SpecSnapshotId::LATEST,
+                None,
+                None,
+                None,
+            );
+
+            assert!(!hover.contains("Grammar:"), "{name}: {hover}");
+            assert!(!hover.contains("Keywords:"), "{name}: {hover}");
+        }
+    }
+
+    #[test]
     fn qualified_browser_versions_are_not_double_prefixed() {
         assert_eq!(
             format_version_with_qualifier("≤80", Some(BaselineQualifier::Before)),

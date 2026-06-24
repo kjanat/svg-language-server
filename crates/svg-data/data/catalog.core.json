@@ -5124,68 +5124,7 @@
         }
       },
       "values": {
-        "kind": "css_grammar",
-        "grammar": "boolean attribute [HTML]",
-        "graph": {
-          "root": 0,
-          "nodes": [
-            {
-              "id": 0,
-              "kind": "root"
-            },
-            {
-              "id": 1,
-              "kind": "keyword",
-              "text": "boolean"
-            },
-            {
-              "id": 2,
-              "kind": "keyword",
-              "text": "attribute"
-            },
-            {
-              "id": 3,
-              "kind": "group"
-            },
-            {
-              "id": 4,
-              "kind": "keyword",
-              "text": "HTML"
-            }
-          ],
-          "edges": [
-            {
-              "from": 0,
-              "to": 1,
-              "kind": "contains"
-            },
-            {
-              "from": 0,
-              "to": 2,
-              "kind": "contains"
-            },
-            {
-              "from": 1,
-              "to": 2,
-              "kind": "next"
-            },
-            {
-              "from": 0,
-              "to": 3,
-              "kind": "contains"
-            },
-            {
-              "from": 2,
-              "to": 3,
-              "kind": "next"
-            },
-            {
-              "from": 3,
-              "to": 4,
-              "kind": "contains"
-            }
-          ]
-        }
+        "kind": "free_text"
       },
       "applicability": {
         "kind": "global"
@@ -5866,98 +5805,7 @@
         }
       },
       "values": {
-        "kind": "css_grammar",
-        "grammar": "set of space-separated tokens [HTML]",
-        "graph": {
-          "root": 0,
-          "nodes": [
-            {
-              "id": 0,
-              "kind": "root"
-            },
-            {
-              "id": 1,
-              "kind": "keyword",
-              "text": "set"
-            },
-            {
-              "id": 2,
-              "kind": "keyword",
-              "text": "of"
-            },
-            {
-              "id": 3,
-              "kind": "keyword",
-              "text": "space-separated"
-            },
-            {
-              "id": 4,
-              "kind": "keyword",
-              "text": "tokens"
-            },
-            {
-              "id": 5,
-              "kind": "group"
-            },
-            {
-              "id": 6,
-              "kind": "keyword",
-              "text": "HTML"
-            }
-          ],
-          "edges": [
-            {
-              "from": 0,
-              "to": 1,
-              "kind": "contains"
-            },
-            {
-              "from": 0,
-              "to": 2,
-              "kind": "contains"
-            },
-            {
-              "from": 1,
-              "to": 2,
-              "kind": "next"
-            },
-            {
-              "from": 0,
-              "to": 3,
-              "kind": "contains"
-            },
-            {
-              "from": 2,
-              "to": 3,
-              "kind": "next"
-            },
-            {
-              "from": 0,
-              "to": 4,
-              "kind": "contains"
-            },
-            {
-              "from": 3,
-              "to": 4,
-              "kind": "next"
-            },
-            {
-              "from": 0,
-              "to": 5,
-              "kind": "contains"
-            },
-            {
-              "from": 4,
-              "to": 5,
-              "kind": "next"
-            },
-            {
-              "from": 5,
-              "to": 6,
-              "kind": "contains"
-            }
-          ]
-        }
+        "kind": "free_text"
       },
       "applicability": {
         "kind": "global"
@@ -13547,53 +13395,7 @@
         }
       ],
       "values": {
-        "kind": "css_grammar",
-        "grammar": "URL [URL]",
-        "graph": {
-          "root": 0,
-          "nodes": [
-            {
-              "id": 0,
-              "kind": "root"
-            },
-            {
-              "id": 1,
-              "kind": "keyword",
-              "text": "URL"
-            },
-            {
-              "id": 2,
-              "kind": "group"
-            },
-            {
-              "id": 3,
-              "kind": "keyword",
-              "text": "URL"
-            }
-          ],
-          "edges": [
-            {
-              "from": 0,
-              "to": 1,
-              "kind": "contains"
-            },
-            {
-              "from": 0,
-              "to": 2,
-              "kind": "contains"
-            },
-            {
-              "from": 1,
-              "to": 2,
-              "kind": "next"
-            },
-            {
-              "from": 2,
-              "to": 3,
-              "kind": "contains"
-            }
-          ]
-        }
+        "kind": "free_text"
       },
       "applicability": {
         "kind": "elements",
@@ -13671,128 +13473,7 @@
         }
       ],
       "values": {
-        "kind": "css_grammar",
-        "grammar": "A BCP 47 language tag string [HTML]",
-        "graph": {
-          "root": 0,
-          "nodes": [
-            {
-              "id": 0,
-              "kind": "root"
-            },
-            {
-              "id": 1,
-              "kind": "keyword",
-              "text": "A"
-            },
-            {
-              "id": 2,
-              "kind": "keyword",
-              "text": "BCP"
-            },
-            {
-              "id": 3,
-              "kind": "keyword",
-              "text": "47"
-            },
-            {
-              "id": 4,
-              "kind": "keyword",
-              "text": "language"
-            },
-            {
-              "id": 5,
-              "kind": "keyword",
-              "text": "tag"
-            },
-            {
-              "id": 6,
-              "kind": "keyword",
-              "text": "string"
-            },
-            {
-              "id": 7,
-              "kind": "group"
-            },
-            {
-              "id": 8,
-              "kind": "keyword",
-              "text": "HTML"
-            }
-          ],
-          "edges": [
-            {
-              "from": 0,
-              "to": 1,
-              "kind": "contains"
-            },
-            {
-              "from": 0,
-              "to": 2,
-              "kind": "contains"
-            },
-            {
-              "from": 1,
-              "to": 2,
-              "kind": "next"
-            },
-            {
-              "from": 0,
-              "to": 3,
-              "kind": "contains"
-            },
-            {
-              "from": 2,
-              "to": 3,
-              "kind": "next"
-            },
-            {
-              "from": 0,
-              "to": 4,
-              "kind": "contains"
-            },
-            {
-              "from": 3,
-              "to": 4,
-              "kind": "next"
-            },
-            {
-              "from": 0,
-              "to": 5,
-              "kind": "contains"
-            },
-            {
-              "from": 4,
-              "to": 5,
-              "kind": "next"
-            },
-            {
-              "from": 0,
-              "to": 6,
-              "kind": "contains"
-            },
-            {
-              "from": 5,
-              "to": 6,
-              "kind": "next"
-            },
-            {
-              "from": 0,
-              "to": 7,
-              "kind": "contains"
-            },
-            {
-              "from": 6,
-              "to": 7,
-              "kind": "next"
-            },
-            {
-              "from": 7,
-              "to": 8,
-              "kind": "contains"
-            }
-          ]
-        }
+        "kind": "free_text"
       },
       "applicability": {
         "kind": "elements",
@@ -13845,44 +13526,7 @@
         }
       },
       "values": {
-        "kind": "css_grammar",
-        "grammar": "(see below)",
-        "graph": {
-          "root": 0,
-          "nodes": [
-            {
-              "id": 0,
-              "kind": "root"
-            },
-            {
-              "id": 1,
-              "kind": "keyword",
-              "text": "see"
-            },
-            {
-              "id": 2,
-              "kind": "keyword",
-              "text": "below"
-            }
-          ],
-          "edges": [
-            {
-              "from": 0,
-              "to": 1,
-              "kind": "contains"
-            },
-            {
-              "from": 0,
-              "to": 2,
-              "kind": "contains"
-            },
-            {
-              "from": 1,
-              "to": 2,
-              "kind": "next"
-            }
-          ]
-        }
+        "kind": "free_text"
       },
       "applicability": {
         "kind": "global"
@@ -14372,7 +14016,7 @@
       ],
       "values": {
         "kind": "css_grammar",
-        "grammar": "<filter-primitive-reference>",
+        "grammar": "SourceGraphic | SourceAlpha | BackgroundImage | BackgroundAlpha | FillPaint | StrokePaint | <filter-primitive-reference>",
         "graph": {
           "root": 0,
           "nodes": [
@@ -14382,6 +14026,66 @@
             },
             {
               "id": 1,
+              "kind": "keyword",
+              "text": "SourceGraphic"
+            },
+            {
+              "id": 2,
+              "kind": "operator",
+              "text": "|"
+            },
+            {
+              "id": 3,
+              "kind": "keyword",
+              "text": "SourceAlpha"
+            },
+            {
+              "id": 4,
+              "kind": "operator",
+              "text": "|"
+            },
+            {
+              "id": 5,
+              "kind": "keyword",
+              "text": "BackgroundImage"
+            },
+            {
+              "id": 6,
+              "kind": "operator",
+              "text": "|"
+            },
+            {
+              "id": 7,
+              "kind": "keyword",
+              "text": "BackgroundAlpha"
+            },
+            {
+              "id": 8,
+              "kind": "operator",
+              "text": "|"
+            },
+            {
+              "id": 9,
+              "kind": "keyword",
+              "text": "FillPaint"
+            },
+            {
+              "id": 10,
+              "kind": "operator",
+              "text": "|"
+            },
+            {
+              "id": 11,
+              "kind": "keyword",
+              "text": "StrokePaint"
+            },
+            {
+              "id": 12,
+              "kind": "operator",
+              "text": "|"
+            },
+            {
+              "id": 13,
               "kind": "type",
               "text": "<filter-primitive-reference>"
             }
@@ -14391,6 +14095,126 @@
               "from": 0,
               "to": 1,
               "kind": "contains"
+            },
+            {
+              "from": 0,
+              "to": 2,
+              "kind": "contains"
+            },
+            {
+              "from": 1,
+              "to": 2,
+              "kind": "next"
+            },
+            {
+              "from": 0,
+              "to": 3,
+              "kind": "contains"
+            },
+            {
+              "from": 2,
+              "to": 3,
+              "kind": "next"
+            },
+            {
+              "from": 0,
+              "to": 4,
+              "kind": "contains"
+            },
+            {
+              "from": 3,
+              "to": 4,
+              "kind": "next"
+            },
+            {
+              "from": 0,
+              "to": 5,
+              "kind": "contains"
+            },
+            {
+              "from": 4,
+              "to": 5,
+              "kind": "next"
+            },
+            {
+              "from": 0,
+              "to": 6,
+              "kind": "contains"
+            },
+            {
+              "from": 5,
+              "to": 6,
+              "kind": "next"
+            },
+            {
+              "from": 0,
+              "to": 7,
+              "kind": "contains"
+            },
+            {
+              "from": 6,
+              "to": 7,
+              "kind": "next"
+            },
+            {
+              "from": 0,
+              "to": 8,
+              "kind": "contains"
+            },
+            {
+              "from": 7,
+              "to": 8,
+              "kind": "next"
+            },
+            {
+              "from": 0,
+              "to": 9,
+              "kind": "contains"
+            },
+            {
+              "from": 8,
+              "to": 9,
+              "kind": "next"
+            },
+            {
+              "from": 0,
+              "to": 10,
+              "kind": "contains"
+            },
+            {
+              "from": 9,
+              "to": 10,
+              "kind": "next"
+            },
+            {
+              "from": 0,
+              "to": 11,
+              "kind": "contains"
+            },
+            {
+              "from": 10,
+              "to": 11,
+              "kind": "next"
+            },
+            {
+              "from": 0,
+              "to": 12,
+              "kind": "contains"
+            },
+            {
+              "from": 11,
+              "to": 12,
+              "kind": "next"
+            },
+            {
+              "from": 0,
+              "to": 13,
+              "kind": "contains"
+            },
+            {
+              "from": 12,
+              "to": 13,
+              "kind": "next"
             }
           ]
         }
@@ -14509,7 +14333,7 @@
       ],
       "values": {
         "kind": "css_grammar",
-        "grammar": "<filter-primitive-reference>",
+        "grammar": "SourceGraphic | SourceAlpha | BackgroundImage | BackgroundAlpha | FillPaint | StrokePaint | <filter-primitive-reference>",
         "graph": {
           "root": 0,
           "nodes": [
@@ -14519,6 +14343,66 @@
             },
             {
               "id": 1,
+              "kind": "keyword",
+              "text": "SourceGraphic"
+            },
+            {
+              "id": 2,
+              "kind": "operator",
+              "text": "|"
+            },
+            {
+              "id": 3,
+              "kind": "keyword",
+              "text": "SourceAlpha"
+            },
+            {
+              "id": 4,
+              "kind": "operator",
+              "text": "|"
+            },
+            {
+              "id": 5,
+              "kind": "keyword",
+              "text": "BackgroundImage"
+            },
+            {
+              "id": 6,
+              "kind": "operator",
+              "text": "|"
+            },
+            {
+              "id": 7,
+              "kind": "keyword",
+              "text": "BackgroundAlpha"
+            },
+            {
+              "id": 8,
+              "kind": "operator",
+              "text": "|"
+            },
+            {
+              "id": 9,
+              "kind": "keyword",
+              "text": "FillPaint"
+            },
+            {
+              "id": 10,
+              "kind": "operator",
+              "text": "|"
+            },
+            {
+              "id": 11,
+              "kind": "keyword",
+              "text": "StrokePaint"
+            },
+            {
+              "id": 12,
+              "kind": "operator",
+              "text": "|"
+            },
+            {
+              "id": 13,
               "kind": "type",
               "text": "<filter-primitive-reference>"
             }
@@ -14528,6 +14412,126 @@
               "from": 0,
               "to": 1,
               "kind": "contains"
+            },
+            {
+              "from": 0,
+              "to": 2,
+              "kind": "contains"
+            },
+            {
+              "from": 1,
+              "to": 2,
+              "kind": "next"
+            },
+            {
+              "from": 0,
+              "to": 3,
+              "kind": "contains"
+            },
+            {
+              "from": 2,
+              "to": 3,
+              "kind": "next"
+            },
+            {
+              "from": 0,
+              "to": 4,
+              "kind": "contains"
+            },
+            {
+              "from": 3,
+              "to": 4,
+              "kind": "next"
+            },
+            {
+              "from": 0,
+              "to": 5,
+              "kind": "contains"
+            },
+            {
+              "from": 4,
+              "to": 5,
+              "kind": "next"
+            },
+            {
+              "from": 0,
+              "to": 6,
+              "kind": "contains"
+            },
+            {
+              "from": 5,
+              "to": 6,
+              "kind": "next"
+            },
+            {
+              "from": 0,
+              "to": 7,
+              "kind": "contains"
+            },
+            {
+              "from": 6,
+              "to": 7,
+              "kind": "next"
+            },
+            {
+              "from": 0,
+              "to": 8,
+              "kind": "contains"
+            },
+            {
+              "from": 7,
+              "to": 8,
+              "kind": "next"
+            },
+            {
+              "from": 0,
+              "to": 9,
+              "kind": "contains"
+            },
+            {
+              "from": 8,
+              "to": 9,
+              "kind": "next"
+            },
+            {
+              "from": 0,
+              "to": 10,
+              "kind": "contains"
+            },
+            {
+              "from": 9,
+              "to": 10,
+              "kind": "next"
+            },
+            {
+              "from": 0,
+              "to": 11,
+              "kind": "contains"
+            },
+            {
+              "from": 10,
+              "to": 11,
+              "kind": "next"
+            },
+            {
+              "from": 0,
+              "to": 12,
+              "kind": "contains"
+            },
+            {
+              "from": 11,
+              "to": 12,
+              "kind": "next"
+            },
+            {
+              "from": 0,
+              "to": 13,
+              "kind": "contains"
+            },
+            {
+              "from": 12,
+              "to": 13,
+              "kind": "next"
             }
           ]
         }
@@ -15515,53 +15519,7 @@
         }
       },
       "values": {
-        "kind": "css_grammar",
-        "grammar": "Language-Tag [ABNF]",
-        "graph": {
-          "root": 0,
-          "nodes": [
-            {
-              "id": 0,
-              "kind": "root"
-            },
-            {
-              "id": 1,
-              "kind": "keyword",
-              "text": "Language-Tag"
-            },
-            {
-              "id": 2,
-              "kind": "group"
-            },
-            {
-              "id": 3,
-              "kind": "keyword",
-              "text": "ABNF"
-            }
-          ],
-          "edges": [
-            {
-              "from": 0,
-              "to": 1,
-              "kind": "contains"
-            },
-            {
-              "from": 0,
-              "to": 2,
-              "kind": "contains"
-            },
-            {
-              "from": 1,
-              "to": 2,
-              "kind": "next"
-            },
-            {
-              "from": 2,
-              "to": 3,
-              "kind": "contains"
-            }
-          ]
-        }
+        "kind": "free_text"
       },
       "applicability": {
         "kind": "global"
@@ -17054,44 +17012,7 @@
         }
       ],
       "values": {
-        "kind": "css_grammar",
-        "grammar": "(see below)",
-        "graph": {
-          "root": 0,
-          "nodes": [
-            {
-              "id": 0,
-              "kind": "root"
-            },
-            {
-              "id": 1,
-              "kind": "keyword",
-              "text": "see"
-            },
-            {
-              "id": 2,
-              "kind": "keyword",
-              "text": "below"
-            }
-          ],
-          "edges": [
-            {
-              "from": 0,
-              "to": 1,
-              "kind": "contains"
-            },
-            {
-              "from": 0,
-              "to": 2,
-              "kind": "contains"
-            },
-            {
-              "from": 1,
-              "to": 2,
-              "kind": "next"
-            }
-          ]
-        }
+        "kind": "free_text"
       },
       "applicability": {
         "kind": "elements",
@@ -17510,44 +17431,7 @@
       "animatable": false,
       "presentation_attribute": null,
       "values": {
-        "kind": "css_grammar",
-        "grammar": "(see below)",
-        "graph": {
-          "root": 0,
-          "nodes": [
-            {
-              "id": 0,
-              "kind": "root"
-            },
-            {
-              "id": 1,
-              "kind": "keyword",
-              "text": "see"
-            },
-            {
-              "id": 2,
-              "kind": "keyword",
-              "text": "below"
-            }
-          ],
-          "edges": [
-            {
-              "from": 0,
-              "to": 1,
-              "kind": "contains"
-            },
-            {
-              "from": 0,
-              "to": 2,
-              "kind": "contains"
-            },
-            {
-              "from": 1,
-              "to": 2,
-              "kind": "next"
-            }
-          ]
-        }
+        "kind": "free_text"
       },
       "applicability": {
         "kind": "elements",
@@ -18566,44 +18450,7 @@
       "animatable": false,
       "presentation_attribute": null,
       "values": {
-        "kind": "css_grammar",
-        "grammar": "(see below)",
-        "graph": {
-          "root": 0,
-          "nodes": [
-            {
-              "id": 0,
-              "kind": "root"
-            },
-            {
-              "id": 1,
-              "kind": "keyword",
-              "text": "see"
-            },
-            {
-              "id": 2,
-              "kind": "keyword",
-              "text": "below"
-            }
-          ],
-          "edges": [
-            {
-              "from": 0,
-              "to": 1,
-              "kind": "contains"
-            },
-            {
-              "from": 0,
-              "to": 2,
-              "kind": "contains"
-            },
-            {
-              "from": 1,
-              "to": 2,
-              "kind": "next"
-            }
-          ]
-        }
+        "kind": "free_text"
       },
       "applicability": {
         "kind": "elements",
@@ -19963,44 +19810,7 @@
       "animatable": false,
       "presentation_attribute": null,
       "values": {
-        "kind": "css_grammar",
-        "grammar": "(see below)",
-        "graph": {
-          "root": 0,
-          "nodes": [
-            {
-              "id": 0,
-              "kind": "root"
-            },
-            {
-              "id": 1,
-              "kind": "keyword",
-              "text": "see"
-            },
-            {
-              "id": 2,
-              "kind": "keyword",
-              "text": "below"
-            }
-          ],
-          "edges": [
-            {
-              "from": 0,
-              "to": 1,
-              "kind": "contains"
-            },
-            {
-              "from": 0,
-              "to": 2,
-              "kind": "contains"
-            },
-            {
-              "from": 1,
-              "to": 2,
-              "kind": "next"
-            }
-          ]
-        }
+        "kind": "free_text"
       },
       "applicability": {
         "kind": "elements",
@@ -22227,113 +22037,7 @@
         }
       ],
       "values": {
-        "kind": "css_grammar",
-        "grammar": "space-separated valid non-empty URL tokens [HTML]",
-        "graph": {
-          "root": 0,
-          "nodes": [
-            {
-              "id": 0,
-              "kind": "root"
-            },
-            {
-              "id": 1,
-              "kind": "keyword",
-              "text": "space-separated"
-            },
-            {
-              "id": 2,
-              "kind": "keyword",
-              "text": "valid"
-            },
-            {
-              "id": 3,
-              "kind": "keyword",
-              "text": "non-empty"
-            },
-            {
-              "id": 4,
-              "kind": "keyword",
-              "text": "URL"
-            },
-            {
-              "id": 5,
-              "kind": "keyword",
-              "text": "tokens"
-            },
-            {
-              "id": 6,
-              "kind": "group"
-            },
-            {
-              "id": 7,
-              "kind": "keyword",
-              "text": "HTML"
-            }
-          ],
-          "edges": [
-            {
-              "from": 0,
-              "to": 1,
-              "kind": "contains"
-            },
-            {
-              "from": 0,
-              "to": 2,
-              "kind": "contains"
-            },
-            {
-              "from": 1,
-              "to": 2,
-              "kind": "next"
-            },
-            {
-              "from": 0,
-              "to": 3,
-              "kind": "contains"
-            },
-            {
-              "from": 2,
-              "to": 3,
-              "kind": "next"
-            },
-            {
-              "from": 0,
-              "to": 4,
-              "kind": "contains"
-            },
-            {
-              "from": 3,
-              "to": 4,
-              "kind": "next"
-            },
-            {
-              "from": 0,
-              "to": 5,
-              "kind": "contains"
-            },
-            {
-              "from": 4,
-              "to": 5,
-              "kind": "next"
-            },
-            {
-              "from": 0,
-              "to": 6,
-              "kind": "contains"
-            },
-            {
-              "from": 5,
-              "to": 6,
-              "kind": "next"
-            },
-            {
-              "from": 6,
-              "to": 7,
-              "kind": "contains"
-            }
-          ]
-        }
+        "kind": "free_text"
       },
       "applicability": {
         "kind": "elements",
@@ -23812,98 +23516,7 @@
         }
       ],
       "values": {
-        "kind": "css_grammar",
-        "grammar": "A referrer policy string [REFERRERPOLICY]",
-        "graph": {
-          "root": 0,
-          "nodes": [
-            {
-              "id": 0,
-              "kind": "root"
-            },
-            {
-              "id": 1,
-              "kind": "keyword",
-              "text": "A"
-            },
-            {
-              "id": 2,
-              "kind": "keyword",
-              "text": "referrer"
-            },
-            {
-              "id": 3,
-              "kind": "keyword",
-              "text": "policy"
-            },
-            {
-              "id": 4,
-              "kind": "keyword",
-              "text": "string"
-            },
-            {
-              "id": 5,
-              "kind": "group"
-            },
-            {
-              "id": 6,
-              "kind": "keyword",
-              "text": "REFERRERPOLICY"
-            }
-          ],
-          "edges": [
-            {
-              "from": 0,
-              "to": 1,
-              "kind": "contains"
-            },
-            {
-              "from": 0,
-              "to": 2,
-              "kind": "contains"
-            },
-            {
-              "from": 1,
-              "to": 2,
-              "kind": "next"
-            },
-            {
-              "from": 0,
-              "to": 3,
-              "kind": "contains"
-            },
-            {
-              "from": 2,
-              "to": 3,
-              "kind": "next"
-            },
-            {
-              "from": 0,
-              "to": 4,
-              "kind": "contains"
-            },
-            {
-              "from": 3,
-              "to": 4,
-              "kind": "next"
-            },
-            {
-              "from": 0,
-              "to": 5,
-              "kind": "contains"
-            },
-            {
-              "from": 4,
-              "to": 5,
-              "kind": "next"
-            },
-            {
-              "from": 5,
-              "to": 6,
-              "kind": "contains"
-            }
-          ]
-        }
+        "kind": "free_text"
       },
       "applicability": {
         "kind": "elements",
@@ -23970,83 +23583,7 @@
         }
       ],
       "values": {
-        "kind": "css_grammar",
-        "grammar": "space-separated keyword tokens [HTML]",
-        "graph": {
-          "root": 0,
-          "nodes": [
-            {
-              "id": 0,
-              "kind": "root"
-            },
-            {
-              "id": 1,
-              "kind": "keyword",
-              "text": "space-separated"
-            },
-            {
-              "id": 2,
-              "kind": "keyword",
-              "text": "keyword"
-            },
-            {
-              "id": 3,
-              "kind": "keyword",
-              "text": "tokens"
-            },
-            {
-              "id": 4,
-              "kind": "group"
-            },
-            {
-              "id": 5,
-              "kind": "keyword",
-              "text": "HTML"
-            }
-          ],
-          "edges": [
-            {
-              "from": 0,
-              "to": 1,
-              "kind": "contains"
-            },
-            {
-              "from": 0,
-              "to": 2,
-              "kind": "contains"
-            },
-            {
-              "from": 1,
-              "to": 2,
-              "kind": "next"
-            },
-            {
-              "from": 0,
-              "to": 3,
-              "kind": "contains"
-            },
-            {
-              "from": 2,
-              "to": 3,
-              "kind": "next"
-            },
-            {
-              "from": 0,
-              "to": 4,
-              "kind": "contains"
-            },
-            {
-              "from": 3,
-              "to": 4,
-              "kind": "next"
-            },
-            {
-              "from": 4,
-              "to": 5,
-              "kind": "contains"
-            }
-          ]
-        }
+        "kind": "free_text"
       },
       "applicability": {
         "kind": "elements",
@@ -24178,98 +23715,7 @@
         }
       },
       "values": {
-        "kind": "css_grammar",
-        "grammar": "set of space-separated tokens [HTML]",
-        "graph": {
-          "root": 0,
-          "nodes": [
-            {
-              "id": 0,
-              "kind": "root"
-            },
-            {
-              "id": 1,
-              "kind": "keyword",
-              "text": "set"
-            },
-            {
-              "id": 2,
-              "kind": "keyword",
-              "text": "of"
-            },
-            {
-              "id": 3,
-              "kind": "keyword",
-              "text": "space-separated"
-            },
-            {
-              "id": 4,
-              "kind": "keyword",
-              "text": "tokens"
-            },
-            {
-              "id": 5,
-              "kind": "group"
-            },
-            {
-              "id": 6,
-              "kind": "keyword",
-              "text": "HTML"
-            }
-          ],
-          "edges": [
-            {
-              "from": 0,
-              "to": 1,
-              "kind": "contains"
-            },
-            {
-              "from": 0,
-              "to": 2,
-              "kind": "contains"
-            },
-            {
-              "from": 1,
-              "to": 2,
-              "kind": "next"
-            },
-            {
-              "from": 0,
-              "to": 3,
-              "kind": "contains"
-            },
-            {
-              "from": 2,
-              "to": 3,
-              "kind": "next"
-            },
-            {
-              "from": 0,
-              "to": 4,
-              "kind": "contains"
-            },
-            {
-              "from": 3,
-              "to": 4,
-              "kind": "next"
-            },
-            {
-              "from": 0,
-              "to": 5,
-              "kind": "contains"
-            },
-            {
-              "from": 4,
-              "to": 5,
-              "kind": "next"
-            },
-            {
-              "from": 5,
-              "to": 6,
-              "kind": "contains"
-            }
-          ]
-        }
+        "kind": "free_text"
       },
       "applicability": {
         "kind": "elements",
@@ -24378,98 +23824,7 @@
       "animatable": false,
       "presentation_attribute": null,
       "values": {
-        "kind": "css_grammar",
-        "grammar": "set of space-separated tokens [HTML]",
-        "graph": {
-          "root": 0,
-          "nodes": [
-            {
-              "id": 0,
-              "kind": "root"
-            },
-            {
-              "id": 1,
-              "kind": "keyword",
-              "text": "set"
-            },
-            {
-              "id": 2,
-              "kind": "keyword",
-              "text": "of"
-            },
-            {
-              "id": 3,
-              "kind": "keyword",
-              "text": "space-separated"
-            },
-            {
-              "id": 4,
-              "kind": "keyword",
-              "text": "tokens"
-            },
-            {
-              "id": 5,
-              "kind": "group"
-            },
-            {
-              "id": 6,
-              "kind": "keyword",
-              "text": "HTML"
-            }
-          ],
-          "edges": [
-            {
-              "from": 0,
-              "to": 1,
-              "kind": "contains"
-            },
-            {
-              "from": 0,
-              "to": 2,
-              "kind": "contains"
-            },
-            {
-              "from": 1,
-              "to": 2,
-              "kind": "next"
-            },
-            {
-              "from": 0,
-              "to": 3,
-              "kind": "contains"
-            },
-            {
-              "from": 2,
-              "to": 3,
-              "kind": "next"
-            },
-            {
-              "from": 0,
-              "to": 4,
-              "kind": "contains"
-            },
-            {
-              "from": 3,
-              "to": 4,
-              "kind": "next"
-            },
-            {
-              "from": 0,
-              "to": 5,
-              "kind": "contains"
-            },
-            {
-              "from": 4,
-              "to": 5,
-              "kind": "next"
-            },
-            {
-              "from": 5,
-              "to": 6,
-              "kind": "contains"
-            }
-          ]
-        }
+        "kind": "free_text"
       },
       "applicability": {
         "kind": "elements",
@@ -27112,44 +26467,7 @@
         }
       },
       "values": {
-        "kind": "css_grammar",
-        "grammar": "(see below)",
-        "graph": {
-          "root": 0,
-          "nodes": [
-            {
-              "id": 0,
-              "kind": "root"
-            },
-            {
-              "id": 1,
-              "kind": "keyword",
-              "text": "see"
-            },
-            {
-              "id": 2,
-              "kind": "keyword",
-              "text": "below"
-            }
-          ],
-          "edges": [
-            {
-              "from": 0,
-              "to": 1,
-              "kind": "contains"
-            },
-            {
-              "from": 0,
-              "to": 2,
-              "kind": "contains"
-            },
-            {
-              "from": 1,
-              "to": 2,
-              "kind": "next"
-            }
-          ]
-        }
+        "kind": "free_text"
       },
       "applicability": {
         "kind": "global"
@@ -27959,98 +27277,7 @@
         }
       ],
       "values": {
-        "kind": "css_grammar",
-        "grammar": "set of comma-separated tokens [HTML]",
-        "graph": {
-          "root": 0,
-          "nodes": [
-            {
-              "id": 0,
-              "kind": "root"
-            },
-            {
-              "id": 1,
-              "kind": "keyword",
-              "text": "set"
-            },
-            {
-              "id": 2,
-              "kind": "keyword",
-              "text": "of"
-            },
-            {
-              "id": 3,
-              "kind": "keyword",
-              "text": "comma-separated"
-            },
-            {
-              "id": 4,
-              "kind": "keyword",
-              "text": "tokens"
-            },
-            {
-              "id": 5,
-              "kind": "group"
-            },
-            {
-              "id": 6,
-              "kind": "keyword",
-              "text": "HTML"
-            }
-          ],
-          "edges": [
-            {
-              "from": 0,
-              "to": 1,
-              "kind": "contains"
-            },
-            {
-              "from": 0,
-              "to": 2,
-              "kind": "contains"
-            },
-            {
-              "from": 1,
-              "to": 2,
-              "kind": "next"
-            },
-            {
-              "from": 0,
-              "to": 3,
-              "kind": "contains"
-            },
-            {
-              "from": 2,
-              "to": 3,
-              "kind": "next"
-            },
-            {
-              "from": 0,
-              "to": 4,
-              "kind": "contains"
-            },
-            {
-              "from": 3,
-              "to": 4,
-              "kind": "next"
-            },
-            {
-              "from": 0,
-              "to": 5,
-              "kind": "contains"
-            },
-            {
-              "from": 4,
-              "to": 5,
-              "kind": "next"
-            },
-            {
-              "from": 5,
-              "to": 6,
-              "kind": "contains"
-            }
-          ]
-        }
+        "kind": "free_text"
       },
       "applicability": {
         "kind": "elements",
@@ -28126,68 +27353,7 @@
         }
       },
       "values": {
-        "kind": "css_grammar",
-        "grammar": "valid integer [HTML]",
-        "graph": {
-          "root": 0,
-          "nodes": [
-            {
-              "id": 0,
-              "kind": "root"
-            },
-            {
-              "id": 1,
-              "kind": "keyword",
-              "text": "valid"
-            },
-            {
-              "id": 2,
-              "kind": "keyword",
-              "text": "integer"
-            },
-            {
-              "id": 3,
-              "kind": "group"
-            },
-            {
-              "id": 4,
-              "kind": "keyword",
-              "text": "HTML"
-            }
-          ],
-          "edges": [
-            {
-              "from": 0,
-              "to": 1,
-              "kind": "contains"
-            },
-            {
-              "from": 0,
-              "to": 2,
-              "kind": "contains"
-            },
-            {
-              "from": 1,
-              "to": 2,
-              "kind": "next"
-            },
-            {
-              "from": 0,
-              "to": 3,
-              "kind": "contains"
-            },
-            {
-              "from": 2,
-              "to": 3,
-              "kind": "next"
-            },
-            {
-              "from": 3,
-              "to": 4,
-              "kind": "contains"
-            }
-          ]
-        }
+        "kind": "free_text"
       },
       "applicability": {
         "kind": "global"
@@ -29318,44 +28484,7 @@
         }
       ],
       "values": {
-        "kind": "css_grammar",
-        "grammar": "(see below)",
-        "graph": {
-          "root": 0,
-          "nodes": [
-            {
-              "id": 0,
-              "kind": "root"
-            },
-            {
-              "id": 1,
-              "kind": "keyword",
-              "text": "see"
-            },
-            {
-              "id": 2,
-              "kind": "keyword",
-              "text": "below"
-            }
-          ],
-          "edges": [
-            {
-              "from": 0,
-              "to": 1,
-              "kind": "contains"
-            },
-            {
-              "from": 0,
-              "to": 2,
-              "kind": "contains"
-            },
-            {
-              "from": 1,
-              "to": 2,
-              "kind": "next"
-            }
-          ]
-        }
+        "kind": "free_text"
       },
       "applicability": {
         "kind": "elements",
@@ -30519,44 +29648,7 @@
         }
       ],
       "values": {
-        "kind": "css_grammar",
-        "grammar": "(see below)",
-        "graph": {
-          "root": 0,
-          "nodes": [
-            {
-              "id": 0,
-              "kind": "root"
-            },
-            {
-              "id": 1,
-              "kind": "keyword",
-              "text": "see"
-            },
-            {
-              "id": 2,
-              "kind": "keyword",
-              "text": "below"
-            }
-          ],
-          "edges": [
-            {
-              "from": 0,
-              "to": 1,
-              "kind": "contains"
-            },
-            {
-              "from": 0,
-              "to": 2,
-              "kind": "contains"
-            },
-            {
-              "from": 1,
-              "to": 2,
-              "kind": "next"
-            }
-          ]
-        }
+        "kind": "free_text"
       },
       "applicability": {
         "kind": "elements",
@@ -32887,44 +31979,7 @@
         }
       },
       "values": {
-        "kind": "css_grammar",
-        "grammar": "(see below)",
-        "graph": {
-          "root": 0,
-          "nodes": [
-            {
-              "id": 0,
-              "kind": "root"
-            },
-            {
-              "id": 1,
-              "kind": "keyword",
-              "text": "see"
-            },
-            {
-              "id": 2,
-              "kind": "keyword",
-              "text": "below"
-            }
-          ],
-          "edges": [
-            {
-              "from": 0,
-              "to": 1,
-              "kind": "contains"
-            },
-            {
-              "from": 0,
-              "to": 2,
-              "kind": "contains"
-            },
-            {
-              "from": 1,
-              "to": 2,
-              "kind": "next"
-            }
-          ]
-        }
+        "kind": "free_text"
       },
       "applicability": {
         "kind": "global"

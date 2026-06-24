@@ -74,14 +74,16 @@ Script and style CDATA forms
     (element
       (start_tag
         name: (name))
-      (raw_text)
+      (cdata_section
+        (cdata_text))
       (end_tag
         name: (name)))
     (text)
     (element
       (start_tag
         name: (name))
-      (raw_text)
+      (cdata_section
+        (cdata_text))
       (end_tag
         name: (name)))
     (text)

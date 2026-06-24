@@ -25,64 +25,25 @@
 (erroneous_end_tag
   (name) @tag.error)
 
-(attribute_name) @attribute
-(class_attribute_name) @attribute
-(clip_attribute_name) @attribute
-(d_attribute_name) @attribute
-(duration_attribute_name) @attribute
-(enable_background_attribute_name) @attribute
-(event_attribute_name) @attribute
-(functional_iri_attribute_name) @attribute
-(href_attribute_name) @attribute
-(id_attribute_name) @attribute
-(key_splines_attribute_name) @attribute
-(key_times_attribute_name) @attribute
-(length_attribute_name) @attribute
-(length_list_attribute_name) @attribute
-(number_attribute_name) @attribute
-(number_list_attribute_name) @attribute
-(offset_attribute_name) @attribute
-(opacity_attribute_name) @attribute
-(paint_attribute_name) @attribute
-(points_attribute_name) @attribute
-(preserve_aspect_ratio_attribute_name) @attribute
-(repeat_count_attribute_name) @attribute
-(stroke_dasharray_attribute_name) @attribute
-(style_attribute_name) @attribute
-(transform_attribute_name) @attribute
-(viewbox_attribute_name) @attribute
+; `attribute` is a supertype. Match fields structurally so generated typed
+; attributes keep highlighting when catalog buckets change.
+(attribute
+  name: (_) @attribute)
 
 (hex_color) @constant
 (color_function_name) @function.call
 (clip_rect "rect" @function.call)
 (named_color) @constant
 
-[(quoted_attribute_value)
- (class_attribute_value)
- (clip_attribute_value)
- (d_attribute_value)
- (duration_attribute_value)
- (enable_background_attribute_value)
- (event_attribute_value)
- (functional_iri_attribute_value)
- (href_attribute_value)
- (id_attribute_value)
- (key_splines_attribute_value)
- (key_times_attribute_value)
- (length_attribute_value)
- (length_list_attribute_value)
- (number_attribute_value)
- (number_list_attribute_value)
- (offset_attribute_value)
- (opacity_attribute_value)
- (paint_attribute_value)
- (points_attribute_value)
- (preserve_aspect_ratio_attribute_value)
- (repeat_count_attribute_value)
- (stroke_dasharray_attribute_value)
- (style_attribute_value)
- (transform_attribute_value)
- (viewbox_attribute_value)] @string
+(color_colorspace) @type.builtin
+(color_interpolation_space) @type.builtin
+(color_mix_in_keyword) @keyword
+(color_hue_direction) @keyword.modifier
+(color_hue_keyword) @keyword
+(color_none) @constant.builtin
+
+(attribute
+  value: (_) @string)
 
 (matrix_transform "matrix" @function.builtin)
 (translate_transform "translate" @function.builtin)

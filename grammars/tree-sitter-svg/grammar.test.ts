@@ -26,6 +26,7 @@ import { resolve } from 'node:path';
 
 const repoRoot = resolve(import.meta.dir, '../..');
 const catalogPath = resolve(repoRoot, 'crates/svg-data/data/catalog.tree-sitter.json');
+const zedSvgQueryDir = resolve(repoRoot, 'editors/zed-svg/languages/svg');
 const grammarJsonPath = fileURLToPath(import.meta.resolve('#grammarData'));
 const grammarJsPath = fileURLToPath(import.meta.resolve('#grammar'));
 
@@ -150,5 +151,14 @@ describe('grammar.js matches catalog tree-sitter projection', () => {
 		const matches = grammarJs.match(/token\(NUMBER_PATTERN\)/g) ?? [];
 
 		expect(matches).toHaveLength(2);
+	});
+
+	test('Zed query copies stay in sync with grammar queries', async () => {
+		for (const queryName of ['highlights.scm', 'injections.scm']) {
+			const grammarQuery = await file(resolve(import.meta.dir, 'queries', queryName)).text();
+			const zedQuery = await file(resolve(zedSvgQueryDir, queryName)).text();
+
+			expect(zedQuery).toBe(grammarQuery);
+		}
 	});
 });

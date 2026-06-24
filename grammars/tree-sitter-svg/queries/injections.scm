@@ -1,4 +1,13 @@
+; CSS in <style> element (via CDATA)
 ; CSS in <style> element (via raw_text)
+((element
+  (start_tag (name) @_start)
+  (cdata_section (cdata_text) @injection.content)
+  (end_tag (name) @_end))
+ (#match? @_start "(^|:)style$")
+ (#match? @_end "(^|:)style$")
+ (#set! injection.language "css"))
+
 ((element
   (start_tag (name) @_start)
   (raw_text) @injection.content
@@ -7,7 +16,16 @@
  (#match? @_end "(^|:)style$")
  (#set! injection.language "css"))
 
+; JS in <script> element (via CDATA)
 ; JS in <script> element (via raw_text)
+((element
+  (start_tag (name) @_start)
+  (cdata_section (cdata_text) @injection.content)
+  (end_tag (name) @_end))
+ (#match? @_start "(^|:)script$")
+ (#match? @_end "(^|:)script$")
+ (#set! injection.language "javascript"))
+
 ((element
   (start_tag (name) @_start)
   (raw_text) @injection.content

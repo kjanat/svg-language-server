@@ -208,6 +208,22 @@ static bool scan_raw_text(TagStack *tags, TSLexer *lexer) {
       lexer->mark_end(lexer);
       advance(lexer);
 
+      if (!has_content && lexer->lookahead == '!') {
+        const char *cdata_start = "![CDATA[";
+        bool is_cdata = true;
+        for (uint32_t i = 0; cdata_start[i] != '\0'; i++) {
+          if ((char)lexer->lookahead != cdata_start[i]) {
+            is_cdata = false;
+            break;
+          }
+          advance(lexer);
+        }
+
+        if (is_cdata) {
+          return false;
+        }
+      }
+
       if (lexer->lookahead == '/') {
         advance(lexer);
 

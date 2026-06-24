@@ -270,7 +270,7 @@ export default grammar({
 				alias($.script_self_closing_tag, $.self_closing_tag),
 				seq(
 					alias($.script_start_tag, $.start_tag),
-					optional(alias($._raw_text, $.raw_text)),
+					optional(choice($.cdata_section, alias($._raw_text, $.raw_text))),
 					choice(alias($.script_end_tag, $.end_tag), $.erroneous_end_tag),
 				),
 			),
@@ -308,7 +308,7 @@ export default grammar({
 				alias($.style_self_closing_tag, $.self_closing_tag),
 				seq(
 					alias($.style_element_start_tag, $.start_tag),
-					optional(alias($._raw_text, $.raw_text)),
+					optional(choice($.cdata_section, alias($._raw_text, $.raw_text))),
 					choice(alias($.style_end_tag, $.end_tag), $.erroneous_end_tag),
 				),
 			),

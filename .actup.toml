@@ -2,7 +2,7 @@ update_policy    = "latest"
 ref_style        = "preserve"
 branch_policy    = "ignore"
 allow_prerelease = false
-ignore           = ["taiki-e/install-action@v2"]
+ignore           = []
 extra_paths      = []
 
 [actions]

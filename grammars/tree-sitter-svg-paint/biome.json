@@ -1,0 +1,49 @@
+{
+	"$schema": "node_modules/@biomejs/biome/configuration_schema.json",
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true,
+		"defaultBranch": "master",
+		"root": "../../"
+	},
+	"files": {
+		"includes": [
+			"./grammar.js",
+			"./grammar.*.ts",
+			"./grammar/**/*.*{j,t}s",
+			"./bindings/node/*.*{j,t}s",
+			"./src/**",
+			"./test/**/*.ts"
+		],
+		"ignoreUnknown": true
+	},
+	"formatter": {
+		"enabled": false
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"complexity": { "recommended": true },
+			"correctness": { "recommended": true },
+			"nursery": { "recommended": true },
+			"security": { "recommended": true },
+			"style": { "recommended": true },
+			"suspicious": { "recommended": true }
+		},
+		"domains": {
+			"project": "recommended",
+			"test": "recommended",
+			"types": "recommended"
+		}
+	},
+	"assist": {
+		"enabled": true,
+		"actions": {
+			"source": {
+				"recommended": true,
+				"organizeImports": "off"
+			}
+		}
+	}
+}

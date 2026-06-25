@@ -1,0 +1,145 @@
+================================================================================
+Named color
+================================================================================
+
+red
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (wsp)
+  (paint_value
+    (named_color))
+  (wsp))
+
+================================================================================
+Hex color
+================================================================================
+
+#ff0000
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (wsp)
+  (paint_value
+    (hex_color))
+  (wsp))
+
+================================================================================
+rgb function
+================================================================================
+
+rgb(255, 0, 0)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (wsp)
+  (paint_value
+    (functional_color
+      (color_function_name)
+      (number_or_percentage
+        (number))
+      (comma_wsp
+        (wsp))
+      (number_or_percentage
+        (number))
+      (comma_wsp
+        (wsp))
+      (number_or_percentage
+        (number))))
+  (wsp))
+
+================================================================================
+Paint server url with color fallback
+================================================================================
+
+url(#grad) blue
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (wsp)
+  (paint_value
+    (paint_server
+      (iri_reference)
+      (wsp)
+      (named_color)))
+  (wsp))
+
+================================================================================
+CSS Color 4 oklch with slash alpha and none channel
+================================================================================
+
+oklch(0.7 0.15 none / 0.5)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (wsp)
+  (paint_value
+    (functional_color
+      (color_function_name)
+      (number_or_percentage
+        (number))
+      (comma_wsp
+        (wsp))
+      (number_or_percentage
+        (number))
+      (comma_wsp
+        (wsp))
+      (color_none)
+      (wsp)
+      (wsp)
+      (number_or_percentage
+        (number))))
+  (wsp))
+
+================================================================================
+CSS Color 5 color-mix with hue interpolation
+================================================================================
+
+color-mix(in oklch longer hue, red 40%, blue)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (wsp)
+  (paint_value
+    (functional_color
+      (color_function_name)
+      (color_interpolation_method
+        (color_mix_in_keyword)
+        (wsp)
+        (color_interpolation_space)
+        (wsp)
+        (color_hue_interpolation
+          (color_hue_direction)
+          (wsp)
+          (color_hue_keyword)))
+      (comma_wsp
+        (wsp))
+      (color_mix_component
+        (named_color)
+        (wsp)
+        (percentage
+          (number)))
+      (comma_wsp
+        (wsp))
+      (color_mix_component
+        (named_color))))
+  (wsp))
+
+================================================================================
+Paint keyword
+================================================================================
+
+none
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (wsp)
+  (paint_value)
+  (wsp))

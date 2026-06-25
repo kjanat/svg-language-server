@@ -1,0 +1,9 @@
+[pm]
+node = "bun"
+
+[github]
+group_parallel = true
+group_output   = true
+
+[parallel]
+grouped = true

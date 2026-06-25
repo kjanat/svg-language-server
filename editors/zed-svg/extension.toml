@@ -7,12 +7,14 @@ schema_version = 1
 authors        = ["Kaj Kowalski <info@kajkowalski.nl>"]
 description    = "Syntax highlighting and language injections for SVG files."
 repository     = "https://github.com/kjanat/svg"
-languages      = ["languages/svg"]
+languages      = ["languages/svg", "languages/svg-paint", "languages/svg-path", "languages/svg-transform"]
 
-[grammars.svg]
-repository = "https://github.com/kjanat/svg-language-server"  # file:///home/kjanat/svg-language-server
-rev        = "12ddd0c0786dd661824e38788d6c2be0f43e4096"
-path       = "grammars/tree-sitter-svg"
+# https://github.com/kjanat/svg-language-server
+[grammars]
+svg           = { repository = "file:///home/kjanat/svg-language-server", rev = "HEAD", path = "grammars/tree-sitter-svg" }
+svg_path      = { repository = "file:///home/kjanat/svg-language-server", rev = "HEAD", path = "grammars/tree-sitter-svg-path" }
+svg_transform = { repository = "file:///home/kjanat/svg-language-server", rev = "HEAD", path = "grammars/tree-sitter-svg-transform" }
+svg_paint     = { repository = "file:///home/kjanat/svg-language-server", rev = "HEAD", path = "grammars/tree-sitter-svg-paint" }
 
 [language_servers.svg-language-server]
 languages        = ["SVG"]

@@ -15,9 +15,7 @@
 (comment) @comment.around
 (comment text: (comment_text) @comment.inside)
 
-; Functions (transform functions, color functions)
-(transform_function) @function.around
-(functional_color) @function.around
+; Functions (color functions; transform fns moved to svg_transform)
 
 ; Path segments live in the injected svg_path grammar
 ; (grammars/tree-sitter-svg-path/queries/textobjects.scm).

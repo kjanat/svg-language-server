@@ -126,54 +126,6 @@
     ]
   },
   {
-    "type": "color_value",
-    "named": true,
-    "subtypes": [
-      {
-        "type": "functional_color",
-        "named": true
-      },
-      {
-        "type": "hex_color",
-        "named": true
-      },
-      {
-        "type": "named_color",
-        "named": true
-      }
-    ]
-  },
-  {
-    "type": "transform_function",
-    "named": true,
-    "subtypes": [
-      {
-        "type": "matrix_transform",
-        "named": true
-      },
-      {
-        "type": "rotate_transform",
-        "named": true
-      },
-      {
-        "type": "scale_transform",
-        "named": true
-      },
-      {
-        "type": "skew_x_transform",
-        "named": true
-      },
-      {
-        "type": "skew_y_transform",
-        "named": true
-      },
-      {
-        "type": "translate_transform",
-        "named": true
-      }
-    ]
-  },
-  {
     "type": "animate_motion_attribute",
     "named": true,
     "fields": {},
@@ -423,79 +375,6 @@
         },
         {
           "type": "length_or_percentage_or_auto",
-          "named": true
-        },
-        {
-          "type": "wsp",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "color_hue_interpolation",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "color_hue_direction",
-          "named": true
-        },
-        {
-          "type": "color_hue_keyword",
-          "named": true
-        },
-        {
-          "type": "wsp",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "color_interpolation_method",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "color_hue_interpolation",
-          "named": true
-        },
-        {
-          "type": "color_interpolation_space",
-          "named": true
-        },
-        {
-          "type": "color_mix_in_keyword",
-          "named": true
-        },
-        {
-          "type": "wsp",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "color_mix_component",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "color_value",
-          "named": true
-        },
-        {
-          "type": "percentage",
           "named": true
         },
         {
@@ -1075,53 +954,6 @@
     }
   },
   {
-    "type": "functional_color",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "color_colorspace",
-          "named": true
-        },
-        {
-          "type": "color_function_name",
-          "named": true
-        },
-        {
-          "type": "color_interpolation_method",
-          "named": true
-        },
-        {
-          "type": "color_mix_component",
-          "named": true
-        },
-        {
-          "type": "color_none",
-          "named": true
-        },
-        {
-          "type": "comma_wsp",
-          "named": true
-        },
-        {
-          "type": "hue_value",
-          "named": true
-        },
-        {
-          "type": "number_or_percentage",
-          "named": true
-        },
-        {
-          "type": "wsp",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "functional_iri",
     "named": true,
     "fields": {},
@@ -1266,25 +1098,6 @@
         },
         {
           "type": "iri_reference",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "hue_value",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "angle_unit",
-          "named": true
-        },
-        {
-          "type": "number",
           "named": true
         }
       ]
@@ -1692,29 +1505,6 @@
     }
   },
   {
-    "type": "matrix_transform",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "comma_wsp",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "wsp",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "name",
     "named": true,
     "fields": {}
@@ -2020,53 +1810,21 @@
       "required": false,
       "types": [
         {
-          "type": "paint_value",
+          "type": "paint_payload",
           "named": true
         }
       ]
     }
   },
   {
-    "type": "paint_server",
+    "type": "paint_payload",
     "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "color_value",
-          "named": true
-        },
-        {
-          "type": "iri_reference",
-          "named": true
-        },
-        {
-          "type": "wsp",
-          "named": true
-        }
-      ]
-    }
+    "fields": {}
   },
   {
-    "type": "paint_value",
+    "type": "path_data_payload",
     "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": false,
-      "types": [
-        {
-          "type": "color_value",
-          "named": true
-        },
-        {
-          "type": "paint_server",
-          "named": true
-        }
-      ]
-    }
+    "fields": {}
   },
   {
     "type": "percentage",
@@ -2305,11 +2063,6 @@
     }
   },
   {
-    "type": "rotate_attribute_name",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "rotate_attribute_value",
     "named": true,
     "fields": {},
@@ -2319,52 +2072,6 @@
       "types": [
         {
           "type": "number_list",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "rotate_transform",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "comma_wsp",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "wsp",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "scale_transform",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "comma_wsp",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "wsp",
           "named": true
         }
       ]
@@ -2478,44 +2185,6 @@
           }
         ]
       }
-    }
-  },
-  {
-    "type": "skew_x_transform",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "wsp",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "skew_y_transform",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "wsp",
-          "named": true
-        }
-      ]
     }
   },
   {
@@ -2792,53 +2461,16 @@
       "required": false,
       "types": [
         {
-          "type": "transform_list",
+          "type": "transform_payload",
           "named": true
         }
       ]
     }
   },
   {
-    "type": "transform_list",
+    "type": "transform_payload",
     "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "comma_wsp",
-          "named": true
-        },
-        {
-          "type": "transform_function",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "translate_transform",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "comma_wsp",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "wsp",
-          "named": true
-        }
-      ]
-    }
+    "fields": {}
   },
   {
     "type": "viewbox_attribute",
@@ -3035,10 +2667,6 @@
     "named": false
   },
   {
-    "type": "/",
-    "named": false
-  },
-  {
     "type": "/>",
     "named": false
   },
@@ -3103,10 +2731,6 @@
     "named": true
   },
   {
-    "type": "angle_unit",
-    "named": true
-  },
-  {
     "type": "animate_motion_coordinate_attribute_name",
     "named": true
   },
@@ -3139,48 +2763,8 @@
     "named": true
   },
   {
-    "type": "color_colorspace",
-    "named": true
-  },
-  {
-    "type": "color_function_name",
-    "named": true
-  },
-  {
-    "type": "color_hue_direction",
-    "named": true
-  },
-  {
-    "type": "color_hue_keyword",
-    "named": true
-  },
-  {
-    "type": "color_interpolation_space",
-    "named": true
-  },
-  {
-    "type": "color_mix_in_keyword",
-    "named": true
-  },
-  {
-    "type": "color_none",
-    "named": true
-  },
-  {
-    "type": "context-fill",
-    "named": false
-  },
-  {
-    "type": "context-stroke",
-    "named": false
-  },
-  {
     "type": "css_text_attribute_name",
     "named": true
-  },
-  {
-    "type": "currentColor",
-    "named": false
   },
   {
     "type": "d_attribute_name",
@@ -3235,10 +2819,6 @@
     "named": true
   },
   {
-    "type": "hex_color",
-    "named": true
-  },
-  {
     "type": "href_attribute_name",
     "named": true
   },
@@ -3283,10 +2863,6 @@
     "named": true
   },
   {
-    "type": "matrix",
-    "named": false
-  },
-  {
     "type": "media",
     "named": false
   },
@@ -3296,10 +2872,6 @@
   },
   {
     "type": "mime_type",
-    "named": true
-  },
-  {
-    "type": "named_color",
     "named": true
   },
   {
@@ -3339,10 +2911,6 @@
     "named": true
   },
   {
-    "type": "path_data_payload",
-    "named": true
-  },
-  {
     "type": "pi_content",
     "named": true
   },
@@ -3367,20 +2935,8 @@
     "named": true
   },
   {
-    "type": "rotate",
-    "named": false
-  },
-  {
-    "type": "scale",
-    "named": false
-  },
-  {
-    "type": "skewX",
-    "named": false
-  },
-  {
-    "type": "skewY",
-    "named": false
+    "type": "rotate_attribute_name",
+    "named": true
   },
   {
     "type": "stroke_dasharray_attribute_name",
@@ -3401,10 +2957,6 @@
   {
     "type": "transform_attribute_name",
     "named": true
-  },
-  {
-    "type": "translate",
-    "named": false
   },
   {
     "type": "url(",

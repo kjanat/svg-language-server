@@ -256,11 +256,7 @@ Typed references and paint servers
         (paint_attribute
           name: (paint_attribute_name)
           value: (paint_attribute_value
-            (paint_value
-              (paint_server
-                (iri_reference)
-                (wsp)
-                (hex_color)))))
+            (paint_payload)))
         (functional_iri_attribute
           name: (functional_iri_attribute_name)
           value: (functional_iri_attribute_value

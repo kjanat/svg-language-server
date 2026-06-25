@@ -4,9 +4,9 @@
 	"file_types": { "JSON": ["*.resolved"], "JSON5": ["*.gyp"] },
 	"languages": {
 		"Rust": { "wrap_guides": [100] },
-		"JavaScript": { "language_servers": ["deno", "!typescript-language-server", "!vtsls", "!eslint", "!tsgo"] },
-		"TypeScript": { "language_servers": ["deno", "!typescript-language-server", "!vtsls", "!eslint", "!tsgo"] },
-		"TSX": { "language_servers": ["deno", "!typescript-language-server", "!vtsls", "!eslint", "!tsgo"] },
+		"JavaScript": { "language_servers": ["deno", "!typescript-language-server", "vtsls", "!eslint", "!tsgo"] },
+		"TypeScript": { "language_servers": ["deno", "!typescript-language-server", "vtsls", "!eslint", "!tsgo"] },
+		"TSX": { "language_servers": ["deno", "!typescript-language-server", "vtsls", "!eslint", "!tsgo"] },
 		"SVG": { "language_servers": ["svg-language-server"] }
 	},
 	"lsp": {

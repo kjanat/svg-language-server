@@ -2,7 +2,6 @@
 .playwright-*/
 /*.png
 /_*.md
-bun.lock
 node_modules/
 single-page.html
 svgwg/

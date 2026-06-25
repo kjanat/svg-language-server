@@ -1,10 +1,10 @@
 <svg>
   <rect fill="none"/>
-  <!--        ^^^^ constant.builtin -->
+  <!--        ^^^^ string -->
   <rect fill="currentColor"/>
-  <!--        ^^^^^^^^^^^^ constant.builtin -->
+  <!--        ^^^^^^^^^^^^ string -->
   <rect fill="inherit"/>
-  <!--        ^^^^^^^ constant.builtin -->
+  <!--        ^^^^^^^ string -->
   <image preserveAspectRatio="xMidYMid meet"/>
   <!--                        ^^^^^^^^ constant -->
   <!--                                 ^^^^ constant -->
@@ -19,6 +19,6 @@
   <!-- font-size is a keyword|length-percentage union -> css_text string, not number -->
   <!--                          ^^^^ !number -->
   <g transform="translate(10)"/>
-  <!--                   ^ punctuation.bracket -->
-  <!--                      ^ punctuation.bracket -->
+  <!--                   ^ string -->
+  <!--                      ^ string -->
 </svg>

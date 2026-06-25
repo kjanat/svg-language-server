@@ -36,17 +36,8 @@
 (animate_motion_values_attribute
   name: (_) @attribute)
 
-(hex_color) @constant
-(color_function_name) @function.call
 (clip_rect "rect" @function.call)
-(named_color) @constant
 
-(color_colorspace) @type.builtin
-(color_interpolation_space) @type.builtin
-(color_mix_in_keyword) @keyword
-(color_hue_direction) @keyword.modifier
-(color_hue_keyword) @keyword
-(color_none) @constant.builtin
 
 (attribute
   value: (_) @string)
@@ -57,12 +48,7 @@
 (animate_motion_values_attribute
   value: (_) @string)
 
-(matrix_transform "matrix" @function.builtin)
-(translate_transform "translate" @function.builtin)
-(scale_transform "scale" @function.builtin)
-(rotate_transform "rotate" @function.builtin)
-(skew_x_transform "skewX" @function.builtin)
-(skew_y_transform "skewY" @function.builtin)
+; Transform function highlights live in the injected svg_transform grammar.
 
 (style_text_double) @string
 (style_text_single) @string
@@ -72,8 +58,7 @@
 (class_name) @link_uri
 (iri_reference) @link_uri
 
-(paint_value
-  ["none" "currentColor" "context-fill" "context-stroke" "inherit"] @constant.builtin)
+; Paint/color highlights live in the injected svg_paint grammar.
 
 (align_keyword) @constant
 (meet_or_slice_keyword) @constant
@@ -88,7 +73,6 @@
 
 (length_unit) @type
 (time_unit) @type
-(angle_unit) @type
 (percentage "%" @type)
 
 ; Path data highlights live in the injected svg_path grammar

@@ -27,19 +27,6 @@ export const GRAMMAR_DEDICATED_ATTRIBUTE_NAMES: readonly string[] = [
 	'xlink:href',
 ];
 
-export const PATH_COMMAND_TOKEN_RULES: readonly string[] = [
-	'moveto_command',
-	'closepath_command',
-	'lineto_command',
-	'horizontal_lineto_command',
-	'vertical_lineto_command',
-	'curveto_command',
-	'smooth_curveto_command',
-	'quadratic_bezier_curveto_command',
-	'smooth_quadratic_bezier_curveto_command',
-	'elliptical_arc_command',
-];
-
 /** Attribute buckets consumed via `choice(...ATTRIBUTE_BUCKETS.*)` in grammar.js. */
 export const GENERATED_ATTRIBUTE_BUCKET_KEYS: readonly string[] = [
 	'keyword',
@@ -57,12 +44,14 @@ export const GENERATED_ATTRIBUTE_BUCKET_KEYS: readonly string[] = [
 	'css_text',
 ];
 
-/** Token sets consumed via `TOKENS.*` in grammar.js. */
+/**
+ * Token sets consumed via `TOKENS.*` in the host grammar.js.
+ *
+ * Path-command, color-space, hue and angle token sets were evicted to the
+ * injected sibling grammars (tree-sitter-svg-path / tree-sitter-svg-paint),
+ * which own their own catalog drift guards; the host no longer projects them.
+ */
 export const TOKEN_KEYS: readonly string[] = [
 	'length_units',
-	'angle_units',
 	'time_units',
-	'color_spaces',
-	'color_interpolation_spaces',
-	'hue_interpolation_methods',
 ];

@@ -3,22 +3,31 @@
  * @author Kaj Kowalski <info@kajkowalski.nl>
  * @license MIT
  */
-
 /// <reference types="tree-sitter-cli/dsl" />
-// @ts-check
 
 import grammarData from '#grammarData' with { type: 'json' };
 import { D_ATTRIBUTE_NAMES } from '#grammarFixtures';
 
 const NUMBER_PATTERN = /[+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?/;
+
+// Literal delimiter tokens, named so the rules read intent over punctuation.
+const DQUOTE = '"';
+const SQUOTE = "'";
+const LANGLE = '<';
+const RANGLE = '>';
+const LPAREN = '(';
+const RPAREN = ')';
+const COMMA = ',';
+const SEMI = ';';
+const EQ = '=';
 const ATTRIBUTE_BUCKETS = grammarData.attribute_buckets;
 const TOKENS = grammarData.tokens;
 
 /** @param {RuleOrLiteral} value */
 function quoted(value) {
 	return choice(
-		seq('"', optional(value), '"'),
-		seq("'", optional(value), "'"),
+		seq(DQUOTE, optional(value), DQUOTE),
+		seq(SQUOTE, optional(value), SQUOTE),
 	);
 }
 
@@ -78,8 +87,6 @@ export default grammar({
 	// (`(id_attribute ...)`), and corpus expectations lose the wrapper node.
 	supertypes: $ => [
 		$.attribute,
-		$.transform_function,
-		$.color_value,
 	],
 
 	// Hidden single-use wrapper rules substituted at their (one) use site. Each
@@ -92,15 +99,6 @@ export default grammar({
 	// goal — so they stay as hidden shared rules. `_length_or_keyword_item`
 	// (×2) is state-neutral but a thin dispatcher, kept for node-type clarity.
 	inline: $ => [
-		$._rgb_color,
-		$._hsl_color,
-		$._hwb_color,
-		$._lab_color,
-		$._oklab_color,
-		$._lch_color,
-		$._oklch_color,
-		$._color_function,
-		$._color_mix_function,
 		$._length_or_keyword_item,
 	],
 
@@ -182,7 +180,7 @@ export default grammar({
 				optional(seq($._s, field('external_id', $.doctype_external_id))),
 				optional(seq($._s, field('internal_subset', $.doctype_internal_subset))),
 				optional($._s),
-				'>',
+				RANGLE,
 			),
 
 		doctype_external_id: _ => token(/[^\x5B\x5D>]+/),
@@ -282,11 +280,11 @@ export default grammar({
 
 		script_start_tag: $ =>
 			seq(
-				'<',
+				LANGLE,
 				field('name', alias($._script_start_tag_name, $.name)),
 				repeat(seq($._s, $.attribute)),
 				optional($._s),
-				'>',
+				RANGLE,
 			),
 
 		script_end_tag: $ =>
@@ -294,12 +292,12 @@ export default grammar({
 				'</',
 				field('name', alias($._script_end_tag_name, $.name)),
 				optional($._s),
-				'>',
+				RANGLE,
 			),
 
 		script_self_closing_tag: $ =>
 			seq(
-				'<',
+				LANGLE,
 				field('name', alias($._script_start_tag_name, $.name)),
 				repeat(seq($._s, $.attribute)),
 				optional($._s),
@@ -330,11 +328,11 @@ export default grammar({
 
 		style_element_start_tag: $ =>
 			seq(
-				'<',
+				LANGLE,
 				field('name', alias($._style_start_tag_name, $.name)),
 				repeat(seq($._s, $.attribute)),
 				optional($._s),
-				'>',
+				RANGLE,
 			),
 
 		style_end_tag: $ =>
@@ -342,12 +340,12 @@ export default grammar({
 				'</',
 				field('name', alias($._style_end_tag_name, $.name)),
 				optional($._s),
-				'>',
+				RANGLE,
 			),
 
 		style_self_closing_tag: $ =>
 			seq(
-				'<',
+				LANGLE,
 				field('name', alias($._style_start_tag_name, $.name)),
 				repeat(seq($._s, $.attribute)),
 				optional($._s),
@@ -368,11 +366,11 @@ export default grammar({
 
 		path_start_tag: $ =>
 			seq(
-				'<',
+				LANGLE,
 				field('name', alias($._path_start_tag_name, $.name)),
 				repeat(seq($._s, $.attribute)),
 				optional($._s),
-				'>',
+				RANGLE,
 			),
 
 		path_end_tag: $ =>
@@ -380,12 +378,12 @@ export default grammar({
 				'</',
 				field('name', alias($._path_end_tag_name, $.name)),
 				optional($._s),
-				'>',
+				RANGLE,
 			),
 
 		path_self_closing_tag: $ =>
 			seq(
-				'<',
+				LANGLE,
 				field('name', alias($._path_start_tag_name, $.name)),
 				repeat(seq($._s, $.attribute)),
 				optional($._s),
@@ -406,11 +404,11 @@ export default grammar({
 
 		animate_motion_start_tag: $ =>
 			seq(
-				'<',
+				LANGLE,
 				field('name', alias($._animate_motion_start_tag_name, $.name)),
 				repeat(seq($._s, $.animate_motion_attribute)),
 				optional($._s),
-				'>',
+				RANGLE,
 			),
 
 		animate_motion_end_tag: $ =>
@@ -418,12 +416,12 @@ export default grammar({
 				'</',
 				field('name', alias($._animate_motion_end_tag_name, $.name)),
 				optional($._s),
-				'>',
+				RANGLE,
 			),
 
 		animate_motion_self_closing_tag: $ =>
 			seq(
-				'<',
+				LANGLE,
 				field('name', alias($._animate_motion_start_tag_name, $.name)),
 				repeat(seq($._s, $.animate_motion_attribute)),
 				optional($._s),
@@ -463,11 +461,11 @@ export default grammar({
 
 		start_tag: $ =>
 			seq(
-				'<',
+				LANGLE,
 				field('name', alias($._start_tag_name, $.name)),
 				repeat(seq($._s, $.attribute)),
 				optional($._s),
-				'>',
+				RANGLE,
 			),
 
 		end_tag: $ =>
@@ -475,12 +473,12 @@ export default grammar({
 				'</',
 				field('name', alias($._end_tag_name, $.name)),
 				optional($._s),
-				'>',
+				RANGLE,
 			),
 
 		self_closing_tag: $ =>
 			seq(
-				'<',
+				LANGLE,
 				field('name', alias($._start_tag_name, $.name)),
 				repeat(seq($._s, $.attribute)),
 				optional($._s),
@@ -492,7 +490,7 @@ export default grammar({
 				'</',
 				field('name', alias($._erroneous_end_tag_name, $.name)),
 				optional($._s),
-				'>',
+				RANGLE,
 			),
 
 		// ─── Attributes ─────────────────────────────────────────────
@@ -555,16 +553,16 @@ export default grammar({
 
 		double_quoted_path_data: $ =>
 			seq(
-				'"',
+				DQUOTE,
 				optional(field('path', $.path_data_payload)),
-				'"',
+				DQUOTE,
 			),
 
 		single_quoted_path_data: $ =>
 			seq(
-				"'",
+				SQUOTE,
 				optional(field('path', $.path_data_payload)),
-				"'",
+				SQUOTE,
 			),
 
 		// Opaque path-data capture. The rich path sub-grammar (commands,
@@ -593,16 +591,16 @@ export default grammar({
 
 		double_quoted_style_value: $ =>
 			seq(
-				'"',
+				DQUOTE,
 				optional(field('content', $.style_text_double)),
-				'"',
+				DQUOTE,
 			),
 
 		single_quoted_style_value: $ =>
 			seq(
-				"'",
+				SQUOTE,
 				optional(field('content', $.style_text_single)),
-				"'",
+				SQUOTE,
 			),
 
 		style_text_double: _ => token(/[^"]+/),
@@ -684,96 +682,12 @@ export default grammar({
 				'patternTransform',
 			)),
 
-		transform_attribute_value: $ => quoted($.transform_list),
+		// Opaque transform-list capture. The transform-function sub-grammar is
+		// evicted to the sibling tree-sitter-svg-transform grammar, injected over
+		// this token's range via injections.scm — same pattern as path data.
+		transform_attribute_value: $ => quoted($.transform_payload),
 
-		transform_list: $ =>
-			seq(
-				$.transform_function,
-				repeat(seq($.comma_wsp, $.transform_function)),
-			),
-
-		transform_function: $ =>
-			choice(
-				$.matrix_transform,
-				$.translate_transform,
-				$.scale_transform,
-				$.rotate_transform,
-				$.skew_x_transform,
-				$.skew_y_transform,
-			),
-
-		matrix_transform: $ =>
-			seq(
-				'matrix',
-				'(',
-				optional($.wsp),
-				$.number,
-				$.comma_wsp,
-				$.number,
-				$.comma_wsp,
-				$.number,
-				$.comma_wsp,
-				$.number,
-				$.comma_wsp,
-				$.number,
-				$.comma_wsp,
-				$.number,
-				optional($.wsp),
-				')',
-			),
-
-		translate_transform: $ =>
-			seq(
-				'translate',
-				'(',
-				optional($.wsp),
-				$.number,
-				optional(seq($.comma_wsp, $.number)),
-				optional($.wsp),
-				')',
-			),
-
-		scale_transform: $ =>
-			seq(
-				'scale',
-				'(',
-				optional($.wsp),
-				$.number,
-				optional(seq($.comma_wsp, $.number)),
-				optional($.wsp),
-				')',
-			),
-
-		rotate_transform: $ =>
-			seq(
-				'rotate',
-				'(',
-				optional($.wsp),
-				$.number,
-				optional(seq($.comma_wsp, $.number, $.comma_wsp, $.number)),
-				optional($.wsp),
-				')',
-			),
-
-		skew_x_transform: $ =>
-			seq(
-				'skewX',
-				'(',
-				optional($.wsp),
-				$.number,
-				optional($.wsp),
-				')',
-			),
-
-		skew_y_transform: $ =>
-			seq(
-				'skewY',
-				'(',
-				optional($.wsp),
-				$.number,
-				optional($.wsp),
-				')',
-			),
+		transform_payload: _ => token(/[^"'<&]+/),
 
 		// ─── points attribute ───────────────────────────────────────
 
@@ -807,249 +721,12 @@ export default grammar({
 
 		paint_attribute_name: _ => oneOf(ATTRIBUTE_BUCKETS.color),
 
-		paint_attribute_value: $ => quoted($.paint_value),
+		// Opaque paint/color capture. The paint + color-value sub-grammar is
+		// evicted to the sibling tree-sitter-svg-paint grammar, injected over this
+		// token's range via injections.scm — same pattern as path/transform.
+		paint_attribute_value: $ => quoted($.paint_payload),
 
-		paint_value: $ =>
-			choice(
-				'none',
-				'currentColor',
-				'context-fill',
-				'context-stroke',
-				'inherit',
-				$.paint_server,
-				$.color_value,
-			),
-
-		paint_server: $ =>
-			seq(
-				'url(',
-				optional($.wsp),
-				$.iri_reference,
-				optional($.wsp),
-				')',
-				optional(seq($.wsp, choice($.color_value, 'none', 'currentColor'))),
-			),
-
-		color_value: $ => choice($.hex_color, $.functional_color, $.named_color),
-
-		hex_color: _ => token(/#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})/),
-		functional_color: $ =>
-			choice(
-				$._rgb_color,
-				$._hsl_color,
-				$._hwb_color,
-				$._lab_color,
-				$._lch_color,
-				$._oklab_color,
-				$._oklch_color,
-				$._color_function,
-				$._color_mix_function,
-			),
-
-		// rgb() / rgba() — 3 components + optional /alpha
-		_rgb_color: $ =>
-			seq(
-				alias(token(choice('rgb', 'rgba')), $.color_function_name),
-				'(',
-				optional($.wsp),
-				$.number_or_percentage,
-				$.comma_wsp,
-				$.number_or_percentage,
-				$.comma_wsp,
-				$.number_or_percentage,
-				optional($._color_alpha),
-				optional($.wsp),
-				')',
-			),
-
-		// hsl() / hsla() — hue + 2 percentages + optional /alpha
-		_hsl_color: $ =>
-			seq(
-				alias(token(choice('hsl', 'hsla')), $.color_function_name),
-				'(',
-				optional($.wsp),
-				$.hue_value,
-				$.comma_wsp,
-				$.number_or_percentage,
-				$.comma_wsp,
-				$.number_or_percentage,
-				optional($._color_alpha),
-				optional($.wsp),
-				')',
-			),
-
-		// hwb() — hue + 2 components + optional /alpha (CSS Color 4)
-		_hwb_color: $ =>
-			seq(
-				alias(token('hwb'), $.color_function_name),
-				'(',
-				optional($.wsp),
-				$._color_hue_component,
-				$.comma_wsp,
-				$._color_component,
-				$.comma_wsp,
-				$._color_component,
-				optional($._color_alpha),
-				optional($.wsp),
-				')',
-			),
-
-		// lab() — L a b + optional /alpha (CSS Color 4)
-		_lab_color: $ =>
-			seq(
-				alias(token('lab'), $.color_function_name),
-				'(',
-				optional($.wsp),
-				$._color_component,
-				$.comma_wsp,
-				$._color_component,
-				$.comma_wsp,
-				$._color_component,
-				optional($._color_alpha),
-				optional($.wsp),
-				')',
-			),
-
-		// oklab() — L a b + optional /alpha (CSS Color 4)
-		_oklab_color: $ =>
-			seq(
-				alias(token('oklab'), $.color_function_name),
-				'(',
-				optional($.wsp),
-				$._color_component,
-				$.comma_wsp,
-				$._color_component,
-				$.comma_wsp,
-				$._color_component,
-				optional($._color_alpha),
-				optional($.wsp),
-				')',
-			),
-
-		// lch() — L C H + optional /alpha (CSS Color 4)
-		_lch_color: $ =>
-			seq(
-				alias(token('lch'), $.color_function_name),
-				'(',
-				optional($.wsp),
-				$._color_component,
-				$.comma_wsp,
-				$._color_component,
-				$.comma_wsp,
-				$._color_hue_component,
-				optional($._color_alpha),
-				optional($.wsp),
-				')',
-			),
-
-		// oklch() — L C H + optional /alpha (CSS Color 4)
-		_oklch_color: $ =>
-			seq(
-				alias(token('oklch'), $.color_function_name),
-				'(',
-				optional($.wsp),
-				$._color_component,
-				$.comma_wsp,
-				$._color_component,
-				$.comma_wsp,
-				$._color_hue_component,
-				optional($._color_alpha),
-				optional($.wsp),
-				')',
-			),
-
-		// color(<colorspace> c1 c2 c3 [/alpha]?) — CSS Color 4
-		_color_function: $ =>
-			seq(
-				alias(token('color'), $.color_function_name),
-				'(',
-				optional($.wsp),
-				$.color_colorspace,
-				$.wsp,
-				$._color_component,
-				$.wsp,
-				$._color_component,
-				$.wsp,
-				$._color_component,
-				optional($._color_alpha),
-				optional($.wsp),
-				')',
-			),
-
-		// color-mix(in <cs> [hue-method]?, <color> [pct]?, <color> [pct]?) — CSS Color 5
-		_color_mix_function: $ =>
-			seq(
-				alias(token('color-mix'), $.color_function_name),
-				'(',
-				optional($.wsp),
-				$.color_interpolation_method,
-				$.comma_wsp,
-				$.color_mix_component,
-				$.comma_wsp,
-				$.color_mix_component,
-				optional($.wsp),
-				')',
-			),
-
-		color_interpolation_method: $ =>
-			prec.right(seq(
-				alias(token('in'), $.color_mix_in_keyword),
-				$.wsp,
-				$.color_interpolation_space,
-				optional(seq($.wsp, $.color_hue_interpolation)),
-			)),
-
-		color_colorspace: _ => token(choice(...TOKENS.color_spaces)),
-
-		color_interpolation_space: _ => token(choice(...TOKENS.color_interpolation_spaces)),
-
-		color_hue_interpolation: $ =>
-			seq(
-				alias(
-					token(choice(...TOKENS.hue_interpolation_methods)),
-					$.color_hue_direction,
-				),
-				$.wsp,
-				alias(token('hue'), $.color_hue_keyword),
-			),
-
-		color_mix_component: $ =>
-			prec.right(seq(
-				$.color_value,
-				optional(seq($.wsp, $.percentage)),
-			)),
-
-		_color_component: $ =>
-			choice(
-				$.number_or_percentage,
-				alias(token('none'), $.color_none),
-			),
-
-		_color_hue_component: $ =>
-			choice(
-				$.hue_value,
-				alias(token('none'), $.color_none),
-			),
-
-		_color_alpha: $ =>
-			choice(
-				seq($.comma_wsp, $.number_or_percentage),
-				seq(
-					optional($.wsp),
-					'/',
-					optional($.wsp),
-					choice(
-						$.number_or_percentage,
-						alias(token('none'), $.color_none),
-					),
-				),
-			),
-
-		hue_value: $ => seq($.number, optional($.angle_unit)),
-
-		angle_unit: _ => token(choice(...TOKENS.angle_units)),
-
-		named_color: _ => token(/[A-Za-z][A-Za-z-]*/),
+		paint_payload: _ => token(/[^"'<&]+/),
 
 		// ─── functional IRI attribute (url(#ref)) ───────────────────
 
@@ -1064,7 +741,7 @@ export default grammar({
 
 		functional_iri_attribute_value: $ => quoted(choice('none', $.functional_iri, $.iri_reference)),
 
-		functional_iri: $ => seq('url(', optional($.wsp), $.iri_reference, optional($.wsp), ')'),
+		functional_iri: $ => seq('url(', optional($.wsp), $.iri_reference, optional($.wsp), RPAREN),
 
 		// ─── clip attribute (deprecated, rect() function) ───────────
 
@@ -1082,7 +759,7 @@ export default grammar({
 		clip_rect: $ =>
 			seq(
 				'rect',
-				'(',
+				LPAREN,
 				optional($.wsp),
 				$.length_or_percentage_or_auto,
 				$.comma_wsp,
@@ -1092,7 +769,7 @@ export default grammar({
 				$.comma_wsp,
 				$.length_or_percentage_or_auto,
 				optional($.wsp),
-				')',
+				RPAREN,
 			),
 
 		// ─── opacity attribute ──────────────────────────────────────
@@ -1274,8 +951,8 @@ export default grammar({
 
 		css_text_attribute_value: $ =>
 			choice(
-				seq('"', optional(field('content', $.css_attribute_text_double)), '"'),
-				seq("'", optional(field('content', $.css_attribute_text_single)), "'"),
+				seq(DQUOTE, optional(field('content', $.css_attribute_text_double)), DQUOTE),
+				seq(SQUOTE, optional(field('content', $.css_attribute_text_single)), SQUOTE),
 			),
 
 		css_attribute_text_double: _ => token(/[^"]+/),
@@ -1353,15 +1030,15 @@ export default grammar({
 		semicolon_number_list: $ =>
 			seq(
 				$.number,
-				repeat(seq(optional($.wsp), ';', optional($.wsp), $.number)),
-				optional(seq(optional($.wsp), ';', optional($.wsp))),
+				repeat(seq(optional($.wsp), SEMI, optional($.wsp), $.number)),
+				optional(seq(optional($.wsp), SEMI, optional($.wsp))),
 			),
 
 		semicolon_coordinate_pair_list: $ =>
 			seq(
 				$.coordinate_pair,
-				repeat(seq(optional($.wsp), ';', optional($.wsp), $.coordinate_pair)),
-				optional(seq(optional($.wsp), ';', optional($.wsp))),
+				repeat(seq(optional($.wsp), SEMI, optional($.wsp), $.coordinate_pair)),
+				optional(seq(optional($.wsp), SEMI, optional($.wsp))),
 			),
 
 		// ─── keySplines attribute (semicolon-separated 4-tuples) ────
@@ -1380,7 +1057,7 @@ export default grammar({
 		key_splines_list: $ =>
 			seq(
 				$.key_spline_value,
-				repeat(seq(optional($.wsp), ';', optional($.wsp), $.key_spline_value)),
+				repeat(seq(optional($.wsp), SEMI, optional($.wsp), $.key_spline_value)),
 			),
 
 		key_spline_value: $ => seq($.number, $.comma_wsp, $.number, $.comma_wsp, $.number, $.comma_wsp, $.number),
@@ -1466,8 +1143,8 @@ export default grammar({
 		// inner token (script_text_double/single) for injection targeting.
 		event_attribute_value: $ =>
 			choice(
-				seq('"', optional(field('content', $.script_text_double)), '"'),
-				seq("'", optional(field('content', $.script_text_single)), "'"),
+				seq(DQUOTE, optional(field('content', $.script_text_double)), DQUOTE),
+				seq(SQUOTE, optional(field('content', $.script_text_single)), SQUOTE),
 			),
 
 		script_text_double: _ => token(/[^"]+/),
@@ -1487,14 +1164,14 @@ export default grammar({
 		quoted_attribute_value: $ =>
 			choice(
 				seq(
-					'"',
+					DQUOTE,
 					repeat(choice($.entity_reference, $.attribute_text_double)),
-					'"',
+					DQUOTE,
 				),
 				seq(
-					"'",
+					SQUOTE,
 					repeat(choice($.entity_reference, $.attribute_text_single)),
-					"'",
+					SQUOTE,
 				),
 			),
 
@@ -1503,14 +1180,14 @@ export default grammar({
 
 		// ─── Shared value types ─────────────────────────────────────
 
-		_eq: $ => seq(optional($._s), '=', optional($._s)),
+		_eq: $ => seq(optional($._s), EQ, optional($._s)),
 
 		data_uri: $ =>
 			seq(
 				'data:',
 				optional(field('media_type', $.data_uri_media_type)),
 				repeat(field('parameter', $.data_uri_parameter)),
-				choice(field('encoding', $.data_uri_encoding), ','),
+				choice(field('encoding', $.data_uri_encoding), COMMA),
 				optional(field('payload', $.data_uri_payload)),
 			),
 
@@ -1518,9 +1195,9 @@ export default grammar({
 
 		data_uri_parameter: $ =>
 			seq(
-				';',
+				SEMI,
 				field('name', $.data_uri_parameter_name),
-				optional(seq('=', field('value', $.data_uri_parameter_value))),
+				optional(seq(EQ, field('value', $.data_uri_parameter_value))),
 			),
 
 		data_uri_parameter_name: _ => token(/[A-Za-z0-9!#$&^_.+-]+/),
@@ -1549,7 +1226,7 @@ export default grammar({
 
 		iri_reference: _ => token(prec(-1, /(?:#[A-Za-z_:][A-Za-z0-9_.:-]*|[^)\s"']+)/)),
 
-		comma_wsp: $ => choice(seq(optional($.wsp), ',', optional($.wsp)), $.wsp),
+		comma_wsp: $ => choice(seq(optional($.wsp), COMMA, optional($.wsp)), $.wsp),
 
 		wsp: _ => token(/[ \t\r\n]+/),
 

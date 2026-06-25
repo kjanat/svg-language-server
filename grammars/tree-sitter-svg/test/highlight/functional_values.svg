@@ -1,21 +1,21 @@
 <svg>
   <rect fill="rgb(255,0,0)"/>
-  <!--        ^^^ function.call -->
-  <!--           ^ punctuation.bracket -->
-  <!--            ^^^ number -->
-  <!--                ^ number -->
-  <!--                  ^ number -->
-  <!--                   ^ punctuation.bracket -->
+  <!--        ^^^ string -->
+  <!--           ^ string -->
+  <!--            ^^^ string -->
+  <!--                ^ string -->
+  <!--                  ^ string -->
+  <!--                   ^ string -->
   <rect fill="hsla(340, 70%, 55%, 0.8)"/>
-  <!--        ^^^^ function.call -->
-  <!--            ^ punctuation.bracket -->
-  <!--             ^^^ number -->
-  <!--                  ^^ number -->
-  <!--                    ^ type -->
-  <!--                       ^^ number -->
-  <!--                         ^ type -->
-  <!--                            ^^^ number -->
-  <!--                               ^ punctuation.bracket -->
+  <!--        ^^^^ string -->
+  <!--            ^ string -->
+  <!--             ^^^ string -->
+  <!--                  ^^ string -->
+  <!--                    ^ string -->
+  <!--                       ^^ string -->
+  <!--                         ^ string -->
+  <!--                            ^^^ string -->
+  <!--                               ^ string -->
   <image clip="rect(0, 50, 50, 0)"/>
   <!--         ^^^^ function.call -->
   <!--             ^ punctuation.bracket -->
@@ -28,7 +28,7 @@
   <!--         ^^^ number -->
   <!--            ^ type -->
   <rect fill="none"/>
-  <!--        ^^^^ constant.builtin -->
+  <!--        ^^^^ string -->
   <rect fill="currentColor"/>
-  <!--        ^^^^^^^^^^^^ constant.builtin -->
+  <!--        ^^^^^^^^^^^^ string -->
 </svg>

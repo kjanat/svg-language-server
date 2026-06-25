@@ -34,7 +34,7 @@
 		"install": "deno install",
 		"runtime": { "entrypoint": "main.ts", "cwd": "workers/svg-compat/src" },
 	},
-	"exclude": ["./target"],
+	"exclude": ["./target", "./grammars"],
 	"lint": {
 		"rules": {
 			"tags": ["recommended", "workspace"],

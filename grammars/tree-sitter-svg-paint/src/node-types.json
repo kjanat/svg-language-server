@@ -1,0 +1,366 @@
+[
+  {
+    "type": "color_value",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "functional_color",
+        "named": true
+      },
+      {
+        "type": "hex_color",
+        "named": true
+      },
+      {
+        "type": "named_color",
+        "named": true
+      }
+    ]
+  },
+  {
+    "type": "color_hue_interpolation",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "color_hue_direction",
+          "named": true
+        },
+        {
+          "type": "color_hue_keyword",
+          "named": true
+        },
+        {
+          "type": "wsp",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "color_interpolation_method",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "color_hue_interpolation",
+          "named": true
+        },
+        {
+          "type": "color_interpolation_space",
+          "named": true
+        },
+        {
+          "type": "color_mix_in_keyword",
+          "named": true
+        },
+        {
+          "type": "wsp",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "color_mix_component",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "color_value",
+          "named": true
+        },
+        {
+          "type": "percentage",
+          "named": true
+        },
+        {
+          "type": "wsp",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "comma_wsp",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "wsp",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "functional_color",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "color_colorspace",
+          "named": true
+        },
+        {
+          "type": "color_function_name",
+          "named": true
+        },
+        {
+          "type": "color_interpolation_method",
+          "named": true
+        },
+        {
+          "type": "color_mix_component",
+          "named": true
+        },
+        {
+          "type": "color_none",
+          "named": true
+        },
+        {
+          "type": "comma_wsp",
+          "named": true
+        },
+        {
+          "type": "hue_value",
+          "named": true
+        },
+        {
+          "type": "number_or_percentage",
+          "named": true
+        },
+        {
+          "type": "wsp",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "hue_value",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "angle_unit",
+          "named": true
+        },
+        {
+          "type": "number",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "number_or_percentage",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "number",
+          "named": true
+        },
+        {
+          "type": "percentage",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "paint_server",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "color_value",
+          "named": true
+        },
+        {
+          "type": "iri_reference",
+          "named": true
+        },
+        {
+          "type": "wsp",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "paint_value",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "color_value",
+          "named": true
+        },
+        {
+          "type": "paint_server",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "percentage",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "number",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "source_file",
+    "named": true,
+    "root": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "paint_value",
+          "named": true
+        },
+        {
+          "type": "wsp",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "%",
+    "named": false
+  },
+  {
+    "type": "(",
+    "named": false
+  },
+  {
+    "type": ")",
+    "named": false
+  },
+  {
+    "type": ",",
+    "named": false
+  },
+  {
+    "type": "/",
+    "named": false
+  },
+  {
+    "type": "angle_unit",
+    "named": true
+  },
+  {
+    "type": "color_colorspace",
+    "named": true
+  },
+  {
+    "type": "color_function_name",
+    "named": true
+  },
+  {
+    "type": "color_hue_direction",
+    "named": true
+  },
+  {
+    "type": "color_hue_keyword",
+    "named": true
+  },
+  {
+    "type": "color_interpolation_space",
+    "named": true
+  },
+  {
+    "type": "color_mix_in_keyword",
+    "named": true
+  },
+  {
+    "type": "color_none",
+    "named": true
+  },
+  {
+    "type": "context-fill",
+    "named": false
+  },
+  {
+    "type": "context-stroke",
+    "named": false
+  },
+  {
+    "type": "currentColor",
+    "named": false
+  },
+  {
+    "type": "hex_color",
+    "named": true
+  },
+  {
+    "type": "inherit",
+    "named": false
+  },
+  {
+    "type": "iri_reference",
+    "named": true
+  },
+  {
+    "type": "named_color",
+    "named": true
+  },
+  {
+    "type": "none",
+    "named": false
+  },
+  {
+    "type": "number",
+    "named": true
+  },
+  {
+    "type": "url(",
+    "named": false
+  },
+  {
+    "type": "wsp",
+    "named": true
+  }
+]

@@ -16,8 +16,7 @@
 import { execFileSync } from 'node:child_process';
 import { copyFileSync, existsSync, mkdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { dirname, join, resolve } from 'node:path';
 
 const require = createRequire(import.meta.url);
 const platformDir = `${process.platform}-${process.arch}`;
@@ -76,7 +75,7 @@ function optionalPackageRoot(packageName: string) {
 }
 
 function buildNativeAddons(): void {
-	const grammarRoot = fileURLToPath(new URL('..', import.meta.url));
+	const grammarRoot = resolve(import.meta.dirname!, '..');
 	ensureAddon(grammarRoot, 'tree_sitter_svg_binding.node', 'tree-sitter-svg');
 
 	const treeSitterRoot = optionalPackageRoot('tree-sitter');

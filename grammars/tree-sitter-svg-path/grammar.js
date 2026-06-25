@@ -11,14 +11,16 @@
  *
  * Source: SVG 2 "The grammar for path data" (https://svgwg.org/svg2-draft/paths.html).
  */
-
 /// <reference types="tree-sitter-cli/dsl" />
-// @ts-check
 
-const PATH_COMMAND = /[MmZzLlHhVvCcSsQqTtAa]/;
+import { PATH_COMMAND_LETTERS } from '#constants';
+
+// Derived from the catalog-mirrored letter set so the generic command token and
+// the drift guard share a single source of truth (see constants.js / grammar.test.ts).
+const PATH_COMMAND = new RegExp(`[${PATH_COMMAND_LETTERS.join('')}]`);
 const NUMBER_PATTERN = /[+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?/;
 
-module.exports = grammar({
+export default grammar({
 	name: 'svg_path',
 
 	externals: $ => [$._number_continuation],

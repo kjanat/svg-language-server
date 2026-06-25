@@ -134,46 +134,7 @@ Transform lists
       (transform_attribute
         name: (transform_attribute_name)
         value: (transform_attribute_value
-          (transform_list
-            (translate_transform
-              (number)
-              (comma_wsp)
-              (number))
-            (comma_wsp
-              (wsp))
-            (rotate_transform
-              (number))
-            (comma_wsp
-              (wsp))
-            (scale_transform
-              (number))
-            (comma_wsp
-              (wsp))
-            (skew_x_transform
-              (number))
-            (comma_wsp
-              (wsp))
-            (skew_y_transform
-              (number))
-            (comma_wsp
-              (wsp))
-            (matrix_transform
-              (number)
-              (comma_wsp
-                (wsp))
-              (number)
-              (comma_wsp
-                (wsp))
-              (number)
-              (comma_wsp
-                (wsp))
-              (number)
-              (comma_wsp
-                (wsp))
-              (number)
-              (comma_wsp
-                (wsp))
-              (number))))))
+          (transform_payload))))
     (end_tag
       name: (name)))
   (text))
@@ -234,41 +195,19 @@ Paint keywords and functions
       (paint_attribute
         name: (paint_attribute_name)
         value: (paint_attribute_value
-          (paint_value)))
+          (paint_payload)))
       (paint_attribute
         name: (paint_attribute_name)
         value: (paint_attribute_value
-          (paint_value
-            (functional_color
-              (color_function_name)
-              (number_or_percentage
-                (number))
-              (comma_wsp)
-              (number_or_percentage
-                (number))
-              (comma_wsp)
-              (number_or_percentage
-                (number))))))
+          (paint_payload)))
       (paint_attribute
         name: (paint_attribute_name)
         value: (paint_attribute_value
-          (paint_value)))
+          (paint_payload)))
       (paint_attribute
         name: (paint_attribute_name)
         value: (paint_attribute_value
-          (paint_value
-            (functional_color
-              (color_function_name)
-              (hue_value
-                (number))
-              (comma_wsp)
-              (number_or_percentage
-                (percentage
-                  (number)))
-              (comma_wsp)
-              (number_or_percentage
-                (percentage
-                  (number))))))))
+          (paint_payload))))
     (end_tag
       name: (name)))
   (text))
@@ -289,23 +228,7 @@ CSS Color 4 oklch with slash alpha and none channel
       (paint_attribute
         name: (paint_attribute_name)
         value: (paint_attribute_value
-          (paint_value
-            (functional_color
-              (color_function_name)
-              (number_or_percentage
-                (percentage
-                  (number)))
-              (comma_wsp
-                (wsp))
-              (number_or_percentage
-                (number))
-              (comma_wsp
-                (wsp))
-              (color_none)
-              (wsp)
-              (wsp)
-              (number_or_percentage
-                (number))))))))
+          (paint_payload)))))
   (text))
 
 ==================
@@ -324,19 +247,7 @@ CSS Color 4 color() with predefined colorspace
       (paint_attribute
         name: (paint_attribute_name)
         value: (paint_attribute_value
-          (paint_value
-            (functional_color
-              (color_function_name)
-              (color_colorspace)
-              (wsp)
-              (number_or_percentage
-                (number))
-              (wsp)
-              (number_or_percentage
-                (number))
-              (wsp)
-              (number_or_percentage
-                (number))))))))
+          (paint_payload)))))
   (text))
 
 ==================
@@ -355,29 +266,7 @@ CSS Color 5 color-mix with hue interpolation method
       (paint_attribute
         name: (paint_attribute_name)
         value: (paint_attribute_value
-          (paint_value
-            (functional_color
-              (color_function_name)
-              (color_interpolation_method
-                (color_mix_in_keyword)
-                (wsp)
-                (color_interpolation_space)
-                (wsp)
-                (color_hue_interpolation
-                  (color_hue_direction)
-                  (wsp)
-                  (color_hue_keyword)))
-              (comma_wsp
-                (wsp))
-              (color_mix_component
-                (named_color)
-                (wsp)
-                (percentage
-                  (number)))
-              (comma_wsp
-                (wsp))
-              (color_mix_component
-                (named_color))))))))
+          (paint_payload)))))
   (text))
 
 ==================
@@ -697,19 +586,7 @@ Transform multiple functions
         (transform_attribute
           (transform_attribute_name)
           (transform_attribute_value
-            (transform_list
-              (translate_transform
-                (number)
-                (comma_wsp)
-                (number))
-              (comma_wsp
-                (wsp))
-              (rotate_transform
-                (number))
-              (comma_wsp
-                (wsp))
-              (scale_transform
-                (number))))))
+            (transform_payload))))
       (end_tag
         (name)))
     (end_tag
@@ -735,11 +612,7 @@ Paint with url fallback
         (paint_attribute
           (paint_attribute_name)
           (paint_attribute_value
-            (paint_value
-              (paint_server
-                (iri_reference)
-                (wsp)
-                (named_color)))))))
+            (paint_payload)))))
     (end_tag
       (name)))
   (text))

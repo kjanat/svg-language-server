@@ -13,7 +13,7 @@
   <!--           ^ punctuation.delimiter -->
   <rect fill="#f00"/>
   <!--  ^^^^ attribute -->
-  <!--        ^^^^ constant -->
+  <!--        ^^^^ string -->
   <rect class="box"/>
   <!--  ^^^^^ attribute -->
   <!--         ^^^ link_uri -->
@@ -41,6 +41,6 @@
   <!--             ^ number -->
   <rect transform="translate(10)"/>
   <!--  ^^^^^^^^^ attribute -->
-  <!--             ^^^^^^^^^ function.builtin -->
-  <!--                       ^^ number -->
+  <!--             ^^^^^^^^^ string -->
+  <!--                       ^^ string -->
 </svg>

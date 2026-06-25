@@ -75,13 +75,11 @@ Single-quoted typed attribute values
         (paint_attribute
           name: (paint_attribute_name)
           value: (paint_attribute_value
-            (paint_value
-              (named_color))))
+            (paint_payload)))
         (paint_attribute
           name: (paint_attribute_name)
           value: (paint_attribute_value
-            (paint_value
-              (named_color))))
+            (paint_payload)))
         (opacity_attribute
           name: (opacity_attribute_name)
           value: (opacity_attribute_value
@@ -613,9 +611,7 @@ Transform single-arg translate and multi-arg rotate
         (transform_attribute
           name: (transform_attribute_name)
           value: (transform_attribute_value
-            (transform_list
-              (translate_transform
-                (number)))))))
+            (transform_payload)))))
     (text)
     (element
       (self_closing_tag
@@ -623,13 +619,7 @@ Transform single-arg translate and multi-arg rotate
         (transform_attribute
           name: (transform_attribute_name)
           value: (transform_attribute_value
-            (transform_list
-              (rotate_transform
-                (number)
-                (comma_wsp)
-                (number)
-                (comma_wsp)
-                (number)))))))
+            (transform_payload)))))
     (text)
     (element
       (self_closing_tag
@@ -637,12 +627,7 @@ Transform single-arg translate and multi-arg rotate
         (transform_attribute
           name: (transform_attribute_name)
           value: (transform_attribute_value
-            (transform_list
-              (translate_transform
-                (number)
-                (comma_wsp
-                  (wsp))
-                (number)))))))
+            (transform_payload)))))
     (text)
     (element
       (self_closing_tag
@@ -650,12 +635,7 @@ Transform single-arg translate and multi-arg rotate
         (transform_attribute
           name: (transform_attribute_name)
           value: (transform_attribute_value
-            (transform_list
-              (scale_transform
-                (number)
-                (comma_wsp
-                  (wsp))
-                (number)))))))
+            (transform_payload)))))
     (text)
     (end_tag
       name: (name)))
@@ -677,19 +657,19 @@ Paint inherit and context keywords
       (paint_attribute
         name: (paint_attribute_name)
         value: (paint_attribute_value
-          (paint_value)))
+          (paint_payload)))
       (paint_attribute
         name: (paint_attribute_name)
         value: (paint_attribute_value
-          (paint_value)))
+          (paint_payload)))
       (paint_attribute
         name: (paint_attribute_name)
         value: (paint_attribute_value
-          (paint_value)))
+          (paint_payload)))
       (paint_attribute
         name: (paint_attribute_name)
         value: (paint_attribute_value
-          (paint_value))))
+          (paint_payload))))
     (end_tag
       name: (name)))
   (text))
@@ -710,23 +690,19 @@ Paint hex colors
       (paint_attribute
         name: (paint_attribute_name)
         value: (paint_attribute_value
-          (paint_value
-            (hex_color))))
+          (paint_payload)))
       (paint_attribute
         name: (paint_attribute_name)
         value: (paint_attribute_value
-          (paint_value
-            (hex_color))))
+          (paint_payload)))
       (paint_attribute
         name: (paint_attribute_name)
         value: (paint_attribute_value
-          (paint_value
-            (hex_color))))
+          (paint_payload)))
       (paint_attribute
         name: (paint_attribute_name)
         value: (paint_attribute_value
-          (paint_value
-            (hex_color)))))
+          (paint_payload))))
     (end_tag
       name: (name)))
   (text))
@@ -747,17 +723,11 @@ Paint url with fallback keywords
       (paint_attribute
         name: (paint_attribute_name)
         value: (paint_attribute_value
-          (paint_value
-            (paint_server
-              (iri_reference)
-              (wsp)))))
+          (paint_payload)))
       (paint_attribute
         name: (paint_attribute_name)
         value: (paint_attribute_value
-          (paint_value
-            (paint_server
-              (iri_reference)
-              (wsp))))))
+          (paint_payload))))
     (end_tag
       name: (name)))
   (text))
@@ -778,39 +748,11 @@ Functional color variants rgba and hsla
       (paint_attribute
         name: (paint_attribute_name)
         value: (paint_attribute_value
-          (paint_value
-            (functional_color
-              (color_function_name)
-              (number_or_percentage
-                (number))
-              (comma_wsp)
-              (number_or_percentage
-                (number))
-              (comma_wsp)
-              (number_or_percentage
-                (number))
-              (comma_wsp)
-              (number_or_percentage
-                (number))))))
+          (paint_payload)))
       (paint_attribute
         name: (paint_attribute_name)
         value: (paint_attribute_value
-          (paint_value
-            (functional_color
-              (color_function_name)
-              (hue_value
-                (number))
-              (comma_wsp)
-              (number_or_percentage
-                (percentage
-                  (number)))
-              (comma_wsp)
-              (number_or_percentage
-                (percentage
-                  (number)))
-              (comma_wsp)
-              (number_or_percentage
-                (number)))))))
+          (paint_payload))))
     (end_tag
       name: (name)))
   (text))
@@ -1532,13 +1474,11 @@ Path element with mixed typed attributes
         (paint_attribute
           name: (paint_attribute_name)
           value: (paint_attribute_value
-            (paint_value
-              (named_color))))
+            (paint_payload)))
         (paint_attribute
           name: (paint_attribute_name)
           value: (paint_attribute_value
-            (paint_value
-              (hex_color))))
+            (paint_payload)))
         (length_attribute
           name: (length_attribute_name)
           value: (length_attribute_value
@@ -1554,11 +1494,7 @@ Path element with mixed typed attributes
         (transform_attribute
           name: (transform_attribute_name)
           value: (transform_attribute_value
-            (transform_list
-              (translate_transform
-                (number)
-                (comma_wsp)
-                (number)))))
+            (transform_payload)))
         (opacity_attribute
           name: (opacity_attribute_name)
           value: (opacity_attribute_value
@@ -1628,12 +1564,11 @@ All typed attributes on root svg
       (paint_attribute
         name: (paint_attribute_name)
         value: (paint_attribute_value
-          (paint_value)))
+          (paint_payload)))
       (paint_attribute
         name: (paint_attribute_name)
         value: (paint_attribute_value
-          (paint_value
-            (named_color))))
+          (paint_payload)))
       (opacity_attribute
         name: (opacity_attribute_name)
         value: (opacity_attribute_value
@@ -1642,11 +1577,7 @@ All typed attributes on root svg
       (transform_attribute
         name: (transform_attribute_name)
         value: (transform_attribute_value
-          (transform_list
-            (translate_transform
-              (number)
-              (comma_wsp)
-              (number)))))
+          (transform_payload)))
       (style_attribute
         name: (style_attribute_name)
         value: (style_attribute_value
@@ -1838,20 +1769,7 @@ Paint with rgb and url fallback combined
       (paint_attribute
         name: (paint_attribute_name)
         value: (paint_attribute_value
-          (paint_value
-            (paint_server
-              (iri_reference)
-              (wsp)
-              (functional_color
-                (color_function_name)
-                (number_or_percentage
-                  (number))
-                (comma_wsp)
-                (number_or_percentage
-                  (number))
-                (comma_wsp)
-                (number_or_percentage
-                  (number))))))))
+          (paint_payload))))
     (end_tag
       name: (name)))
   (text))
@@ -1880,9 +1798,7 @@ Transform attribute aliases
         (transform_attribute
           name: (transform_attribute_name)
           value: (transform_attribute_value
-            (transform_list
-              (translate_transform
-                (number)))))))
+            (transform_payload)))))
     (text)
     (element
       (self_closing_tag
@@ -1890,9 +1806,7 @@ Transform attribute aliases
         (transform_attribute
           name: (transform_attribute_name)
           value: (transform_attribute_value
-            (transform_list
-              (rotate_transform
-                (number)))))))
+            (transform_payload)))))
     (text)
     (element
       (self_closing_tag
@@ -1900,11 +1814,7 @@ Transform attribute aliases
         (transform_attribute
           name: (transform_attribute_name)
           value: (transform_attribute_value
-            (transform_list
-              (scale_transform
-                (number)
-                (comma_wsp)
-                (number)))))))
+            (transform_payload)))))
     (text)
     (end_tag
       name: (name)))

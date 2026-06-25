@@ -1,0 +1,36 @@
+{
+	"name": "@kjanat/svg-grammars",
+	"version": "0.0.0",
+	"private": true,
+	"description": "Bun workspace for the tree-sitter SVG grammar and its injected sub-grammars",
+	"license": "MIT OR Apache-2.0",
+	"author": "Kaj Kowalski <info@kajkowalski.nl> (https://github.com/kjanat)",
+	"workspaces": ["grammars/*"],
+	"scripts": {
+		"fmt": "dprint fmt",
+		"lint": "bun run --filter '*' lint",
+		"postinstall": "bun run --filter '*' postinstall"
+	},
+	"devDependencies": {
+		"runner-run": "catalog:",
+		"tree-sitter": "catalog:"
+	},
+	"packageManager": "bun@1.3.14",
+	"volta": { "node": "26.4.0", "npm": "11.17.0" },
+	"catalog": {
+		"@biomejs/biome": "^2.5",
+		"@types/bun": "^1.3",
+		"dprint": "^0.54",
+		"node-addon-api": "^8.8",
+		"node-gyp": "^13",
+		"node-gyp-build": "^4.8",
+		"prebuildify": "^6",
+		"runner-run": "^0.14",
+		"tree-sitter": "^0.25.0",
+		"tree-sitter-cli": "^0.26.9",
+		"typescript": "^6"
+	},
+	"patchedDependencies": {
+		"tree-sitter@0.25.0": "patches/tree-sitter@0.25.0.patch"
+	}
+}

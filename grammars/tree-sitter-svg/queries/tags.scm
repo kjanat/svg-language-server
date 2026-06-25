@@ -127,15 +127,7 @@
       (iri_reference) @name))) @reference.id
  (#match? @name "^#"))
 
-; ─── ID references (paint url()) ────────────────────────────────
-; fill="url(#grad1)", stroke="url(#pattern)"
-
-((paint_attribute
-  value: (paint_attribute_value
-    (paint_value
-      (paint_server
-        (iri_reference) @name)))) @reference.id
- (#match? @name "^#"))
+; Paint url() id references live in the injected svg_paint grammar (tags.scm)
 
 ; ─── ID references (functional IRI) ─────────────────────────────
 ; clip-path="url(#clip)", mask="url(#mask)", filter="url(#blur)"

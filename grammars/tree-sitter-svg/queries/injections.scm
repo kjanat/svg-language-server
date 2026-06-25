@@ -86,6 +86,18 @@
       (path_data_payload) @injection.content)))
  (#set! injection.language "svg_path"))
 
+; SVG transform list in transform/gradientTransform/patternTransform attribute
+((transform_attribute
+  (transform_attribute_value
+    (transform_payload) @injection.content))
+ (#set! injection.language "svg_transform"))
+
+; SVG paint/color in fill/stroke/stop-color/... attribute
+((paint_attribute
+  (paint_attribute_value
+    (paint_payload) @injection.content))
+ (#set! injection.language "svg_paint"))
+
 ; CSS in style="..." attribute
 ((style_attribute
   (style_attribute_value

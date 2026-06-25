@@ -3,23 +3,10 @@ import {
 	D_ATTRIBUTE_NAMES,
 	GENERATED_ATTRIBUTE_BUCKET_KEYS,
 	GRAMMAR_DEDICATED_ATTRIBUTE_NAMES,
-	PATH_COMMAND_TOKEN_RULES,
 	TOKEN_KEYS,
 } from '#grammarFixtures';
 import type { CatalogTreeSitter } from '#grammarMatchers';
-import {
-	alphabetExcluding,
-	bucketAttributeOverlaps,
-	compileRegexLiteral,
-	expectExactSetMatch,
-	expectRegexAcceptsOnly,
-	expectUpperLowerPair,
-	extractInlineRegexLiteral,
-	extractRegexLiteral,
-	intersection,
-	lettersFromCharClass,
-	unionBucketAttributes,
-} from '#grammarMatchers';
+import { bucketAttributeOverlaps, expectExactSetMatch, intersection, unionBucketAttributes } from '#grammarMatchers';
 import { file, fileURLToPath } from 'bun';
 import { describe, expect, test } from 'bun:test';
 import { resolve } from 'node:path';
@@ -49,61 +36,10 @@ describe('grammar.js matches catalog tree-sitter projection', () => {
 		expect(grammarJson).toEqual(catalog);
 	});
 
-	test('PATH_COMMAND character class matches path_command_letters exactly', async () => {
-		const catalog = await loadCatalogTreeSitter();
-		const grammarJs = await loadGrammarJs();
-		const literal = extractRegexLiteral(grammarJs, 'PATH_COMMAND');
-		const actual = lettersFromCharClass(literal.pattern);
-		const expected = catalog.tokens.path_command_letters;
-
-		expect(() => {
-			expectExactSetMatch(actual, expected, 'PATH_COMMAND');
-		}).not.toThrow();
-	});
-
-	test('PATH_COMMAND accepts every scraped letter and rejects non-commands', async () => {
-		const catalog = await loadCatalogTreeSitter();
-		const grammarJs = await loadGrammarJs();
-		const literal = extractRegexLiteral(grammarJs, 'PATH_COMMAND');
-		const regex = compileRegexLiteral(literal);
-
-		expect(() => {
-			expectRegexAcceptsOnly(
-				regex,
-				catalog.tokens.path_command_letters,
-				alphabetExcluding(catalog.tokens.path_command_letters),
-				'PATH_COMMAND',
-			);
-		}).not.toThrow();
-	});
-
-	test('each path command token rule matches an upper/lower pair from path_command_letters', async () => {
-		const catalog = await loadCatalogTreeSitter();
-		const grammarJs = await loadGrammarJs();
-		const union: string[] = [];
-
-		for (const ruleName of PATH_COMMAND_TOKEN_RULES) {
-			const literal = extractInlineRegexLiteral(grammarJs, ruleName);
-			const letters = lettersFromCharClass(literal.pattern);
-			const regex = compileRegexLiteral(literal);
-
-			expect(() => {
-				expectUpperLowerPair(letters, ruleName);
-				expectExactSetMatch(
-					letters,
-					letters.filter(letter => catalog.tokens.path_command_letters.includes(letter)),
-					`${ruleName} subset of path_command_letters`,
-				);
-				expectRegexAcceptsOnly(regex, letters, ['0', 'e', 'E'], ruleName);
-			}).not.toThrow();
-
-			union.push(...letters);
-		}
-
-		expect(() => {
-			expectExactSetMatch(union, catalog.tokens.path_command_letters, 'path command token rules union');
-		}).not.toThrow();
-	});
+	// Path-command projection moved to tree-sitter-svg-path (its grammar.test.ts
+	// owns the path_command_letters drift guard); color-space / hue / angle token
+	// projection moved to tree-sitter-svg-paint. The host no longer carries them,
+	// so the corresponding assertions live in the sibling grammars' tests.
 
 	test('d_attribute_name matches path_data bucket exactly', async () => {
 		const catalog = await loadCatalogTreeSitter();
@@ -138,7 +74,7 @@ describe('grammar.js matches catalog tree-sitter projection', () => {
 		}
 	});
 
-	test('grammar.js references every catalog token key', async () => {
+	test('grammar.js references every host catalog token key', async () => {
 		const grammarJs = await loadGrammarJs();
 
 		for (const key of TOKEN_KEYS) {
@@ -146,11 +82,11 @@ describe('grammar.js matches catalog tree-sitter projection', () => {
 		}
 	});
 
-	test('NUMBER_PATTERN is shared by path_number and number rules', async () => {
+	test('NUMBER_PATTERN backs the number rule', async () => {
 		const grammarJs = await loadGrammarJs();
 		const matches = grammarJs.match(/token\(NUMBER_PATTERN\)/g) ?? [];
 
-		expect(matches).toHaveLength(2);
+		expect(matches).toHaveLength(1);
 	});
 
 	test('Zed query copies stay in sync with grammar queries', async () => {

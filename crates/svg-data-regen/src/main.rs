@@ -664,7 +664,8 @@ fn report_chapters(
         collected_descriptions.extend(extracted.anchor_descriptions);
     }
     println!(
-        "  {:-<12} {anchors:>4} anchors  {dfns:>3} dfns  {examples:>2} ex  {properties:>3} props  {terms:>3} terms ({} pages)",
+        "  {:-<12} {anchors:>4} anchors  {dfns:>3} dfns  {examples:>2} ex  {properties:>3} props  \
+         {terms:>3} terms ({} pages)",
         "TOTAL ",
         graph.chapters.len() + graph.appendices.len(),
     );

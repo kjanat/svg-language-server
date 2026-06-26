@@ -1298,7 +1298,8 @@ fn validate_required_extracted_facts(
         };
         if element.content_model != expected {
             errors.push(format!(
-                "extraction invariant failed for <{element_name}> content model: expected {expected:?}, got {:?}",
+                "extraction invariant failed for <{element_name}> content model: expected \
+                 {expected:?}, got {:?}",
                 element.content_model,
             ));
         }
@@ -1314,7 +1315,8 @@ fn validate_required_extracted_facts(
         };
         if attribute.values != expected {
             errors.push(format!(
-                "extraction invariant failed for `{attribute_name}` values: expected {expected:?}, got {:?}",
+                "extraction invariant failed for `{attribute_name}` values: expected \
+                 {expected:?}, got {:?}",
                 attribute.values,
             ));
         }
@@ -1334,13 +1336,15 @@ fn validate_required_extracted_facts(
             .find(|values| values.element == element_name)
         else {
             errors.push(format!(
-                "extraction invariant failed for `{attribute_name}` on <{element_name}>: missing element-scoped values",
+                "extraction invariant failed for `{attribute_name}` on <{element_name}>: missing \
+                 element-scoped values",
             ));
             continue;
         };
         if actual.values != expected {
             errors.push(format!(
-                "extraction invariant failed for `{attribute_name}` on <{element_name}>: expected {expected:?}, got {:?}",
+                "extraction invariant failed for `{attribute_name}` on <{element_name}>: expected \
+                 {expected:?}, got {:?}",
                 actual.values,
             ));
         }
@@ -3545,7 +3549,8 @@ mod tests {
         let mut element = element("animateMotion");
         element.content_model = None;
         element.content_model_description = Some(
-            "Any number of descriptive elements, 'script' and at most one 'mpath' element, in any order."
+            "Any number of descriptive elements, 'script' and at most one 'mpath' element, in any \
+             order."
                 .to_owned(),
         );
         let members = BTreeMap::from([("descriptive", vec!["desc", "metadata", "title"])]);
@@ -4319,12 +4324,15 @@ mod tests {
         let cases = [
             (
                 "IDAttribute",
-                "Must reflect the element's ID. The id attribute must be unique within the node tree, must not be an empty string, and must not contain any whitespace characters.",
+                "Must reflect the element's ID. The id attribute must be unique within the node \
+                 tree, must not be an empty string, and must not contain any whitespace \
+                 characters.",
                 CatalogAttributeValues::Id,
             ),
             (
                 "XMLSpaceAttribute",
-                "The only possible values are the strings 'default' and 'preserve', without white space.",
+                "The only possible values are the strings 'default' and 'preserve', without white \
+                 space.",
                 CatalogAttributeValues::Enum {
                     values: vec!["default".to_owned(), "preserve".to_owned()],
                 },

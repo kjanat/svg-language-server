@@ -13,7 +13,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         let wasm_headers =
             std::env::var("DEP_TREE_SITTER_LANGUAGE_WASM_HEADERS").map_err(|err| {
                 format!(
-                    "DEP_TREE_SITTER_LANGUAGE_WASM_HEADERS must be set by the language crate: {err}"
+                    "DEP_TREE_SITTER_LANGUAGE_WASM_HEADERS must be set by the language crate: \
+                     {err}"
                 )
             })?;
         let wasm_src = std::env::var("DEP_TREE_SITTER_LANGUAGE_WASM_SRC")

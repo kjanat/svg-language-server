@@ -1568,7 +1568,8 @@ mod tests {
             [],
             [(
                 "color",
-                "<color-base> | currentColor | <system-color> | <contrast-color()> | <device-cmyk()> | <light-dark-color>",
+                "<color-base> | currentColor | <system-color> | <contrast-color()> | \
+                 <device-cmyk()> | <light-dark-color>",
             )],
         );
         let inputs = GrammarProjectionInputs::for_tests();

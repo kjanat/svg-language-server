@@ -245,26 +245,12 @@ fn css_property_completions() -> Vec<CompletionItem> {
 }
 
 fn css_value_completions(custom_properties: &[svg_references::NamedSpan]) -> Vec<CompletionItem> {
-    let mut items = vec![
-        css_value_keyword("none"),
-        css_value_keyword("currentColor"),
-        css_value_keyword("transparent"),
-        css_value_keyword("inherit"),
+    let mut items = vec![css_value_keyword("none")];
+    items.extend(color_value_completions());
+    items.extend([
         css_value_function("var()", "var(--$0)", "CSS custom property reference"),
         css_value_function("url()", "url(#$0)", "SVG fragment reference"),
-        css_value_function("rgb()", "rgb($0)", "RGB color"),
-        css_value_function("hsl()", "hsl($0)", "HSL color"),
-        css_value_function("hwb()", "hwb($0)", "HWB color"),
-        css_value_function("lab()", "lab($0)", "Lab color"),
-        css_value_function("lch()", "lch($0)", "LCH color"),
-        css_value_function("oklab()", "oklab($0)", "Oklab color"),
-        css_value_function("oklch()", "oklch($0)", "Oklch color"),
-        css_value_function(
-            "color-mix()",
-            "color-mix(in oklch, $1, $2)",
-            "Mixed color expression",
-        ),
-    ];
+    ]);
 
     let mut seen = std::collections::HashSet::new();
     for property in custom_properties {
@@ -279,6 +265,45 @@ fn css_value_completions(custom_properties: &[svg_references::NamedSpan]) -> Vec
         ));
     }
 
+    items
+}
+
+fn color_value_completions() -> Vec<CompletionItem> {
+    let mut items = vec![
+        css_value_keyword("currentColor"),
+        css_value_keyword("transparent"),
+        css_value_keyword("inherit"),
+        css_value_function("rgb()", "rgb($0)", "RGB color"),
+        css_value_function("hsl()", "hsl($0)", "HSL color"),
+        css_value_function("hwb()", "hwb($0)", "HWB color"),
+        css_value_function("lab()", "lab($0)", "Lab color"),
+        css_value_function("lch()", "lch($0)", "LCH color"),
+        css_value_function("oklab()", "oklab($0)", "Oklab color"),
+        css_value_function("oklch()", "oklch($0)", "Oklch color"),
+        css_value_function("color()", "color($0)", "Color function"),
+        css_value_function(
+            "color-mix()",
+            "color-mix(in oklch, $1, $2)",
+            "Mixed color expression",
+        ),
+        css_value_function(
+            "contrast-color()",
+            "contrast-color($0)",
+            "Contrasting color",
+        ),
+        css_value_function("device-cmyk()", "device-cmyk($0)", "Device CMYK color"),
+        css_value_function(
+            "light-dark()",
+            "light-dark($1, $2)",
+            "Light/dark color pair",
+        ),
+    ];
+
+    items.extend(
+        svg_color::NAMED_COLOR_NAMES.iter().map(|name| {
+            detailed_completion_item(*name, CompletionItemKind::COLOR, "CSS named color")
+        }),
+    );
     items
 }
 
@@ -527,13 +552,12 @@ pub fn value_completions(
             return items;
         }
         "paint_attribute_value" => {
-            let mut items = if paint_attribute_allows_fragment_reference(attr_name) {
-                url_value_completions(source, tree, value_node)
-            } else {
-                Vec::new()
-            };
-            items.extend(paint_value_completions());
-            return items;
+            if paint_attribute_allows_fragment_reference(attr_name) {
+                let mut items = url_value_completions(source, tree, value_node);
+                items.extend(paint_value_completions());
+                return items;
+            }
+            return color_value_completions();
         }
         kind if kind.ends_with("_attribute_value") && kind != "quoted_attribute_value" => {
             if let Some(typed) = typed_value_completions(kind) {
@@ -730,13 +754,13 @@ fn repeat_count_completions() -> Vec<CompletionItem> {
 }
 
 fn paint_value_completions() -> Vec<CompletionItem> {
-    vec![
+    let mut items = vec![
         completion_item("none", CompletionItemKind::KEYWORD),
-        completion_item("currentColor", CompletionItemKind::KEYWORD),
-        completion_item("inherit", CompletionItemKind::KEYWORD),
         completion_item("context-fill", CompletionItemKind::KEYWORD),
         completion_item("context-stroke", CompletionItemKind::KEYWORD),
-    ]
+    ];
+    items.extend(color_value_completions());
+    items
 }
 
 fn length_value_completions() -> Vec<CompletionItem> {

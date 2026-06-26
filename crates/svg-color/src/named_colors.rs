@@ -195,7 +195,7 @@ fn lookup_rgb_s_to_z(name: &str) -> Option<(u8, u8, u8)> {
 }
 
 /// All 148 CSS Color Level 4 named colors.
-const ALL_NAMES: &[&str] = &[
+pub const ALL_NAMES: &[&str] = &[
     "aliceblue",
     "antiquewhite",
     "aqua",

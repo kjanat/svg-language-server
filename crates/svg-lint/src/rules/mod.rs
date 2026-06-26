@@ -336,7 +336,8 @@ fn check_edition_attribute(
             Severity::Error,
             DiagnosticCode::UnsupportedInProfile,
             format!(
-                "SVG attribute {lookup_name} is not defined on <{elem_name}> in the selected edition"
+                "SVG attribute {lookup_name} is not defined on <{elem_name}> in the selected \
+                 edition"
             ),
         );
     }
@@ -609,7 +610,8 @@ fn check_missing_reference_definitions(
                 Severity::Warning,
                 DiagnosticCode::MissingReferenceDefinition,
                 format!(
-                    "{attr_name} references #{id}, but no element with id=\"{id}\" exists in this SVG.\nDefine one or remove the reference."
+                    "{attr_name} references #{id}, but no element with id=\"{id}\" exists in this \
+                     SVG.\nDefine one or remove the reference."
                 ),
             );
         });

@@ -202,7 +202,8 @@ mod tests {
         let diags = lint(src);
         assert!(
             diags.is_empty(),
-            "foreignObject should allow foreign-namespace subtrees without SVG diagnostics: {diags:?}"
+            "foreignObject should allow foreign-namespace subtrees without SVG diagnostics: \
+             {diags:?}"
         );
     }
 
@@ -509,7 +510,8 @@ mod tests {
                     && d.message == "Unused suppression for MissingReferenceDefinition."
                     && d.start_row == 2
             }),
-            "next-line UnusedSuppression should suppress the following directive's unused warning: {diags:?}"
+            "next-line UnusedSuppression should suppress the following directive's unused \
+             warning: {diags:?}"
         );
     }
 
@@ -537,7 +539,8 @@ mod tests {
             !diags
                 .iter()
                 .any(|d| { d.code == DiagnosticCode::UnusedSuppression && d.start_row == 2 }),
-            "the outer directive's unused warning should be fully suppressed by the previous comment: {diags:?}"
+            "the outer directive's unused warning should be fully suppressed by the previous \
+             comment: {diags:?}"
         );
         assert!(
             diags.iter().any(|d| {
@@ -545,7 +548,8 @@ mod tests {
                     && d.message == "Unused suppression for UnusedSuppression."
                     && d.start_row == 4
             }),
-            "the nested directive should still report its own unused UnusedSuppression entry: {diags:?}"
+            "the nested directive should still report its own unused UnusedSuppression entry: \
+             {diags:?}"
         );
     }
 
@@ -570,7 +574,8 @@ mod tests {
             !diags
                 .iter()
                 .any(|d| d.code == DiagnosticCode::UnsupportedInProfile),
-            "directive before multiline tag should suppress attribute diagnostics on later rows: {diags:?}"
+            "directive before multiline tag should suppress attribute diagnostics on later rows: \
+             {diags:?}"
         );
         assert!(
             !diags
@@ -908,8 +913,8 @@ mod tests {
             !diags
                 .iter()
                 .any(|d| d.code == DiagnosticCode::ObsoleteAttribute),
-            "UnsupportedInProfile and ObsoleteAttribute are disjoint branches — \
-             only one should fire: {diags:?}"
+            "UnsupportedInProfile and ObsoleteAttribute are disjoint branches — only one should \
+             fire: {diags:?}"
         );
     }
 

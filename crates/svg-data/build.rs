@@ -537,7 +537,8 @@ fn empty_catalog() -> String {
         "pub static SNAPSHOT_METADATA: &[crate::types::SnapshotMetadata] = &[];",
         "pub static LIFECYCLE_OVERLAYS: &[crate::types::SnapshotLifecycle] = &[];",
         "pub static INVENTORIES: &[crate::inventory::Inventory] = &[];",
-        "pub static CATALOG_GRAPH: crate::types::CatalogGraph = crate::types::CatalogGraph { nodes: &[], edges: &[] };",
+        "pub static CATALOG_GRAPH: crate::types::CatalogGraph = crate::types::CatalogGraph { \
+         nodes: &[], edges: &[] };",
     ]
     .join("\n")
 }
@@ -742,7 +743,8 @@ fn emit_snapshot_lifecycle(out: &mut String, snapshot: &SnapshotDocument) {
         .join(", ");
     let _ = writeln!(
         out,
-        "    crate::types::SnapshotLifecycle {{ snapshot: {}, elements: &[{}], attributes: &[{}] }},",
+        "    crate::types::SnapshotLifecycle {{ snapshot: {}, elements: &[{}], attributes: &[{}] \
+         }},",
         emit_spec_snapshot(snapshot.profile),
         elements,
         attributes,
@@ -761,7 +763,8 @@ fn emit_lifecycle_entry(entry: &LifecycleEntry) -> String {
         .collect::<Vec<_>>()
         .join(", ");
     format!(
-        "crate::types::FeatureLifecycle {{ name: {:?}, catalog_name: {catalog_name}, present: {}, lifecycle: {}, known_in: &[{}] }}",
+        "crate::types::FeatureLifecycle {{ name: {:?}, catalog_name: {catalog_name}, present: {}, \
+         lifecycle: {}, known_in: &[{}] }}",
         entry.name,
         entry.present,
         emit_lifecycle_status(&entry.lifecycle),
@@ -789,7 +792,8 @@ fn emit_inventory(out: &mut String, inventory: &Inventory) {
         .join(", ");
     let _ = writeln!(
         out,
-        "    crate::inventory::Inventory {{ edition: crate::inventory::EditionId::for_snapshot({}), elements: &[{}] }},",
+        "    crate::inventory::Inventory {{ edition: \
+         crate::inventory::EditionId::for_snapshot({}), elements: &[{}] }},",
         emit_spec_snapshot(inventory.profile),
         elements,
     );
@@ -908,10 +912,10 @@ fn emit_element(out: &mut String, element: &Element) {
     };
     let _ = writeln!(
         out,
-        "    crate::types::ElementDef {{ name: {:?}, description: {description:?}, mdn_url: {mdn_url:?}, \
-         spec_url: {spec_url}, deprecated: {}, experimental: {}, standard_track: {}, baseline: {baseline}, \
-         browser_support: {browser_support}, content_model: {content_model}, \
-         attrs: &[{}], global_attrs: {} }},",
+        "    crate::types::ElementDef {{ name: {:?}, description: {description:?}, mdn_url: \
+         {mdn_url:?}, spec_url: {spec_url}, deprecated: {}, experimental: {}, standard_track: {}, \
+         baseline: {baseline}, browser_support: {browser_support}, content_model: \
+         {content_model}, attrs: &[{}], global_attrs: {} }},",
         element.name,
         element.deprecated,
         element.experimental,
@@ -949,10 +953,12 @@ fn emit_attribute(out: &mut String, attribute: &Attribute) {
     let applicability = emit_attribute_applicability(&attribute.applicability);
     let _ = writeln!(
         out,
-        "    crate::types::AttributeDef {{ name: {:?}, description: {description:?}, mdn_url: {mdn_url:?}, \
-         spec_url: {spec_url}, deprecated: {}, experimental: {}, standard_track: {}, animatable: {}, \
-         presentation_attribute: {presentation_attribute}, baseline: {baseline}, browser_support: {browser_support}, \
-         element_compat: {element_compat}, element_values: {element_values}, values: {values}, value_overrides: {value_overrides}, applicability: {applicability} }},",
+        "    crate::types::AttributeDef {{ name: {:?}, description: {description:?}, mdn_url: \
+         {mdn_url:?}, spec_url: {spec_url}, deprecated: {}, experimental: {}, standard_track: {}, \
+         animatable: {}, presentation_attribute: {presentation_attribute}, baseline: {baseline}, \
+         browser_support: {browser_support}, element_compat: {element_compat}, element_values: \
+         {element_values}, values: {values}, value_overrides: {value_overrides}, applicability: \
+         {applicability} }},",
         attribute.name,
         attribute.deprecated,
         attribute.experimental,
@@ -1026,7 +1032,8 @@ fn emit_attribute_element_compat(overrides: &[AttributeElementCompat]) -> String
 
 fn emit_compat_facts(facts: &CompatFacts) -> String {
     format!(
-        "crate::types::CompatFacts {{ deprecated: {}, experimental: {}, standard_track: {}, baseline: {}, browser_support: {} }}",
+        "crate::types::CompatFacts {{ deprecated: {}, experimental: {}, standard_track: {}, \
+         baseline: {}, browser_support: {} }}",
         facts.deprecated,
         facts.experimental,
         emit_option_bool(facts.standard_track),
@@ -1045,7 +1052,8 @@ fn emit_compat_subfeature(out: &mut String, subfeature: &CompatSubfeature) {
     let facts = emit_compat_facts(&subfeature.facts);
     let _ = writeln!(
         out,
-        "    crate::types::CompatSubfeature {{ compat_key: {:?}, kind: {kind}, element: {:?}, name: {:?}, facts: {facts} }},",
+        "    crate::types::CompatSubfeature {{ compat_key: {:?}, kind: {kind}, element: {:?}, \
+         name: {:?}, facts: {facts} }},",
         subfeature.compat_key, subfeature.element, subfeature.name,
     );
 }
@@ -1100,9 +1108,9 @@ fn emit_browser_version(version: Option<&BrowserVersion>) -> String {
         return "None".to_owned();
     };
     format!(
-        "Some(crate::types::BrowserVersion {{ supported: {}, partial_implementation: {}, notes: &[{}], \
-         prefix: {}, alternative_name: {}, flags: &[{}], version_added: {}, version_qualifier: {}, \
-         version_removed: {}, version_removed_qualifier: {} }})",
+        "Some(crate::types::BrowserVersion {{ supported: {}, partial_implementation: {}, notes: \
+         &[{}], prefix: {}, alternative_name: {}, flags: &[{}], version_added: {}, \
+         version_qualifier: {}, version_removed: {}, version_removed_qualifier: {} }})",
         emit_option_bool(version.supported),
         version.partial_implementation,
         quote_list(&version.notes),

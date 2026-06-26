@@ -13,15 +13,31 @@
 	"ruff": { "preview": true },
 	"yaml": { "printWidth": 160 },
 	"exec": {
-		"associations": ["justfile", "**/*.rs", "**/*.toml", "**/*.zig", "**/*.zon"], // "*.svg"
+		"cwd": "${configDir}",
+		"cacheKey": "1",
+		"timeout": 30,
 		"commands": [
-			{ "command": "tombi format - --stdin-filename {{file_path}}", "exts": ["toml"] },
-			{ "command": "rustfmt --edition 2024", "exts": ["rs"] },
-			{ "command": "just --dump --justfile {{file_path}}", "fileNames": ["justfile"] },
+			{
+				"command": "tombi format - --stdin-filename {{file_path}}",
+				"exts": ["toml"],
+				"cacheKeyFiles": ["tombi.toml"],
+				"setupCommand": "npm i -g tombi",
+			},
+			{
+				"command": "rustup run nightly rustfmt --emit stdout",
+				"exts": ["rs"],
+				"cacheKeyFiles": ["rustfmt.toml", ".cargo/config.toml"],
+				"setupCommand": "rustup component add rustfmt --toolchain nightly",
+			},
+			{
+				"command": "just --dump --justfile {{file_path}}",
+				"fileNames": ["justfile"],
+				"setupCommand": "npm i -g rust-just",
+			},
 			{ "command": "zig fmt --color off --stdin", "exts": ["zig"] },
 			{ "command": "zig fmt --zon --color off --stdin", "exts": ["zon"] }
-			// { "command": "cargo fmt-svg", "exts": ["svg"] },
-		],
+			// { "command": "cargo fmt-svg", "exts": ["svg"] },],
+		]
 	},
 	"excludes": [
 		"**/*.lock",
@@ -41,6 +57,6 @@
 		"**/fixtures"
 	],
 	"plugins": [
-		"https://plugins.dprint.dev/exec-0.6.2.json@df98f54ffd3092b8a841aedd6d098a2651f16d0a796a40535774f1a8b4b9d463",
+		"https://plugins.dprint.dev/exec-0.7.2.json@6c30bd00dfb176774ece412d0fbf149478269ecc92c55ab2d6f4116938ed993e",
 	],
 }

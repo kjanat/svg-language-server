@@ -764,7 +764,8 @@ fn namespace_attribute_hover(attr_name: &str, reference_url: &str) -> Option<Str
     attr_name.strip_prefix("xmlns:").map(|prefix| {
         format_external_attribute_hover(
             format!(
-                "Declares the `{prefix}` XML namespace prefix for this element and its descendants."
+                "Declares the `{prefix}` XML namespace prefix for this element and its \
+                 descendants."
             ),
             "W3C Namespaces in XML",
             reference_url,
@@ -778,7 +779,8 @@ fn legacy_svg_attribute_hover(
 ) -> Option<String> {
     match attr_name {
         "xml:lang" => Some(format_external_attribute_hover(
-            "Specifies the natural language used by the element's text content and attribute values.",
+            "Specifies the natural language used by the element's text content and attribute \
+             values.",
             "MDN Reference",
             &mdn_reference_url(attr_name),
         )),
@@ -863,14 +865,16 @@ fn format_baseline(baseline: BaselineStatus) -> String {
             let icon = &*BASELINE_HIGH;
             let q = format_baseline_qualifier(qualifier);
             format!(
-                "![Baseline icon]({icon}) _Widely available in major browsers (Baseline since {q}{since})_"
+                "![Baseline icon]({icon}) _Widely available in major browsers (Baseline since \
+                 {q}{since})_"
             )
         }
         BaselineStatus::Newly { since, qualifier } => {
             let icon = &*BASELINE_LOW;
             let q = format_baseline_qualifier(qualifier);
             format!(
-                "![Baseline icon]({icon}) _Newly available in major browsers (Baseline since {q}{since})_"
+                "![Baseline icon]({icon}) _Newly available in major browsers (Baseline since \
+                 {q}{since})_"
             )
         }
         BaselineStatus::Limited => {

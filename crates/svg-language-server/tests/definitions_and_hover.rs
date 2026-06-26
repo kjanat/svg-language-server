@@ -46,7 +46,8 @@ fn class_definition_and_hover() -> TestResult {
     assert_eq!(
         definition["range"]["start"]["character"].as_u64(),
         Some(expected_class_start),
-        "definition should point at the CSS class token, not the attribute wrapper: {definition_resp}"
+        "definition should point at the CSS class token, not the attribute wrapper: \
+         {definition_resp}"
     );
 
     let hover_resp = server.request(
@@ -479,11 +480,13 @@ fn hover_shows_profile_lifecycle_separately_from_browser_support() -> TestResult
     );
     assert!(
         !svg11_hover_value.to_lowercase().contains("deprecated"),
-        "SVG 1.1 verdict must not mention deprecation for the profile's canonical attribute: {svg11_hover_value}"
+        "SVG 1.1 verdict must not mention deprecation for the profile's canonical attribute: \
+         {svg11_hover_value}"
     );
     assert!(
         !svg11_hover_value.contains("removed after"),
-        "SVG 1.1 verdict must not report xlink:href as removed — it's still defined there: {svg11_hover_value}"
+        "SVG 1.1 verdict must not report xlink:href as removed — it's still defined there: \
+         {svg11_hover_value}"
     );
     assert!(
         svg11_hover_value.contains("Chrome"),

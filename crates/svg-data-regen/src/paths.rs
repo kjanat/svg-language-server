@@ -83,7 +83,8 @@ fn extract_path_command_letters(html: &str) -> Fallible<Vec<String>> {
     for production in command_production_names(grammar)? {
         let Some(block) = production_block(grammar, &production) else {
             return Err(boxed(format!(
-                "paths.html svg-path grammar missing `{production}` production listed by `{DRAWTO_COMMAND_PRODUCTION}`"
+                "paths.html svg-path grammar missing `{production}` production listed by \
+                 `{DRAWTO_COMMAND_PRODUCTION}`"
             )));
         };
         for capture in QUOTED_LETTER_RE.captures_iter(block) {
@@ -344,11 +345,11 @@ exponent::= ("e" | "E") sign? digit+
         // a substring search for `lineto::=` would hit `horizontal_lineto::=`
         // first. Line-anchored lookup must still resolve each command exactly.
         let grammar = bnf(
-            "drawto_command::= horizontal_lineto | smooth_curveto | lineto | curveto\n\
-             horizontal_lineto::= ( \"H\" | \"h\" ) wsp* coordinate_sequence\n\
-             smooth_curveto::= ( \"S\" | \"s\" ) wsp* seq\n\
-             lineto::= ( \"L\" | \"l\" ) wsp* coordinate_pair_sequence\n\
-             curveto::= ( \"C\" | \"c\" ) wsp* curveto_coordinate_sequence",
+            "drawto_command::= horizontal_lineto | smooth_curveto | lineto | \
+             curveto\nhorizontal_lineto::= ( \"H\" | \"h\" ) wsp* \
+             coordinate_sequence\nsmooth_curveto::= ( \"S\" | \"s\" ) wsp* seq\nlineto::= ( \"L\" \
+             | \"l\" ) wsp* coordinate_pair_sequence\ncurveto::= ( \"C\" | \"c\" ) wsp* \
+             curveto_coordinate_sequence",
         );
         let letters = panic_letters(extract_path_command_letters(&grammar));
         assert_eq!(letters, ["C", "H", "L", "S", "c", "h", "l", "s"]);
@@ -359,9 +360,10 @@ exponent::= ("e" | "E") sign? digit+
         // A hyphenated production (like the spec's `fractional-constant`) right
         // after a command must be a recognised boundary, so its stray quoted
         // letters are not absorbed into the command's block.
-        let grammar = bnf("drawto_command::= lineto\n\
-             lineto::= ( \"L\" | \"l\" ) wsp* coordinate_pair_sequence\n\
-             fractional-constant::= ( \"X\" | \"x\" )");
+        let grammar = bnf(
+            "drawto_command::= lineto\nlineto::= ( \"L\" | \"l\" ) wsp* \
+             coordinate_pair_sequence\nfractional-constant::= ( \"X\" | \"x\" )",
+        );
         let letters = panic_letters(extract_path_command_letters(&grammar));
         assert_eq!(letters, ["L", "l"]);
     }
@@ -371,17 +373,18 @@ exponent::= ("e" | "E") sign? digit+
         // A command added to `drawto_command` upstream is picked up with no code
         // change. (Calls the extractor directly so the exact gate, which would
         // reject the unknown letters, does not mask the sensitivity.)
-        let grammar = bnf("drawto_command::= moveto | pizzazz\n\
-             moveto::= ( \"M\" | \"m\" ) wsp* coordinate_pair_sequence\n\
-             pizzazz::= ( \"F\" | \"f\" ) wsp* coordinate_pair_sequence");
+        let grammar = bnf(
+            "drawto_command::= moveto | pizzazz\nmoveto::= ( \"M\" | \"m\" ) wsp* \
+             coordinate_pair_sequence\npizzazz::= ( \"F\" | \"f\" ) wsp* coordinate_pair_sequence",
+        );
         let letters = panic_letters(extract_path_command_letters(&grammar));
         assert_eq!(letters, ["F", "M", "f", "m"]);
     }
 
     #[test]
     fn single_quoted_command_terminals_are_captured() {
-        let grammar = bnf("drawto_command::= moveto\n\
-             moveto::= ( 'M' | 'm' ) wsp* coordinate_pair_sequence");
+        let grammar =
+            bnf("drawto_command::= moveto\nmoveto::= ( 'M' | 'm' ) wsp* coordinate_pair_sequence");
         let letters = panic_letters(extract_path_command_letters(&grammar));
         assert_eq!(letters, ["M", "m"]);
     }

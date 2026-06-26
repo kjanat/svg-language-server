@@ -21,7 +21,8 @@ impl SvgExtension {
         zed::npm_install_package(package_name, version)?;
         if !Self::file_exists(expected_path) {
             Err(format!(
-                "installed package '{package_name}' did not contain expected path '{expected_path}'",
+                "installed package '{package_name}' did not contain expected path \
+                 '{expected_path}'",
             ))?;
         }
 
@@ -94,7 +95,8 @@ impl zed::Extension for SvgExtension {
                 }
 
                 Err(format!(
-                    "failed to prepare npm-managed SVG tools ({npm_error}); {LSP_BINARY_NAME} not found in PATH. Install with: npm install --global svg-language-server",
+                    "failed to prepare npm-managed SVG tools ({npm_error}); {LSP_BINARY_NAME} not \
+                     found in PATH. Install with: npm install --global svg-language-server",
                 ))
             }
         }

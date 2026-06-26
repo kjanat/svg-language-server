@@ -262,7 +262,6 @@ fn append_html_derived_properties(
 ///
 /// This is the fast path for external CSS specs: unlike [`extract_chapter`],
 /// it does not walk prose anchors, examples, dfn panels, or descriptions.
-///
 pub fn extract_property_definitions(html: &str) -> Vec<PropertyValueDef> {
     let mut properties = Vec::new();
     let mut offset = 0;

@@ -626,7 +626,8 @@ fn main() {
                 Some("transform") => format!("AttributeValues::Transform({upper}_FUNCTIONS)"),
                 Some("viewbox") => "AttributeValues::ViewBox".to_string(),
                 Some("preserve_aspect_ratio") => format!(
-                    "AttributeValues::PreserveAspectRatio {{ alignments: {upper}_ALIGNMENTS, meet_or_slice: {upper}_MEET_OR_SLICE }}"
+                    "AttributeValues::PreserveAspectRatio {{ alignments: {upper}_ALIGNMENTS, \
+                     meet_or_slice: {upper}_MEET_OR_SLICE }}"
                 ),
                 Some("points") => "AttributeValues::Points".to_string(),
                 Some("path_data") => "AttributeValues::PathData".to_string(),

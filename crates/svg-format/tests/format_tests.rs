@@ -35,14 +35,16 @@ fn formats_multiline_attributes_consistently() {
         max_inline_tag_width: 24,
         ..legacy_tab_options()
     };
-    let expected = "<svg>\n\t<linearGradient\n\t\tid=\"sky\"\n\t\tx1=\"0%\"\n\t\ty1=\"0%\"\n\t\tx2=\"0%\"\n\t\ty2=\"100%\">\n\t</linearGradient>\n</svg>";
+    let expected = "<svg>\n\t<linearGradient\n\t\tid=\"sky\"\n\t\tx1=\"0%\"\n\t\ty1=\"0%\"\n\t\\
+                    tx2=\"0%\"\n\t\ty2=\"100%\">\n\t</linearGradient>\n</svg>";
     assert_eq!(format_with_options(input, options), expected);
 }
 
 #[test]
 fn canonical_attribute_ordering() {
     let input = r#"<svg><rect y="2" width="4" class="hero" id="x" x="1" height="5"/></svg>"#;
-    let expected = "<svg>\n\t<rect id=\"x\" class=\"hero\" x=\"1\" y=\"2\" width=\"4\" height=\"5\" />\n</svg>";
+    let expected = "<svg>\n\t<rect id=\"x\" class=\"hero\" x=\"1\" y=\"2\" width=\"4\" \
+                    height=\"5\" />\n</svg>";
     assert_eq!(format(input), expected);
 }
 
@@ -72,7 +74,8 @@ fn attribute_sort_none_preserves_input_order() {
         attribute_sort: AttributeSort::None,
         ..legacy_tab_options()
     };
-    let expected = "<svg>\n\t<rect y=\"2\" width=\"4\" class=\"hero\" id=\"x\" x=\"1\" height=\"5\" />\n</svg>";
+    let expected = "<svg>\n\t<rect y=\"2\" width=\"4\" class=\"hero\" id=\"x\" x=\"1\" \
+                    height=\"5\" />\n</svg>";
     assert_eq!(format_with_options(input, options), expected);
 }
 
@@ -83,7 +86,8 @@ fn attribute_sort_alphabetical_orders_by_name() {
         attribute_sort: AttributeSort::Alphabetical,
         ..legacy_tab_options()
     };
-    let expected = "<svg>\n\t<rect class=\"hero\" height=\"5\" id=\"x\" width=\"4\" x=\"1\" y=\"2\" />\n</svg>";
+    let expected = "<svg>\n\t<rect class=\"hero\" height=\"5\" id=\"x\" width=\"4\" x=\"1\" \
+                    y=\"2\" />\n</svg>";
     assert_eq!(format_with_options(input, options), expected);
 }
 
@@ -117,7 +121,8 @@ fn attribute_layout_single_line_ignores_width_trigger() {
         max_inline_tag_width: 10,
         ..legacy_tab_options()
     };
-    let expected = "<svg>\n\t<linearGradient id=\"sky\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\">\n\t</linearGradient>\n</svg>";
+    let expected = "<svg>\n\t<linearGradient id=\"sky\" x1=\"0%\" y1=\"0%\" x2=\"0%\" \
+                    y2=\"100%\">\n\t</linearGradient>\n</svg>";
     assert_eq!(format_with_options(input, options), expected);
 }
 
@@ -146,7 +151,8 @@ fn wrapped_attribute_indent_align_to_tag_name() {
     };
     let aligned = format!("\t{}", " ".repeat("linearGradient".len() + 2));
     let expected = format!(
-        "<svg>\n\t<linearGradient id=\"sky\"\n{aligned}x1=\"0%\" y1=\"0%\">\n\t</linearGradient>\n</svg>"
+        "<svg>\n\t<linearGradient id=\"sky\"\n{aligned}x1=\"0%\" \
+         y1=\"0%\">\n\t</linearGradient>\n</svg>"
     );
     assert_eq!(format_with_options(input, options), expected);
 }
@@ -157,7 +163,8 @@ fn canonical_sort_xmlns_trails_before_version() {
     // very end of the root <svg> tag.
     let input =
         r#"<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="10" height="10"></svg>"#;
-    let expected = "<svg width=\"10\" height=\"10\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">\n</svg>";
+    let expected = "<svg width=\"10\" height=\"10\" xmlns=\"http://www.w3.org/2000/svg\" \
+                    version=\"1.1\">\n</svg>";
     assert_eq!(format(input), expected);
 }
 
@@ -166,7 +173,9 @@ fn canonical_sort_xmlns_xlink_sibling_keeps_plain_xmlns_first() {
     // Plain `xmlns` before `xmlns:*` within the namespace group, version
     // strictly last. Two-level group key (3, 0) vs (3, 1) orders them.
     let input = r#"<svg version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"></svg>"#;
-    let expected = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.1\">\n</svg>";
+    let expected =
+        "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" \
+         version=\"1.1\">\n</svg>";
     assert_eq!(format(input), expected);
 }
 
@@ -184,7 +193,8 @@ fn align_to_tag_name_keeps_first_attribute_inline_with_tag() {
     };
     let aligned = format!("\t{}", " ".repeat("rect".len() + 2));
     let expected = format!(
-        "<svg>\n\t<rect id=\"box\"\n{aligned}x=\"10\" y=\"20\" width=\"100\" height=\"50\"\n{aligned}fill=\"red\" />\n</svg>"
+        "<svg>\n\t<rect id=\"box\"\n{aligned}x=\"10\" y=\"20\" width=\"100\" \
+         height=\"50\"\n{aligned}fill=\"red\" />\n</svg>"
     );
     assert_eq!(format_with_options(input, options), expected);
 }
@@ -385,7 +395,8 @@ fn format_with_host_offset_handles_multibyte_indentation() {
     // start, not split a UTF-8 sequence.
     let nbsp = '\u{A0}';
     let input = format!(
-        "<svg>\n  <style>\n{nbsp}{nbsp}{nbsp}{nbsp}.café {{ content: \"déjà\"; }}\n  </style>\n</svg>",
+        "<svg>\n  <style>\n{nbsp}{nbsp}{nbsp}{nbsp}.café {{ content: \"déjà\"; }}\n  \
+         </style>\n</svg>",
     );
     let mut css_offset = None;
     let _ = format_with_host(&input, legacy_tab_options(), &mut |req| {
@@ -409,7 +420,8 @@ fn multiline_path_value_continuation_aligns_under_opening_quote() {
     // Before this fix, svg-format preserved the raw newlines but left each
     // continuation at its original source indentation, so the output
     // depended on how the author happened to pad the source.
-    let input = "<svg><path d=\"M100,200 C100,100 250,100 250,200\n                              S400,300 400,200\" /></svg>";
+    let input = "<svg><path d=\"M100,200 C100,100 250,100 250,200\n                              \
+                 S400,300 400,200\" /></svg>";
     let result = format(input);
     let expected = concat!(
         "<svg>\n",
@@ -444,7 +456,8 @@ fn multiline_value_continuation_respects_wrapped_prefix_column() {
     let leading: String = cont.chars().take_while(|c| c.is_whitespace()).collect();
     assert_eq!(
         leading, "\t         ",
-        "continuation must mirror wrapped_prefix's indent style and extend to the opening-quote column, got: {cont:?}"
+        "continuation must mirror wrapped_prefix's indent style and extend to the opening-quote \
+         column, got: {cont:?}"
     );
 }
 
@@ -469,7 +482,8 @@ fn format_with_host_unwraps_cdata_style_before_delegating() {
     );
     assert_eq!(
         result,
-        "<svg>\n\t<style>\n\t\t<![CDATA[\n\t\t\t.a {\n\t\t\t  fill: red;\n\t\t\t}\n\t\t]]>\n\t</style>\n</svg>",
+        "<svg>\n\t<style>\n\t\t<![CDATA[\n\t\t\t.a {\n\t\t\t  fill: \
+         red;\n\t\t\t}\n\t\t]]>\n\t</style>\n</svg>",
         "CDATA wrapper must be preserved in the output",
     );
 }
@@ -573,7 +587,8 @@ fn format_with_host_foreign_object_with_formatted_html() {
     });
     assert_eq!(
         result,
-        "<svg>\n\t<foreignObject width=\"200\" height=\"200\">\n\t\t<div>\n\t\t  hello\n\t\t</div>\n\t</foreignObject>\n</svg>"
+        "<svg>\n\t<foreignObject width=\"200\" height=\"200\">\n\t\t<div>\n\t\t  \
+         hello\n\t\t</div>\n\t</foreignObject>\n</svg>"
     );
 }
 
@@ -711,7 +726,8 @@ fn blank_lines_truncate_collapses_in_host_formatted_block() {
     // Host returned 2 blank lines between rules → collapsed to 1.
     assert_eq!(
         result,
-        "<svg>\n\t<style>\n\t\t.a {\n\t\t  fill: red;\n\t\t}\n\n\t\t.b {\n\t\t  stroke: blue;\n\t\t}\n\t</style>\n</svg>"
+        "<svg>\n\t<style>\n\t\t.a {\n\t\t  fill: red;\n\t\t}\n\n\t\t.b {\n\t\t  stroke: \
+         blue;\n\t\t}\n\t</style>\n</svg>"
     );
 }
 
@@ -740,7 +756,8 @@ fn ignore_file_skips_formatting() {
 
 #[test]
 fn ignore_next_skips_one_sibling() {
-    let input = "<svg>\n<!-- svg-format-ignore -->\n<rect y=\"2\" x=\"1\"/>\n<circle cx=\"1\" cy=\"2\" r=\"3\"/>\n</svg>";
+    let input = "<svg>\n<!-- svg-format-ignore -->\n<rect y=\"2\" x=\"1\"/>\n<circle cx=\"1\" \
+                 cy=\"2\" r=\"3\"/>\n</svg>";
     let result = format(input);
     assert!(result.contains("y=\"2\" x=\"1\""));
     assert!(result.contains("<circle cx=\"1\" cy=\"2\" r=\"3\" />"));
@@ -748,7 +765,9 @@ fn ignore_next_skips_one_sibling() {
 
 #[test]
 fn ignore_range_preserves_content() {
-    let input = "<svg>\n<rect id=\"a\"/>\n<!-- svg-format-ignore-start -->\n<rect y=\"2\" x=\"1\"/>\n<circle r=\"3\" cx=\"1\" cy=\"2\"/>\n<!-- svg-format-ignore-end -->\n<rect y=\"2\" x=\"1\" id=\"b\"/>\n</svg>";
+    let input = "<svg>\n<rect id=\"a\"/>\n<!-- svg-format-ignore-start -->\n<rect y=\"2\" \
+                 x=\"1\"/>\n<circle r=\"3\" cx=\"1\" cy=\"2\"/>\n<!-- svg-format-ignore-end \
+                 -->\n<rect y=\"2\" x=\"1\" id=\"b\"/>\n</svg>";
     let result = format(input);
     assert!(result.contains("<rect y=\"2\" x=\"1\"/>"));
     assert!(result.contains("<circle r=\"3\" cx=\"1\" cy=\"2\"/>"));
@@ -774,7 +793,8 @@ fn ignore_file_only_matches_comments_not_text() {
 
 #[test]
 fn ignore_range_preserves_gaps_verbatim() {
-    let input = "<svg>\n<!-- svg-format-ignore-start -->\n<rect y=\"2\"\n      x=\"1\"/>\n\n<circle r=\"3\"/>\n<!-- svg-format-ignore-end -->\n</svg>";
+    let input = "<svg>\n<!-- svg-format-ignore-start -->\n<rect y=\"2\"\n      \
+                 x=\"1\"/>\n\n<circle r=\"3\"/>\n<!-- svg-format-ignore-end -->\n</svg>";
     let result = format(input);
     assert!(result.contains("<rect y=\"2\"\n      x=\"1\"/>\n\n<circle r=\"3\"/>"));
 }
@@ -896,7 +916,9 @@ fn ignore_range_with_insert_blank_lines_is_stable() {
 
 #[test]
 fn two_consecutive_ignore_next_skip_two_siblings() {
-    let input = "<svg>\n<!-- svg-format-ignore -->\n<rect y=\"2\" x=\"1\"/>\n<!-- svg-format-ignore -->\n<circle r=\"3\" cx=\"1\" cy=\"2\"/>\n<ellipse ry=\"1\" rx=\"2\"/>\n</svg>";
+    let input = "<svg>\n<!-- svg-format-ignore -->\n<rect y=\"2\" x=\"1\"/>\n<!-- \
+                 svg-format-ignore -->\n<circle r=\"3\" cx=\"1\" cy=\"2\"/>\n<ellipse ry=\"1\" \
+                 rx=\"2\"/>\n</svg>";
     let result = format(input);
     assert!(
         result.contains("y=\"2\" x=\"1\""),
@@ -924,7 +946,8 @@ fn ignore_end_without_start_is_harmless() {
 
 #[test]
 fn ignore_start_without_end_ignores_rest_of_siblings() {
-    let input = "<svg>\n<rect id=\"a\"/>\n<!-- svg-format-ignore-start -->\n<rect y=\"2\" x=\"1\"/>\n<circle r=\"3\" cx=\"1\" cy=\"2\"/>\n</svg>";
+    let input = "<svg>\n<rect id=\"a\"/>\n<!-- svg-format-ignore-start -->\n<rect y=\"2\" \
+                 x=\"1\"/>\n<circle r=\"3\" cx=\"1\" cy=\"2\"/>\n</svg>";
     let result = format(input);
     assert!(
         result.contains("<rect id=\"a\" />"),
@@ -942,7 +965,9 @@ fn ignore_start_without_end_ignores_rest_of_siblings() {
 
 #[test]
 fn nested_ignore_start_is_harmless() {
-    let input = "<svg>\n<!-- svg-format-ignore-start -->\n<rect y=\"2\" x=\"1\"/>\n<!-- svg-format-ignore-start -->\n<circle r=\"3\" cx=\"1\" cy=\"2\"/>\n<!-- svg-format-ignore-end -->\n<ellipse ry=\"1\" rx=\"2\"/>\n</svg>";
+    let input = "<svg>\n<!-- svg-format-ignore-start -->\n<rect y=\"2\" x=\"1\"/>\n<!-- \
+                 svg-format-ignore-start -->\n<circle r=\"3\" cx=\"1\" cy=\"2\"/>\n<!-- \
+                 svg-format-ignore-end -->\n<ellipse ry=\"1\" rx=\"2\"/>\n</svg>";
     let result = format(input);
     assert!(
         result.contains("y=\"2\" x=\"1\""),
@@ -960,7 +985,8 @@ fn nested_ignore_start_is_harmless() {
 
 #[test]
 fn ignore_next_inside_ignore_range_is_preserved_verbatim() {
-    let input = "<svg>\n<!-- svg-format-ignore-start -->\n<!-- svg-format-ignore -->\n<rect y=\"2\" x=\"1\"/>\n<!-- svg-format-ignore-end -->\n</svg>";
+    let input = "<svg>\n<!-- svg-format-ignore-start -->\n<!-- svg-format-ignore -->\n<rect \
+                 y=\"2\" x=\"1\"/>\n<!-- svg-format-ignore-end -->\n</svg>";
     let result = format(input);
     assert!(
         result.contains("<!-- svg-format-ignore -->"),
@@ -974,7 +1000,9 @@ fn ignore_next_inside_ignore_range_is_preserved_verbatim() {
 
 #[test]
 fn ignore_next_inside_range_does_not_leak_after_end() {
-    let input = "<svg>\n<!-- svg-format-ignore-start -->\n<!-- svg-format-ignore -->\n<rect y=\"2\" x=\"1\"/>\n<!-- svg-format-ignore-end -->\n<ellipse ry=\"1\" rx=\"2\"/>\n</svg>";
+    let input = "<svg>\n<!-- svg-format-ignore-start -->\n<!-- svg-format-ignore -->\n<rect \
+                 y=\"2\" x=\"1\"/>\n<!-- svg-format-ignore-end -->\n<ellipse ry=\"1\" \
+                 rx=\"2\"/>\n</svg>";
     let result = format(input);
     assert!(
         result.contains("<ellipse rx=\"2\" ry=\"1\" />"),
@@ -984,7 +1012,8 @@ fn ignore_next_inside_range_does_not_leak_after_end() {
 
 #[test]
 fn ignore_directives_work_inside_nested_elements() {
-    let input = "<svg>\n<g>\n<!-- svg-format-ignore -->\n<rect y=\"2\" x=\"1\"/>\n<circle r=\"3\" cx=\"1\" cy=\"2\"/>\n</g>\n</svg>";
+    let input = "<svg>\n<g>\n<!-- svg-format-ignore -->\n<rect y=\"2\" x=\"1\"/>\n<circle r=\"3\" \
+                 cx=\"1\" cy=\"2\"/>\n</g>\n</svg>";
     let result = format(input);
     assert!(
         result.contains("y=\"2\" x=\"1\""),
@@ -1028,7 +1057,8 @@ fn ignore_file_inside_nested_element_still_skips_file() {
 
 #[test]
 fn ignore_range_as_first_child_after_start_tag() {
-    let input = "<svg>\n<!-- svg-format-ignore-start -->\n<rect y=\"2\" x=\"1\"/>\n<!-- svg-format-ignore-end -->\n</svg>";
+    let input = "<svg>\n<!-- svg-format-ignore-start -->\n<rect y=\"2\" x=\"1\"/>\n<!-- \
+                 svg-format-ignore-end -->\n</svg>";
     let result = format(input);
     assert!(
         result.contains("y=\"2\" x=\"1\""),
@@ -1038,7 +1068,8 @@ fn ignore_range_as_first_child_after_start_tag() {
 
 #[test]
 fn ignore_range_first_content_child_not_lost() {
-    let input = "<svg>\n<!-- svg-format-ignore-start -->\n<rect y=\"2\" x=\"1\"/>\n<circle r=\"3\"/>\n<!-- svg-format-ignore-end -->\n</svg>";
+    let input = "<svg>\n<!-- svg-format-ignore-start -->\n<rect y=\"2\" x=\"1\"/>\n<circle \
+                 r=\"3\"/>\n<!-- svg-format-ignore-end -->\n</svg>";
     let result = format(input);
     assert!(
         result.contains("<rect y=\"2\" x=\"1\"/>"),
@@ -1056,7 +1087,8 @@ fn ignore_range_first_content_child_not_lost() {
 fn text_element_entity_refs_stay_inline() {
     let input =
         r#"<svg><text class="label" x="36" y="58">Embedded &lt;style&gt; colors</text></svg>"#;
-    let expected = "<svg>\n\t<text class=\"label\" x=\"36\" y=\"58\">Embedded &lt;style&gt; colors</text>\n</svg>";
+    let expected = "<svg>\n\t<text class=\"label\" x=\"36\" y=\"58\">Embedded &lt;style&gt; \
+                    colors</text>\n</svg>";
     assert_eq!(format(input), expected);
 }
 
@@ -1071,8 +1103,10 @@ fn text_element_entity_refs_idempotent() {
 
 #[test]
 fn text_element_broken_entity_refs_repaired() {
-    let input = "<svg>\n<text class=\"label\" x=\"36\" y=\"58\">\n\tEmbedded\n\t&lt;\n\tstyle\n\t&gt;\n\tcolors\n</text>\n</svg>";
-    let expected = "<svg>\n\t<text class=\"label\" x=\"36\" y=\"58\">Embedded &lt;style&gt; colors</text>\n</svg>";
+    let input = "<svg>\n<text class=\"label\" x=\"36\" \
+                 y=\"58\">\n\tEmbedded\n\t&lt;\n\tstyle\n\t&gt;\n\tcolors\n</text>\n</svg>";
+    let expected = "<svg>\n\t<text class=\"label\" x=\"36\" y=\"58\">Embedded &lt;style&gt; \
+                    colors</text>\n</svg>";
     assert_eq!(format(input), expected);
 }
 
@@ -1092,7 +1126,9 @@ fn desc_element_entity_ref_stays_inline() {
 
 #[test]
 fn text_element_long_entity_ref_content_wraps_to_own_line() {
-    let input = "<svg><text class=\"subtle\" x=\"36\" y=\"84\">hex, rgb(a), hsl(a), hwb, lab, lch, oklab, oklch, transparent, stop-color, CSS vars, and color-mix() &amp; more</text></svg>";
+    let input = "<svg><text class=\"subtle\" x=\"36\" y=\"84\">hex, rgb(a), hsl(a), hwb, lab, \
+                 lch, oklab, oklch, transparent, stop-color, CSS vars, and color-mix() &amp; \
+                 more</text></svg>";
     let result = format(input);
     assert!(
         result.contains(">\n\t\thex, rgb(a)"),
@@ -1165,7 +1201,8 @@ fn group_wrap_rect_splits_geometry_from_presentation() {
     };
     let aligned = format!("  {}", " ".repeat("rect".len() + 2));
     let expected = format!(
-        "<svg>\n  <rect x=\"10\" y=\"20\" width=\"100\" height=\"50\"\n{aligned}fill=\"red\" stroke=\"black\" />\n</svg>"
+        "<svg>\n  <rect x=\"10\" y=\"20\" width=\"100\" height=\"50\"\n{aligned}fill=\"red\" \
+         stroke=\"black\" />\n</svg>"
     );
     assert_eq!(format_with_options(input, options), expected);
 }
@@ -1181,7 +1218,8 @@ fn group_wrap_path_drawing_then_presentation() {
     };
     let aligned = format!("  {}", " ".repeat("path".len() + 2));
     let expected = format!(
-        "<svg>\n  <path d=\"M0 0 L1 1\"\n{aligned}fill=\"none\" stroke=\"black\" stroke-width=\"2\" />\n</svg>"
+        "<svg>\n  <path d=\"M0 0 L1 1\"\n{aligned}fill=\"none\" stroke=\"black\" \
+         stroke-width=\"2\" />\n</svg>"
     );
     assert_eq!(format_with_options(input, options), expected);
 }
@@ -1285,7 +1323,9 @@ fn group_wrap_falls_back_to_one_per_line_when_group_exceeds_width() {
     };
     let aligned = format!("  {}", " ".repeat("rect".len() + 2));
     let expected = format!(
-        "<svg>\n  <rect x=\"1000\"\n{aligned}y=\"2000\"\n{aligned}width=\"3000\"\n{aligned}height=\"4000\" />\n</svg>"
+        "<svg>\n  <rect \
+         x=\"1000\"\n{aligned}y=\"2000\"\n{aligned}width=\"3000\"\n{aligned}height=\"4000\" \
+         />\n</svg>"
     );
     assert_eq!(format_with_options(input, options), expected);
 }

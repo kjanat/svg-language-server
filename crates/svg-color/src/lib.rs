@@ -20,5 +20,6 @@ pub(crate) mod present;
 pub(crate) mod types;
 
 pub use extract::{colors as extract_colors, colors_from_tree as extract_colors_from_tree};
+pub use named_colors::ALL_NAMES as NAMED_COLOR_NAMES;
 pub use present::color_presentations;
 pub use types::{ColorInfo, ColorKind};

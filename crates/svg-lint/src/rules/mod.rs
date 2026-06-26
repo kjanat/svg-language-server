@@ -327,7 +327,11 @@ fn check_edition_attribute(
         .attributes_for_element(elem_name)
         .map(|attribute| attribute.name)
         .collect();
-    if !allowed.is_empty() && !allowed.contains(&lookup_name) {
+    if !allowed.is_empty()
+        && !allowed
+            .iter()
+            .any(|name| edition_attribute_matches(name, lookup_name))
+    {
         push_diag_in_tag(
             &mut ctx.diagnostics,
             &mut ctx.suppressions,
@@ -341,6 +345,12 @@ fn check_edition_attribute(
             ),
         );
     }
+}
+
+fn edition_attribute_matches(edition_name: &str, lookup_name: &str) -> bool {
+    edition_name == lookup_name
+        || svg_data::xlink::canonical_svg_attribute_name(edition_name).as_ref() == lookup_name
+        || (edition_name == "xml:lang" && lookup_name == "lang")
 }
 
 fn check_attributes(

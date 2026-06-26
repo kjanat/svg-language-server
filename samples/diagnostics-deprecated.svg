@@ -27,6 +27,9 @@
 			<stop offset="0%" stop-color="#2a9d8f" />
 			<stop offset="100%" stop-color="#264653" />
 		</linearGradient>
+		<clipPath id="clip1">
+			<rect x="10" y="210" width="100" height="60" />
+		</clipPath>
 	</defs>
 	<use x="150" y="10" xlink:href="#grad1" />
 

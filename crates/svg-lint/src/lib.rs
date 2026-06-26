@@ -931,6 +931,38 @@ mod tests {
     }
 
     #[test]
+    fn svg_1_1_edition_accepts_lang_alias_for_xml_lang() -> Result<(), Box<dyn std::error::Error>> {
+        use svg_data::inventory;
+
+        let svg11 = inventory::for_edition(&inventory::EditionId::for_snapshot(
+            svg_data::SpecSnapshotId::Svg11Rec20110816,
+        ))
+        .ok_or("no SVG 1.1 edition inventory")?;
+        let src = br#"<svg><text lang="en">hello</text></svg>"#;
+        let mut parser = tree_sitter::Parser::new();
+        parser.set_language(&tree_sitter_svg::LANGUAGE.into()).ok();
+        let tree = parser.parse(src, None).ok_or("parse")?;
+
+        let diags = lint_tree_with_options(
+            src,
+            &tree,
+            LintOptions {
+                profile: svg_data::SpecSnapshotId::Svg11Rec20110816,
+                native: None,
+                edition: Some(svg11),
+            },
+            None,
+        );
+        assert!(
+            diags.iter().all(|diag| {
+                diag.code != DiagnosticCode::UnsupportedInProfile || !diag.message.contains("lang")
+            }),
+            "SVG 1.1 edition must accept lang as xml:lang alias: {diags:?}"
+        );
+        Ok(())
+    }
+
+    #[test]
     fn shapes_allow_animation_and_tspan_rejects_text() {
         let invalid_child = |src: &[u8]| {
             lint(src)

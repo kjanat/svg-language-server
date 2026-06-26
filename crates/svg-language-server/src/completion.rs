@@ -413,22 +413,54 @@ fn href_value_completions(
     tree: &tree_sitter::Tree,
     value_node: tree_sitter::Node<'_>,
 ) -> Vec<CompletionItem> {
+    fragment_reference_completions(source, tree, value_node, FragmentReferenceSyntax::Bare)
+}
+
+fn url_value_completions(
+    source: &[u8],
+    tree: &tree_sitter::Tree,
+    value_node: tree_sitter::Node<'_>,
+) -> Vec<CompletionItem> {
+    fragment_reference_completions(
+        source,
+        tree,
+        value_node,
+        FragmentReferenceSyntax::UrlFunction,
+    )
+}
+
+#[derive(Clone, Copy)]
+enum FragmentReferenceSyntax {
+    Bare,
+    UrlFunction,
+}
+
+fn fragment_reference_completions(
+    source: &[u8],
+    tree: &tree_sitter::Tree,
+    value_node: tree_sitter::Node<'_>,
+    syntax: FragmentReferenceSyntax,
+) -> Vec<CompletionItem> {
     let replace_range = attribute_value_inner_range(source, value_node);
     let mut ids: Vec<String> = svg_references::collect_id_definitions(source, tree)
         .into_iter()
-        .map(|definition| format!("#{}", definition.name))
+        .map(|definition| definition.name)
         .collect();
     ids.sort();
     ids.dedup();
 
     ids.into_iter()
-        .map(|fragment| {
+        .map(|id| {
+            let replacement = match syntax {
+                FragmentReferenceSyntax::Bare => format!("#{id}"),
+                FragmentReferenceSyntax::UrlFunction => format!("url(#{id})"),
+            };
             replace_completion_item(
-                fragment.clone(),
+                replacement.clone(),
                 CompletionItemKind::REFERENCE,
                 "In-document fragment reference",
                 replace_range,
-                fragment,
+                replacement,
             )
         })
         .collect()
@@ -490,13 +522,13 @@ pub fn value_completions(
     match value_node.kind() {
         "href_attribute_value" => return href_value_completions(source, tree, value_node),
         "functional_iri_attribute_value" => {
-            let mut items = href_value_completions(source, tree, value_node);
+            let mut items = url_value_completions(source, tree, value_node);
             items.push(completion_item("none", CompletionItemKind::KEYWORD));
             return items;
         }
         "paint_attribute_value" => {
             let mut items = if paint_attribute_allows_fragment_reference(attr_name) {
-                href_value_completions(source, tree, value_node)
+                url_value_completions(source, tree, value_node)
             } else {
                 Vec::new()
             };

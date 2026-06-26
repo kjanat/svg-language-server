@@ -239,7 +239,7 @@ fn typed_attribute_values_offer_context_aware_completions() -> TestResult {
 fn color_value_completion_does_not_offer_fragment_references() -> TestResult {
     let mut server = TestServer::start()?;
 
-    let svg = r##"<svg><symbol id="ss"/><rect color="" fill="" /></svg>"##;
+    let svg = r##"<svg><symbol id="ss"/><rect color="" fill="" clip-path="" /></svg>"##;
     server.open("file:///paint-color-completion.svg", svg)?;
 
     let color_offset = svg.find(r#"color="""#).ok_or("color attr")? + 7;
@@ -280,8 +280,38 @@ fn color_value_completion_does_not_offer_fragment_references() -> TestResult {
     assert!(
         fill_items
             .iter()
-            .any(|item| item["label"].as_str() == Some("#ss")),
-        "paint server attrs should still include fragment references: {fill_resp}"
+            .any(|item| item["label"].as_str() == Some("url(#ss)")),
+        "paint server attrs should include url() fragment references: {fill_resp}"
+    );
+    assert!(
+        fill_items
+            .iter()
+            .all(|item| item["label"].as_str() != Some("#ss")),
+        "paint server attrs should not include bare fragment references: {fill_resp}"
+    );
+
+    let clip_path_offset = svg.find(r#"clip-path="""#).ok_or("clip-path attr")? + 11;
+    let clip_path_resp = server.request(
+        "textDocument/completion",
+        &json!({
+            "textDocument": { "uri": "file:///paint-color-completion.svg" },
+            "position": { "line": 0, "character": clip_path_offset }
+        }),
+    )?;
+    let clip_path_items = clip_path_resp["result"]
+        .as_array()
+        .ok_or("clip-path completion result should be an array")?;
+    assert!(
+        clip_path_items
+            .iter()
+            .any(|item| item["label"].as_str() == Some("url(#ss)")),
+        "functional IRI attrs should include url() fragment references: {clip_path_resp}"
+    );
+    assert!(
+        clip_path_items
+            .iter()
+            .all(|item| item["label"].as_str() != Some("#ss")),
+        "functional IRI attrs should not include bare fragment references: {clip_path_resp}"
     );
 
     server.shutdown_and_exit()?;

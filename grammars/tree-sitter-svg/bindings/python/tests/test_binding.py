@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 import tree_sitter_svg
+
 from tree_sitter import Language, Parser
 
 

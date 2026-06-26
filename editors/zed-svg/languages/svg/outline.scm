@@ -15,7 +15,7 @@
       value: (id_attribute_value
         (id_token) @context)))) @item
 
-; Zed-side context: class-bearing elements show the class name.
+; Elements with class show the class name as outline context
 (element
   (start_tag
     name: (name) @name
@@ -32,7 +32,7 @@
         (class_list
           (class_name) @context))))) @item
 
-; Zed-side context: href-bearing elements show their target.
+; Elements with href show the target as outline context
 (element
   (start_tag
     name: (name) @name

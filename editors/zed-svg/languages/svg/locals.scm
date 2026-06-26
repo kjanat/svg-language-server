@@ -17,6 +17,8 @@
  (#match? @local.reference "^#")
  (#strip! @local.reference "^#"))
 
+; paint url() references live in the injected svg_paint grammar (locals.scm)
+
 ; functional IRI references (clip-path, mask, filter, etc.)
 ((functional_iri_attribute
   value: (functional_iri_attribute_value

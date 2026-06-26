@@ -1,6 +1,5 @@
+from types import CapsuleType
 from typing import Final
-
-from typing_extensions import CapsuleType
 
 HIGHLIGHTS_QUERY: Final[str | None]
 """The syntax highlighting query for this grammar."""

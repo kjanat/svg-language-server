@@ -46,4 +46,4 @@ jobs:
       - uses: denoland/setup-deno@v2
         with: { deno-version: v2.x }
       - name: Typecheck Deno scripts
-        run: deno task --config scripts/deno.jsonc typecheck
+        run: deno check scripts/release-prepare.ts

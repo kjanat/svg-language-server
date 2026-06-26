@@ -15,10 +15,9 @@
   .
   (element
     (start_tag
-      (attribute
-        (id_attribute
-          value: (id_attribute_value
-            (id_token) @name))))) @definition.id
+      (id_attribute
+        value: (id_attribute_value
+          (id_token) @name)))) @definition.id
   (#select-adjacent! @doc @definition.id)
 )
 
@@ -30,10 +29,9 @@
   .
   (element
     (self_closing_tag
-      (attribute
-        (id_attribute
-          value: (id_attribute_value
-            (id_token) @name))))) @definition.id
+      (id_attribute
+        value: (id_attribute_value
+          (id_token) @name)))) @definition.id
   (#select-adjacent! @doc @definition.id)
 )
 
@@ -43,10 +41,9 @@
   .
   (element
     (start_tag
-      (attribute
-        (id_attribute
-          value: (id_attribute_value
-            (id_token) @name))))) @definition.id
+      (id_attribute
+        value: (id_attribute_value
+          (id_token) @name)))) @definition.id
   (#select-adjacent! @doc @definition.id)
 )
 
@@ -56,10 +53,9 @@
   .
   (element
     (self_closing_tag
-      (attribute
-        (id_attribute
-          value: (id_attribute_value
-            (id_token) @name))))) @definition.id
+      (id_attribute
+        value: (id_attribute_value
+          (id_token) @name)))) @definition.id
   (#select-adjacent! @doc @definition.id)
 )
 
@@ -71,10 +67,9 @@
   .
   (svg_root_element
     (start_tag
-      (attribute
-        (id_attribute
-          value: (id_attribute_value
-            (id_token) @name))))) @definition.id
+      (id_attribute
+        value: (id_attribute_value
+          (id_token) @name)))) @definition.id
   (#select-adjacent! @doc @definition.id)
 )
 
@@ -86,10 +81,9 @@
   .
   (svg_root_element
     (self_closing_tag
-      (attribute
-        (id_attribute
-          value: (id_attribute_value
-            (id_token) @name))))) @definition.id
+      (id_attribute
+        value: (id_attribute_value
+          (id_token) @name)))) @definition.id
   (#select-adjacent! @doc @definition.id)
 )
 
@@ -99,10 +93,9 @@
   .
   (svg_root_element
     (start_tag
-      (attribute
-        (id_attribute
-          value: (id_attribute_value
-            (id_token) @name))))) @definition.id
+      (id_attribute
+        value: (id_attribute_value
+          (id_token) @name)))) @definition.id
   (#select-adjacent! @doc @definition.id)
 )
 
@@ -112,10 +105,9 @@
   .
   (svg_root_element
     (self_closing_tag
-      (attribute
-        (id_attribute
-          value: (id_attribute_value
-            (id_token) @name))))) @definition.id
+      (id_attribute
+        value: (id_attribute_value
+          (id_token) @name)))) @definition.id
   (#select-adjacent! @doc @definition.id)
 )
 
@@ -134,6 +126,8 @@
     (href_reference
       (iri_reference) @name))) @reference.id
  (#match? @name "^#"))
+
+; Paint url() id references live in the injected svg_paint grammar (tags.scm)
 
 ; ─── ID references (functional IRI) ─────────────────────────────
 ; clip-path="url(#clip)", mask="url(#mask)", filter="url(#blur)"

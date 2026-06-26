@@ -1,61 +1,55 @@
 (comment) @annotation
 
-; ─── Elements with id ───────────────────────────────────────────
+; Elements with id get the id as their outline label
 (element
   (start_tag
     name: (name) @name
-    (attribute
-      (id_attribute
-        value: (id_attribute_value
-          (id_token) @context))))) @item
+    (id_attribute
+      value: (id_attribute_value
+        (id_token) @context)))) @item
 
 (element
   (self_closing_tag
     name: (name) @name
-    (attribute
-      (id_attribute
-        value: (id_attribute_value
-          (id_token) @context))))) @item
+    (id_attribute
+      value: (id_attribute_value
+        (id_token) @context)))) @item
 
-; ─── Elements with class ────────────────────────────────────────
+; Zed-side context: class-bearing elements show the class name.
 (element
   (start_tag
     name: (name) @name
-    (attribute
-      (class_attribute
-        value: (class_attribute_value
-          (class_list
-            (class_name) @context)))))) @item
+    (class_attribute
+      value: (class_attribute_value
+        (class_list
+          (class_name) @context))))) @item
 
 (element
   (self_closing_tag
     name: (name) @name
-    (attribute
-      (class_attribute
-        value: (class_attribute_value
-          (class_list
-            (class_name) @context)))))) @item
+    (class_attribute
+      value: (class_attribute_value
+        (class_list
+          (class_name) @context))))) @item
 
-; ─── Referencing elements with href ─────────────────────────────
+; Zed-side context: href-bearing elements show their target.
 (element
   (start_tag
     name: (name) @name
-    (attribute
-      (href_attribute
-        value: (href_attribute_value
-          (href_reference
-            (iri_reference) @context)))))) @item
+    (href_attribute
+      value: (href_attribute_value
+        (href_reference
+          (iri_reference) @context))))) @item
 
 (element
   (self_closing_tag
     name: (name) @name
-    (attribute
-      (href_attribute
-        value: (href_attribute_value
-          (href_reference
-            (iri_reference) @context)))))) @item
+    (href_attribute
+      value: (href_attribute_value
+        (href_reference
+          (iri_reference) @context))))) @item
 
-; ─── Fallback: tag name only ────────────────────────────────────
+; Elements without id still appear with tag name only
 (svg_root_element
   (start_tag
     name: (name) @name)) @item

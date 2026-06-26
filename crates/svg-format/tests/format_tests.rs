@@ -35,8 +35,18 @@ fn formats_multiline_attributes_consistently() {
         max_inline_tag_width: 24,
         ..legacy_tab_options()
     };
-    let expected = "<svg>\n\t<linearGradient\n\t\tid=\"sky\"\n\t\tx1=\"0%\"\n\t\ty1=\"0%\"\n\t\\
-                    tx2=\"0%\"\n\t\ty2=\"100%\">\n\t</linearGradient>\n</svg>";
+    let expected = [
+        "<svg>",
+        "\t<linearGradient",
+        "\t\tid=\"sky\"",
+        "\t\tx1=\"0%\"",
+        "\t\ty1=\"0%\"",
+        "\t\tx2=\"0%\"",
+        "\t\ty2=\"100%\">",
+        "\t</linearGradient>",
+        "</svg>",
+    ]
+    .join("\n");
     assert_eq!(format_with_options(input, options), expected);
 }
 

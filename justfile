@@ -133,10 +133,10 @@ regen-sample NAME REF="":
 regen-test *ARGS:
     cargo test -p svg-data-regen {{ ARGS }}
 
-# typecheck the Deno-checked scripts (run under Bun, type-checked by Deno)
+# typecheck the Deno-checked scripts
 [group('scripts')]
 typecheck:
-    deno task --config scripts/deno.jsonc typecheck
+    deno check scripts/release-prepare.ts
 
 # run the svg-compat worker's Deno test suite
 [group('scripts')]

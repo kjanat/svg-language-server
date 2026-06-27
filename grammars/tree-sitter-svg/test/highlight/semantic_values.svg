@@ -1,0 +1,24 @@
+<svg>
+  <rect fill="none"/>
+  <!--        ^^^^ string -->
+  <rect fill="currentColor"/>
+  <!--        ^^^^^^^^^^^^ string -->
+  <rect fill="inherit"/>
+  <!--        ^^^^^^^ string -->
+  <image preserveAspectRatio="xMidYMid meet"/>
+  <!--                        ^^^^^^^^ constant -->
+  <!--                                 ^^^^ constant -->
+  <rect width="10px"/>
+  <!--         ^^ number -->
+  <!--           ^^ type -->
+  <rect width="5em"/>
+  <!--         ^ number -->
+  <!--          ^^ type -->
+  <text font-size="14" font-weight="bold"/>
+  <!--             ^^ string -->
+  <!-- font-size is a keyword|length-percentage union -> css_text string, not number -->
+  <!--                          ^^^^ !number -->
+  <g transform="translate(10)"/>
+  <!--                   ^ string -->
+  <!--                      ^ string -->
+</svg>

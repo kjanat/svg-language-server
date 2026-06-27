@@ -86,6 +86,214 @@
           }
         },
         {
+          "description": "A boolean attribute as defined by HTML.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "boolean"
+            }
+          }
+        },
+        {
+          "description": "A space-separated token list.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "token_list"
+            }
+          }
+        },
+        {
+          "description": "A comma-separated token list.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "comma_token_list"
+            }
+          }
+        },
+        {
+          "description": "A space-separated list of URL tokens.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "url_token_list"
+            }
+          }
+        },
+        {
+          "description": "A BCP 47 / ABNF language tag.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "language_tag"
+            }
+          }
+        },
+        {
+          "description": "An integer value.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "integer"
+            }
+          }
+        },
+        {
+          "description": "A MIME media type.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "media_type"
+            }
+          }
+        },
+        {
+          "description": "A CSS media query list.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "media_query_list"
+            }
+          }
+        },
+        {
+          "description": "A CSS declaration list, as used by inline `style`.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "css_declaration_list"
+            }
+          }
+        },
+        {
+          "description": "An SVG element ID value.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "id"
+            }
+          }
+        },
+        {
+          "description": "A referrer policy string.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "referrer_policy"
+            }
+          }
+        },
+        {
+          "description": "A suggested download file name.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "suggested_file_name"
+            }
+          }
+        },
+        {
+          "description": "SVG path data.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "path_data"
+            }
+          }
+        },
+        {
+          "description": "A semicolon-separated list of numbers.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "semicolon_number_list"
+            }
+          }
+        },
+        {
+          "description": "One motion-animation coordinate pair.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "coordinate_pair"
+            }
+          }
+        },
+        {
+          "description": "A semicolon-separated list of motion-animation coordinate pairs.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "coordinate_pair_list"
+            }
+          }
+        },
+        {
           "description": "A number or percentage.",
           "type": "object",
           "required": [

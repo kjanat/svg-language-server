@@ -2,6 +2,19 @@
 
 use std::borrow::Cow;
 
+use regex::Regex;
+
+/// Compile a regex pattern that is fixed at compile time.
+///
+/// # Panics
+/// Panics when `pattern` is not a valid regex.
+pub fn compile_regex(pattern: &str) -> Regex {
+    match Regex::new(pattern) {
+        Ok(regex) => regex,
+        Err(error) => panic!("invalid regex {pattern:?}: {error}"),
+    }
+}
+
 /// Wrap a message as a boxed error.
 pub fn boxed(message: impl Into<String>) -> Box<dyn std::error::Error> {
     Box::<dyn std::error::Error>::from(message.into())

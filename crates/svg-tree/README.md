@@ -29,4 +29,4 @@ let is_attr = is_attribute_name_kind(node.kind());
 
 ## Part of [svg-language-server]
 
-[svg-language-server]: https://github.com/kjanat/svg-language-server
+[svg-language-server]: https://github.com/kjanat/svg

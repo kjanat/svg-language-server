@@ -6,7 +6,8 @@ The language server currently uses inconsistent rules for lifecycle state.
 
 - Hover uses selected SVG profile plus compat metadata.
 - Lint uses selected SVG profile plus compat metadata plus runtime overrides.
-- Completion uses selected SVG profile, but does not fully use compat metadata and no longer uses runtime compat overrides.
+- Completion uses selected SVG profile, but does not fully use compat metadata
+  and no longer uses runtime compat overrides.
 
 This creates split behavior for the same symbol.
 
@@ -15,7 +16,8 @@ Examples of bad outcomes:
 - A symbol can be valid in the selected profile and flagged deprecated in hover.
 - The same symbol can produce a deprecated diagnostic in lint.
 - The same symbol can still appear in completion as if it were fully normal.
-- Or completion may hide/show items based on a rule that does not match hover/lint.
+- Or completion may hide/show items based on a rule that does not match
+  hover/lint.
 
 This is confusing for users and makes the server feel internally inconsistent.
 
@@ -25,7 +27,16 @@ One lifecycle rule.
 
 ## One-Paragraph Summary
 
-The issue is that the server has two different sources of truth for symbol state: hover and lint combine profile membership with compat deprecation/experimental data, while completion currently only follows profile membership plus spec lifecycle and ignores runtime compat overrides. As a result, the same element or attribute can be treated as "valid but deprecated" in one feature and "normal" in another. The fix is to make completion use the same merged lifecycle rule as the rest of the server: if a symbol is supported in the selected profile, completion should still show it, but annotate it clearly as deprecated, obsolete, or experimental; if the symbol is unsupported in the selected profile, completion should hide it.
+The issue is that the server has two different sources of truth for symbol
+state: hover and lint combine profile membership with compat
+deprecation/experimental data, while completion currently only follows profile
+membership plus spec lifecycle and ignores runtime compat overrides. As a
+result, the same element or attribute can be treated as "valid but deprecated"
+in one feature and "normal" in another. The fix is to make completion use the
+same merged lifecycle rule as the rest of the server: if a symbol is supported
+in the selected profile, completion should still show it, but annotate it
+clearly as deprecated, obsolete, or experimental; if the symbol is unsupported
+in the selected profile, completion should hide it.
 
 ## Policy Decision
 
@@ -44,7 +55,8 @@ Completion should include every symbol that is valid in the selected profile.
 
 For symbols that are shown:
 
-- `Deprecated` and `Obsolete` get deprecated tag metadata and explicit detail text.
+- `Deprecated` and `Obsolete` get deprecated tag metadata and explicit detail
+  text.
 - `Experimental` gets explicit detail text.
 - `Stable` gets normal detail text.
 
@@ -63,9 +75,12 @@ For symbols that are shown:
 The XLink family should follow the same rule.
 
 - In SVG 1.1, `xlink:href` should be shown if the selected profile supports it.
-- In SVG 1.1, it should be annotated as deprecated or obsolete according to the merged lifecycle.
+- In SVG 1.1, it should be annotated as deprecated or obsolete according to the
+  merged lifecycle.
 - In SVG 2+, it should be hidden if unsupported in that profile.
-- If both `href` and `xlink:href` are valid in some context, `href` should rank above `xlink:href`, but this ranking adjustment is optional and not required for the first fix.
+- If both `href` and `xlink:href` are valid in some context, `href` should rank
+  above `xlink:href`, but this ranking adjustment is optional and not required
+  for the first fix.
 
 ## Scope
 
@@ -75,7 +90,8 @@ The XLink family should follow the same rule.
 - Restore runtime compat influence on completion.
 - Preserve profile-based filtering for unsupported symbols.
 - Add tests covering merged lifecycle behavior.
-- Clarify existing completion tests whose wording no longer matches intended behavior.
+- Clarify existing completion tests whose wording no longer matches intended
+  behavior.
 
 ## Out of Scope
 
@@ -84,7 +100,8 @@ The XLink family should follow the same rule.
 - Changing runtime compat merge behavior in `src/compat.rs`.
 - Adding worker checks to `just ci`.
 - Reworking ranking/sorting beyond basic correctness.
-- Cross-crate refactor to share a lifecycle helper between lint and language server.
+- Cross-crate refactor to share a lifecycle helper between lint and language
+  server.
 
 ## Existing Behavior and Code Paths
 
@@ -152,18 +169,22 @@ Current problem in completion:
 
 - It uses profile-aware data from `svg_data`.
 - It does not thread `RuntimeCompat` through the completion request path.
-- It displays lifecycle text based on profile/spec lifecycle, not merged lifecycle.
+- It displays lifecycle text based on profile/spec lifecycle, not merged
+  lifecycle.
 - Attribute completion items are not tagged deprecated even when they should be.
 
 ## Desired End State
 
 After the fix:
 
-1. Completion uses selected profile to determine whether a symbol is eligible to appear.
-2. Completion uses merged lifecycle state to determine annotation and deprecated tagging.
+1. Completion uses selected profile to determine whether a symbol is eligible to
+   appear.
+2. Completion uses merged lifecycle state to determine annotation and deprecated
+   tagging.
 3. Hover, lint, and completion agree on the same symbol status.
 4. Unsupported symbols stay hidden in completion.
-5. Deprecated, obsolete, and experimental supported symbols remain discoverable but clearly annotated.
+5. Deprecated, obsolete, and experimental supported symbols remain discoverable
+   but clearly annotated.
 
 ## Implementation Plan
 
@@ -185,13 +206,15 @@ completion_from_context(source, &doc.tree, node, profile)
 
 #### Required Change
 
-Update completion flow to pass runtime compat into the completion context path, similar to hover.
+Update completion flow to pass runtime compat into the completion context path,
+similar to hover.
 
 #### Exact Changes
 
 1. Update `completion_from_context(...)` signature to accept:
    - `runtime_compat: Option<&RuntimeCompat>`
-2. In `completion(...)`, read `self.runtime_compat.read().await` before calling `completion_from_context(...)`.
+2. In `completion(...)`, read `self.runtime_compat.read().await` before calling
+   `completion_from_context(...)`.
 3. Pass `runtime_compat.as_ref()` into `completion_from_context(...)`.
 4. Thread that value further into:
    - `attribute_completion_items(...)`
@@ -214,12 +237,14 @@ Do not change style completion behavior.
 
 #### Goal
 
-Create a small helper in the language server crate that mirrors lint lifecycle merge behavior for completion UI.
+Create a small helper in the language server crate that mirrors lint lifecycle
+merge behavior for completion UI.
 
 #### Why Local Helper Instead of Shared Cross-Crate Helper
 
 - Smallest possible fix.
-- Avoids refactoring crate boundaries just to remove a few lines of duplicated logic.
+- Avoids refactoring crate boundaries just to remove a few lines of duplicated
+  logic.
 - Keeps change tightly scoped to completion behavior.
 
 #### Suggested Helper Responsibilities
@@ -238,17 +263,22 @@ Output:
 
 Mirror lint behavior exactly:
 
-1. If spec/profile lifecycle is `Deprecated` or `Obsolete`, return it immediately.
+1. If spec/profile lifecycle is `Deprecated` or `Obsolete`, return it
+   immediately.
 2. Else if runtime override exists and marks deprecated, return `Deprecated`.
-3. Else if no runtime override and baked compat marks deprecated, return `Deprecated`.
+3. Else if no runtime override and baked compat marks deprecated, return
+   `Deprecated`.
 4. Else if spec/profile lifecycle is `Experimental`, return `Experimental`.
-5. Else if runtime override exists and marks experimental, return `Experimental`.
-6. Else if no runtime override and baked compat marks experimental, return `Experimental`.
+5. Else if runtime override exists and marks experimental, return
+   `Experimental`.
+6. Else if no runtime override and baked compat marks experimental, return
+   `Experimental`.
 7. Else return `Stable`.
 
 #### Important Semantics
 
-- Runtime compat overrides replace baked compat flags for deprecated/experimental state.
+- Runtime compat overrides replace baked compat flags for
+  deprecated/experimental state.
 - Runtime compat does not change profile membership.
 - Runtime compat does not convert unsupported symbols into supported symbols.
 - Obsolete remains stronger than compat deprecated.
@@ -283,9 +313,11 @@ For each profiled attribute that is already supported in the selected profile:
 
 - Supported stable attribute => shown normally.
 - Supported experimental attribute => shown with `[Experimental]`.
-- Supported deprecated attribute => shown with deprecated tag and `[Deprecated]`.
+- Supported deprecated attribute => shown with deprecated tag and
+  `[Deprecated]`.
 - Supported obsolete attribute => shown with deprecated tag and `[Obsolete]`.
-- Unsupported attribute => still not returned by profile-aware source, so still hidden.
+- Unsupported attribute => still not returned by profile-aware source, so still
+  hidden.
 
 ### Step 4: Apply Merged Lifecycle to Child Element Completions
 
@@ -333,12 +365,14 @@ Same state handling as attributes.
 #### Required Change
 
 1. If root `svg` element is unsupported in profile, still return empty.
-2. If present, compute effective lifecycle from baked compat plus runtime compat.
+2. If present, compute effective lifecycle from baked compat plus runtime
+   compat.
 3. Build completion item from effective lifecycle.
 
 #### Note
 
-This is mostly for consistency, even if `svg` is unlikely to be deprecated in practice.
+This is mostly for consistency, even if `svg` is unlikely to be deprecated in
+practice.
 
 ### Step 6: Update Completion Item Builders
 
@@ -367,7 +401,8 @@ It should also:
 
 It already tags deprecated/obsolete states.
 
-No major behavioral change needed, but ensure it continues to consume the effective lifecycle rather than raw lifecycle.
+No major behavioral change needed, but ensure it continues to consume the
+effective lifecycle rather than raw lifecycle.
 
 ##### `lifecycle_completion_detail(...)`
 
@@ -411,22 +446,29 @@ This prevents bugs like:
 
 #### Purpose
 
-Prove the merge rule matches intended semantics without requiring LSP integration or network state.
+Prove the merge rule matches intended semantics without requiring LSP
+integration or network state.
 
 #### Add Tests For
 
 1. `Stable` spec lifecycle + baked deprecated => effective `Deprecated`
-2. `Stable` spec lifecycle + runtime deprecated override => effective `Deprecated`
+2. `Stable` spec lifecycle + runtime deprecated override => effective
+   `Deprecated`
 3. `Stable` spec lifecycle + baked experimental => effective `Experimental`
-4. `Stable` spec lifecycle + runtime experimental override => effective `Experimental`
-5. `Experimental` spec lifecycle + runtime deprecated override => effective `Deprecated`
-6. `Deprecated` spec lifecycle + runtime experimental override => remains `Deprecated`
+4. `Stable` spec lifecycle + runtime experimental override => effective
+   `Experimental`
+5. `Experimental` spec lifecycle + runtime deprecated override => effective
+   `Deprecated`
+6. `Deprecated` spec lifecycle + runtime experimental override => remains
+   `Deprecated`
 7. `Obsolete` spec lifecycle + runtime deprecated false => remains `Obsolete`
-8. runtime override present with both flags false should suppress baked deprecated/experimental state and yield `Stable`
+8. runtime override present with both flags false should suppress baked
+   deprecated/experimental state and yield `Stable`
 
 #### Why Test 8 Matters
 
-Lint semantics treat runtime overrides as replacement flags, not additive hints. Completion should match that.
+Lint semantics treat runtime overrides as replacement flags, not additive hints.
+Completion should match that.
 
 ### Test Category B: Unit Tests for Completion Item Tagging
 
@@ -460,18 +502,21 @@ Lint semantics treat runtime overrides as replacement flags, not additive hints.
 
 #### Existing Test To Update
 
-`attribute_and_element_completion_filters_invalid_suggestions()` currently contains:
+`attribute_and_element_completion_filters_invalid_suggestions()` currently
+contains:
 
 - `!attribute_labels.contains(&"xlink:href")`
 - message: `deprecated attributes should not be suggested`
 
 #### Problem With Existing Wording
 
-The behavior being asserted is really profile exclusion, not a general deprecated-items policy.
+The behavior being asserted is really profile exclusion, not a general
+deprecated-items policy.
 
 #### Required Update
 
-Keep the assertion if the selected default profile still excludes `xlink:href`, but rewrite message/comments to reflect the correct reason.
+Keep the assertion if the selected default profile still excludes `xlink:href`,
+but rewrite message/comments to reflect the correct reason.
 
 Example wording direction:
 
@@ -487,7 +532,8 @@ For SVG 1.1:
 
 1. `xlink:href` is present
 2. the returned item carries deprecated tag metadata and/or deprecated field
-3. item detail contains `[Deprecated]` or `[Obsolete]`, depending on effective lifecycle currently produced by data model
+3. item detail contains `[Deprecated]` or `[Obsolete]`, depending on effective
+   lifecycle currently produced by data model
 
 ##### SVG 2 Assertions
 
@@ -504,7 +550,8 @@ For SVG 2:
 
 #### Why Unit Test Instead of Integration Test
 
-The integration test harness spins the full server binary and does not provide a clean deterministic hook for injecting runtime compat overrides.
+The integration test harness spins the full server binary and does not provide a
+clean deterministic hook for injecting runtime compat overrides.
 
 A unit test can explicitly construct:
 
@@ -525,7 +572,8 @@ This makes the test deterministic and small.
 ### Phase 2: Lifecycle Merge Logic
 
 1. Add completion-local merge helper.
-2. Add any tiny support helper needed for mapping baked flags to merged lifecycle.
+2. Add any tiny support helper needed for mapping baked flags to merged
+   lifecycle.
 3. Avoid introducing new public API unless clearly necessary.
 
 ### Phase 3: Item Construction
@@ -539,7 +587,8 @@ This makes the test deterministic and small.
 
 1. Add unit tests for merge helper.
 2. Add unit tests for attribute completion item tagging.
-3. Update integration test wording around unsupported/default-profile exclusions.
+3. Update integration test wording around unsupported/default-profile
+   exclusions.
 4. Strengthen selected-profile completion integration test.
 
 ### Phase 5: Verification
@@ -547,7 +596,8 @@ This makes the test deterministic and small.
 Run targeted checks:
 
 1. `cargo test -p svg-language-server completion`
-2. If needed, `cargo test -p svg-language-server tests::` or the full crate test suite
+2. If needed, `cargo test -p svg-language-server tests::` or the full crate test
+   suite
 3. If available and cheap, `cargo test -p svg-language-server`
 
 ## Acceptance Criteria
@@ -557,14 +607,18 @@ The issue is considered solved when all of the following are true.
 ### Behavior Criteria
 
 1. Completion hides symbols unsupported in the selected profile.
-2. Completion shows symbols supported in the selected profile even if deprecated.
+2. Completion shows symbols supported in the selected profile even if
+   deprecated.
 3. Completion shows supported obsolete symbols and marks them deprecated.
-4. Completion shows supported experimental symbols and marks them experimental in detail text.
-5. Hover, lint, and completion agree on lifecycle classification for supported symbols.
+4. Completion shows supported experimental symbols and marks them experimental
+   in detail text.
+5. Hover, lint, and completion agree on lifecycle classification for supported
+   symbols.
 
 ### API/Protocol Criteria
 
-1. Deprecated/obsolete completion items expose deprecated metadata where supported.
+1. Deprecated/obsolete completion items expose deprecated metadata where
+   supported.
 2. Completion detail text reflects effective lifecycle.
 3. No unrelated completion payload changes occur.
 
@@ -595,7 +649,8 @@ Mitigation:
 
 ### Risk 2: Runtime Override Semantics Drift From Lint
 
-If completion merge logic is not aligned with lint merge logic, inconsistency remains.
+If completion merge logic is not aligned with lint merge logic, inconsistency
+remains.
 
 Mitigation:
 
@@ -604,7 +659,8 @@ Mitigation:
 
 ### Risk 3: Accidentally Showing Unsupported Symbols
 
-If merged lifecycle logic is run before profile filtering or is allowed to bypass membership checks, unsupported symbols may leak into completion.
+If merged lifecycle logic is run before profile filtering or is allowed to
+bypass membership checks, unsupported symbols may leak into completion.
 
 Mitigation:
 
@@ -622,10 +678,13 @@ Mitigation:
 
 ## Non-Goals and Follow-Up Work
 
-These are valid future improvements, but they are not required to solve this issue.
+These are valid future improvements, but they are not required to solve this
+issue.
 
-1. Share a common lifecycle merge helper across `svg-lint` and `svg-language-server`
-2. Improve completion ranking so modern replacements sort above deprecated legacy alternatives
+1. Share a common lifecycle merge helper across `svg-lint` and
+   `svg-language-server`
+2. Improve completion ranking so modern replacements sort above deprecated
+   legacy alternatives
 3. Revisit hover wording for profile lifecycle vs compat lifecycle
 4. Add Deno worker checks to `just ci`
 5. Revisit runtime compat browser-support merge semantics
@@ -644,4 +703,8 @@ Suggested summary direction:
 
 Done means this exact sentence is true:
 
-> For any SVG element or attribute, the language server now makes one consistent lifecycle decision across hover, lint, and completion: if the symbol is supported in the selected profile it is shown and annotated according to merged spec/compat/runtime lifecycle, and if it is unsupported in the selected profile it is hidden from completion and reported accordingly elsewhere.
+> For any SVG element or attribute, the language server now makes one consistent
+> lifecycle decision across hover, lint, and completion: if the symbol is
+> supported in the selected profile it is shown and annotated according to
+> merged spec/compat/runtime lifecycle, and if it is unsupported in the selected
+> profile it is hidden from completion and reported accordingly elsewhere.

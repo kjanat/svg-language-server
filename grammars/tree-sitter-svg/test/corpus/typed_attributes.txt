@@ -1,0 +1,767 @@
+==================
+Geometry length and percentage attributes
+==================
+
+<svg x="1" y="2" width="10cm" height="50%">
+  <rect x="1.5" y="2.25" width="10" height="20"/>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (length_attribute
+        name: (length_attribute_name)
+        value: (length_attribute_value
+          (length_or_percentage_or_auto
+            (length_or_percentage
+              (length
+                (number))))))
+      (length_attribute
+        name: (length_attribute_name)
+        value: (length_attribute_value
+          (length_or_percentage_or_auto
+            (length_or_percentage
+              (length
+                (number))))))
+      (length_attribute
+        name: (length_attribute_name)
+        value: (length_attribute_value
+          (length_or_percentage_or_auto
+            (length_or_percentage
+              (length
+                (number)
+                (length_unit))))))
+      (length_attribute
+        name: (length_attribute_name)
+        value: (length_attribute_value
+          (length_or_percentage_or_auto
+            (length_or_percentage
+              (percentage
+                (number)))))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+ViewBox and preserveAspectRatio forms
+==================
+
+<svg viewBox="0 0 100 200" preserveAspectRatio="defer xMaxYMax slice"></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (viewbox_attribute
+        name: (viewbox_attribute_name)
+        value: (viewbox_attribute_value
+          (viewbox_value
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number))))
+      (preserve_aspect_ratio_attribute
+        name: (preserve_aspect_ratio_attribute_name)
+        value: (preserve_aspect_ratio_attribute_value
+          (preserve_aspect_ratio_value
+            (wsp)
+            (align_keyword)
+            (wsp)
+            (meet_or_slice_keyword)))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Transform lists
+==================
+
+<svg transform="translate(10,20) rotate(45) scale(2) skewX(5) skewY(3) matrix(1 0 0 1 5 6)"></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (transform_attribute
+        name: (transform_attribute_name)
+        value: (transform_attribute_value
+          (transform_payload))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Points list
+==================
+
+<svg><polyline points="0,0 10,10 20,5"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (points_attribute
+          name: (points_attribute_name)
+          value: (points_attribute_value
+            (coordinate_pair_list
+              (coordinate_pair
+                (number)
+                (comma_wsp)
+                (number))
+              (comma_wsp
+                (wsp))
+              (coordinate_pair
+                (number)
+                (comma_wsp)
+                (number))
+              (comma_wsp
+                (wsp))
+              (coordinate_pair
+                (number)
+                (comma_wsp)
+                (number)))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Paint keywords and functions
+==================
+
+<svg fill="none" stroke="rgb(10,20,30)" color="currentColor" stop-color="hsl(30,50%,40%)"></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_payload)))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_payload)))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_payload)))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_payload))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+CSS Color 4 oklch with slash alpha and none channel
+==================
+
+<svg fill="oklch(70% 0.15 none / .5)"/>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (self_closing_tag
+      name: (name)
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_payload)))))
+  (text))
+
+==================
+CSS Color 4 color() with predefined colorspace
+==================
+
+<svg fill="color(display-p3 1 0 0)"/>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (self_closing_tag
+      name: (name)
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_payload)))))
+  (text))
+
+==================
+CSS Color 5 color-mix with hue interpolation method
+==================
+
+<svg fill="color-mix(in oklch shorter hue, red 30%, blue)"/>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (self_closing_tag
+      name: (name)
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_payload)))))
+  (text))
+
+==================
+Opacity and stroke dasharray
+==================
+
+<svg opacity=".5" fill-opacity="40%" stroke-opacity="1" stroke-dasharray="1 2 3" stroke-dashoffset="2"></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (opacity_attribute
+        name: (opacity_attribute_name)
+        value: (opacity_attribute_value
+          (number_or_percentage
+            (number))))
+      (opacity_attribute
+        name: (opacity_attribute_name)
+        value: (opacity_attribute_value
+          (number_or_percentage
+            (percentage
+              (number)))))
+      (opacity_attribute
+        name: (opacity_attribute_name)
+        value: (opacity_attribute_value
+          (number_or_percentage
+            (number))))
+      (stroke_dasharray_attribute
+        name: (stroke_dasharray_attribute_name)
+        value: (stroke_dasharray_attribute_value
+          (length_list
+            (length_or_percentage
+              (length
+                (number)))
+            (comma_wsp
+              (wsp))
+            (length_or_percentage
+              (length
+                (number)))
+            (comma_wsp
+              (wsp))
+            (length_or_percentage
+              (length
+                (number))))))
+      (length_attribute
+        name: (length_attribute_name)
+        value: (length_attribute_value
+          (length_or_percentage_or_auto
+            (length_or_percentage
+              (length
+                (number)))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Enumerated rendering attributes
+==================
+
+<svg display="inline" visibility="visible" overflow="hidden" pointer-events="visiblePainted" shape-rendering="crispEdges" text-rendering="optimizeLegibility" color-rendering="optimizeQuality" vector-effect="non-scaling-stroke"></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Identity and language attributes
+==================
+
+<svg id="α" class="a b c" lang="en-US" xml:lang="nl-NL" xml:space="preserve"></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (id_attribute
+        name: (id_attribute_name)
+        value: (id_attribute_value
+          (id_token)))
+      (class_attribute
+        name: (class_attribute_name)
+        value: (class_attribute_value
+          (class_list
+            (class_name)
+            (wsp)
+            (class_name)
+            (wsp)
+            (class_name))))
+      (css_text_attribute
+        name: (css_text_attribute_name)
+        value: (css_text_attribute_value
+          content: (css_attribute_text_double)))
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+IRI attributes
+==================
+
+<svg href="#nodeA" xlink:href="#nodeB" clip-path="url(#clipA)" mask="none" filter="#f1" marker-start="url(#m1)" marker-mid="#m2" marker-end="url(#m3)" cursor="url(#cur)"></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (href_attribute
+        name: (href_attribute_name)
+        value: (href_attribute_value
+          (href_reference
+            (iri_reference))))
+      (href_attribute
+        name: (href_attribute_name)
+        value: (href_attribute_value
+          (href_reference
+            (iri_reference))))
+      (functional_iri_attribute
+        name: (functional_iri_attribute_name)
+        value: (functional_iri_attribute_value
+          (functional_iri
+            (iri_reference))))
+      (functional_iri_attribute
+        name: (functional_iri_attribute_name)
+        value: (functional_iri_attribute_value))
+      (functional_iri_attribute
+        name: (functional_iri_attribute_name)
+        value: (functional_iri_attribute_value
+          (iri_reference)))
+      (functional_iri_attribute
+        name: (functional_iri_attribute_name)
+        value: (functional_iri_attribute_value
+          (functional_iri
+            (iri_reference))))
+      (functional_iri_attribute
+        name: (functional_iri_attribute_name)
+        value: (functional_iri_attribute_value
+          (iri_reference)))
+      (functional_iri_attribute
+        name: (functional_iri_attribute_name)
+        value: (functional_iri_attribute_value
+          (functional_iri
+            (iri_reference))))
+      (functional_iri_attribute
+        name: (functional_iri_attribute_name)
+        value: (functional_iri_attribute_value
+          (functional_iri
+            (iri_reference)))))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+ViewBox with decimal values
+=============================
+
+<svg viewBox="0.5 0.5 99.5 99.5"></svg>
+
+---
+
+(source_file
+  (text)
+  (svg_root_element
+    (start_tag
+      (name)
+      (viewbox_attribute
+        (viewbox_attribute_name)
+        (viewbox_attribute_value
+          (viewbox_value
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)))))
+    (end_tag
+      (name)))
+  (text))
+
+=============================
+Href with base64-like parameter
+=============================
+
+<svg><image href="data:text/plain;base64=1,abc"/></svg>
+
+---
+
+(source_file
+  (text)
+  (svg_root_element
+    (start_tag
+      (name))
+    (element
+      (self_closing_tag
+        (name)
+        (href_attribute
+          (href_attribute_name)
+          (href_attribute_value
+            (href_reference
+              (data_uri
+                (data_uri_media_type
+                  (mime_type))
+                (data_uri_parameter
+                  (data_uri_parameter_name)
+                  (data_uri_parameter_value))
+                (data_uri_payload)))))))
+    (end_tag
+      (name)))
+  (text))
+
+======================================
+Href with base64-prefixed bare parameter
+======================================
+
+<svg><image href="data:text/plain;base64foo,abc"/></svg>
+
+---
+
+(source_file
+  (text)
+  (svg_root_element
+    (start_tag
+      (name))
+    (element
+      (self_closing_tag
+        (name)
+        (href_attribute
+          (href_attribute_name)
+          (href_attribute_value
+            (href_reference
+              (data_uri
+                (data_uri_media_type
+                  (mime_type))
+                (data_uri_parameter
+                  (data_uri_parameter_name))
+                (data_uri_payload)))))))
+    (end_tag
+      (name)))
+  (text))
+
+=============================
+Transform multiple functions
+=============================
+
+<svg><g transform="translate(10,20) rotate(45) scale(2)"></g></svg>
+
+---
+
+(source_file
+  (text)
+  (svg_root_element
+    (start_tag
+      (name))
+    (element
+      (start_tag
+        (name)
+        (transform_attribute
+          (transform_attribute_name)
+          (transform_attribute_value
+            (transform_payload))))
+      (end_tag
+        (name)))
+    (end_tag
+      (name)))
+  (text))
+
+=============================
+Paint with url fallback
+=============================
+
+<svg><rect fill="url(#grad) red"/></svg>
+
+---
+
+(source_file
+  (text)
+  (svg_root_element
+    (start_tag
+      (name))
+    (element
+      (self_closing_tag
+        (name)
+        (paint_attribute
+          (paint_attribute_name)
+          (paint_attribute_value
+            (paint_payload)))))
+    (end_tag
+      (name)))
+  (text))
+
+=============================
+Length with percentage and units
+=============================
+
+<svg><rect width="50%" height="100px"/></svg>
+
+---
+
+(source_file
+  (text)
+  (svg_root_element
+    (start_tag
+      (name))
+    (element
+      (self_closing_tag
+        (name)
+        (length_attribute
+          (length_attribute_name)
+          (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (percentage
+                  (number))))))
+        (length_attribute
+          (length_attribute_name)
+          (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number)
+                  (length_unit))))))))
+    (end_tag
+      (name)))
+  (text))
+
+=============================
+Stroke dasharray
+=============================
+
+<svg><line stroke-dasharray="5,3,2"/></svg>
+
+---
+
+(source_file
+  (text)
+  (svg_root_element
+    (start_tag
+      (name))
+    (element
+      (self_closing_tag
+        (name)
+        (stroke_dasharray_attribute
+          (stroke_dasharray_attribute_name)
+          (stroke_dasharray_attribute_value
+            (length_list
+              (length_or_percentage
+                (length
+                  (number)))
+              (comma_wsp)
+              (length_or_percentage
+                (length
+                  (number)))
+              (comma_wsp)
+              (length_or_percentage
+                (length
+                  (number))))))))
+    (end_tag
+      (name)))
+  (text))
+
+=============================
+Href with fragment reference
+=============================
+
+<svg><use href="#icon"/></svg>
+
+---
+
+(source_file
+  (text)
+  (svg_root_element
+    (start_tag
+      (name))
+    (element
+      (self_closing_tag
+        (name)
+        (href_attribute
+          (href_attribute_name)
+          (href_attribute_value
+            (href_reference
+              (iri_reference))))))
+    (end_tag
+      (name)))
+  (text))
+
+=============================
+Href with external file reference
+=============================
+
+<svg><use href="icons.svg#home"/></svg>
+
+---
+
+(source_file
+  (text)
+  (svg_root_element
+    (start_tag
+      (name))
+    (element
+      (self_closing_tag
+        (name)
+        (href_attribute
+          (href_attribute_name)
+          (href_attribute_value
+            (href_reference
+              (iri_reference))))))
+    (end_tag
+      (name)))
+  (text))
+
+=============================
+Href with data URI
+=============================
+
+<svg><image href="data:image/png;base64,abc"/></svg>
+
+---
+
+(source_file
+  (text)
+  (svg_root_element
+    (start_tag
+      (name))
+    (element
+      (self_closing_tag
+        (name)
+        (href_attribute
+          (href_attribute_name)
+          (href_attribute_value
+            (href_reference
+              (data_uri
+                (data_uri_media_type
+                  (mime_type))
+                (data_uri_encoding)
+                (data_uri_payload)))))))
+    (end_tag
+      (name)))
+  (text))

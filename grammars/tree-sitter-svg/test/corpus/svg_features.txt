@@ -1,0 +1,648 @@
+==================
+Embedded style, script and foreignObject
+==================
+
+<svg>
+  <style>.cls{fill:red;stroke:black;}</style>
+  <script>const value = 1 + 2;</script>
+  <foreignObject>
+    <div xmlns="http://www.w3.org/1999/xhtml">hello</div>
+  </foreignObject>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (text)
+    (element
+      (start_tag
+        name: (name))
+      (raw_text)
+      (end_tag
+        name: (name)))
+    (text)
+    (element
+      (start_tag
+        name: (name))
+      (raw_text)
+      (end_tag
+        name: (name)))
+    (text)
+    (element
+      (start_tag
+        name: (name))
+      (text)
+      (element
+        (start_tag
+          name: (name)
+          (generic_attribute
+            name: (attribute_name)
+            value: (quoted_attribute_value
+              (attribute_text_double))))
+        (text)
+        (end_tag
+          name: (name)))
+      (text)
+      (end_tag
+        name: (name)))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Script and style CDATA forms
+==================
+
+<svg>
+  <style>
+    <![CDATA[.x { fill: blue; }]]></style>
+  <script>
+    <![CDATA[window.answer = 42;]]></script>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (text)
+    (element
+      (start_tag
+        name: (name))
+      (raw_text)
+      (cdata_section
+        (cdata_text))
+      (end_tag
+        name: (name)))
+    (text)
+    (element
+      (start_tag
+        name: (name))
+      (raw_text)
+      (cdata_section
+        (cdata_text))
+      (end_tag
+        name: (name)))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Script and style false CDATA prefixes stay raw
+==================
+
+<svg>
+  <style><!foo .x { fill: blue; }</style>
+  <script><!foo window.answer = 42;</script>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (text)
+    (element
+      (start_tag
+        name: (name))
+      (raw_text)
+      (end_tag
+        name: (name)))
+    (text)
+    (element
+      (start_tag
+        name: (name))
+      (raw_text)
+      (end_tag
+        name: (name)))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Typed style and event attributes
+==================
+
+<svg>
+  <rect id="box" style="fill:#000;stroke:#fff" onclick="alert('x')"/>
+  <g onload='console.log(1)'>
+    <circle cx="5" cy="5" r="4"/>
+  </g>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (id_attribute
+          name: (id_attribute_name)
+          value: (id_attribute_value
+            (id_token)))
+        (style_attribute
+          name: (style_attribute_name)
+          value: (style_attribute_value
+            (double_quoted_style_value
+              content: (style_text_double))))
+        (event_attribute
+          name: (event_attribute_name)
+          value: (event_attribute_value
+            content: (script_text_double)))))
+    (text)
+    (element
+      (start_tag
+        name: (name)
+        (event_attribute
+          name: (event_attribute_name)
+          value: (event_attribute_value
+            content: (script_text_single))))
+      (text)
+      (element
+        (self_closing_tag
+          name: (name)
+          (length_attribute
+            name: (length_attribute_name)
+            value: (length_attribute_value
+              (length_or_percentage_or_auto
+                (length_or_percentage
+                  (length
+                    (number))))))
+          (length_attribute
+            name: (length_attribute_name)
+            value: (length_attribute_value
+              (length_or_percentage_or_auto
+                (length_or_percentage
+                  (length
+                    (number))))))
+          (length_attribute
+            name: (length_attribute_name)
+            value: (length_attribute_value
+              (length_or_percentage_or_auto
+                (length_or_percentage
+                  (length
+                    (number))))))))
+      (text)
+      (end_tag
+        name: (name)))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Typed references and paint servers
+==================
+
+<svg>
+  <defs>
+    <linearGradient id="gradA"/>
+    <clipPath id="clipA"/>
+  </defs>
+  <rect fill="url(#gradA) #fff" clip-path="url(#clipA)"/>
+  <use href="#gradA"/>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (text)
+    (element
+      (start_tag
+        name: (name))
+      (text)
+      (element
+        (self_closing_tag
+          name: (name)
+          (id_attribute
+            name: (id_attribute_name)
+            value: (id_attribute_value
+              (id_token)))))
+      (text)
+      (element
+        (self_closing_tag
+          name: (name)
+          (id_attribute
+            name: (id_attribute_name)
+            value: (id_attribute_value
+              (id_token)))))
+      (text)
+      (end_tag
+        name: (name)))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (paint_attribute
+          name: (paint_attribute_name)
+          value: (paint_attribute_value
+            (paint_payload)))
+        (functional_iri_attribute
+          name: (functional_iri_attribute_name)
+          value: (functional_iri_attribute_value
+            (functional_iri
+              (iri_reference))))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (href_attribute
+          name: (href_attribute_name)
+          value: (href_attribute_value
+            (href_reference
+              (iri_reference))))))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Structured data URI href values
+==================
+
+<svg><image href="data:image/svg+xml;charset=utf-8;base64,PHN2Zy8+"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (href_attribute
+          name: (href_attribute_name)
+          value: (href_attribute_value
+            (href_reference
+              (data_uri
+                media_type: (data_uri_media_type
+                  (mime_type))
+                parameter: (data_uri_parameter
+                  name: (data_uri_parameter_name)
+                  value: (data_uri_parameter_value))
+                encoding: (data_uri_encoding)
+                payload: (data_uri_payload)))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Shape content allows animation and descriptive only
+==================
+
+<svg>
+  <rect>
+    <title>r</title>
+    <animate attributeName="x" from="0" to="10" dur="1s"/>
+  </rect>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (text)
+    (element
+      (start_tag
+        name: (name))
+      (text)
+      (element
+        (start_tag
+          name: (name))
+        (text)
+        (end_tag
+          name: (name)))
+      (text)
+      (element
+        (self_closing_tag
+          name: (name)
+          (css_text_attribute
+            name: (css_text_attribute_name)
+            value: (css_text_attribute_value
+              content: (css_attribute_text_double)))
+          (generic_attribute
+            name: (attribute_name)
+            value: (quoted_attribute_value
+              (attribute_text_double)))
+          (generic_attribute
+            name: (attribute_name)
+            value: (quoted_attribute_value
+              (attribute_text_double)))
+          (duration_attribute
+            name: (duration_attribute_name)
+            value: (duration_attribute_value
+              (time_value
+                (number)
+                (time_unit))))))
+      (text)
+      (end_tag
+        name: (name)))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Defs accepts generic children
+==================
+
+<svg>
+  <defs>
+    <g id="groupA"/>
+  </defs>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (text)
+    (element
+      (start_tag
+        name: (name))
+      (text)
+      (element
+        (self_closing_tag
+          name: (name)
+          (id_attribute
+            name: (id_attribute_name)
+            value: (id_attribute_value
+              (id_token)))))
+      (text)
+      (end_tag
+        name: (name)))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Scoped filter primitives and text links
+==================
+
+<svg>
+  <defs>
+    <filter id="scoped">
+      <feColorMatrix type="matrix"/>
+      <feTurbulence type="fractalNoise"/>
+      <feComponentTransfer>
+        <feFuncR type="linear"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+      </feMerge>
+      <feDiffuseLighting>
+        <fePointLight/>
+      </feDiffuseLighting>
+    </filter>
+  </defs>
+  <text><a href="#scoped"><tspan>hit</tspan></a></text>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (text)
+    (element
+      (start_tag
+        name: (name))
+      (text)
+      (element
+        (start_tag
+          name: (name)
+          (id_attribute
+            name: (id_attribute_name)
+            value: (id_attribute_value
+              (id_token))))
+        (text)
+        (element
+          (self_closing_tag
+            name: (name)
+            (generic_attribute
+              name: (attribute_name)
+              value: (quoted_attribute_value
+                (attribute_text_double)))))
+        (text)
+        (element
+          (self_closing_tag
+            name: (name)
+            (generic_attribute
+              name: (attribute_name)
+              value: (quoted_attribute_value
+                (attribute_text_double)))))
+        (text)
+        (element
+          (start_tag
+            name: (name))
+          (text)
+          (element
+            (self_closing_tag
+              name: (name)
+              (generic_attribute
+                name: (attribute_name)
+                value: (quoted_attribute_value
+                  (attribute_text_double)))))
+          (text)
+          (end_tag
+            name: (name)))
+        (text)
+        (element
+          (start_tag
+            name: (name))
+          (text)
+          (element
+            (self_closing_tag
+              name: (name)))
+          (text)
+          (end_tag
+            name: (name)))
+        (text)
+        (element
+          (start_tag
+            name: (name))
+          (text)
+          (element
+            (self_closing_tag
+              name: (name)))
+          (text)
+          (end_tag
+            name: (name)))
+        (text)
+        (end_tag
+          name: (name)))
+      (text)
+      (end_tag
+        name: (name)))
+    (text)
+    (element
+      (start_tag
+        name: (name))
+      (element
+        (start_tag
+          name: (name)
+          (href_attribute
+            name: (href_attribute_name)
+            value: (href_attribute_value
+              (href_reference
+                (iri_reference)))))
+        (element
+          (start_tag
+            name: (name))
+          (text)
+          (end_tag
+            name: (name)))
+        (end_tag
+          name: (name)))
+      (end_tag
+        name: (name)))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Defs, gradients, filter primitives, text containers, linking type
+==================
+
+<svg>
+  <defs>
+    <linearGradient id="g1">
+      <stop offset="0%"/>
+      <stop offset="100%"/>
+    </linearGradient>
+    <filter id="f1">
+      <feTurbulence type="fractalNoise"/>
+    </filter>
+  </defs>
+  <text><tspan>Hello</tspan></text>
+  <a href="#g1" type="text/css">go</a>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (text)
+    (element
+      (start_tag
+        name: (name))
+      (text)
+      (element
+        (start_tag
+          name: (name)
+          (id_attribute
+            name: (id_attribute_name)
+            value: (id_attribute_value
+              (id_token))))
+        (text)
+        (element
+          (self_closing_tag
+            name: (name)
+            (offset_attribute
+              name: (offset_attribute_name)
+              value: (offset_attribute_value
+                (number_or_percentage
+                  (percentage
+                    (number)))))))
+        (text)
+        (element
+          (self_closing_tag
+            name: (name)
+            (offset_attribute
+              name: (offset_attribute_name)
+              value: (offset_attribute_value
+                (number_or_percentage
+                  (percentage
+                    (number)))))))
+        (text)
+        (end_tag
+          name: (name)))
+      (text)
+      (element
+        (start_tag
+          name: (name)
+          (id_attribute
+            name: (id_attribute_name)
+            value: (id_attribute_value
+              (id_token))))
+        (text)
+        (element
+          (self_closing_tag
+            name: (name)
+            (generic_attribute
+              name: (attribute_name)
+              value: (quoted_attribute_value
+                (attribute_text_double)))))
+        (text)
+        (end_tag
+          name: (name)))
+      (text)
+      (end_tag
+        name: (name)))
+    (text)
+    (element
+      (start_tag
+        name: (name))
+      (element
+        (start_tag
+          name: (name))
+        (text)
+        (end_tag
+          name: (name)))
+      (end_tag
+        name: (name)))
+    (text)
+    (element
+      (start_tag
+        name: (name)
+        (href_attribute
+          name: (href_attribute_name)
+          value: (href_attribute_value
+            (href_reference
+              (iri_reference))))
+        (generic_attribute
+          name: (attribute_name)
+          value: (quoted_attribute_value
+            (attribute_text_double))))
+      (text)
+      (end_tag
+        name: (name)))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))

@@ -1,0 +1,618 @@
+[
+  {
+    "type": "closepath_segment",
+    "named": true,
+    "fields": {
+      "command": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "path_command",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "curveto_argument",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "path_comma_wsp",
+          "named": true
+        },
+        {
+          "type": "path_coordinate_pair",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "curveto_segment",
+    "named": true,
+    "fields": {
+      "command": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "path_command",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "curveto_argument",
+          "named": true
+        },
+        {
+          "type": "path_wsp",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "elliptical_arc_argument",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "elliptical_arc_radii",
+          "named": true
+        },
+        {
+          "type": "path_arc_flag",
+          "named": true
+        },
+        {
+          "type": "path_comma_wsp",
+          "named": true
+        },
+        {
+          "type": "path_coordinate_pair",
+          "named": true
+        },
+        {
+          "type": "path_rotation",
+          "named": true
+        },
+        {
+          "type": "path_sweep_flag",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "elliptical_arc_radii",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "path_comma_wsp",
+          "named": true
+        },
+        {
+          "type": "path_coordinate",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "elliptical_arc_segment",
+    "named": true,
+    "fields": {
+      "command": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "path_command",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "elliptical_arc_argument",
+          "named": true
+        },
+        {
+          "type": "path_wsp",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "horizontal_lineto_segment",
+    "named": true,
+    "fields": {
+      "command": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "path_command",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "path_coordinate",
+          "named": true
+        },
+        {
+          "type": "path_wsp",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "implicit_lineto_segment",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "path_comma_wsp",
+          "named": true
+        },
+        {
+          "type": "path_coordinate_pair",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "lineto_segment",
+    "named": true,
+    "fields": {
+      "command": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "path_command",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "path_comma_wsp",
+          "named": true
+        },
+        {
+          "type": "path_coordinate_pair",
+          "named": true
+        },
+        {
+          "type": "path_wsp",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "moveto_segment",
+    "named": true,
+    "fields": {
+      "command": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "path_command",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "path_comma_wsp",
+          "named": true
+        },
+        {
+          "type": "path_coordinate_pair",
+          "named": true
+        },
+        {
+          "type": "path_wsp",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "path_arc_flag",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "path_comma_wsp",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "path_comma",
+          "named": true
+        },
+        {
+          "type": "path_wsp",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "path_coordinate",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "path_number",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "path_coordinate_pair",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "path_comma_wsp",
+          "named": true
+        },
+        {
+          "type": "path_coordinate",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "path_data",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "moveto_segment",
+          "named": true
+        },
+        {
+          "type": "path_segment",
+          "named": true
+        },
+        {
+          "type": "path_wsp",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "path_rotation",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "path_number",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "path_segment",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "closepath_segment",
+          "named": true
+        },
+        {
+          "type": "curveto_segment",
+          "named": true
+        },
+        {
+          "type": "elliptical_arc_segment",
+          "named": true
+        },
+        {
+          "type": "horizontal_lineto_segment",
+          "named": true
+        },
+        {
+          "type": "implicit_lineto_segment",
+          "named": true
+        },
+        {
+          "type": "lineto_segment",
+          "named": true
+        },
+        {
+          "type": "moveto_segment",
+          "named": true
+        },
+        {
+          "type": "quadratic_bezier_curveto_segment",
+          "named": true
+        },
+        {
+          "type": "smooth_curveto_segment",
+          "named": true
+        },
+        {
+          "type": "smooth_quadratic_bezier_curveto_segment",
+          "named": true
+        },
+        {
+          "type": "vertical_lineto_segment",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "path_sweep_flag",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "quadratic_bezier_curveto_argument",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "path_comma_wsp",
+          "named": true
+        },
+        {
+          "type": "path_coordinate_pair",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "quadratic_bezier_curveto_segment",
+    "named": true,
+    "fields": {
+      "command": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "path_command",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "path_wsp",
+          "named": true
+        },
+        {
+          "type": "quadratic_bezier_curveto_argument",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "smooth_curveto_argument",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "path_comma_wsp",
+          "named": true
+        },
+        {
+          "type": "path_coordinate_pair",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "smooth_curveto_segment",
+    "named": true,
+    "fields": {
+      "command": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "path_command",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "path_wsp",
+          "named": true
+        },
+        {
+          "type": "smooth_curveto_argument",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "smooth_quadratic_bezier_curveto_segment",
+    "named": true,
+    "fields": {
+      "command": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "path_command",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "path_coordinate_pair",
+          "named": true
+        },
+        {
+          "type": "path_wsp",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "source_file",
+    "named": true,
+    "root": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "path_data",
+          "named": true
+        },
+        {
+          "type": "path_wsp",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "vertical_lineto_segment",
+    "named": true,
+    "fields": {
+      "command": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "path_command",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "path_coordinate",
+          "named": true
+        },
+        {
+          "type": "path_wsp",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "path_comma",
+    "named": true
+  },
+  {
+    "type": "path_command",
+    "named": true
+  },
+  {
+    "type": "path_number",
+    "named": true
+  },
+  {
+    "type": "path_wsp",
+    "named": true
+  }
+]

@@ -16,14 +16,14 @@ mod catalog;
 pub mod types;
 
 pub use types::{
-    AttributeApplicability, AttributeDef, AttributeElementCompat, AttributeValues,
-    BaselineQualifier, BaselineStatus, BrowserFlag, BrowserSupport, BrowserVersion, CatalogGraph,
-    CatalogGraphEdge, CatalogGraphEdgeKind, CatalogGraphNode, CatalogGraphNodeKind, CompatFacts,
-    CompatSubfeature, CompatSubfeatureKind, CompatVerdict, ContentModel, CssGrammarEdge,
-    CssGrammarEdgeKind, CssGrammarGraph, CssGrammarNode, CssGrammarNodeKind, ElementCategory,
-    ElementDef, FeatureLifecycle, ProfileLookup, ProfiledAttribute, ProfiledElement,
-    SnapshotLifecycle, SnapshotMetadata, SpecLifecycle, SpecSnapshotId, VerdictReason,
-    VerdictRecommendation,
+    AttributeApplicability, AttributeDef, AttributeElementCompat, AttributeElementValues,
+    AttributeValues, BaselineQualifier, BaselineStatus, BrowserFlag, BrowserSupport,
+    BrowserVersion, CatalogGraph, CatalogGraphEdge, CatalogGraphEdgeKind, CatalogGraphNode,
+    CatalogGraphNodeKind, CompatFacts, CompatSubfeature, CompatSubfeatureKind, CompatVerdict,
+    ContentModel, CssGrammarEdge, CssGrammarEdgeKind, CssGrammarGraph, CssGrammarNode,
+    CssGrammarNodeKind, ElementCategory, ElementDef, FeatureLifecycle, ProfileLookup,
+    ProfiledAttribute, ProfiledElement, SnapshotLifecycle, SnapshotMetadata, SpecLifecycle,
+    SpecSnapshotId, VerdictReason, VerdictRecommendation,
 };
 
 use catalog::{
@@ -31,6 +31,12 @@ use catalog::{
 };
 
 /// All snapshots the catalog tracks, oldest first.
+///
+/// # Examples
+///
+/// ```rust
+/// assert!(svg_data::spec_snapshots().contains(&svg_data::SpecSnapshotId::Svg2EditorsDraft));
+/// ```
 #[must_use]
 pub const fn spec_snapshots() -> &'static [SpecSnapshotId] {
     &[
@@ -42,12 +48,26 @@ pub const fn spec_snapshots() -> &'static [SpecSnapshotId] {
 }
 
 /// Look up an element definition by tag name.
+///
+/// # Examples
+///
+/// ```rust
+/// let svg = svg_data::element("svg").expect("svg element");
+/// assert_eq!(svg.name, "svg");
+/// ```
 #[must_use]
 pub fn element(name: &str) -> Option<&'static ElementDef> {
     ELEMENTS.iter().find(|element| element.name == name)
 }
 
 /// Look up an attribute definition by (canonical) name.
+///
+/// # Examples
+///
+/// ```rust
+/// let fill = svg_data::attribute("fill").expect("fill attribute");
+/// assert_eq!(fill.name, "fill");
+/// ```
 #[must_use]
 pub fn attribute(name: &str) -> Option<&'static AttributeDef> {
     let canonical = xlink::canonical_svg_attribute_name(name);
@@ -59,42 +79,85 @@ fn attribute_by_catalog_name(name: &str) -> Option<&'static AttributeDef> {
 }
 
 /// All element definitions in the union catalog.
+///
+/// # Examples
+///
+/// ```rust
+/// assert!(svg_data::elements().iter().any(|element| element.name == "svg"));
+/// ```
 #[must_use]
 pub const fn elements() -> &'static [ElementDef] {
     ELEMENTS
 }
 
 /// All attribute definitions in the union catalog.
+///
+/// # Examples
+///
+/// ```rust
+/// assert!(svg_data::attributes().iter().any(|attribute| attribute.name == "fill"));
+/// ```
 #[must_use]
 pub const fn attributes() -> &'static [AttributeDef] {
     ATTRIBUTES
 }
 
 /// Generated per-snapshot inventories.
+///
+/// # Examples
+///
+/// ```rust
+/// let _inventories = svg_data::inventories();
+/// ```
 #[must_use]
 pub const fn inventories() -> &'static [inventory::Inventory] {
     inventory::generated()
 }
 
 /// Generated per-snapshot lifecycle overlays.
+///
+/// # Examples
+///
+/// ```rust
+/// let _overlays = svg_data::lifecycle_overlays();
+/// ```
 #[must_use]
 pub const fn lifecycle_overlays() -> &'static [SnapshotLifecycle] {
     LIFECYCLE_OVERLAYS
 }
 
 /// Derived graph view over the catalog.
+///
+/// # Examples
+///
+/// ```rust
+/// let graph = svg_data::catalog_graph();
+/// assert!(!graph.nodes.is_empty());
+/// ```
 #[must_use]
 pub const fn catalog_graph() -> &'static CatalogGraph {
     &CATALOG_GRAPH
 }
 
 /// BCD subfeatures retained for behavior/value-specific diagnostics.
+///
+/// # Examples
+///
+/// ```rust
+/// let _subfeatures = svg_data::compat_subfeatures();
+/// ```
 #[must_use]
 pub const fn compat_subfeatures() -> &'static [CompatSubfeature] {
     COMPAT_SUBFEATURES
 }
 
 /// Look up one retained BCD subfeature by full compat key.
+///
+/// # Examples
+///
+/// ```rust
+/// let _feature = svg_data::compat_subfeature("svg.elements.use.data_uri");
+/// ```
 #[must_use]
 pub fn compat_subfeature(compat_key: &str) -> Option<&'static CompatSubfeature> {
     COMPAT_SUBFEATURES
@@ -103,6 +166,13 @@ pub fn compat_subfeature(compat_key: &str) -> Option<&'static CompatSubfeature> 
 }
 
 /// Profile-aware element lookup.
+///
+/// # Examples
+///
+/// ```rust
+/// let lookup = svg_data::element_for_profile(svg_data::SpecSnapshotId::Svg2EditorsDraft, "svg");
+/// assert!(matches!(lookup, svg_data::ProfileLookup::Present { .. }));
+/// ```
 #[must_use]
 pub fn element_for_profile(profile: SpecSnapshotId, name: &str) -> ProfileLookup<ElementDef> {
     if let Some(lifecycle) = element_lifecycle_for_profile(profile, name) {
@@ -123,6 +193,13 @@ pub fn element_for_profile(profile: SpecSnapshotId, name: &str) -> ProfileLookup
 }
 
 /// Profile-aware attribute lookup.
+///
+/// # Examples
+///
+/// ```rust
+/// let lookup = svg_data::attribute_for_profile(svg_data::SpecSnapshotId::Svg2EditorsDraft, "fill");
+/// assert!(matches!(lookup, svg_data::ProfileLookup::Present { .. }));
+/// ```
 #[must_use]
 pub fn attribute_for_profile(profile: SpecSnapshotId, name: &str) -> ProfileLookup<AttributeDef> {
     if let Some(lifecycle) = attribute_lifecycle_for_profile(profile, name) {
@@ -154,6 +231,13 @@ const fn attribute_lookup_present_with_lifecycle(
 }
 
 /// Attributes that apply to `elem_name` in `profile`.
+///
+/// # Examples
+///
+/// ```rust
+/// let attrs = svg_data::attributes_for_with_profile(svg_data::SpecSnapshotId::Svg2EditorsDraft, "rect");
+/// assert!(attrs.iter().any(|attr| attr.name == "fill"));
+/// ```
 #[must_use]
 pub fn attributes_for_with_profile(
     profile: SpecSnapshotId,
@@ -181,6 +265,13 @@ pub fn attributes_for_with_profile(
 }
 
 /// Concrete child elements allowed inside `parent` in `profile`.
+///
+/// # Examples
+///
+/// ```rust
+/// let children = svg_data::allowed_children_with_profile(svg_data::SpecSnapshotId::Svg2EditorsDraft, "svg");
+/// assert!(children.iter().any(|child| child.element.name == "g"));
+/// ```
 #[must_use]
 pub fn allowed_children_with_profile(
     profile: SpecSnapshotId,
@@ -256,6 +347,12 @@ fn lifecycle_overlay(profile: SpecSnapshotId) -> Option<&'static SnapshotLifecyc
 }
 
 /// Whether `parent` hosts foreign-namespace (e.g. HTML) children.
+///
+/// # Examples
+///
+/// ```rust
+/// assert!(svg_data::allows_foreign_children("foreignObject"));
+/// ```
 #[must_use]
 pub fn allows_foreign_children(parent_name: &str) -> bool {
     element(parent_name)
@@ -263,6 +360,13 @@ pub fn allows_foreign_children(parent_name: &str) -> bool {
 }
 
 /// The compat verdict for an element in a profile, when one was derived.
+///
+/// # Examples
+///
+/// ```rust
+/// let svg = svg_data::element("svg").expect("svg element");
+/// let _verdict = svg_data::compat_verdict_for_element(svg, svg_data::SpecSnapshotId::Svg2EditorsDraft);
+/// ```
 #[must_use]
 pub fn compat_verdict_for_element(
     element: &ElementDef,
@@ -279,6 +383,13 @@ pub fn compat_verdict_for_element(
 }
 
 /// The compat verdict for an attribute in a profile, when one was derived.
+///
+/// # Examples
+///
+/// ```rust
+/// let fill = svg_data::attribute("fill").expect("fill attribute");
+/// let _verdict = svg_data::compat_verdict_for_attribute(fill, svg_data::SpecSnapshotId::Svg2EditorsDraft);
+/// ```
 #[must_use]
 pub fn compat_verdict_for_attribute(
     attribute: &AttributeDef,
@@ -288,6 +399,17 @@ pub fn compat_verdict_for_attribute(
 }
 
 /// The compat verdict for an attribute on a concrete element, when one was derived.
+///
+/// # Examples
+///
+/// ```rust
+/// let href = svg_data::attribute("href").expect("href attribute");
+/// let _verdict = svg_data::compat_verdict_for_attribute_on_element(
+///     href,
+///     Some("use"),
+///     svg_data::SpecSnapshotId::Svg2EditorsDraft,
+/// );
+/// ```
 #[must_use]
 pub fn compat_verdict_for_attribute_on_element(
     attribute: &AttributeDef,
@@ -299,6 +421,14 @@ pub fn compat_verdict_for_attribute_on_element(
 }
 
 /// The compat verdict for a retained behavior/value subfeature.
+///
+/// # Examples
+///
+/// ```rust
+/// if let Some(subfeature) = svg_data::compat_subfeatures().first() {
+///     let _verdict = svg_data::compat_verdict_for_subfeature(subfeature, svg_data::SpecSnapshotId::Svg2EditorsDraft);
+/// }
+/// ```
 #[must_use]
 pub fn compat_verdict_for_subfeature(
     subfeature: &CompatSubfeature,
@@ -309,6 +439,15 @@ pub fn compat_verdict_for_subfeature(
 }
 
 /// Resolve a `version="…"` attribute value to a snapshot by major family.
+///
+/// # Examples
+///
+/// ```rust
+/// assert_eq!(
+///     svg_data::snapshot_for_svg_version_attr("2.0"),
+///     Some(svg_data::SpecSnapshotId::Svg2EditorsDraft),
+/// );
+/// ```
 #[must_use]
 pub fn snapshot_for_svg_version_attr(version: &str) -> Option<SpecSnapshotId> {
     match version.trim().split('.').next().unwrap_or_default() {
@@ -319,12 +458,26 @@ pub fn snapshot_for_svg_version_attr(version: &str) -> Option<SpecSnapshotId> {
 }
 
 /// Resolve a `version="…"` attribute value to an edition id.
+///
+/// # Examples
+///
+/// ```rust
+/// let id = svg_data::edition_for_svg_version_attr("2.0").expect("SVG 2 edition");
+/// assert_eq!(id.series, svg_data::edition::Series::Svg2);
+/// ```
 #[must_use]
 pub fn edition_for_svg_version_attr(version: &str) -> Option<inventory::EditionId> {
     snapshot_for_svg_version_attr(version).map(inventory::EditionId::for_snapshot)
 }
 
 /// Metadata (aliases, …) for a snapshot.
+///
+/// # Examples
+///
+/// ```rust
+/// let metadata = svg_data::snapshot_metadata(svg_data::SpecSnapshotId::Svg2EditorsDraft);
+/// assert_eq!(metadata.snapshot, svg_data::SpecSnapshotId::Svg2EditorsDraft);
+/// ```
 #[must_use]
 pub fn snapshot_metadata(snapshot: SpecSnapshotId) -> SnapshotMetadata {
     SNAPSHOT_METADATA
@@ -338,6 +491,15 @@ pub fn snapshot_metadata(snapshot: SpecSnapshotId) -> SnapshotMetadata {
 }
 
 /// Resolve a requested profile string (id or alias) to a snapshot.
+///
+/// # Examples
+///
+/// ```rust
+/// assert_eq!(
+///     svg_data::resolve_profile_id("svg2draft"),
+///     Some(svg_data::SpecSnapshotId::Svg2EditorsDraft),
+/// );
+/// ```
 #[must_use]
 pub fn resolve_profile_id(requested: &str) -> Option<SpecSnapshotId> {
     let requested = requested.trim();
@@ -351,6 +513,13 @@ pub fn resolve_profile_id(requested: &str) -> Option<SpecSnapshotId> {
 }
 
 /// Resolve a requested edition string to an edition id.
+///
+/// # Examples
+///
+/// ```rust
+/// let id = svg_data::resolve_edition_id("svg2draft").expect("SVG 2 draft edition");
+/// assert_eq!(id.series, svg_data::edition::Series::Svg2);
+/// ```
 #[must_use]
 pub fn resolve_edition_id(requested: &str) -> Option<inventory::EditionId> {
     resolve_profile_id(requested).map(inventory::EditionId::for_snapshot)
@@ -838,6 +1007,88 @@ mod catalog_tests {
     }
 
     #[test]
+    fn prose_and_referenced_values_get_semantic_shapes() {
+        let cases = [
+            ("id", "id"),
+            ("class", "token_list"),
+            ("lang", "language_tag"),
+            ("tabindex", "integer"),
+            ("style", "css_declaration_list"),
+            ("referrerpolicy", "referrer_policy"),
+            ("download", "suggested_file_name"),
+            ("calcMode", "enum"),
+            ("keyPoints", "semicolon_number_list"),
+            ("origin", "enum"),
+            ("path", "path_data"),
+        ];
+        for (name, expected) in cases {
+            let Some(attribute) = attribute(name) else {
+                panic!("{name} missing from catalog");
+            };
+            let actual = match &attribute.values {
+                AttributeValues::TokenList => "token_list",
+                AttributeValues::LanguageTag => "language_tag",
+                AttributeValues::Integer => "integer",
+                AttributeValues::CssDeclarationList => "css_declaration_list",
+                AttributeValues::Id => "id",
+                AttributeValues::ReferrerPolicy => "referrer_policy",
+                AttributeValues::SuggestedFileName => "suggested_file_name",
+                AttributeValues::PathData => "path_data",
+                AttributeValues::SemicolonNumberList => "semicolon_number_list",
+                AttributeValues::Enum(_) => "enum",
+                _ => "other",
+            };
+            assert_eq!(actual, expected, "{name} value shape");
+        }
+
+        let Some(xml_space) = attribute("xml:space") else {
+            panic!("xml:space missing from catalog");
+        };
+        assert!(matches!(
+            &xml_space.values,
+            AttributeValues::Enum(values)
+                if *values == ["default", "preserve"]
+        ));
+    }
+
+    #[test]
+    fn animate_motion_uses_motion_specific_value_shapes() {
+        let Some(animate_motion) = element("animateMotion") else {
+            panic!("animateMotion missing from catalog");
+        };
+        assert!(matches!(
+            &animate_motion.content_model,
+            ContentModel::ChildrenSet(elements)
+                if *elements == ["desc", "metadata", "mpath", "script", "title"]
+        ));
+
+        let cases = [
+            ("by", "coordinate_pair"),
+            ("from", "coordinate_pair"),
+            ("to", "coordinate_pair"),
+            ("values", "coordinate_pair_list"),
+        ];
+        for (name, expected) in cases {
+            let Some(attribute) = attribute(name) else {
+                panic!("{name} missing from catalog");
+            };
+            let Some(scoped) = attribute
+                .element_values
+                .iter()
+                .find(|values| values.element == "animateMotion")
+            else {
+                panic!("{name} missing animateMotion scoped values");
+            };
+            let actual = match &scoped.values {
+                AttributeValues::CoordinatePair => "coordinate_pair",
+                AttributeValues::CoordinatePairList => "coordinate_pair_list",
+                _ => "other",
+            };
+            assert_eq!(actual, expected, "{name} animateMotion value shape");
+        }
+    }
+
+    #[test]
     fn nowhere_supported_attributes_are_not_present_without_element_context() {
         let Some(xlink_title) = attribute("xlink:title") else {
             panic!("xlink:title missing from catalog");
@@ -875,6 +1126,7 @@ mod catalog_tests {
                 }),
             }),
             element_compat: &[],
+            element_values: &[],
             values: AttributeValues::FreeText,
             value_overrides: &[],
             applicability: AttributeApplicability::Global,
@@ -917,6 +1169,7 @@ mod catalog_tests {
             }),
             browser_support: None,
             element_compat: &[],
+            element_values: &[],
             values: AttributeValues::FreeText,
             value_overrides: &[],
             applicability: AttributeApplicability::Global,

@@ -1,12 +1,21 @@
 # SVG Intelligence Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use
+> superpowers:subagent-driven-development (recommended) or
+> superpowers:executing-plans to implement this plan task-by-task. Steps use
+> checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add completions, hover documentation, and structural diagnostics to the SVG language server.
+**Goal:** Add completions, hover documentation, and structural diagnostics to
+the SVG language server.
 
-**Architecture:** Two new crates (`svg-data` for the SVG element/attribute catalog, `svg-lint` for diagnostics) plus modifications to the existing `svg-language-server` LSP binary. The catalog is baked in at compile time from a curated JSON file and `@mdn/browser-compat-data`. All consumers share a single parsed tree per document.
+**Architecture:** Two new crates (`svg-data` for the SVG element/attribute
+catalog, `svg-lint` for diagnostics) plus modifications to the existing
+`svg-language-server` LSP binary. The catalog is baked in at compile time from a
+curated JSON file and `@mdn/browser-compat-data`. All consumers share a single
+parsed tree per document.
 
-**Tech Stack:** Rust 2024, tree-sitter 0.26, tree-sitter-svg, tower-lsp-server 0.23, tokio, serde/serde_json
+**Tech Stack:** Rust 2024, tree-sitter 0.26, tree-sitter-svg, tower-lsp-server
+0.23, tokio, serde/serde_json
 
 **Spec:** `docs/specs/2026-03-20-svg-intelligence-design.md`
 
@@ -169,8 +178,7 @@ pub use types::{
 
 - [ ] **Step 5: Verify compilation**
 
-Run: `cargo check -p svg-data`
-Expected: compiles clean
+Run: `cargo check -p svg-data` Expected: compiles clean
 
 - [ ] **Step 6: Commit**
 
@@ -207,11 +215,11 @@ Create `crates/svg-data/data/elements.json`. Each element entry has:
 - `attrs`: element-specific attribute names
 - `global_attrs`: boolean
 
-Example structure (include at least these elements: `svg`, `g`, `defs`,
-`use`, `rect`, `circle`, `ellipse`, `line`, `polyline`, `polygon`, `path`,
-`text`, `tspan`, `textPath`, `a`, `image`, `title`, `desc`, `metadata`,
-`symbol`, `clipPath`, `mask`, `linearGradient`, `radialGradient`, `stop`,
-`pattern`, `filter`, `feGaussianBlur`, `foreignObject`, `style`, `script`):
+Example structure (include at least these elements: `svg`, `g`, `defs`, `use`,
+`rect`, `circle`, `ellipse`, `line`, `polyline`, `polygon`, `path`, `text`,
+`tspan`, `textPath`, `a`, `image`, `title`, `desc`, `metadata`, `symbol`,
+`clipPath`, `mask`, `linearGradient`, `radialGradient`, `stop`, `pattern`,
+`filter`, `feGaussianBlur`, `foreignObject`, `style`, `script`):
 
 ```json
 [
@@ -282,8 +290,8 @@ Example structure (include at least these elements: `svg`, `g`, `defs`,
 Include all ~30 elements listed above, with accurate descriptions from MDN,
 correct content models from the SVG 2 spec, and element-specific attributes.
 
-Reference: https://developer.mozilla.org/docs/Web/SVG/Element
-Reference: https://www.w3.org/TR/SVG2/struct.html (content models)
+Reference: https://developer.mozilla.org/docs/Web/SVG/Element Reference:
+https://www.w3.org/TR/SVG2/struct.html (content models)
 
 - [ ] **Step 2: Commit**
 
@@ -315,22 +323,27 @@ Each attribute entry has:
   - `{"type": "length"}` — length or percentage
   - `{"type": "url"}` — URL/IRI reference
   - `{"type": "number_or_percentage"}` — number or percentage
-  - `{"type": "transform", "functions": ["translate", "rotate", ...]}` — transform functions
+  - `{"type": "transform", "functions": ["translate", "rotate", ...]}` —
+    transform functions
   - `{"type": "viewbox"}` — four numbers
-  - `{"type": "preserve_aspect_ratio", "alignments": [...], "meet_or_slice": [...]}` — alignment
+  - `{"type": "preserve_aspect_ratio", "alignments": [...], "meet_or_slice": [...]}`
+    — alignment
   - `{"type": "points"}` — coordinate pair list
   - `{"type": "path_data"}` — SVG path data
-- `elements`: array of element names that accept this attribute, or `["*"]` for global
+- `elements`: array of element names that accept this attribute, or `["*"]` for
+  global
 
 Include at least these attributes: `id`, `class`, `style`, `fill`, `stroke`,
 `stroke-width`, `stroke-linecap`, `stroke-linejoin`, `stroke-dasharray`,
 `opacity`, `fill-opacity`, `stroke-opacity`, `transform`, `d`, `viewBox`,
-`preserveAspectRatio`, `x`, `y`, `width`, `height`, `cx`, `cy`, `r`, `rx`,
-`ry`, `x1`, `y1`, `x2`, `y2`, `points`, `href`, `xlink:href`,
-`font-family`, `font-size`, `font-weight`, `text-anchor`,
-`dominant-baseline`, `stop-color`, `stop-opacity`, `offset`,
-`gradientUnits`, `gradientTransform`, `clip-path`, `mask`,
-`filter`, `display`, `visibility`, `color`.
+`preserveAspectRatio`, `x`, `y`, `width`, `height`, `cx`, `cy`, `r`, `rx`, `ry`,
+`x1`, `y1`, `x2`, `y2`, `points`, `href`, `font-family`, `font-size`,
+`font-weight`, `text-anchor`, `dominant-baseline`, `stop-color`, `stop-opacity`,
+`offset`, `gradientUnits`, `gradientTransform`, `clip-path`, `mask`, `filter`,
+`display`, `visibility`, `color`.
+
+Keep `xlink:href` as a deprecated compatibility fallback, not a primary
+completion/hover target.
 
 Example:
 
@@ -384,8 +397,8 @@ git commit -m "feat(svg-data): curated attribute catalog JSON"
 
 - [ ] **Step 1: Add build dependencies**
 
-In `crates/svg-data/Cargo.toml` (pinned inline, not workspace-inherited,
-since serde is only needed at build time for this crate):
+In `crates/svg-data/Cargo.toml` (pinned inline, not workspace-inherited, since
+serde is only needed at build time for this crate):
 
 ```toml
 [build-dependencies]
@@ -613,7 +626,8 @@ fn main() {
                 Some("transform") => format!("AttributeValues::Transform({upper}_FUNCTIONS)"),
                 Some("viewbox") => "AttributeValues::ViewBox".to_string(),
                 Some("preserve_aspect_ratio") => format!(
-                    "AttributeValues::PreserveAspectRatio {{ alignments: {upper}_ALIGNMENTS, meet_or_slice: {upper}_MEET_OR_SLICE }}"
+                    "AttributeValues::PreserveAspectRatio {{ alignments: {upper}_ALIGNMENTS, \
+                     meet_or_slice: {upper}_MEET_OR_SLICE }}"
                 ),
                 Some("points") => "AttributeValues::Points".to_string(),
                 Some("path_data") => "AttributeValues::PathData".to_string(),
@@ -789,8 +803,7 @@ pub fn elements_in_category(cat: ElementCategory) -> Vec<&'static str> {
 
 - [ ] **Step 6: Verify compilation**
 
-Run: `cargo check -p svg-data`
-Expected: compiles clean
+Run: `cargo check -p svg-data` Expected: compiles clean
 
 - [ ] **Step 7: Commit**
 
@@ -883,8 +896,7 @@ mod tests {
 
 - [ ] **Step 2: Run tests**
 
-Run: `cargo test -p svg-data`
-Expected: all tests PASS
+Run: `cargo test -p svg-data` Expected: all tests PASS
 
 - [ ] **Step 3: Commit**
 
@@ -985,8 +997,7 @@ pub use types::{DiagnosticCode, Severity, SvgDiagnostic};
 
 - [ ] **Step 4: Verify compilation**
 
-Run: `cargo check -p svg-lint`
-Expected: compiles clean
+Run: `cargo check -p svg-lint` Expected: compiles clean
 
 - [ ] **Step 5: Commit**
 
@@ -1099,8 +1110,8 @@ mod tests {
 
 - [ ] **Step 2: Run tests to verify failure**
 
-Run: `cargo test -p svg-lint`
-Expected: FAIL (compilation error — `rules` module doesn't exist yet)
+Run: `cargo test -p svg-lint` Expected: FAIL (compilation error — `rules` module
+doesn't exist yet)
 
 - [ ] **Step 3: Implement rules**
 
@@ -1298,8 +1309,7 @@ fn check_children(
 
 - [ ] **Step 4: Run tests**
 
-Run: `cargo test -p svg-lint`
-Expected: all tests PASS
+Run: `cargo test -p svg-lint` Expected: all tests PASS
 
 - [ ] **Step 5: Commit**
 
@@ -1442,7 +1452,7 @@ async fn document_color(&self, params: DocumentColorParams) -> Result<Vec<ColorI
     let source_bytes = doc.source.as_bytes();
     let colors = svg_color::extract_colors_from_tree(source_bytes, &doc.tree);
 
-    // Preserve existing color_kinds cache logic
+    // Replace cached color kinds for this URI; didChange invalidates stale entries.
     let mut kinds = self.color_kinds.write().await;
     kinds.retain(|(uri, _, _), _| *uri != params.text_document.uri);
 
@@ -1505,8 +1515,7 @@ use tower_lsp_server::ls_types::{Diagnostic, DiagnosticSeverity /* existing impo
 
 - [ ] **Step 7: Verify compilation**
 
-Run: `cargo check -p svg-language-server`
-Expected: compiles clean
+Run: `cargo check -p svg-language-server` Expected: compiles clean
 
 - [ ] **Step 8: Commit**
 
@@ -1740,8 +1749,7 @@ use tower_lsp_server::ls_types::{
 
 - [ ] **Step 6: Verify compilation**
 
-Run: `cargo check -p svg-language-server`
-Expected: compiles clean
+Run: `cargo check -p svg-language-server` Expected: compiles clean
 
 - [ ] **Step 7: Commit**
 
@@ -1979,8 +1987,7 @@ use tower_lsp_server::ls_types::{
 
 - [ ] **Step 6: Verify compilation**
 
-Run: `cargo check -p svg-language-server`
-Expected: compiles clean
+Run: `cargo check -p svg-language-server` Expected: compiles clean
 
 - [ ] **Step 7: Commit**
 
@@ -1999,8 +2006,8 @@ git commit -m "feat(lsp): context-aware completions for elements, attributes, va
 
 - [ ] **Step 1: Add hover integration test**
 
-Add to the existing integration test file, after the color presentation test
-and before shutdown:
+Add to the existing integration test file, after the color presentation test and
+before shutdown:
 
 ```rust
     // --- hover test: element name ---
@@ -2056,8 +2063,8 @@ and before shutdown:
 
 Diagnostics are push-based notifications (no request id). The `recv_response`
 helper skips notifications, so we must drain `rx` directly. **Important:**
-`publishDiagnostics` for `test.svg` may arrive after `didOpen` (from Step 1),
-so drain any queued notifications before opening the invalid file.
+`publishDiagnostics` for `test.svg` may arrive after `didOpen` (from Step 1), so
+drain any queued notifications before opening the invalid file.
 
 ```rust
     // --- diagnostics test ---
@@ -2110,8 +2117,8 @@ so drain any queued notifications before opening the invalid file.
 
 - [ ] **Step 4: Run integration tests**
 
-Run: `cargo test -p svg-language-server --test integration`
-Expected: all tests PASS
+Run: `cargo test -p svg-language-server --test integration` Expected: all tests
+PASS
 
 - [ ] **Step 5: Commit**
 
@@ -2130,13 +2137,12 @@ git commit -m "test(lsp): integration tests for hover, completion, diagnostics"
 
 - [ ] **Step 1: Run full test suite**
 
-Run: `cargo test --workspace`
-Expected: all tests pass
+Run: `cargo test --workspace` Expected: all tests pass
 
 - [ ] **Step 2: Run clippy**
 
-Run: `cargo clippy --workspace -- -D warnings`
-Expected: no warnings. Fix any issues.
+Run: `cargo clippy --workspace -- -D warnings` Expected: no warnings. Fix any
+issues.
 
 - [ ] **Step 3: Update README**
 
@@ -2147,9 +2153,12 @@ Add new features to `README.md`:
 
 - `textDocument/documentColor` — color swatches for paint attributes
 - `textDocument/colorPresentation` — convert between hex, rgb(), hsl(), named
-- `textDocument/hover` — element/attribute documentation with MDN links and baseline status
-- `textDocument/completion` — context-aware completions for elements, attributes, and values
-- `textDocument/publishDiagnostics` — structural validation (invalid nesting, unknown elements, deprecated usage, duplicate IDs)
+- `textDocument/hover` — element/attribute documentation with MDN links and
+  baseline status
+- `textDocument/completion` — context-aware completions for elements,
+  attributes, and values
+- `textDocument/publishDiagnostics` — structural validation (invalid nesting,
+  unknown elements, deprecated usage, duplicate IDs)
 ```
 
 - [ ] **Step 4: Commit**
@@ -2164,15 +2173,15 @@ git commit -m "docs: update README with intelligence features"
 ## Deferred to Follow-Up Tasks
 
 - **CompatOverlay / runtime refresh**: The spec describes fetching latest
-  `@mdn/browser-compat-data` at runtime. This plan bakes in `baseline: None`
-  and defers runtime fetch to a follow-up task — the core features work
-  without it, and adding HTTP + caching is orthogonal to the catalog/lint/LSP work.
-- **Close-tag completion (`</│`)**: The spec lists this as a trigger point.
-  This plan's `detect_completion_context` does not handle `end_tag` nodes.
-  Add as a follow-up — the tree-sitter parent element name is available.
+  `@mdn/browser-compat-data` at runtime. This plan bakes in `baseline: None` and
+  defers runtime fetch to a follow-up task — the core features work without it,
+  and adding HTTP + caching is orthogonal to the catalog/lint/LSP work.
+- **Close-tag completion (`</│`)**: The spec lists this as a trigger point. This
+  plan's `detect_completion_context` does not handle `end_tag` nodes. Add as a
+  follow-up — the tree-sitter parent element name is available.
 - **`elements_in_category` return type**: Spec says `&'static [&'static str]`
-  but plan uses `Vec` for simplicity. Can be optimized to static slices
-  in a follow-up (would require codegen or `once_cell`).
+  but plan uses `Vec` for simplicity. Can be optimized to static slices in a
+  follow-up (would require codegen or `once_cell`).
 
 ---
 

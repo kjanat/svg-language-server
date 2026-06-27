@@ -1,3 +1,4 @@
+// @ts-nocheck Deno
 interface Props {
 	mdnUrl?: string;
 	specUrls: string[];

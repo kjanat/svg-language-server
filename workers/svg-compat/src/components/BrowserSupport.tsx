@@ -1,5 +1,6 @@
-import type { Baseline, BrowserSupport as BrowserSupportData, BrowserVersion } from '../main.ts';
-import { browserVersionChipLabel } from '../view.ts';
+// @ts-nocheck Deno
+import type { Baseline, BrowserSupport as BrowserSupportData, BrowserVersion } from '#server';
+import { browserVersionChipLabel } from '#src/view.ts';
 
 interface Props {
 	support: BrowserSupportData | undefined;

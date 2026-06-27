@@ -1,0 +1,301 @@
+==================
+XML declaration + doctype + svg root
+==================
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+  <g id="icon">
+    <circle cx="5" cy="5" r="4"/>
+    <text x="5" y="6">Hi &amp; bye</text>
+  </g>
+</svg>
+
+---
+
+(source_file
+  (xml_declaration
+    (xml_version_attribute
+      name: (xml_version_attribute_name)
+      value: (quoted_attribute_value
+        (attribute_text_double)))
+    (xml_encoding_attribute
+      name: (xml_encoding_attribute_name)
+      value: (quoted_attribute_value
+        (attribute_text_double))))
+  (text)
+  (doctype
+    name: (name)
+    external_id: (doctype_external_id))
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double)))
+      (viewbox_attribute
+        name: (viewbox_attribute_name)
+        value: (viewbox_attribute_value
+          (viewbox_value
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)))))
+    (text)
+    (element
+      (start_tag
+        name: (name)
+        (id_attribute
+          name: (id_attribute_name)
+          value: (id_attribute_value
+            (id_token))))
+      (text)
+      (element
+        (self_closing_tag
+          name: (name)
+          (length_attribute
+            name: (length_attribute_name)
+            value: (length_attribute_value
+              (length_or_percentage_or_auto
+                (length_or_percentage
+                  (length
+                    (number))))))
+          (length_attribute
+            name: (length_attribute_name)
+            value: (length_attribute_value
+              (length_or_percentage_or_auto
+                (length_or_percentage
+                  (length
+                    (number))))))
+          (length_attribute
+            name: (length_attribute_name)
+            value: (length_attribute_value
+              (length_or_percentage_or_auto
+                (length_or_percentage
+                  (length
+                    (number))))))))
+      (text)
+      (element
+        (start_tag
+          name: (name)
+          (length_attribute
+            name: (length_attribute_name)
+            value: (length_attribute_value
+              (length_or_percentage_or_auto
+                (length_or_percentage
+                  (length
+                    (number))))))
+          (length_attribute
+            name: (length_attribute_name)
+            value: (length_attribute_value
+              (length_or_percentage_or_auto
+                (length_or_percentage
+                  (length
+                    (number)))))))
+        (text)
+        (entity_reference)
+        (text)
+        (end_tag
+          name: (name)))
+      (text)
+      (end_tag
+        name: (name)))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Namespaced svg root and nested svg
+==================
+
+<svg:svg xmlns:svg="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <svg:g>
+    <svg:svg x="10" y="10" width="50" height="50">
+      <svg:rect x="0" y="0" width="10" height="10"/>
+    </svg:svg>
+  </svg:g>
+</svg:svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double)))
+      (viewbox_attribute
+        name: (viewbox_attribute_name)
+        value: (viewbox_attribute_value
+          (viewbox_value
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)))))
+    (text)
+    (element
+      (start_tag
+        name: (name))
+      (text)
+      (element
+        (start_tag
+          name: (name)
+          (length_attribute
+            name: (length_attribute_name)
+            value: (length_attribute_value
+              (length_or_percentage_or_auto
+                (length_or_percentage
+                  (length
+                    (number))))))
+          (length_attribute
+            name: (length_attribute_name)
+            value: (length_attribute_value
+              (length_or_percentage_or_auto
+                (length_or_percentage
+                  (length
+                    (number))))))
+          (length_attribute
+            name: (length_attribute_name)
+            value: (length_attribute_value
+              (length_or_percentage_or_auto
+                (length_or_percentage
+                  (length
+                    (number))))))
+          (length_attribute
+            name: (length_attribute_name)
+            value: (length_attribute_value
+              (length_or_percentage_or_auto
+                (length_or_percentage
+                  (length
+                    (number)))))))
+        (text)
+        (element
+          (self_closing_tag
+            name: (name)
+            (length_attribute
+              name: (length_attribute_name)
+              value: (length_attribute_value
+                (length_or_percentage_or_auto
+                  (length_or_percentage
+                    (length
+                      (number))))))
+            (length_attribute
+              name: (length_attribute_name)
+              value: (length_attribute_value
+                (length_or_percentage_or_auto
+                  (length_or_percentage
+                    (length
+                      (number))))))
+            (length_attribute
+              name: (length_attribute_name)
+              value: (length_attribute_value
+                (length_or_percentage_or_auto
+                  (length_or_percentage
+                    (length
+                      (number))))))
+            (length_attribute
+              name: (length_attribute_name)
+              value: (length_attribute_value
+                (length_or_percentage_or_auto
+                  (length_or_percentage
+                    (length
+                      (number))))))))
+        (text)
+        (end_tag
+          name: (name)))
+      (text)
+      (end_tag
+        name: (name)))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Self-closing root with spaced Eq
+==================
+
+<svg width = "10" height = '20' />
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (self_closing_tag
+      name: (name)
+      (length_attribute
+        name: (length_attribute_name)
+        value: (length_attribute_value
+          (length_or_percentage_or_auto
+            (length_or_percentage
+              (length
+                (number))))))
+      (length_attribute
+        name: (length_attribute_name)
+        value: (length_attribute_value
+          (length_or_percentage_or_auto
+            (length_or_percentage
+              (length
+                (number))))))))
+  (text))
+
+==================
+Root with pre and post misc nodes
+==================
+<?xml version="1.0"?>
+<!-- before -->
+<?pi target?>
+<svg><g/></svg>
+<!-- after -->
+<?done ok?>
+
+---
+
+(source_file
+  (xml_declaration
+    (xml_version_attribute
+      name: (xml_version_attribute_name)
+      value: (quoted_attribute_value
+        (attribute_text_double))))
+  (text)
+  (comment
+    text: (comment_text))
+  (text)
+  (processing_instruction
+    target: (name)
+    content: (pi_content))
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)))
+    (end_tag
+      name: (name)))
+  (text)
+  (comment
+    text: (comment_text))
+  (text)
+  (processing_instruction
+    target: (name)
+    content: (pi_content))
+  (text))

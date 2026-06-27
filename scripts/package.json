@@ -1,0 +1,11 @@
+{
+	"name": "scripts",
+	"version": "",
+	"scripts": {
+		"typecheck": "deno check"
+	},
+	"devDependencies": {
+		"@types/bun": "catalog:",
+		"typescript": "catalog:"
+	}
+}

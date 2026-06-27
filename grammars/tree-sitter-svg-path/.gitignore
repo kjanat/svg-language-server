@@ -1,0 +1,73 @@
+# Rust artifacts
+target/
+
+# Node artifacts
+build/
+prebuilds/
+node_modules/
+
+# Swift artifacts
+.build/
+
+# Go artifacts
+_obj/
+
+# Java artifacts
+.classpath
+.project
+.settings/
+
+# Python artifacts
+.venv/
+dist/
+*.egg-info
+*.whl
+__pycache__/
+
+# C artifacts
+.clangd
+.clangd-headers/
+*.a
+*.so
+*.so.*
+*.dylib
+*.dll
+*.pc
+*.exp
+*.lib
+
+# Zig artifacts
+.zig-cache/
+zig-cache/
+zig-out/
+
+# Example dirs
+/examples/*/
+
+# Grammar volatiles
+*.wasm
+*.obj
+*.o
+
+# Archives
+*.tar.gz
+*.tgz
+*.zip
+*.jar
+
+# CMake artifacts
+__cmake_systeminformation/
+# Created by https://gitignore.kjanat.com/api/zig
+# Edit at https://gitignore.kjanat.com?templates=zig
+
+### zig ###
+# Zig programming language
+
+.zig-cache/
+zig-out/
+zig-pkg/
+build/
+build-*/
+docgen_tmp/
+
+# End of https://gitignore.kjanat.com/api/zig

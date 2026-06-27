@@ -18,10 +18,10 @@ use svg_format::{
     name = "svg-format",
     version,
     about = "Structural formatter for SVG documents",
-    long_about = "Deterministic, opinionated formatter for SVG documents.\n\
-Reads SVG from FILE or stdin and writes the formatted result to stdout.\n\
-Defaults mirror the W3 SVG reference style: 2-space indent, canonical\n\
-attribute order, multi-line wrapping aligned under the tag name."
+    long_about = "Deterministic, opinionated formatter for SVG documents.\nReads SVG from FILE or \
+                  stdin and writes the formatted result to stdout.\nDefaults mirror the W3 SVG \
+                  reference style: 2-space indent, canonical\nattribute order, multi-line \
+                  wrapping aligned under the tag name."
 )]
 struct Cli {
     /// SVG file to format. Reads stdin when omitted.

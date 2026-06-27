@@ -1,10 +1,14 @@
 # Full Snapshot SVG Data — Design Spec
 
-> Ingest pinned SVG snapshots as complete structured data with provenance, value grammar, and derived version overlays.
+> Ingest pinned SVG snapshots as complete structured data with provenance, value
+> grammar, and derived version overlays.
 
 ## Goal
 
-Turn `svg-data` into a snapshot-first catalog instead of a union catalog with sparse exceptions. Each tracked SVG spec snapshot should be stored as normalized, modular, reviewable data before any union view, lifecycle derivation, or runtime overlay is generated.
+Turn `svg-data` into a snapshot-first catalog instead of a union catalog with
+sparse exceptions. Each tracked SVG spec snapshot should be stored as
+normalized, modular, reviewable data before any union view, lifecycle
+derivation, or runtime overlay is generated.
 
 Tracked snapshots:
 
@@ -17,7 +21,8 @@ Tracked snapshots:
 
 - Store each snapshot independently as canonical checked-in data.
 - Preserve provenance for every extracted fact.
-- Include value grammar as first-class structured data, not only display strings.
+- Include value grammar as first-class structured data, not only display
+  strings.
 - Keep derived union views and version diffs as generated artifacts only.
 - Run per-snapshot completeness and accuracy review before rewiring consumers.
 - Keep build-time generation deterministic and offline-friendly after fetch.
@@ -26,12 +31,14 @@ Tracked snapshots:
 
 ### SVG 1.1 First Edition
 
-- Authority: W3C TR snapshot, `eltindex.html`, `attindex.html`, dated flattened DTD.
+- Authority: W3C TR snapshot, `eltindex.html`, `attindex.html`, dated flattened
+  DTD.
 - Role: full historical snapshot, not a derived diff.
 
 ### SVG 1.1 Second Edition
 
-- Authority: W3C TR snapshot, zip bundle, `eltindex.html`, `attindex.html`, dated flattened DTD.
+- Authority: W3C TR snapshot, zip bundle, `eltindex.html`, `attindex.html`,
+  dated flattened DTD.
 - Role: full stable baseline and validation spine.
 
 ### SVG 2 Candidate Recommendation
@@ -43,25 +50,32 @@ Tracked snapshots:
 ### SVG 2 Editor's Draft
 
 - Authority: pinned `w3c/svgwg` commit for `2025-09-14`.
-- Primary structured inputs: `publish.xml`, `definitions.xml`, companion definitions files, and chapter HTML.
+- Primary structured inputs: `publish.xml`, `definitions.xml`, companion
+  definitions files, and chapter HTML.
 - Rendered draft indices are validation targets, not the only source.
 
 ## Canonical Data Model
 
-Canonical checked-in snapshot data lives under `crates/svg-data/data/specs/<snapshot-id>/`.
+Canonical checked-in snapshot data lives under
+`crates/svg-data/data/specs/<snapshot-id>/`.
 
 Required files per snapshot:
 
 - `snapshot.json`: id, title, date, status, pinned sources, ingestion version
-- `elements.json`: full element records with categories, content model, permitted attrs, provenance
-- `attributes.json`: full attribute records with applicability, defaults, animatability, provenance
+- `elements.json`: full element records with categories, content model,
+  permitted attrs, provenance
+- `attributes.json`: full attribute records with applicability, defaults,
+  animatability, provenance
 - `grammars.json`: structured grammar definitions and refs
 - `categories.json`: element and attribute category membership
 - `element_attribute_matrix.json`: explicit applicability edges and requiredness
-- `exceptions.json`: curated prose-only or source-bug corrections with justification
-- `review.json`: completeness report, counts, unresolved items, manual audit notes
+- `exceptions.json`: curated prose-only or source-bug corrections with
+  justification
+- `review.json`: completeness report, counts, unresolved items, manual audit
+  notes
 
-Derived artifacts live separately under `crates/svg-data/data/derived/` and must never be hand-authored:
+Derived artifacts live separately under `crates/svg-data/data/derived/` and must
+never be hand-authored:
 
 - `union/`
 - `overlays/`
@@ -101,7 +115,8 @@ Target high-value grammars include:
 - geometry properties
 - presentation attributes
 
-`opaque` is an allowed ingest escape hatch, but not an acceptable final state for SVG-owned syntax.
+`opaque` is an allowed ingest escape hatch, but not an acceptable final state
+for SVG-owned syntax.
 
 ## Provenance
 
@@ -117,7 +132,8 @@ Facts that lack provenance are not canonical.
 
 ## External Specifications
 
-External definitions referenced by SVG 2 should use pinned typed foreign references in phase 1.
+External definitions referenced by SVG 2 should use pinned typed foreign
+references in phase 1.
 
 Initial foreign-reference coverage:
 
@@ -128,7 +144,8 @@ Initial foreign-reference coverage:
 - ARIA
 - CSS-backed presentation/value grammars
 
-Do not fully ingest those ecosystems in phase 1. Store typed references with pins and targets so the data remains truthful and expandable.
+Do not fully ingest those ecosystems in phase 1. Store typed references with
+pins and targets so the data remains truthful and expandable.
 
 ## Derived Layers
 

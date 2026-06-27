@@ -1,59 +1,56 @@
 name: publish-npm-oidc
-
-on:
-  workflow_call:
-    inputs:
-      plan:
-        required: true
-        type: string
-
+on: { workflow_call: { inputs: { plan: { required: true, type: string } } } }
+permissions: { contents: read }
 jobs:
   publish:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-    env:
-      PLAN: ${{ inputs.plan }}
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+    permissions: { contents: read, id-token: write }
+    env: { PLAN: "${{ inputs.plan }}" }
     steps:
       - name: Fetch npm packages
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
-        with:
-          pattern: artifacts-*
-          path: dist-npm/
-          merge-multiple: true
-      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
-        with: { node-version: "latest", registry-url: "https://registry.npmjs.org" }
+        uses: actions/download-artifact@v8
+        with: { pattern: artifacts-*, path: dist-npm/, merge-multiple: true }
+      - uses: actions/setup-node@v6
+        with: { node-version: latest, registry-url: https://registry.npmjs.org }
       - name: Publish dist npm installers
-        shell: bash
+        shell: pwsh
+        env: { NPM_TOKEN: "${{ secrets.NPM_TOKEN }}" }
         run: |
-          set -euo pipefail
+          $ErrorActionPreference = "Stop"
 
-          # Use the npm bundled with the latest Node, which supports OIDC
-          # trusted publishing + `--provenance`.
+          # Ensure we have the latest npm for better OIDC support
+          npm i -g npm@latest
 
-          publish_pkg() {
-            local source="$1"
-            if [[ -n "${NPM_TOKEN:-}" ]]; then
-              NODE_AUTH_TOKEN="$NPM_TOKEN" npm publish --access public "$source"
-            else
-              npm publish --provenance --access public "$source"
-            fi
+          function Publish-Package {
+            param([Parameter(Mandatory)][string]$Source)
+
+            if ($env:NPM_TOKEN) {
+              $env:NODE_AUTH_TOKEN = $env:NPM_TOKEN
+              npm publish --access public $Source
+            } else {
+              npm publish --provenance --access public $Source
+            }
           }
 
-          mapfile -t packages < <(
-            jq -r '
-              .releases[].artifacts[]?
-              | select(type == "string" and endswith("-npm-package.tar.gz"))
-              | split("/")[-1]
-            ' <<< "$PLAN" | sort -u
+          $plan = $env:PLAN | ConvertFrom-Json
+
+          $packages = @(
+            $plan.releases.artifacts |
+              Where-Object { $_ -is [string] -and $_.EndsWith("-npm-package.tar.gz") } |
+              ForEach-Object { Split-Path -Leaf $_ } |
+              Sort-Object -Unique
           )
 
-          for pkg in "${packages[@]}"; do
-            if [[ ! "$pkg" =~ ^[A-Za-z0-9._@+-]+-npm-package\.tar\.gz$ ]]; then
-              echo "::error::unexpected npm artifact filename: ${pkg}"
-              exit 1
-            fi
-            publish_pkg "./dist-npm/${pkg}"
-          done
+          if ($packages.Count -eq 0) {
+            $msg = "No npm package artifacts found in dist plan"
+            "::error::$msg"; Write-Error "$msg"
+          }
+
+          foreach ($pkg in $packages) {
+            if ($pkg -notmatch '^[A-Za-z0-9._@+-]+-npm-package\.tar\.gz$') {
+              $msg = "Unexpected npm artifact filename: $pkg"
+              "::error::$msg"; Write-Error "$msg"
+            }
+
+            Publish-Package "./dist-npm/$pkg"
+          }

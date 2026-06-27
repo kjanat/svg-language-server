@@ -21,8 +21,8 @@
  *
  * @module
  */
+// @ts-nocheck Deno
 
-import { isRecord, type JsonRecord } from '../sources.ts';
 import type {
 	Baseline,
 	BaselineDate,
@@ -31,7 +31,9 @@ import type {
 	BrowserVersion,
 	CompatEntry,
 	VersionQualifier,
-} from './types.ts';
+} from '#lib/types.ts';
+import type { JsonRecord } from '#src/sources.ts';
+import { isRecord } from '#src/sources.ts';
 
 const WEB_FEATURE_KIND_FEATURE = 'feature';
 

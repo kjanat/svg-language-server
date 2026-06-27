@@ -27,10 +27,11 @@
  *
  * @module
  */
+// @ts-nocheck Deno
 
 import { assert, assertEquals, assertExists } from '@std/assert';
 
-import { parseChangesLog, parseDefinitionsXml, parseTextHtmlOverrides } from './spec_scan.ts';
+import { parseChangesLog, parseDefinitionsXml, parseTextHtmlOverrides } from '#src/spec_scan.ts';
 
 Deno.test('parseDefinitionsXml extracts elements with various indentation', () => {
 	const fixture = `<definitions xmlns='http://mcc.id.au/ns/local'>

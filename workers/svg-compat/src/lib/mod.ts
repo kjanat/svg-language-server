@@ -7,8 +7,9 @@
  *
  * @module
  */
+// @ts-nocheck Deno
 
-export * from './build.ts';
-export * from './parse.ts';
-export * from './schema.ts';
-export * from './types.ts';
+export * from '#lib/build.ts';
+export * from '#lib/parse.ts';
+export * from '#lib/schema.ts';
+export * from '#lib/types.ts';

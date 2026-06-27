@@ -1,11 +1,13 @@
 #!/usr/bin/env bun
+/// <reference types="bun-types" />
+
 import { error, log } from 'node:console';
 import { normalize, relative } from 'node:path';
 import { argv, cwd, exit } from 'node:process';
 
 const version = argv[2];
 if (!version || !/^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/.test(version)) {
-	error(`usage: ${relative(cwd(), import.meta.filename!)} <version>`);
+	error(`usage: ${relative(cwd(), import.meta.path)} <version>`);
 	exit(1);
 }
 

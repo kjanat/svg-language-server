@@ -1,4 +1,5 @@
-import type { Baseline } from '../main.ts';
+// @ts-nocheck Deno
+import type { Baseline } from '#server';
 
 interface Props {
 	baseline: Baseline | undefined;

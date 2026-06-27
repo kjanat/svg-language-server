@@ -7,6 +7,13 @@
 use crate::BaselineStatus;
 
 /// A single browser's `version_added`, resolved to a comparable form.
+///
+/// # Examples
+///
+/// ```rust
+/// let version = svg_data::compat_parse::BrowserVersion::Version("124".to_owned());
+/// assert!(matches!(version, svg_data::compat_parse::BrowserVersion::Version(_)));
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum BrowserVersion {
     /// Supported, but the first version is unknown.
@@ -16,6 +23,18 @@ pub enum BrowserVersion {
 }
 
 /// Per-browser `version_added` for the four tracked engines.
+///
+/// # Examples
+///
+/// ```rust
+/// let versions = svg_data::compat_parse::BrowserVersions {
+///     chrome: Some(svg_data::compat_parse::BrowserVersion::Unknown),
+///     edge: None,
+///     firefox: None,
+///     safari: None,
+/// };
+/// assert!(versions.chrome.is_some());
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct BrowserVersions {
     /// Chrome support.
@@ -29,6 +48,14 @@ pub struct BrowserVersions {
 }
 
 /// Extract per-browser support from a compat record's `support` block.
+///
+/// # Examples
+///
+/// ```rust
+/// let compat = serde_json::json!({"support":{"chrome":{"version_added":"1"}}});
+/// let versions = svg_data::compat_parse::extract_browser_versions(&compat).expect("support");
+/// assert!(versions.chrome.is_some());
+/// ```
 #[must_use]
 pub fn extract_browser_versions(compat: &serde_json::Value) -> Option<BrowserVersions> {
     let support = compat.get("support")?.as_object()?;
@@ -60,6 +87,13 @@ fn browser_version_from_support_statement(value: &serde_json::Value) -> Option<B
 }
 
 /// Resolve a feature's web-platform baseline from compat + web-features data.
+///
+/// # Examples
+///
+/// ```rust
+/// let compat = serde_json::json!({});
+/// assert!(svg_data::compat_parse::resolve_baseline(&compat, None, "svg.elements.svg").is_none());
+/// ```
 #[must_use]
 pub fn resolve_baseline(
     compat: &serde_json::Value,

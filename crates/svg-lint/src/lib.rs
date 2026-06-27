@@ -7,8 +7,8 @@
 //! # Examples
 //!
 //! ```rust
-//! let diagnostics = svg_lint::lint(br"<svg><banana/></svg>");
-//! assert!(diagnostics.iter().any(|d| d.code == svg_lint::DiagnosticCode::UnknownElement));
+//! let diagnostics = svg_lint::lint(br#"<svg><rect id="dup"/><circle id="dup"/></svg>"#);
+//! assert!(diagnostics.iter().any(|d| d.code == svg_lint::DiagnosticCode::DuplicateId));
 //! ```
 
 mod namespaces;
@@ -29,6 +29,13 @@ pub use version::{effective_profile, extract_declared_version};
 /// # Panics
 ///
 /// Panics if the compiled tree-sitter SVG grammar cannot be loaded.
+///
+/// # Examples
+///
+/// ```rust
+/// let diagnostics = svg_lint::lint(br#"<svg><rect id="dup"/><circle id="dup"/></svg>"#);
+/// assert!(diagnostics.iter().any(|diag| diag.code == svg_lint::DiagnosticCode::DuplicateId));
+/// ```
 #[must_use]
 pub fn lint(source: &[u8]) -> Vec<SvgDiagnostic> {
     lint_with_options(source, LintOptions::default())
@@ -39,6 +46,16 @@ pub fn lint(source: &[u8]) -> Vec<SvgDiagnostic> {
 /// # Panics
 ///
 /// Panics if the compiled tree-sitter SVG grammar cannot be loaded.
+///
+/// # Examples
+///
+/// ```rust
+/// let diagnostics = svg_lint::lint_with_options(
+///     br#"<svg><rect id="dup"/><circle id="dup"/></svg>"#,
+///     svg_lint::LintOptions::default(),
+/// );
+/// assert!(diagnostics.iter().any(|diag| diag.code == svg_lint::DiagnosticCode::DuplicateId));
+/// ```
 #[must_use]
 pub fn lint_with_options(source: &[u8], options: LintOptions) -> Vec<SvgDiagnostic> {
     let mut parser = Parser::new();
@@ -55,6 +72,20 @@ pub fn lint_with_options(source: &[u8], options: LintOptions) -> Vec<SvgDiagnost
 }
 
 /// Lint an already-parsed tree with optional runtime compat overrides.
+///
+/// # Examples
+///
+/// ```rust
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// let source = br#"<svg><rect id="dup"/><circle id="dup"/></svg>"#;
+/// let mut parser = tree_sitter::Parser::new();
+/// parser.set_language(&tree_sitter_svg::LANGUAGE.into())?;
+/// let tree = parser.parse(source, None).ok_or("parse failed")?;
+/// let diagnostics = svg_lint::lint_tree(source, &tree, None);
+/// assert!(diagnostics.iter().any(|diag| diag.code == svg_lint::DiagnosticCode::DuplicateId));
+/// # Ok(())
+/// # }
+/// ```
 #[must_use]
 pub fn lint_tree(
     source: &[u8],
@@ -65,6 +96,25 @@ pub fn lint_tree(
 }
 
 /// Lint an already-parsed tree with explicit profile options.
+///
+/// # Examples
+///
+/// ```rust
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// let source = br#"<svg><rect id="dup"/><circle id="dup"/></svg>"#;
+/// let mut parser = tree_sitter::Parser::new();
+/// parser.set_language(&tree_sitter_svg::LANGUAGE.into())?;
+/// let tree = parser.parse(source, None).ok_or("parse failed")?;
+/// let diagnostics = svg_lint::lint_tree_with_options(
+///     source,
+///     &tree,
+///     svg_lint::LintOptions::default(),
+///     None,
+/// );
+/// assert!(diagnostics.iter().any(|diag| diag.code == svg_lint::DiagnosticCode::DuplicateId));
+/// # Ok(())
+/// # }
+/// ```
 #[must_use]
 pub fn lint_tree_with_options(
     source: &[u8],
@@ -84,6 +134,26 @@ pub fn lint_tree_with_options(
 /// advisory diagnostics — deprecation phrasing and the partial / prefix /
 /// behind-flag hints — track current data. Passing `None` (or an empty
 /// map) is exactly the baked behaviour of [`lint_tree_with_options`].
+///
+/// # Examples
+///
+/// ```rust
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// let source = br#"<svg><rect id="dup"/><circle id="dup"/></svg>"#;
+/// let mut parser = tree_sitter::Parser::new();
+/// parser.set_language(&tree_sitter_svg::LANGUAGE.into())?;
+/// let tree = parser.parse(source, None).ok_or("parse failed")?;
+/// let diagnostics = svg_lint::lint_tree_with_compat(
+///     source,
+///     &tree,
+///     svg_lint::LintOptions::default(),
+///     None,
+///     None,
+/// );
+/// assert!(diagnostics.iter().any(|diag| diag.code == svg_lint::DiagnosticCode::DuplicateId));
+/// # Ok(())
+/// # }
+/// ```
 #[must_use]
 pub fn lint_tree_with_compat(
     source: &[u8],
@@ -202,7 +272,8 @@ mod tests {
         let diags = lint(src);
         assert!(
             diags.is_empty(),
-            "foreignObject should allow foreign-namespace subtrees without SVG diagnostics: {diags:?}"
+            "foreignObject should allow foreign-namespace subtrees without SVG diagnostics: \
+             {diags:?}"
         );
     }
 
@@ -216,6 +287,40 @@ mod tests {
                 .iter()
                 .any(|d| d.code == DiagnosticCode::UnknownElement),
             "prefixed svg elements should still be linted: {diags:?}"
+        );
+    }
+
+    #[test]
+    fn foreign_prefixed_elements_are_not_linted_as_svg() {
+        let src = br#"
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd">
+                <sodipodi:namedview id="namedview1"/>
+            </svg>
+        "#;
+        let diags = lint(src);
+
+        assert!(
+            diags.is_empty(),
+            "foreign prefixed elements must not be linted as SVG: {diags:?}"
+        );
+    }
+
+    #[test]
+    fn foreign_default_namespace_on_same_tag_skips_svg_linting() {
+        let src = br#"
+            <svg xmlns="http://www.w3.org/2000/svg">
+                <link href="style.css"
+                      rel="stylesheet"
+                      type="text/css"
+                      xmlns="http://www.w3.org/1999/xhtml"/>
+            </svg>
+        "#;
+        let diags = lint(src);
+
+        assert!(
+            diags.is_empty(),
+            "same-tag foreign default namespace must not be linted as SVG: {diags:?}"
         );
     }
 
@@ -475,7 +580,8 @@ mod tests {
                     && d.message == "Unused suppression for MissingReferenceDefinition."
                     && d.start_row == 2
             }),
-            "next-line UnusedSuppression should suppress the following directive's unused warning: {diags:?}"
+            "next-line UnusedSuppression should suppress the following directive's unused \
+             warning: {diags:?}"
         );
     }
 
@@ -503,7 +609,8 @@ mod tests {
             !diags
                 .iter()
                 .any(|d| { d.code == DiagnosticCode::UnusedSuppression && d.start_row == 2 }),
-            "the outer directive's unused warning should be fully suppressed by the previous comment: {diags:?}"
+            "the outer directive's unused warning should be fully suppressed by the previous \
+             comment: {diags:?}"
         );
         assert!(
             diags.iter().any(|d| {
@@ -511,7 +618,8 @@ mod tests {
                     && d.message == "Unused suppression for UnusedSuppression."
                     && d.start_row == 4
             }),
-            "the nested directive should still report its own unused UnusedSuppression entry: {diags:?}"
+            "the nested directive should still report its own unused UnusedSuppression entry: \
+             {diags:?}"
         );
     }
 
@@ -536,7 +644,8 @@ mod tests {
             !diags
                 .iter()
                 .any(|d| d.code == DiagnosticCode::UnsupportedInProfile),
-            "directive before multiline tag should suppress attribute diagnostics on later rows: {diags:?}"
+            "directive before multiline tag should suppress attribute diagnostics on later rows: \
+             {diags:?}"
         );
         assert!(
             !diags
@@ -822,6 +931,38 @@ mod tests {
     }
 
     #[test]
+    fn svg_1_1_edition_accepts_lang_alias_for_xml_lang() -> Result<(), Box<dyn std::error::Error>> {
+        use svg_data::inventory;
+
+        let svg11 = inventory::for_edition(&inventory::EditionId::for_snapshot(
+            svg_data::SpecSnapshotId::Svg11Rec20110816,
+        ))
+        .ok_or("no SVG 1.1 edition inventory")?;
+        let src = br#"<svg><text lang="en">hello</text></svg>"#;
+        let mut parser = tree_sitter::Parser::new();
+        parser.set_language(&tree_sitter_svg::LANGUAGE.into()).ok();
+        let tree = parser.parse(src, None).ok_or("parse")?;
+
+        let diags = lint_tree_with_options(
+            src,
+            &tree,
+            LintOptions {
+                profile: svg_data::SpecSnapshotId::Svg11Rec20110816,
+                native: None,
+                edition: Some(svg11),
+            },
+            None,
+        );
+        assert!(
+            diags.iter().all(|diag| {
+                diag.code != DiagnosticCode::UnsupportedInProfile || !diag.message.contains("lang")
+            }),
+            "SVG 1.1 edition must accept lang as xml:lang alias: {diags:?}"
+        );
+        Ok(())
+    }
+
+    #[test]
     fn shapes_allow_animation_and_tspan_rejects_text() {
         let invalid_child = |src: &[u8]| {
             lint(src)
@@ -874,8 +1015,8 @@ mod tests {
             !diags
                 .iter()
                 .any(|d| d.code == DiagnosticCode::ObsoleteAttribute),
-            "UnsupportedInProfile and ObsoleteAttribute are disjoint branches — \
-             only one should fire: {diags:?}"
+            "UnsupportedInProfile and ObsoleteAttribute are disjoint branches — only one should \
+             fire: {diags:?}"
         );
     }
 

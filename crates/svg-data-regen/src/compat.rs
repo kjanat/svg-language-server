@@ -1,4 +1,10 @@
 //! Browser-compat-data extraction for objective catalog facts.
+//!
+//! The fetched support statements remain the source of truth, but BCD's key
+//! shapes do not line up 1:1 with the catalog. This module therefore owns an
+//! explicit compatibility-normalization layer: mapping BCD spellings to
+//! canonical catalog names and classifying non-catalog subfeatures. That policy
+//! lives here instead of being mixed into the semantic catalog assembly path.
 
 use std::{
     collections::{BTreeMap, btree_map::Entry},
@@ -654,6 +660,9 @@ fn bcd_attribute_name(name: &str) -> Option<String> {
 }
 
 fn unmodeled_feature_kind(name: &str) -> Option<CatalogCompatSubfeatureKind> {
+    // Compatibility-normalization policy: some BCD keys describe behaviors or
+    // aliases that should be retained as compat records, not promoted to first-
+    // class catalog attributes.
     match name {
         "data_uri" | "external_uri" | "omit_external_fragment" | "tooltip_display" => {
             Some(CatalogCompatSubfeatureKind::Behavior)
@@ -664,6 +673,8 @@ fn unmodeled_feature_kind(name: &str) -> Option<CatalogCompatSubfeatureKind> {
 }
 
 fn canonical_attribute_name(name: &str) -> Option<String> {
+    // Compatibility-normalization policy: BCD key spellings are converted here
+    // before they ever merge into catalog-facing attribute facts.
     match name {
         "data_attributes" => Some("data-*".to_owned()),
         "xlink_actuate" => Some("xlink:actuate".to_owned()),
@@ -791,6 +802,19 @@ mod tests {
         );
         assert_eq!(bcd_attribute_name("path").as_deref(), Some("path"));
         assert_eq!(bcd_attribute_name("data_uri"), None);
+        assert_eq!(bcd_attribute_name("xlink_href"), None);
+    }
+
+    #[test]
+    fn compat_normalization_boundary_is_explicit() {
+        assert_eq!(
+            unmodeled_feature_kind("xlink_href"),
+            Some(CatalogCompatSubfeatureKind::LegacyXlinkAlias)
+        );
+        assert_eq!(
+            canonical_attribute_name("referrerPolicy").as_deref(),
+            Some("referrerpolicy")
+        );
         assert_eq!(bcd_attribute_name("xlink_href"), None);
     }
 }

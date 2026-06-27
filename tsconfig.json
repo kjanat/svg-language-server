@@ -1,0 +1,9 @@
+{
+	"files": [],
+	"references": [
+		{ "path": "./grammars/tree-sitter-svg" },
+		{ "path": "./grammars/tree-sitter-svg-paint" },
+		{ "path": "./grammars/tree-sitter-svg-path" },
+		{ "path": "./grammars/tree-sitter-svg-transform" },
+	]
+}

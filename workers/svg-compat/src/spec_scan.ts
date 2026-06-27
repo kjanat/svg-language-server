@@ -45,6 +45,7 @@
  *
  * @module
  */
+// @ts-nocheck Deno
 
 /** Kind of feature the spec scanner emits facts about. */
 export type FeatureKind = 'element' | 'attribute' | 'property';

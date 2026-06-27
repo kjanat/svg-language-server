@@ -1,5 +1,5 @@
 {
-  "$id": "https://github.com/kjanat/svg-language-server/raw/HEAD/crates/svg-data/data/catalog.schema.json",
+  "$id": "https://github.com/kjanat/svg/raw/HEAD/crates/svg-data/data/catalog.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$defs": {
     "CatalogAttribute": {
@@ -9,7 +9,6 @@
         "animatable",
         "applicability",
         "name",
-        "value_overrides",
         "values"
       ],
       "properties": {
@@ -61,6 +60,13 @@
             "$ref": "#/$defs/CatalogAttributeElementCompat"
           }
         },
+        "element_values": {
+          "description": "Element-scoped value-space overrides for attributes whose value grammar\ngenuinely differs by bearer element within the same profile (e.g.\n`operator` on `feComposite` vs `feMorphology`).",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CatalogAttributeElementValues"
+          }
+        },
         "experimental": {
           "description": "Whether compat data marks the attribute experimental.",
           "type": "boolean"
@@ -96,14 +102,6 @@
             "boolean",
             "null"
           ]
-        },
-        "value_overrides": {
-          "description": "Per-profile value-space overrides, when older snapshots accepted a\ndifferent grammar.",
-          "writeOnly": true,
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/CatalogAttributeValueOverride"
-          }
         },
         "values": {
           "$ref": "#/$defs/CatalogAttributeValues",
@@ -220,21 +218,21 @@
         }
       }
     },
-    "CatalogAttributeValueOverride": {
-      "description": "One per-profile value-space override for an attribute.",
+    "CatalogAttributeElementValues": {
+      "description": "One element-scoped value-space override for an attribute whose value grammar\ngenuinely differs by bearer element within the same profile.\n\nThe canonical [`CatalogAttribute::values`] holds the value space of the\nfirst bearer (by sorted element name); each diverging bearer is recorded\nhere so no spec-defined value space is lost.",
       "type": "object",
       "required": [
-        "profile",
+        "element",
         "values"
       ],
       "properties": {
-        "profile": {
-          "$ref": "#/$defs/CatalogSpecSnapshotId",
-          "description": "Profile snapshot where this value grammar applies."
+        "element": {
+          "description": "Element this value-space override applies to.",
+          "type": "string"
         },
         "values": {
           "$ref": "#/$defs/CatalogAttributeValues",
-          "description": "Value space for that profile."
+          "description": "Value space when the attribute is borne by `element`."
         }
       }
     },
@@ -319,6 +317,214 @@
             "kind": {
               "type": "string",
               "const": "url"
+            }
+          }
+        },
+        {
+          "description": "A boolean attribute as defined by HTML.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "boolean"
+            }
+          }
+        },
+        {
+          "description": "A space-separated token list.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "token_list"
+            }
+          }
+        },
+        {
+          "description": "A comma-separated token list.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "comma_token_list"
+            }
+          }
+        },
+        {
+          "description": "A space-separated list of URL tokens.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "url_token_list"
+            }
+          }
+        },
+        {
+          "description": "A BCP 47 / ABNF language tag.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "language_tag"
+            }
+          }
+        },
+        {
+          "description": "An integer value.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "integer"
+            }
+          }
+        },
+        {
+          "description": "A MIME media type.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "media_type"
+            }
+          }
+        },
+        {
+          "description": "A CSS media query list.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "media_query_list"
+            }
+          }
+        },
+        {
+          "description": "A CSS declaration list, as used by inline `style`.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "css_declaration_list"
+            }
+          }
+        },
+        {
+          "description": "An SVG element ID value.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "id"
+            }
+          }
+        },
+        {
+          "description": "A referrer policy string.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "referrer_policy"
+            }
+          }
+        },
+        {
+          "description": "A suggested download file name.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "suggested_file_name"
+            }
+          }
+        },
+        {
+          "description": "SVG path data.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "path_data"
+            }
+          }
+        },
+        {
+          "description": "A semicolon-separated list of numbers.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "semicolon_number_list"
+            }
+          }
+        },
+        {
+          "description": "One motion-animation coordinate pair.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "coordinate_pair"
+            }
+          }
+        },
+        {
+          "description": "A semicolon-separated list of motion-animation coordinate pairs.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "coordinate_pair_list"
             }
           }
         },
@@ -807,7 +1013,7 @@
     },
     "CatalogCore": {
       "title": "CatalogCore",
-      "description": "Canonical latest catalog data.",
+      "description": "Canonical latest catalog data after semantic projection.\n\nThis document is the runtime-facing catalog, not a raw upstream XML/HTML\nmirror.",
       "type": "object",
       "required": [
         "attributes",
@@ -1520,6 +1726,253 @@
           "const": "Svg2EditorsDraft"
         }
       ]
+    },
+    "CatalogTreeSitterAttributeBuckets": {
+      "description": "Attribute name groups that share a parser value shape.",
+      "type": "object",
+      "required": [
+        "color",
+        "coordinate_pair_list",
+        "css_text",
+        "functional_iri",
+        "keyword",
+        "length",
+        "length_list",
+        "length_list_or_none",
+        "number",
+        "number_list",
+        "number_optional_number",
+        "number_or_percentage",
+        "path_data",
+        "view_box"
+      ],
+      "properties": {
+        "color": {
+          "description": "Attribute values represented by the color parser.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "coordinate_pair_list": {
+          "description": "Attribute values represented by coordinate pairs.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "css_text": {
+          "description": "Remaining structured CSS grammars that should be parsed as CSS text.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "functional_iri": {
+          "description": "Attribute values that can contain a functional IRI / URL reference.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "keyword": {
+          "description": "Attribute values represented as bare keyword tokens.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "length": {
+          "description": "Attribute values represented by a single length/percentage parser.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "length_list": {
+          "description": "Attribute values represented by a length/percentage list parser.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "length_list_or_none": {
+          "description": "Attribute values represented by `none` or a length/percentage list.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "number": {
+          "description": "Attribute values represented by a bare number parser.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "number_list": {
+          "description": "Attribute values represented by a list of bare numbers.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "number_optional_number": {
+          "description": "Attribute values represented by one or two whitespace-separated numbers\n(CSS `<number-optional-number>`, e.g. `stdDeviation`, `baseFrequency`).",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "number_or_percentage": {
+          "description": "Attribute values represented by number or percentage.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "path_data": {
+          "description": "Attribute values represented by SVG path data.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "view_box": {
+          "description": "Attribute values represented by an SVG viewBox.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "CatalogTreeSitterDocument": {
+      "title": "CatalogTreeSitterDocument",
+      "description": "Tree-sitter-facing projection of parser facts from the canonical catalog.",
+      "type": "object",
+      "required": [
+        "attribute_buckets",
+        "schema_version",
+        "sources",
+        "tokens"
+      ],
+      "properties": {
+        "attribute_buckets": {
+          "$ref": "#/$defs/CatalogTreeSitterAttributeBuckets",
+          "description": "Attribute-name buckets consumed by `grammars/tree-sitter-svg`."
+        },
+        "schema_version": {
+          "description": "Version of the JSON catalog/schema contract.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535,
+          "format": "uint16"
+        },
+        "sources": {
+          "$ref": "#/$defs/CatalogTreeSitterSources",
+          "description": "Sources used to derive non-SVG grammar tokens."
+        },
+        "tokens": {
+          "$ref": "#/$defs/CatalogTreeSitterTokens",
+          "description": "Shared token sets consumed by `grammars/tree-sitter-svg`."
+        }
+      }
+    },
+    "CatalogTreeSitterSources": {
+      "description": "Source provenance for generated grammar facts.",
+      "type": "object",
+      "required": [
+        "css_unit_pages",
+        "paths_html",
+        "svg_clock_value_syntax",
+        "webref_css"
+      ],
+      "properties": {
+        "css_unit_pages": {
+          "description": "CSS Values URLs used for unit extraction.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "paths_html": {
+          "description": "Pinned SVGWG `paths.html` URL used for path-data grammar facts.",
+          "type": "string"
+        },
+        "svg_clock_value_syntax": {
+          "description": "SVG Animations URL used for SVG clock units.",
+          "type": "string"
+        },
+        "webref_css": {
+          "$ref": "#/$defs/CatalogPackageSource",
+          "description": "CSS definitions source package."
+        }
+      }
+    },
+    "CatalogTreeSitterTokens": {
+      "description": "Token sets shared by multiple generated grammar rules.",
+      "type": "object",
+      "required": [
+        "angle_units",
+        "color_interpolation_spaces",
+        "color_spaces",
+        "hue_interpolation_methods",
+        "length_units",
+        "path_command_letters",
+        "time_units"
+      ],
+      "properties": {
+        "angle_units": {
+          "description": "CSS angle units from CSS Values.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "color_interpolation_spaces": {
+          "description": "Color interpolation spaces accepted by CSS `color-mix()`.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "color_spaces": {
+          "description": "Predefined color spaces accepted by CSS `color()`.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "hue_interpolation_methods": {
+          "description": "Hue interpolation direction keywords.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "length_units": {
+          "description": "CSS length units from CSS Values.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "path_command_letters": {
+          "description": "Single-letter path command tokens from SVGWG `paths.html#PathDataBNF`.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "time_units": {
+          "description": "SVG clock value metric units from SVG Animations.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
     }
   },
   "title": "svg-data catalog v1",
@@ -1529,7 +1982,8 @@
     "commit",
     "core",
     "graph",
-    "schema_version"
+    "schema_version",
+    "tree_sitter"
   ],
   "properties": {
     "commit": {
@@ -1564,6 +2018,10 @@
       "items": {
         "$ref": "#/$defs/CatalogSnapshotRef"
       }
+    },
+    "tree_sitter": {
+      "$ref": "#/$defs/CatalogFileRef",
+      "description": "Tree-sitter parser projection document."
     }
   }
 }

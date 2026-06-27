@@ -1,0 +1,54 @@
+{
+	"$schema": "https://biomejs.dev/schemas/latest/schema.json",
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true,
+		"defaultBranch": "master",
+		"root": "."
+	},
+	"files": {
+		"includes": [
+			"**",
+			"!!**/*.svg",
+			"!!editors/zed-svg/grammars",
+			"!!**/node_modules",
+			"!!**/worktrees",
+			"!!**/target",
+			"!!**/.venv",
+			"!!**/*cache*"
+		],
+		"ignoreUnknown": true
+	},
+	"formatter": {
+		"enabled": false
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"complexity": { "recommended": true },
+			"correctness": { "recommended": true },
+			"nursery": { "recommended": true },
+			"security": { "recommended": true },
+			"style": { "recommended": true },
+			"suspicious": {
+				"recommended": true,
+				"noControlCharactersInRegex": "off"
+			}
+		},
+		"domains": {
+			"project": "recommended",
+			"test": "recommended",
+			"types": "recommended"
+		}
+	},
+	"assist": {
+		"enabled": true,
+		"actions": {
+			"source": {
+				"recommended": true,
+				"organizeImports": "off"
+			}
+		}
+	}
+}

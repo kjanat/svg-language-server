@@ -1,7 +1,8 @@
-import { elementSearchTokens, type NamedCompatEntry } from '../view.ts';
-import { BaselineBadge } from './BaselineBadge.tsx';
-import { BrowserSupport } from './BrowserSupport.tsx';
-import { DocsLinks } from './DocsLinks.tsx';
+// @ts-nocheck Deno
+import { BaselineBadge } from '#component/BaselineBadge.tsx';
+import { BrowserSupport } from '#component/BrowserSupport.tsx';
+import { DocsLinks } from '#component/DocsLinks.tsx';
+import { elementSearchTokens, type NamedCompatEntry } from '#src/view.ts';
 
 interface Props {
 	rows: NamedCompatEntry[];

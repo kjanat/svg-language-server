@@ -29,12 +29,12 @@ const EXIT_LINT_FAILURE: u8 = 1;
     name = "svg-lint",
     version,
     about = "Structural linter for SVG documents",
-    long_about = "Validates SVG documents against the generated SVG catalog and prints\n\
-diagnostics grouped by file. Reads one or more FILES, or stdin when `-`\n\
-or --stdin is given. The spec profile is taken from each document's own\n\
-`version`/`baseProfile` declaration when present, falling back to\n\
---profile; pass --force-profile to ignore the document and always use\n\
---profile."
+    long_about = "Validates SVG documents against the generated SVG catalog and \
+                  prints\ndiagnostics grouped by file. Reads one or more FILES, or stdin when \
+                  `-`\nor --stdin is given. The spec profile is taken from each document's \
+                  own\n`version`/`baseProfile` declaration when present, falling back \
+                  to\n--profile; pass --force-profile to ignore the document and always \
+                  use\n--profile."
 )]
 struct Cli {
     /// SVG files to lint. Use `-` to read from stdin.

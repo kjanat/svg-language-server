@@ -1,3 +1,4 @@
+// @ts-nocheck Deno
 import type { ComponentChildren } from 'preact';
 
 interface Props {

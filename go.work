@@ -1,0 +1,8 @@
+go 1.26.4
+
+use (
+	./grammars/tree-sitter-svg
+	./grammars/tree-sitter-svg-paint
+	./grammars/tree-sitter-svg-path
+	./grammars/tree-sitter-svg-transform
+)

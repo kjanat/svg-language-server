@@ -39,8 +39,8 @@ The LSP crate wires completions, hover, and diagnostics to the protocol.
 ### Shared Tree Lifecycle
 
 The LSP crate parses each document **once** on `did_open` / `did_change` and
-stores the `tree_sitter::Tree` alongside the source text. All consumers
-receive a reference to the shared tree:
+stores the `tree_sitter::Tree` alongside the source text. All consumers receive
+a reference to the shared tree:
 
 ```rust
 struct DocumentState {
@@ -149,21 +149,21 @@ pub enum ElementCategory {
    package JSON at build time, generating Rust code with `deprecated` and
    `baseline` fields for elements and attributes.
 2. **Curated catalog** — element/attribute descriptions and content models
-   maintained in a TOML/JSON file in the repo. Content models derived from
-   the SVG 1.1 DTD and SVG 2 spec prose.
-3. **Runtime refresh** — on `initialize`, spawn a background task that
-   fetches latest compat data from
-   `https://unpkg.com/@mdn/browser-compat-data/data.json`. 5s timeout.
-   Cache to disk for 24h. Silent fallback to baked-in on failure, log
-   via `window/logMessage`.
+   maintained in a TOML/JSON file in the repo. Content models derived from the
+   SVG 1.1 DTD and SVG 2 spec prose.
+3. **Runtime refresh** — on `initialize`, spawn a background task that fetches
+   latest compat data from
+   `https://unpkg.com/@mdn/browser-compat-data/data.json`. 5s timeout. Cache to
+   disk for 24h. Silent fallback to baked-in on failure, log via
+   `window/logMessage`.
 
-   **Lifetime model for runtime data:** The baked-in catalog uses
-   `&'static` references. Runtime-fetched compat updates are stored in a
-   separate `CompatOverlay` map (`HashMap<&'static str, CompatUpdate>`)
-   that only overrides `deprecated` and `baseline` fields. Lookup
-   functions check the overlay first, falling back to the static data.
-   The overlay is owned by the LSP server and passed to lookup functions
-   by reference — no `Box::leak` needed.
+   **Lifetime model for runtime data:** The baked-in catalog uses `&'static`
+   references. Runtime-fetched compat updates are stored in a separate
+   `CompatOverlay` map (`HashMap<&'static str, CompatUpdate>`) that only
+   overrides `deprecated` and `baseline` fields. Lookup functions check the
+   overlay first, falling back to the static data. The overlay is owned by the
+   LSP server and passed to lookup functions by reference — no `Box::leak`
+   needed.
 
 ### Public API
 
@@ -189,9 +189,9 @@ pub fn allowed_children(parent: &str) -> Vec<&'static str>;
 pub fn attributes_for(element: &str) -> Vec<&'static AttributeDef>;
 ```
 
-Note: `allowed_children` and `attributes_for` return `Vec` because they
-merge multiple sources at runtime (categories → names, element-specific +
-global attrs). The allocation is negligible for LSP request handling.
+Note: `allowed_children` and `attributes_for` return `Vec` because they merge
+multiple sources at runtime (categories → names, element-specific + global
+attrs). The allocation is negligible for LSP request handling.
 
 ## Crate: `svg-lint`
 
@@ -216,8 +216,8 @@ pub struct SvgDiagnostic {
 ```
 
 **Position convention:** `start_col` / `end_col` are byte offsets within the
-line, matching tree-sitter's `Point::column`. The LSP crate converts these
-to UTF-16 code units using the existing `byte_col_to_utf16` helper.
+line, matching tree-sitter's `Point::column`. The LSP crate converts these to
+UTF-16 code units using the existing `byte_col_to_utf16` helper.
 
 ```rust
 pub enum Severity {
@@ -256,15 +256,15 @@ Walk every `element` and `svg_root_element` node:
 4. Check each attribute against `attributes_for(element)` — if unknown:
    `UnknownAttribute` (Hint)
 5. Check `required_attrs` — if missing: `MissingRequiredAttr` (Error)
-6. For each child element, check against `allowed_children(parent)` —
-   if invalid: `InvalidChild` (Error)
+6. For each child element, check against `allowed_children(parent)` — if
+   invalid: `InvalidChild` (Error)
 7. Track `id` values across document — if duplicate: `DuplicateId` (Warning)
 
 ## LSP: Completions
 
 Implements `textDocument/completion`. All fields populated eagerly (no
-`completionItem/resolve` — the catalog is small enough that full items
-are cheap to build).
+`completionItem/resolve` — the catalog is small enough that full items are cheap
+to build).
 
 ### Trigger Points
 
@@ -297,9 +297,9 @@ Use tree-sitter tree at cursor position. Relevant node kinds:
 
 Walk up from the node at cursor position to determine which context applies.
 
-Trigger characters: `<`, ``, `"`, `'`. Space triggers are filtered: only
-return completions when space follows a tag name or attribute value (not
-between arbitrary tokens).
+Trigger characters: `<`, ``, `"`, `'`. Space triggers are filtered: only return
+completions when space follows a tag name or attribute value (not between
+arbitrary tokens).
 
 ## LSP: Hover
 
@@ -337,12 +337,12 @@ Deprecated element hover:
 
 ## LSP: Diagnostics
 
-Push-based via `client.publish_diagnostics()`. Recalculated on every
-`did_open` and `did_change`. Maps `SvgDiagnostic` to `ls_types::Diagnostic`
-using `byte_col_to_utf16` for position conversion.
+Push-based via `client.publish_diagnostics()`. Recalculated on every `did_open`
+and `did_change`. Maps `SvgDiagnostic` to `ls_types::Diagnostic` using
+`byte_col_to_utf16` for position conversion.
 
-The `_client` field in `SvgLanguageServer` gets renamed to `client` and
-is used for `publish_diagnostics()` and `log_message()` (compat refresh).
+The `_client` field in `SvgLanguageServer` gets renamed to `client` and is used
+for `publish_diagnostics()` and `log_message()` (compat refresh).
 
 ## LSP Capabilities
 

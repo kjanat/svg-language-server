@@ -1,0 +1,9 @@
+
+<?xml version="1.0" standalone="no"?>
+<!-- Regression fixture for leading whitespace before <?xml ?>.
+     XML 1.0 §2.8 forbids this, but editors/formatters/BOM can introduce
+     it (see samples/w3/arcs01.svg upstream → local drift). Tree-sitter
+     must tolerate it and still emit a proper xml_declaration node. -->
+<svg width="10" height="10" xmlns="http://www.w3.org/2000/svg">
+	<rect width="10" height="10" fill="red" />
+</svg>

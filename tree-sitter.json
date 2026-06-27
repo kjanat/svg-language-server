@@ -1,0 +1,81 @@
+{
+	"$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/config.schema.json",
+	"metadata": {
+		"version": "0.1.0",
+		"license": "MIT OR Apache-2.0",
+		"description": "SVG grammar for Tree-sitter and its injected sub-grammars (path data, transform lists, paint/color)",
+		"authors": [{
+			"name": "Kaj Kowalski",
+			"email": "info@kajkowalski.nl",
+			"url": "https://github.com/kjanat"
+		}],
+		"links": {
+			"repository": "https://github.com/kjanat/svg",
+			"funding": "https://github.com/kjanat/funding"
+		}
+	},
+	"grammars": [{
+		"name": "svg",
+		"camelcase": "Svg",
+		"title": "SVG",
+		"scope": "source.svg",
+		"path": "grammars/tree-sitter-svg",
+		"first-line-regex": "^\\s*<(?:[A-Za-z_][\\w.-]*:)?svg\\b",
+		"content-regex": "(?s)^\\s*(?:<\\?xml\\b[^>]*\\?>\\s*)?(?:(?:<!--(?:[^-]|-(?!->))*-->|<\\?[^>]*\\?>)\\s*)*(?:<!DOCTYPE\\s+svg\\b[^>]*>\\s*)?<(?:[A-Za-z_][\\w.-]*:)?svg\\b",
+		"file-types": ["svg"],
+		"injection-regex": "^svg$",
+		"class-name": "TreeSitterSvg",
+		"external-files": [
+			"grammars/tree-sitter-svg/src/scanner.c",
+			"crates/svg-data/data/catalog.tree-sitter.json",
+			"grammars/tree-sitter-svg/grammar.json"
+		],
+		"highlights": ["grammars/tree-sitter-svg/queries/highlights.scm"],
+		"injections": ["grammars/tree-sitter-svg/queries/injections.scm"],
+		"locals": ["grammars/tree-sitter-svg/queries/locals.scm"],
+		"tags": ["grammars/tree-sitter-svg/queries/tags.scm"]
+	}, {
+		"name": "svg_path",
+		"camelcase": "SvgPath",
+		"title": "SVG Path Data",
+		"scope": "source.svg_path",
+		"path": "grammars/tree-sitter-svg-path",
+		"injection-regex": "^svg_path$",
+		"class-name": "TreeSitterSvgPath",
+		"file-types": ["svgpath"],
+		"external-files": ["grammars/tree-sitter-svg-path/src/scanner.c"],
+		"highlights": ["grammars/tree-sitter-svg-path/queries/highlights.scm"]
+	}, {
+		"name": "svg_transform",
+		"camelcase": "SvgTransform",
+		"title": "SVG Transform List",
+		"scope": "source.svg_transform",
+		"path": "grammars/tree-sitter-svg-transform",
+		"injection-regex": "^svg_transform$",
+		"class-name": "TreeSitterSvgTransform",
+		"file-types": ["svgtransform"],
+		"highlights": ["grammars/tree-sitter-svg-transform/queries/highlights.scm"]
+	}, {
+		"name": "svg_paint",
+		"camelcase": "SvgPaint",
+		"title": "SVG Paint and Color",
+		"scope": "source.svg_paint",
+		"path": "grammars/tree-sitter-svg-paint",
+		"injection-regex": "^svg_paint$",
+		"class-name": "TreeSitterSvgPaint",
+		"file-types": ["svgpaint"],
+		"highlights": ["grammars/tree-sitter-svg-paint/queries/highlights.scm"],
+		"locals": ["grammars/tree-sitter-svg-paint/queries/locals.scm"],
+		"tags": ["grammars/tree-sitter-svg-paint/queries/tags.scm"]
+	}],
+	"bindings": {
+		"c": true,
+		"go": true,
+		"java": true,
+		"node": true,
+		"python": true,
+		"rust": true,
+		"swift": true,
+		"zig": true
+	}
+}

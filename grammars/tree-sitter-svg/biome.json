@@ -1,0 +1,23 @@
+{
+	"$schema": "node_modules/@biomejs/biome/configuration_schema.json",
+	"root": false,
+	"extends": "//",
+	"files": {
+		"includes": [
+			"./*.*{j,t}s",
+			"./scripts/**/*.*{j,t}s",
+			"./bindings/node/*.*{j,t}s",
+			"./src/**",
+			"./test/**/*.ts"
+		],
+		"ignoreUnknown": true
+	},
+	"linter": {
+		"rules": {
+			"a11y": {
+				"noSvgWithoutTitle": "off",
+				"useHtmlLang": "off"
+			}
+		}
+	}
+}

@@ -145,7 +145,8 @@ fn attribute_and_element_completion_filters_invalid_suggestions() -> TestResult 
         .collect();
     assert!(
         !typed_attribute_labels.contains(&"dur"),
-        "already-specified typed attributes should not be suggested again: {typed_attribute_completion_resp}"
+        "already-specified typed attributes should not be suggested again: \
+         {typed_attribute_completion_resp}"
     );
     assert!(
         typed_attribute_labels.contains(&"attributeName"),
@@ -193,7 +194,8 @@ fn script_and_href_completion_respect_svg_boundaries() -> TestResult {
         href_completion_items
             .iter()
             .any(|item| item["label"].as_str() == Some("#g1")),
-        "href value completions should include in-document fragment references: {href_completion_resp}"
+        "href value completions should include in-document fragment references: \
+         {href_completion_resp}"
     );
 
     server.shutdown_and_exit()?;
@@ -229,6 +231,102 @@ fn typed_attribute_values_offer_context_aware_completions() -> TestResult {
     assert!(
         dur_labels.contains(&"indefinite"),
         "duration value completions should include indefinite: {dur_labels:?}"
+    );
+
+    server.shutdown_and_exit()?;
+    Ok(())
+}
+
+#[test]
+fn color_paint_and_reference_value_completions_use_valid_syntax() -> TestResult {
+    let mut server = TestServer::start()?;
+
+    let svg = r#"<svg><symbol id="ss"/><rect color="" fill="" clip-path="" /></svg>"#;
+    server.open("file:///paint-color-completion.svg", svg)?;
+
+    let color_offset = svg.find(r#"color="""#).ok_or("color attr")? + 7;
+    let color_resp = server.request(
+        "textDocument/completion",
+        &json!({
+            "textDocument": { "uri": "file:///paint-color-completion.svg" },
+            "position": { "line": 0, "character": color_offset }
+        }),
+    )?;
+    let color_items = color_resp["result"]
+        .as_array()
+        .ok_or("color completion result should be an array")?;
+    let color_labels: Vec<&str> = color_items
+        .iter()
+        .filter_map(|item| item["label"].as_str())
+        .collect();
+    assert!(
+        [
+            "currentColor",
+            "rgb()",
+            "hsl()",
+            "oklch()",
+            "color-mix()",
+            "rebeccapurple"
+        ]
+        .into_iter()
+        .all(|label| color_labels.contains(&label)),
+        "color completions should include CSS color values: {color_labels:?}"
+    );
+    assert!(
+        ["#ss", "url(#ss)", "none", "context-fill", "context-stroke"]
+            .into_iter()
+            .all(|label| !color_labels.contains(&label)),
+        "color completions should not include paint/reference values: {color_labels:?}"
+    );
+
+    let fill_offset = svg.find(r#"fill="""#).ok_or("fill attr")? + 6;
+    let fill_resp = server.request(
+        "textDocument/completion",
+        &json!({
+            "textDocument": { "uri": "file:///paint-color-completion.svg" },
+            "position": { "line": 0, "character": fill_offset }
+        }),
+    )?;
+    let fill_items = fill_resp["result"]
+        .as_array()
+        .ok_or("fill completion result should be an array")?;
+    let fill_labels: Vec<&str> = fill_items
+        .iter()
+        .filter_map(|item| item["label"].as_str())
+        .collect();
+    assert!(
+        ["url(#ss)", "rgb()", "currentColor", "none", "context-fill"]
+            .into_iter()
+            .all(|label| fill_labels.contains(&label)),
+        "paint server attrs should include paint values: {fill_labels:?}"
+    );
+    assert!(
+        !fill_labels.contains(&"#ss"),
+        "paint server attrs should not include bare fragment references: {fill_labels:?}"
+    );
+
+    let clip_path_offset = svg.find(r#"clip-path="""#).ok_or("clip-path attr")? + 11;
+    let clip_path_resp = server.request(
+        "textDocument/completion",
+        &json!({
+            "textDocument": { "uri": "file:///paint-color-completion.svg" },
+            "position": { "line": 0, "character": clip_path_offset }
+        }),
+    )?;
+    let clip_path_items = clip_path_resp["result"]
+        .as_array()
+        .ok_or("clip-path completion result should be an array")?;
+    let clip_path_labels: Vec<&str> = clip_path_items
+        .iter()
+        .filter_map(|item| item["label"].as_str())
+        .collect();
+    assert!(
+        clip_path_labels.contains(&"url(#ss)"),
+        "functional IRI attrs should include url() fragment references: {clip_path_labels:?}"
+    );
+    assert!(
+        !clip_path_labels.contains(&"#ss"),
+        "functional IRI attrs should not include bare fragment references: {clip_path_labels:?}"
     );
 
     server.shutdown_and_exit()?;

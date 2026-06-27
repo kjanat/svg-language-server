@@ -2,6 +2,14 @@
 	"$schema": "https://raw.githubusercontent.com/denoland/deno/main/cli/schemas/config-file.v1.json",
 	"name": "svg-compat",
 	"version": "1.0.0",
+	"imports": {
+		"#src/": "./src/",
+		"#cli": "./src/cli.ts",
+		"#component/": "./src/components/",
+		"#lib": "./src/lib/mod.ts",
+		"#lib/": "./src/lib/",
+		"#server": "./src/main.ts"
+	},
 	"compilerOptions": {
 		"jsx": "react-jsx",
 		"jsxImportSource": "preact",

@@ -2,6 +2,12 @@
 //! freshness-classification logic the LSP's network probe builds on.
 
 /// An SVG specification series.
+///
+/// # Examples
+///
+/// ```rust
+/// assert_eq!(svg_data::edition::Series::Svg2.shortname(), "SVG2");
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Series {
     /// SVG 1.0.
@@ -18,6 +24,12 @@ impl Series {
 
     /// The W3C specification shortname (the `/specifications/<shortname>` path
     /// segment in the W3C API).
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// assert_eq!(svg_data::edition::Series::Svg2.shortname(), "SVG2");
+    /// ```
     #[must_use]
     pub const fn shortname(self) -> &'static str {
         match self {
@@ -31,6 +43,13 @@ impl Series {
 /// The rolling editor's-draft pin: the svgwg commit the baked catalog was
 /// derived from. The fields are populated by the extraction pipeline from the
 /// fetched canonical commit; empty until it lands.
+///
+/// # Examples
+///
+/// ```rust
+/// let pin = svg_data::edition::ROLLING_PIN;
+/// assert_eq!(pin.repository, "https://github.com/w3c/svgwg");
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct RollingPin {
     /// Upstream repository URL.
@@ -49,6 +68,13 @@ pub static ROLLING_PIN: RollingPin = RollingPin {
 };
 
 /// Identity of a captured (baked) edition, for freshness classification.
+///
+/// # Examples
+///
+/// ```rust
+/// let captured = svg_data::edition::CapturedEditionIdentity::Rolling { commit: "abc" };
+/// assert!(matches!(captured, svg_data::edition::CapturedEditionIdentity::Rolling { .. }));
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CapturedEditionIdentity {
     /// A rolling editor's draft pinned at a commit.
@@ -66,6 +92,13 @@ pub enum CapturedEditionIdentity {
 }
 
 /// Freshness verdict for a captured edition versus what is published upstream.
+///
+/// # Examples
+///
+/// ```rust
+/// let freshness = svg_data::edition::Freshness::Fresh;
+/// assert_eq!(freshness, svg_data::edition::Freshness::Fresh);
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Freshness {
     /// The captured edition is up to date.
@@ -81,6 +114,14 @@ pub enum Freshness {
 ///
 /// Pure and offline: a rolling pin is stale iff the upstream HEAD differs from
 /// the captured commit. Dated editions are classified via [`unseen_versions`].
+///
+/// # Examples
+///
+/// ```rust
+/// let captured = svg_data::edition::CapturedEditionIdentity::Rolling { commit: "old" };
+/// let freshness = svg_data::edition::classify_freshness(&captured, Some("new"));
+/// assert!(matches!(freshness, svg_data::edition::Freshness::RollingStale { .. }));
+/// ```
 #[must_use]
 pub fn classify_freshness(captured: &CapturedEditionIdentity, head: Option<&str>) -> Freshness {
     match captured {
@@ -95,6 +136,13 @@ pub fn classify_freshness(captured: &CapturedEditionIdentity, head: Option<&str>
 }
 
 /// A published W3C specification version.
+///
+/// # Examples
+///
+/// ```rust
+/// let version = svg_data::edition::PublishedVersion { uri: "https://www.w3.org/TR/SVG2/".to_owned() };
+/// assert!(version.uri.ends_with("/SVG2/"));
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PublishedVersion {
     /// The version's canonical `/TR/` URI.
@@ -102,6 +150,16 @@ pub struct PublishedVersion {
 }
 
 /// A parsed W3C `/specifications/<shortname>/versions` response.
+///
+/// # Examples
+///
+/// ```rust
+/// let envelope = svg_data::edition::VersionsEnvelope {
+///     series: svg_data::edition::Series::Svg2,
+///     versions: Vec::new(),
+/// };
+/// assert!(envelope.versions.is_empty());
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct VersionsEnvelope {
     /// The series this envelope describes.
@@ -111,6 +169,14 @@ pub struct VersionsEnvelope {
 }
 
 /// Failure to parse a W3C versions envelope.
+///
+/// # Examples
+///
+/// ```rust
+/// let error = svg_data::edition::VersionsEnvelope::parse(svg_data::edition::Series::Svg2, "{")
+///     .expect_err("invalid JSON");
+/// assert!(error.to_string().contains("parse W3C versions"));
+/// ```
 #[derive(Debug)]
 pub struct VersionsParseError(String);
 
@@ -127,6 +193,17 @@ impl VersionsEnvelope {
     ///
     /// # Errors
     /// Returns [`VersionsParseError`] when the body is not valid JSON.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let body = r#"{"_embedded":{"versions":[{"uri":"https://www.w3.org/TR/SVG2/"}]}}"#;
+    /// let parsed = svg_data::edition::VersionsEnvelope::parse(svg_data::edition::Series::Svg2, body)?;
+    /// assert_eq!(parsed.versions[0].uri, "https://www.w3.org/TR/SVG2/");
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn parse(series: Series, json: &str) -> Result<Self, VersionsParseError> {
         let value: serde_json::Value =
             serde_json::from_str(json).map_err(|error| VersionsParseError(error.to_string()))?;
@@ -156,6 +233,16 @@ impl VersionsEnvelope {
 /// The baked version inventory is produced by the extraction pipeline; until it
 /// lands this returns nothing (conservative — never reports every live version
 /// as "new").
+///
+/// # Examples
+///
+/// ```rust
+/// let live = svg_data::edition::VersionsEnvelope {
+///     series: svg_data::edition::Series::Svg2,
+///     versions: Vec::new(),
+/// };
+/// assert!(svg_data::edition::unseen_versions(svg_data::edition::Series::Svg2, &live).is_empty());
+/// ```
 #[must_use]
 pub const fn unseen_versions(series: Series, live: &VersionsEnvelope) -> Vec<&PublishedVersion> {
     let _ = (series, live);

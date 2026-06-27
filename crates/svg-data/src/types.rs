@@ -6,6 +6,12 @@
 //! describe its shape.
 
 /// A canonical SVG specification snapshot the catalog tracks.
+///
+/// # Examples
+///
+/// ```rust
+/// assert_eq!(svg_data::SpecSnapshotId::LATEST, svg_data::SpecSnapshotId::Svg2EditorsDraft);
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum SpecSnapshotId {
     /// SVG 1.1 First Edition (W3C REC 2003-01-14).
@@ -23,6 +29,12 @@ impl SpecSnapshotId {
     pub const LATEST: Self = Self::Svg2EditorsDraft;
 
     /// Stable string identifier (matches the on-disk snapshot directory name).
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// assert_eq!(svg_data::SpecSnapshotId::Svg2EditorsDraft.as_str(), "Svg2EditorsDraft");
+    /// ```
     #[must_use]
     pub const fn as_str(self) -> &'static str {
         match self {
@@ -35,6 +47,13 @@ impl SpecSnapshotId {
 }
 
 /// Spec lifecycle of an element or attribute within a given profile.
+///
+/// # Examples
+///
+/// ```rust
+/// let lifecycle = svg_data::SpecLifecycle::Stable;
+/// assert!(matches!(lifecycle, svg_data::SpecLifecycle::Stable));
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SpecLifecycle {
     /// Stable in the selected profile.
@@ -48,6 +67,13 @@ pub enum SpecLifecycle {
 }
 
 /// Structural child-content model of an element.
+///
+/// # Examples
+///
+/// ```rust
+/// let model = svg_data::ContentModel::ChildrenSet(&["title"]);
+/// assert!(matches!(model, svg_data::ContentModel::ChildrenSet(_)));
+/// ```
 #[derive(Debug, Clone)]
 pub enum ContentModel {
     /// Accepts children from the listed categories unioned with explicit names.
@@ -70,6 +96,13 @@ pub enum ContentModel {
 }
 
 /// SVG content-model element categories (the spec's own taxonomy).
+///
+/// # Examples
+///
+/// ```rust
+/// let category = svg_data::ElementCategory::Shape;
+/// assert_eq!(category, svg_data::ElementCategory::Shape);
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ElementCategory {
     /// Animation elements.
@@ -95,6 +128,13 @@ pub enum ElementCategory {
 }
 
 /// How an attribute's value space is described.
+///
+/// # Examples
+///
+/// ```rust
+/// let values = svg_data::AttributeValues::Color;
+/// assert!(matches!(values, svg_data::AttributeValues::Color));
+/// ```
 #[derive(Debug, Clone)]
 pub enum AttributeValues {
     /// One of the listed keyword values.
@@ -114,6 +154,38 @@ pub enum AttributeValues {
     Length,
     /// A URL / fragment reference.
     Url,
+    /// A boolean attribute as defined by HTML.
+    Boolean,
+    /// A space-separated token list.
+    TokenList,
+    /// A comma-separated token list.
+    CommaTokenList,
+    /// A space-separated list of URL tokens.
+    UrlTokenList,
+    /// A BCP 47 / ABNF language tag.
+    LanguageTag,
+    /// An integer value.
+    Integer,
+    /// A MIME media type.
+    MediaType,
+    /// A CSS media query list.
+    MediaQueryList,
+    /// A CSS declaration list, as used by inline `style`.
+    CssDeclarationList,
+    /// An SVG element ID value.
+    Id,
+    /// A referrer policy string.
+    ReferrerPolicy,
+    /// A suggested download file name.
+    SuggestedFileName,
+    /// SVG path data.
+    PathData,
+    /// A semicolon-separated number list.
+    SemicolonNumberList,
+    /// One motion-animation coordinate pair.
+    CoordinatePair,
+    /// A semicolon-separated list of motion-animation coordinate pairs.
+    CoordinatePairList,
     /// A number or percentage.
     NumberOrPercentage,
     /// A CSS value grammar graph for mixed or richer grammars.
@@ -128,6 +200,13 @@ pub enum AttributeValues {
 }
 
 /// Graph representation of a CSS value grammar.
+///
+/// # Examples
+///
+/// ```rust
+/// let graph = svg_data::CssGrammarGraph { root: 0, nodes: &[], edges: &[] };
+/// assert_eq!(graph.root, 0);
+/// ```
 #[derive(Debug, Clone)]
 pub struct CssGrammarGraph {
     /// Root node id.
@@ -139,6 +218,17 @@ pub struct CssGrammarGraph {
 }
 
 /// One node in a CSS grammar graph.
+///
+/// # Examples
+///
+/// ```rust
+/// let node = svg_data::CssGrammarNode {
+///     id: 0,
+///     kind: svg_data::CssGrammarNodeKind::Root,
+///     text: None,
+/// };
+/// assert_eq!(node.id, 0);
+/// ```
 #[derive(Debug, Clone, Copy)]
 pub struct CssGrammarNode {
     /// Stable node id within the graph.
@@ -150,6 +240,13 @@ pub struct CssGrammarNode {
 }
 
 /// CSS grammar node kinds.
+///
+/// # Examples
+///
+/// ```rust
+/// let kind = svg_data::CssGrammarNodeKind::Keyword;
+/// assert_eq!(kind, svg_data::CssGrammarNodeKind::Keyword);
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CssGrammarNodeKind {
     /// Synthetic root.
@@ -167,6 +264,17 @@ pub enum CssGrammarNodeKind {
 }
 
 /// One directed edge in a CSS grammar graph.
+///
+/// # Examples
+///
+/// ```rust
+/// let edge = svg_data::CssGrammarEdge {
+///     from: 0,
+///     to: 1,
+///     kind: svg_data::CssGrammarEdgeKind::Contains,
+/// };
+/// assert_eq!(edge.to, 1);
+/// ```
 #[derive(Debug, Clone, Copy)]
 pub struct CssGrammarEdge {
     /// Source node id.
@@ -178,6 +286,13 @@ pub struct CssGrammarEdge {
 }
 
 /// CSS grammar edge kinds.
+///
+/// # Examples
+///
+/// ```rust
+/// let kind = svg_data::CssGrammarEdgeKind::Contains;
+/// assert_eq!(kind, svg_data::CssGrammarEdgeKind::Contains);
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CssGrammarEdgeKind {
     /// Parent/group containment.
@@ -187,6 +302,13 @@ pub enum CssGrammarEdgeKind {
 }
 
 /// Derived graph view over the SVG catalog.
+///
+/// # Examples
+///
+/// ```rust
+/// let graph = svg_data::CatalogGraph { nodes: &[], edges: &[] };
+/// assert!(graph.nodes.is_empty());
+/// ```
 #[derive(Debug, Clone, Copy)]
 pub struct CatalogGraph {
     /// Graph nodes.
@@ -196,6 +318,17 @@ pub struct CatalogGraph {
 }
 
 /// One node in the derived catalog graph.
+///
+/// # Examples
+///
+/// ```rust
+/// let node = svg_data::CatalogGraphNode {
+///     id: "element:svg",
+///     kind: svg_data::CatalogGraphNodeKind::Element,
+///     name: "svg",
+/// };
+/// assert_eq!(node.name, "svg");
+/// ```
 #[derive(Debug, Clone, Copy)]
 pub struct CatalogGraphNode {
     /// Stable node id, namespaced by node kind.
@@ -207,6 +340,13 @@ pub struct CatalogGraphNode {
 }
 
 /// Catalog graph node kinds.
+///
+/// # Examples
+///
+/// ```rust
+/// let kind = svg_data::CatalogGraphNodeKind::Attribute;
+/// assert_eq!(kind, svg_data::CatalogGraphNodeKind::Attribute);
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CatalogGraphNodeKind {
     /// SVG element definition.
@@ -228,6 +368,17 @@ pub enum CatalogGraphNodeKind {
 }
 
 /// One directed edge in the derived catalog graph.
+///
+/// # Examples
+///
+/// ```rust
+/// let edge = svg_data::CatalogGraphEdge {
+///     from: "element:svg",
+///     to: "attribute:fill",
+///     kind: svg_data::CatalogGraphEdgeKind::HasAttribute,
+/// };
+/// assert_eq!(edge.to, "attribute:fill");
+/// ```
 #[derive(Debug, Clone, Copy)]
 pub struct CatalogGraphEdge {
     /// Source node id.
@@ -239,6 +390,13 @@ pub struct CatalogGraphEdge {
 }
 
 /// Catalog graph edge kinds.
+///
+/// # Examples
+///
+/// ```rust
+/// let kind = svg_data::CatalogGraphEdgeKind::AppliesTo;
+/// assert_eq!(kind, svg_data::CatalogGraphEdgeKind::AppliesTo);
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CatalogGraphEdgeKind {
     /// Parent element accepts child element.
@@ -264,6 +422,13 @@ pub enum CatalogGraphEdgeKind {
 }
 
 /// Which elements an attribute can appear on.
+///
+/// # Examples
+///
+/// ```rust
+/// let applicability = svg_data::AttributeApplicability::Global;
+/// assert!(applicability.includes("svg", true));
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AttributeApplicability {
     /// Applies to every element that accepts global SVG attributes.
@@ -279,6 +444,14 @@ impl AttributeApplicability {
     ///
     /// Global attributes apply only to elements whose definition accepts the
     /// SVG global attribute set.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// let scoped = svg_data::AttributeApplicability::Elements(&["rect"]);
+    /// assert!(scoped.includes("rect", false));
+    /// assert!(!scoped.includes("circle", false));
+    /// ```
     #[must_use]
     pub fn includes(self, element_name: &str, accepts_global_attributes: bool) -> bool {
         match self {
@@ -289,6 +462,13 @@ impl AttributeApplicability {
     }
 
     /// Build a scoped applicability from a generated element slice.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// let applicability = svg_data::AttributeApplicability::only(&["rect"]);
+    /// assert!(applicability.includes("rect", false));
+    /// ```
     #[must_use]
     pub const fn only(elements: &'static [&'static str]) -> Self {
         if elements.is_empty() {
@@ -300,6 +480,13 @@ impl AttributeApplicability {
 }
 
 /// Inexactness qualifier on a baseline / version date.
+///
+/// # Examples
+///
+/// ```rust
+/// let qualifier = svg_data::BaselineQualifier::Approximately;
+/// assert_eq!(qualifier, svg_data::BaselineQualifier::Approximately);
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum BaselineQualifier {
     /// The date is an "on or before" upper bound.
@@ -311,6 +498,13 @@ pub enum BaselineQualifier {
 }
 
 /// Web-platform baseline status of a feature (the *browser-compat* axis).
+///
+/// # Examples
+///
+/// ```rust
+/// let status = svg_data::BaselineStatus::Widely { since: 2020, qualifier: None };
+/// assert!(matches!(status, svg_data::BaselineStatus::Widely { .. }));
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum BaselineStatus {
     /// Widely available across engines (since `since`).
@@ -332,6 +526,13 @@ pub enum BaselineStatus {
 }
 
 /// A runtime flag a browser gates a feature behind.
+///
+/// # Examples
+///
+/// ```rust
+/// let flag = svg_data::BrowserFlag { name: "layout.css.example.enabled" };
+/// assert_eq!(flag.name, "layout.css.example.enabled");
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct BrowserFlag {
     /// Flag/preference name.
@@ -339,6 +540,16 @@ pub struct BrowserFlag {
 }
 
 /// Baked support detail for one browser (the *browser-compat* axis).
+///
+/// # Examples
+///
+/// ```rust
+/// let version = svg_data::BrowserVersion {
+///     version_added: Some("1"),
+///     ..svg_data::BrowserVersion::EMPTY
+/// };
+/// assert_eq!(version.version_added, Some("1"));
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct BrowserVersion {
     /// Explicit support flag, when the data states one (`false` = unsupported).
@@ -382,6 +593,18 @@ impl BrowserVersion {
 }
 
 /// Per-browser support across the four tracked engines.
+///
+/// # Examples
+///
+/// ```rust
+/// let support = svg_data::BrowserSupport {
+///     chrome: Some(svg_data::BrowserVersion::EMPTY),
+///     edge: None,
+///     firefox: None,
+///     safari: None,
+/// };
+/// assert!(support.chrome.is_some());
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct BrowserSupport {
     /// Chrome support.
@@ -395,6 +618,13 @@ pub struct BrowserSupport {
 }
 
 /// Objective browser-compat facts for one catalog feature.
+///
+/// # Examples
+///
+/// ```rust
+/// let facts = svg_data::CompatFacts::EMPTY;
+/// assert!(!facts.deprecated);
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct CompatFacts {
     /// Whether compat data marks the feature deprecated.
@@ -421,6 +651,16 @@ impl CompatFacts {
 }
 
 /// Attribute compat facts scoped to one element bearer.
+///
+/// # Examples
+///
+/// ```rust
+/// let compat = svg_data::AttributeElementCompat {
+///     element: "use",
+///     facts: svg_data::CompatFacts::EMPTY,
+/// };
+/// assert_eq!(compat.element, "use");
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct AttributeElementCompat {
     /// Element name this compat record applies to.
@@ -429,8 +669,40 @@ pub struct AttributeElementCompat {
     pub facts: CompatFacts,
 }
 
+/// Attribute value space scoped to one element bearer.
+///
+/// # Examples
+///
+/// ```rust
+/// let values = svg_data::AttributeElementValues {
+///     element: "rect",
+///     values: svg_data::AttributeValues::Color,
+/// };
+/// assert_eq!(values.element, "rect");
+/// ```
+#[derive(Debug, Clone)]
+pub struct AttributeElementValues {
+    /// Element name this value-space record applies to.
+    pub element: &'static str,
+    /// Value space for this attribute on `element`.
+    pub values: AttributeValues,
+}
+
 /// A BCD feature below an SVG element that is not modeled as an element or
 /// attribute.
+///
+/// # Examples
+///
+/// ```rust
+/// let feature = svg_data::CompatSubfeature {
+///     compat_key: "svg.elements.use.data_uri",
+///     kind: svg_data::CompatSubfeatureKind::Behavior,
+///     element: "use",
+///     name: "data_uri",
+///     facts: svg_data::CompatFacts::EMPTY,
+/// };
+/// assert_eq!(feature.element, "use");
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct CompatSubfeature {
     /// Full BCD compat key, e.g. `svg.elements.use.data_uri`.
@@ -446,6 +718,13 @@ pub struct CompatSubfeature {
 }
 
 /// Why a BCD child feature is kept out of the attribute catalog.
+///
+/// # Examples
+///
+/// ```rust
+/// let kind = svg_data::CompatSubfeatureKind::LegacyXlinkAlias;
+/// assert_eq!(kind, svg_data::CompatSubfeatureKind::LegacyXlinkAlias);
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CompatSubfeatureKind {
     /// A behavior or value-shape feature, not an attribute name.
@@ -455,6 +734,13 @@ pub enum CompatSubfeatureKind {
 }
 
 /// One contributing reason behind a [`CompatVerdict`].
+///
+/// # Examples
+///
+/// ```rust
+/// let reason = svg_data::VerdictReason::BcdDeprecated;
+/// assert_eq!(reason, svg_data::VerdictReason::BcdDeprecated);
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum VerdictReason {
     /// Compat data marks the feature deprecated.
@@ -504,6 +790,13 @@ pub enum VerdictReason {
 }
 
 /// Highest-tier recommendation across a verdict's reasons.
+///
+/// # Examples
+///
+/// ```rust
+/// let recommendation = svg_data::VerdictRecommendation::Caution;
+/// assert_eq!(recommendation, svg_data::VerdictRecommendation::Caution);
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum VerdictRecommendation {
     /// Safe to use.
@@ -517,6 +810,17 @@ pub enum VerdictRecommendation {
 }
 
 /// A compatibility verdict derived at runtime from baked objective facts.
+///
+/// # Examples
+///
+/// ```rust
+/// let verdict = svg_data::CompatVerdict {
+///     recommendation: svg_data::VerdictRecommendation::Safe,
+///     headline_template: "safe",
+///     reasons: Vec::new(),
+/// };
+/// assert!(verdict.reasons.is_empty());
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CompatVerdict {
     /// Highest-tier recommendation across all reasons.
@@ -528,6 +832,13 @@ pub struct CompatVerdict {
 }
 
 /// Definition of an SVG element.
+///
+/// # Examples
+///
+/// ```rust
+/// let element = svg_data::element("svg").expect("svg element");
+/// assert_eq!(element.name, "svg");
+/// ```
 #[derive(Debug, Clone)]
 pub struct ElementDef {
     /// Element tag name.
@@ -557,6 +868,13 @@ pub struct ElementDef {
 }
 
 /// Definition of an SVG attribute.
+///
+/// # Examples
+///
+/// ```rust
+/// let attribute = svg_data::attribute("fill").expect("fill attribute");
+/// assert_eq!(attribute.name, "fill");
+/// ```
 #[derive(Debug, Clone)]
 pub struct AttributeDef {
     /// Attribute name.
@@ -583,6 +901,8 @@ pub struct AttributeDef {
     pub browser_support: Option<BrowserSupport>,
     /// Element-scoped compat facts for this attribute.
     pub element_compat: &'static [AttributeElementCompat],
+    /// Element-scoped value spaces for attributes whose grammar differs by bearer.
+    pub element_values: &'static [AttributeElementValues],
     /// Value space.
     pub values: AttributeValues,
     /// Per-snapshot value overrides, when the value space differs by profile.
@@ -592,7 +912,35 @@ pub struct AttributeDef {
 }
 
 impl AttributeDef {
+    /// The value space for `element_name`, falling back to the canonical value
+    /// when no element-scoped override exists.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// let attribute = svg_data::attribute("fill").expect("fill attribute");
+    /// let values = attribute.values_for_element(Some("rect"));
+    /// assert!(matches!(values, svg_data::AttributeValues::Color | svg_data::AttributeValues::CssGrammar { .. }));
+    /// ```
+    #[must_use]
+    pub fn values_for_element(&self, element_name: Option<&str>) -> &AttributeValues {
+        element_name
+            .and_then(|element_name| {
+                self.element_values
+                    .iter()
+                    .find_map(|values| (values.element == element_name).then_some(&values.values))
+            })
+            .unwrap_or(&self.values)
+    }
+
     /// The value space for `profile`, honoring per-snapshot overrides.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// let attribute = svg_data::attribute("display").expect("display attribute");
+    /// let _values = attribute.values_for_profile(svg_data::SpecSnapshotId::Svg2EditorsDraft);
+    /// ```
     #[must_use]
     pub fn values_for_profile(&self, profile: SpecSnapshotId) -> &AttributeValues {
         self.value_overrides
@@ -602,6 +950,14 @@ impl AttributeDef {
     }
 
     /// Attribute-wide compat facts.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// let attribute = svg_data::attribute("fill").expect("fill attribute");
+    /// let facts = attribute.compat_facts();
+    /// assert!(!facts.deprecated);
+    /// ```
     #[must_use]
     pub const fn compat_facts(&self) -> CompatFacts {
         CompatFacts {
@@ -615,6 +971,13 @@ impl AttributeDef {
 
     /// Compat facts for this attribute on a concrete element, falling back to
     /// attribute-wide facts when no element-scoped record exists.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// let attribute = svg_data::attribute("href").expect("href attribute");
+    /// let _facts = attribute.compat_facts_for_element(Some("use"));
+    /// ```
     #[must_use]
     pub fn compat_facts_for_element(&self, element_name: Option<&str>) -> CompatFacts {
         element_name
@@ -655,6 +1018,13 @@ mod tests {
 }
 
 /// Outcome of a profile-aware element/attribute lookup.
+///
+/// # Examples
+///
+/// ```rust
+/// let lookup = svg_data::element_for_profile(svg_data::SpecSnapshotId::Svg2EditorsDraft, "svg");
+/// assert!(matches!(lookup, svg_data::ProfileLookup::Present { .. }));
+/// ```
 #[derive(Debug, Clone, Copy)]
 pub enum ProfileLookup<T: 'static> {
     /// The feature is present in the profile.
@@ -675,6 +1045,16 @@ pub enum ProfileLookup<T: 'static> {
 }
 
 /// An element paired with its lifecycle in a profile (for completion).
+///
+/// # Examples
+///
+/// ```rust
+/// let element = svg_data::ProfiledElement {
+///     element: svg_data::element("svg").expect("svg element"),
+///     lifecycle: svg_data::SpecLifecycle::Stable,
+/// };
+/// assert_eq!(element.element.name, "svg");
+/// ```
 #[derive(Debug, Clone, Copy)]
 pub struct ProfiledElement {
     /// The element definition.
@@ -684,6 +1064,17 @@ pub struct ProfiledElement {
 }
 
 /// An attribute paired with its lifecycle in a profile (for completion).
+///
+/// # Examples
+///
+/// ```rust
+/// let attribute = svg_data::ProfiledAttribute {
+///     name: "fill",
+///     attribute: svg_data::attribute("fill").expect("fill attribute"),
+///     lifecycle: svg_data::SpecLifecycle::Stable,
+/// };
+/// assert_eq!(attribute.name, "fill");
+/// ```
 #[derive(Debug, Clone, Copy)]
 pub struct ProfiledAttribute {
     /// Attribute name to expose in this profile.
@@ -695,6 +1086,16 @@ pub struct ProfiledAttribute {
 }
 
 /// Metadata describing a snapshot (id aliases for profile resolution, etc.).
+///
+/// # Examples
+///
+/// ```rust
+/// let metadata = svg_data::SnapshotMetadata {
+///     snapshot: svg_data::SpecSnapshotId::Svg2EditorsDraft,
+///     aliases: &["latest"],
+/// };
+/// assert_eq!(metadata.aliases, &["latest"]);
+/// ```
 #[derive(Debug, Clone)]
 pub struct SnapshotMetadata {
     /// The snapshot this metadata describes.
@@ -704,6 +1105,17 @@ pub struct SnapshotMetadata {
 }
 
 /// Lifecycle overlay for one snapshot.
+///
+/// # Examples
+///
+/// ```rust
+/// let lifecycle = svg_data::SnapshotLifecycle {
+///     snapshot: svg_data::SpecSnapshotId::Svg2EditorsDraft,
+///     elements: &[],
+///     attributes: &[],
+/// };
+/// assert!(lifecycle.elements.is_empty());
+/// ```
 #[derive(Debug, Clone, Copy)]
 pub struct SnapshotLifecycle {
     /// The snapshot this lifecycle overlay describes.
@@ -715,6 +1127,19 @@ pub struct SnapshotLifecycle {
 }
 
 /// One feature lifecycle fact in a snapshot overlay.
+///
+/// # Examples
+///
+/// ```rust
+/// let lifecycle = svg_data::FeatureLifecycle {
+///     name: "font",
+///     catalog_name: None,
+///     present: false,
+///     lifecycle: svg_data::SpecLifecycle::Obsolete,
+///     known_in: &[svg_data::SpecSnapshotId::Svg11Rec20110816],
+/// };
+/// assert!(!lifecycle.present);
+/// ```
 #[derive(Debug, Clone, Copy)]
 pub struct FeatureLifecycle {
     /// Feature name as written for the profile family.

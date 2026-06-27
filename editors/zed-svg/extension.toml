@@ -1,0 +1,33 @@
+#:schema https://raw.githubusercontent.com/kjanat/zed-editor/refs/heads/feature/extension-toml-schema/crates/extension_api/schemas/extension.schema.json
+#:tombi toml-version = "v1.0.0"
+#:tombi schema.strict = false
+
+id             = "svg"
+name           = "SVG"
+description    = "Syntax highlighting and language injections for SVG files."
+version        = "0.1.0"
+schema_version = 1
+authors        = ["Kaj Kowalski <info@kajkowalski.nl>"]
+repository     = "https://github.com/kjanat/svg"
+languages      = ["languages/svg", "languages/svg-paint", "languages/svg-path", "languages/svg-transform"]
+
+# TODO: https://github.com/kjanat/svg
+[grammars]
+svg           = { repository = "https://github.com/kjanat/svg-language-server", rev = "68111fcce67c72498c25d1fd77d0a7ae0027af5d", path = "grammars/tree-sitter-svg" }
+svg_path      = { repository = "https://github.com/kjanat/svg-language-server", rev = "68111fcce67c72498c25d1fd77d0a7ae0027af5d", path = "grammars/tree-sitter-svg-path" }
+svg_transform = { repository = "https://github.com/kjanat/svg-language-server", rev = "68111fcce67c72498c25d1fd77d0a7ae0027af5d", path = "grammars/tree-sitter-svg-transform" }
+svg_paint     = { repository = "https://github.com/kjanat/svg-language-server", rev = "68111fcce67c72498c25d1fd77d0a7ae0027af5d", path = "grammars/tree-sitter-svg-paint" }
+
+[language_servers.svg-language-server]
+name         = "SVG Language Server"
+languages    = ["SVG", "SVG Transform List", "SVG Path Data", "SVG Paint and Color"]
+language_ids = { SVG = "svg" }
+
+[[capabilities]]
+kind    = "npm:install"
+package = "svg-language-server"
+
+[[capabilities]]
+kind = "download_file"
+host = "https://github.com"
+path = ["kjanat", "svg", "releases", "download", "**"]

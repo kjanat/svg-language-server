@@ -1,12 +1,14 @@
 {
 	"prettier": { "allowed": false },
 	"formatter": [{ "external": { "command": "dprint", "arguments": ["fmt", "--stdin", "{buffer_path}"] } }],
+	"file_types": { "JSON": ["*.resolved"], "JSON5": ["*.gyp"] },
 	"languages": {
 		"Rust": { "wrap_guides": [100] },
-		"JavaScript": { "language_servers": ["deno", "!typescript-language-server", "!vtsls", "!eslint", "!tsgo"] },
-		"TypeScript": { "language_servers": ["deno", "!typescript-language-server", "!vtsls", "!eslint", "!tsgo"] },
-		"TSX": { "language_servers": ["deno", "!typescript-language-server", "!vtsls", "!eslint", "!tsgo"] },
-		"SVG": { "language_servers": ["svg-language-server"] }
+		"JavaScript": { "language_servers": ["deno", "!typescript-language-server", "vtsls", "!eslint", "!tsgo"] },
+		"TypeScript": { "language_servers": ["deno", "!typescript-language-server", "vtsls", "!eslint", "!tsgo"] },
+		"TSX": { "language_servers": ["deno", "!typescript-language-server", "vtsls", "!eslint", "!tsgo"] },
+		"SVG": { "language_servers": ["svg-language-server"] },
+		"YAML": { "language_servers": ["!actions-languageserver"] }
 	},
 	"lsp": {
 		"svg-language-server": {
@@ -39,14 +41,26 @@
 						"fileMatch": ["catalog.graph.json"],
 						"url": "./crates/svg-data/data/catalog.graph.schema.json"
 					}, {
+						"fileMatch": ["catalog.tree-sitter.json"],
+						"url": "./crates/svg-data/data/catalog.tree-sitter.schema.json"
+					}, {
 						"fileMatch": ["**/snapshots/*.json"],
 						"url": "./crates/svg-data/data/catalog.snapshot.schema.json"
 					}, {
 						"fileMatch": ["deno.json", "deno.jsonc"],
-						"url": "https://raw.githubusercontent.com/denoland/deno/main/cli/schemas/config-file.v1.json"
+						"url": "https://raw.githubusercontent.com/denoland/deno/HEAD/cli/schemas/config-file.v1.json"
 					}, {
 						"fileMatch": ["package.json"],
 						"url": "https://www.schemastore.org/package.json"
+					}, {
+						"fileMatch": [".markdownlint.json", ".markdownlint.jsonc", "markdownlint.json", "markdownlint.jsonc"],
+						"url": "https://raw.githubusercontent.com/DavidAnson/markdownlint/HEAD/schema/markdownlint-config-schema.json"
+					}, {
+						"fileMatch": ["tree-sitter.json"],
+						"url": "https://tree-sitter.github.io/tree-sitter/assets/schemas/config.schema.json"
+					}, {
+						"fileMatch": [".dprint.json", ".dprint.jsonc", "dprint.json", "dprint.jsonc"],
+						"url": "https://dprint.dev/schemas/v0.json"
 					}]
 				}
 			}
@@ -57,7 +71,8 @@
 		"deno": {
 			"settings": {
 				"deno": {
-					"enable": true
+					"enable": true,
+					"enablePaths": ["./workers/svg-compat"]
 				}
 			}
 		}

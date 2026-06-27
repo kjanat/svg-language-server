@@ -9,10 +9,11 @@
  *
  * @module
  */
+// @ts-nocheck Deno
 
-import type { SourceInfo, SvgCompatSources } from '../sources.ts';
+import type { SvgCompatSources } from '#src/sources.ts';
 
-export type { SourceInfo, SvgCompatSources };
+export type { SourceInfo, SvgCompatSources } from '#src/sources.ts';
 
 /**
  * A baseline date as we received it from web-features, plus the

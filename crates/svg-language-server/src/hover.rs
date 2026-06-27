@@ -348,6 +348,36 @@ fn value_constraints_lines(values: &svg_data::AttributeValues) -> Vec<String> {
             format!("Alignments: `{}`", alignments.join("` | `")),
             format!("Scaling: `{}`", meet_or_slice.join("` | `")),
         ],
+        svg_data::AttributeValues::Boolean => vec!["Value: HTML boolean attribute".to_owned()],
+        svg_data::AttributeValues::TokenList => vec!["Value: space-separated tokens".to_owned()],
+        svg_data::AttributeValues::CommaTokenList => {
+            vec!["Value: comma-separated tokens".to_owned()]
+        }
+        svg_data::AttributeValues::UrlTokenList => {
+            vec!["Value: space-separated URL tokens".to_owned()]
+        }
+        svg_data::AttributeValues::LanguageTag => vec!["Value: BCP 47 language tag".to_owned()],
+        svg_data::AttributeValues::Integer => vec!["Value: integer".to_owned()],
+        svg_data::AttributeValues::MediaType => vec!["Value: media type".to_owned()],
+        svg_data::AttributeValues::MediaQueryList => vec!["Value: CSS media query list".to_owned()],
+        svg_data::AttributeValues::CssDeclarationList => {
+            vec!["Value: CSS declaration list".to_owned()]
+        }
+        svg_data::AttributeValues::Id => vec!["Value: non-empty ID without whitespace".to_owned()],
+        svg_data::AttributeValues::ReferrerPolicy => vec!["Value: referrer policy".to_owned()],
+        svg_data::AttributeValues::SuggestedFileName => {
+            vec!["Value: suggested download file name".to_owned()]
+        }
+        svg_data::AttributeValues::PathData => vec!["Value: SVG path data".to_owned()],
+        svg_data::AttributeValues::SemicolonNumberList => {
+            vec!["Value: semicolon-separated number list".to_owned()]
+        }
+        svg_data::AttributeValues::CoordinatePair => {
+            vec!["Value: coordinate pair".to_owned()]
+        }
+        svg_data::AttributeValues::CoordinatePairList => {
+            vec!["Value: semicolon-separated coordinate pairs".to_owned()]
+        }
         svg_data::AttributeValues::CssGrammar { grammar, graph } => {
             let mut lines = vec![format!("Grammar: `{grammar}`")];
             let keywords = css_graph_node_text(graph, svg_data::CssGrammarNodeKind::Keyword);
@@ -734,7 +764,8 @@ fn namespace_attribute_hover(attr_name: &str, reference_url: &str) -> Option<Str
     attr_name.strip_prefix("xmlns:").map(|prefix| {
         format_external_attribute_hover(
             format!(
-                "Declares the `{prefix}` XML namespace prefix for this element and its descendants."
+                "Declares the `{prefix}` XML namespace prefix for this element and its \
+                 descendants."
             ),
             "W3C Namespaces in XML",
             reference_url,
@@ -748,7 +779,8 @@ fn legacy_svg_attribute_hover(
 ) -> Option<String> {
     match attr_name {
         "xml:lang" => Some(format_external_attribute_hover(
-            "Specifies the natural language used by the element's text content and attribute values.",
+            "Specifies the natural language used by the element's text content and attribute \
+             values.",
             "MDN Reference",
             &mdn_reference_url(attr_name),
         )),
@@ -833,19 +865,21 @@ fn format_baseline(baseline: BaselineStatus) -> String {
             let icon = &*BASELINE_HIGH;
             let q = format_baseline_qualifier(qualifier);
             format!(
-                "![Baseline icon]({icon}) _Widely available across major browsers (Baseline since {q}{since})_"
+                "![Baseline icon]({icon}) _Widely available in major browsers (Baseline since \
+                 {q}{since})_"
             )
         }
         BaselineStatus::Newly { since, qualifier } => {
             let icon = &*BASELINE_LOW;
             let q = format_baseline_qualifier(qualifier);
             format!(
-                "![Baseline icon]({icon}) _Newly available across major browsers (Baseline since {q}{since})_"
+                "![Baseline icon]({icon}) _Newly available in major browsers (Baseline since \
+                 {q}{since})_"
             )
         }
         BaselineStatus::Limited => {
             let icon = &*BASELINE_LIMITED;
-            format!("![Baseline icon]({icon}) _Limited availability across major browsers_")
+            format!("![Baseline icon]({icon}) _Limited availability in major browsers_")
         }
     }
 }
@@ -1233,6 +1267,36 @@ mod tests {
     #[test]
     fn absent_browser_support_omits_chip_row() {
         assert_eq!(format_browser_support_line(None, None), None);
+    }
+
+    #[test]
+    fn semantic_value_shapes_render_without_fake_grammar() {
+        let cases = [
+            ("id", "Value: non-empty ID without whitespace"),
+            ("class", "Value: space-separated tokens"),
+            ("lang", "Value: BCP 47 language tag"),
+            ("tabindex", "Value: integer"),
+            ("style", "Value: CSS declaration list"),
+            ("referrerpolicy", "Value: referrer policy"),
+        ];
+        for (name, label) in cases {
+            let Some(attribute) = svg_data::attribute(name) else {
+                panic!("missing {name} attribute");
+            };
+            let hover = format_attribute_hover_with_profile_name(
+                attribute,
+                name,
+                None,
+                SpecSnapshotId::LATEST,
+                None,
+                None,
+                None,
+            );
+
+            assert!(hover.contains(label), "{name}: {hover}");
+            assert!(!hover.contains("Grammar:"), "{name}: {hover}");
+            assert!(!hover.contains("Keywords:"), "{name}: {hover}");
+        }
     }
 
     #[test]

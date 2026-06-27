@@ -1,15 +1,21 @@
 # svg-references
 
-Symbol extraction for SVG ids, CSS classes, and custom properties — resolves reference targets to their definition locations.
+Symbol extraction for SVG ids, CSS classes, and custom properties — resolves
+reference targets to their definition locations.
 
 ## Features
 
-- **Definition targets** — resolve `url(#id)`, `href="#id"`, class names in `class="..."`, and `var(--prop)` to their target kind
+- **Definition targets** — resolve `url(#id)`, `href="#id"`, class names in
+  `class="..."`, and `var(--prop)` to their target kind
 - **Id definitions** — collect all `id="..."` attribute values with source spans
-- **CSS class definitions** — extract `.class` selectors from inline `<style>` blocks
-- **Custom property definitions** — extract `--custom-property` declarations from inline styles
-- **Inline stylesheets** — parse `<style>` element content with absolute source positions
-- **XML stylesheet hrefs** — collect `<?xml-stylesheet?>` processing instruction hrefs
+- **CSS class definitions** — extract `.class` selectors from inline `<style>`
+  blocks
+- **Custom property definitions** — extract `--custom-property` declarations
+  from inline styles
+- **Inline stylesheets** — parse `<style>` element content with absolute source
+  positions
+- **XML stylesheet hrefs** — collect `<?xml-stylesheet?>` processing instruction
+  hrefs
 
 ## API
 
@@ -28,4 +34,4 @@ let stylesheets = collect_inline_stylesheets(source, &tree);
 
 ## Part of [svg-language-server]
 
-[svg-language-server]: https://github.com/kjanat/svg-language-server
+[svg-language-server]: https://github.com/kjanat/svg

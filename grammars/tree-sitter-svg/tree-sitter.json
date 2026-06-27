@@ -1,0 +1,24 @@
+{
+	"$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/config.schema.json",
+	"metadata": {
+		"version": "0.1.0",
+		"license": "MIT OR Apache-2.0",
+		"description": "SVG grammar for Tree-sitter",
+		"authors": [{ "name": "Kaj Kowalski", "email": "info@kajkowalski.nl", "url": "https://github.com/kjanat" }],
+		"links": {
+			"repository": "https://github.com/kjanat/svg"
+		}
+	},
+	"grammars": [{
+		"name": "svg",
+		"camelcase": "Svg",
+		"scope": "source.svg",
+		"file-types": ["svg"],
+		"first-line-regex": "^\\s*<(?:[A-Za-z_][\\w.-]*:)?svg\\b",
+		"content-regex": "(?s)^\\s*(?:<\\?xml\\b[^>]*\\?>\\s*)?(?:(?:<!--(?:[^-]|-(?!->))*-->|<\\?[^>]*\\?>)\\s*)*(?:<!DOCTYPE\\s+svg\\b[^>]*>\\s*)?<(?:[A-Za-z_][\\w.-]*:)?svg\\b",
+		"highlights": "queries/highlights.scm",
+		"injections": "queries/injections.scm",
+		"locals": "queries/locals.scm",
+		"tags": "queries/tags.scm"
+	}]
+}

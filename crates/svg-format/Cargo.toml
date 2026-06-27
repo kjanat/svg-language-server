@@ -4,7 +4,7 @@ version.workspace    = true
 authors.workspace    = true
 edition.workspace    = true
 description          = "Structural formatter for SVG documents"
-homepage             = "https://github.com/kjanat/svg-language-server/tree/master/crates/svg-format"
+homepage             = "https://github.com/kjanat/svg/tree/HEAD/crates/svg-format"
 repository.workspace = true
 license.workspace    = true
 keywords             = ["format", "pretty-print", "svg", "tree-sitter"]
@@ -20,8 +20,9 @@ path              = "src/main.rs"
 required-features = ["cli"]
 
 [dependencies]
-tree-sitter.workspace     = true
-tree-sitter-svg.workspace = true
+tree-sitter.workspace          = true
+tree-sitter-svg.workspace      = true
+tree-sitter-svg-path.workspace = true
 
 [dependencies.clap]
 workspace = true

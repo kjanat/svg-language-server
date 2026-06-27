@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradient definition -->
+    <linearGradient id="grad1">
+    <!--                ^^^^^ definition.id -->
+      <stop offset="0%" stop-color="red"/>
+    </linearGradient>
+  </defs>
+  <!-- Main circle -->
+  <circle id="dot" r="5"/>
+  <!--        ^^^ definition.id -->
+  <rect width="100" height="100"/>
+  <rect id="box" width="10" height="10"/>
+  <!--      ^^^ definition.id -->
+</svg>

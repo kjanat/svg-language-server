@@ -1,0 +1,29 @@
+<svg>
+  <g transform="translate(10)"/>
+  <!--          ^^^^^^^^^ string -->
+  <g transform="scale(2)"/>
+  <!--          ^^^^^ string -->
+  <g transform="rotate(45)"/>
+  <!--          ^^^^^^ string -->
+  <g transform="skewX(10)"/>
+  <!--          ^^^^^ string -->
+  <g transform="skewY(20)"/>
+  <!--          ^^^^^ string -->
+  <g transform="matrix(1,0,0,1,0,0)"/>
+  <!--          ^^^^^^ string -->
+  <rect fill="#ff0000"/>
+  <!--        ^^^^^^^ string -->
+  <rect fill="rgb(255,0,0)"/>
+  <!--        ^^^ string -->
+  <!--           ^ string -->
+  <!--            ^^^ string -->
+  <!--                ^ string -->
+  <!--                  ^ string -->
+  <!--                   ^ string -->
+  <rect fill="red"/>
+  <!--        ^^^ string -->
+  <rect fill="url(#gradA) #fff"/>
+  <!--            ^^^^^^ string -->
+  <circle class="icon large"/>
+  <!--           ^^^^ link_uri -->
+</svg>

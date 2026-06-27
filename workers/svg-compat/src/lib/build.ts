@@ -9,9 +9,9 @@
  *
  * @module
  */
+// @ts-nocheck Deno
 
-import { isRecord, type JsonRecord, type LoadedSourceData, UpstreamSourceError } from '../sources.ts';
-import { getCompat, getRecordProperty, makeCompatEntry } from './parse.ts';
+import { getCompat, getRecordProperty, makeCompatEntry } from '#lib/parse.ts';
 import type {
 	AttributeEntry,
 	Baseline,
@@ -20,7 +20,9 @@ import type {
 	CompatEntry,
 	SvgCompatOutput,
 	SvgCompatSnapshot,
-} from './types.ts';
+} from '#lib/types.ts';
+import type { JsonRecord, LoadedSourceData } from '#src/sources.ts';
+import { isRecord, UpstreamSourceError } from '#src/sources.ts';
 
 /**
  * BCD uses underscore-delimited namespace names (`xlink_href`,

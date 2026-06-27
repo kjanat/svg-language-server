@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "commit": "3c69f0f79087ec4ac37a7653e25dbe2ebc7f04d1",
+  "commit": "a82ced3d696ea03c350d6bfcc04d85d7e7ec54be",
   "core": {
     "href": "catalog.core.json"
   },
@@ -9,6 +9,9 @@
   },
   "graph": {
     "href": "catalog.graph.json"
+  },
+  "tree_sitter": {
+    "href": "catalog.tree-sitter.json"
   },
   "snapshots": [
     {

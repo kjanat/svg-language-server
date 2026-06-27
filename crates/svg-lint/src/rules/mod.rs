@@ -7,7 +7,7 @@ use std::{
 
 use suppressions::Suppressions;
 use svg_data::{CompatVerdict, ProfileLookup, SpecLifecycle, VerdictReason};
-use svg_tree::{is_attribute_name_kind, walk_tree};
+use svg_tree::{is_attribute_name_kind, is_attribute_node_kind, walk_tree};
 use tree_sitter::{Node, Tree};
 
 use crate::{
@@ -327,7 +327,11 @@ fn check_edition_attribute(
         .attributes_for_element(elem_name)
         .map(|attribute| attribute.name)
         .collect();
-    if !allowed.is_empty() && !allowed.contains(&lookup_name) {
+    if !allowed.is_empty()
+        && !allowed
+            .iter()
+            .any(|name| edition_attribute_matches(name, lookup_name))
+    {
         push_diag_in_tag(
             &mut ctx.diagnostics,
             &mut ctx.suppressions,
@@ -336,10 +340,17 @@ fn check_edition_attribute(
             Severity::Error,
             DiagnosticCode::UnsupportedInProfile,
             format!(
-                "SVG attribute {lookup_name} is not defined on <{elem_name}> in the selected edition"
+                "SVG attribute {lookup_name} is not defined on <{elem_name}> in the selected \
+                 edition"
             ),
         );
     }
+}
+
+fn edition_attribute_matches(edition_name: &str, lookup_name: &str) -> bool {
+    edition_name == lookup_name
+        || svg_data::xlink::canonical_svg_attribute_name(edition_name).as_ref() == lookup_name
+        || (edition_name == "xml:lang" && lookup_name == "lang")
 }
 
 fn check_attributes(
@@ -351,7 +362,7 @@ fn check_attributes(
     let tag_start = tag.start_position().row;
     let mut cursor = tag.walk();
     for attr_node in tag.children(&mut cursor) {
-        if attr_node.kind() != "attribute" {
+        if !is_attribute_node_kind(attr_node.kind()) {
             continue;
         }
         // Find the attribute name node inside the (possibly typed) attribute
@@ -457,41 +468,38 @@ fn check_duplicate_id(
     let tag_start = tag.start_position().row;
     let mut cursor = tag.walk();
     for attr_node in tag.children(&mut cursor) {
-        if attr_node.kind() != "attribute" {
+        if !is_attribute_node_kind(attr_node.kind()) {
+            continue;
+        }
+        let Some(name_node) = find_attr_name(attr_node) else {
+            continue;
+        };
+        if name_node.utf8_text(source).ok() != Some("id") {
             continue;
         }
         let mut attr_cursor = attr_node.walk();
-        for child in attr_node.children(&mut attr_cursor) {
-            if child.kind() != "id_attribute" {
-                continue;
+        walk_tree(&mut attr_cursor, &mut |node| {
+            if node.kind() != "id_token" {
+                return;
             }
-            let Some(value_node) = child.child_by_field_name("value") else {
-                continue;
-            };
-            let mut vc = value_node.walk();
-            for v in value_node.children(&mut vc) {
-                if v.kind() != "id_token" {
-                    continue;
-                }
-                let id_text = std::str::from_utf8(&source[v.byte_range()]).unwrap_or("");
-                if let Some(&first_row) = seen_ids.get(id_text) {
-                    push_diag_in_tag(
-                        diagnostics,
-                        suppressions,
-                        v,
-                        Some(tag_start),
-                        Severity::Warning,
-                        DiagnosticCode::DuplicateId,
-                        format!(
-                            "Duplicate id \"{id_text}\" (first on line {})",
-                            first_row + 1
-                        ),
-                    );
-                } else {
-                    seen_ids.insert(id_text.to_string(), v.start_position().row);
-                }
+            let id_text = std::str::from_utf8(&source[node.byte_range()]).unwrap_or("");
+            if let Some(&first_row) = seen_ids.get(id_text) {
+                push_diag_in_tag(
+                    diagnostics,
+                    suppressions,
+                    node,
+                    Some(tag_start),
+                    Severity::Warning,
+                    DiagnosticCode::DuplicateId,
+                    format!(
+                        "Duplicate id \"{id_text}\" (first on line {})",
+                        first_row + 1
+                    ),
+                );
+            } else {
+                seen_ids.insert(id_text.to_string(), node.start_position().row);
             }
-        }
+        });
     }
 }
 
@@ -568,7 +576,7 @@ fn check_missing_reference_definitions(
     let tag_start = tag.start_position().row;
     let mut cursor = tag.walk();
     for attr_node in tag.children(&mut cursor) {
-        if attr_node.kind() != "attribute" {
+        if !is_attribute_node_kind(attr_node.kind()) {
             continue;
         }
 
@@ -612,7 +620,8 @@ fn check_missing_reference_definitions(
                 Severity::Warning,
                 DiagnosticCode::MissingReferenceDefinition,
                 format!(
-                    "{attr_name} references #{id}, but no element with id=\"{id}\" exists in this SVG.\nDefine one or remove the reference."
+                    "{attr_name} references #{id}, but no element with id=\"{id}\" exists in this \
+                     SVG.\nDefine one or remove the reference."
                 ),
             );
         });
@@ -1135,7 +1144,7 @@ mod tests {
 
     fn first_attribute_node(tree: &Tree) -> Result<Node<'_>, Box<dyn Error>> {
         fn visit(node: Node<'_>) -> Option<Node<'_>> {
-            if node.kind() == "attribute" {
+            if is_attribute_node_kind(node.kind()) {
                 return Some(node);
             }
 

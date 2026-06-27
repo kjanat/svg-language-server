@@ -49,7 +49,8 @@ impl SpecFreshness {
             ));
         }
         format!(
-            "SVG spec data may be stale — {}. Refresh with `just refresh-editions` / `just refresh-svgwg <commit>`.",
+            "SVG spec data may be stale — {}. Refresh with `just refresh-editions` / `just \
+             refresh-svgwg <commit>`.",
             parts.join("; ")
         )
     }

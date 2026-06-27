@@ -6,10 +6,11 @@
  *
  * @module
  */
+// @ts-nocheck Deno
 
+import { _resetLoggedWarnings, parseBaseline, parseBaselineDate, parseBrowserVersion } from '#lib/parse.ts';
+import type { BaselineDate } from '#lib/types.ts';
 import { assertEquals, assertExists } from '@std/assert';
-import { _resetLoggedWarnings, parseBaseline, parseBaselineDate, parseBrowserVersion } from './parse.ts';
-import type { BaselineDate } from './types.ts';
 
 Deno.test('parseBaselineDate maps known qualifier prefixes', () => {
 	_resetLoggedWarnings();

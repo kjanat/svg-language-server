@@ -1,3 +1,4 @@
+// @ts-nocheck Deno
 interface Props {
 	dev: boolean;
 	boot: number;

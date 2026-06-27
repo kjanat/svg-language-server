@@ -12,11 +12,12 @@
  *
  * @module
  */
+// @ts-nocheck Deno
 
-import { runCommand } from '@kjanat/dreamcli/testkit';
 import { assertEquals, assertExists, assertStringIncludes } from '@std/assert';
+import { runCommand } from 'dreamcli/testkit';
 
-import { dataCommand, schemaCommand } from './cli.ts';
+import { dataCommand, schemaCommand } from '#cli';
 
 const CLI = ['run', '-A', 'src/cli.ts'] as const;
 

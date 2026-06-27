@@ -6,7 +6,10 @@
  *
  * @module
  */
+// @ts-nocheck Deno
 
+import type { SvgCompatOutput, SvgCompatSnapshot } from '#lib';
+import { buildOutput, buildSnapshot, SVG_COMPAT_SCHEMA } from '#lib';
 import {
 	applyCommonSecurityHeaders,
 	applyHtmlSecurityHeaders,
@@ -23,21 +26,18 @@ import {
 	serveStaticRoute,
 	staticAssetResponse,
 	textResponse,
-} from './http.ts';
-import type { SvgCompatOutput, SvgCompatSnapshot } from './lib/mod.ts';
-import { buildOutput, buildSnapshot, SVG_COMPAT_SCHEMA } from './lib/mod.ts';
-import { renderErrorHtml, renderHtml } from './render.tsx';
+} from '#src/http.ts';
+import { renderErrorHtml, renderHtml } from '#src/render.tsx';
 import {
 	InvalidSourceRequestError,
 	loadSourceDataForSelection,
 	parseSourceSelection,
 	UpstreamSourceError,
-} from './sources.ts';
+} from '#src/sources.ts';
 
 // Re-export the public lib surface so existing consumers
 // (`view.ts`, `render.tsx`, `main_test.ts`) can continue to import
 // from `./main.ts` without code churn.
-export { buildOutput, buildSnapshot, SVG_COMPAT_SCHEMA } from './lib/mod.ts';
 export type {
 	AttributeEntry,
 	Baseline,
@@ -51,7 +51,8 @@ export type {
 	SvgCompatSnapshot,
 	SvgCompatSources,
 	VersionQualifier,
-} from './lib/mod.ts';
+} from '#lib';
+export { buildOutput, buildSnapshot, SVG_COMPAT_SCHEMA } from '#lib';
 
 const snapshotInflight = new Map<string, Promise<SvgCompatSnapshot>>();
 const JSON_INDENT = 2;

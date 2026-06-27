@@ -8,7 +8,7 @@ use ureq::config::IpFamily;
 
 const SVGWG_REPO_API: &str = "https://api.github.com/repos/w3c/svgwg";
 const TRACKED_SPEC_PATH_PREFIX: &str = "master/";
-const USER_AGENT: &str = "svg-data-spec-freshness (+https://github.com/kjanat/svg-language-server)";
+const USER_AGENT: &str = "svg-data-spec-freshness (+https://github.com/kjanat/svg)";
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(30);
 const BODY_LIMIT: u64 = 64 * 1024 * 1024;
 const COMPAT_CATALOG: &str = include_str!("../../data/catalog.compat.json");

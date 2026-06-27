@@ -1,0 +1,16 @@
+{
+	"compilerOptions": {
+		"target": "ESNext",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"noEmit": true,
+		"strict": true,
+		"skipLibCheck": true,
+		"allowJs": true,
+		"checkJs": true,
+		"resolveJsonModule": true,
+		"allowImportingTsExtensions": true,
+		"types": ["bun", "tree-sitter-cli/dsl"]
+	},
+	"include": ["./bindings/node/*", "./scripts/*.ts", "**/*.ts", "**/*.js"]
+}

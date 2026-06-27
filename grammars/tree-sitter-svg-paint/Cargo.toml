@@ -1,0 +1,34 @@
+[package]
+name         = "tree-sitter-svg-paint"
+version      = "0.1.0"
+authors      = ["Kaj Kowalski <info@kajkowalski.nl>"]                  # tombi: lint.rules = { deprecated.disabled = true, unused-noqa.disabled = true }
+edition      = "2024"
+description  = "SVG paint and color grammar for Tree-sitter"
+readme       = "README.md"
+repository   = "https://github.com/kjanat/svg"
+license      = "MIT OR Apache-2.0"
+keywords     = ["incremental", "parsing", "svg-paint", "tree-sitter"]
+categories   = ["parser-implementations", "parsing", "text-editors"]
+autoexamples = false
+
+build   = "bindings/rust/build.rs"
+include = [
+  "/LICENSE*",
+  "bindings/rust/*",
+  "grammar.js",
+  "queries/*",
+  "src/*",
+  "tree-sitter.json",
+]
+
+[lib]
+path = "bindings/rust/lib.rs"
+
+[dependencies]
+tree-sitter-language = { workspace = true }
+
+[dev-dependencies]
+tree-sitter = { workspace = true }
+
+[build-dependencies]
+cc = { workspace = true }

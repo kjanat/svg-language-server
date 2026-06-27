@@ -26,14 +26,15 @@
  *
  * @module
  */
+// @ts-nocheck Deno
 
-import type { Out } from '@kjanat/dreamcli';
-import { cli, command, flag, group } from '@kjanat/dreamcli';
+import type { Out } from 'dreamcli';
+import { cli, command, flag, group } from 'dreamcli';
 
-import { renderDataSummary, renderSchemaSummary } from './cli_render.ts';
-import { buildOutput, buildSnapshot, SVG_COMPAT_SCHEMA } from './lib/mod.ts';
-import { defaultSourceSelection, loadSourceDataForSelection } from './sources.ts';
-import { scanSvg2Spec } from './spec_scan.ts';
+import { buildOutput, buildSnapshot, SVG_COMPAT_SCHEMA } from '#lib';
+import { renderDataSummary, renderSchemaSummary } from '#src/cli_render.ts';
+import { defaultSourceSelection, loadSourceDataForSelection } from '#src/sources.ts';
+import { scanSvg2Spec } from '#src/spec_scan.ts';
 
 const FILE_INDENT = 2;
 

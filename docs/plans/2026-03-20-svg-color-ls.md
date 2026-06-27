@@ -1,12 +1,20 @@
 # SVG Color Language Server — Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use
+> superpowers:subagent-driven-development (recommended) or
+> superpowers:executing-plans to implement this plan task-by-task. Steps use
+> checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build a minimal LSP server that provides inline color swatches and color picker for SVG paint attributes.
+**Goal:** Build a minimal LSP server that provides inline color swatches and
+color picker for SVG paint attributes.
 
-**Architecture:** Two-crate workspace — `svg-color` (pure color extraction via tree-sitter-svg) and `svg-language-server` (LSP binary via tower-lsp-server). The grammar's `(color_value)` nodes provide precise color locations without regex.
+**Architecture:** Two-crate workspace — `svg-color` (pure color extraction via
+tree-sitter-svg) and `svg-language-server` (LSP binary via tower-lsp-server).
+The grammar's `(color_value)` nodes provide precise color locations without
+regex.
 
-**Tech Stack:** Rust 2024 edition, tree-sitter 0.26, tree-sitter-svg, tower-lsp-server, tokio
+**Tech Stack:** Rust 2024 edition, tree-sitter 0.26, tree-sitter-svg,
+tower-lsp-server, tokio
 
 **Spec:** `docs/specs/2026-03-20-svg-color-ls-design.md`
 
@@ -71,8 +79,7 @@ pub use types::{ColorInfo, ColorKind};
 
 - [ ] **Step 4: Verify it compiles**
 
-Run: `cargo check -p svg-color`
-Expected: compiles clean
+Run: `cargo check -p svg-color` Expected: compiles clean
 
 - [ ] **Step 5: Commit**
 
@@ -293,21 +300,20 @@ mod tests {
 
 - [ ] **Step 2: Run tests to verify failure**
 
-Run: `cargo test -p svg-color -- named_colors`
-Expected: FAIL (todo panic)
+Run: `cargo test -p svg-color -- named_colors` Expected: FAIL (todo panic)
 
 - [ ] **Step 3: Implement lookup table**
 
-Replace `todo!()` in `lookup()` with a case-insensitive match against
-the full CSS Named Colors table (148 entries). Use a `match` on
-`name.to_ascii_lowercase().as_str()` returning `Some((r/255.0, g/255.0, b/255.0))`.
+Replace `todo!()` in `lookup()` with a case-insensitive match against the full
+CSS Named Colors table (148 entries). Use a `match` on
+`name.to_ascii_lowercase().as_str()` returning
+`Some((r/255.0, g/255.0, b/255.0))`.
 
 Reference: https://www.w3.org/TR/css-color-4/#named-colors
 
 - [ ] **Step 4: Run tests to verify passing**
 
-Run: `cargo test -p svg-color -- named_colors`
-Expected: all 4 tests PASS
+Run: `cargo test -p svg-color -- named_colors` Expected: all 4 tests PASS
 
 - [ ] **Step 5: Export module from lib.rs**
 
@@ -405,8 +411,7 @@ mod tests {
 
 - [ ] **Step 2: Run tests to verify failure**
 
-Run: `cargo test -p svg-color -- parse::tests::hex`
-Expected: FAIL (todo panic)
+Run: `cargo test -p svg-color -- parse::tests::hex` Expected: FAIL (todo panic)
 
 - [ ] **Step 3: Implement parse_hex**
 
@@ -415,8 +420,7 @@ parse hex digits to u8, convert to f32 0.0–1.0. Return `None` for invalid.
 
 - [ ] **Step 4: Run tests to verify passing**
 
-Run: `cargo test -p svg-color -- parse::tests::hex`
-Expected: all 6 tests PASS
+Run: `cargo test -p svg-color -- parse::tests::hex` Expected: all 6 tests PASS
 
 - [ ] **Step 5: Export module from lib.rs**
 
@@ -524,8 +528,8 @@ fn functional_invalid() {
 
 - [ ] **Step 2: Run tests to verify failure**
 
-Run: `cargo test -p svg-color -- parse::tests::functional`
-Expected: FAIL (todo panic)
+Run: `cargo test -p svg-color -- parse::tests::functional` Expected: FAIL (todo
+panic)
 
 - [ ] **Step 3: Implement parse_functional**
 
@@ -534,8 +538,7 @@ parse integers or percentages. For HSL, convert to RGB using standard algorithm.
 
 - [ ] **Step 4: Run tests to verify passing**
 
-Run: `cargo test -p svg-color -- parse::tests`
-Expected: all parse tests PASS
+Run: `cargo test -p svg-color -- parse::tests` Expected: all parse tests PASS
 
 - [ ] **Step 5: Commit**
 
@@ -672,8 +675,7 @@ mod tests {
 
 - [ ] **Step 2: Run tests to verify failure**
 
-Run: `cargo test -p svg-color -- extract`
-Expected: FAIL (todo panic)
+Run: `cargo test -p svg-color -- extract` Expected: FAIL (todo panic)
 
 - [ ] **Step 3: Implement extract_colors_from_tree**
 
@@ -681,22 +683,23 @@ Use tree-sitter cursor to walk the tree. For each node with kind `"hex_color"`,
 `"functional_color"`, or `"named_color"`:
 
 1. Get node text from source bytes
-2. Parse using `parse::parse_hex`, `parse::parse_functional`, or `named_colors::lookup`
+2. Parse using `parse::parse_hex`, `parse::parse_functional`, or
+   `named_colors::lookup`
 3. If valid, create `ColorInfo` with RGBA, byte range, start/end position from
    `node.start_position()` and `node.end_position()`, and kind
 4. Collect into `Vec<ColorInfo>`
 
-No tree-sitter query needed — a simple recursive walk checking `node.kind()`
-is sufficient and avoids the query compilation overhead.
+No tree-sitter query needed — a simple recursive walk checking `node.kind()` is
+sufficient and avoids the query compilation overhead.
 
-**Assumption:** In the current grammar, `hex_color`/`functional_color`/`named_color`
-only appear under `color_value` inside `paint_attribute` or `paint_server`. If the
-grammar ever adds these node types elsewhere, this walk would need filtering.
+**Assumption:** In the current grammar,
+`hex_color`/`functional_color`/`named_color` only appear under `color_value`
+inside `paint_attribute` or `paint_server`. If the grammar ever adds these node
+types elsewhere, this walk would need filtering.
 
 - [ ] **Step 4: Run tests to verify passing**
 
-Run: `cargo test -p svg-color`
-Expected: all tests PASS
+Run: `cargo test -p svg-color` Expected: all tests PASS
 
 - [ ] **Step 5: Export module and public API from lib.rs**
 
@@ -790,20 +793,20 @@ mod tests {
 
 - [ ] **Step 2: Run tests to verify failure**
 
-Run: `cargo test -p svg-color -- present`
-Expected: FAIL (todo panic)
+Run: `cargo test -p svg-color -- present` Expected: FAIL (todo panic)
 
 - [ ] **Step 3: Implement color_presentations**
 
-Generate format strings: hex, rgb/rgba, hsl/hsla, and reverse-lookup named color.
-Order by original format first. Include alpha variants only when `a < 1.0`.
+Generate format strings: hex, rgb/rgba, hsl/hsla, and reverse-lookup named
+color. Order by original format first. Include alpha variants only when
+`a < 1.0`.
 
-RGB→HSL conversion: standard algorithm (max/min channel, hue from sector, saturation from lightness).
+RGB→HSL conversion: standard algorithm (max/min channel, hue from sector,
+saturation from lightness).
 
 - [ ] **Step 4: Run tests to verify passing**
 
-Run: `cargo test -p svg-color -- present`
-Expected: all 5 tests PASS
+Run: `cargo test -p svg-color -- present` Expected: all 5 tests PASS
 
 - [ ] **Step 5: Export from lib.rs**
 
@@ -856,9 +859,9 @@ Then update the crate Cargo.toml to use workspace refs.
 
 Replace `crates/svg-language-server/src/main.rs`.
 
-**Note:** `tower-lsp-server` 0.23 uses `ls_types` (not `lsp_types`), `Uri`
-(not `Url`), and native async (no `#[async_trait]`). Verify exact API against
-the crate docs at build time — the snippets below are guidance, not copy-paste.
+**Note:** `tower-lsp-server` 0.23 uses `ls_types` (not `lsp_types`), `Uri` (not
+`Url`), and native async (no `#[async_trait]`). Verify exact API against the
+crate docs at build time — the snippets below are guidance, not copy-paste.
 
 ```rust
 use std::{collections::HashMap, sync::Arc};
@@ -941,8 +944,8 @@ async fn main() {
 
 - [ ] **Step 3: Verify it compiles**
 
-Run: `cargo check -p svg-language-server`
-Expected: compiles clean (may need to adjust tower-lsp-server API to match exact version)
+Run: `cargo check -p svg-language-server` Expected: compiles clean (may need to
+adjust tower-lsp-server API to match exact version)
 
 - [ ] **Step 4: Commit**
 
@@ -997,10 +1000,11 @@ async fn document_color(&self, params: DocumentColorParams) -> Result<Vec<ColorI
 ```
 
 Need a helper `byte_col_to_utf16(source, row, byte_col) -> u32` that counts
-UTF-16 code units for the byte column offset. For ASCII SVG this is 1:1,
-but multi-byte chars need proper conversion.
+UTF-16 code units for the byte column offset. For ASCII SVG this is 1:1, but
+multi-byte chars need proper conversion.
 
-Also store `ColorKind` alongside each color in a side map for `color_presentation`.
+Also store `ColorKind` alongside each color in a side map for
+`color_presentation`.
 
 - [ ] **Step 2: Implement color_presentation**
 
@@ -1036,13 +1040,13 @@ async fn color_presentation(
 
 - [ ] **Step 3: Verify it compiles**
 
-Run: `cargo check -p svg-language-server`
-Expected: compiles clean
+Run: `cargo check -p svg-language-server` Expected: compiles clean
 
 - [ ] **Step 4: Manual smoke test**
 
-Run: `cargo build -p svg-language-server`
-Then test with an LSP client (e.g., `echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{...}}' | cargo run -p svg-language-server`).
+Run: `cargo build -p svg-language-server` Then test with an LSP client or a
+properly framed JSON-RPC message, for example:
+`printf 'Content-Length: 58\r\n\r\n{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' | cargo run -p svg-language-server`.
 Expected: server responds with capabilities including `colorProvider: true`
 
 - [ ] **Step 5: Commit**
@@ -1072,13 +1076,12 @@ Create `crates/svg-language-server/tests/integration.rs` that:
 6. Sends `textDocument/colorPresentation` request
 7. Asserts format alternatives are returned
 
-Use `std::process::Command` to spawn and communicate via stdin/stdout
-with JSON-RPC framing (`Content-Length: N\r\n\r\n{...}`).
+Use `std::process::Command` to spawn and communicate via stdin/stdout with
+JSON-RPC framing (`Content-Length: N\r\n\r\n{...}`).
 
 - [ ] **Step 2: Run integration test**
 
-Run: `cargo test -p svg-language-server -- --test integration`
-Expected: PASS
+Run: `cargo test -p svg-language-server -- --test integration` Expected: PASS
 
 - [ ] **Step 3: Commit**
 
@@ -1097,13 +1100,11 @@ git commit -m "test(lsp): end-to-end integration test"
 
 - [ ] **Step 1: Run full test suite**
 
-Run: `cargo test --workspace`
-Expected: all tests pass across both crates
+Run: `cargo test --workspace` Expected: all tests pass across both crates
 
 - [ ] **Step 2: Run clippy**
 
-Run: `cargo clippy --workspace -- -D warnings`
-Expected: no warnings
+Run: `cargo clippy --workspace -- -D warnings` Expected: no warnings
 
 - [ ] **Step 3: Update README**
 

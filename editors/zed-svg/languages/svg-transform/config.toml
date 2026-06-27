@@ -1,0 +1,5 @@
+#:schema https://raw.githubusercontent.com/kjanat/zed-editor/refs/heads/feature/extension-toml-schema/crates/extension_api/schemas/language-config.schema.json
+
+name    = "SVG Transform List"
+grammar = "svg_transform"
+hidden  = true

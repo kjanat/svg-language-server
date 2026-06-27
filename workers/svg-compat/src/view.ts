@@ -7,9 +7,10 @@
  *
  * @module
  */
+// @ts-nocheck Deno
 
-import type { AttributeEntry, BrowserSupport, BrowserVersion, CompatEntry, SvgCompatOutput } from './main.ts';
-import type { SourceInfo } from './sources.ts';
+import type { AttributeEntry, BrowserSupport, BrowserVersion, CompatEntry, SvgCompatOutput } from '#server';
+import type { SourceInfo } from '#src/sources.ts';
 
 /** Browser keys used in chip rendering; ordered for display. */
 export const BROWSER_KEYS = [

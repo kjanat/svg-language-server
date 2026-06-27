@@ -1,4 +1,4 @@
-use svg_tree::is_attribute_name_kind;
+use svg_tree::{is_attribute_name_kind, is_attribute_node_kind};
 use tree_sitter::Node;
 
 pub const SVG_NAMESPACE_URI: &str = "http://www.w3.org/2000/svg";
@@ -46,7 +46,7 @@ pub fn scope_for_tag<'a>(
     let mut scope = parent.clone();
     let mut cursor = tag.walk();
     for attr_node in tag.children(&mut cursor) {
-        if attr_node.kind() != "attribute" {
+        if !is_attribute_node_kind(attr_node.kind()) {
             continue;
         }
         let Some(name_node) = find_attr_name(attr_node) else {
@@ -78,7 +78,7 @@ pub fn scope_for_tag<'a>(
 pub fn declares_default_namespace(source: &[u8], tag: Node) -> bool {
     let mut cursor = tag.walk();
     for attr_node in tag.children(&mut cursor) {
-        if attr_node.kind() != "attribute" {
+        if !is_attribute_node_kind(attr_node.kind()) {
             continue;
         }
         let Some(name_node) = find_attr_name(attr_node) else {
@@ -95,9 +95,10 @@ pub fn declares_default_namespace(source: &[u8], tag: Node) -> bool {
 pub fn expand_element_name<'a>(raw_name: &'a str, scope: &NamespaceScope<'a>) -> ExpandedName<'a> {
     let (prefix, local_name) = split_qualified_name(raw_name);
     ExpandedName {
-        namespace_uri: prefix
-            .and_then(|qualified_prefix| scope.resolve_prefix(qualified_prefix))
-            .or_else(|| scope.default_namespace()),
+        namespace_uri: prefix.map_or_else(
+            || scope.default_namespace(),
+            |qualified_prefix| scope.resolve_prefix(qualified_prefix),
+        ),
         local_name,
     }
 }
@@ -210,5 +211,21 @@ mod tests {
         assert_eq!(scope.default_namespace(), Some(SVG_NAMESPACE_URI));
         assert_eq!(scope.resolve_prefix("xlink"), Some(XLINK_NAMESPACE_URI));
         Ok(())
+    }
+
+    #[test]
+    fn prefixed_element_without_binding_does_not_inherit_default_namespace() {
+        let scope = NamespaceScope {
+            default_namespace: Some(SVG_NAMESPACE_URI),
+            prefixes: Vec::new(),
+        };
+
+        assert_eq!(
+            expand_element_name("sodipodi:namedview", &scope),
+            ExpandedName {
+                namespace_uri: None,
+                local_name: "namedview",
+            }
+        );
     }
 }

@@ -47,3 +47,27 @@ workspace-diagnostic.enabled = true
 [schema]
 enabled = true
 strict  = true
+
+[[schemas]]  # actup schema >.zed/actup.schema.json && dprint fmt .zed/actup.schema.json
+path    = ".zed/actup.schema.json"
+include = [".actup.toml", "actup.toml"]
+
+[[schemas]]  # rumdl schema print --config .rumdl.toml > .zed/rumdl.schema.json && dprint fmt .zed/rumdl.schema.json
+path    = ".zed/rumdl.schema.json"
+include = [".rumdl.toml", "rumdl.toml"]
+
+[[schemas]]
+path    = "https://gist.githubusercontent.com/kjanat/1172d9d2d6dbe7c6d9983aaabef2eea5/raw/cargo-config.bundle.json"
+include = [".cargo/config.toml", ".cargo/nightly.toml"]
+
+[[schemas]]
+path    = "https://github.com/kjanat/runner/raw/master/schemas/runner.toml.schema.json"
+include = ["runner.toml", ".runner.toml"]
+
+[[schemas]]
+path    = "https://raw.githubusercontent.com/kjanat/zed-editor/feature/extension-toml-schema/crates/extension_api/schemas/language-config.schema.json"
+include = ["**/languages/*/config.toml"]
+
+[[schemas]]
+path    = "https://raw.githubusercontent.com/kjanat/zed-editor/feature/extension-toml-schema/crates/extension_api/schemas/extension.schema.json"
+include = ["**/zed-*/extension.toml"]

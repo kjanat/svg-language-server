@@ -1,9 +1,0 @@
-{
-	"tasks": {
-		"typecheck": {
-			"command": "deno check",
-			"description": "Run deno's type checker.",
-		},
-	},
-	"compilerOptions": { "types": ["bun-types"] },
-}

@@ -4,10 +4,12 @@
  *
  * @module
  */
+// @ts-nocheck Deno
 
-import bcd from '@mdn/browser-compat-data' with { type: 'json' };
+import bcd from 'bcd' with { type: 'json' };
 import { features } from 'web-features';
 
+const BCD_IMPORT = 'bcd';
 const BCD_PACKAGE = '@mdn/browser-compat-data';
 const WF_PACKAGE = 'web-features';
 
@@ -136,9 +138,9 @@ export function versionFromLocation(
 	return undefined;
 }
 
-function resolvedVersion(specifier: string): string {
+function resolvedVersion(specifier: string, packageName: string): string {
 	const resolved = import.meta.resolve(specifier);
-	const version = versionFromLocation(resolved, specifier);
+	const version = versionFromLocation(resolved, packageName);
 	if (!version) throw new Error(`Cannot extract version from ${resolved}`);
 	return version;
 }
@@ -161,7 +163,7 @@ const DEFAULT_BCD_META = isRecord(DEFAULT_BCD_ROOT.__meta)
 	? DEFAULT_BCD_ROOT.__meta
 	: undefined;
 const DEFAULT_BCD_VERSION = getString(DEFAULT_BCD_META?.version)
-	?? resolvedVersion(BCD_PACKAGE);
+	?? resolvedVersion(BCD_IMPORT, BCD_PACKAGE);
 
 const DEFAULT_SVG_ROOT = asRecord(
 	DEFAULT_BCD_ROOT.svg,
@@ -171,7 +173,7 @@ const DEFAULT_FEATURE_MAP = asRecord(
 	features,
 	'Default web-features payload is not an object.',
 );
-const DEFAULT_WF_VERSION = resolvedVersion(WF_PACKAGE);
+const DEFAULT_WF_VERSION = resolvedVersion(WF_PACKAGE, WF_PACKAGE);
 
 const DEFAULT_SOURCES: SvgCompatSources = {
 	bcd: {

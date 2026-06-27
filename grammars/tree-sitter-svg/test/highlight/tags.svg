@@ -1,0 +1,24 @@
+      <svg>
+<!--  ^ punctuation.delimiter -->
+<!--   ^^^ tag -->
+<!--      ^ punctuation.delimiter -->
+        <rect/>
+<!--    ^ punctuation.delimiter -->
+<!--     ^^^^ tag -->
+<!--         ^^ punctuation.delimiter -->
+        <g>
+<!--    ^ punctuation.delimiter -->
+<!--     ^ tag -->
+<!--      ^ punctuation.delimiter -->
+        </g>
+<!--    ^^ punctuation.delimiter -->
+<!--      ^ tag -->
+<!--       ^ punctuation.delimiter -->
+        <g>
+        </div>
+<!--      ^^^ tag.error -->
+        </g>
+      </svg>
+<!--  ^^ punctuation.delimiter -->
+<!--    ^^^ tag -->
+<!--       ^ punctuation.delimiter -->

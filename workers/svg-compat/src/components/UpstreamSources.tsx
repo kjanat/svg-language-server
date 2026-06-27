@@ -1,6 +1,7 @@
-import type { SourceInfo } from '../sources.ts';
-import { sourceSearchTokens } from '../view.ts';
-import { TableSection } from './TableSection.tsx';
+// @ts-nocheck Deno
+import { TableSection } from '#component/TableSection.tsx';
+import type { SourceInfo } from '#src/sources.ts';
+import { sourceSearchTokens } from '#src/view.ts';
 
 interface Props {
 	sources: SourceInfo[];

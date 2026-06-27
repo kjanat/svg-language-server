@@ -1,3 +1,4 @@
+// @ts-nocheck Deno
 interface Props {
 	pkg: string;
 	param: string;

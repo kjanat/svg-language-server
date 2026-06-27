@@ -1,5 +1,6 @@
+// @ts-nocheck Deno
+import { DevReload } from '#component/DevReload.tsx';
 import type { ComponentChildren } from 'preact';
-import { DevReload } from './DevReload.tsx';
 
 interface Props {
 	dev: boolean;

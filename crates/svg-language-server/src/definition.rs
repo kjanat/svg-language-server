@@ -58,7 +58,7 @@ fn inline_definition_locations(
                 .filter(|definition| definition.name == *target_class)
                 .map(|definition| named_span_location(uri.clone(), source, &definition))
                 .collect(),
-            svg_references::extract_xml_stylesheet_hrefs(source),
+            svg_references::extract_stylesheet_hrefs(source, tree),
         ),
         svg_references::DefinitionTarget::CustomProperty(target_property) => (
             svg_references::collect_inline_stylesheets(source, tree)
@@ -73,7 +73,7 @@ fn inline_definition_locations(
                 .filter(|definition| definition.name == *target_property)
                 .map(|definition| named_span_location(uri.clone(), source, &definition))
                 .collect(),
-            svg_references::extract_xml_stylesheet_hrefs(source),
+            svg_references::extract_stylesheet_hrefs(source, tree),
         ),
     }
 }

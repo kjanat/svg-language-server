@@ -1,8 +1,9 @@
+// @ts-nocheck Deno
+import type { SvgCompatOutput } from '#server';
+import server, { SVG_COMPAT_SCHEMA } from '#server';
+import { renderHtml } from '#src/render.tsx';
+import { defaultSourceSelection, parseSourceSelection, versionFromLocation } from '#src/sources.ts';
 import { assert, assertEquals, assertExists } from '@std/assert';
-import type { SvgCompatOutput } from './main.ts';
-import server, { SVG_COMPAT_SCHEMA } from './main.ts';
-import { renderHtml } from './render.tsx';
-import { defaultSourceSelection, parseSourceSelection, versionFromLocation } from './sources.ts';
 
 const DEV = (() => {
 	try {

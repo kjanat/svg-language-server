@@ -1,0 +1,784 @@
+==================
+ARIA attribute set
+==================
+
+<svg aria-label="icon" aria-hidden="true" aria-describedby="a b" aria-roledescription="diagram node"></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double)))
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double)))
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double)))
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Animation attribute set
+==================
+
+<svg>
+  <animate
+    attributeName="x"
+    begin="0s;id.click+1s"
+    dur="2s"
+    calcMode="spline"
+    keyTimes="0;0.5;1"
+    keySplines="0.1 0.2 0.3 0.4;0.2 0.2 0.8 0.8"
+    values="0;10;20"
+    repeatCount="indefinite"
+    restart="always"
+    additive="sum"
+    accumulate="none"/>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (css_text_attribute
+          name: (css_text_attribute_name)
+          value: (css_text_attribute_value
+            content: (css_attribute_text_double)))
+        (css_text_attribute
+          name: (css_text_attribute_name)
+          value: (css_text_attribute_value
+            content: (css_attribute_text_double)))
+        (duration_attribute
+          name: (duration_attribute_name)
+          value: (duration_attribute_value
+            (time_value
+              (number)
+              (time_unit))))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (key_times_attribute
+          name: (key_times_attribute_name)
+          value: (key_times_attribute_value
+            (semicolon_number_list
+              (number)
+              (number)
+              (number))))
+        (key_splines_attribute
+          name: (key_splines_attribute_name)
+          value: (key_splines_attribute_value
+            (key_splines_list
+              (key_spline_value
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number))
+              (key_spline_value
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number)))))
+        (generic_attribute
+          name: (attribute_name)
+          value: (quoted_attribute_value
+            (attribute_text_double)))
+        (repeat_count_attribute
+          name: (repeat_count_attribute_name)
+          value: (repeat_count_attribute_value))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+===============================
+AnimateMotion coordinate values
+===============================
+
+<svg><animateMotion from="0,0" to="10,10" by="1,1" values="0,0; 10,10;"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (animate_motion_attribute
+          (animate_motion_coordinate_attribute
+            name: (animate_motion_coordinate_attribute_name)
+            value: (animate_motion_coordinate_attribute_value
+              (coordinate_pair
+                (number)
+                (comma_wsp)
+                (number)))))
+        (animate_motion_attribute
+          (animate_motion_coordinate_attribute
+            name: (animate_motion_coordinate_attribute_name)
+            value: (animate_motion_coordinate_attribute_value
+              (coordinate_pair
+                (number)
+                (comma_wsp)
+                (number)))))
+        (animate_motion_attribute
+          (animate_motion_coordinate_attribute
+            name: (animate_motion_coordinate_attribute_name)
+            value: (animate_motion_coordinate_attribute_value
+              (coordinate_pair
+                (number)
+                (comma_wsp)
+                (number)))))
+        (animate_motion_attribute
+          (animate_motion_values_attribute
+            name: (animate_motion_values_attribute_name)
+            value: (animate_motion_values_attribute_value
+              (semicolon_coordinate_pair_list
+                (coordinate_pair
+                  (number)
+                  (comma_wsp)
+                  (number))
+                (wsp)
+                (coordinate_pair
+                  (number)
+                  (comma_wsp)
+                  (number))))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Filter effect attribute set
+==================
+
+<svg>
+  <filter id="f1">
+    <feTurbulence baseFrequency="0.01 0.05" numOctaves="3" seed="7" stitchTiles="stitch" result="noise"/>
+    <feDisplacementMap in="SourceGraphic" in2="noise" scale="10" xChannelSelector="R" yChannelSelector="B"/>
+    <feConvolveMatrix kernelMatrix="1 0 -1 2 0 -2 1 0 -1" order="3 3" divisor="1" bias="0" targetX="1" targetY="1" edgeMode="duplicate"/>
+  </filter>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (text)
+    (element
+      (start_tag
+        name: (name)
+        (id_attribute
+          name: (id_attribute_name)
+          value: (id_attribute_value
+            (id_token))))
+      (text)
+      (element
+        (self_closing_tag
+          name: (name)
+          (number_optional_number_attribute
+            name: (number_optional_number_attribute_name)
+            value: (number_optional_number_attribute_value
+              (number_optional_number
+                (number)
+                (wsp)
+                (number))))
+          (number_attribute
+            name: (number_attribute_name)
+            value: (number_attribute_value
+              (number)))
+          (number_attribute
+            name: (number_attribute_name)
+            value: (number_attribute_value
+              (number)))
+          (keyword_attribute
+            name: (keyword_attribute_name)
+            value: (keyword_attribute_value
+              (keyword_value)))
+          (css_text_attribute
+            name: (css_text_attribute_name)
+            value: (css_text_attribute_value
+              content: (css_attribute_text_double)))))
+      (text)
+      (element
+        (self_closing_tag
+          name: (name)
+          (css_text_attribute
+            name: (css_text_attribute_name)
+            value: (css_text_attribute_value
+              content: (css_attribute_text_double)))
+          (css_text_attribute
+            name: (css_text_attribute_name)
+            value: (css_text_attribute_value
+              content: (css_attribute_text_double)))
+          (number_attribute
+            name: (number_attribute_name)
+            value: (number_attribute_value
+              (number)))
+          (keyword_attribute
+            name: (keyword_attribute_name)
+            value: (keyword_attribute_value
+              (keyword_value)))
+          (keyword_attribute
+            name: (keyword_attribute_name)
+            value: (keyword_attribute_value
+              (keyword_value)))))
+      (text)
+      (element
+        (self_closing_tag
+          name: (name)
+          (number_list_attribute
+            name: (number_list_attribute_name)
+            value: (number_list_attribute_value
+              (number_list
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number))))
+          (number_optional_number_attribute
+            name: (number_optional_number_attribute_name)
+            value: (number_optional_number_attribute_value
+              (number_optional_number
+                (number)
+                (wsp)
+                (number))))
+          (number_attribute
+            name: (number_attribute_name)
+            value: (number_attribute_value
+              (number)))
+          (number_attribute
+            name: (number_attribute_name)
+            value: (number_attribute_value
+              (number)))
+          (number_attribute
+            name: (number_attribute_name)
+            value: (number_attribute_value
+              (number)))
+          (number_attribute
+            name: (number_attribute_name)
+            value: (number_attribute_value
+              (number)))
+          (keyword_attribute
+            name: (keyword_attribute_name)
+            value: (keyword_attribute_value
+              (keyword_value)))))
+      (text)
+      (end_tag
+        name: (name)))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Text layout and typography attributes
+==================
+
+<svg>
+  <text
+    alignment-baseline="middle"
+    baseline-shift="super"
+    direction="ltr"
+    dominant-baseline="central"
+    dx="1 2 3"
+    dy="4 5"
+    font-family="Fira Sans, serif"
+    font-size-adjust="0.5"
+    font-stretch="semi-condensed"
+    font-style="italic"
+    font-variant="small-caps"
+    font-weight="700"
+    glyph-orientation-horizontal="90deg"
+    glyph-orientation-vertical="auto"
+    lengthAdjust="spacingAndGlyphs"
+    letter-spacing="2"
+    rotate="0 30 60"
+    text-anchor="middle"
+    text-decoration="underline overline"
+    unicode-bidi="isolate"
+    word-spacing="3"
+    writing-mode="vertical-rl">x</text>
+  <textPath method="align" side="left" spacing="exact"/>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (text)
+    (element
+      (start_tag
+        name: (name)
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_keyword_value
+              (keyword_value))))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (length_list_attribute
+          name: (length_list_attribute_name)
+          value: (length_list_attribute_value
+            (length_list
+              (length_or_percentage
+                (length
+                  (number)))
+              (comma_wsp
+                (wsp))
+              (length_or_percentage
+                (length
+                  (number)))
+              (comma_wsp
+                (wsp))
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_list_attribute
+          name: (length_list_attribute_name)
+          value: (length_list_attribute_value
+            (length_list
+              (length_or_percentage
+                (length
+                  (number)))
+              (comma_wsp
+                (wsp))
+              (length_or_percentage
+                (length
+                  (number))))))
+        (css_text_attribute
+          name: (css_text_attribute_name)
+          value: (css_text_attribute_value
+            content: (css_attribute_text_double)))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (number)))
+        (generic_attribute
+          name: (attribute_name)
+          value: (quoted_attribute_value
+            (attribute_text_double)))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (rotate_attribute
+          name: (rotate_attribute_name)
+          value: (rotate_attribute_value
+            (number_list
+              (number)
+              (comma_wsp
+                (wsp))
+              (number)
+              (comma_wsp
+                (wsp))
+              (number))))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (generic_attribute
+          name: (attribute_name)
+          value: (quoted_attribute_value
+            (attribute_text_double)))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value))))
+      (text)
+      (end_tag
+        name: (name)))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Coord system and linking/media attributes
+==================
+
+<svg
+  clipPathUnits="userSpaceOnUse"
+  filterUnits="objectBoundingBox"
+  gradientUnits="userSpaceOnUse"
+  markerUnits="strokeWidth"
+  maskContentUnits="objectBoundingBox"
+  maskUnits="userSpaceOnUse"
+  patternContentUnits="userSpaceOnUse"
+  patternUnits="objectBoundingBox"
+  primitiveUnits="userSpaceOnUse"
+  spreadMethod="reflect"
+  orient="auto-start-reverse"
+  zoomAndPan="magnify"
+  fr="50%"
+  origin="default">
+  <a
+    crossorigin="anonymous"
+    download="diagram.svg"
+    hreflang="en-US"
+    media="screen and (min-width: 600px)"
+    ping="https://a.example/ping https://b.example/ping"
+    referrerpolicy="strict-origin-when-cross-origin"
+    rel="noopener noreferrer"
+    target="_blank"
+    type="text/css"/>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (css_text_attribute
+        name: (css_text_attribute_name)
+        value: (css_text_attribute_value
+          content: (css_attribute_text_double)))
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double)))
+      (length_attribute
+        name: (length_attribute_name)
+        value: (length_attribute_value
+          (length_or_percentage_or_auto
+            (length_or_percentage
+              (percentage
+                (number))))))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (keyword_attribute
+          name: (keyword_attribute_name)
+          value: (keyword_attribute_value
+            (keyword_value)))
+        (css_text_attribute
+          name: (css_text_attribute_name)
+          value: (css_text_attribute_value
+            content: (css_attribute_text_double)))
+        (css_text_attribute
+          name: (css_text_attribute_name)
+          value: (css_text_attribute_value
+            content: (css_attribute_text_double)))
+        (css_text_attribute
+          name: (css_text_attribute_name)
+          value: (css_text_attribute_value
+            content: (css_attribute_text_double)))
+        (css_text_attribute
+          name: (css_text_attribute_name)
+          value: (css_text_attribute_value
+            content: (css_attribute_text_double)))
+        (css_text_attribute
+          name: (css_text_attribute_name)
+          value: (css_text_attribute_value
+            content: (css_attribute_text_double)))
+        (css_text_attribute
+          name: (css_text_attribute_name)
+          value: (css_text_attribute_value
+            content: (css_attribute_text_double)))
+        (css_text_attribute
+          name: (css_text_attribute_name)
+          value: (css_text_attribute_value
+            content: (css_attribute_text_double)))
+        (generic_attribute
+          name: (attribute_name)
+          value: (quoted_attribute_value
+            (attribute_text_double)))))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Other regular long-tail attributes
+==================
+
+<svg
+  max="10"
+  min="0"
+  mode="multiply"
+  offset="50%"
+  paint-order="stroke fill markers"
+  path="M0 0 L10 10"
+  playbackorder="forward"
+  pointsAtX="1"
+  pointsAtY="2"
+  pointsAtZ="3"
+  requiredExtensions="https://example.com/extA https://example.com/extB"
+  role="img graphics-symbol"
+  systemLanguage="en,nl-BE"
+  timelinebegin="loadbegin"
+  title="Legend"
+  xlink:title="Legend fallback"
+  z="10"></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (css_text_attribute
+        name: (css_text_attribute_name)
+        value: (css_text_attribute_value
+          content: (css_attribute_text_double)))
+      (css_text_attribute
+        name: (css_text_attribute_name)
+        value: (css_text_attribute_value
+          content: (css_attribute_text_double)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (offset_attribute
+        name: (offset_attribute_name)
+        value: (offset_attribute_value
+          (number_or_percentage
+            (percentage
+              (number)))))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)
+          (wsp)
+          (keyword_value)
+          (wsp)
+          (keyword_value)))
+      (d_attribute
+        name: (d_attribute_name)
+        value: (d_attribute_value
+          (double_quoted_path_data
+            path: (path_data_payload))))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (number_attribute
+        name: (number_attribute_name)
+        value: (number_attribute_value
+          (number)))
+      (number_attribute
+        name: (number_attribute_name)
+        value: (number_attribute_value
+          (number)))
+      (number_attribute
+        name: (number_attribute_name)
+        value: (number_attribute_value
+          (number)))
+      (css_text_attribute
+        name: (css_text_attribute_name)
+        value: (css_text_attribute_value
+          content: (css_attribute_text_double)))
+      (css_text_attribute
+        name: (css_text_attribute_name)
+        value: (css_text_attribute_value
+          content: (css_attribute_text_double)))
+      (css_text_attribute
+        name: (css_text_attribute_name)
+        value: (css_text_attribute_value
+          content: (css_attribute_text_double)))
+      (keyword_attribute
+        name: (keyword_attribute_name)
+        value: (keyword_attribute_value
+          (keyword_value)))
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double)))
+      (css_text_attribute
+        name: (css_text_attribute_name)
+        value: (css_text_attribute_value
+          content: (css_attribute_text_double)))
+      (number_attribute
+        name: (number_attribute_name)
+        value: (number_attribute_value
+          (number))))
+    (end_tag
+      name: (name)))
+  (text))

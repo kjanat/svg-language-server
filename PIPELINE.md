@@ -4,8 +4,8 @@ How SVG spec data and browser-compatibility data flow from raw upstream sources,
 through build-time processing, into the runtime catalog the language server
 consumes.
 
-**One crate owns everything: [`crates/svg-data`](crates/svg-data/).** Every other
-crate reaches the data through `svg_data::` imports. The build script
+**One crate owns everything: [`crates/svg-data`](crates/svg-data/).** Every
+other crate reaches the data through `svg_data::` imports. The build script
 (`crates/svg-data/build.rs`) bakes all sources into a single generated
 `catalog.rs`, included at compile time by
 [`crates/svg-data/src/catalog.rs:7`](crates/svg-data/src/catalog.rs):
@@ -53,8 +53,7 @@ flowchart TD
     build --> catalog --> api --> comp & lint
 
     propidx["propidx.html<br/>declared gap / migration target"]
-    spec_rs["build/spec.rs<br/>orphaned, not referenced"]
-    class propidx,spec_rs gap;
+    class propidx gap;
 
     classDef gap stroke-dasharray: 5 5,stroke:#c0392b;
 ```
@@ -102,9 +101,10 @@ Ordered by stage — input → mechanism → output.
 - **Mechanism**: `build/bcd.rs` reads the vendored slice directly. The
   `SVG_COMPAT_FILE` (local file) and `SVG_COMPAT_URL` (network, default
   `https://svg-compat.kjanat.com/data.json`) env vars are optional **refresh
-  overrides only** ([`build/bcd.rs:12-21`](crates/svg-data/build/bcd.rs)).
+  overrides only** ([`build/bcd.rs:12-21`](./crates/svg-data/build/bcd.rs)).
 - **Cache/offline**: override fetches cache at `$OUT_DIR/svg-compat-data.json`;
-  `SVG_DATA_OFFLINE` forces offline ([`build/bcd.rs:47-49`](crates/svg-data/build/bcd.rs)).
+  `SVG_DATA_OFFLINE` forces offline
+  ([`build/bcd.rs:47-49`](crates/svg-data/build/bcd.rs)).
 - **Out**: parsed compat structures fed into the build.
 
 ### Snapshot seed regeneration (example binary)
@@ -123,11 +123,11 @@ Ordered by stage — input → mechanism → output.
 `src/types.rs`, `src/worker_schema.rs`). Stages:
 
 1. **Provenance gate** — `provenance_gate::run(...)`
-   ([`build.rs:440`](crates/svg-data/build.rs)): every snapshot `source_id`
-   must resolve to a pinned source; fails the build early on edit errors.
-2. **Load + validate** — read per-snapshot JSON
-   (`grammars.json` at [`build.rs:568`](crates/svg-data/build.rs)), derived
-   union, curated catalogs; referential-integrity checks.
+   ([`build.rs:440`](crates/svg-data/build.rs)): every snapshot `source_id` must
+   resolve to a pinned source; fails the build early on edit errors.
+2. **Load + validate** — read per-snapshot JSON (`grammars.json` at
+   [`build.rs:568`](crates/svg-data/build.rs)), derived union, curated catalogs;
+   referential-integrity checks.
 3. **Reconcile** — `reconcile::run(...)`
    ([`build.rs:467`](crates/svg-data/build.rs)): 3-way check of BCD deprecation
    vs snapshot membership vs `spec_removals.json`, gated by
@@ -140,29 +140,23 @@ Ordered by stage — input → mechanism → output.
    `enum_values()` ([`build.rs:1076`](crates/svg-data/build.rs)) →
    `collect_enum_keywords()` ([`build.rs:1094`](crates/svg-data/build.rs)).
    Reads per-snapshot `grammars.json`.\
-   Special-cased grammar IDs (`path-data`, `color`, `length`, `number-or-percentage`, `points`,
-   `url-reference`, `view-box`, `preserve-aspect-ratio`, `transform-list-*`)
-   bypass keyword extraction and map to dedicated `UnionValues` variants.
+   Special-cased grammar IDs (`path-data`, `color`, `length`,
+   `number-or-percentage`, `points`, `url-reference`, `view-box`,
+   `preserve-aspect-ratio`, `transform-list-*`) bypass keyword extraction and
+   map to dedicated `UnionValues` variants.
 6. **Codegen** — `codegen::*` + `verdict::format_verdicts_slice` write static
    `ELEMENTS`/`ATTRIBUTES` arrays and lookup fns to `$OUT_DIR/catalog.rs`
    (`// @generated`).
 
-> **Orphaned:** `crates/svg-data/build/spec.rs` (`fetch_spec_descriptions`,
-> pinned to a svgwg SHA) is **not** declared as a module in `build.rs` nor
-> referenced by any `build/*.rs`. It is dead relative to the active pipeline.
-
----
-
 ## ③ → ④ Generated catalog & API
 
 `$OUT_DIR/catalog.rs` is `include!`-d by `src/catalog.rs:7`, surfacing static
-data through the `svg_data::` API (see `crates/svg-data/src/lib.rs`):
-`element` / `attribute`, `elements` / `attributes`,
-`element_for_profile` / `attribute_for_profile`,
-`attributes_for_with_profile`, `allowed_children_with_profile`,
-`allows_foreign_children`, `compat_verdict_for_element` /
-`compat_verdict_for_attribute`, `AttributeDef::values_for_profile`,
-`snapshot_for_svg_version_attr`, plus types
+data through the `svg_data::` API (see `crates/svg-data/src/lib.rs`): `element`
+/ `attribute`, `elements` / `attributes`, `element_for_profile` /
+`attribute_for_profile`, `attributes_for_with_profile`,
+`allowed_children_with_profile`, `allows_foreign_children`,
+`compat_verdict_for_element` / `compat_verdict_for_attribute`,
+`AttributeDef::values_for_profile`, `snapshot_for_svg_version_attr`, plus types
 (`SpecSnapshotId`, `ProfileLookup`, `AttributeValues`, `CompatVerdict`,
 `VerdictReason`, `SpecLifecycle`, `ContentModel`, …).
 
@@ -214,7 +208,8 @@ targets the **enum extraction** stage.
 - **Target**: derive property value enums directly from the spec's
   `propidx.html` (property index), eliminating hand-curated grammar enums.
 - **Current state**: `propidx.html` exists only at `svgwg/master/propidx.html`
-  (gitignored local clone) and is **declared but unconsumed** — its only reference is
+  (gitignored local clone) and is **declared but unconsumed** — its only
+  reference is
   [`data/sources/svg2-cr-20181004.toml:58-61`](crates/svg-data/data/sources/svg2-cr-20181004.toml)
   (`id = "property-index"`, `role = "property inventory"`). No code reads it.
 - **The seam to touch**: a new parser (likely in `workers/svg-compat/` or a new

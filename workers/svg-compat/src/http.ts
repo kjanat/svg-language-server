@@ -1,3 +1,4 @@
+// @ts-nocheck Deno
 import { serveDir } from '@std/http';
 import { contentType as mediaTypeFromExtension } from '@std/media-types';
 

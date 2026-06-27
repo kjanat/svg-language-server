@@ -67,7 +67,9 @@ use stylesheets::{
     class_definition_hovers_from_stylesheet, custom_property_definition_hovers_from_stylesheet,
     definition_response_from_locations, resolve_external_stylesheet,
 };
-use svg_tree::{deepest_node_at, find_ancestor_any, is_attribute_name_kind};
+use svg_tree::{
+    deepest_node_at, find_ancestor_any, is_attribute_name_kind, is_attribute_node_kind,
+};
 
 /// Parsed document state: source text + tree-sitter tree.
 ///
@@ -519,6 +521,17 @@ fn completion_response(items: Vec<CompletionItem>) -> Option<CompletionResponse>
     (!items.is_empty()).then_some(CompletionResponse::Array(items))
 }
 
+fn attribute_wrapper_ancestor(node: tree_sitter::Node<'_>) -> Option<tree_sitter::Node<'_>> {
+    let mut cursor = node;
+    loop {
+        let kind = cursor.kind();
+        if is_attribute_node_kind(kind) {
+            return Some(cursor);
+        }
+        cursor = cursor.parent()?;
+    }
+}
+
 /// Restrict attribute completion `items` to attributes the edition `inventory`
 /// attaches to `elem_name` via its `(element, attribute)` edges.
 ///
@@ -622,8 +635,7 @@ fn completion_from_context(
         let kind = cursor.kind();
 
         if kind.ends_with("_attribute_value") || kind == "quoted_attribute_value" {
-            if let Some(attr_wrapper) =
-                find_ancestor_any(cursor, &["generic_attribute", "attribute"])
+            if let Some(attr_wrapper) = attribute_wrapper_ancestor(cursor)
                 && let Some(attr_name) = first_attribute_name_text(attr_wrapper, source)
             {
                 let items = value_completions(&attr_name, source, tree, cursor, profile);
@@ -739,7 +751,7 @@ fn build_hover_context(
     );
 
     let definition_target = svg_references::definition_target_at(source, &doc.tree, byte_offset);
-    let stylesheet_hrefs = svg_references::extract_xml_stylesheet_hrefs(source);
+    let stylesheet_hrefs = svg_references::extract_stylesheet_hrefs(source, &doc.tree);
     let inline_stylesheets = svg_references::collect_inline_stylesheets(source, &doc.tree);
 
     let (class_hover, property_hover) = match &definition_target {
@@ -1061,6 +1073,10 @@ impl SvgLanguageServer {
             .write()
             .await
             .insert(uri.clone(), state.clone());
+        self.color_kinds
+            .write()
+            .await
+            .retain(|key, _| key.uri != uri);
 
         publish_lint_diagnostics(&self.client, uri, source_bytes, lint_diags, Some(version)).await;
     }
@@ -1592,6 +1608,15 @@ impl LanguageServer for SvgLanguageServer {
 }
 
 /// Run the SVG language server over stdio using the LSP transport.
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// #[tokio::main]
+/// async fn main() {
+///     svg_language_server::run_stdio_server().await;
+/// }
+/// ```
 pub async fn run_stdio_server() {
     let _logging = init_logging();
     let stdin = tokio::io::stdin();

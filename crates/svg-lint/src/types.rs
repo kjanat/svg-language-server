@@ -6,6 +6,13 @@ use svg_data::{CompatVerdict, SpecSnapshotId};
 ///
 /// When present in a [`LintOverrides`] map, these override the baked-in
 /// `svg_data` catalog values for a given element or attribute name.
+///
+/// # Examples
+///
+/// ```rust
+/// let flags = svg_lint::CompatFlags { deprecated: true, experimental: false };
+/// assert!(flags.deprecated);
+/// ```
 #[derive(Debug, Clone, Copy)]
 pub struct CompatFlags {
     /// Whether the element/attribute is deprecated.
@@ -20,6 +27,17 @@ pub struct CompatFlags {
 /// baked-in compat deprecation/experimental values used for diagnostics.
 /// Names absent from the maps use the baked-in catalog flags. These overrides
 /// do not change profile membership or spec lifecycle.
+///
+/// # Examples
+///
+/// ```rust
+/// let mut overrides = svg_lint::LintOverrides::default();
+/// overrides.elements.insert(
+///     "demo".to_owned(),
+///     svg_lint::CompatFlags { deprecated: true, experimental: false },
+/// );
+/// assert!(overrides.elements.contains_key("demo"));
+/// ```
 #[derive(Debug, Clone, Default)]
 pub struct LintOverrides {
     /// Element name → override flags.
@@ -40,6 +58,13 @@ pub struct LintOverrides {
 ///
 /// Kept separate from [`LintOverrides`] so the existing flag-override
 /// channel stays source-compatible.
+///
+/// # Examples
+///
+/// ```rust
+/// let overrides = svg_lint::VerdictOverrides::default();
+/// assert!(overrides.elements.is_empty());
+/// ```
 #[derive(Debug, Clone, Default)]
 pub struct VerdictOverrides {
     /// Element name → runtime-overridden compat verdict.
@@ -49,6 +74,13 @@ pub struct VerdictOverrides {
 }
 
 /// A single diagnostic produced by the SVG linter.
+///
+/// # Examples
+///
+/// ```rust
+/// let diagnostics = svg_lint::lint(br#"<svg><rect id="dup"/><circle id="dup"/></svg>"#);
+/// assert!(diagnostics.iter().any(|diag| diag.code == svg_lint::DiagnosticCode::DuplicateId));
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SvgDiagnostic {
     /// Byte range in the original source.
@@ -70,6 +102,13 @@ pub struct SvgDiagnostic {
 }
 
 /// Options controlling profile-aware lint behavior.
+///
+/// # Examples
+///
+/// ```rust
+/// let options = svg_lint::LintOptions::default();
+/// assert_eq!(options.profile, svg_data::SpecSnapshotId::Svg2EditorsDraft);
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct LintOptions {
     /// Selected pinned SVG snapshot.
@@ -96,6 +135,13 @@ impl Default for LintOptions {
 }
 
 /// Diagnostic severity levels (mirrors LSP).
+///
+/// # Examples
+///
+/// ```rust
+/// let severity = svg_lint::Severity::Warning;
+/// assert_eq!(severity, svg_lint::Severity::Warning);
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Severity {
     /// Error severity.
@@ -109,6 +155,12 @@ pub enum Severity {
 }
 
 /// Machine-readable diagnostic codes.
+///
+/// # Examples
+///
+/// ```rust
+/// assert_eq!(svg_lint::DiagnosticCode::UnknownElement.as_str(), "UnknownElement");
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum DiagnosticCode {
     /// Child element is not allowed under its parent.
@@ -173,6 +225,12 @@ impl DiagnosticCode {
     ];
 
     /// Return the stable string representation used in diagnostics and comments.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// assert_eq!(svg_lint::DiagnosticCode::DuplicateId.as_str(), "DuplicateId");
+    /// ```
     #[must_use]
     pub const fn as_str(self) -> &'static str {
         match self {

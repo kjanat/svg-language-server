@@ -1,0 +1,226 @@
+================================================================================
+Simple moveto + lineto + closepath
+================================================================================
+
+M10 10 L20 20 Z
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (path_wsp)
+  (path_data
+    (moveto_segment
+      (path_command)
+      (path_coordinate_pair
+        (path_coordinate
+          (path_number))
+        (path_comma_wsp
+          (path_wsp))
+        (path_coordinate
+          (path_number))))
+    (path_wsp)
+    (path_segment
+      (lineto_segment
+        (path_command)
+        (path_coordinate_pair
+          (path_coordinate
+            (path_number))
+          (path_comma_wsp
+            (path_wsp))
+          (path_coordinate
+            (path_number)))))
+    (path_wsp)
+    (path_segment
+      (closepath_segment
+        (path_command)))
+    (path_wsp)))
+
+================================================================================
+Compact adjacency (commands glued to numbers)
+================================================================================
+
+M10-20L30.5-.25h1 2 50z
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (path_wsp)
+  (path_data
+    (moveto_segment
+      (path_command)
+      (path_coordinate_pair
+        (path_coordinate
+          (path_number))
+        (path_coordinate
+          (path_number))))
+    (path_segment
+      (lineto_segment
+        (path_command)
+        (path_coordinate_pair
+          (path_coordinate
+            (path_number))
+          (path_coordinate
+            (path_number)))))
+    (path_segment
+      (horizontal_lineto_segment
+        (path_command)
+        (path_coordinate
+          (path_number))
+        (path_coordinate
+          (path_number))
+        (path_coordinate
+          (path_number))))
+    (path_segment
+      (closepath_segment
+        (path_command)))
+    (path_wsp)))
+
+================================================================================
+Elliptical arc with adjacent flags
+================================================================================
+
+M0 0 A5 5 0 01 10 10
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (path_wsp)
+  (path_data
+    (moveto_segment
+      (path_command)
+      (path_coordinate_pair
+        (path_coordinate
+          (path_number))
+        (path_comma_wsp
+          (path_wsp))
+        (path_coordinate
+          (path_number))))
+    (path_wsp)
+    (path_segment
+      (elliptical_arc_segment
+        (path_command)
+        (elliptical_arc_argument
+          (elliptical_arc_radii
+            (path_coordinate
+              (path_number))
+            (path_comma_wsp
+              (path_wsp))
+            (path_coordinate
+              (path_number)))
+          (path_comma_wsp
+            (path_wsp))
+          (path_rotation
+            (path_number))
+          (path_comma_wsp
+            (path_wsp))
+          (path_arc_flag)
+          (path_sweep_flag)
+          (path_comma_wsp
+            (path_wsp))
+          (path_coordinate_pair
+            (path_coordinate
+              (path_number))
+            (path_comma_wsp
+              (path_wsp))
+            (path_coordinate
+              (path_number))))))
+    (path_wsp)))
+
+================================================================================
+Cubic curveto implicit repeat (12 numbers)
+================================================================================
+
+m1,1c1 2 3 4 5 6 7 8 9 10 11 12
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (path_wsp)
+  (path_data
+    (moveto_segment
+      (path_command)
+      (path_coordinate_pair
+        (path_coordinate
+          (path_number))
+        (path_comma_wsp
+          (path_comma))
+        (path_coordinate
+          (path_number))))
+    (path_segment
+      (curveto_segment
+        (path_command)
+        (curveto_argument
+          (path_coordinate_pair
+            (path_coordinate
+              (path_number))
+            (path_comma_wsp
+              (path_wsp))
+            (path_coordinate
+              (path_number)))
+          (path_comma_wsp
+            (path_wsp))
+          (path_coordinate_pair
+            (path_coordinate
+              (path_number))
+            (path_comma_wsp
+              (path_wsp))
+            (path_coordinate
+              (path_number)))
+          (path_comma_wsp
+            (path_wsp))
+          (path_coordinate_pair
+            (path_coordinate
+              (path_number))
+            (path_comma_wsp
+              (path_wsp))
+            (path_coordinate
+              (path_number))))
+        (curveto_argument
+          (path_coordinate_pair
+            (path_coordinate
+              (path_number))
+            (path_comma_wsp
+              (path_wsp))
+            (path_coordinate
+              (path_number)))
+          (path_comma_wsp
+            (path_wsp))
+          (path_coordinate_pair
+            (path_coordinate
+              (path_number))
+            (path_comma_wsp
+              (path_wsp))
+            (path_coordinate
+              (path_number)))
+          (path_comma_wsp
+            (path_wsp))
+          (path_coordinate_pair
+            (path_coordinate
+              (path_number))
+            (path_comma_wsp
+              (path_wsp))
+            (path_coordinate
+              (path_number))))))
+    (path_wsp)))
+
+================================================================================
+Whitespace-only payload
+================================================================================
+
+
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (path_wsp))
+
+================================================================================
+Path command without leading moveto
+:error
+================================================================================
+
+L10 10
+
+--------------------------------------------------------------------------------
+
+

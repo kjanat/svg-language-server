@@ -5,17 +5,18 @@ authors.workspace    = true
 edition.workspace    = true
 description          = "Color extraction and format conversion for SVG documents"
 readme               = "README.md"
-homepage             = "https://github.com/kjanat/svg-language-server/tree/master/crates/svg-color"
+homepage             = "https://github.com/kjanat/svg/tree/HEAD/crates/svg-color"
 repository.workspace = true
 license.workspace    = true
 keywords             = ["color", "hex", "hsl", "rgb", "svg"]
 categories           = ["graphics", "parsing"]
 
 [dependencies]
-svg-tree.workspace        = true
-tree-sitter.workspace     = true
-tree-sitter-css.workspace = true
-tree-sitter-svg.workspace = true
+svg-tree.workspace              = true
+tree-sitter.workspace           = true
+tree-sitter-css.workspace       = true
+tree-sitter-svg.workspace       = true
+tree-sitter-svg-paint.workspace = true
 
 [lints]
 workspace = true

@@ -22,6 +22,15 @@ use text_content::{
 use tree_sitter::{Node, Parser};
 
 /// Attribute ordering mode.
+///
+/// # Examples
+///
+/// ```rust
+/// let mut options = svg_format::FormatOptions::default();
+/// options.attribute_sort = svg_format::AttributeSort::Alphabetical;
+/// let formatted = svg_format::format_with_options(r#"<svg y="2" x="1"/>"#, options);
+/// assert!(formatted.contains(r#"x="1" y="2""#));
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "cli", derive(clap::ValueEnum))]
 #[cfg_attr(feature = "cli", value(rename_all = "kebab-case"))]
@@ -36,6 +45,15 @@ pub enum AttributeSort {
 }
 
 /// Attribute wrapping mode.
+///
+/// # Examples
+///
+/// ```rust
+/// let mut options = svg_format::FormatOptions::default();
+/// options.attribute_layout = svg_format::AttributeLayout::MultiLine;
+/// let formatted = svg_format::format_with_options(r#"<svg><rect x="1" y="2"/></svg>"#, options);
+/// assert!(formatted.contains('\n'));
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "cli", derive(clap::ValueEnum))]
 #[cfg_attr(feature = "cli", value(rename_all = "kebab-case"))]
@@ -50,6 +68,15 @@ pub enum AttributeLayout {
 }
 
 /// Quoting strategy for attribute values.
+///
+/// # Examples
+///
+/// ```rust
+/// let mut options = svg_format::FormatOptions::default();
+/// options.quote_style = svg_format::QuoteStyle::Single;
+/// let formatted = svg_format::format_with_options(r#"<svg><rect x="1"/></svg>"#, options);
+/// assert!(formatted.contains("x='1'"));
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "cli", derive(clap::ValueEnum))]
 #[cfg_attr(feature = "cli", value(rename_all = "kebab-case"))]
@@ -64,6 +91,16 @@ pub enum QuoteStyle {
 }
 
 /// Indentation strategy for wrapped attributes.
+///
+/// # Examples
+///
+/// ```rust
+/// let mut options = svg_format::FormatOptions::default();
+/// options.attribute_layout = svg_format::AttributeLayout::MultiLine;
+/// options.wrapped_attribute_indent = svg_format::WrappedAttributeIndent::OneLevel;
+/// let formatted = svg_format::format_with_options(r#"<svg><rect x="1" y="2"/></svg>"#, options);
+/// assert!(formatted.contains("\n    x="));
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "cli", derive(clap::ValueEnum))]
 #[cfg_attr(feature = "cli", value(rename_all = "kebab-case"))]
@@ -76,6 +113,15 @@ pub enum WrappedAttributeIndent {
 }
 
 /// How blank lines between sibling elements are handled.
+///
+/// # Examples
+///
+/// ```rust
+/// let mut options = svg_format::FormatOptions::default();
+/// options.blank_lines = svg_format::BlankLines::Remove;
+/// let formatted = svg_format::format_with_options("<svg><g/>\n\n<g/></svg>", options);
+/// assert!(!formatted.contains("\n\n"));
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "cli", derive(clap::ValueEnum))]
 #[cfg_attr(feature = "cli", value(rename_all = "kebab-case"))]
@@ -92,6 +138,15 @@ pub enum BlankLines {
 }
 
 /// How the formatter handles whitespace in text nodes.
+///
+/// # Examples
+///
+/// ```rust
+/// let mut options = svg_format::FormatOptions::default();
+/// options.text_content = svg_format::TextContentMode::Collapse;
+/// let formatted = svg_format::format_with_options("<svg><text>a   b</text></svg>", options);
+/// assert!(formatted.contains("a b"));
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 #[cfg_attr(feature = "cli", derive(clap::ValueEnum))]
 #[cfg_attr(feature = "cli", value(rename_all = "kebab-case"))]
@@ -106,6 +161,13 @@ pub enum TextContentMode {
 }
 
 /// The language of embedded content found within an SVG element.
+///
+/// # Examples
+///
+/// ```rust
+/// let language = svg_format::EmbeddedLanguage::Css;
+/// assert_eq!(language, svg_format::EmbeddedLanguage::Css);
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum EmbeddedLanguage {
     /// CSS inside `<style>`.
@@ -116,7 +178,26 @@ pub enum EmbeddedLanguage {
     Html,
 }
 
+const fn is_script_or_style_language(language: EmbeddedLanguage) -> bool {
+    matches!(
+        language,
+        EmbeddedLanguage::Css | EmbeddedLanguage::JavaScript
+    )
+}
+
 /// A request to format embedded content within an SVG document.
+///
+/// # Examples
+///
+/// ```rust
+/// let embedded = svg_format::EmbeddedContent {
+///     language: svg_format::EmbeddedLanguage::Css,
+///     content: ".icon{fill:red}",
+///     indent_depth: 1,
+///     file_byte_offset: 12,
+/// };
+/// assert_eq!(embedded.language, svg_format::EmbeddedLanguage::Css);
+/// ```
 pub struct EmbeddedContent<'a> {
     /// The language of the embedded content.
     pub language: EmbeddedLanguage,
@@ -140,6 +221,13 @@ pub struct EmbeddedContent<'a> {
 }
 
 /// Formatter configuration for SVG pretty-printing.
+///
+/// # Examples
+///
+/// ```rust
+/// let options = svg_format::FormatOptions::default();
+/// assert_eq!(options.indent_width, 2);
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FormatOptions {
     /// Number of spaces per indentation level when `insert_spaces` is true.
@@ -195,12 +283,28 @@ impl Default for FormatOptions {
 }
 
 /// Format an SVG source string with default options.
+///
+/// # Examples
+///
+/// ```rust
+/// let formatted = svg_format::format(r#"<svg><rect x="1"/></svg>"#);
+/// assert!(formatted.contains("<rect"));
+/// ```
 #[must_use]
 pub fn format(source: &str) -> String {
     format_with_options(source, FormatOptions::default())
 }
 
 /// Format an SVG source string with explicit options.
+///
+/// # Examples
+///
+/// ```rust
+/// let mut options = svg_format::FormatOptions::default();
+/// options.space_before_self_close = false;
+/// let formatted = svg_format::format_with_options("<svg />", options);
+/// assert!(formatted.contains("<svg/>"));
+/// ```
 #[must_use]
 pub fn format_with_options(source: &str, options: FormatOptions) -> String {
     format_with_host(source, options, &mut |_| None)
@@ -211,6 +315,22 @@ pub fn format_with_options(source: &str, options: FormatOptions) -> String {
 /// The callback receives [`EmbeddedContent`] for `<style>`, `<script>`, and
 /// `<foreignObject>` blocks. Return `Some(formatted)` to use the formatted
 /// result, or `None` to fall back to the default text-handling behavior.
+///
+/// # Examples
+///
+/// ```rust
+/// let mut seen_css = false;
+/// let formatted = svg_format::format_with_host(
+///     "<svg><style>.icon{fill:red}</style></svg>",
+///     svg_format::FormatOptions::default(),
+///     &mut |embedded| {
+///         seen_css = embedded.language == svg_format::EmbeddedLanguage::Css;
+///         Some(".icon { fill: red; }".to_owned())
+///     },
+/// );
+/// assert!(seen_css);
+/// assert!(formatted.contains(".icon { fill: red; }"));
+/// ```
 #[must_use]
 pub fn format_with_host(
     source: &str,
@@ -306,33 +426,30 @@ fn wrap_path_data(name: &str, raw: &str, budget: usize) -> Option<String> {
 }
 
 fn wrap_d_value(raw: &str, budget: usize) -> Option<String> {
-    // Wrap in a synthetic `<svg><path d="..."/></svg>` so the grammar's
-    // path-data scanner recognizes the attribute value as structured
-    // segments (the grammar only activates for attributes inside an
-    // SVG tag). Path data never contains `"`, so the quoting is
-    // unambiguous; parse errors mean we leave the value untouched.
-    const PREFIX: &str = "<svg><path d=\"";
-    const SUFFIX: &str = "\"/></svg>";
-    let wrapper = format!("{PREFIX}{raw}{SUFFIX}");
+    // Path data lives in the injected `svg_path` grammar — the host grammar
+    // now exposes the `d`/`path` value as one opaque `path_data_payload`
+    // token. Parse the raw attribute value directly with `svg_path` to
+    // recover structured segments (`source_file` → `path_data` → segments).
+    // Empty/whitespace path data is valid; a parse error means we leave the
+    // value untouched.
     let mut parser = Parser::new();
     parser
-        .set_language(&tree_sitter_svg::LANGUAGE.into())
+        .set_language(&tree_sitter_svg_path::LANGUAGE.into())
         .ok()?;
-    let tree = parser.parse(wrapper.as_bytes(), None)?;
+    let tree = parser.parse(raw.as_bytes(), None)?;
     if tree.root_node().has_error() {
         return None;
     }
 
     let mut segments: Vec<(usize, usize, &str)> = Vec::new();
-    collect_path_segments(tree.root_node(), wrapper.as_bytes(), &mut segments);
+    collect_path_segments(tree.root_node(), raw.as_bytes(), &mut segments);
     if segments.is_empty() {
         return None;
     }
 
-    let prefix_len = PREFIX.len();
     let segment_strs: Vec<&str> = segments
         .iter()
-        .map(|&(start, end, _kind)| &raw[start - prefix_len..end - prefix_len])
+        .map(|&(start, end, _kind)| &raw[start..end])
         .collect();
     let segment_kinds: Vec<&str> = segments.iter().map(|&(_, _, kind)| kind).collect();
 
@@ -673,13 +790,11 @@ impl<'a> Formatter<'a> {
             return;
         }
 
-        // Self-closing form: <rect .../>
         if children.len() == 1 && children[0].kind() == "self_closing_tag" {
             self.format_node(children[0], depth, fmt);
             return;
         }
 
-        // Detect the element's tag name for embedded content handling.
         let tag_name: String = children
             .iter()
             .find(|c| c.kind() == "start_tag")
@@ -698,7 +813,6 @@ impl<'a> Formatter<'a> {
             _ => None,
         };
 
-        // For foreignObject, try to format the entire inner content as HTML.
         if embedded_lang == Some(EmbeddedLanguage::Html)
             && self
                 .try_format_foreign_object(&children, depth, fmt)
@@ -712,11 +826,21 @@ impl<'a> Formatter<'a> {
             return;
         }
 
+        self.format_element_children(&children, embedded_lang, depth, fmt);
+    }
+
+    fn format_element_children(
+        &mut self,
+        children: &[Node<'_>],
+        embedded_lang: Option<EmbeddedLanguage>,
+        depth: usize,
+        fmt: &mut dyn FnMut(EmbeddedContent<'_>) -> Option<String>,
+    ) {
         let mut prev_end: Option<usize> = None;
         let mut prev_was_comment = false;
         let mut ignore_next = false;
         let mut in_ignore_range = false;
-        for child in children {
+        for &child in children {
             if self.handle_ignore(
                 child,
                 &mut in_ignore_range,
@@ -739,34 +863,37 @@ impl<'a> Formatter<'a> {
                     prev_was_comment = false;
                     prev_end = Some(child.end_byte());
                 }
+                "cdata_section" if embedded_lang.is_some_and(is_script_or_style_language) => {
+                    let Some(lang) = embedded_lang else { continue };
+                    self.format_embedded_child(
+                        child,
+                        lang,
+                        depth + 1,
+                        fmt,
+                        (&mut prev_end, &mut prev_was_comment),
+                        true,
+                    );
+                }
                 "text" | "raw_text" => {
-                    if self.node_text(child).trim().is_empty() {
-                        continue;
-                    }
-                    if let Some(end) = prev_end {
-                        self.emit_gap(end, child.start_byte(), prev_was_comment);
-                    }
-                    // Try embedded formatting for style/script raw_text.
                     if let Some(lang) = embedded_lang
                         && lang != EmbeddedLanguage::Html
-                        && self.try_format_embedded_text(child, lang, depth + 1, fmt)
                     {
-                        prev_was_comment = false;
-                        prev_end = Some(child.end_byte());
+                        self.format_embedded_child(
+                            child,
+                            lang,
+                            depth + 1,
+                            fmt,
+                            (&mut prev_end, &mut prev_was_comment),
+                            false,
+                        );
                         continue;
                     }
-                    if matches!(self.options.text_content, TextContentMode::Maintain)
-                        && matches!(
-                            embedded_lang,
-                            Some(EmbeddedLanguage::Css | EmbeddedLanguage::JavaScript)
-                        )
-                    {
-                        self.write_preserved_embedded_text(child, depth + 1);
-                    } else {
-                        self.write_text_node(child, depth + 1);
-                    }
-                    prev_was_comment = false;
-                    prev_end = Some(child.end_byte());
+                    self.format_plain_text_child(
+                        child,
+                        depth + 1,
+                        &mut prev_end,
+                        &mut prev_was_comment,
+                    );
                 }
                 _ => {
                     if let Some(end) = prev_end {
@@ -778,6 +905,51 @@ impl<'a> Formatter<'a> {
                 }
             }
         }
+    }
+
+    fn format_plain_text_child(
+        &mut self,
+        child: Node<'_>,
+        depth: usize,
+        prev_end: &mut Option<usize>,
+        prev_was_comment: &mut bool,
+    ) {
+        if self.node_text(child).trim().is_empty() {
+            return;
+        }
+        if let Some(end) = *prev_end {
+            self.emit_gap(end, child.start_byte(), *prev_was_comment);
+        }
+        self.write_text_node(child, depth);
+        *prev_was_comment = false;
+        *prev_end = Some(child.end_byte());
+    }
+
+    fn format_embedded_child(
+        &mut self,
+        child: Node<'_>,
+        language: EmbeddedLanguage,
+        depth: usize,
+        fmt: &mut dyn FnMut(EmbeddedContent<'_>) -> Option<String>,
+        previous: (&mut Option<usize>, &mut bool),
+        force_preserve: bool,
+    ) {
+        let (prev_end, prev_was_comment) = previous;
+        if self.node_text(child).trim().is_empty() {
+            return;
+        }
+        if let Some(end) = *prev_end {
+            self.emit_gap(end, child.start_byte(), *prev_was_comment);
+        }
+        if !self.try_format_embedded_text(child, language, depth, fmt) {
+            if force_preserve || self.options.text_content == TextContentMode::Maintain {
+                self.write_preserved_embedded_text(child, depth);
+            } else {
+                self.write_text_node(child, depth);
+            }
+        }
+        *prev_was_comment = false;
+        *prev_end = Some(child.end_byte());
     }
 
     /// Format a text-content element whose children include entity

@@ -245,7 +245,8 @@ pub fn clamp_channel(value: f64) -> f32 {
 
 #[expect(
     clippy::cast_possible_truncation,
-    reason = "value is clamped to [0.0, 1.0]; truncation is limited to LSB mantissa bits — no From<f64> for f32 exists in std"
+    reason = "value is clamped to [0.0, 1.0]; truncation is limited to LSB mantissa bits — no \
+              From<f64> for f32 exists in std"
 )]
 const fn f64_to_f32(value: f64) -> f32 {
     value as f32

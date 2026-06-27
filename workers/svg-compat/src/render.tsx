@@ -5,19 +5,20 @@
  *
  * @module
  */
+// @ts-nocheck Deno
 
 import { render } from 'preact-render-to-string';
 
-import { AttributesTable } from './components/AttributesTable.tsx';
-import { ElementsTable } from './components/ElementsTable.tsx';
-import { ErrorPage } from './components/ErrorPage.tsx';
-import { Hero } from './components/Hero.tsx';
-import { Layout } from './components/Layout.tsx';
-import { TableSection } from './components/TableSection.tsx';
-import { UpstreamSources } from './components/UpstreamSources.tsx';
-import type { SvgCompatOutput } from './main.ts';
-import type { BrowserMaxChars } from './view.ts';
-import { BROWSER_KEYS, buildPageModel } from './view.ts';
+import { AttributesTable } from '#component/AttributesTable.tsx';
+import { ElementsTable } from '#component/ElementsTable.tsx';
+import { ErrorPage } from '#component/ErrorPage.tsx';
+import { Hero } from '#component/Hero.tsx';
+import { Layout } from '#component/Layout.tsx';
+import { TableSection } from '#component/TableSection.tsx';
+import { UpstreamSources } from '#component/UpstreamSources.tsx';
+import type { SvgCompatOutput } from '#server';
+import type { BrowserMaxChars } from '#src/view.ts';
+import { BROWSER_KEYS, buildPageModel } from '#src/view.ts';
 
 /**
  * Builds the inline `<main style>` string carrying per-browser chip

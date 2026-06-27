@@ -1,0 +1,37 @@
+#:tombi toml-version = "v1.1.0"
+
+[dependency-groups]
+dev   = [
+  { include-group = "build" },
+  { include-group = "lint" },
+  { include-group = "ts" },
+]
+build = ["setuptools>=77.0.0", "typing_extensions>=4.12", "wheel"]
+lint  = ["basedpyright", "ruff", "ty"]
+ts    = ["tree-sitter~=0.25"]
+
+[tool.pyright]
+pythonVersion          = "3.13"
+venvPath               = "."
+venv                   = ".venv"
+reportMissingTypeStubs = false
+include                = ["grammars/tree-sitter-*/"]
+
+[tool.ruff]
+target-version = "py313"
+include        = ["grammars/tree-sitter-*/bindings/python/**/*.py*", "./grammars/tree-sitter-*/setup.py"]
+
+[tool.ty]
+environment = { python-version = "3.13", python = ".venv" }
+src         = { include = ["grammars/tree-sitter-*/bindings/python/**/*.py*", "./grammars/tree-sitter-*/setup.py"] }
+
+[tool.uv]
+managed                  = true
+workspace                = { members = ["grammars/tree-sitter-*"] }
+dev-dependencies         = ["basedpyright", "ruff", "setuptools", "tree-sitter", "ty", "wheel"]
+extra-build-dependencies = {
+  tree-sitter-svg           = ["typing_extensions>=4.12"],
+  tree-sitter-svg-transform = ["typing_extensions>=4.12"],
+  tree-sitter-svg-path      = ["typing_extensions>=4.12"],
+  tree-sitter-svg-paint     = ["typing_extensions>=4.12"],
+}

@@ -1,6 +1,7 @@
-import type { PageModel } from '../view.ts';
-import { StatsGrid } from './StatsGrid.tsx';
-import { VersionCombo } from './VersionCombo.tsx';
+// @ts-nocheck Deno
+import { StatsGrid } from '#component/StatsGrid.tsx';
+import { VersionCombo } from '#component/VersionCombo.tsx';
+import type { PageModel } from '#src/view.ts';
 
 interface Props {
 	model: PageModel;

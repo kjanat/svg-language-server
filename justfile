@@ -88,6 +88,21 @@ test-svg-format:
 test-svg-lint:
     cargo test -p svg-lint
 
+# test all tree-sitter grammar Go bindings (workspace-wide via go.work)
+[group('grammar')]
+test-go *ARGS:
+    go test $(go list -m | sed 's|$|/bindings/go|') {{ ARGS }}
+
+# test all tree-sitter grammar Zig bindings (zig 0.16)
+[group('grammar')]
+test-zig:
+    for d in svg svg-path svg-paint svg-transform; do (cd grammars/tree-sitter-$d && zig build test) || exit 1; done
+
+# tidy all tree-sitter grammar Go modules (refresh go.mod + go.sum)
+[group('grammar')]
+tidy-go:
+    for m in $(go list -m); do go -C "grammars/$(basename $m)" mod tidy; done
+
 # debug build, whole workspace
 [group('rust')]
 build-debug *ARGS:
@@ -118,10 +133,10 @@ regen-sample NAME REF="":
 regen-test *ARGS:
     cargo test -p svg-data-regen {{ ARGS }}
 
-# typecheck the Deno-checked scripts (run under Bun, type-checked by Deno)
+# typecheck the Deno-checked scripts
 [group('scripts')]
 typecheck:
-    deno task --config scripts/deno.jsonc typecheck
+    deno check scripts/release-prepare.ts
 
 # run the svg-compat worker's Deno test suite
 [group('scripts')]

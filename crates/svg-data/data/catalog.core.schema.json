@@ -8,7 +8,6 @@
         "animatable",
         "applicability",
         "name",
-        "value_overrides",
         "values"
       ],
       "properties": {
@@ -60,6 +59,13 @@
             "$ref": "#/$defs/CatalogAttributeElementCompat"
           }
         },
+        "element_values": {
+          "description": "Element-scoped value-space overrides for attributes whose value grammar\ngenuinely differs by bearer element within the same profile (e.g.\n`operator` on `feComposite` vs `feMorphology`).",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CatalogAttributeElementValues"
+          }
+        },
         "experimental": {
           "description": "Whether compat data marks the attribute experimental.",
           "type": "boolean"
@@ -95,14 +101,6 @@
             "boolean",
             "null"
           ]
-        },
-        "value_overrides": {
-          "description": "Per-profile value-space overrides, when older snapshots accepted a\ndifferent grammar.",
-          "writeOnly": true,
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/CatalogAttributeValueOverride"
-          }
         },
         "values": {
           "$ref": "#/$defs/CatalogAttributeValues",
@@ -219,21 +217,21 @@
         }
       }
     },
-    "CatalogAttributeValueOverride": {
-      "description": "One per-profile value-space override for an attribute.",
+    "CatalogAttributeElementValues": {
+      "description": "One element-scoped value-space override for an attribute whose value grammar\ngenuinely differs by bearer element within the same profile.\n\nThe canonical [`CatalogAttribute::values`] holds the value space of the\nfirst bearer (by sorted element name); each diverging bearer is recorded\nhere so no spec-defined value space is lost.",
       "type": "object",
       "required": [
-        "profile",
+        "element",
         "values"
       ],
       "properties": {
-        "profile": {
-          "$ref": "#/$defs/CatalogSpecSnapshotId",
-          "description": "Profile snapshot where this value grammar applies."
+        "element": {
+          "description": "Element this value-space override applies to.",
+          "type": "string"
         },
         "values": {
           "$ref": "#/$defs/CatalogAttributeValues",
-          "description": "Value space for that profile."
+          "description": "Value space when the attribute is borne by `element`."
         }
       }
     },
@@ -318,6 +316,214 @@
             "kind": {
               "type": "string",
               "const": "url"
+            }
+          }
+        },
+        {
+          "description": "A boolean attribute as defined by HTML.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "boolean"
+            }
+          }
+        },
+        {
+          "description": "A space-separated token list.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "token_list"
+            }
+          }
+        },
+        {
+          "description": "A comma-separated token list.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "comma_token_list"
+            }
+          }
+        },
+        {
+          "description": "A space-separated list of URL tokens.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "url_token_list"
+            }
+          }
+        },
+        {
+          "description": "A BCP 47 / ABNF language tag.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "language_tag"
+            }
+          }
+        },
+        {
+          "description": "An integer value.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "integer"
+            }
+          }
+        },
+        {
+          "description": "A MIME media type.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "media_type"
+            }
+          }
+        },
+        {
+          "description": "A CSS media query list.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "media_query_list"
+            }
+          }
+        },
+        {
+          "description": "A CSS declaration list, as used by inline `style`.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "css_declaration_list"
+            }
+          }
+        },
+        {
+          "description": "An SVG element ID value.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "id"
+            }
+          }
+        },
+        {
+          "description": "A referrer policy string.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "referrer_policy"
+            }
+          }
+        },
+        {
+          "description": "A suggested download file name.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "suggested_file_name"
+            }
+          }
+        },
+        {
+          "description": "SVG path data.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "path_data"
+            }
+          }
+        },
+        {
+          "description": "A semicolon-separated list of numbers.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "semicolon_number_list"
+            }
+          }
+        },
+        {
+          "description": "One motion-animation coordinate pair.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "coordinate_pair"
+            }
+          }
+        },
+        {
+          "description": "A semicolon-separated list of motion-animation coordinate pairs.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "coordinate_pair_list"
             }
           }
         },
@@ -910,35 +1116,10 @@
           ]
         }
       }
-    },
-    "CatalogSpecSnapshotId": {
-      "description": "SVG specification snapshots understood by the catalog contract.",
-      "oneOf": [
-        {
-          "description": "SVG 1.1 First Edition (W3C REC 2003-01-14).",
-          "type": "string",
-          "const": "Svg11Rec20030114"
-        },
-        {
-          "description": "SVG 1.1 Second Edition (W3C REC 2011-08-16).",
-          "type": "string",
-          "const": "Svg11Rec20110816"
-        },
-        {
-          "description": "SVG 2 Candidate Recommendation (2018-10-04).",
-          "type": "string",
-          "const": "Svg2Cr20181004"
-        },
-        {
-          "description": "SVG 2 Editor's Draft (rolling).",
-          "type": "string",
-          "const": "Svg2EditorsDraft"
-        }
-      ]
     }
   },
   "title": "svg-data core catalog v1",
-  "description": "Canonical latest catalog data.",
+  "description": "Canonical latest catalog data after semantic projection.\n\nThis document is the runtime-facing catalog, not a raw upstream XML/HTML\nmirror.",
   "type": "object",
   "required": [
     "attributes",

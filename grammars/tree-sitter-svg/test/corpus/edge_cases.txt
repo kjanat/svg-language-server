@@ -1,0 +1,2470 @@
+==================
+Single-quoted typed attribute values
+==================
+
+<svg viewBox='0 0 50 50' preserveAspectRatio='xMidYMid meet'>
+  <rect x='10' y='20' width='30' height='40'/>
+  <circle fill='red' stroke='blue' opacity='.5'/>
+  <use href='#a' clip-path='url(#c)'/>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (viewbox_attribute
+        name: (viewbox_attribute_name)
+        value: (viewbox_attribute_value
+          (viewbox_value
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number))))
+      (preserve_aspect_ratio_attribute
+        name: (preserve_aspect_ratio_attribute_name)
+        value: (preserve_aspect_ratio_attribute_value
+          (preserve_aspect_ratio_value
+            (align_keyword)
+            (wsp)
+            (meet_or_slice_keyword)))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (paint_attribute
+          name: (paint_attribute_name)
+          value: (paint_attribute_value
+            (paint_payload)))
+        (paint_attribute
+          name: (paint_attribute_name)
+          value: (paint_attribute_value
+            (paint_payload)))
+        (opacity_attribute
+          name: (opacity_attribute_name)
+          value: (opacity_attribute_value
+            (number_or_percentage
+              (number))))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (href_attribute
+          name: (href_attribute_name)
+          value: (href_attribute_value
+            (href_reference
+              (iri_reference))))
+        (functional_iri_attribute
+          name: (functional_iri_attribute_name)
+          value: (functional_iri_attribute_value
+            (functional_iri
+              (iri_reference))))))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Empty typed attribute values
+==================
+
+<svg viewBox="">
+  <path d=""/>
+  <rect style="" fill="" opacity="" class=""/>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (viewbox_attribute
+        name: (viewbox_attribute_name)
+        value: (viewbox_attribute_value)))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data)))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (style_attribute
+          name: (style_attribute_name)
+          value: (style_attribute_value
+            (double_quoted_style_value)))
+        (paint_attribute
+          name: (paint_attribute_name)
+          value: (paint_attribute_value))
+        (opacity_attribute
+          name: (opacity_attribute_name)
+          value: (opacity_attribute_value))
+        (class_attribute
+          name: (class_attribute_name)
+          value: (class_attribute_value))))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Length attribute auto keyword
+==================
+
+<svg width="auto" height="auto">
+  <rect width="auto"/>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (length_attribute
+        name: (length_attribute_name)
+        value: (length_attribute_value
+          (length_or_percentage_or_auto)))
+      (length_attribute
+        name: (length_attribute_name)
+        value: (length_attribute_value
+          (length_or_percentage_or_auto))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto)))))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Length units variety
+==================
+
+<svg>
+  <rect x="10px" y="2em" width="3ex" height="72pt"/>
+  <circle cx="5pc" cy="10mm" r="2cm"/>
+  <text x="1in" font-size="16px"/>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number)
+                  (length_unit))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number)
+                  (length_unit))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number)
+                  (length_unit))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number)
+                  (length_unit))))))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number)
+                  (length_unit))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number)
+                  (length_unit))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number)
+                  (length_unit))))))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number)
+                  (length_unit))))))
+        (css_text_attribute
+          name: (css_text_attribute_name)
+          value: (css_text_attribute_value
+            content: (css_attribute_text_double)))))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Negative numbers in viewBox and coordinates
+==================
+
+<svg viewBox="-50 -50 200 200">
+  <rect x="-10" y="-20" width="30" height="40"/>
+  <circle cx="-5.5" cy="-3.14" r="10"/>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (viewbox_attribute
+        name: (viewbox_attribute_name)
+        value: (viewbox_attribute_value
+          (viewbox_value
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+ViewBox comma-separated
+==================
+
+<svg viewBox="0,0,100,200"></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (viewbox_attribute
+        name: (viewbox_attribute_name)
+        value: (viewbox_attribute_value
+          (viewbox_value
+            (number)
+            (comma_wsp)
+            (number)
+            (comma_wsp)
+            (number)
+            (comma_wsp)
+            (number)))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+ViewBox mixed separators
+==================
+
+<svg viewBox="0 0,100 200"></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (viewbox_attribute
+        name: (viewbox_attribute_name)
+        value: (viewbox_attribute_value
+          (viewbox_value
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp)
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+PreserveAspectRatio none
+==================
+
+<svg preserveAspectRatio="none"></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (preserve_aspect_ratio_attribute
+        name: (preserve_aspect_ratio_attribute_name)
+        value: (preserve_aspect_ratio_attribute_value
+          (preserve_aspect_ratio_value
+            (align_keyword)))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+PreserveAspectRatio all alignment values
+==================
+
+<svg>
+  <image preserveAspectRatio="xMinYMin"/>
+  <image preserveAspectRatio="xMidYMin"/>
+  <image preserveAspectRatio="xMaxYMin"/>
+  <image preserveAspectRatio="xMinYMid"/>
+  <image preserveAspectRatio="xMidYMid"/>
+  <image preserveAspectRatio="xMaxYMid"/>
+  <image preserveAspectRatio="xMinYMax"/>
+  <image preserveAspectRatio="xMidYMax"/>
+  <image preserveAspectRatio="xMaxYMax meet"/>
+  <image preserveAspectRatio="xMinYMin slice"/>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (preserve_aspect_ratio_attribute
+          name: (preserve_aspect_ratio_attribute_name)
+          value: (preserve_aspect_ratio_attribute_value
+            (preserve_aspect_ratio_value
+              (align_keyword))))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (preserve_aspect_ratio_attribute
+          name: (preserve_aspect_ratio_attribute_name)
+          value: (preserve_aspect_ratio_attribute_value
+            (preserve_aspect_ratio_value
+              (align_keyword))))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (preserve_aspect_ratio_attribute
+          name: (preserve_aspect_ratio_attribute_name)
+          value: (preserve_aspect_ratio_attribute_value
+            (preserve_aspect_ratio_value
+              (align_keyword))))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (preserve_aspect_ratio_attribute
+          name: (preserve_aspect_ratio_attribute_name)
+          value: (preserve_aspect_ratio_attribute_value
+            (preserve_aspect_ratio_value
+              (align_keyword))))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (preserve_aspect_ratio_attribute
+          name: (preserve_aspect_ratio_attribute_name)
+          value: (preserve_aspect_ratio_attribute_value
+            (preserve_aspect_ratio_value
+              (align_keyword))))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (preserve_aspect_ratio_attribute
+          name: (preserve_aspect_ratio_attribute_name)
+          value: (preserve_aspect_ratio_attribute_value
+            (preserve_aspect_ratio_value
+              (align_keyword))))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (preserve_aspect_ratio_attribute
+          name: (preserve_aspect_ratio_attribute_name)
+          value: (preserve_aspect_ratio_attribute_value
+            (preserve_aspect_ratio_value
+              (align_keyword))))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (preserve_aspect_ratio_attribute
+          name: (preserve_aspect_ratio_attribute_name)
+          value: (preserve_aspect_ratio_attribute_value
+            (preserve_aspect_ratio_value
+              (align_keyword))))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (preserve_aspect_ratio_attribute
+          name: (preserve_aspect_ratio_attribute_name)
+          value: (preserve_aspect_ratio_attribute_value
+            (preserve_aspect_ratio_value
+              (align_keyword)
+              (wsp)
+              (meet_or_slice_keyword))))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (preserve_aspect_ratio_attribute
+          name: (preserve_aspect_ratio_attribute_name)
+          value: (preserve_aspect_ratio_attribute_value
+            (preserve_aspect_ratio_value
+              (align_keyword)
+              (wsp)
+              (meet_or_slice_keyword))))))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Transform single-arg translate and multi-arg rotate
+==================
+
+<svg>
+  <g transform="translate(10)"/>
+  <g transform="rotate(45,50,50)"/>
+  <g transform="translate(10, 20)"/>
+  <g transform="scale(2, 3)"/>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (transform_attribute
+          name: (transform_attribute_name)
+          value: (transform_attribute_value
+            (transform_payload)))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (transform_attribute
+          name: (transform_attribute_name)
+          value: (transform_attribute_value
+            (transform_payload)))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (transform_attribute
+          name: (transform_attribute_name)
+          value: (transform_attribute_value
+            (transform_payload)))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (transform_attribute
+          name: (transform_attribute_name)
+          value: (transform_attribute_value
+            (transform_payload)))))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Paint inherit and context keywords
+==================
+
+<svg fill="inherit" stroke="currentColor" color="context-fill" flood-color="context-stroke"></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_payload)))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_payload)))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_payload)))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_payload))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Paint hex colors
+==================
+
+<svg fill="#fff" stroke="#abcdef" flood-color="#ABC" lighting-color="#001122"></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_payload)))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_payload)))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_payload)))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_payload))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Paint url with fallback keywords
+==================
+
+<svg fill="url(#grad) none" stroke="url(#pat) currentColor"></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_payload)))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_payload))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Functional color variants rgba and hsla
+==================
+
+<svg fill="rgba(255,0,0,0.5)" stroke="hsla(120,100%,50%,0.8)"></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_payload)))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_payload))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Multiple event attributes
+==================
+
+<svg>
+  <rect onclick="f()" onmouseover="g()" onmouseout="h()" onfocusin="i()" onload="j()"/>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (event_attribute
+          name: (event_attribute_name)
+          value: (event_attribute_value
+            content: (script_text_double)))
+        (event_attribute
+          name: (event_attribute_name)
+          value: (event_attribute_value
+            content: (script_text_double)))
+        (event_attribute
+          name: (event_attribute_name)
+          value: (event_attribute_value
+            content: (script_text_double)))
+        (event_attribute
+          name: (event_attribute_name)
+          value: (event_attribute_value
+            content: (script_text_double)))
+        (event_attribute
+          name: (event_attribute_name)
+          value: (event_attribute_value
+            content: (script_text_double)))))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Event attribute single-quoted with double-quotes inside
+==================
+
+<svg>
+  <rect onclick='alert("hello")'/>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (event_attribute
+          name: (event_attribute_name)
+          value: (event_attribute_value
+            content: (script_text_single)))))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Script element with attributes and raw text
+==================
+
+<svg><script type="text/javascript">var x = 1 < 2;</script></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (start_tag
+        name: (name)
+        (generic_attribute
+          name: (attribute_name)
+          value: (quoted_attribute_value
+            (attribute_text_double))))
+      (raw_text)
+      (end_tag
+        name: (name)))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Style element with media attribute
+==================
+
+<svg><style type="text/css" media="screen">.a{fill:red}</style></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (start_tag
+        name: (name)
+        (generic_attribute
+          name: (attribute_name)
+          value: (quoted_attribute_value
+            (attribute_text_double)))
+        (css_text_attribute
+          name: (css_text_attribute_name)
+          value: (css_text_attribute_value
+            content: (css_attribute_text_double))))
+      (raw_text)
+      (end_tag
+        name: (name)))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Empty script and style elements
+==================
+
+<svg><script></script><style></style></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (start_tag
+        name: (name))
+      (end_tag
+        name: (name)))
+    (element
+      (start_tag
+        name: (name))
+      (end_tag
+        name: (name)))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Self-closing script and style
+==================
+
+<svg><script/><style/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)))
+    (element
+      (self_closing_tag
+        name: (name)))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Deep nesting six levels
+==================
+
+<svg>
+  <g>
+    <g>
+      <g>
+        <g>
+          <g>
+            <rect/>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (text)
+    (element
+      (start_tag
+        name: (name))
+      (text)
+      (element
+        (start_tag
+          name: (name))
+        (text)
+        (element
+          (start_tag
+            name: (name))
+          (text)
+          (element
+            (start_tag
+              name: (name))
+            (text)
+            (element
+              (start_tag
+                name: (name))
+              (text)
+              (element
+                (self_closing_tag
+                  name: (name)))
+              (text)
+              (end_tag
+                name: (name)))
+            (text)
+            (end_tag
+              name: (name)))
+          (text)
+          (end_tag
+            name: (name)))
+        (text)
+        (end_tag
+          name: (name)))
+      (text)
+      (end_tag
+        name: (name)))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Interleaved text and elements
+==================
+
+<svg>before<g>middle</g>after<rect/>trailing</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (text)
+    (element
+      (start_tag
+        name: (name))
+      (text)
+      (end_tag
+        name: (name)))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Entity references named numeric decimal hex
+==================
+
+<svg><text>&amp; &#60; &#x3E; &lt; &gt; &quot; &apos;</text></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (start_tag
+        name: (name))
+      (entity_reference)
+      (text)
+      (entity_reference)
+      (text)
+      (entity_reference)
+      (text)
+      (entity_reference)
+      (text)
+      (entity_reference)
+      (text)
+      (entity_reference)
+      (text)
+      (entity_reference)
+      (end_tag
+        name: (name)))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+CDATA in non-script element
+==================
+
+<svg><text><![CDATA[raw <b>text</b> content]]></text></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (start_tag
+        name: (name))
+      (cdata_section
+        (cdata_text))
+      (end_tag
+        name: (name)))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Multiple namespace prefixes
+==================
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:custom="http://example.com/ns">
+  <use xlink:href="#icon"/>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double)))
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double)))
+      (generic_attribute
+        name: (attribute_name)
+        value: (quoted_attribute_value
+          (attribute_text_double))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (href_attribute
+          name: (href_attribute_name)
+          value: (href_attribute_value
+            (href_reference
+              (iri_reference))))))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+DOCTYPE with SYSTEM id
+==================
+
+<!DOCTYPE svg SYSTEM "svg11.dtd">
+<svg/>
+
+---
+
+(source_file
+  (text)
+  (doctype
+    name: (name)
+    external_id: (doctype_external_id))
+  (text)
+  root: (svg_root_element
+    (self_closing_tag
+      name: (name)))
+  (text))
+
+==================
+Empty comment
+==================
+
+<svg><!----></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (comment)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Comment with single dashes inside
+==================
+
+<svg><!-- a - b - c - d --></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (comment
+      text: (comment_text))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Pinned recovery: comment with double dashes is invalid XML
+:error
+==================
+
+<svg><!-- a -- b --></svg>
+
+---
+
+(ERROR
+  (text)
+  (start_tag
+    name: (name))
+  (iri_reference)
+  (path_wsp)
+  (name)
+  (path_wsp)
+  (iri_reference)
+  (path_wsp))
+
+==================
+Processing instruction xml-stylesheet
+==================
+
+<?xml-stylesheet type="text/css" href="style.css"?>
+<svg/>
+
+---
+
+(source_file
+  (text)
+  (processing_instruction
+    target: (name)
+    content: (pi_content))
+  (text)
+  root: (svg_root_element
+    (self_closing_tag
+      name: (name)))
+  (text))
+
+==================
+Leading whitespace before xml declaration (W3C sample style)
+==================
+
+
+<?xml version="1.0" standalone="no"?>
+<svg/>
+
+---
+
+(source_file
+  (text)
+  (xml_declaration
+    (xml_version_attribute
+      name: (xml_version_attribute_name)
+      value: (quoted_attribute_value
+        (attribute_text_double)))
+    (xml_standalone_attribute
+      name: (xml_standalone_attribute_name)
+      value: (xml_standalone_attribute_value)))
+  (text)
+  root: (svg_root_element
+    (self_closing_tag
+      name: (name)))
+  (text))
+
+==================
+Data URI without charset or base64
+==================
+
+<svg><image href="data:image/png,rawpixeldata"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (href_attribute
+          name: (href_attribute_name)
+          value: (href_attribute_value
+            (href_reference
+              (data_uri
+                media_type: (data_uri_media_type
+                  (mime_type))
+                payload: (data_uri_payload)))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Data URI with charset no base64
+==================
+
+<svg><image href="data:text/plain;charset=utf-8,Hello%20World"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (href_attribute
+          name: (href_attribute_name)
+          value: (href_attribute_value
+            (href_reference
+              (data_uri
+                media_type: (data_uri_media_type
+                  (mime_type))
+                parameter: (data_uri_parameter
+                  name: (data_uri_parameter_name)
+                  value: (data_uri_parameter_value))
+                payload: (data_uri_payload)))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Href external URL
+==================
+
+<svg><use href="icons.svg#star"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (href_attribute
+          name: (href_attribute_name)
+          value: (href_attribute_value
+            (href_reference
+              (iri_reference))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Href empty fragment
+==================
+
+<svg><use href="#"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (href_attribute
+          name: (href_attribute_name)
+          value: (href_attribute_value
+            (href_reference
+              (iri_reference))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Class single value
+==================
+
+<svg class="root"></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (class_attribute
+        name: (class_attribute_name)
+        value: (class_attribute_value
+          (class_list
+            (class_name)))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Class with hyphens and numbers
+==================
+
+<svg class="my-class_1 foo-bar-2 _x"></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (class_attribute
+        name: (class_attribute_name)
+        value: (class_attribute_value
+          (class_list
+            (class_name)
+            (wsp)
+            (class_name)
+            (wsp)
+            (class_name)))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+ID with unicode characters
+==================
+
+<svg><g id="αβγ"/><g id="日本語"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (id_attribute
+          name: (id_attribute_name)
+          value: (id_attribute_value
+            (id_token)))))
+    (element
+      (self_closing_tag
+        name: (name)
+        (id_attribute
+          name: (id_attribute_name)
+          value: (id_attribute_value
+            (id_token)))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Path element with mixed typed attributes
+==================
+
+<svg><path id="p1" d="M0 0L10 10" fill="red" stroke="#000" stroke-width="2" class="line" transform="translate(5,5)" opacity=".8"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (id_attribute
+          name: (id_attribute_name)
+          value: (id_attribute_value
+            (id_token)))
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data
+              path: (path_data_payload))))
+        (paint_attribute
+          name: (paint_attribute_name)
+          value: (paint_attribute_value
+            (paint_payload)))
+        (paint_attribute
+          name: (paint_attribute_name)
+          value: (paint_attribute_value
+            (paint_payload)))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (class_attribute
+          name: (class_attribute_name)
+          value: (class_attribute_value
+            (class_list
+              (class_name))))
+        (transform_attribute
+          name: (transform_attribute_name)
+          value: (transform_attribute_value
+            (transform_payload)))
+        (opacity_attribute
+          name: (opacity_attribute_name)
+          value: (opacity_attribute_value
+            (number_or_percentage
+              (number))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+All typed attributes on root svg
+==================
+
+<svg id="main" class="svg-root" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" width="100" height="100" fill="none" stroke="black" opacity="1" transform="translate(0,0)" style="background:#fff"></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (id_attribute
+        name: (id_attribute_name)
+        value: (id_attribute_value
+          (id_token)))
+      (class_attribute
+        name: (class_attribute_name)
+        value: (class_attribute_value
+          (class_list
+            (class_name))))
+      (viewbox_attribute
+        name: (viewbox_attribute_name)
+        value: (viewbox_attribute_value
+          (viewbox_value
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number))))
+      (preserve_aspect_ratio_attribute
+        name: (preserve_aspect_ratio_attribute_name)
+        value: (preserve_aspect_ratio_attribute_value
+          (preserve_aspect_ratio_value
+            (align_keyword)
+            (wsp)
+            (meet_or_slice_keyword))))
+      (length_attribute
+        name: (length_attribute_name)
+        value: (length_attribute_value
+          (length_or_percentage_or_auto
+            (length_or_percentage
+              (length
+                (number))))))
+      (length_attribute
+        name: (length_attribute_name)
+        value: (length_attribute_value
+          (length_or_percentage_or_auto
+            (length_or_percentage
+              (length
+                (number))))))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_payload)))
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_payload)))
+      (opacity_attribute
+        name: (opacity_attribute_name)
+        value: (opacity_attribute_value
+          (number_or_percentage
+            (number))))
+      (transform_attribute
+        name: (transform_attribute_name)
+        value: (transform_attribute_value
+          (transform_payload)))
+      (style_attribute
+        name: (style_attribute_name)
+        value: (style_attribute_value
+          (double_quoted_style_value
+            content: (style_text_double)))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Points with various separators
+==================
+
+<svg>
+  <polygon points="0,0 10,10 20,0"/>
+  <polyline points="0 0,10 10,20 0"/>
+  <polygon points="5.5,3.2 10,20 0,15"/>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (points_attribute
+          name: (points_attribute_name)
+          value: (points_attribute_value
+            (coordinate_pair_list
+              (coordinate_pair
+                (number)
+                (comma_wsp)
+                (number))
+              (comma_wsp
+                (wsp))
+              (coordinate_pair
+                (number)
+                (comma_wsp)
+                (number))
+              (comma_wsp
+                (wsp))
+              (coordinate_pair
+                (number)
+                (comma_wsp)
+                (number)))))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (points_attribute
+          name: (points_attribute_name)
+          value: (points_attribute_value
+            (coordinate_pair_list
+              (coordinate_pair
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number))
+              (comma_wsp)
+              (coordinate_pair
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number))
+              (comma_wsp)
+              (coordinate_pair
+                (number)
+                (comma_wsp
+                  (wsp))
+                (number)))))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (points_attribute
+          name: (points_attribute_name)
+          value: (points_attribute_value
+            (coordinate_pair_list
+              (coordinate_pair
+                (number)
+                (comma_wsp)
+                (number))
+              (comma_wsp
+                (wsp))
+              (coordinate_pair
+                (number)
+                (comma_wsp)
+                (number))
+              (comma_wsp
+                (wsp))
+              (coordinate_pair
+                (number)
+                (comma_wsp)
+                (number)))))))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Functional IRI none keyword
+==================
+
+<svg clip-path="none" mask="none" filter="none"></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (functional_iri_attribute
+        name: (functional_iri_attribute_name)
+        value: (functional_iri_attribute_value))
+      (functional_iri_attribute
+        name: (functional_iri_attribute_name)
+        value: (functional_iri_attribute_value))
+      (functional_iri_attribute
+        name: (functional_iri_attribute_name)
+        value: (functional_iri_attribute_value)))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Multiple functional IRI attributes on one element
+==================
+
+<svg><rect clip-path="url(#c)" mask="url(#m)" filter="url(#f)" marker-start="url(#s)" marker-end="url(#e)"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (functional_iri_attribute
+          name: (functional_iri_attribute_name)
+          value: (functional_iri_attribute_value
+            (functional_iri
+              (iri_reference))))
+        (functional_iri_attribute
+          name: (functional_iri_attribute_name)
+          value: (functional_iri_attribute_value
+            (functional_iri
+              (iri_reference))))
+        (functional_iri_attribute
+          name: (functional_iri_attribute_name)
+          value: (functional_iri_attribute_value
+            (functional_iri
+              (iri_reference))))
+        (functional_iri_attribute
+          name: (functional_iri_attribute_name)
+          value: (functional_iri_attribute_value
+            (functional_iri
+              (iri_reference))))
+        (functional_iri_attribute
+          name: (functional_iri_attribute_name)
+          value: (functional_iri_attribute_value
+            (functional_iri
+              (iri_reference))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Paint with rgb and url fallback combined
+==================
+
+<svg fill="url(#g) rgb(255,0,0)"></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (paint_attribute
+        name: (paint_attribute_name)
+        value: (paint_attribute_value
+          (paint_payload))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Transform attribute aliases
+==================
+
+<svg>
+  <g transform="translate(10)"/>
+  <g patternTransform="rotate(45)"/>
+  <g gradientTransform="scale(2,3)"/>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (transform_attribute
+          name: (transform_attribute_name)
+          value: (transform_attribute_value
+            (transform_payload)))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (transform_attribute
+          name: (transform_attribute_name)
+          value: (transform_attribute_value
+            (transform_payload)))))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (transform_attribute
+          name: (transform_attribute_name)
+          value: (transform_attribute_value
+            (transform_payload)))))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Opacity zero and one boundaries
+==================
+
+<svg opacity="0" fill-opacity="1" stroke-opacity="0.0" stop-opacity="1.0"></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (opacity_attribute
+        name: (opacity_attribute_name)
+        value: (opacity_attribute_value
+          (number_or_percentage
+            (number))))
+      (opacity_attribute
+        name: (opacity_attribute_name)
+        value: (opacity_attribute_value
+          (number_or_percentage
+            (number))))
+      (opacity_attribute
+        name: (opacity_attribute_name)
+        value: (opacity_attribute_value
+          (number_or_percentage
+            (number))))
+      (opacity_attribute
+        name: (opacity_attribute_name)
+        value: (opacity_attribute_value
+          (number_or_percentage
+            (number)))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Opacity percentage boundaries
+==================
+
+<svg opacity="0%" fill-opacity="100%" stroke-opacity="50%"></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (opacity_attribute
+        name: (opacity_attribute_name)
+        value: (opacity_attribute_value
+          (number_or_percentage
+            (percentage
+              (number)))))
+      (opacity_attribute
+        name: (opacity_attribute_name)
+        value: (opacity_attribute_value
+          (number_or_percentage
+            (percentage
+              (number)))))
+      (opacity_attribute
+        name: (opacity_attribute_name)
+        value: (opacity_attribute_value
+          (number_or_percentage
+            (percentage
+              (number))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Mixed self-closing and paired elements
+==================
+
+<svg>
+  <g>
+    <rect/>
+    <circle></circle>
+    <line/>
+    <text>hello</text>
+    <path d="M0 0"/>
+  </g>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (text)
+    (element
+      (start_tag
+        name: (name))
+      (text)
+      (element
+        (self_closing_tag
+          name: (name)))
+      (text)
+      (element
+        (start_tag
+          name: (name))
+        (end_tag
+          name: (name)))
+      (text)
+      (element
+        (self_closing_tag
+          name: (name)))
+      (text)
+      (element
+        (start_tag
+          name: (name))
+        (text)
+        (end_tag
+          name: (name)))
+      (text)
+      (element
+        (self_closing_tag
+          name: (name)
+          (d_attribute
+            name: (d_attribute_name)
+            value: (d_attribute_value
+              (double_quoted_path_data
+                path: (path_data_payload))))))
+      (text)
+      (end_tag
+        name: (name)))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Style attribute with complex CSS
+==================
+
+<svg>
+  <rect style="fill:rgb(10,20,30);stroke:url(#g);opacity:.5;font-family:'Times New Roman',serif"/>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (text)
+    (element
+      (self_closing_tag
+        name: (name)
+        (style_attribute
+          name: (style_attribute_name)
+          value: (style_attribute_value
+            (double_quoted_style_value
+              content: (style_text_double))))))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+ForeignObject handled as generic element with nested HTML-like content
+==================
+
+<svg>
+  <foreignObject x="10" y="10" width="100" height="100">
+    <div xmlns="http://www.w3.org/1999/xhtml">
+      <p>Hello <em>world</em></p>
+    </div>
+  </foreignObject>
+</svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (text)
+    (element
+      (start_tag
+        name: (name)
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number))))))
+        (length_attribute
+          name: (length_attribute_name)
+          value: (length_attribute_value
+            (length_or_percentage_or_auto
+              (length_or_percentage
+                (length
+                  (number)))))))
+      (text)
+      (element
+        (start_tag
+          name: (name)
+          (generic_attribute
+            name: (attribute_name)
+            value: (quoted_attribute_value
+              (attribute_text_double))))
+        (text)
+        (element
+          (start_tag
+            name: (name))
+          (text)
+          (element
+            (start_tag
+              name: (name))
+            (text)
+            (end_tag
+              name: (name)))
+          (end_tag
+            name: (name)))
+        (text)
+        (end_tag
+          name: (name)))
+      (text)
+      (end_tag
+        name: (name)))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Script with JS containing angle brackets
+==================
+
+<svg><script>if (a &lt; b &amp;&amp; c > 0) { d = 1; }</script></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (start_tag
+        name: (name))
+      (raw_text)
+      (end_tag
+        name: (name)))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Whitespace-only text nodes
+==================
+
+<svg>   </svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (text)
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Tab and newline in attribute value
+==================
+
+<svg viewBox="0
+0
+100	200"></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (viewbox_attribute
+        name: (viewbox_attribute_name)
+        value: (viewbox_attribute_value
+          (viewbox_value
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)))))
+    (end_tag
+      name: (name)))
+  (text))
+
+==================
+Erroneous end tag in nested context
+==================
+
+<svg><g><rect></g></rect></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (start_tag
+        name: (name))
+      (element
+        (start_tag
+          name: (name))
+        (erroneous_end_tag
+          name: (name)))
+      (end_tag
+        name: (name)))
+    (erroneous_end_tag
+      name: (name)))
+  (text))
+
+==================
+Multiple erroneous end tags
+:error
+==================
+
+<svg><a></b></c></a></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (start_tag
+        name: (name))
+      (erroneous_end_tag
+        name: (name)))
+    (erroneous_end_tag
+      name: (name)))
+  (ERROR
+    (iri_reference)
+    (path_wsp)))
+
+=============================
+Self-closing svg root
+=============================
+
+<svg/>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (self_closing_tag
+      name: (name)))
+  (text))
+
+=============================
+Namespaced element
+=============================
+
+<svg><svg:rect xmlns:svg="http://www.w3.org/2000/svg"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (generic_attribute
+          name: (attribute_name)
+          value: (quoted_attribute_value
+            (attribute_text_double)))))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Deep nesting
+=============================
+
+<svg><g><g><g><rect/></g></g></g></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (start_tag
+        name: (name))
+      (element
+        (start_tag
+          name: (name))
+        (element
+          (start_tag
+            name: (name))
+          (element
+            (self_closing_tag
+              name: (name)))
+          (end_tag
+            name: (name)))
+        (end_tag
+          name: (name)))
+      (end_tag
+        name: (name)))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Text with tspan
+=============================
+
+<svg><text>Hello <tspan>World</tspan></text></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (start_tag
+        name: (name))
+      (text)
+      (element
+        (start_tag
+          name: (name))
+        (text)
+        (end_tag
+          name: (name)))
+      (end_tag
+        name: (name)))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Multiline attribute value
+=============================
+
+<svg viewBox="0 0
+100 100"></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name)
+      (viewbox_attribute
+        name: (viewbox_attribute_name)
+        value: (viewbox_attribute_value
+          (viewbox_value
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)
+            (comma_wsp
+              (wsp))
+            (number)))))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Nested svg with viewBox
+=============================
+
+<svg><svg viewBox="0 0 10 10"><rect/></svg></svg>
+
+---
+
+(source_file
+  (text)
+  (svg_root_element
+    (start_tag
+      (name))
+    (element
+      (start_tag
+        (name)
+        (viewbox_attribute
+          (viewbox_attribute_name)
+          (viewbox_attribute_value
+            (viewbox_value
+              (number)
+              (comma_wsp
+                (wsp))
+              (number)
+              (comma_wsp
+                (wsp))
+              (number)
+              (comma_wsp
+                (wsp))
+              (number)))))
+      (element
+        (self_closing_tag
+          (name)))
+      (end_tag
+        (name)))
+    (end_tag
+      (name)))
+  (text))
+
+=============================
+ForeignObject with HTML content
+=============================
+
+<svg><foreignObject><div xmlns="http://www.w3.org/1999/xhtml">hi</div></foreignObject></svg>
+
+---
+
+(source_file
+  (text)
+  (svg_root_element
+    (start_tag
+      (name))
+    (element
+      (start_tag
+        (name))
+      (element
+        (start_tag
+          (name)
+          (generic_attribute
+            (attribute_name)
+            (quoted_attribute_value
+              (attribute_text_double))))
+        (text)
+        (end_tag
+          (name)))
+      (end_tag
+        (name)))
+    (end_tag
+      (name)))
+  (text))
+
+=============================
+Mixed text with entity
+=============================
+
+<svg><text>a &amp; b</text></svg>
+
+---
+
+(source_file
+  (text)
+  (svg_root_element
+    (start_tag
+      (name))
+    (element
+      (start_tag
+        (name))
+      (text)
+      (entity_reference)
+      (text)
+      (end_tag
+        (name)))
+    (end_tag
+      (name)))
+  (text))
+
+=============================
+Comment inside svg
+=============================
+
+<svg><!-- inner comment --><rect/></svg>
+
+---
+
+(source_file
+  (text)
+  (svg_root_element
+    (start_tag
+      (name))
+    (comment
+      (comment_text))
+    (element
+      (self_closing_tag
+        (name)))
+    (end_tag
+      (name)))
+  (text))
+
+=============================
+Empty attribute value
+=============================
+
+<svg><rect class=""/></svg>
+
+---
+
+(source_file
+  (text)
+  (svg_root_element
+    (start_tag
+      (name))
+    (element
+      (self_closing_tag
+        (name)
+        (class_attribute
+          (class_attribute_name)
+          (class_attribute_value))))
+    (end_tag
+      (name)))
+  (text))

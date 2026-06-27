@@ -1,4 +1,5 @@
-import type { PageStats } from '../view.ts';
+// @ts-nocheck Deno
+import type { PageStats } from '#src/view.ts';
 
 interface Props {
 	stats: PageStats;

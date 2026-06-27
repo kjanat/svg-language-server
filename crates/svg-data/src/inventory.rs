@@ -5,6 +5,13 @@ use std::borrow::Cow;
 use crate::{SpecSnapshotId, edition::Series};
 
 /// The publication date of an edition.
+///
+/// # Examples
+///
+/// ```rust
+/// let date = svg_data::inventory::EditionDate::EditorsDraft;
+/// assert!(matches!(date, svg_data::inventory::EditionDate::EditorsDraft));
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum EditionDate {
     /// A dated `/TR/` edition (`YYYY-MM-DD`).
@@ -18,6 +25,13 @@ pub enum EditionDate {
 }
 
 /// A stable identifier for a specification edition.
+///
+/// # Examples
+///
+/// ```rust
+/// let id = svg_data::inventory::EditionId::editors_draft(svg_data::edition::Series::Svg2);
+/// assert_eq!(id.series, svg_data::edition::Series::Svg2);
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct EditionId {
     /// The series this edition belongs to.
@@ -28,6 +42,13 @@ pub struct EditionId {
 
 impl EditionId {
     /// Construct a dated edition id.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// let id = svg_data::inventory::EditionId::dated(svg_data::edition::Series::Svg2, "2018-10-04");
+    /// assert_eq!(id.series, svg_data::edition::Series::Svg2);
+    /// ```
     #[must_use]
     pub const fn dated(series: Series, date: &'static str) -> Self {
         Self {
@@ -39,6 +60,13 @@ impl EditionId {
     }
 
     /// Construct the rolling editor's-draft edition id for a series.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// let id = svg_data::inventory::EditionId::editors_draft(svg_data::edition::Series::Svg2);
+    /// assert_eq!(id.series, svg_data::edition::Series::Svg2);
+    /// ```
     #[must_use]
     pub const fn editors_draft(series: Series) -> Self {
         Self {
@@ -48,6 +76,13 @@ impl EditionId {
     }
 
     /// The edition id corresponding to a snapshot.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// let id = svg_data::inventory::EditionId::for_snapshot(svg_data::SpecSnapshotId::Svg2EditorsDraft);
+    /// assert_eq!(id.series, svg_data::edition::Series::Svg2);
+    /// ```
     #[must_use]
     pub const fn for_snapshot(snapshot: SpecSnapshotId) -> Self {
         match snapshot {
@@ -63,6 +98,13 @@ impl EditionId {
 }
 
 /// An attribute an edition declares for an element.
+///
+/// # Examples
+///
+/// ```rust
+/// let attr = svg_data::inventory::Attribute { name: "version" };
+/// assert_eq!(attr.name, "version");
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Attribute {
     /// Attribute name.
@@ -70,6 +112,13 @@ pub struct Attribute {
 }
 
 /// An element an edition declares, with the attributes it lists for it.
+///
+/// # Examples
+///
+/// ```rust
+/// let element = svg_data::inventory::Element { name: "svg", attributes: &[] };
+/// assert_eq!(element.name, "svg");
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Element {
     /// Element name.
@@ -79,6 +128,17 @@ pub struct Element {
 }
 
 /// The element/attribute inventory present in one edition.
+///
+/// # Examples
+///
+/// ```rust
+/// let inventory = svg_data::inventory::for_edition(&svg_data::inventory::EditionId::dated(
+///     svg_data::edition::Series::Svg10,
+///     "2001-09-04",
+/// ))
+/// .expect("baked SVG 1.0 inventory");
+/// assert!(inventory.elements.iter().any(|element| element.name == "svg"));
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Inventory {
     /// The edition this inventory describes.
@@ -90,6 +150,15 @@ pub struct Inventory {
 impl Inventory {
     /// The attributes this edition lists for `elem_name` (empty if the element
     /// is absent or carries no listed attributes).
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// let id = svg_data::inventory::EditionId::dated(svg_data::edition::Series::Svg10, "2001-09-04");
+    /// let inventory = svg_data::inventory::for_edition(&id).expect("baked SVG 1.0 inventory");
+    /// let names: Vec<_> = inventory.attributes_for_element("svg").map(|attr| attr.name).collect();
+    /// assert!(names.contains(&"version"));
+    /// ```
     pub fn attributes_for_element(
         &self,
         elem_name: &str,
@@ -126,6 +195,13 @@ static SVG2_20160915: Inventory = Inventory {
 };
 
 /// The inventory for an edition, when one has been extracted.
+///
+/// # Examples
+///
+/// ```rust
+/// let id = svg_data::inventory::EditionId::dated(svg_data::edition::Series::Svg10, "2001-09-04");
+/// assert!(svg_data::inventory::for_edition(&id).is_some());
+/// ```
 #[must_use]
 pub fn for_edition(edition: &EditionId) -> Option<&'static Inventory> {
     crate::catalog::INVENTORIES
@@ -136,6 +212,12 @@ pub fn for_edition(edition: &EditionId) -> Option<&'static Inventory> {
 }
 
 /// Generated inventories for curated snapshots.
+///
+/// # Examples
+///
+/// ```rust
+/// let _generated = svg_data::inventory::generated();
+/// ```
 #[must_use]
 pub const fn generated() -> &'static [Inventory] {
     crate::catalog::INVENTORIES

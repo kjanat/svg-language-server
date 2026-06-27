@@ -1,45 +1,47 @@
 # Issue: Obsolete Lifecycle Is Computed, Then Lost in Lint
 
+> Status: RESOLVED in current code. `emit_lifecycle_diag_in_tag(...)` now emits
+> `SpecLifecycle::Obsolete` with `codes.obsolete` and
+> `format_obsolete_message(...)`.
+
 ## Summary
 
-`svg-lint` already computes `SpecLifecycle::Obsolete`, but the final diagnostic emitter drops that state on the floor.
+Older `svg-lint` builds computed `SpecLifecycle::Obsolete`, but the final
+diagnostic emitter dropped that state on the floor. Current code no longer has
+that loss point.
 
-That makes lint the odd surface out:
+That made lint the odd surface out in affected builds:
 
 - hover can show `Obsolete in ...` or `Obsolete after ...`
 - completion can still surface obsolete symbols in supported profiles
-- lint says nothing
+- lint said nothing
 
-This is a real product bug, not just an architecture smell. If a feature is still parseable but obsolete in the selected profile, the editor should not force the user to discover that only by hovering.
+This was a real product bug, not just an architecture smell. If a feature is
+still parseable but obsolete in the selected profile, the editor should not
+force the user to discover that only by hovering.
 
 ## Problem
 
-The bug is in `crates/svg-lint/src/rules/mod.rs`:
+The old loss point was `crates/svg-lint/src/rules/mod.rs`:
 
-- `diagnostic_lifecycle(...)` preserves `SpecLifecycle::Obsolete` immediately
-  - `crates/svg-lint/src/rules/mod.rs:554-563`
-- `emit_lifecycle_diag_in_tag(...)` only emits for `Deprecated` and `Experimental`
-  - `crates/svg-lint/src/rules/mod.rs:531-550`
-- `Obsolete` is grouped with `Stable` and produces no diagnostic
+- `diagnostic_lifecycle(...)` preserved `SpecLifecycle::Obsolete`
+- `emit_lifecycle_diag_in_tag(...)` only emitted for `Deprecated` and
+  `Experimental`
+- `Obsolete` was grouped with `Stable` and produced no diagnostic
 
-So the pipeline currently does this:
-
-1. profile lookup returns `Obsolete`
-2. lint merge logic keeps `Obsolete`
-3. emitter discards it
-
-That is why the lifecycle is effectively lost in lint.
+Current code has a dedicated `SpecLifecycle::Obsolete` match arm that emits
+`DiagnosticCode::ObsoleteElement` / `DiagnosticCode::ObsoleteAttribute`.
 
 ## Why This Matters
 
 - Diagnostics are the primary authoring feedback surface. Hover is secondary.
-- Silent obsolete features are easy to keep shipping by accident.
+- Silent obsolete features were easy to keep shipping by accident.
 - The repo already wants one lifecycle rule across hover, lint, and completion.
-- As long as lint drops `Obsolete`, the three surfaces cannot agree.
+- When lint dropped `Obsolete`, the three surfaces could not agree.
 
 ## Concrete User Impact
 
-Today, the same symbol can be treated three different ways.
+In affected builds, the same symbol could be treated three different ways.
 
 Example: `xlink:href`
 
@@ -48,13 +50,14 @@ Example: `xlink:href`
 - completion policy work already treats obsolete as a visible lifecycle state
   - `crates/svg-language-server/src/completion.rs:689-705`
   - `crates/svg-language-server/src/completion.rs:712-726`
-- lint emits no obsolete diagnostic at all
+- lint emitted no obsolete diagnostic at all
 
-Net effect: a user can hover a symbol, see that it is obsolete, and still get no diagnostic telling them to change it.
+Net effect: a user could hover a symbol, see that it is obsolete, and still get
+no diagnostic telling them to change it.
 
 ## Evidence
 
-### Lint preserves obsolete, then drops it
+### Old loss point: lint preserved obsolete, then dropped it
 
 - `crates/svg-lint/src/rules/mod.rs:554-580`
 
@@ -74,7 +77,7 @@ fn diagnostic_lifecycle(
 }
 ```
 
-- `crates/svg-lint/src/rules/mod.rs:531-550`
+- old `crates/svg-lint/src/rules/mod.rs:531-550`
 
 ```rust
 match lifecycle {
@@ -82,6 +85,12 @@ match lifecycle {
     SpecLifecycle::Experimental => ...,
     SpecLifecycle::Stable | SpecLifecycle::Obsolete => {}
 }
+```
+
+Current code instead has:
+
+```rust
+SpecLifecycle::Obsolete => push_diag_in_tag(..., codes.obsolete, ...)
 ```
 
 ### Hover still surfaces obsolete profile state
@@ -93,22 +102,25 @@ Hover can render:
 - `**Obsolete in Svg11Rec20110816**`
 - `**Obsolete after Svg11Rec20110816**`
 
-So the information is not missing from the data path. It is only missing from lint output.
+So the information was not missing from the data path; it was missing from lint
+output.
 
 ### Completion already models obsolete as a displayable state
 
 - `crates/svg-language-server/src/completion.rs:689-705`
 - `crates/svg-language-server/src/completion.rs:712-726`
 
-Completion detail text and deprecated tagging already treat `Obsolete` as meaningful UI state, even though the completion path still has its own lifecycle inconsistency problems.
+Completion detail text and deprecated tagging already treat `Obsolete` as
+meaningful UI state, even though the completion path had its own lifecycle
+inconsistency problems.
 
 ## Scope
 
 This issue is intentionally narrower than `ISSUE-PLAN-one-lifecycle-rule.md`.
 
-This issue is about one bug:
+This issue was about one bug:
 
-- lint loses `Obsolete`
+- lint lost `Obsolete`
 
 This issue is not about solving every lifecycle inconsistency at once.
 
@@ -122,25 +134,22 @@ Policy split:
 - `svg-lint` decides how those facts become diagnostics
 - `svg-language-server` renders those facts in hover/completion
 
-This specific bug should be fixed in lint, but the fix should not invent new source-of-truth rules inside hover.
+This specific bug should be fixed in lint, but the fix should not invent new
+source-of-truth rules inside hover.
 
-## Proposed Fix
+## Resolution
 
-### Immediate fix
+The fix has landed in `emit_lifecycle_diag_in_tag(...)`:
 
-Make `emit_lifecycle_diag_in_tag(...)` emit for `SpecLifecycle::Obsolete`.
-
-Smallest acceptable version:
-
-- treat `Obsolete` the same as deprecated for severity and suppression behavior
-- emit warning-level diagnostic
-- message shape can be simple, e.g. `{subject} is obsolete`
-
-That restores user-visible feedback without blocking on a larger refactor.
+- `Obsolete` emits a warning-level diagnostic
+- elements use `DiagnosticCode::ObsoleteElement`
+- attributes use `DiagnosticCode::ObsoleteAttribute`
+- messages flow through `format_obsolete_message(...)`
 
 ### Preferred follow-up
 
-Use a shared effective-lifecycle helper so lint and completion stop re-implementing lifecycle merge rules separately.
+Use a shared effective-lifecycle helper so lint and completion stop
+re-implementing lifecycle merge rules separately.
 
 That broader alignment belongs with:
 
@@ -214,7 +223,8 @@ Add/update LSP diagnostic coverage in:
 
 Goal:
 
-- when a profile-supported symbol is obsolete, publish diagnostics should contain a user-visible lifecycle diagnostic
+- when a profile-supported symbol is obsolete, publish diagnostics should
+  contain a user-visible lifecycle diagnostic
 
 ## Related Work
 

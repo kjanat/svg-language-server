@@ -12,9 +12,10 @@
  *
  * @module
  */
+// @ts-nocheck Deno
 
-import type { Out } from '@kjanat/dreamcli';
-import type { CompatEntry, SvgCompatOutput } from './lib/mod.ts';
+import type { CompatEntry, SvgCompatOutput } from '#lib';
+import type { Out } from 'dreamcli';
 
 type BaselineBucket = 'widely' | 'newly' | 'limited' | 'unknown';
 

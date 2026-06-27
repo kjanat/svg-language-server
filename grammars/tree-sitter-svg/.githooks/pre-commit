@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Regenerate parser from grammar.js
+tree-sitter generate
+
+# Format
+dprint fmt .
+
+# Re-stage only generated files that now differ from the index
+mapfile -d '' changed < <(git diff --name-only -z -- src/)
+if ((${#changed[@]})); then
+	git add -- "${changed[@]}"
+	echo "pre-commit: re-staged changed generated files:"
+	printf "  %s\n" "${changed[@]}"
+fi

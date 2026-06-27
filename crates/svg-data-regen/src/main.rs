@@ -22,8 +22,10 @@ mod extract;
 mod fetch;
 mod inventory;
 mod legacy;
+mod paths;
 mod provenance;
 mod schema;
+mod treesitter;
 mod util;
 
 use std::{
@@ -120,14 +122,85 @@ fn report(provenance: &Provenance, graph: &PublishGraph) -> Fallible<()> {
         graph.appendices.len()
     );
 
-    println!("\n## definitions extraction (at pinned commit)");
     // REGEN_SAMPLE=<name> prints the element, property, and/or term with that
     // name as a JSON sample (whichever exist). Unset: the first of each kind.
     let want_sample = std::env::var("REGEN_SAMPLE").ok();
+    let extracted = extract_definitions_modules(provenance, graph, want_sample.as_deref())?;
+    let DefinitionsExtraction {
+        modules: all_defs,
+        macros,
+        sample,
+        animate_motion,
+    } = extracted;
+
+    if let Some(element) = &sample {
+        println!("\n## sample extracted element (as JSON)");
+        println!("{}", serde_json::to_string_pretty(element)?);
+    }
+
+    if let Some(element) = &animate_motion {
+        println!("\n## extracted animateMotion element (as JSON)");
+        println!("{}", serde_json::to_string_pretty(element)?);
+    }
+
+    let editors_draft = provenance
+        .base_urls
+        .editors_draft
+        .as_deref()
+        .unwrap_or_default();
+    let chapter_report = report_chapters(provenance, graph, &macros, want_sample.as_deref())?;
+    let external_properties = fetch_and_report_external_property_defs(&all_defs, editors_draft)?;
+    let external_svg_properties = fetch_and_report_external_svg_module_attr_defs(
+        graph,
+        &all_defs,
+        &macros,
+        want_sample.as_deref(),
+    )?;
+    let compat = fetch_and_report_compat()?;
+    let legacy = fetch_and_report_legacy_value_overrides()?;
+    let inventories = fetch_and_report_inventories(&all_defs)?;
+    let grammar_inputs =
+        fetch_and_report_grammar_projection_inputs(REPO_SLUG, &provenance.commit_sha)?;
+    let chapter_report = chapter_report
+        .with_external_properties(external_properties.properties)
+        .with_external_properties(external_svg_properties);
+
+    let built = build_committed_catalog(
+        &all_defs,
+        &chapter_report,
+        editors_draft,
+        &provenance.commit_sha,
+        Some(&compat),
+        catalog::CatalogLegacyInputs {
+            sources: &legacy.sources,
+            value_overrides: &legacy.attributes,
+            inventories: &inventories,
+            grammar_inputs: Some(&grammar_inputs),
+        },
+    )?;
+    let path = write_catalog(&built, &inventories)?;
+    print_catalog_written(&built, &path);
+    Ok(())
+}
+
+struct DefinitionsExtraction {
+    modules: Vec<extract::Definitions>,
+    macros: chapter::MacroIndex,
+    sample: Option<extract::ElementDef>,
+    animate_motion: Option<extract::ElementDef>,
+}
+
+fn extract_definitions_modules(
+    provenance: &Provenance,
+    graph: &PublishGraph,
+    want_sample: Option<&str>,
+) -> Fallible<DefinitionsExtraction> {
+    println!("\n## definitions extraction (at pinned commit)");
     let mut totals = Totals::default();
-    let mut sample: Option<extract::ElementDef> = None;
+    let mut sample = None;
+    let mut animate_motion = None;
     let mut macros = chapter::MacroIndex::default();
-    let mut all_defs: Vec<extract::Definitions> = Vec::new();
+    let mut modules = Vec::new();
     for module in &graph.definitions {
         let path = fetch::resolve_repo_path(PUBLISH_DIR, &module.href)?;
         let xml = fetch::raw_file(REPO_SLUG, &provenance.commit_sha, &path)?;
@@ -143,12 +216,19 @@ fn report(provenance: &Provenance, graph: &PublishGraph) -> Fallible<()> {
         totals.add(&defs);
         index_categories(&defs, &mut macros);
         if sample.is_none() {
-            sample = match &want_sample {
-                Some(name) => defs.elements.iter().find(|el| &el.name == name).cloned(),
+            sample = match want_sample {
+                Some(name) => defs.elements.iter().find(|el| el.name == name).cloned(),
                 None => defs.elements.first().cloned(),
             };
         }
-        all_defs.push(defs);
+        if animate_motion.is_none() {
+            animate_motion = defs
+                .elements
+                .iter()
+                .find(|element| element.name == "animateMotion")
+                .cloned();
+        }
+        modules.push(defs);
     }
     println!(
         "  {:-<44} {:>3} el  {:>3} attr  {:>3} prop  {:>2} elcat  {:>2} attrcat",
@@ -159,36 +239,12 @@ fn report(provenance: &Provenance, graph: &PublishGraph) -> Fallible<()> {
         totals.element_categories,
         totals.attribute_categories,
     );
-
-    if let Some(element) = &sample {
-        println!("\n## sample extracted element (as JSON)");
-        println!("{}", serde_json::to_string_pretty(element)?);
-    }
-
-    let editors_draft = provenance
-        .base_urls
-        .editors_draft
-        .as_deref()
-        .unwrap_or_default();
-    let chapter_report = report_chapters(provenance, graph, &macros, want_sample.as_deref())?;
-    let external_properties = fetch_and_report_external_property_defs(&all_defs, editors_draft)?;
-    let compat = fetch_and_report_compat()?;
-    let legacy = fetch_and_report_legacy_value_overrides()?;
-    let inventories = fetch_and_report_inventories(&all_defs)?;
-    let chapter_report = chapter_report.with_external_properties(external_properties.properties);
-
-    let built = build_committed_catalog(
-        &all_defs,
-        &chapter_report,
-        editors_draft,
-        &provenance.commit_sha,
-        &compat,
-        &legacy,
-        &inventories,
-    );
-    let path = write_catalog(&built, &inventories)?;
-    print_catalog_written(&built, &path);
-    Ok(())
+    Ok(DefinitionsExtraction {
+        modules,
+        macros,
+        sample,
+        animate_motion,
+    })
 }
 
 fn print_catalog_written(built: &catalog::Catalog, path: &Path) {
@@ -206,23 +262,33 @@ fn build_committed_catalog(
     chapter_report: &ChapterReport,
     editors_draft_base: &str,
     commit: &str,
-    compat: &compat::CompatCatalog,
-    legacy: &legacy::LegacyValueOverrides,
-    inventories: &[catalog::CatalogInventory],
-) -> catalog::Catalog {
+    compat: Option<&compat::CompatCatalog>,
+    legacy: catalog::CatalogLegacyInputs<'_>,
+) -> Fallible<catalog::Catalog> {
     catalog::build_catalog(
         definitions,
         &chapter_report.properties,
         &chapter_report.descriptions,
         editors_draft_base,
         commit,
-        Some(compat),
-        catalog::CatalogLegacyInputs {
-            sources: &legacy.sources,
-            value_overrides: &legacy.attributes,
-            inventories,
-        },
+        compat,
+        legacy,
     )
+}
+
+fn fetch_and_report_grammar_projection_inputs(
+    repo_slug: &str,
+    commit_sha: &str,
+) -> Fallible<treesitter::GrammarProjectionInputs> {
+    println!("\n## tree-sitter grammar projection inputs");
+    let inputs = treesitter::fetch_grammar_projection_inputs(repo_slug, commit_sha)?;
+    println!("  @webref/css extracted");
+    println!(
+        "  paths.html -> {} path command letter(s), d property = `{}`",
+        inputs.paths.path_command_letters.len(),
+        inputs.paths.path_data_property
+    );
+    Ok(inputs)
 }
 
 fn fetch_and_report_external_property_defs(
@@ -244,6 +310,77 @@ fn fetch_and_report_external_property_defs(
         extracted.requested_count,
     );
     Ok(extracted)
+}
+
+fn fetch_and_report_external_svg_module_attr_defs(
+    graph: &PublishGraph,
+    modules: &[extract::Definitions],
+    macros: &chapter::MacroIndex,
+    want: Option<&str>,
+) -> Fallible<Vec<chapter::PropertyValueDef>> {
+    println!("\n## external SVG module attribute definition extraction");
+    let mut urls: BTreeSet<String> = BTreeSet::new();
+    let mut sample_property = None;
+    for module in modules {
+        if let Some(base) = module.anchor_base.as_deref()
+            && base.starts_with("https://svgwg.org/specs/")
+        {
+            urls.insert(base.to_owned());
+        }
+    }
+    for module in &graph.definitions {
+        if let Some(spec_name) = external_svg_spec_name(&module.href) {
+            urls.insert(format!("https://svgwg.org/specs/{spec_name}/"));
+        }
+    }
+
+    let mut properties = Vec::new();
+    for url in &urls {
+        let html = fetch::url_text(url, "text/html")?;
+        let extracted = chapter::extract_chapter(url, &html, macros)?;
+        println!(
+            "  {} -> {} attribute definition(s)",
+            url,
+            extracted.properties.len(),
+        );
+        if sample_property.is_none() {
+            sample_property = want.and_then(|name| {
+                extracted
+                    .properties
+                    .iter()
+                    .find(|property| property.name == name)
+                    .cloned()
+            });
+        }
+        if want.is_some() {
+            let names = extracted
+                .properties
+                .iter()
+                .map(|property| format!("{:?}", property.name))
+                .collect::<Vec<_>>()
+                .join(", ");
+            println!("    extracted attribute names: {names}");
+        }
+        properties.extend(extracted.properties);
+    }
+    println!(
+        "  {:-<44} {:>3} attribute definition(s)",
+        "TOTAL ",
+        properties.len(),
+    );
+    if let Some(property) = &sample_property {
+        println!("\n## sample external SVG module attribute (as JSON)");
+        println!("{}", serde_json::to_string_pretty(property)?);
+    }
+    Ok(properties)
+}
+
+fn external_svg_spec_name(href: &str) -> Option<&str> {
+    let rest = href
+        .strip_prefix("../specs/")
+        .or_else(|| href.strip_prefix("specs/"))?;
+    let (name, tail) = rest.split_once('/')?;
+    (tail == "master/definitions.xml").then_some(name)
 }
 
 fn fetch_and_report_legacy_value_overrides() -> Fallible<legacy::LegacyValueOverrides> {
@@ -334,6 +471,10 @@ fn write_catalog_components(data_dir: &Path, built: &catalog::Catalog) -> Fallib
     write_json(
         &resolve_data_ref_for_write(data_dir, catalog::CATALOG_GRAPH_HREF)?,
         &built.graph_document(),
+    )?;
+    write_json(
+        &resolve_data_ref_for_write(data_dir, catalog::CATALOG_TREE_SITTER_HREF)?,
+        built.tree_sitter_document(),
     )?;
     Ok(())
 }
@@ -523,7 +664,8 @@ fn report_chapters(
         collected_descriptions.extend(extracted.anchor_descriptions);
     }
     println!(
-        "  {:-<12} {anchors:>4} anchors  {dfns:>3} dfns  {examples:>2} ex  {properties:>3} props  {terms:>3} terms ({} pages)",
+        "  {:-<12} {anchors:>4} anchors  {dfns:>3} dfns  {examples:>2} ex  {properties:>3} props  \
+         {terms:>3} terms ({} pages)",
         "TOTAL ",
         graph.chapters.len() + graph.appendices.len(),
     );

@@ -1,0 +1,269 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "CatalogPackageSource": {
+      "description": "One npm package source used during regeneration.",
+      "type": "object",
+      "required": [
+        "name",
+        "url",
+        "version"
+      ],
+      "properties": {
+        "name": {
+          "description": "Package name.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Exact data URL fetched.",
+          "type": "string"
+        },
+        "version": {
+          "description": "Resolved package version.",
+          "type": "string"
+        }
+      }
+    },
+    "CatalogTreeSitterAttributeBuckets": {
+      "description": "Attribute name groups that share a parser value shape.",
+      "type": "object",
+      "required": [
+        "color",
+        "coordinate_pair_list",
+        "css_text",
+        "functional_iri",
+        "keyword",
+        "length",
+        "length_list",
+        "length_list_or_none",
+        "number",
+        "number_list",
+        "number_optional_number",
+        "number_or_percentage",
+        "path_data",
+        "view_box"
+      ],
+      "properties": {
+        "color": {
+          "description": "Attribute values represented by the color parser.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "coordinate_pair_list": {
+          "description": "Attribute values represented by coordinate pairs.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "css_text": {
+          "description": "Remaining structured CSS grammars that should be parsed as CSS text.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "functional_iri": {
+          "description": "Attribute values that can contain a functional IRI / URL reference.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "keyword": {
+          "description": "Attribute values represented as bare keyword tokens.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "length": {
+          "description": "Attribute values represented by a single length/percentage parser.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "length_list": {
+          "description": "Attribute values represented by a length/percentage list parser.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "length_list_or_none": {
+          "description": "Attribute values represented by `none` or a length/percentage list.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "number": {
+          "description": "Attribute values represented by a bare number parser.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "number_list": {
+          "description": "Attribute values represented by a list of bare numbers.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "number_optional_number": {
+          "description": "Attribute values represented by one or two whitespace-separated numbers\n(CSS `<number-optional-number>`, e.g. `stdDeviation`, `baseFrequency`).",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "number_or_percentage": {
+          "description": "Attribute values represented by number or percentage.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "path_data": {
+          "description": "Attribute values represented by SVG path data.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "view_box": {
+          "description": "Attribute values represented by an SVG viewBox.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "CatalogTreeSitterSources": {
+      "description": "Source provenance for generated grammar facts.",
+      "type": "object",
+      "required": [
+        "css_unit_pages",
+        "paths_html",
+        "svg_clock_value_syntax",
+        "webref_css"
+      ],
+      "properties": {
+        "css_unit_pages": {
+          "description": "CSS Values URLs used for unit extraction.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "paths_html": {
+          "description": "Pinned SVGWG `paths.html` URL used for path-data grammar facts.",
+          "type": "string"
+        },
+        "svg_clock_value_syntax": {
+          "description": "SVG Animations URL used for SVG clock units.",
+          "type": "string"
+        },
+        "webref_css": {
+          "$ref": "#/$defs/CatalogPackageSource",
+          "description": "CSS definitions source package."
+        }
+      }
+    },
+    "CatalogTreeSitterTokens": {
+      "description": "Token sets shared by multiple generated grammar rules.",
+      "type": "object",
+      "required": [
+        "angle_units",
+        "color_interpolation_spaces",
+        "color_spaces",
+        "hue_interpolation_methods",
+        "length_units",
+        "path_command_letters",
+        "time_units"
+      ],
+      "properties": {
+        "angle_units": {
+          "description": "CSS angle units from CSS Values.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "color_interpolation_spaces": {
+          "description": "Color interpolation spaces accepted by CSS `color-mix()`.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "color_spaces": {
+          "description": "Predefined color spaces accepted by CSS `color()`.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "hue_interpolation_methods": {
+          "description": "Hue interpolation direction keywords.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "length_units": {
+          "description": "CSS length units from CSS Values.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "path_command_letters": {
+          "description": "Single-letter path command tokens from SVGWG `paths.html#PathDataBNF`.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "time_units": {
+          "description": "SVG clock value metric units from SVG Animations.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "title": "svg-data tree-sitter catalog v1",
+  "description": "Tree-sitter-facing projection of parser facts from the canonical catalog.",
+  "type": "object",
+  "required": [
+    "attribute_buckets",
+    "schema_version",
+    "sources",
+    "tokens"
+  ],
+  "properties": {
+    "attribute_buckets": {
+      "$ref": "#/$defs/CatalogTreeSitterAttributeBuckets",
+      "description": "Attribute-name buckets consumed by `grammars/tree-sitter-svg`."
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "sources": {
+      "$ref": "#/$defs/CatalogTreeSitterSources",
+      "description": "Sources used to derive non-SVG grammar tokens."
+    },
+    "tokens": {
+      "$ref": "#/$defs/CatalogTreeSitterTokens",
+      "description": "Shared token sets consumed by `grammars/tree-sitter-svg`."
+    }
+  }
+}

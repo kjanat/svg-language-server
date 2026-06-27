@@ -1,0 +1,15 @@
+.{
+    .name = .tree_sitter_svg_transform,
+    .fingerprint = 0xa9f3c9df3907936c,
+    .version = "0.1.0",
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "bindings/zig",
+        "src",
+        "queries",
+        "LICENSE-MIT",
+        "LICENSE-APACHE",
+        "README.md",
+    },
+}

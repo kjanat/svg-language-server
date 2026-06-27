@@ -1,7 +1,8 @@
-import { attributeSearchTokens, type NamedAttributeEntry } from '../view.ts';
-import { BaselineBadge } from './BaselineBadge.tsx';
-import { BrowserSupport } from './BrowserSupport.tsx';
-import { DocsLinks } from './DocsLinks.tsx';
+// @ts-nocheck Deno
+import { BaselineBadge } from '#component/BaselineBadge.tsx';
+import { BrowserSupport } from '#component/BrowserSupport.tsx';
+import { DocsLinks } from '#component/DocsLinks.tsx';
+import { attributeSearchTokens, type NamedAttributeEntry } from '#src/view.ts';
 
 interface Props {
 	rows: NamedAttributeEntry[];

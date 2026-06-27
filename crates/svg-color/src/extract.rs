@@ -72,7 +72,7 @@ pub fn colors(source: &[u8]) -> Vec<ColorInfo> {
 ///
 /// # Panics
 ///
-/// Panics if the compiled tree-sitter CSS grammar cannot be loaded.
+/// Panics if the compiled tree-sitter CSS or SVG paint grammar cannot be loaded.
 #[must_use]
 pub fn colors_from_tree(source: &[u8], tree: &Tree) -> Vec<ColorInfo> {
     let mut css_parser = Parser::new();
@@ -83,9 +83,23 @@ pub fn colors_from_tree(source: &[u8], tree: &Tree) -> Vec<ColorInfo> {
         panic!("CSS grammar ABI mismatch: rebuild tree-sitter-css");
     }
 
+    let mut paint_parser = Parser::new();
+    if paint_parser
+        .set_language(&tree_sitter_svg_paint::LANGUAGE.into())
+        .is_err()
+    {
+        panic!("SVG paint grammar ABI mismatch: rebuild tree-sitter-svg-paint");
+    }
+
     let mut colors = Vec::new();
     let mut cursor = tree.root_node().walk();
-    walk(&mut cursor, source, &mut css_parser, &mut colors);
+    walk(
+        &mut cursor,
+        source,
+        &mut css_parser,
+        &mut paint_parser,
+        &mut colors,
+    );
     colors
 }
 
@@ -93,18 +107,19 @@ fn walk(
     cursor: &mut TreeCursor<'_>,
     source: &[u8],
     css_parser: &mut Parser,
+    paint_parser: &mut Parser,
     out: &mut Vec<ColorInfo>,
 ) {
     loop {
         let node = cursor.node();
 
-        if let Some(info) = try_extract_svg(node, source) {
-            out.push(info);
-            // Color leaf nodes have no meaningful children to descend into.
+        if try_extract_paint_payload(node, source, paint_parser, out) {
+            // Paint attribute values are an opaque `paint_payload` token in the
+            // host grammar; reparse with the injected `svg_paint` grammar.
         } else if try_extract_style_colors(node, source, css_parser, out) {
             // Style text nodes are reparsed as CSS and handled separately.
         } else if cursor.goto_first_child() {
-            walk(cursor, source, css_parser, out);
+            walk(cursor, source, css_parser, paint_parser, out);
             cursor.goto_parent();
         }
 
@@ -114,7 +129,81 @@ fn walk(
     }
 }
 
-fn try_extract_svg(node: tree_sitter::Node<'_>, source: &[u8]) -> Option<ColorInfo> {
+/// Reparse an opaque host `paint_payload` token (the value of a paint
+/// attribute such as `fill`/`stroke`/`stop-color`) with the injected
+/// `svg_paint` grammar and extract any literal colors, translating byte
+/// offsets and points back to host-document coordinates.
+fn try_extract_paint_payload(
+    node: tree_sitter::Node<'_>,
+    source: &[u8],
+    paint_parser: &mut Parser,
+    out: &mut Vec<ColorInfo>,
+) -> bool {
+    if node.kind() != "paint_payload" {
+        return false;
+    }
+
+    let byte_range = node.byte_range();
+    let Some(paint_source) = source.get(byte_range.clone()) else {
+        return true;
+    };
+    let Some(tree) = paint_parser.parse(paint_source, None) else {
+        return true;
+    };
+    if tree.root_node().has_error() {
+        // The value does not cleanly parse as paint/color — e.g. `var()`
+        // custom-property refs, which the paint grammar does not model and
+        // recovers from by emitting stray `named_color` tokens. Surfacing
+        // those would paint misleading swatches, so leave it unresolved
+        // (matching the intentional opacity of attribute-level `var()`).
+        return true;
+    }
+
+    let mut cursor = tree.root_node().walk();
+    walk_paint(
+        &mut cursor,
+        paint_source,
+        byte_range.start,
+        node.start_position(),
+        out,
+    );
+    true
+}
+
+fn walk_paint(
+    cursor: &mut TreeCursor<'_>,
+    paint_source: &[u8],
+    base_byte: usize,
+    base_start: Point,
+    out: &mut Vec<ColorInfo>,
+) {
+    loop {
+        let node = cursor.node();
+
+        if let Some(info) = try_extract_paint_color(node, paint_source, base_byte, base_start) {
+            out.push(info);
+            // Color leaf nodes have no meaningful children to descend into.
+        } else if node.kind() != "functional_color" && cursor.goto_first_child() {
+            // Descend into containers (`paint_value`, `paint_server`, …) but
+            // NOT into a `functional_color`: an unresolved function such as a
+            // `var()` custom-property reference must not surface its nested
+            // argument colors (e.g. the fallback `red`) as standalone swatches.
+            walk_paint(cursor, paint_source, base_byte, base_start, out);
+            cursor.goto_parent();
+        }
+
+        if !cursor.goto_next_sibling() {
+            break;
+        }
+    }
+}
+
+fn try_extract_paint_color(
+    node: tree_sitter::Node<'_>,
+    source: &[u8],
+    base_byte: usize,
+    base_start: Point,
+) -> Option<ColorInfo> {
     let byte_range = node.byte_range();
     let text = std::str::from_utf8(&source[byte_range.clone()]).ok()?;
 
@@ -126,9 +215,9 @@ fn try_extract_svg(node: tree_sitter::Node<'_>, source: &[u8]) -> Option<ColorIn
         "functional_color" => {
             // Delegate to the CSS-aware resolver so `color-mix(...)` with
             // literal operands works in attribute values, matching how the
-            // grammar now structurally recognizes CSS Color 4/5 functions.
-            // Custom-property refs (`var(--x)`) intentionally fail here —
-            // they only resolve inside `<style>` with a full property map.
+            // `svg_paint` grammar structurally recognizes CSS Color 4/5
+            // functions. Custom-property refs (`var(--x)`) intentionally fail
+            // here — they only resolve inside `<style>` with a property map.
             let (r, g, b, a, _) = resolve::resolve_literal_color(text)?;
             (r, g, b, a, ColorKind::Functional)
         }
@@ -138,9 +227,9 @@ fn try_extract_svg(node: tree_sitter::Node<'_>, source: &[u8]) -> Option<ColorIn
 
     Some(build_color_info(
         (r, g, b, a),
-        byte_range,
-        node.start_position(),
-        node.end_position(),
+        offset_range(byte_range, base_byte),
+        offset_point(node.start_position(), base_start),
+        offset_point(node.end_position(), base_start),
         kind,
     ))
 }

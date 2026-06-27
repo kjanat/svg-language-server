@@ -1,11 +1,11 @@
 # Architecture
 
-This document describes the data flow and design decisions in the
-svg-language-server workspace.
+This document describes the data flow and design decisions in the `svg`
+workspace.
 
 ## Crate dependency graph
 
-```
+```text
 svg-tree            (tree-sitter traversal primitives)
    |
    +-- svg-references  (id, class, custom property extraction)
@@ -20,8 +20,8 @@ svg-tree            (tree-sitter traversal primitives)
           depends on all of the above
 ```
 
-`svg-tree` is the only crate with zero domain dependencies. Domain crates
-stay free of LSP transport types — they return plain Rust structs (`Vec<ColorInfo>`,
+`svg-tree` is the only crate with zero domain dependencies. Domain crates stay
+free of LSP transport types — they return plain Rust structs (`Vec<ColorInfo>`,
 `Vec<SvgDiagnostic>`, `String`). The LSP crate converts these to LSP protocol
 types (`Diagnostic`, `ColorInformation`, `TextEdit`).
 
@@ -29,7 +29,7 @@ types (`Diagnostic`, `ColorInformation`, `TextEdit`).
 
 ### Document open / change
 
-```
+```text
 did_open / did_change
   -> update_document(uri, source)
        -> parser.parse(source) -> Tree
@@ -41,7 +41,7 @@ did_open / did_change
 
 ### Hover
 
-```
+```text
 textDocument/hover
   -> document_state(uri) -> DocumentState
   -> deepest_node_at(tree, offset) -> Node
@@ -56,7 +56,7 @@ textDocument/hover
 
 ### Completion
 
-```
+```text
 textDocument/completion
   -> document_state(uri) -> DocumentState
   -> read runtime_compat (clone + drop lock)
@@ -69,7 +69,7 @@ textDocument/completion
 
 ### Definition
 
-```
+```text
 textDocument/definition
   -> document_state(uri) -> DocumentState
   -> svg_references::definition_target_at(source, tree, offset)
@@ -81,7 +81,7 @@ textDocument/definition
 
 ### Document color
 
-```
+```text
 textDocument/documentColor
   -> document_state(uri) -> DocumentState
   -> svg_color::extract_colors_from_tree(source, tree)
@@ -93,7 +93,7 @@ textDocument/documentColor
 
 ### Formatting
 
-```
+```text
 textDocument/formatting
   -> document_state(uri) -> DocumentState
   -> svg_format::format_with_options(source, options)
@@ -107,18 +107,15 @@ textDocument/formatting
 
 ### Compile-time catalog (`svg-data`)
 
-The build script (`build.rs` + `build/bcd.rs`, `build/codegen.rs`, `build/spec.rs`)
-fetches data from three sources:
+`svg-data-regen` fetches upstream SVG/CSS/compat sources on demand and writes
+committed split catalog artifacts under `crates/svg-data/data/`: the root
+manifest, core catalog, compat facts, graph, and snapshot overlays.
 
-1. **Curated JSON** — hand-maintained element/attribute definitions in the crate
-2. **BCD (Browser Compat Data)** — fetched from unpkg.com at build time, merged
-   into the catalog for deprecation/experimental/baseline/browser-support fields
-3. **W3C svgwg spec HTML** — scraped for element descriptions
-
-The build script generates `catalog.rs` (included via `include!()`) containing
-static arrays of `ElementDef` and `AttributeDef`.
-
-Set `SVG_DATA_OFFLINE=1` to skip network fetches and use cached data.
+The `svg-data` build script is hermetic: it reads those committed JSON files,
+validates relative refs under the data directory, and generates `catalog.rs`
+(included via `include!()`) containing static arrays and lookup tables. Browser
+compatibility and web-features facts come from the committed compat artifact,
+not from unpkg during Cargo builds.
 
 ### Runtime compat overlay (`RuntimeCompat`)
 
@@ -141,9 +138,9 @@ republished.
 ### Why tree-sitter?
 
 Tree-sitter provides incremental parsing, error recovery, and a grammar-driven
-AST. This means the LSP works on incomplete/malformed SVG (common during editing)
-without custom error recovery logic. Both the SVG grammar (`tree-sitter-svg`)
-and CSS grammar (`tree-sitter-css`) are used.
+AST. This means the LSP works on incomplete/malformed SVG (common during
+editing) without custom error recovery logic. Both the SVG grammar
+(`tree-sitter-svg`) and CSS grammar (`tree-sitter-css`) are used.
 
 ### Why separate crates?
 
@@ -164,6 +161,6 @@ without requiring a new release for every BCD update.
 
 Five `#[expect(clippy::cast_possible_truncation)]` annotations exist on
 `f64 as f32`, `f32 as u8`, and `f32 as u16` casts in `svg-color`. Rust's
-standard library has no `TryFrom<f32> for u8` or `From<f64> for f32`. The
-values are pre-clamped to safe ranges, making truncation impossible. Each
-annotation carries a `reason` string explaining why no alternative exists.
+standard library has no `TryFrom<f32> for u8` or `From<f64> for f32`. The values
+are pre-clamped to safe ranges, making truncation impossible. Each annotation
+carries a `reason` string explaining why no alternative exists.

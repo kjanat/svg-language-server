@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad1"/>
+    <!--                 ^^^^^ definition.id -->
+    <clipPath id="clip1">
+    <!--          ^^^^^ definition.id -->
+      <rect width="100" height="100"/>
+    </clipPath>
+  </defs>
+  <circle id="dot" r="5"/>
+  <!--        ^^^ definition.id -->
+</svg>

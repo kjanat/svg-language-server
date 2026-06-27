@@ -12,8 +12,10 @@ parse tree instead of regex scanning.
 
 A minimal, focused LSP server that provides:
 
-1. **`textDocument/documentColor`** — return color swatches for SVG paint attributes
-2. **`textDocument/colorPresentation`** — convert colors between hex/rgb/hsl formats (color picker)
+1. **`textDocument/documentColor`** — return color swatches for SVG paint
+   attributes
+2. **`textDocument/colorPresentation`** — convert colors between hex/rgb/hsl
+   formats (color picker)
 
 Nothing else. No completion, hover, diagnostics, or formatting.
 
@@ -73,11 +75,12 @@ The grammar ensures `color_value` only appears inside `paint_attribute` or
 
 ### Grammar Constraints
 
-**`named_color` is a catch-all**: The grammar rule `named_color: _ =>
-token(/[A-Za-z][A-Za-z-]*/)` matches any alphabetic string, not just CSS color
-names. `fill="banana"` produces a `(named_color)` node. The `svg-color` crate
-MUST validate against the 148 CSS named color table and silently skip
-non-matching values.
+**`named_color` is a catch-all**: The grammar rule
+`named_color: _ =>
+token(/[A-Za-z][A-Za-z-]*/)` matches any alphabetic string,
+not just CSS color names. `fill="banana"` produces a `(named_color)` node. The
+`svg-color` crate MUST validate against the 148 CSS named color table and
+silently skip non-matching values.
 
 **`functional_color` is opaque**: The grammar captures `rgb(255, 0, 0)` as a
 single flat token with no sub-structure. The `svg-color` crate must parse the
@@ -192,7 +195,8 @@ Extension Rust code implements `language_server_command()` — Phase 1 uses
 - Functional: `rgb()`, `rgba()`, `hsl()`, `hsla()` with various spacing
 - Named: subset of 148 CSS named colors (representative sample)
 - Invalid named colors skipped: `fill="banana"` → no ColorInfo
-- Keywords skipped: `none`, `currentColor`, `inherit`, `context-fill`, `context-stroke`
+- Keywords skipped: `none`, `currentColor`, `inherit`, `context-fill`,
+  `context-stroke`
 - Paint server fallbacks: `url(#id) red`, `url(#id) #ff0000`
 - No false positives: colors in comments, CDATA, script, attribute names
 - Empty/whitespace paint values
@@ -207,7 +211,8 @@ Extension Rust code implements `language_server_command()` — Phase 1 uses
 
 ## Non-Goals
 
-- CSS color extraction from `<style>` elements or `style=""` attributes (CSS LSP handles)
+- CSS color extraction from `<style>` elements or `style=""` attributes (CSS LSP
+  handles)
 - SVG validation / diagnostics
 - Attribute completion
 - Hover documentation

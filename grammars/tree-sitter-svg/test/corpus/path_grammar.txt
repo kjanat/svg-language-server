@@ -1,0 +1,656 @@
+=============================
+All path commands
+=============================
+
+<svg><path d="M0 0 L10 10 H20 V30 C1 2 3 4 5 6 S7 8 9 10 Q11 12 13 14 T15 16 A17 18 19 0 1 20 21 Z"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data
+              path: (path_data_payload))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Implicit separators and arcs
+=============================
+
+<svg><path d="M10-20L30.5-.25A10 20 30 01 40 50z"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data
+              path: (path_data_payload))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Outer whitespace around path data
+=============================
+
+<svg><path d=" M0 0 L1 1 Z "/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data
+              path: (path_data_payload))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Empty and whitespace-only path data
+=============================
+
+<svg><path d=""/><path d="   "/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data)))))
+    (element
+      (self_closing_tag
+        name: (name)
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data
+              path: (path_data_payload))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Single-quoted path data
+=============================
+
+<svg><path d='M0 0 C1 2 3 4 5 6 z'/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (single_quoted_path_data
+              path: (path_data_payload))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Multiple moveto segments
+=============================
+
+<svg><path d="M0 0 M10 10 L20 20"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data
+              path: (path_data_payload))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Sign and exponent numbers
+=============================
+
+<svg><path d="M1e2 -2e-1 L+3.5E2 .6e1"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data
+              path: (path_data_payload))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Long path implicit separators
+=============================
+
+<svg><path d="m19.6 66.5 19.7-11 .3-1-.3-.5h-1l-3.3-.2-11.2-.3"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data
+              path: (path_data_payload))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Arc repeated arguments (space-separated)
+=============================
+
+<svg><path d="M0 0a1 1 0 0 0 5 5 1 1 0 0 0 3 3"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data
+              path: (path_data_payload))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Arc repeated arguments (comma-separated)
+=============================
+
+<svg><path d="M0 0A1 1 0 0 0 5 5,1 1 0 0 0 3 3"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data
+              path: (path_data_payload))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Arc followed by closepath
+=============================
+
+<svg><path d="M0 0A1 1 0 0 1 5 5 Z"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data
+              path: (path_data_payload))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Arc with adjacent flags
+=============================
+
+<svg><path d="M0 0A25 25 0 0150 50"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data
+              path: (path_data_payload))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Arc with adjacent flags and negative coordinates
+=============================
+
+<svg><path d="M0 0A25 25 0 01-50-50"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data
+              path: (path_data_payload))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Arc repeated with negative implicit separator
+=============================
+
+<svg><path d="M0 0a25 25 0 01 50 0 25 25 0 01-50 0"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data
+              path: (path_data_payload))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Negative number implicit separators
+=============================
+
+<svg><path d="M-1-2L-3-4"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data
+              path: (path_data_payload))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Decimal-only implicit separators
+=============================
+
+<svg><path d="M.5.5L.1.2"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data
+              path: (path_data_payload))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Close reopen subpath
+=============================
+
+<svg><path d="M0 0L5 5ZM10 10L15 15Z"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data
+              path: (path_data_payload))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Vertical lineto with chained coordinates (whitespace separator)
+=============================
+
+<svg><path d="M0 0v1 2 3"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data
+              path: (path_data_payload))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Horizontal lineto with chained coordinates (whitespace separator)
+=============================
+
+<svg><path d="M0 0h1 2 3 4"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data
+              path: (path_data_payload))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Vertical lineto with implicit-separator decimals (firefox.svg shape)
+=============================
+
+<svg><path d="M0 0v.007-.009"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data
+              path: (path_data_payload))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Horizontal lineto with chained coords followed by explicit command
+=============================
+
+<svg><path d="M0 0h1 2L3 3"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data
+              path: (path_data_payload))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Cubic curveto with chained arguments (implicit cubic continuation)
+=============================
+
+<svg><path d="M0 0C1 2 3 4 5 6 7 8 9 10 11 12"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data
+              path: (path_data_payload))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Smooth cubic curveto with chained arguments
+=============================
+
+<svg><path d="M0 0S1 2 3 4 5 6 7 8"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data
+              path: (path_data_payload))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Quadratic curveto with chained arguments
+=============================
+
+<svg><path d="M0 0Q1 2 3 4 5 6 7 8"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data
+              path: (path_data_payload))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Smooth quadratic curveto with chained pairs
+=============================
+
+<svg><path d="M0 0T1 2 3 4"/></svg>
+
+---
+
+(source_file
+  (text)
+  root: (svg_root_element
+    (start_tag
+      name: (name))
+    (element
+      (self_closing_tag
+        name: (name)
+        (d_attribute
+          name: (d_attribute_name)
+          value: (d_attribute_value
+            (double_quoted_path_data
+              path: (path_data_payload))))))
+    (end_tag
+      name: (name)))
+  (text))
+
+=============================
+Arc followed by closepath with space
+=============================
+
+<svg><path d="M0 0A1 1 0 0 1 5 5 Z"/></svg>
+
+---
+
+(source_file
+  (text)
+  (svg_root_element
+    (start_tag
+      (name))
+    (element
+      (self_closing_tag
+        (name)
+        (d_attribute
+          (d_attribute_name)
+          (d_attribute_value
+            (double_quoted_path_data
+              (path_data_payload))))))
+    (end_tag
+      (name)))
+  (text))

@@ -13,7 +13,7 @@ use ureq::config::IpFamily;
 use crate::util::boxed;
 
 /// User agent GitHub requires on API requests.
-const USER_AGENT: &str = "svg-data-regen (+https://github.com/kjanat/svg-language-server)";
+const USER_AGENT: &str = "svg-data-regen (+https://github.com/kjanat/svg)";
 /// Maximum body size accepted from a single fetch. Generous: the largest spec
 /// pages are a few megabytes; this only guards against a runaway response.
 const BODY_LIMIT: u64 = 64 * 1024 * 1024;

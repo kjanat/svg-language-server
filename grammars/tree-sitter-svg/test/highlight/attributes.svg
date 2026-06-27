@@ -1,0 +1,46 @@
+<svg viewBox="0 0 100 100">
+<!-- ^^^^^^^ attribute -->
+<!--         ^ punctuation.delimiter -->
+<!--          ^^^^^^^^^^^ string -->
+<!--                     ^ punctuation.delimiter -->
+  <rect id="r1"/>
+  <!--  ^^ attribute -->
+  <!--      ^^ string -->
+  <rect width="10"/>
+  <!--  ^^^^^ attribute -->
+  <!--        ^ punctuation.delimiter -->
+  <!--         ^^ number -->
+  <!--           ^ punctuation.delimiter -->
+  <rect fill="#f00"/>
+  <!--  ^^^^ attribute -->
+  <!--        ^^^^ string -->
+  <rect class="box"/>
+  <!--  ^^^^^ attribute -->
+  <!--         ^^^ link_uri -->
+  <rect opacity="0.5"/>
+  <!--  ^^^^^^^ attribute -->
+  <!--           ^^^ number -->
+  <rect style="display:none"/>
+  <!--  ^^^^^ attribute -->
+  <!--         ^^^^^^^^^^^^ string -->
+  <rect onclick="alert(1)"/>
+  <!--  ^^^^^^^ attribute -->
+  <!--           ^^^^^^^^ string -->
+  <use href="#r1"/>
+  <!-- ^^^^ attribute -->
+  <!--       ^^^ link_uri -->
+  <rect clip-path="url(#c)"/>
+  <!--  ^^^^^^^^^ attribute -->
+  <!--                 ^^ link_uri -->
+  <image preserveAspectRatio="xMidYMid meet"/>
+  <!--   ^^^^^^^^^^^^^^^^^^^ attribute -->
+  <!--                        ^^^^^^^^ constant -->
+  <!--                                 ^^^^ constant -->
+  <polygon points="0,0 10,0 5,10"/>
+  <!--     ^^^^^^ attribute -->
+  <!--             ^ number -->
+  <rect transform="translate(10)"/>
+  <!--  ^^^^^^^^^ attribute -->
+  <!--             ^^^^^^^^^ string -->
+  <!--                       ^^ string -->
+</svg>

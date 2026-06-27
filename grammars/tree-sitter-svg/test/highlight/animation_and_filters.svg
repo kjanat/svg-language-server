@@ -1,0 +1,34 @@
+<svg>
+  <animate dur="2s"/>
+  <!--          ^ number -->
+  <!--           ^ type -->
+  <animate dur="500ms"/>
+  <!--          ^^^ number -->
+  <!--             ^^ type -->
+  <animate repeatCount="indefinite"/>
+  <!--                  ^^^^^^^^^^ constant.builtin -->
+  <animate repeatCount="3"/>
+  <!--                  ^ number -->
+  <animate keyTimes="0;0.5;1"/>
+  <!--               ^ number -->
+  <!--                 ^^^ number -->
+  <!--                     ^ number -->
+  <animate keySplines="0.42 0 1 1"/>
+  <!--                 ^^^^ number -->
+  <!--                      ^ number -->
+  <!--                        ^ number -->
+  <!--                          ^ number -->
+  <feGaussianBlur stdDeviation="3"/>
+  <!--                          ^ number -->
+  <feTurbulence baseFrequency="0.05"/>
+  <!--                         ^^^^ number -->
+  <feTurbulence numOctaves="4"/>
+  <!--                      ^ number -->
+  <feComposite k1="0.5"/>
+  <!--             ^^^ number -->
+  <rect enable-background="new 0 0 100 100"/>
+  <!--                     ^^^ keyword -->
+  <!--                         ^ number -->
+  <rect enable-background="accumulate"/>
+  <!--                     ^^^^^^^^^^ constant.builtin -->
+</svg>

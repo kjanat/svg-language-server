@@ -1,0 +1,3 @@
+from typing_extensions import CapsuleType
+
+def language() -> CapsuleType: ...

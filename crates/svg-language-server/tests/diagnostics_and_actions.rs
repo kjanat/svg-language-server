@@ -201,7 +201,8 @@ fn multiline_tag_suppression_inserts_before_opening_tag() -> TestResult {
     assert_eq!(
         edit_range["start"]["line"].as_u64(),
         Some(1),
-        "suppression comment should be inserted at the tag's start line (row 1), not the attr line (row 2): {line_action}"
+        "suppression comment should be inserted at the tag's start line (row 1), not the attr \
+         line (row 2): {line_action}"
     );
 
     server.shutdown_and_exit()?;

@@ -2,6 +2,8 @@
 
 mod support;
 
+use std::fs;
+
 use serde_json::json;
 use support::TestServer;
 
@@ -46,7 +48,8 @@ fn class_definition_and_hover() -> TestResult {
     assert_eq!(
         definition["range"]["start"]["character"].as_u64(),
         Some(expected_class_start),
-        "definition should point at the CSS class token, not the attribute wrapper: {definition_resp}"
+        "definition should point at the CSS class token, not the attribute wrapper: \
+         {definition_resp}"
     );
 
     let hover_resp = server.request(
@@ -74,6 +77,88 @@ fn class_definition_and_hover() -> TestResult {
     assert!(
         hover_text.contains("[class-test.svg:1](file:///class-test.svg#L1)"),
         "class hover should provide a clickable source link: {hover_resp}"
+    );
+
+    server.shutdown_and_exit()?;
+    Ok(())
+}
+
+#[test]
+fn class_definition_from_cdata_style() -> TestResult {
+    let mut server = TestServer::start()?;
+
+    let css_body = "{fill:red}";
+    let class_svg = format!(
+        r#"<svg><style><![CDATA[.cdata-class{css_body}]]></style><rect class="cdata-class"/></svg>"#
+    );
+    server.open("file:///class-cdata-test.svg", &class_svg)?;
+
+    let class_ref = u32::try_from(
+        class_svg
+            .rfind("cdata-class")
+            .ok_or("class reference present")?,
+    )? + 2;
+    let definition_resp = server.request(
+        "textDocument/definition",
+        &json!({
+            "textDocument": { "uri": "file:///class-cdata-test.svg" },
+            "position": { "line": 0, "character": class_ref }
+        }),
+    )?;
+    let definition = &definition_resp["result"];
+    let expected_class_start =
+        u64::try_from(class_svg.find(".cdata-class").ok_or("class selector")?)? + 1;
+    assert_eq!(
+        definition["uri"].as_str(),
+        Some("file:///class-cdata-test.svg"),
+        "CDATA class definition should stay in same SVG document: {definition_resp}"
+    );
+    assert_eq!(
+        definition["range"]["start"]["character"].as_u64(),
+        Some(expected_class_start),
+        "definition should point inside CDATA CSS class token: {definition_resp}"
+    );
+
+    server.shutdown_and_exit()?;
+    Ok(())
+}
+
+#[test]
+fn class_definition_from_linked_stylesheet() -> TestResult {
+    let mut server = TestServer::start()?;
+    let temp_dir = tempfile::tempdir()?;
+    let css_path = temp_dir.path().join("linked.css");
+    fs::write(&css_path, ".linked { fill: red; }")?;
+    let svg_path = temp_dir.path().join("linked.svg");
+    let svg_uri = url::Url::from_file_path(&svg_path)
+        .map_err(|()| "failed to build SVG file URI")?
+        .to_string();
+    let css_uri = url::Url::from_file_path(&css_path)
+        .map_err(|()| "failed to build CSS file URI")?
+        .to_string();
+
+    let class_svg =
+        r#"<svg><link rel="stylesheet" href="linked.css"/><rect class="linked"/></svg>"#;
+    server.open(&svg_uri, class_svg)?;
+
+    let class_ref = u32::try_from(class_svg.rfind("linked").ok_or("class reference present")?)? + 2;
+    let definition_resp = server.request(
+        "textDocument/definition",
+        &json!({
+            "textDocument": { "uri": svg_uri },
+            "position": { "line": 0, "character": class_ref }
+        }),
+    )?;
+    let definition = &definition_resp["result"];
+    assert_eq!(
+        definition["uri"].as_str(),
+        Some(css_uri.as_str()),
+        "linked stylesheet class definition should resolve into CSS file: {definition_resp}"
+    );
+    assert_eq!(
+        definition["range"]["start"]["character"].as_u64(),
+        Some(1),
+        "definition should point at linked CSS class token: {definition_resp}"
     );
 
     server.shutdown_and_exit()?;
@@ -479,11 +564,13 @@ fn hover_shows_profile_lifecycle_separately_from_browser_support() -> TestResult
     );
     assert!(
         !svg11_hover_value.to_lowercase().contains("deprecated"),
-        "SVG 1.1 verdict must not mention deprecation for the profile's canonical attribute: {svg11_hover_value}"
+        "SVG 1.1 verdict must not mention deprecation for the profile's canonical attribute: \
+         {svg11_hover_value}"
     );
     assert!(
         !svg11_hover_value.contains("removed after"),
-        "SVG 1.1 verdict must not report xlink:href as removed — it's still defined there: {svg11_hover_value}"
+        "SVG 1.1 verdict must not report xlink:href as removed — it's still defined there: \
+         {svg11_hover_value}"
     );
     assert!(
         svg11_hover_value.contains("Chrome"),

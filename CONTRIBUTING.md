@@ -18,7 +18,7 @@ just ci        # full preflight (lint + test + format check + dist check)
 
 ## Workspace structure
 
-```
+```text
 crates/
   svg-language-server/  LSP binary — thin orchestrator over domain crates
   svg-format/           structural SVG formatter (library + CLI)
@@ -59,11 +59,11 @@ Use `?` with `Option`/`Result` instead of `unwrap()`/`expect()`. Use
 
 ## Offline builds
 
-Set `SVG_DATA_OFFLINE=1` to skip network fetches in the `svg-data` build
-script. Cached BCD and spec data in `target/` will be used instead.
+Set `SVG_DATA_OFFLINE=1` to skip network fetches in the `svg-data` build script.
+Cached BCD and spec data in `target/` will be used instead.
 
 ## Commits
 
 Use [Conventional Commits](https://www.conventionalcommits.org/):
-`type(scope): subject`. Keep the subject under 50 characters. Prefer
-multiline bodies for non-trivial changes.
+`type(scope): subject`. Keep the subject under 50 characters. Prefer multiline
+bodies for non-trivial changes.

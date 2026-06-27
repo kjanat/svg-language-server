@@ -1,0 +1,127 @@
+[
+  {
+    "file": "svg_plain.svg",
+    "expected_svg": true,
+    "kind": "svg"
+  },
+  {
+    "file": "svg_namespaced.xml",
+    "expected_svg": true,
+    "kind": "svg"
+  },
+  {
+    "file": "svg_xml_decl.xml",
+    "expected_svg": true,
+    "kind": "svg"
+  },
+  {
+    "file": "svg_comment_first.xml",
+    "expected_svg": true,
+    "kind": "svg"
+  },
+  {
+    "file": "svg_doctype.xml",
+    "expected_svg": true,
+    "kind": "svg"
+  },
+  {
+    "file": "svg_ws_then_root.xml",
+    "expected_svg": true,
+    "kind": "svg"
+  },
+  {
+    "file": "svg_prefix_decl.xml",
+    "expected_svg": true,
+    "kind": "svg"
+  },
+  {
+    "file": "svg_comment_decl_then_root.xml",
+    "expected_svg": true,
+    "kind": "svg"
+  },
+  {
+    "file": "svg_comment_double_hyphen.xml",
+    "expected_svg": true,
+    "kind": "svg"
+  },
+  {
+    "file": "html_doctype.html",
+    "expected_svg": false,
+    "kind": "html"
+  },
+  {
+    "file": "html_inline_svg.html",
+    "expected_svg": false,
+    "kind": "html"
+  },
+  {
+    "file": "xhtml_inline_svg.xhtml",
+    "expected_svg": false,
+    "kind": "html"
+  },
+  {
+    "file": "xml_note_decl.xml",
+    "expected_svg": false,
+    "kind": "xml"
+  },
+  {
+    "file": "xml_note_comment.xml",
+    "expected_svg": false,
+    "kind": "xml"
+  },
+  {
+    "file": "xml_pi_book.xml",
+    "expected_svg": false,
+    "kind": "xml"
+  },
+  {
+    "file": "ttml_doc.ttml",
+    "expected_svg": false,
+    "kind": "ttml"
+  },
+  {
+    "file": "rss_doc.xml",
+    "expected_svg": false,
+    "kind": "xml"
+  },
+  {
+    "file": "doc.json",
+    "expected_svg": false,
+    "kind": "json"
+  },
+  {
+    "file": "doc.yaml",
+    "expected_svg": false,
+    "kind": "yaml"
+  },
+  {
+    "file": "text_with_svg_word.txt",
+    "expected_svg": false,
+    "kind": "txt"
+  },
+  {
+    "file": "xml_svgish.xml",
+    "expected_svg": false,
+    "kind": "xml"
+  },
+  {
+    "file": "xml_prefix_svgish.xml",
+    "expected_svg": false,
+    "kind": "xml"
+  },
+  {
+    "file": "mathml.xml",
+    "expected_svg": false,
+    "kind": "xml"
+  },
+  {
+    "file": "doctype_svg_but_not_root.xml",
+    "expected_svg": false,
+    "kind": "xml"
+  },
+  {
+    "file": "uppercase_svg_root.xml",
+    "expected_svg": false,
+    "kind": "xml"
+  }
+]

@@ -2,8 +2,8 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/),
-and this project adheres to [Semantic Versioning](https://semver.org/).
+The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
+project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
@@ -13,27 +13,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Runtime compat overlay: diagnostics and completions now use live BCD data
   fetched at LSP startup, not just the compile-time catalog
 - Re-lint open documents when runtime compat data arrives
-- Suppression comments (`svg-lint-disable`, `svg-lint-disable-next-line`)
-  with unused-suppression warnings
+- Suppression comments (`svg-lint-disable`, `svg-lint-disable-next-line`) with
+  unused-suppression warnings
 - Multiline tag suppression scope: a disable-next-line comment before a
   multiline opening tag suppresses diagnostics on all attribute lines
 - `color-mix()` support in `oklch`, `oklab`, and `srgb` interpolation spaces
 - CSS custom property (`var()`) resolution in embedded `<style>` blocks
 - `DeprecatedElement`, `DeprecatedAttribute`, `ExperimentalElement`,
   `ExperimentalAttribute` diagnostic codes
-- `MissingReferenceDefinition` diagnostic for `url(#id)` targets without
-  a matching definition
-- `textDocument/definition` for CSS class and custom property definitions
-  across inline and external stylesheets
+- `MissingReferenceDefinition` diagnostic for `url(#id)` targets without a
+  matching definition
+- `textDocument/definition` for CSS class and custom property definitions across
+  inline and external stylesheets
 - External stylesheet resolution with `OnceLock` caching
 - HTTP timeouts (30s compat, 10s stylesheets)
-- Error logging for all previously silent failure paths (network, IO,
-  parse, lock poison)
+- Error logging for all previously silent failure paths (network, IO, parse,
+  lock poison)
 - Editor setup docs for VS Code, Neovim, and Zed
 - Known limitations section in README
-- Profile-aware attribute value completions and hover: snapshot-specific
-  value lists (e.g. SVG 1.1 `display` keeps `run-in`/`compact`/`marker`)
-  now surface for the active profile, falling back to the union default
+- Profile-aware attribute value completions and hover: snapshot-specific value
+  lists (e.g. SVG 1.1 `display` keeps `run-in`/`compact`/`marker`) now surface
+  for the active profile, falling back to the union default
 
 ### Changed
 
@@ -41,55 +41,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Workspace-wide clippy lints: pedantic + nursery baseline, deny
   `unwrap`/`expect`, forbid `unsafe`
 - Eliminated all `unwrap()`/`expect()` from production and test code
-- Canonicalized xlink attribute names from underscore (`xlink_href`) to
-  colon (`xlink:href`) form throughout the catalog
-- Curated deprecation flags now preserved when BCD compat entry exists
-  (`||` merge instead of replace)
+- Canonicalized xlink attribute names from underscore (`xlink_href`) to colon
+  (`xlink:href`) form throughout the catalog
+- Curated deprecation flags now preserved when BCD compat entry exists (`||`
+  merge instead of replace)
 - `parse_hue`/`parse_hue_f64` reject non-finite values (`NaN`, `Infinity`)
 - `strip_suffix_ci` uses `str::get()` to avoid panic on UTF-8 boundaries
-- `round_degrees_to_u16` swaps `rem_euclid`/`round` order to prevent
-  359.6 from becoming 360
-- `SpecUrl::first()` uses `urls.first().map_or()` to avoid panic on
-  empty `Vec`
-- Grammar load failures are now surfaced or safely fall back instead of
-  silently returning empty results
-- `parse_attribute` in formatter uses sequential `if let` instead of
-  nested `map_or_else` closures
+- `round_degrees_to_u16` swaps `rem_euclid`/`round` order to prevent 359.6 from
+  becoming 360
+- `SpecUrl::first()` uses `urls.first().map_or()` to avoid panic on empty `Vec`
+- Grammar load failures are now surfaced or safely fall back instead of silently
+  returning empty results
+- `parse_attribute` in formatter uses sequential `if let` instead of nested
+  `map_or_else` closures
 - `tag_parse` canonical ordering uses `u16::try_from(i).ok()` instead of
   `i as u16` with lint suppression
 - Build fails fast on malformed snapshot data: `pinned_sources` is required,
-  element-attribute matrix edges must reference known elements/attributes, and
-  a missing `spec_removals.json` halts reconciliation (opt-out:
+  element-attribute matrix edges must reference known elements/attributes, and a
+  missing `spec_removals.json` halts reconciliation (opt-out:
   `SVG_DATA_ALLOW_MISSING_SPEC_REMOVALS`)
 - `verdict` `last_seen` is typed as `SpecSnapshotId` so codegen cannot emit a
   malformed snapshot identifier
 
 ### Fixed
 
-- `svg-format` now guarantees pure-LF output on all parse-error and
-  ignore-file fallback paths, making the returned newline style part of
-  the public contract. Previously `format_with_host` returned the source
-  string verbatim (CRs included) whenever tree-sitter reported a parse
-  error, language setup failed, or an `svg-format-ignore-file` directive
-  was present. Downstream callers that translated line endings with a
-  blanket `replace('\n', target)` — notably `dprint-plugin-svg` under
-  auto-detected CRLF — silently doubled each `\r\n` into `\r\r\n`, causing
-  dprint to bail with "Formatting not stable." A new `normalize_line_endings`
-  helper is invoked before each early return.
+- `svg-format` now guarantees pure-LF output on all parse-error and ignore-file
+  fallback paths, making the returned newline style part of the public contract.
+  Previously `format_with_host` returned the source string verbatim (CRs
+  included) whenever tree-sitter reported a parse error, language setup failed,
+  or an `svg-format-ignore-file` directive was present. Downstream callers that
+  translated line endings with a blanket `replace('\n', target)` — notably
+  `dprint-plugin-svg` under auto-detected CRLF — silently doubled each `\r\n`
+  into `\r\r\n`, causing dprint to bail with "Formatting not stable." A new
+  `normalize_line_endings` helper is invoked before each early return.
 - Hue wraparound: 359.6 degrees no longer produces `hsl(360, ...)`
-- `var()` fallback: `var(--prop, red)` now tries the fallback when the
-  property value is not a valid color
-- `var()` resolution is scoped per CSS rule block plus `:root` globals
-  (local declarations win, `:root` fills the gaps), so a `var(--x)` in one
-  rule no longer picks up an `--x` defined in an unrelated rule. `:root` is
-  detected from the parsed selector AST, so a literal `:root` inside
-  `[data-x=":root"]`, `:not(:root)`, or `html:root` is not mistaken for the
-  document root
-- Post-scaling infinity: `"1e38turn"` no longer produces `Infinity`
-  after unit conversion
+- `var()` fallback: `var(--prop, red)` now tries the fallback when the property
+  value is not a valid color
+- `var()` resolution is scoped per CSS rule block plus `:root` globals (local
+  declarations win, `:root` fills the gaps), so a `var(--x)` in one rule no
+  longer picks up an `--x` defined in an unrelated rule. `:root` is detected
+  from the parsed selector AST, so a literal `:root` inside `[data-x=":root"]`,
+  `:not(:root)`, or `html:root` is not mistaken for the document root
+- Post-scaling infinity: `"1e38turn"` no longer produces `Infinity` after unit
+  conversion
 - `color_kinds` cache evicted on `did_close` to prevent stale entries
 - `BrowserSupportValue` returns `None` when all browser fields are `None`,
   preventing overwrites during merge
 - SVG 1.1 value grammars: `pointer-events` no longer lists the invalid `auto`
-  keyword and `text-decoration` now includes `blink`, cross-checked against
-  the SVG 1.1 property index
+  keyword and `text-decoration` now includes `blink`, cross-checked against the
+  SVG 1.1 property index
